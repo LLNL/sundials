@@ -522,23 +522,7 @@ int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
-  if (ark_mem->do_adjoint)
-  {
-    SUNAdjointStepper adj_stepper = (SUNAdjointStepper)ark_mem->user_data;
-    if (adj_stepper->JacPFn && N_VGetNumSubvectors_ManyVector(ark_mem->yn) != 2)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_ARK_ADJOINT_BAD_VECTOR);
-      return ARK_ILL_INPUT;
-    }
-    if (adj_stepper->JPvpFn && N_VGetNumSubvectors_ManyVector(ark_mem->yn) != 2)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_ARK_ADJOINT_BAD_VECTOR);
-      return ARK_ILL_INPUT;
-    }
-    ark_mem->step = erkStep_TakeStep_Adjoint;
-  }
+  if (ark_mem->do_adjoint) { ark_mem->step = erkStep_TakeStep_Adjoint; }
   else { ark_mem->step = erkStep_TakeStep; }
 
   /* Signal to shared arkode module that full RHS evaluations are required */
@@ -1621,10 +1605,18 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   SUNAdjointStepper adj_stepper           = (SUNAdjointStepper)content;
   SUNAdjointCheckpointScheme check_scheme = adj_stepper->checkpoint_scheme;
   ARKodeMem ark_mem = (ARKodeMem)adj_stepper->adj_sunstepper->content;
-  void* user_data   = adj_stepper->user_data;
 
-  N_Vector Lambda_part     = N_VGetSubvector_ManyVector(sens_partial_stage, 0);
-  N_Vector Lambda          = N_VGetSubvector_ManyVector(sens_complete_stage, 0);
+  /* access ARKodeARKStepMem structure */
+  if (ark_mem->step_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ERKSTEP_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+
+  ARKodeERKStepMem step_mem = (ARKodeERKStepMem)ark_mem->step_mem;
+  void* user_data           = adj_stepper->user_data;
+
   N_Vector checkpoint      = N_VGetSubvector_ManyVector(ark_mem->tempv3, 0);
   sunrealtype checkpoint_t = SUN_RCONST(0.0);
 
@@ -1633,50 +1625,13 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
                                                   ark_mem->adj_stage_idx, 0,
                                                   &checkpoint, &checkpoint_t);
 
-  // Checkpoint was not found, recompute the missing step
+  /* Checkpoint was not found, recompute the missing step */
   if (errcode == SUN_ERR_CHECKPOINT_NOT_FOUND) { return +1; }
 
-  if (adj_stepper->JacFn)
-  {
-    int ierr = adj_stepper->JacFn(t, checkpoint, NULL, adj_stepper->Jac,
-                                  user_data, ark_mem->tempv3, ark_mem->tempv4,
-                                  ark_mem->tempv5);
-    adj_stepper->njeval++;
-    if (ierr) { return ierr; }
-    if (SUNMatHermitianTransposeVec(adj_stepper->Jac, Lambda_part, Lambda))
-    {
-      return -1;
-    };
-  }
-  else if (adj_stepper->JvpFn)
-  {
-    int ierr = adj_stepper->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL,
-                                  user_data, ark_mem->tempv3);
-    adj_stepper->njtimesv++;
-    if (ierr) { return ierr; }
-  }
-
-  if (adj_stepper->JacPFn)
-  {
-    N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
-    int ierr    = adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP,
-                                      user_data, ark_mem->tempv3, ark_mem->tempv4,
-                                      ark_mem->tempv5);
-    adj_stepper->njpeval++;
-    if (ierr) { return ierr; }
-    if (SUNMatHermitianTransposeVec(adj_stepper->JacP, Lambda_part, nu))
-    {
-      return -1;
-    }
-  }
-  else if (adj_stepper->JPvpFn)
-  {
-    N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
-    int ierr    = adj_stepper->JPvpFn(Lambda_part, nu, t, checkpoint, NULL,
-                                      user_data, ark_mem->tempv3);
-    adj_stepper->njptimesv++;
-    if (ierr) { return ierr; }
-  }
+  /* Evaluate f_{y}^*(t_i, z_i, p) \Lambda_i and f_{p}^*(t_i, z_i, p) \nu_i */
+  int ierr = step_mem->adj_f(t, checkpoint, sens_partial_stage,
+                             sens_complete_stage, user_data);
+  if (ierr) { return ierr; }
 
   return 0;
 }
@@ -1739,7 +1694,8 @@ static SUNErrCode erkStep_SUNStepperReInit(SUNStepper stepper, sunrealtype t0,
   return SUN_SUCCESS;
 }
 
-int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
+int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_f,
+                                sunrealtype tf, N_Vector sf,
                                 SUNAdjointStepper* adj_stepper_ptr)
 {
   ARKodeMem ark_mem;
@@ -1759,6 +1715,13 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                     __FILE__, "ark_mem provided is not compatible with adjoint calculation");
+    return ARK_ILL_INPUT;
+  }
+
+  if (!adj_f)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "adj_fe cannot be NULL.");
     return ARK_ILL_INPUT;
   }
 
@@ -1788,8 +1751,10 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
                     "ERKStepCreate returned NULL\n");
     return ARK_MEM_NULL;
   }
-  ARKodeMem ark_mem_adj = (ARKodeMem)arkode_mem_adj;
+  ARKodeMem ark_mem_adj         = (ARKodeMem)arkode_mem_adj;
+  ARKodeERKStepMem step_mem_adj = (ARKodeERKStepMem)ark_mem_adj->step_mem;
 
+  step_mem_adj->adj_f     = adj_f;
   ark_mem_adj->do_adjoint = SUNTRUE;
 
   retval = ARKodeSetFixedStep(arkode_mem_adj, -ark_mem->h);

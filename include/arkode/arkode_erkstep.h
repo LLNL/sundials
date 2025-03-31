@@ -71,7 +71,8 @@ SUNDIALS_EXPORT int ERKStepGetTimestepperStats(
 
 /* Adjoint solver functions */
 SUNDIALS_EXPORT
-int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
+int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_f,
+                                sunrealtype tf, N_Vector sf,
                                 SUNAdjointStepper* adj_stepper_ptr);
 
 /* --------------------------------------------------------------------------

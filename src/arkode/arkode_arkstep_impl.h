@@ -77,6 +77,9 @@ typedef struct ARKodeARKStepMemRec
   sunbooleantype deduce_rhs;     /* SUNTRUE if fi is deduced after
                                    a nonlinear solve               */
 
+  /* Adjoint problem specification */
+  SUNAdjRhsFn adj_fe;
+
   /* ARK method storage and parameters */
   N_Vector* Fe;          /* explicit RHS at each stage */
   N_Vector* Fi;          /* implicit RHS at each stage */

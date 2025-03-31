@@ -53,6 +53,8 @@
 
 #include <arkode/arkode.h>
 #include <arkode/arkode_arkstep.h>
+#include "sundials/sundials_memory.h"
+#include "sundials/sundials_nvector.h"
 
 typedef struct
 {
@@ -76,6 +78,8 @@ static int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
 static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
                          N_Vector uvec, N_Vector udotvec, void* user_data,
                          N_Vector tmp);
+static int adj_rhs(sunrealtype t, N_Vector y, N_Vector sens, N_Vector sens_dot,
+                   void* user_data);
 static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p);
 static void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p);
 
@@ -192,15 +196,9 @@ int main(int argc, char* argv[])
   N_VPrint(sf);
 
   SUNAdjointStepper adj_stepper;
-  retval = ARKStepCreateAdjointStepper(arkode_mem, tf, sf, &adj_stepper);
+  retval = ARKStepCreateAdjointStepper(arkode_mem, adj_rhs, NULL, tf, sf,
+                                       &adj_stepper);
   if (check_retval(&retval, "ARKStepCreateAdjointStepper", 1)) { return 1; }
-
-  retval = SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, vjp,
-                                                           parameter_vjp);
-  if (check_retval(&retval, "SUNAdjointStepper_SetJacHermitianTransposeVecFn", 1))
-  {
-    return 1;
-  }
 
   //
   // Now compute the adjoint solution
@@ -222,11 +220,15 @@ int main(int argc, char* argv[])
   // Cleanup
   //
 
-  N_VDestroy(u);
+  N_VDestroy(sensu0);
+  N_VDestroy(sensp);
   N_VDestroy(sf);
+  N_VDestroy(u);
+  N_VDestroy(u0);
   SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);
   SUNAdjointStepper_Destroy(&adj_stepper);
   ARKodeFree(&arkode_mem);
+  SUNMemoryHelper_Destroy(mem_helper);
   SUNContext_Free(&sunctx);
 
   return 0;
@@ -272,6 +274,17 @@ int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
   Jv[2] = -u[1] * v[1];
   Jv[3] = u[0] * u[1] * v[1];
 
+  return 0;
+}
+
+static int adj_rhs(sunrealtype t, N_Vector y, N_Vector sens, N_Vector sens_dot,
+                   void* user_data)
+{
+  N_Vector Lambda_part = N_VGetSubvector_ManyVector(sens, 0);
+  N_Vector Lambda      = N_VGetSubvector_ManyVector(sens_dot, 0);
+  N_Vector nu          = N_VGetSubvector_ManyVector(sens_dot, 1);
+  vjp(Lambda_part, Lambda, t, y, NULL, user_data, NULL);
+  parameter_vjp(Lambda_part, nu, t, y, NULL, user_data, NULL);
   return 0;
 }
 

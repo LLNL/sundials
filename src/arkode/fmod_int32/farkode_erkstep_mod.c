@@ -347,19 +347,21 @@ SWIGEXPORT int _wrap_FERKStepGetTimestepperStats(void *farg1, long *farg2, long 
 }
 
 
-SWIGEXPORT int _wrap_FERKStepCreateAdjointStepper(void *farg1, double const *farg2, N_Vector farg3, void *farg4) {
+SWIGEXPORT int _wrap_FERKStepCreateAdjointStepper(void *farg1, SUNAdjRhsFn farg2, double const *farg3, N_Vector farg4, void *farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  sunrealtype arg2 ;
-  N_Vector arg3 = (N_Vector) 0 ;
-  SUNAdjointStepper *arg4 = (SUNAdjointStepper *) 0 ;
+  SUNAdjRhsFn arg2 = (SUNAdjRhsFn) 0 ;
+  sunrealtype arg3 ;
+  N_Vector arg4 = (N_Vector) 0 ;
+  SUNAdjointStepper *arg5 = (SUNAdjointStepper *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (sunrealtype)(*farg2);
-  arg3 = (N_Vector)(farg3);
-  arg4 = (SUNAdjointStepper *)(farg4);
-  result = (int)ERKStepCreateAdjointStepper(arg1,arg2,arg3,arg4);
+  arg2 = (SUNAdjRhsFn)(farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (N_Vector)(farg4);
+  arg5 = (SUNAdjointStepper *)(farg5);
+  result = (int)ERKStepCreateAdjointStepper(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
 }

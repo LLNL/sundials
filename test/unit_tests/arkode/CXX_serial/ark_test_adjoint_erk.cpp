@@ -54,7 +54,18 @@
 
 using namespace problems::lotka_volterra;
 
-typedef struct
+static sunrealtype params[4] = {SUN_RCONST(1.5), SUN_RCONST(1.0),
+                                SUN_RCONST(3.0), SUN_RCONST(1.0)};
+
+struct UserData
+{
+  SUNMatrix jac, jacP;
+  int option;
+  sunrealtype* params;
+};
+
+struct ProgramArgs
+
 {
   sunrealtype tf;
   sunrealtype dt;
@@ -62,10 +73,7 @@ typedef struct
   int check_freq;
   sunbooleantype save_stages;
   sunbooleantype keep_checks;
-} ProgramArgs;
-
-static sunrealtype params[4] = {SUN_RCONST(1.5), SUN_RCONST(1.0),
-                                SUN_RCONST(3.0), SUN_RCONST(1.0)};
+};
 
 static int neg_rhs(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
 {
@@ -91,6 +99,36 @@ static int neg_parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
   int err = parameter_vjp(vvec, Jvvec, t, uvec, udotvec, user_data, tmp);
   if (err) { return err; }
   else { N_VScale(SUN_RCONST(-1.0), Jvvec, Jvvec); }
+  return 0;
+}
+
+static int adj_rhs(sunrealtype t, N_Vector y, N_Vector sens, N_Vector sens_dot,
+                   void* user_data)
+{
+  UserData* udata = (UserData*)user_data;
+
+  N_Vector Lambda_part = N_VGetSubvector_ManyVector(sens, 0);
+  N_Vector Lambda      = N_VGetSubvector_ManyVector(sens_dot, 0);
+  N_Vector nu          = N_VGetSubvector_ManyVector(sens_dot, 1);
+
+  if (udata->option == 0)
+  {
+    ode_jac(t, y, NULL, udata->jac, udata->params, NULL, NULL, NULL);
+    SUNMatHermitianTransposeVec(udata->jacP, Lambda_part, nu);
+    parameter_jacobian(t, y, NULL, udata->jacP, udata->params, NULL, NULL, NULL);
+    SUNMatHermitianTransposeVec(udata->jac, Lambda_part, Lambda);
+  }
+  else if (udata->option == 1)
+  {
+    ode_vjp(Lambda_part, Lambda, t, y, NULL, udata->params, NULL);
+    parameter_vjp(Lambda_part, nu, t, y, NULL, udata->params, NULL);
+  }
+  else if (udata->option == 2)
+  {
+    neg_vjp(Lambda_part, Lambda, t, y, NULL, udata->params, NULL);
+    neg_parameter_vjp(Lambda_part, nu, t, y, NULL, udata->params, NULL);
+  }
+
   return 0;
 }
 
@@ -274,6 +312,10 @@ int main(int argc, char* argv[])
   args.check_freq  = 2;
   parse_args(argc, argv, &args);
 
+  // Create UserData and set the params
+  UserData udata;
+  udata.params = params;
+
   //
   // Create the initial conditions vector
   //
@@ -351,17 +393,16 @@ int main(int argc, char* argv[])
   N_VPrint(sf);
 
   SUNAdjointStepper adj_stepper;
-  ERKStepCreateAdjointStepper(arkode_mem, tf, sf, &adj_stepper);
+  ERKStepCreateAdjointStepper(arkode_mem, adj_rhs, tf, sf, &adj_stepper);
 
   //
   // Now compute the adjoint solution
   //
 
-  SUNMatrix jac  = SUNDenseMatrix(neq, neq, sunctx);
-  SUNMatrix jacp = SUNDenseMatrix(neq, num_params, sunctx);
-
-  SUNAdjointStepper_SetJacFn(adj_stepper, ode_jac, jac, parameter_jacobian, jacp);
-
+  udata.option = 0;
+  udata.jac    = SUNDenseMatrix(neq, neq, sunctx);
+  udata.jacP   = SUNDenseMatrix(neq, num_params, sunctx);
+  SUNAdjointStepper_SetUserData(adj_stepper, &udata);
   adjoint_solution(sunctx, adj_stepper, tf, t0, sf);
   if (check_sensitivities(sf))
   {
@@ -376,6 +417,7 @@ int main(int argc, char* argv[])
   //
 
   printf("\n-- Redo adjoint problem using VJP --\n\n");
+  udata.option = 1;
   if (!keep_check)
   {
     N_VConst(SUN_RCONST(1.0), u);
@@ -393,9 +435,6 @@ int main(int argc, char* argv[])
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
-  SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
-  SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, ode_vjp,
-                                                  parameter_vjp);
   adjoint_solution(sunctx, adj_stepper, tf, t0, sf);
   if (check_sensitivities(sf))
   {
@@ -448,10 +487,9 @@ int main(int argc, char* argv[])
   printf("Adjoint terminal condition:\n");
   N_VPrint(sf);
 
-  ERKStepCreateAdjointStepper(arkode_mem, tauf, sf, &adj_stepper);
-  SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, neg_vjp,
-                                                  neg_parameter_vjp);
-
+  ERKStepCreateAdjointStepper(arkode_mem, adj_rhs, tauf, sf, &adj_stepper);
+  udata.option = 2;
+  SUNAdjointStepper_SetUserData(adj_stepper, &udata);
   adjoint_solution(sunctx, adj_stepper, tauf, tau0, sf);
   if (check_sensitivities(sf))
   {
@@ -466,8 +504,8 @@ int main(int argc, char* argv[])
   //
 
   // adjoint related
-  SUNMatDestroy(jac);
-  SUNMatDestroy(jacp);
+  SUNMatDestroy(udata.jac);
+  SUNMatDestroy(udata.jacP);
   N_VDestroy(sensu0);
   N_VDestroy(sensp);
   N_VDestroy(sf);

@@ -78,21 +78,6 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 
    Call :c:func:`ERKStepCreateAdjointStepper` or :c:func:`ARKStepCreateAdjointStepper`.
 
-#. Set either the Jacobian-vector product, vector-Jacobian product, or Jacobian evaluation functions
-
-   Users must supply one of:
-   
-   * :math:`(\partial f/\partial y)^*v`,
-   * :math:`(\partial f/\partial y)`,
-
-   and, if sensitivities with respect to the parameters is desired, one of
-
-   * :math:`(\partial f/\partial p)^*v`,
-   * :math:`(\partial f/\partial p)`.
-
-   These user-supplied routines can be set with :c:func:`SUNAdjointStepper_SetJacHermitianTransposeVecFn`, or
-   :c:func:`SUNAdjointStepper_SetJacFn`.
-
 #. Set optional ASA input
 
    Refer to :numref:`SUNAdjoint.Stepper` for options.
@@ -129,12 +114,13 @@ User Callable Functions
 This section describes user-callable functions for performing
 adjoint sensitivity analysis with methods with ERKStep and ARKStep.
 
-.. c:function:: int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
+.. c:function:: int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhs f, sunrealtype tf, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
 
    Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ERKStep instance for
    integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
 
    :param arkode_mem: a pointer to the ERKStep memory block.
+   :param f: the adjoint right hand side function which implements :math:`\Lambda = f_y^*(t, y, p) \lambda` and :math:`\nu = f_p^*(t, y, p) \lambda`.
    :param tf: the terminal time for the adjoint sensitivity system.
    :param sf: the sensitivity vector holding the adjoint system terminal condition. This must be an
       instance of the ManyVector ``N_Vector`` implementation with at The first subvector must be
@@ -156,12 +142,14 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
       features are not yet compatible as they require adaptive time steps.
       
 
-.. c:function:: int ARKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
+.. c:function:: int ARKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhs fe, SUNAdjRhs fi, sunrealtype tf, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
 
    Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ARKStep instance for
    integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
 
    :param arkode_mem: a pointer to the ARKStep memory block.
+   :param fe: the adjoint right hand side function which implements :math:`\Lambda = f_y^{E,*}(t, y, p) \lambda` and :math:`\nu = f_p^*(t, y, p) \lambda`.
+   :param fi: not yet support, the user should pass ``NULL``.
    :param tf: the terminal time for the adjoint sensitivity system.
    :param sf: the sensitivity vector holding the adjoint system terminal condition. This must be an
       instance of the ManyVector ``N_Vector`` implementation with at The first subvector must be

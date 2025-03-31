@@ -21,6 +21,7 @@
 #include <arkode/arkode_erkstep.h>
 
 #include "arkode_impl.h"
+#include "sundials/sundials_adjointstepper.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -46,6 +47,9 @@ typedef struct ARKodeERKStepMemRec
 {
   /* ERK problem specification */
   ARKRhsFn f; /* y' = f(t,y)                */
+
+  /* Adjoint problem specification */
+  SUNAdjRhsFn adj_f;
 
   /* ARK method storage and parameters */
   N_Vector* F;          /* explicit RHS at each stage */

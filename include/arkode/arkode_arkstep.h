@@ -408,7 +408,8 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 
 /* Adjoint solver functions */
 SUNDIALS_EXPORT
-int ARKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
+int ARKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_fe,
+                                SUNAdjRhsFn adj_fi, sunrealtype tf, N_Vector sf,
                                 SUNAdjointStepper* adj_stepper_ptr);
 
 /* Relaxation functions */

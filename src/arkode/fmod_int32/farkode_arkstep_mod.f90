@@ -1626,14 +1626,16 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
-function swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3, farg4) &
+function swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3, farg4, farg5, farg6) &
 bind(C, name="_wrap_FARKStepCreateAdjointStepper") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-type(C_PTR), value :: farg3
-type(C_PTR), value :: farg4
+type(C_FUNPTR), value :: farg2
+type(C_FUNPTR), value :: farg3
+real(C_DOUBLE), intent(in) :: farg4
+type(C_PTR), value :: farg5
+type(C_PTR), value :: farg6
 integer(C_INT) :: fresult
 end function
 
@@ -4368,25 +4370,31 @@ farg2 = outfile
 call swigc_FARKStepPrintMem(farg1, farg2)
 end subroutine
 
-function FARKStepCreateAdjointStepper(arkode_mem, tf, sf, adj_stepper_ptr) &
+function FARKStepCreateAdjointStepper(arkode_mem, adj_fe, adj_fi, tf, sf, adj_stepper_ptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: adj_fe
+type(C_FUNPTR), intent(in), value :: adj_fi
 real(C_DOUBLE), intent(in) :: tf
 type(N_Vector), target, intent(inout) :: sf
 type(C_PTR), target, intent(inout) :: adj_stepper_ptr
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-type(C_PTR) :: farg3 
-type(C_PTR) :: farg4 
+type(C_FUNPTR) :: farg2 
+type(C_FUNPTR) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = arkode_mem
-farg2 = tf
-farg3 = c_loc(sf)
-farg4 = c_loc(adj_stepper_ptr)
-fresult = swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3, farg4)
+farg2 = adj_fe
+farg3 = adj_fi
+farg4 = tf
+farg5 = c_loc(sf)
+farg6 = c_loc(adj_stepper_ptr)
+fresult = swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
