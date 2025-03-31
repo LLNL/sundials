@@ -1454,6 +1454,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
 .. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
 
    Specifies the step index (that is step number) to insert the next checkpoint at.
+
    This is incremented along with the step count, but it is useful to be able to reset
    this index during recomputations of missing states during the backward adjoint integration.
 
