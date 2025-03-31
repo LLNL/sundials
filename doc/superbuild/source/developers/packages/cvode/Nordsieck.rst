@@ -115,11 +115,11 @@ After completing a step from time :math:`t_{n-1}` to :math:`t_n` using a method
 of order :math:`q` and before starting the next step from :math:`t_{n}` to
 :math:`t_{n+1}` with a method of order :math:`q'`, the size of the state vector
 may change. To "resize" the integrator without restarting from first order, we
-require that the user supply, depending on the method type, either the recent solution or
-right-hand side history for the new state size.
+require that the user supply, depending on the method type, either the recent
+solution or right-hand side history for the new state size.
 
 Continuing the integration with the updated state size requires constructing a
-new Nordsieck array, :math:`Z_n`, at given the history necessary to evaluate the
+new Nordsieck array, :math:`Z_n`, given the necessary history to evaluate the
 appropriate predictor interpolating polynomial and its derivatives at
 :math:`t_n`. To compute :math:`\pi_{p,n}(t_n)` and :math:`\pi^{(j)}_{p,n}(t_n)`,
 we use a Newton interpolating polynomial. Given a set of :math:`k+1` data points
@@ -262,7 +262,7 @@ y_n]` with the corresponding derivative value, :math:`f_n`. For example with
 
    \begin{matrix}
    t_n     & y_n     & : & [y_n]     &      &                   &      &                           &      & \\
-           &         & : &           & \rhd & f_n               &      &                           &      & \\
+           &         & : &           & \rhd & [y_n,y_n] = f_n   &      &                           &      & \\
    t_{n}   & y_n     & : & [y_n]     &      &                   & \rhd & [y_n,y_n,y_{n-1}]         &      & \\
            &         & : &           & \rhd & [y_n,y_{n-1}]     &      &                           & \rhd & [y_n,y_n,y_{n-1},y_{n-2}] \\
    t_{n-1} & y_{n-1} & : & [y_{n-1}] &      &                   & \rhd & [y_n,y_{n-1},y_{n-2}]     &      & \\
