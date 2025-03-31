@@ -12,8 +12,8 @@
 
 .. _SUNAdjoint.CheckpointScheme:
 
-The SUNAdjointCheckpointScheme API
-==================================
+The SUNAdjointCheckpointScheme Class
+====================================
 
 .. versionadded:: x.y.z
 
