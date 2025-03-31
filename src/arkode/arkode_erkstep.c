@@ -1706,13 +1706,6 @@ int erkStepCompatibleWithAdjointSolver(
     return ARK_ILL_INPUT;
   }
 
-  if (ark_mem->root_mem)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname, filename,
-                    "SUNAdjointStepper is not compatible with rootfinding");
-    return ARK_ILL_INPUT;
-  }
-
   return ARK_SUCCESS;
 }
 
