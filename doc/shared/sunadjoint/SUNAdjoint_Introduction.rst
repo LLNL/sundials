@@ -42,10 +42,9 @@ This most often arises in the form of an optimization problem such as
 
 
 .. warning::
-   The CVODES and IDAS documentation use :math:`\lambda` to represent the adjoint variables needed
+   The CVODES documentation uses :math:`\lambda` to represent the adjoint variables needed
    to obtain the gradient :math:`dG/dp` where :math:`G` is an integral of :math:`g`.
-   Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES and
-   IDAS docs.
+   Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES docs.
 
 The adjoint method is one approach to obtaining the gradients that is particularly efficient when
 there are relatively few functionals and a large number of parameters. While :ref:`CVODES
