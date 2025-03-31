@@ -2281,7 +2281,7 @@ bind(C, name="_wrap_FSUNStepper_ResetCheckpointIndex") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
+integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2743,8 +2743,8 @@ integer(C_INT), intent(in) :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT), intent(in) :: farg4
 integer(C_LONG), intent(in) :: farg5
-type(C_PTR), value :: farg6
-real(C_DOUBLE), intent(in) :: farg7
+real(C_DOUBLE), intent(in) :: farg6
+type(C_PTR), value :: farg7
 type(C_PTR), value :: farg8
 type(C_PTR), value :: farg9
 type(C_PTR), value :: farg10
@@ -5878,10 +5878,10 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
-integer(C_INT64_T), intent(in) :: ckptidxr
+integer(C_LONG), intent(in) :: ckptidxr
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
+integer(C_LONG) :: farg2 
 
 farg1 = stepper
 farg2 = ckptidxr
@@ -6720,7 +6720,7 @@ fresult = swigc_FSUNAdjointCheckpointScheme_EnableDense(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_Create(fwd_sunstepper, own_fwd, adj_sunstepper, own_adj, final_step_idx, sf, tf, &
+function FSUNAdjointStepper_Create(fwd_sunstepper, own_fwd, adj_sunstepper, own_adj, final_step_idx, tf, sf, &
   checkpoint_scheme, sunctx, adj_stepper) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -6730,8 +6730,8 @@ integer(C_INT), intent(in) :: own_fwd
 type(C_PTR) :: adj_sunstepper
 integer(C_INT), intent(in) :: own_adj
 integer(C_LONG), intent(in) :: final_step_idx
-type(N_Vector), target, intent(inout) :: sf
 real(C_DOUBLE), intent(in) :: tf
+type(N_Vector), target, intent(inout) :: sf
 type(C_PTR) :: checkpoint_scheme
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: adj_stepper
@@ -6741,8 +6741,8 @@ integer(C_INT) :: farg2
 type(C_PTR) :: farg3 
 integer(C_INT) :: farg4 
 integer(C_LONG) :: farg5 
-type(C_PTR) :: farg6 
-real(C_DOUBLE) :: farg7 
+real(C_DOUBLE) :: farg6 
+type(C_PTR) :: farg7 
 type(C_PTR) :: farg8 
 type(C_PTR) :: farg9 
 type(C_PTR) :: farg10 
@@ -6752,8 +6752,8 @@ farg2 = own_fwd
 farg3 = adj_sunstepper
 farg4 = own_adj
 farg5 = final_step_idx
-farg6 = c_loc(sf)
-farg7 = tf
+farg6 = tf
+farg7 = c_loc(sf)
 farg8 = checkpoint_scheme
 farg9 = sunctx
 farg10 = c_loc(adj_stepper)

@@ -23,10 +23,9 @@
 
 SUNErrCode SUNAdjointStepper_Create(
   SUNStepper fwd_sunstepper, sunbooleantype own_fwd, SUNStepper adj_sunstepper,
-  sunbooleantype own_adj, suncountertype final_step_idx,
-  SUNDIALS_MAYBE_UNUSED N_Vector sf, sunrealtype tf,
-  SUNAdjointCheckpointScheme checkpoint_scheme, SUNContext sunctx,
-  SUNAdjointStepper* adj_stepper_ptr)
+  sunbooleantype own_adj, suncountertype final_step_idx, sunrealtype tf,
+  SUNDIALS_MAYBE_UNUSED N_Vector sf, SUNAdjointCheckpointScheme checkpoint_scheme,
+  SUNContext sunctx, SUNAdjointStepper* adj_stepper_ptr)
 {
   SUNFunctionBegin(sunctx);
 

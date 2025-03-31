@@ -30,9 +30,9 @@ typedef struct SUNAdjointStepper_* SUNAdjointStepper;
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_Create(
   SUNStepper fwd_sunstepper, sunbooleantype own_fwd, SUNStepper adj_sunstepper,
-  sunbooleantype own_adj, suncountertype final_step_idx, N_Vector sf,
-  sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme,
-  SUNContext sunctx, SUNAdjointStepper* adj_stepper);
+  sunbooleantype own_adj, suncountertype final_step_idx, sunrealtype tf,
+  N_Vector sf, SUNAdjointCheckpointScheme checkpoint_scheme, SUNContext sunctx,
+  SUNAdjointStepper* adj_stepper);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector y0,
