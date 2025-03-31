@@ -4819,7 +4819,7 @@ vector.
    .. warning::
 
       Calling :c:func:`ARKodeReset` during forward integration of an IVP with
-      checkpointing for adjoint senstivity analysis is not supported.
+      checkpointing for adjoint sensitivity analysis is not supported.
 
    .. versionadded:: 6.1.0
 
