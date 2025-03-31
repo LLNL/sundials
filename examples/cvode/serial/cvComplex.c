@@ -28,7 +28,7 @@
  * v = -t^2*exp(-t)*i
  * w = exp(-t)*i + t
  *
- * This program solves the problem with the IMEX method, using a
+ * This program solves the problem with the BDF method, using a
  * Newton iteration with the SPTFQMR linear solver.
  *
  * 5 outputs are printed at equal intervals, and run statistics
