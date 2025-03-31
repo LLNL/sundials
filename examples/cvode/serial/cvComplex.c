@@ -62,13 +62,6 @@ static int Solution(sunrealtype t, N_Vector u, void* user_data);
 // Compute the numerical solution error
 static int SolutionError(sunrealtype t, N_Vector u, N_Vector e, void* user_data);
 
-// Preconditioner setup and solve functions (Identity in this testing)
-static int PSetup(sunrealtype t, N_Vector y, N_Vector f, sunbooleantype jok,
-                  sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data);
-
-static int PSolve(sunrealtype t, N_Vector y, N_Vector f, N_Vector r, N_Vector z,
-                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data);
-
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
 
@@ -84,7 +77,7 @@ int main(void)
   sunrealtype reltol = 1.0e-6;                /* tolerances */
   sunrealtype abstol = 1.0e-10;
   sunscalartype a, b, c; // some constants to pass as problem data if needed
-  int pretype = 1; // 1 for left and 2 for right preconditioners
+  int pretype = 0; // 1 for left and 2 for right preconditioners
   int maxl = 100; // Set the maximum number of linear solver iterations
 
   /* general problem variables */
@@ -164,10 +157,6 @@ int main(void)
   /* Linear solver interface */
   flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if (check_flag(&flag, "CVodeSetLinearSolver", 1)) { return 1; }
-
-  // Attach preconditioner
-  flag = CVodeSetPreconditioner(cvode_mem, PSetup, PSolve);
-  if (check_flag(&flag, "CVodeSetPreconditioner", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
@@ -328,27 +317,6 @@ static int check_flag(void* flagvalue, const char* funcname, int opt)
     return 1;
   }
 
-  return 0;
-}
-
-// Preconditioner setup routine
-static int PSetup(sunrealtype t, N_Vector y, N_Vector f, sunbooleantype jok,
-                  sunbooleantype* jcurPtr, sunrealtype gamma, void* user_data)
-{
-  return 0;
-}
-
-// Preconditioner solve routine for Pz = r
-static int PSolve(sunrealtype t, N_Vector y, N_Vector f, N_Vector r, N_Vector z,
-                  sunrealtype gamma, sunrealtype delta, int lr, void* user_data)
-{
-  N_Vector ones;
-  ones = N_VClone(r);
-  N_VConst(1.0, ones);
-
-  N_VProd(ones, r, z);
-
-  /* return with success */
   return 0;
 }
 
