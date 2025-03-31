@@ -1101,7 +1101,7 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
           start_step++;
           sunrealtype t0 = checkpoint_t;
           sunrealtype tf = ark_mem->tn;
-          SUNLogDebug(ARK_LOGGER, "start-recompute",
+          SUNLogDebug(ARK_LOGGER, "begin-recompute",
                       "start_step = %li, stop_step = %li, t0 = %" SUN_FORMAT_G
                       ", tf = %" SUN_FORMAT_G "",
                       start_step, stop_step, t0, tf);
