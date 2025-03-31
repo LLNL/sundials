@@ -3279,10 +3279,16 @@ CVODE resize function
 
 For simulations involving changes to the number of equations and unknowns in the
 ODE system, CVODE maybe "resized" between steps by calling
-:c:func:`CVodeResizeHistory`. As the methods implemented in CVODE utilize
-solution or right-hand side history information, resizing the integrator
-requires providing the necessary history data (detailed below) at the new
-problem size.
+:c:func:`CVodeResizeHistory`. The methods implemented in CVODE utilize solution
+or right-hand side history information to achieve high order. At present, the
+user code is responsible for saving the necessary data over the course of the
+integration in order to resize the integrator. As such, CVODE should typically
+be run in one step mode or built with monitoring enabled and the monitoring
+function used to save the state at the end of each time step. The amount and
+kind of history required for resizing the integrator depends on the method
+selected and the maximum order allowed (see details below). If insufficient
+history is provided when resizing, :c:func:`CVodeResizeHistory` will return an
+error.
 
 .. c:function:: int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist, N_Vector* f_hist, int num_y_hist, int num_f_hist)
 
@@ -3304,7 +3310,8 @@ problem size.
    :math:`q_{\textrm{max}}` is the maximum allowed order (see
    :c:func:`CVodeSetMaxOrd`). The additional solution/right-hand side values
    beyond what is strictly needed for the method are used to determine if an
-   order increase should occur after the next step.
+   order increase should occur after the next step. If insufficient history is
+   provided, an error is returned.
 
    :param cvode_mem: pointer to the CVODE memory block.
    :param t_hist: an array of time values for the solution and right-hand side
@@ -3327,8 +3334,9 @@ problem size.
 
    :retval CV_SUCCESS: The call was successful.
    :retval CV_MEM_NULL: The CVODE memory block was ``NULL``.
-   :retval CV_ILL_INPUT: An input argument had an illegal value, see the output
-                         error message for additional details.
+   :retval CV_ILL_INPUT: An input argument had an illegal value or insufficient
+                         history was supplied, see the output error message for
+                         additional details.
 
    .. versionadded:: x.y.z
 
