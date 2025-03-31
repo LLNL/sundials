@@ -19,6 +19,8 @@
 
 #include <sundials/sundials_adjointcheckpointscheme.h>
 
+typedef struct SUNAdjointCheckpointScheme_Ops_* SUNAdjointCheckpointScheme_Ops;
+
 struct SUNAdjointCheckpointScheme_Ops_
 {
   SUNAdjointCheckpointSchemeNeedsSavingFn needssaving;
