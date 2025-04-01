@@ -52,8 +52,8 @@ SUNErrCode SUNAdjointStepper_Create(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper self, N_Vector y0,
-                                    sunrealtype t0, N_Vector sf, sunrealtype tf)
+SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper self, sunrealtype t0,
+                                    N_Vector y0, sunrealtype tf, N_Vector sf)
 {
   SUNFunctionBegin(self->sunctx);
   self->tf         = tf;

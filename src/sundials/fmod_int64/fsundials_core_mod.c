@@ -2827,14 +2827,14 @@ SWIGEXPORT int _wrap_FSUNStepper_Reset(void *farg1, double const *farg2, N_Vecto
 }
 
 
-SWIGEXPORT int _wrap_FSUNStepper_ResetCheckpointIndex(void *farg1, int64_t const *farg2) {
+SWIGEXPORT int _wrap_FSUNStepper_ResetCheckpointIndex(void *farg1, long const *farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
-  int64_t arg2 ;
+  suncountertype arg2 ;
   SUNErrCode result;
   
   arg1 = (SUNStepper)(farg1);
-  arg2 = (int64_t)(*farg2);
+  arg2 = (suncountertype)(*farg2);
   result = (SUNErrCode)SUNStepper_ResetCheckpointIndex(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
@@ -3581,20 +3581,20 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, int const *farg2, vo
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_ReInit(void *farg1, N_Vector farg2, double const *farg3, N_Vector farg4, double const *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_ReInit(void *farg1, double const *farg2, N_Vector farg3, double const *farg4, N_Vector farg5) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  N_Vector arg2 = (N_Vector) 0 ;
-  sunrealtype arg3 ;
-  N_Vector arg4 = (N_Vector) 0 ;
-  sunrealtype arg5 ;
+  sunrealtype arg2 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  sunrealtype arg4 ;
+  N_Vector arg5 = (N_Vector) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (N_Vector)(farg2);
-  arg3 = (sunrealtype)(*farg3);
-  arg4 = (N_Vector)(farg4);
-  arg5 = (sunrealtype)(*farg5);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (sunrealtype)(*farg4);
+  arg5 = (N_Vector)(farg5);
   result = (SUNErrCode)SUNAdjointStepper_ReInit(arg1,arg2,arg3,arg4,arg5);
   fresult = (SUNErrCode)(result);
   return fresult;
