@@ -2704,7 +2704,7 @@ parameters, :math:`p`, leading to the system
    \dot{y} = f(t,y,p), \qquad y(t_0) = y_0(p).
    :label: ARKODE_IVP_simple_explicit_with_parameters
 
-Now, suppose we have a functional :math:`g(y(t_f), t_f, p)` for which we would like to compute the
+Now, suppose we have a functional :math:`g(t_f, y(t_f), p)` for which we would like to compute the
 gradients
 
 .. math::

@@ -59,7 +59,7 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
    The subvectors can be any implementation of the :ref:`N_Vector class <NVectors>`.
 
    For example, in a problem with 10 state variables and 4 parameters using serial
-   computations, the ManyVector can constructed as follows:
+   computations, the ManyVector can be constructed as follows:
 
    .. code-block:: C
 
@@ -99,8 +99,8 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 
 #. Free solver memory
 
-   * Call :c:func:`SUNStepper_Destroy` and :c:func:`ARKodeFree` to free the memory
-     allocated for the SUNStepper and ARKODE integrator objects.
+   Call :c:func:`SUNStepper_Destroy` and :c:func:`ARKodeFree` to free the memory
+   allocated for the SUNStepper and ARKODE integrator objects.
 
 #. *Free the SUNContext object*
 
@@ -125,13 +125,14 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
              with respect to parameters should be computed,
              :math:`\nu = f_p^*(t, y, p) \lambda`.
    :param tf: the terminal time for the adjoint sensitivity system.
-   :param sf: the sensitivity vector holding the adjoint system terminal condition. This must be an
-      instance of the ManyVector :c:type:`N_Vector` implementation. The first subvector
-      must be :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities
-      to parameters should be computed, then the second subvector must be
-      :math:`g_p(t_f, y(t_f), p) \in \mathbb{R}^{N_s}`, otherwise only one subvector
-      should be provided.
-   :param sunctx: The SUNDIALS simulation context object.
+   :param sf: the sensitivity vector holding the adjoint system terminal
+              condition. This must be an :ref:`NVECTOR_MANYVECTOR
+              <NVectors.ManyVector>` instance. The first subvector must be
+              :math:`g^*_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities
+              to parameters should be computed, then the second subvector must
+              be :math:`g^*_p(t_f, y(t_f), p) \in \mathbb{R}^{N_s}`, otherwise
+              only one subvector should be provided.
+   :param sunctx: the SUNDIALS simulation context object.
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 
    :retval ARK_SUCCESS: if successful.
@@ -159,14 +160,14 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
               :math:`\nu = f_p^*(t, y, p) \lambda`.
    :param fi: not yet support, the user should pass ``NULL``.
    :param tf: the terminal time for the adjoint sensitivity system.
-   :param sf: the sensitivity vector holding the adjoint system terminal condition.
-              This must be an instance of the ManyVector :c:type:`N_Vector`
-              implementation. The first subvector must be
-              :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities
-              to parameters should be computed, then the second subvector must be
-              :math:`g_p(t_f, y(t_f), p) \in \mathbb{R}^{N_s}`, otherwise only one
-              subvector should be provided.
-   :param sunctx: The SUNDIALS simulation context object.
+   :param sf: the sensitivity vector holding the adjoint system terminal
+              condition. This must be a :ref:`NVECTOR_MANYVECTOR
+              <NVectors.ManyVector>` instance. The first subvector must be
+              :math:`g^*_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities
+              to parameters should be computed, then the second subvector must
+              be :math:`g^*_p(t_f, y(t_f), p) \in \mathbb{R}^{N_s}`, otherwise
+              only one subvector should be provided.
+   :param sunctx: the SUNDIALS simulation context object.
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 
    :retval ARK_SUCCESS: if successful.
