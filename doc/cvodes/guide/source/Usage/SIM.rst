@@ -3270,7 +3270,7 @@ CVODES resize function
 ~~~~~~~~~~~~~~~~~~~~~~
 
 For simulations involving changes to the number of equations and unknowns in the
-ODE system, CVODES maybe "resized" between steps by calling
+ODE system, CVODES may be "resized" between steps by calling
 :c:func:`CVodeResizeHistory`. The methods implemented in CVODES utilize solution
 or right-hand side history information to achieve high order. At present, the
 user code is responsible for saving the necessary data over the course of the
