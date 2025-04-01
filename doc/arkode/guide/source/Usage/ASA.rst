@@ -120,13 +120,17 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
    integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
 
    :param arkode_mem: a pointer to the ERKStep memory block.
-   :param f: the adjoint right hand side function which implements :math:`\Lambda = f_y^*(t, y, p) \lambda` and :math:`\nu = f_p^*(t, y, p) \lambda`.
+   :param f: the adjoint right hand side function which implements
+             :math:`\Lambda = f_y^*(t, y, p) \lambda` and, if sensitivities
+             with respect to parameters should be computed,
+             :math:`\nu = f_p^*(t, y, p) \lambda`.
    :param tf: the terminal time for the adjoint sensitivity system.
    :param sf: the sensitivity vector holding the adjoint system terminal condition. This must be an
-      instance of the ManyVector ``N_Vector`` implementation with at The first subvector must be
-      :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities to parameters should
-      be computed, then the second subvector must be :math:`g_p(t_f, y(t_f), p) \in
-      \mathbb{R}^{N_s}`, otherwise only one subvector should be provided.
+      instance of the ManyVector :c:type:`N_Vector` implementation. The first subvector
+      must be :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities
+      to parameters should be computed, then the second subvector must be
+      :math:`g_p(t_f, y(t_f), p) \in \mathbb{R}^{N_s}`, otherwise only one subvector
+      should be provided.
    :param sunctx: The SUNDIALS simulation context object.
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 
@@ -149,14 +153,19 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
    integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
 
    :param arkode_mem: a pointer to the ARKStep memory block.
-   :param fe: the adjoint right hand side function which implements :math:`\Lambda = f_y^{E,*}(t, y, p) \lambda` and :math:`\nu = f_p^*(t, y, p) \lambda`.
+   :param fe: the adjoint right hand side function which implements
+              :math:`\Lambda = f_y^{E,*}(t, y, p) \lambda` and, if sensitivities
+              with respect to parameters should be computed,
+              :math:`\nu = f_p^*(t, y, p) \lambda`.
    :param fi: not yet support, the user should pass ``NULL``.
    :param tf: the terminal time for the adjoint sensitivity system.
-   :param sf: the sensitivity vector holding the adjoint system terminal condition. This must be an
-      instance of the ManyVector ``N_Vector`` implementation with at The first subvector must be
-      :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities to parameters should
-      be computed, then the second subvector must be :math:`g_p(t_f, y(t_f), p) \in
-      \mathbb{R}^{N_s}`, otherwise only one subvector should be provided.
+   :param sf: the sensitivity vector holding the adjoint system terminal condition.
+              This must be an instance of the ManyVector :c:type:`N_Vector`
+              implementation. The first subvector must be
+              :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities
+              to parameters should be computed, then the second subvector must be
+              :math:`g_p(t_f, y(t_f), p) \in \mathbb{R}^{N_s}`, otherwise only one
+              subvector should be provided.
    :param sunctx: The SUNDIALS simulation context object.
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 

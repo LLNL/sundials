@@ -2745,7 +2745,7 @@ and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`, where
    :label: ARKODE_DISCRETE_ADJOINT
 
 .. warning::
-   The CVODES and IDAS documentation use :math:`\lambda` to represent the adjoint variables needed
+   The CVODES and IDAS documentation uses :math:`\lambda` to represent the adjoint variables needed
    to obtain the gradient :math:`dG/dp` where :math:`G` is an integral of :math:`g`.
    Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES and
    IDAS docs.
