@@ -981,6 +981,13 @@ int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
     return ARK_ILL_INPUT;
   }
 
+  if (C == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "SUNAdaptController allocation failure");
+    return (ARK_MEM_FAIL);
+  }
+
   /* Send controller to be used by ARKODE */
   retval = ARKodeSetAdaptController(arkode_mem, C);
   if (retval != ARK_SUCCESS) { return retval; }
