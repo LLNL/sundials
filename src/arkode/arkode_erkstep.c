@@ -785,7 +785,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       __FILE__,
                       "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                       errcode);
-      return errcode;
+      return ARK_ADJ_CHECKPOINT_FAIL;
     }
 
     if (do_save)
@@ -801,7 +801,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                         __FILE__,
                         "SUNAdjointCheckpointScheme_InsertVector returned %d",
                         errcode);
-        return errcode;
+        return ARK_ADJ_CHECKPOINT_FAIL;
       }
     }
   }
@@ -891,7 +891,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                         __FILE__,
                         "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                         errcode);
-        return errcode;
+        return ARK_ADJ_CHECKPOINT_FAIL;
       }
 
       if (do_save)
@@ -908,7 +908,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           __FILE__,
                           "SUNAdjointCheckpointScheme_InsertVector returned %d",
                           errcode);
-          return errcode;
+          return ARK_ADJ_CHECKPOINT_FAIL;
         }
       }
     }
@@ -945,7 +945,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       __FILE__,
                       "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                       errcode);
-      return errcode;
+      return ARK_ADJ_CHECKPOINT_FAIL;
     }
 
     if (do_save)
@@ -963,7 +963,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                         __FILE__,
                         "SUNAdjointCheckpointScheme_InsertVector returned %d",
                         errcode);
-        return errcode;
+        return ARK_ADJ_CHECKPOINT_FAIL;
       }
     }
   }
@@ -1141,7 +1141,7 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
     arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
                     __FILE__,
                     "SUNAdjointCheckpointScheme_LoadVector returned %d", errcode);
-    return errcode;
+    return ARK_ADJ_CHECKPOINT_FAIL;
   }
 
   /* Now compute the time step solution. We cannot use erkStep_ComputeSolutions because the

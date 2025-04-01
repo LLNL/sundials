@@ -146,7 +146,7 @@ The :c:type:`SUNAdjointStepper` class has the following methods:
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
-SUNAdjoint.Stepper.UserSupplied:
+.. _SUNAdjoint.Stepper.UserSupplied:
 
 User-Supplied Functions
 -----------------------
@@ -163,19 +163,25 @@ User-Supplied Functions
 
    and corresponds to :eq:`ARKODE_ERK_ADJOINT` for explicit Runge--Kutta methods.
 
-   :param t: the current value of the independent variable.
-   :param y: the current value of the original IVP dependent variable vector.
-   :param sens: a :ref:`NVECTOR_MANYVECTOR <NVectors.ManyVector>` object with two subvectors,
-      the first subvector holds :math:`\lambda` and the second holds :math:`\mu` and is unused in this function.
-   :param sens_dot: a :ref:`NVECTOR_MANYVECTOR <NVectors.ManyVector>` object with two subvectors,
-      the first subvector holds :math:`\Lambda` and the second holds :math:`\nu`.
-   :param user_data: the `user_data` pointer that was passed to
-                     :c:func:`SUNAdjointStepper_SetUserData`.
+   **Parameters:**
 
-   :return: An :c:type:`SUNAdjRhsFn`` should return 0 if successful, a positive value if a
-            recoverable error occurred (in which case the integrator may attempt to
-            correct), or a negative value if it failed unrecoverably (in which
-            case the integration is halted and an error is raised).
+   * **t** -- the current value of the independent variable.
+   * **y** -- the current value of the forward solution vector.
+   * **sens** -- a :ref:`NVECTOR_MANYVECTOR <NVectors.ManyVector>` object with two
+     subvectors, the first subvector holds :math:`\lambda` and the second holds
+     :math:`\mu` and is unused in this function.
+   * **sens_dot** -- a :ref:`NVECTOR_MANYVECTOR <NVectors.ManyVector>` object with
+     two subvectors, the first subvector holds :math:`\Lambda` and the second holds
+     :math:`\nu`.
+   * **user_data** -- the `user_data` pointer that was passed to 
+     :c:func:`SUNAdjointStepper_SetUserData`.
+
+   **Returns:**
+
+     A :c:type:`SUNAdjRhsFn`` should return 0 if successful, a positive value if a
+     recoverable error occurred (in which case the integrator may attempt to
+     correct), or a negative value if it failed unrecoverably (in which
+     case the integration is halted and an error is raised).
 
    .. note::
 

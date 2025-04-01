@@ -2882,6 +2882,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_ADJ_RECOMPUTE_FAIL, __LINE__, __func__, __FILE__,
                     "The forward recomputation of step failed unrecoverably");
     break;
+  case ARK_ADJ_CHECKPOINT_FAIL:
+    arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__, __FILE__,
+                    "The a checkpoint operation failed unrecoverably");
+    break;    
   case ARK_DOMEIG_FAIL:
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                     "The dominant eigenvalue function failed unrecoverably");
