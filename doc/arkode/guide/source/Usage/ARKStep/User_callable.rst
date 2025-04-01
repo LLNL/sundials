@@ -1468,6 +1468,10 @@ Optional inputs for time step adaptivity
 
       Use :c:func:`ARKodeSetAdaptController` instead.
 
+   .. versionchanged:: x.y.z
+
+      The default controller was changed from PID to I.
+
 
 .. c:function:: int ARKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
 
@@ -1549,7 +1553,7 @@ Optional inputs for time step adaptivity
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *adjust* -- adjustment factor (default is -1).
+      * *adjust* -- adjustment factor (default is 0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1565,6 +1569,10 @@ Optional inputs for time step adaptivity
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetAdaptivityAdjustment` instead.
+
+   .. versionchanged:: x.y.z
+
+      The default value was changed from -1 to 0
 
 
 
@@ -1598,7 +1606,7 @@ Optional inputs for time step adaptivity
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *bias* -- bias applied to error in accuracy-based time
-        step estimation (default is 1.5).
+        step estimation (default is 1.0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1615,6 +1623,10 @@ Optional inputs for time step adaptivity
    .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
+      
+   .. versionchanged:: x.y.z
+
+      The default value was changed from 1.5 to 1.0
 
 
 .. c:function:: int ARKStepSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub)
@@ -1624,7 +1636,7 @@ Optional inputs for time step adaptivity
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *lb* -- lower bound on window to leave step size fixed (default is 1.0).
-      * *ub* -- upper bound on window to leave step size fixed (default is 1.5).
+      * *ub* -- upper bound on window to leave step size fixed (default is 1.0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1637,6 +1649,10 @@ Optional inputs for time step adaptivity
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetFixedStepBounds` instead.
+      
+   .. versionchanged:: x.y.z
+
+      The default upper bound was changed from 1.5 to 1.0
 
 
 .. c:function:: int ARKStepSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf)
@@ -1763,7 +1779,7 @@ Optional inputs for time step adaptivity
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *safety* -- safety factor applied to accuracy-based time step (default is 0.96).
+      * *safety* -- safety factor applied to accuracy-based time step (default is 0.9).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1777,6 +1793,10 @@ Optional inputs for time step adaptivity
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetSafetyFactor` instead.
+      
+   .. versionchanged:: x.y.z
+
+      The default upper bound was changed from 0.96 to 0.9
 
 
 .. c:function:: int ARKStepSetSmallNumEFails(void* arkode_mem, int small_nef)
