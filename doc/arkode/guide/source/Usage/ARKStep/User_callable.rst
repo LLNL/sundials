@@ -1796,7 +1796,8 @@ Optional inputs for time step adaptivity
       
    .. versionchanged:: x.y.z
 
-      The default upper bound was changed from 0.96 to 0.9
+      The default default was changed from 0.96 to 0.9. The maximum value is now
+      exactly 1.0 rather than strictly less than 1.0.
 
 
 .. c:function:: int ARKStepSetSmallNumEFails(void* arkode_mem, int small_nef)
