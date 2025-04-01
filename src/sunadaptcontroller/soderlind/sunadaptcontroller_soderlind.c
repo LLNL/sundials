@@ -297,8 +297,8 @@ SUNAdaptController SUNAdaptController_H0211(SUNContext sunctx)
 }
 
 /* -----------------------------------------------------------------
-  * Function to create an H211 controller (subset of Soderlind)
-  */
+ * Function to create an H211 controller (subset of Soderlind)
+ */
 
 SUNAdaptController SUNAdaptController_H211(SUNContext sunctx)
 {
@@ -316,8 +316,8 @@ SUNAdaptController SUNAdaptController_H211(SUNContext sunctx)
 }
 
 /* -----------------------------------------------------------------
-  * Function to create an H312 controller (subset of Soderlind)
-  */
+ * Function to create an H312 controller (subset of Soderlind)
+ */
 
 SUNAdaptController SUNAdaptController_H312(SUNContext sunctx)
 {
