@@ -1066,7 +1066,7 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
     /* The checkpoint was not found, so we need to recompute at least
        this step forward in time. We first seek the last checkpointed step
        solution, then recompute from there. */
-    if (retval > 0)
+    if (ark_mem->load_checkpoint_fail)
     {
       N_Vector checkpoint = N_VGetSubvector_ManyVector(ark_mem->tempv3, 0);
       suncountertype curr_step, start_step;
@@ -1120,6 +1120,7 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
         return (ARK_ADJ_RECOMPUTE_FAIL);
       }
     }
+    else if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
     else if (retval < 0)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -1620,13 +1621,19 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   N_Vector checkpoint      = N_VGetSubvector_ManyVector(ark_mem->tempv3, 0);
   sunrealtype checkpoint_t = SUN_RCONST(0.0);
 
+  ark_mem->load_checkpoint_fail = SUNFALSE;
+
   errcode = SUNAdjointCheckpointScheme_LoadVector(check_scheme,
                                                   ark_mem->adj_step_idx,
                                                   ark_mem->adj_stage_idx, 0,
                                                   &checkpoint, &checkpoint_t);
 
   /* Checkpoint was not found, recompute the missing step */
-  if (errcode == SUN_ERR_CHECKPOINT_NOT_FOUND) { return +1; }
+  if (errcode == SUN_ERR_CHECKPOINT_NOT_FOUND)
+  {
+    ark_mem->load_checkpoint_fail = SUNTRUE;
+    return +1;
+  }
 
   /* Evaluate f_{y}^*(t_i, z_i, p) \Lambda_i and f_{p}^*(t_i, z_i, p) \nu_i */
   int ierr = step_mem->adj_f(t, checkpoint, sens_partial_stage,

@@ -569,6 +569,7 @@ struct ARKodeMemRec
   sunbooleantype use_compensated_sums;
 
   /* Adjoint solver data */
+  sunbooleantype load_checkpoint_fail;
   sunbooleantype do_adjoint;
   suncountertype adj_stage_idx; /* current stage index (only valid in adjoint context)*/
   suncountertype adj_step_idx; /* current step index (only valid in adjoint context)*/
