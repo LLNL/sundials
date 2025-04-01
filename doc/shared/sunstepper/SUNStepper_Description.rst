@@ -161,7 +161,7 @@ Stepping Functions
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_ResetCheckpointIndex(SUNStepper stepper, int64_t ckptIdxR)
+.. c:function:: SUNErrCode SUNStepper_ResetCheckpointIndex(SUNStepper stepper, suncountertype ckptIdxR)
 
    This function resets the index at which new checkpoints will be inserted to `ckptIdxR`.
 
@@ -471,7 +471,7 @@ abstract base class.
    .. versionadded:: x.y.z
 
 
-.. c:type:: SUNErrCode (*SUNStepperResetCheckpointIndexFn)(SUNStepper stepper, int64_t ckptIdxR)
+.. c:type:: SUNErrCode (*SUNStepperResetCheckpointIndexFn)(SUNStepper stepper, suncountertype ckptIdxR)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_ResetCheckpointIndex`.
