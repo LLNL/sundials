@@ -341,7 +341,7 @@ int main(int argc, char* argv[])
   }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
-  SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
+  SUNAdjointStepper_ReInit(adj_stepper, t0, u, tf, sf);
   adjoint_solution(sunctx, adj_stepper, tf, t0, sf);
 
   //
