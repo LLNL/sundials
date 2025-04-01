@@ -208,16 +208,15 @@
 
 #include "sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h"
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Fixed(int const *farg1, SUNMemoryHelper farg2, long const *farg3, long const *farg4, int const *farg5, int const *farg6, void *farg7, void *farg8) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Fixed(int const *farg1, SUNMemoryHelper farg2, long const *farg3, long const *farg4, int const *farg5, void *farg6, void *farg7) {
   int fresult ;
   SUNDataIOMode arg1 ;
   SUNMemoryHelper arg2 = (SUNMemoryHelper) 0 ;
   suncountertype arg3 ;
   suncountertype arg4 ;
   int arg5 ;
-  int arg6 ;
-  SUNContext arg7 = (SUNContext) 0 ;
-  SUNAdjointCheckpointScheme *arg8 = (SUNAdjointCheckpointScheme *) 0 ;
+  SUNContext arg6 = (SUNContext) 0 ;
+  SUNAdjointCheckpointScheme *arg7 = (SUNAdjointCheckpointScheme *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNDataIOMode)(*farg1);
@@ -225,10 +224,9 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Fixed(int const *farg1, 
   arg3 = (suncountertype)(*farg3);
   arg4 = (suncountertype)(*farg4);
   arg5 = (int)(*farg5);
-  arg6 = (int)(*farg6);
-  arg7 = (SUNContext)(farg7);
-  arg8 = (SUNAdjointCheckpointScheme *)(farg8);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_Create_Fixed(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+  arg6 = (SUNContext)(farg6);
+  arg7 = (SUNAdjointCheckpointScheme *)(farg7);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_Create_Fixed(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

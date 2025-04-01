@@ -36,7 +36,6 @@ struct SUNAdjointCheckpointScheme_Fixed_Content_
   SUNDataNode current_insert_step_node;
   SUNDataNode current_load_step_node;
   SUNDataIOMode io_mode;
-  sunbooleantype save_stages;
   sunbooleantype keep;
 };
 
@@ -48,8 +47,8 @@ typedef struct SUNAdjointCheckpointScheme_Fixed_Content_*
 
 SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, suncountertype interval,
-  suncountertype estimate, sunbooleantype save_stages, sunbooleantype keep,
-  SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
+  suncountertype estimate, sunbooleantype keep, SUNContext sunctx,
+  SUNAdjointCheckpointScheme* check_scheme_ptr)
 {
   SUNFunctionBegin(sunctx);
 
@@ -69,7 +68,6 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
 
   content->mem_helper                 = mem_helper;
   content->interval                   = interval;
-  content->save_stages                = save_stages;
   content->keep                       = keep;
   content->root_node                  = NULL;
   content->current_insert_step_node   = NULL;
@@ -89,17 +87,12 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
 
 SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving_Fixed(
   SUNAdjointCheckpointScheme self, suncountertype step_num,
-  suncountertype stage_num, SUNDIALS_MAYBE_UNUSED sunrealtype t,
-  sunbooleantype* yes_or_no)
+  SUNDIALS_MAYBE_UNUSED suncountertype stage_num,
+  SUNDIALS_MAYBE_UNUSED sunrealtype t, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
 
-  if (!(step_num % IMPL_MEMBER(self, interval)))
-  {
-    if (stage_num == 0) { *yes_or_no = SUNTRUE; }
-    else if (IMPL_MEMBER(self, save_stages)) { *yes_or_no = SUNTRUE; }
-    else { *yes_or_no = SUNFALSE; }
-  }
+  if (!(step_num % IMPL_MEMBER(self, interval))) { *yes_or_no = SUNTRUE; }
   else { *yes_or_no = SUNFALSE; }
 
   return SUN_SUCCESS;

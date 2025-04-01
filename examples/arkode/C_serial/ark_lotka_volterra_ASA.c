@@ -62,7 +62,6 @@ typedef struct
   sunrealtype dt;
   int order;
   int check_freq;
-  sunbooleantype save_stages;
   sunbooleantype keep_checks;
 } ProgramArgs;
 
@@ -93,7 +92,6 @@ int main(int argc, char* argv[])
   args.tf          = SUN_RCONST(10.0);
   args.dt          = SUN_RCONST(1e-3);
   args.order       = 4;
-  args.save_stages = SUNTRUE;
   args.keep_checks = SUNTRUE;
   args.check_freq  = 2;
   parse_args(argc, argv, &args);
@@ -130,15 +128,13 @@ int main(int argc, char* argv[])
   // Enable checkpointing during the forward solution.
   const int check_interval                     = args.check_freq;
   const int ncheck                             = nsteps * order;
-  const sunbooleantype save_stages             = args.save_stages;
   const sunbooleantype keep_check              = args.keep_checks;
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
   SUNMemoryHelper mem_helper                   = SUNMemoryHelper_Sys(sunctx);
 
   retval = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM,
                                                    mem_helper, check_interval,
-                                                   ncheck, save_stages,
-                                                   keep_check, sunctx,
+                                                   ncheck, keep_check, sunctx,
                                                    &checkpoint_scheme);
   if (check_retval(&retval, "SUNAdjointCheckpointScheme_Create_Fixed", 1))
   {
@@ -335,7 +331,6 @@ void parse_args(int argc, char* argv[], ProgramArgs* args)
     {
       args->check_freq = atoi(argv[++argi]);
     }
-    else if (!strcmp(arg, "--no-stages")) { args->save_stages = SUNFALSE; }
     else if (!strcmp(arg, "--dont-keep")) { args->keep_checks = SUNFALSE; }
     else if (!strcmp(arg, "--help")) { print_help(argc, argv, 0); }
     else { print_help(argc, argv, 1); }
