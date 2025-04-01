@@ -1066,7 +1066,7 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
     /* The checkpoint was not found, so we need to recompute at least
        this step forward in time. We first seek the last checkpointed step
        solution, then recompute from there. */
-    if (retval == SUN_ERR_CHECKPOINT_NOT_FOUND)
+    if (retval > 0)
     {
       N_Vector checkpoint = N_VGetSubvector_ManyVector(ark_mem->tempv3, 0);
       suncountertype curr_step, start_step;
@@ -1120,7 +1120,6 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
         return (ARK_ADJ_RECOMPUTE_FAIL);
       }
     }
-    else if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
     else if (retval < 0)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,

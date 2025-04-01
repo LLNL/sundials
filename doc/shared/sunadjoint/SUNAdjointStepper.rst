@@ -173,15 +173,15 @@ User-Supplied Functions
    * **sens_dot** -- a :ref:`NVECTOR_MANYVECTOR <NVectors.ManyVector>` object with
      two subvectors, the first subvector holds :math:`\Lambda` and the second holds
      :math:`\nu`.
-   * **user_data** -- the `user_data` pointer that was passed to
+   * **user_data** -- the `user_data` pointer that was passed to 
      :c:func:`SUNAdjointStepper_SetUserData`.
 
    **Returns:**
 
-     A :c:type:`SUNAdjRhsFn`` should return 0 if successful, a positive value if
-     a recoverable error occurred (in which case the integrator may attempt to
-     correct), or -1 if it failed unrecoverably (in which case the
-     integration is halted and an error is raised).
+     A :c:type:`SUNAdjRhsFn`` should return 0 if successful, a positive value if a
+     recoverable error occurred (in which case the integrator may attempt to
+     correct), or a negative value if it failed unrecoverably (in which
+     case the integration is halted and an error is raised).
 
    .. note::
 
