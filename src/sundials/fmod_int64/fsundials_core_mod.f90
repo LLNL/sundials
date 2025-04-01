@@ -2748,10 +2748,10 @@ bind(C, name="_wrap_FSUNAdjointStepper_ReInit") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-real(C_DOUBLE), intent(in) :: farg3
-type(C_PTR), value :: farg4
-real(C_DOUBLE), intent(in) :: farg5
+real(C_DOUBLE), intent(in) :: farg2
+type(C_PTR), value :: farg3
+real(C_DOUBLE), intent(in) :: farg4
+type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -6677,27 +6677,27 @@ fresult = swigc_FSUNAdjointStepper_Create(farg1, farg2, farg3, farg4, farg5, far
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_ReInit(adj, y0, t0, sf, tf) &
+function FSUNAdjointStepper_ReInit(adj, t0, y0, tf, sf) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj
-type(N_Vector), target, intent(inout) :: y0
 real(C_DOUBLE), intent(in) :: t0
-type(N_Vector), target, intent(inout) :: sf
+type(N_Vector), target, intent(inout) :: y0
 real(C_DOUBLE), intent(in) :: tf
+type(N_Vector), target, intent(inout) :: sf
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-real(C_DOUBLE) :: farg3 
-type(C_PTR) :: farg4 
-real(C_DOUBLE) :: farg5 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = adj
-farg2 = c_loc(y0)
-farg3 = t0
-farg4 = c_loc(sf)
-farg5 = tf
+farg2 = t0
+farg3 = c_loc(y0)
+farg4 = tf
+farg5 = c_loc(sf)
 fresult = swigc_FSUNAdjointStepper_ReInit(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
