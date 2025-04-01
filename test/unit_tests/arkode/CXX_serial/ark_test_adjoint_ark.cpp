@@ -313,7 +313,8 @@ int main(int argc, char* argv[])
   N_VPrint(sf);
 
   SUNAdjointStepper adj_stepper;
-  ARKStepCreateAdjointStepper(arkode_mem, adj_rhs, NULL, tf, sf, &adj_stepper);
+  ARKStepCreateAdjointStepper(arkode_mem, adj_rhs, NULL, tf, sf, sunctx,
+                              &adj_stepper);
 
   //
   // Now compute the adjoint solution
@@ -381,7 +382,8 @@ int main(int argc, char* argv[])
   printf("Adjoint terminal condition:\n");
   N_VPrint(sf);
 
-  ARKStepCreateAdjointStepper(arkode_mem, adj_rhs, NULL, tauf, sf, &adj_stepper);
+  ARKStepCreateAdjointStepper(arkode_mem, adj_rhs, NULL, tauf, sf, sunctx,
+                              &adj_stepper);
   udata.option = 2;
   SUNAdjointStepper_SetUserData(adj_stepper, &udata);
   adjoint_solution(sunctx, adj_stepper, tauf, tau0, sf);

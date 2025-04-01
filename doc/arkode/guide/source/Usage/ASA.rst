@@ -39,9 +39,9 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
    Create the :c:type:`SUNAdjointCheckpointScheme` object by calling ``SUNAdjointCheckpointScheme_Create_*``.
    Available :c:type:`SUNAdjointCheckpointScheme` implementations are found in
    section :numref:`SUNAdjoint.CheckpointScheme`.
-   
-#. Attach the checkpoint scheme object to ARKODE 
-   
+
+#. Attach the checkpoint scheme object to ARKODE
+
    Call :c:func:`ARKodeSetAdjointCheckpointScheme`.
 
 #. *Advance solution in time*
@@ -92,7 +92,7 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 
 #. Deallocate memory for ASA objects
 
-   Deallocate the sensitivities vector, :c:type:`SUNAdjointStepper`, 
+   Deallocate the sensitivities vector, :c:type:`SUNAdjointStepper`,
    and :c:type:`SUNAdjointCheckpointScheme` objects.
 
 #. *Deallocate memory for solution vector*
@@ -114,7 +114,7 @@ User Callable Functions
 This section describes user-callable functions for performing
 adjoint sensitivity analysis with methods with ERKStep and ARKStep.
 
-.. c:function:: int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn f, sunrealtype tf, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
+.. c:function:: int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn f, sunrealtype tf, N_Vector sf, SUNContext sunctx, SUNAdjointStepper* adj_stepper_ptr)
 
    Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ERKStep instance for
    integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
@@ -126,23 +126,24 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
       instance of the ManyVector ``N_Vector`` implementation with at The first subvector must be
       :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities to parameters should
       be computed, then the second subvector must be :math:`g_p(t_f, y(t_f), p) \in
-      \mathbb{R}^{N_s}`, otherwise only one subvector should be provided..
+      \mathbb{R}^{N_s}`, otherwise only one subvector should be provided.
+   :param sunctx: The SUNDIALS simulation context object.
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 
-   :retval ARK_SUCCESS: if successful.  
-   :retval ARK_MEM_FAIL: if a memory allocation failed.  
-   :retval ARK_ILL_INPUT: if an argument has an illegal value. 
+   :retval ARK_SUCCESS: if successful.
+   :retval ARK_MEM_FAIL: if a memory allocation failed.
+   :retval ARK_ILL_INPUT: if an argument has an illegal value.
 
    .. versionadded:: x.y.z
 
-   .. note:: 
+   .. note::
 
       Currently fixed time steps must be used.
       Furthermore, the explicit stability function, inequality constraints, and relaxation
       features are not yet compatible as they require adaptive time steps.
-      
 
-.. c:function:: int ARKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn fe, SUNAdjRhsFn fi, sunrealtype tf, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
+
+.. c:function:: int ARKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn fe, SUNAdjRhsFn fi, sunrealtype tf, N_Vector sf, SUNContext sunctx, SUNAdjointStepper* adj_stepper_ptr)
 
    Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ARKStep instance for
    integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
@@ -156,18 +157,18 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
       :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities to parameters should
       be computed, then the second subvector must be :math:`g_p(t_f, y(t_f), p) \in
       \mathbb{R}^{N_s}`, otherwise only one subvector should be provided.
+   :param sunctx: The SUNDIALS simulation context object.
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 
-   :retval ARK_SUCCESS: if successful.  
-   :retval ARK_MEM_FAIL: if a memory allocation failed.  
-   :retval ARK_ILL_INPUT: if an argument has an illegal value. 
+   :retval ARK_SUCCESS: if successful.
+   :retval ARK_MEM_FAIL: if a memory allocation failed.
+   :retval ARK_ILL_INPUT: if an argument has an illegal value.
 
    .. versionadded:: x.y.z
 
-   .. note:: 
+   .. note::
 
       Currently only explicit methods with identity mass matrices are supported for ASA,
       and fixed time steps must be used.
       Furthermore, the explicit stability function, inequality constraints, and relaxation
       features are not yet compatible as they require adaptive time steps.
-      

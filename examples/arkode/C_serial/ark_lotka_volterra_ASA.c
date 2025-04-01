@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
 
   SUNAdjointStepper adj_stepper;
   retval = ARKStepCreateAdjointStepper(arkode_mem, adj_rhs, NULL, tf, sf,
-                                       &adj_stepper);
+                                       sunctx, &adj_stepper);
   if (check_retval(&retval, "ARKStepCreateAdjointStepper", 1)) { return 1; }
 
   //

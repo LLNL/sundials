@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
   N_VPrint(sf);
 
   SUNAdjointStepper adj_stepper;
-  ERKStepCreateAdjointStepper(arkode_mem, adj_rhs, tf, sf, &adj_stepper);
+  ERKStepCreateAdjointStepper(arkode_mem, adj_rhs, tf, sf, sunctx, &adj_stepper);
 
   //
   // Now compute the adjoint solution
@@ -381,7 +381,8 @@ int main(int argc, char* argv[])
   printf("Adjoint terminal condition:\n");
   N_VPrint(sf);
 
-  ERKStepCreateAdjointStepper(arkode_mem, adj_rhs, tauf, sf, &adj_stepper);
+  ERKStepCreateAdjointStepper(arkode_mem, adj_rhs, tauf, sf, sunctx,
+                              &adj_stepper);
   udata.option = 2;
   SUNAdjointStepper_SetUserData(adj_stepper, &udata);
   adjoint_solution(sunctx, adj_stepper, tauf, tau0, sf);

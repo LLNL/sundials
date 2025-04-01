@@ -2272,9 +2272,9 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   /* Loop over stages */
   for (int is = step_mem->stages - (fsal ? 2 : 1); is >= 0; --is)
   {
-    /* Consider solving a forward IVP from t0 to tf, tf > t0. 
-       The adjoint ODE is solved backwards in time with step size h' = -h 
-       where h is the forward time step used. So at this point in the 
+    /* Consider solving a forward IVP from t0 to tf, tf > t0.
+       The adjoint ODE is solved backwards in time with step size h' = -h
+       where h is the forward time step used. So at this point in the
        code ark_mem->h is h', however, the adjoint formulae need h. */
     sunrealtype adj_h = -ark_mem->h;
 
@@ -3585,6 +3585,7 @@ static SUNErrCode arkStep_SUNStepperReInit(SUNStepper stepper, sunrealtype t0,
 
 int ARKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_fe,
                                 SUNAdjRhsFn adj_fi, sunrealtype tf, N_Vector sf,
+                                SUNContext sunctx,
                                 SUNAdjointStepper* adj_stepper_ptr)
 {
   ARKodeMem ark_mem;
@@ -3742,7 +3743,7 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_fe,
   /* SUNAdjointStepper will own the SUNSteppers and destroy them */
   errcode = SUNAdjointStepper_Create(fwd_stepper, SUNTRUE, adj_stepper, SUNTRUE,
                                      nst - 1, tf, sf, ark_mem->checkpoint_scheme,
-                                     ark_mem->sunctx, adj_stepper_ptr);
+                                     sunctx, adj_stepper_ptr);
   if (errcode)
   {
     retval = ARK_UNRECOGNIZED_ERROR;
