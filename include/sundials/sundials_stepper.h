@@ -47,7 +47,7 @@ typedef SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR,
                                         N_Vector vR);
 
 typedef SUNErrCode (*SUNStepperResetCheckpointIndexFn)(SUNStepper stepper,
-                                                       int64_t ckptIdxR);
+                                                       suncountertype ckptIdxR);
 
 typedef SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper,
                                               sunrealtype tstop);

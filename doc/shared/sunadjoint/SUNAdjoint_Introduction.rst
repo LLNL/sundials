@@ -27,8 +27,8 @@ sensitivities of an IVP of the form
 where :math:`p` is some set of :math:`N_s` problem parameters.
 
 .. note::
-  The API itself does not implement ASA, but it provides a common
-  interface for ASA capabilities implemented in the SUNDIALS packages.
+   The API itself does not implement ASA, but it provides a common
+   interface for ASA capabilities implemented in the SUNDIALS packages.
 
 Suppose we have a functional :math:`g(t_f, y(t_f), p)` for which we would like to compute the gradients
 :math:`dg(t_f, y(t_f), p)/dy(t_0)` and/or :math:`dg(t_f, y(t_f), p)/dp`.
