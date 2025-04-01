@@ -306,7 +306,7 @@ CVODE(S) / IDA(S) / ARKODE
    local temporal error when using the time step :math:`h_n`, weighted by the user-requested tolerances.
    However, the :ref:`SUNAdaptController class <SUNAdaptController>` in SUNDIALS provides a range of more
    advanced temporal error controllers that could be applied to a given application problem, including the
-   :math:`H_{0}321`, :math:`H_{0}211`,  :math:`H211`, and :math:`H312` controllers from :cite:p:`Sod:03`,
+   :math:`H_{0}211`, :math:`H211`, and :math:`H312` controllers from :cite:p:`Sod:03`,
    as well as a variety of controllers (*PI*, *PID*, *ExpGus*, *ImpGus*, and *ImExGus*) that were included
    in the initial ARKODE release.
 
