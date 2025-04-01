@@ -44,6 +44,8 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
       .. c:member:: size_t stride;
 
+         .. versionadded:: x.y.z
+
          The stride of the data.
 
 .. c:function:: SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
@@ -122,6 +124,8 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
       .. c:member:: SUNErrCode (*allocstrided)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size, size_t stride, SUNMemoryType mem_type, void* queue)
 
          The function implementing :c:func:`SUNMemoryHelper_AllocStrided`
+         
+         .. versionadded:: x.y.z
 
       .. c:member:: SUNErrCode (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue)
 
@@ -199,6 +203,8 @@ must define:
      also be any implementation specific data.
 
    :return: A new :c:type:`SUNMemory` object
+   
+   .. versionadded:: x.y.z
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, \

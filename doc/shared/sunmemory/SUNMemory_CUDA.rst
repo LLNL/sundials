@@ -79,6 +79,8 @@ The implementation provides the following operations defined by the
     :param queue: currently unused.
     :return: A new :c:type:`SUNMemory` object.
     
+    .. versionadded:: x.y.z
+    
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, \
                                                  SUNMemory mem, void* queue)

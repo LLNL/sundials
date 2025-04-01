@@ -121,16 +121,6 @@ The :c:type:`SUNAdjointStepper` class has the following methods:
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
-.. c:function:: SUNErrCode SUNAdjointStepper_GetNumJacEvals(SUNAdjointStepper adj_stepper, suncountertype* num_jac_evals)
-
-   Retrieves the number of Jacobian evaluations performed by the adjoint stepper.
-
-   :param adj_stepper: The SUNAdjointStepper object.
-   :param num_jac_evals: Pointer to store the number of Jacobian evaluations.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-
 .. c:function:: SUNErrCode SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper adj_stepper, suncountertype* num_recompute)
 
    Retrieves the number of recomputations performed by the adjoint stepper.
