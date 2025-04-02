@@ -2784,8 +2784,8 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_LONG), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
-real(C_DOUBLE), intent(in) :: farg4
-type(C_PTR), value :: farg5
+type(C_PTR), value :: farg4
+real(C_DOUBLE), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -6746,27 +6746,27 @@ fresult = swigc_FSUNAdjointStepper_OneStep(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_RecomputeFwd(adj_stepper, start_idx, t0, tf, y0) &
+function FSUNAdjointStepper_RecomputeFwd(adj_stepper, start_idx, t0, y0, tf) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
 integer(C_LONG), intent(in) :: start_idx
 real(C_DOUBLE), intent(in) :: t0
-real(C_DOUBLE), intent(in) :: tf
 type(N_Vector), target, intent(inout) :: y0
+real(C_DOUBLE), intent(in) :: tf
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_LONG) :: farg2 
 real(C_DOUBLE) :: farg3 
-real(C_DOUBLE) :: farg4 
-type(C_PTR) :: farg5 
+type(C_PTR) :: farg4 
+real(C_DOUBLE) :: farg5 
 
 farg1 = adj_stepper
 farg2 = start_idx
 farg3 = t0
-farg4 = tf
-farg5 = c_loc(y0)
+farg4 = c_loc(y0)
+farg5 = tf
 fresult = swigc_FSUNAdjointStepper_RecomputeFwd(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function

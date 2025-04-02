@@ -3637,20 +3637,20 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_OneStep(void *farg1, double const *farg2
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_RecomputeFwd(void *farg1, long const *farg2, double const *farg3, double const *farg4, N_Vector farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_RecomputeFwd(void *farg1, long const *farg2, double const *farg3, N_Vector farg4, double const *farg5) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype arg2 ;
   sunrealtype arg3 ;
-  sunrealtype arg4 ;
-  N_Vector arg5 = (N_Vector) 0 ;
+  N_Vector arg4 = (N_Vector) 0 ;
+  sunrealtype arg5 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (suncountertype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
-  arg4 = (sunrealtype)(*farg4);
-  arg5 = (N_Vector)(farg5);
+  arg4 = (N_Vector)(farg4);
+  arg5 = (sunrealtype)(*farg5);
   result = (SUNErrCode)SUNAdjointStepper_RecomputeFwd(arg1,arg2,arg3,arg4,arg5);
   fresult = (SUNErrCode)(result);
   return fresult;
