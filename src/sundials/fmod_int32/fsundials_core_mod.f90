@@ -436,18 +436,6 @@ module fsundials_core_mod
  public :: FSUNLinSolSetATimes
  public :: FSUNLinSolSetPreconditioner
  public :: FSUNLinSolSetScalingVectors
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_p_char
-  type(SwigClassWrapper), public :: swigdata
- end type
- public :: FSUNLinSolSetFromCommandLine
  public :: FSUNLinSolSetZeroGuess
  public :: FSUNLinSolInitialize
  public :: FSUNLinSolSetup
@@ -556,7 +544,6 @@ module fsundials_core_mod
  public :: FSUNAdaptController_EstimateStep
  public :: FSUNAdaptController_EstimateStepTol
  public :: FSUNAdaptController_Reset
- public :: FSUNAdaptController_SetFromCommandLine
  public :: FSUNAdaptController_SetDefaults
  public :: FSUNAdaptController_Write
  public :: FSUNAdaptController_SetErrorBias
@@ -1771,19 +1758,6 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNLinSolSetFromCommandLine(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FSUNLinSolSetFromCommandLine") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
-integer(C_INT), intent(in) :: farg3
-type(SwigClassWrapper) :: farg4
-integer(C_INT) :: fresult
-end function
-
 function swigc_FSUNLinSolSetZeroGuess(farg1, farg2) &
 bind(C, name="_wrap_FSUNLinSolSetZeroGuess") &
 result(fresult)
@@ -2069,19 +2043,6 @@ bind(C, name="_wrap_FSUNAdaptController_Reset") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdaptController_SetFromCommandLine(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FSUNAdaptController_SetFromCommandLine") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
-integer(C_INT), intent(in) :: farg3
-type(SwigClassWrapper) :: farg4
 integer(C_INT) :: fresult
 end function
 
@@ -4518,29 +4479,6 @@ fresult = swigc_FSUNLinSolSetScalingVectors(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNLinSolSetFromCommandLine(s, lsid, argc, argv) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNLinearSolver), target, intent(inout) :: s
-character(kind=C_CHAR, len=*), target :: lsid
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT), intent(in) :: argc
-class(SWIGTYPE_p_p_char), intent(in) :: argv
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-integer(C_INT) :: farg3 
-type(SwigClassWrapper) :: farg4 
-
-farg1 = c_loc(s)
-call SWIG_string_to_chararray(lsid, farg2_chars, farg2)
-farg3 = argc
-farg4 = argv%swigdata
-fresult = swigc_FSUNLinSolSetFromCommandLine(farg1, farg2, farg3, farg4)
-swig_result = fresult
-end function
-
 function FSUNLinSolSetZeroGuess(s, onoff) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5054,29 +4992,6 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_Reset(farg1)
-swig_result = fresult
-end function
-
-function FSUNAdaptController_SetFromCommandLine(c, cid, argc, argv) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNAdaptController), target, intent(inout) :: c
-character(kind=C_CHAR, len=*), target :: cid
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT), intent(in) :: argc
-class(SWIGTYPE_p_p_char), intent(in) :: argv
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-integer(C_INT) :: farg3 
-type(SwigClassWrapper) :: farg4 
-
-farg1 = c_loc(c)
-call SWIG_string_to_chararray(cid, farg2_chars, farg2)
-farg3 = argc
-farg4 = argv%swigdata
-fresult = swigc_FSUNAdaptController_SetFromCommandLine(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
