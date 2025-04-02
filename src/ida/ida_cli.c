@@ -79,130 +79,125 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
      {"increment_factor", IDASetIncrementFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] = {"eta_fixed_step_bounds",
-                                                     IDASetEtaFixedStepBounds},
+  static struct sunKeyTwoRealPair tworeal_pairs[] =
+    {{"eta_fixed_step_bounds", IDASetEtaFixedStepBounds},
+     {"scalar_tolerances", IDASStolerances}};
+  static const int num_tworeal_keys = sizeof(tworeal_pairs) /
+                                      sizeof(*tworeal_pairs);
+
+  static struct sunKeyActionPair action_pairs[] =
+    {{"clear_stop_time", IDAClearStopTime},
+     {"no_inactive_root_warn", IDASetNoInactiveRootWarn}};
+  static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
+
+  int i, j, retval;
+  for (i = 1; i < argc; i++)
   {
-    "scalar_tolerances", IDASStolerances
-  }
-};
+    sunbooleantype arg_used = SUNFALSE;
 
-static const int num_tworeal_keys = sizeof(tworeal_pairs) /
-                                    sizeof(*tworeal_pairs);
-
-static struct sunKeyActionPair action_pairs[] = {{"clear_stop_time",
-                                                  IDAClearStopTime},
-                                                 {"no_inactive_root_warn",
-                                                  IDASetNoInactiveRootWarn}};
-static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
-
-int i, j, retval;
-for (i = 1; i < argc; i++)
-{
-  sunbooleantype arg_used = SUNFALSE;
-
-  /* if idaid is supplied, skip command-line arguments that do not begin with idaid;
+    /* if idaid is supplied, skip command-line arguments that do not begin with idaid;
        else, skip command-line arguments that do not begin with "ida." */
-  size_t offset;
-  if (strlen(idaid) > 0)
-  {
-    if (strncmp(argv[i], idaid, strlen(idaid)) != 0) { continue; }
-    offset = strlen(idaid) + 1;
-  }
-  else
-  {
-    static const char* prefix = "ida.";
-    if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
-    offset = strlen(prefix);
-  }
-
-  /* check all "int" command-line options */
-  for (j = 0; j < num_int_keys; j++)
-  {
-    retval = sunCheckAndSetIntArg(ida_mem, &i, argv, offset, int_pairs[j].key,
-                                  int_pairs[j].set, &arg_used);
-    if (retval != IDA_SUCCESS)
+    size_t offset;
+    if (strlen(idaid) > 0)
     {
-      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
-                      int_pairs[j].key);
-      return retval;
+      if (strncmp(argv[i], idaid, strlen(idaid)) != 0) { continue; }
+      offset = strlen(idaid) + 1;
     }
-    if (arg_used) break;
-  }
-  if (arg_used) continue;
-
-  /* check all long int command-line options */
-  for (j = 0; j < num_long_keys; j++)
-  {
-    retval = sunCheckAndSetLongArg(ida_mem, &i, argv, offset, long_pairs[j].key,
-                                   long_pairs[j].set, &arg_used);
-    if (retval != IDA_SUCCESS)
+    else
     {
-      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
-                      long_pairs[j].key);
-      return retval;
+      static const char* prefix = "ida.";
+      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      offset = strlen(prefix);
     }
-    if (arg_used) break;
-  }
-  if (arg_used) continue;
 
-  /* check all real command-line options */
-  for (j = 0; j < num_real_keys; j++)
-  {
-    retval = sunCheckAndSetRealArg(ida_mem, &i, argv, offset, real_pairs[j].key,
-                                   real_pairs[j].set, &arg_used);
-    if (retval != IDA_SUCCESS)
+    /* check all "int" command-line options */
+    for (j = 0; j < num_int_keys; j++)
     {
-      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
-                      real_pairs[j].key);
-      return retval;
+      retval = sunCheckAndSetIntArg(ida_mem, &i, argv, offset, int_pairs[j].key,
+                                    int_pairs[j].set, &arg_used);
+      if (retval != IDA_SUCCESS)
+      {
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        int_pairs[j].key);
+        return retval;
+      }
+      if (arg_used) break;
     }
-    if (arg_used) break;
-  }
-  if (arg_used) continue;
+    if (arg_used) continue;
 
-  /* check all pair-of-real command-line options */
-  for (j = 0; j < num_tworeal_keys; j++)
-  {
-    retval = sunCheckAndSetTwoRealArg(ida_mem, &i, argv, offset,
-                                      tworeal_pairs[j].key,
-                                      tworeal_pairs[j].set, &arg_used);
-    if (retval != IDA_SUCCESS)
+    /* check all long int command-line options */
+    for (j = 0; j < num_long_keys; j++)
     {
-      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
-                      tworeal_pairs[j].key);
-      return retval;
+      retval = sunCheckAndSetLongArg(ida_mem, &i, argv, offset, long_pairs[j].key,
+                                     long_pairs[j].set, &arg_used);
+      if (retval != IDA_SUCCESS)
+      {
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        long_pairs[j].key);
+        return retval;
+      }
+      if (arg_used) break;
     }
-    if (arg_used) break;
-  }
-  if (arg_used) continue;
+    if (arg_used) continue;
 
-  /* check all action command-line options */
-  for (j = 0; j < num_action_keys; j++)
-  {
-    retval = sunCheckAndSetActionArg(ida_mem, &i, argv, offset,
-                                     action_pairs[j].key, action_pairs[j].set,
-                                     &arg_used);
-    if (retval != IDA_SUCCESS)
+    /* check all real command-line options */
+    for (j = 0; j < num_real_keys; j++)
     {
-      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
-                      action_pairs[j].key);
-      return retval;
+      retval = sunCheckAndSetRealArg(ida_mem, &i, argv, offset, real_pairs[j].key,
+                                     real_pairs[j].set, &arg_used);
+      if (retval != IDA_SUCCESS)
+      {
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        real_pairs[j].key);
+        return retval;
+      }
+      if (arg_used) break;
     }
-    if (arg_used) break;
+    if (arg_used) continue;
+
+    /* check all pair-of-real command-line options */
+    for (j = 0; j < num_tworeal_keys; j++)
+    {
+      retval = sunCheckAndSetTwoRealArg(ida_mem, &i, argv, offset,
+                                        tworeal_pairs[j].key,
+                                        tworeal_pairs[j].set, &arg_used);
+      if (retval != IDA_SUCCESS)
+      {
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        tworeal_pairs[j].key);
+        return retval;
+      }
+      if (arg_used) break;
+    }
+    if (arg_used) continue;
+
+    /* check all action command-line options */
+    for (j = 0; j < num_action_keys; j++)
+    {
+      retval = sunCheckAndSetActionArg(ida_mem, &i, argv, offset,
+                                       action_pairs[j].key, action_pairs[j].set,
+                                       &arg_used);
+      if (retval != IDA_SUCCESS)
+      {
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        action_pairs[j].key);
+        return retval;
+      }
+      if (arg_used) break;
+    }
+    if (arg_used) continue;
+
+    /* warn for uninterpreted idaid.X arguments */
+    IDAProcessError(IDA_mem, IDA_WARNING, __LINE__, __func__, __FILE__,
+                    "WARNING: argument %s was not handled\n", argv[i]);
   }
-  if (arg_used) continue;
 
-  /* warn for uninterpreted idaid.X arguments */
-  IDAProcessError(IDA_mem, IDA_WARNING, __LINE__, __func__, __FILE__,
-                  "WARNING: argument %s was not handled\n", argv[i]);
-}
-
-return (IDA_SUCCESS);
+  return (IDA_SUCCESS);
 }
 
 /*===============================================================
