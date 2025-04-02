@@ -1,10 +1,15 @@
+.. For package-specific references use :ref: rather than :numref: so intersphinx
+   links to the appropriate place on read the docs
+
 **Major Features**
 
-A new discrete adjoint capability for explicit Runge--Kutta methods has been added to the ARKODE
-ERKStep and ARKStep stepper modules. This is based on a new set of shared classes,
-:c:type:`SUNAdjointStepper` and :c:type:`SUNAdjointCheckpointScheme`. A new example demonstrating
-this capability can be found in `examples/arkode/C_serial/ark_lotka_volterra_ASA.c`. See
-:numref:`ARKODE.Mathematics.ASA` for details.
+A new discrete adjoint capability for explicit Runge--Kutta methods has been
+added to the ARKODE ERKStep and ARKStep stepper modules. This is based on a new
+set of shared classes, :c:type:`SUNAdjointStepper` and
+:c:type:`SUNAdjointCheckpointScheme`. A new example demonstrating this
+capability can be found in
+``examples/arkode/C_serial/ark_lotka_volterra_ASA.c``. See the
+:ref:`ARKODE.Mathematics.ASA` section of the ARKODE user guide for details.
 
 **New Features and Enhancements**
 
