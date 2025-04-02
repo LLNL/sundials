@@ -46,8 +46,9 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S, const char* LSid,
-                                               int argc, char* argv[]);
+SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
+                                               const char* LSid, int argc,
+                                               char* argv[]);
 
 /*
  * -----------------------------------------------------------------

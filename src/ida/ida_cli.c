@@ -79,15 +79,17 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
      {"increment_factor", IDASetIncrementFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] =
-    {{"eta_fixed_step_bounds", IDASetEtaFixedStepBounds},
-     {"scalar_tolerances", IDASStolerances}};
-  static const int num_tworeal_keys = sizeof(tworeal_pairs) /
+  static struct sunKeyTwoRealPair tworeal_pairs[] = {{"eta_fixed_step_bounds",
+                                                      IDASetEtaFixedStepBounds},
+                                                     {"scalar_tolerances",
+                                                      IDASStolerances}};
+  static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
-  static struct sunKeyActionPair action_pairs[] =
-    {{"clear_stop_time", IDAClearStopTime},
-     {"no_inactive_root_warn", IDASetNoInactiveRootWarn}};
+  static struct sunKeyActionPair action_pairs[] = {{"clear_stop_time",
+                                                    IDAClearStopTime},
+                                                   {"no_inactive_root_warn",
+                                                    IDASetNoInactiveRootWarn}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   int i, j, retval;

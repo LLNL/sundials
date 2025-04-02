@@ -62,9 +62,9 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S, const char* LSid,
-                                                  int argc, char* argv[]);
-
+SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
+                                                  const char* LSid, int argc,
+                                                  char* argv[]);
 
 /*
  * ----------------------------------------------------------------------------
