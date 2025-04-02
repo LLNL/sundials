@@ -3503,11 +3503,8 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   }
 
   /* Evaluate f_{y}^*(t_i, z_i, p) \Lambda_i and f_{p}^*(t_i, z_i, p) \nu_i */
-  int ierr = step_mem->adj_fe(t, checkpoint, sens_partial_stage,
-                              sens_complete_stage, user_data);
-  if (ierr) { return ierr; }
-
-  return 0;
+  return step_mem->adj_fe(t, checkpoint, sens_partial_stage,
+                          sens_complete_stage, user_data);
 }
 
 int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
