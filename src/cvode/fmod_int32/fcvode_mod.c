@@ -178,22 +178,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -249,20 +233,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   result.data = NULL;
   result.size = 0;
   return result;
-}
-
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
 }
 
 
@@ -357,25 +327,6 @@ SWIGEXPORT int _wrap_FCVodeWFtolerances(void *farg1, CVEwtFn farg2) {
   arg1 = (void *)(farg1);
   arg2 = (CVEwtFn)(farg2);
   result = (int)CVodeWFtolerances(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FCVodeSetFromCommandLine(void *farg1, SwigArrayWrapper *farg2, int const *farg3, SwigClassWrapper const *farg4) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char **arg4 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (char *)(farg2->data);
-  arg3 = (int)(*farg3);
-  SWIG_check_mutable(*farg4, "char **", "SWIGTYPE_p_p_char", "CVodeSetFromCommandLine(void *,char const *,int,char *[])", return 0);
-  arg4 = (char **)(farg4->cptr);
-  result = (int)CVodeSetFromCommandLine(arg1,(char const *)arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }

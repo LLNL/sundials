@@ -47,6 +47,15 @@
 #define SOLVE(S)          (KLU_CONTENT(S)->klu_solver)
 
 /*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
+                                           int argc, char* argv[]);
+
+/*
  * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------

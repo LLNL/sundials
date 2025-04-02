@@ -267,6 +267,9 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 }
 
 
+#include <string.h>
+
+
 typedef struct {
     void* cptr;
     int cmemflags;
@@ -279,9 +282,6 @@ SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
     result.cmemflags = 0;
     return result;
 }
-
-
-#include <string.h>
 
 
 SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
@@ -314,25 +314,6 @@ SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
     }
   }
 }
-
-SWIGEXPORT int _wrap_FARKodeSetFromCommandLine(void *farg1, SwigArrayWrapper *farg2, int const *farg3, SwigClassWrapper const *farg4) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char **arg4 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (char *)(farg2->data);
-  arg3 = (int)(*farg3);
-  SWIG_check_mutable(*farg4, "char **", "SWIGTYPE_p_p_char", "ARKodeSetFromCommandLine(void *,char const *,int,char *[])", return 0);
-  arg4 = (char **)(farg4->cptr);
-  result = (int)ARKodeSetFromCommandLine(arg1,(char const *)arg2,arg3,arg4);
-  fresult = (int)(result);
-  return fresult;
-}
-
 
 SWIGEXPORT int _wrap_FARKodeResize(void *farg1, N_Vector farg2, double const *farg3, double const *farg4, ARKVecResizeFn farg5, void *farg6) {
   int fresult ;

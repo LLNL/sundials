@@ -17,6 +17,9 @@
 // Include shared configuration
 %include "../sundials/fsundials.i"
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore SUNAdaptController_SetFromCommandLine;
+
 %{
 #include "sundials/sundials_adaptcontroller.h"
 %}

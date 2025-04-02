@@ -51,6 +51,16 @@
 #define DEFAULT_K2I  SUN_RCONST(0.95)
 #define DEFAULT_BIAS SUN_RCONST(1.5)
 
+/*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNAdaptController_SetFromCommandLine_ImExGus(SUNAdaptController C,
+                                                         const char* Cid,
+                                                         int argc, char* argv[]);
+
 /* -----------------------------------------------------------------
  * exported functions
  * ----------------------------------------------------------------- */

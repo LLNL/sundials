@@ -57,6 +57,15 @@
 #define OPTIONS(S)         (SLUMT_CONTENT(S)->options)
 
 /*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_SuperLUMT( SUNLinearSolver S, const char* LSid,
+                                                  int argc, char* argv[]);
+
+/*
  * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------

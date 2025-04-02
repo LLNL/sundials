@@ -42,6 +42,15 @@
 #define LASTFLAG(S)    (PCG_CONTENT(S)->last_flag)
 
 /*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
+                                           int argc, char* argv[]);
+
+/*
  * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------

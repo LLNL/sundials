@@ -41,6 +41,15 @@
 #define LASTFLAG(S)        (SPTFQMR_CONTENT(S)->last_flag)
 
 /*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S, const char* LSid,
+                                               int argc, char* argv[]);
+
+/*
  * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------

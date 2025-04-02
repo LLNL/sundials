@@ -26,22 +26,6 @@ module fsunadaptcontroller_soderlind_mod
 
  ! DECLARATION CONSTRUCTS
  public :: FSUNAdaptController_Soderlind
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_p_char
-  type(SwigClassWrapper), public :: swigdata
- end type
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
- public :: FSUNAdaptController_SetFromCommandLine_Soderlind
  public :: FSUNAdaptController_SetParams_Soderlind
  public :: FSUNAdaptController_GetType_Soderlind
  public :: FSUNAdaptController_EstimateStep_Soderlind
@@ -70,19 +54,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR) :: fresult
-end function
-
-function swigc_FSUNAdaptController_SetFromCommandLine_Soderlind(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FSUNAdaptController_SetFromCommandLine_Soderlind") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
-integer(C_INT), intent(in) :: farg3
-type(SwigClassWrapper) :: farg4
-integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNAdaptController_SetParams_Soderlind(farg1, farg2, farg3, farg4, farg5, farg6) &
@@ -278,47 +249,6 @@ type(C_PTR) :: farg1
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_Soderlind(farg1)
 call c_f_pointer(fresult, swig_result)
-end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
-
-function FSUNAdaptController_SetFromCommandLine_Soderlind(c, cid, argc, argv) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNAdaptController), target, intent(inout) :: c
-character(kind=C_CHAR, len=*), target :: cid
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT), intent(in) :: argc
-class(SWIGTYPE_p_p_char), intent(in) :: argv
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-integer(C_INT) :: farg3 
-type(SwigClassWrapper) :: farg4 
-
-farg1 = c_loc(c)
-call SWIG_string_to_chararray(cid, farg2_chars, farg2)
-farg3 = argc
-farg4 = argv%swigdata
-fresult = swigc_FSUNAdaptController_SetFromCommandLine_Soderlind(farg1, farg2, farg3, farg4)
-swig_result = fresult
 end function
 
 function FSUNAdaptController_SetParams_Soderlind(c, k1, k2, k3, k4, k5) &

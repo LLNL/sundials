@@ -44,6 +44,15 @@
 #define LASTFLAG(S)       (SPBCGS_CONTENT(S)->last_flag)
 
 /*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_SPBCGS(SUNLinearSolver S, const char* LSid,
+                                              int argc, char* argv[]);
+
+/*
  * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------

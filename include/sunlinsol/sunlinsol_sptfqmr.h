@@ -85,10 +85,6 @@ SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
-                                                               const char* LSid,
-                                                               int argc,
-                                                               char* argv[]);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S,
                                                       void* A_data,
                                                       SUNATimesFn ATimes);

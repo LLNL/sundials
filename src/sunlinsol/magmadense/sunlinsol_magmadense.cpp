@@ -58,6 +58,16 @@
 
 /*
  * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S, const char* LSid,
+                                                  int argc, char* argv[]);
+
+
+/*
+ * ----------------------------------------------------------------------------
  * Implementation specific routines
  * ----------------------------------------------------------------------------
  */

@@ -49,11 +49,6 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
                                               SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
-                                                         const char* Cid,
-                                                         int argc, char* argv[]);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
                                                 sunrealtype inner_max_relch,
                                                 sunrealtype inner_min_tolfac,

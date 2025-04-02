@@ -88,10 +88,6 @@ SUNDIALS_EXPORT
 SUNErrCode SUNLinSolInitialize_PCG(SUNLinearSolver S);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
-                                           int argc, char* argv[]);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNLinSolSetATimes_PCG(SUNLinearSolver S, void* A_data,
                                   SUNATimesFn ATimes);
 

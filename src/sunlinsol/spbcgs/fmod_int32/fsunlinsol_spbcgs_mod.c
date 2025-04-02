@@ -178,22 +178,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -223,45 +207,6 @@ enum {
 
 
 #include "sunlinsol/sunlinsol_spbcgs.h"
-
-
-#include <stdlib.h>
-#ifdef _MSC_VER
-# ifndef strtoull
-#  define strtoull _strtoui64
-# endif
-# ifndef strtoll
-#  define strtoll _strtoi64
-# endif
-#endif
-
-
-typedef struct {
-    void* data;
-    size_t size;
-} SwigArrayWrapper;
-
-
-SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
-  SwigArrayWrapper result;
-  result.data = NULL;
-  result.size = 0;
-  return result;
-}
-
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
 
 SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_SPBCGS(N_Vector farg1, int const *farg2, int const *farg3, void *farg4) {
   SUNLinearSolver fresult ;
@@ -340,25 +285,6 @@ SWIGEXPORT int _wrap_FSUNLinSolInitialize_SPBCGS(SUNLinearSolver farg1) {
   
   arg1 = (SUNLinearSolver)(farg1);
   result = (SUNErrCode)SUNLinSolInitialize_SPBCGS(arg1);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolSetFromCommandLine_SPBCGS(SUNLinearSolver farg1, SwigArrayWrapper *farg2, int const *farg3, SwigClassWrapper const *farg4) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char **arg4 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (char *)(farg2->data);
-  arg3 = (int)(*farg3);
-  SWIG_check_mutable(*farg4, "char **", "SWIGTYPE_p_p_char", "SUNLinSolSetFromCommandLine_SPBCGS(SUNLinearSolver,char const *,int,char *[])", return 0);
-  arg4 = (char **)(farg4->cptr);
-  result = (SUNErrCode)SUNLinSolSetFromCommandLine_SPBCGS(arg1,(char const *)arg2,arg3,arg4);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

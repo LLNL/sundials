@@ -60,22 +60,6 @@ module fkinsol_mod
  public :: FKINCreate
  public :: FKINInit
  public :: FKINSol
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_p_char
-  type(SwigClassWrapper), public :: swigdata
- end type
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
- public :: FKINSetFromCommandLine
  public :: FKINSetUserData
  public :: FKINSetDamping
  public :: FKINSetMAA
@@ -110,6 +94,10 @@ module fkinsol_mod
  public :: FKINGetStepLength
  public :: FKINGetUserData
  public :: FKINPrintAllStats
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
  public :: FKINGetReturnFlagName
  public :: FKINFree
  public :: FKINSetJacTimesVecSysFn
@@ -174,19 +162,6 @@ type(C_PTR), value :: farg2
 integer(C_INT), intent(in) :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
-integer(C_INT) :: fresult
-end function
-
-function swigc_FKINSetFromCommandLine(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FKINSetFromCommandLine") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
-integer(C_INT), intent(in) :: farg3
-type(SwigClassWrapper) :: farg4
 integer(C_INT) :: fresult
 end function
 
@@ -770,47 +745,6 @@ farg3 = strategy
 farg4 = c_loc(u_scale)
 farg5 = c_loc(f_scale)
 fresult = swigc_FKINSol(farg1, farg2, farg3, farg4, farg5)
-swig_result = fresult
-end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
-
-function FKINSetFromCommandLine(kinmem, kinid, argc, argv) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: kinmem
-character(kind=C_CHAR, len=*), target :: kinid
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT), intent(in) :: argc
-class(SWIGTYPE_p_p_char), intent(in) :: argv
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-integer(C_INT) :: farg3 
-type(SwigClassWrapper) :: farg4 
-
-farg1 = kinmem
-call SWIG_string_to_chararray(kinid, farg2_chars, farg2)
-farg3 = argc
-farg4 = argv%swigdata
-fresult = swigc_FKINSetFromCommandLine(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

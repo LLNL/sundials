@@ -93,10 +93,6 @@ SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S,
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
-                                                             const char* LSid,
-                                                             int argc,
-                                                             char* argv[]);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolSetATimes_SPGMR(SUNLinearSolver S,
                                                     void* A_data,
                                                     SUNATimesFn ATimes);

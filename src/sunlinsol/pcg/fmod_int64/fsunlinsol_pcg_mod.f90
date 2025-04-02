@@ -32,22 +32,6 @@ module fsunlinsol_pcg_mod
  public :: FSUNLinSolGetType_PCG
  public :: FSUNLinSolGetID_PCG
  public :: FSUNLinSolInitialize_PCG
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_p_char
-  type(SwigClassWrapper), public :: swigdata
- end type
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
- public :: FSUNLinSolSetFromCommandLine_PCG
  public :: FSUNLinSolSetATimes_PCG
  public :: FSUNLinSolSetPreconditioner_PCG
  public :: FSUNLinSolSetScalingVectors_PCG
@@ -113,19 +97,6 @@ bind(C, name="_wrap_FSUNLinSolInitialize_PCG") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNLinSolSetFromCommandLine_PCG(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FSUNLinSolSetFromCommandLine_PCG") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
-integer(C_INT), intent(in) :: farg3
-type(SwigClassWrapper) :: farg4
 integer(C_INT) :: fresult
 end function
 
@@ -335,47 +306,6 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolInitialize_PCG(farg1)
-swig_result = fresult
-end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
-
-function FSUNLinSolSetFromCommandLine_PCG(s, lsid, argc, argv) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNLinearSolver), target, intent(inout) :: s
-character(kind=C_CHAR, len=*), target :: lsid
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT), intent(in) :: argc
-class(SWIGTYPE_p_p_char), intent(in) :: argv
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-integer(C_INT) :: farg3 
-type(SwigClassWrapper) :: farg4 
-
-farg1 = c_loc(s)
-call SWIG_string_to_chararray(lsid, farg2_chars, farg2)
-farg3 = argc
-farg4 = argv%swigdata
-fresult = swigc_FSUNLinSolSetFromCommandLine_PCG(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

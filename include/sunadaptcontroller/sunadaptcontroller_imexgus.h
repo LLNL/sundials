@@ -52,11 +52,6 @@ SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_SetFromCommandLine_ImExGus(SUNAdaptController C,
-                                                         const char* Cid,
-                                                         int argc, char* argv[]);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
                                                 sunrealtype k1e, sunrealtype k2e,
                                                 sunrealtype k1i, sunrealtype k2i);

@@ -18,6 +18,9 @@
 
 %include "../sundials/fsundials.i"
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore ARKodeSetFromCommandLine;
+
 %{
 #include "arkode/arkode.h"
 #include "arkode/arkode_bandpre.h"
@@ -46,4 +49,3 @@
 %include "arkode/arkode_butcher_erk.h"
 %include "arkode/arkode_sprk.h"
 %include "arkode/arkode_ls.h"
-

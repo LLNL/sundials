@@ -66,6 +66,17 @@
 #define DEFAULT_IMPGUS_K2 SUN_RCONST(0.95)
 #define DEFAULT_BIAS      SUN_RCONST(1.5)
 
+/*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
+                                                           const char* Cid,
+                                                           int argc,
+                                                           char* argv[]);
+
 /* -----------------------------------------------------------------
  * exported functions
  * ----------------------------------------------------------------- */
