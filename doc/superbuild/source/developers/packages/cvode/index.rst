@@ -12,13 +12,12 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Packages:
+.. _CVODE.Alg:
 
-Packages
-===========
+CVODE
+=====
 
 .. toctree::
    :maxdepth: 2
 
-   arkode/index.rst
-   cvode/index.rst
+   Nordsieck
