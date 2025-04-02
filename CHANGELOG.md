@@ -4,7 +4,7 @@
 
 ### Major Features
 
-A new discrete adjoint capabiltiy for explicit Runge-Kutta methods has been
+A new discrete adjoint capability for explicit Runge-Kutta methods has been
 added to the ARKODE ERKStep and ARKStep stepper modules. This is based on a
 new set of shared classes, `SUNAdjointStepper` and `SUNAdjointCheckpointScheme`.
 A new example demonstrating this capability can be found in
