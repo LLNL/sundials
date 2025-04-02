@@ -260,7 +260,7 @@ Implementation Specific Methods
 
 The ``SUNAdjointCheckpointScheme_Fixed`` module also implements the following module-specific functions:
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, suncountertype interval, suncountertype estimate, sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, suncountertype interval, suncountertype estimate, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
 
    Creates a new :c:type:`SUNAdjointCheckpointScheme` object that checkpoints at a fixed interval.
 
@@ -268,7 +268,6 @@ The ``SUNAdjointCheckpointScheme_Fixed`` module also implements the following mo
    :param mem_helper: Memory helper for managing memory.
    :param interval: The interval (in steps) between checkpoints.
    :param estimate: An estimate of the total number of checkpoints needed.
-   :param save_stages: If using a multistage method, should stages be saved with the step.
    :param keep: Keep data stored even after it is not needed anymore.
    :param sunctx: The :c:type:`SUNContext` for the simulation.
    :param check_scheme_ptr: Pointer to the newly constructed object.

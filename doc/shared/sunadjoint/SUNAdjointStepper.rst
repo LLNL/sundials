@@ -144,3 +144,48 @@ The :c:type:`SUNAdjointStepper` class has the following methods:
    :param fmt: the format to write in (:c:type:`SUN_OUTPUTFORMAT_TABLE` or :c:type:`SUN_OUTPUTFORMAT_CSV`).
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
+
+
+.. _SUNAdjoint.Stepper.UserSupplied:
+
+User-Supplied Functions
+-----------------------
+
+.. c:type:: int (*SUNAdjRhsFn)(sunrealtype t, N_Vector y, N_Vector sens, N_Vector sens_dot, void* user_data)
+
+   These functions compute the adjoint ODE right-hand side.
+
+   For :ref:`ARKODE <ARKODE.Mathematics.ASA>`, this is
+
+   .. math::
+      \Lambda &= f_y^*(t, y, p) \lambda, \quad \text{and if the systems has parameters}, \\
+          \nu &= f_p^*(t, y, p) \lambda.
+
+   and corresponds to :eq:`ARKODE_ERK_ADJOINT` for explicit Runge--Kutta methods.
+
+   **Parameters:**
+
+   * **t** -- the current value of the independent variable.
+   * **y** -- the current value of the forward solution vector.
+   * **sens** -- a :ref:`NVECTOR_MANYVECTOR <NVectors.ManyVector>` object with two
+     subvectors, the first subvector holds :math:`\lambda` and the second holds
+     :math:`\mu` and is unused in this function.
+   * **sens_dot** -- a :ref:`NVECTOR_MANYVECTOR <NVectors.ManyVector>` object with
+     two subvectors, the first subvector holds :math:`\Lambda` and the second holds
+     :math:`\nu`.
+   * **user_data** -- the `user_data` pointer that was passed to
+     :c:func:`SUNAdjointStepper_SetUserData`.
+
+   **Returns:**
+
+     A :c:type:`SUNAdjRhsFn` should return 0 if successful, a positive value if a
+     recoverable error occurred (in which case the integrator may attempt to
+     correct), or a negative value if it failed unrecoverably (in which
+     case the integration is halted and an error is raised).
+
+   .. note::
+
+      Allocation of memory for ``y`` is handled within the integrator.
+
+      The vector ``sens_dot`` may be uninitialized on input; it is the user's
+      responsibility to fill this entire vector with meaningful values.

@@ -184,40 +184,37 @@ static int64_t sunHashMapLinearProbeInsert(int64_t idx, SUNHashMapKeyValue kv,
 static SUNErrCode sunHashMapResize(SUNHashMap map)
 {
   int64_t old_capacity = SUNHashMap_Capacity(map);
+  int64_t new_capacity = old_capacity == 0
+                           ? 2
+                           : (int64_t)(ceill(((long double)old_capacity) *
+                                             SUNSTLVECTOR_GROWTH_FACTOR));
 
-  /* Resize the existing buckets vector in-place */
-  SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_Grow(map->buckets);
-  if (err) { return err; }
+  SUNStlVector_SUNHashMapKeyValue old_buckets = map->buckets;
+  map->buckets = SUNStlVector_SUNHashMapKeyValue_New(new_capacity,
+                                                     map->buckets->destroyValue);
 
-  int64_t new_capacity = SUNHashMap_Capacity(map);
-
-  /* Initialize the new buckets to NULL */
-  for (int64_t i = old_capacity; i < new_capacity; i++)
+  /* Set all buckets to NULL */
+  for (int64_t i = 0; i < new_capacity; i++)
   {
-    err = SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
+    SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
     if (err) { return err; }
   }
 
-  /* Rehash and reinsert existing key-value pairs */
-  for (int64_t i = 0; i < old_capacity; i++)
+  /* Rehash and reinsert */
+  for (int64_t i = old_capacity - 1; i >= 0; i--)
   {
-    SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i);
+    SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(old_buckets, i);
     if (kvp)
     {
-      /* Remove the key-value pair from the current bucket */
-      SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, i, NULL);
-
-      /* Reinsert the key-value pair into the resized buckets */
-      int64_t new_idx = sunHashMapIdxFromKey(map, kvp->key);
-      if (*SUNStlVector_SUNHashMapKeyValue_At(map->buckets, new_idx))
-      {
-        new_idx = (new_idx + 1) % new_capacity;
-      }
-      SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, new_idx, kvp);
+      SUNHashMap_Insert(map, kvp->key, kvp->value);
+      free(kvp->key);
+      free(kvp);
     }
+    SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_PopBack(old_buckets);
+    if (err) { return err; }
   }
 
-  return SUN_SUCCESS;
+  return SUNStlVector_SUNHashMapKeyValue_Destroy(&old_buckets);
 }
 
 /*

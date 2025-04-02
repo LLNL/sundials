@@ -34,7 +34,7 @@ module fsunadjointcheckpointscheme_fixed_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FSUNAdjointCheckpointScheme_Create_Fixed(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8) &
+function swigc_FSUNAdjointCheckpointScheme_Create_Fixed(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_Create_Fixed") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -43,9 +43,8 @@ type(C_PTR), value :: farg2
 integer(C_LONG), intent(in) :: farg3
 integer(C_LONG), intent(in) :: farg4
 integer(C_INT), intent(in) :: farg5
-integer(C_INT), intent(in) :: farg6
+type(C_PTR), value :: farg6
 type(C_PTR), value :: farg7
-type(C_PTR), value :: farg8
 integer(C_INT) :: fresult
 end function
 
@@ -108,8 +107,7 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FSUNAdjointCheckpointScheme_Create_Fixed(io_mode, mem_helper, interval, estimate, save_stages, keep, sunctx, &
-  check_scheme_ptr) &
+function FSUNAdjointCheckpointScheme_Create_Fixed(io_mode, mem_helper, interval, estimate, keep, sunctx, check_scheme_ptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -117,7 +115,6 @@ integer(SUNDataIOMode), intent(in) :: io_mode
 type(SUNMemoryHelper_), target, intent(inout) :: mem_helper
 integer(C_LONG), intent(in) :: interval
 integer(C_LONG), intent(in) :: estimate
-integer(C_INT), intent(in) :: save_stages
 integer(C_INT), intent(in) :: keep
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: check_scheme_ptr
@@ -127,19 +124,17 @@ type(C_PTR) :: farg2
 integer(C_LONG) :: farg3 
 integer(C_LONG) :: farg4 
 integer(C_INT) :: farg5 
-integer(C_INT) :: farg6 
+type(C_PTR) :: farg6 
 type(C_PTR) :: farg7 
-type(C_PTR) :: farg8 
 
 farg1 = io_mode
 farg2 = c_loc(mem_helper)
 farg3 = interval
 farg4 = estimate
-farg5 = save_stages
-farg6 = keep
-farg7 = sunctx
-farg8 = c_loc(check_scheme_ptr)
-fresult = swigc_FSUNAdjointCheckpointScheme_Create_Fixed(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8)
+farg5 = keep
+farg6 = sunctx
+farg7 = c_loc(check_scheme_ptr)
+fresult = swigc_FSUNAdjointCheckpointScheme_Create_Fixed(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
 

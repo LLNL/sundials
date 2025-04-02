@@ -23,6 +23,8 @@
 #include <arkode/arkode_ls.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sundials/sundials_adjointstepper.h>
+#include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -403,6 +405,15 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void ARKStepFree(void** arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintMem instead")
 void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
+
+/* Adjoint solver functions */
+SUNDIALS_EXPORT
+int ARKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_fe,
+                                SUNAdjRhsFn adj_fi, sunrealtype tf, N_Vector sf,
+                                SUNContext sunctx,
+                                SUNAdjointStepper* adj_stepper_ptr);
+
+/* Relaxation functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxFn instead")
 int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxEtaFail instead")

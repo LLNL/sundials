@@ -136,11 +136,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CreateWorks)
 
   suncountertype interval           = 1;
   suncountertype estimate           = 1;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
@@ -154,11 +153,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, SingleStageWorks)
   SUNAdjointCheckpointScheme cs     = NULL;
   suncountertype interval           = 1;
   suncountertype estimate           = 10;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
@@ -174,11 +172,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStageWorks)
   SUNAdjointCheckpointScheme cs     = NULL;
   suncountertype interval           = 1;
   suncountertype estimate           = 100;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
@@ -194,11 +191,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsWorks)
   SUNAdjointCheckpointScheme cs     = NULL;
   suncountertype interval           = 1;
   suncountertype estimate           = 100;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
@@ -214,11 +210,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsTwoStagesWorks)
   SUNAdjointCheckpointScheme cs     = NULL;
   suncountertype interval           = 1;
   suncountertype estimate           = 100;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
@@ -234,11 +229,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, SingleStageWithDeleteWorks)
   SUNAdjointCheckpointScheme cs     = NULL;
   suncountertype interval           = 1;
   suncountertype estimate           = 100;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
@@ -254,11 +248,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStagesWithDeleteWorks)
   SUNAdjointCheckpointScheme cs     = NULL;
   suncountertype interval           = 1;
   suncountertype estimate           = 100;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
@@ -274,11 +267,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsWithDeleteWorks)
   SUNAdjointCheckpointScheme cs     = NULL;
   suncountertype interval           = 1;
   suncountertype estimate           = 100;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
@@ -294,11 +286,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsTwoStagesWithDeleteWorks)
   SUNAdjointCheckpointScheme cs     = NULL;
   suncountertype interval           = 1;
   suncountertype estimate           = 100;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
@@ -315,11 +306,10 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
   sunrealtype tout                  = SUN_RCONST(0.0);
   suncountertype interval           = 1;
   suncountertype estimate           = 100;
-  sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
   err = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
-                                                interval, estimate, save_stages,
+                                                interval, estimate,
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 

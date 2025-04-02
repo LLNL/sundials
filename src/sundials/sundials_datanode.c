@@ -100,7 +100,7 @@ SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  SUNCheck(err, err);
+  SUNCheck(err == SUN_SUCCESS, err);
 
   return err;
 }
@@ -131,7 +131,7 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  SUNCheck(err, err);
+  SUNCheck(err == SUN_SUCCESS, err);
 
   return err;
 }
@@ -162,7 +162,7 @@ SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  SUNCheck(err, err);
+  SUNCheck(err == SUN_SUCCESS, err);
 
   return err;
 }
