@@ -50,6 +50,12 @@
 #endif
 #define STEPS 5 /* checkpoint interval  */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#else
+#define GSYM "g"
+#endif
+
 static int check_retval(void* retval_ptr, const char* funcname, int opt);
 
 static sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
@@ -127,7 +133,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVode", 1)) { return 1; }
 
   /* Print the final solution */
-  printf("Forward Solution at t = %g:\n", t);
+  printf("Forward Solution at t = %" GSYM "\n", t);
   N_VPrint(u);
 
   /* Allocate memory for the adjoint solution vector */
@@ -200,7 +206,7 @@ int main(int argc, char* argv[])
   N_VScale(SUN_RCONST(-1.0), qB, qB);
 
   /* Print the final adjoint solution */
-  printf("Adjoint Solution at t = %g:\n", t);
+  printf("Adjoint Solution at t = %" GSYM "\n", t);
   N_VPrint(uB);
   N_VPrint(qB);
 
