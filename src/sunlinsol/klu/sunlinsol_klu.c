@@ -19,11 +19,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_klu.h>
 
+#include "sundials_cli.h"
 #include "sundials_macros.h"
 
 #define ONE       SUN_RCONST(1.0)
@@ -42,6 +45,15 @@
 #define NUMERIC(S)        (KLU_CONTENT(S)->numeric)
 #define COMMON(S)         (KLU_CONTENT(S)->common)
 #define SOLVE(S)          (KLU_CONTENT(S)->klu_solver)
+
+/*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
+                                           int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -79,14 +91,15 @@ SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A, SUNContext sunctx)
   if (S == NULL) { return (NULL); }
 
   /* Attach operations */
-  S->ops->gettype    = SUNLinSolGetType_KLU;
-  S->ops->getid      = SUNLinSolGetID_KLU;
-  S->ops->initialize = SUNLinSolInitialize_KLU;
-  S->ops->setup      = SUNLinSolSetup_KLU;
-  S->ops->solve      = SUNLinSolSolve_KLU;
-  S->ops->lastflag   = SUNLinSolLastFlag_KLU;
-  S->ops->space      = SUNLinSolSpace_KLU;
-  S->ops->free       = SUNLinSolFree_KLU;
+  S->ops->gettype            = SUNLinSolGetType_KLU;
+  S->ops->getid              = SUNLinSolGetID_KLU;
+  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_KLU;
+  S->ops->initialize         = SUNLinSolInitialize_KLU;
+  S->ops->setup              = SUNLinSolSetup_KLU;
+  S->ops->solve              = SUNLinSolSolve_KLU;
+  S->ops->lastflag           = SUNLinSolLastFlag_KLU;
+  S->ops->space              = SUNLinSolSpace_KLU;
+  S->ops->free               = SUNLinSolFree_KLU;
 
   /* Create content */
   content = NULL;
@@ -165,6 +178,47 @@ SUNErrCode SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
   FIRSTFACTORIZE(S) = 1;
 
   LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
+                                           int argc, char* argv[])
+{
+  SUNFunctionBegin(S->sunctx);
+
+  int i;
+  SUNErrCode retval;
+  for (i = 1; i < argc; i++)
+  {
+    /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
+       else, skip command-line arguments that do not begin with "spbcgs." */
+    size_t offset;
+    if (strlen(LSid) > 0)
+    {
+      if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
+      offset = strlen(LSid) + 1;
+    }
+    else
+    {
+      static const char* prefix = "klu.";
+      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      offset = strlen(prefix);
+    }
+
+    /* control over SetOrdering function */
+    if (strcmp(argv[i] + offset, "ordering") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval   = SUNLinSol_KLUSetOrdering(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      continue;
+    }
+  }
   return SUN_SUCCESS;
 }
 

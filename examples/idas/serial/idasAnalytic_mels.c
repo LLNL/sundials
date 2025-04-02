@@ -64,7 +64,7 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol,
                      sunrealtype atol);
 
 /* Main Program */
-int main(void)
+int main(int argc, char* argv[])
 {
   /* SUNDIALS context object */
   SUNContext ctx;
@@ -123,6 +123,10 @@ int main(void)
   /* Attach the linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
   if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
+
+  /* Override any current settings with command-line options */
+  retval = IDASetFromCommandLine(ida_mem, "", argc, argv);
+  if (check_retval(&retval, "IDASetFromCommandLine", 1)) { return 1; }
 
   /* In loop, call IDASolve, print results, and test for error.
      Stops when the final time has been reached. */

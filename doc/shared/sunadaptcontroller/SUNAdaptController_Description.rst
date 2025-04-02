@@ -93,6 +93,12 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNAdaptController_Reset`
 
+   .. c:member:: SUNErrCode (*setfromcommandline)(SUNAdaptController C, const char* Cid, int argc, char* argv[])
+
+      The function implementing :c:func:`SUNAdaptController_SetFromCommandLine`
+
+      .. versionadded:: x.y.z
+
    .. c:member:: SUNErrCode (*setdefaults)(SUNAdaptController C)
 
       The function implementing :c:func:`SUNAdaptController_SetDefaults`
@@ -261,12 +267,46 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:function:: SUNErrCode SUNAdaptController_SetFromCommandLine(SUNAdaptController C, const char* Cid, int argc, char* argv[])
+
+   Passes command-line arguments to SUNAdaptController implementations.
+
+   :param C: the :c:type:`SUNAdaptController` object.
+   :param Cid: String to use as prefix for command-line options.
+   :param argc: Number of command-line options provided to executable.
+   :param argv: Array of strings containing command-line options provided to executable.
+
+   :return: :c:type:`SUNErrCode` indicating success or failure.
+
+   .. note::
+
+      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.  These
+      are left unchanged by :c:func:`SUNAdaptController_SetFromCommandLine`.
+
+      If the *Cid* argument is ``NULL`` then an implementation-specific prefix will be used for the
+      relevant command-line options -- see each implementation for its default prefix value.
+      When using a combination of SUNAdaptController objects (e.g., within MRIStep, SplittingStep or
+      ForcingStep), it is recommended that users call :c:func:`SUNAdaptController_SetFromCommandLine`
+      for each controller using distinct *Cid* inputs, so that each controller can be configured
+      separately.
+
+      SUNAdaptController options set via command-line arguments to
+      :c:func:`SUNAdaptController_SetFromCommandLine` will overwrite any previously-set values.
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
 
    Sets the controller parameters to their default values.
 
    :param C:  the :c:type:`SUNAdaptController` object.
    :return: :c:type:`SUNErrCode` indicating success or failure.
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.defaults".
 
 
 .. c:function:: SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
@@ -276,6 +316,11 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C:  the :c:type:`SUNAdaptController` object.
    :param fptr:  the output stream to write the parameters to.
    :return: :c:type:`SUNErrCode` indicating success or failure.
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.write_parameters".
 
 
 .. c:function:: SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
@@ -288,6 +333,11 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param bias:  the error bias factor -- an input :math:`\leq 0` indicates to use
                  the default value for the controller.
    :return: :c:type:`SUNErrCode` indicating success or failure.
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.error_bias".
 
 
 .. c:function:: SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm)

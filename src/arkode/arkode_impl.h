@@ -224,6 +224,9 @@ typedef int (*ARKTimestepGetNumRhsEvals)(ARKodeMem ark_mem, int partition_index,
                                          long int* num_rhs_evals);
 typedef int (*ARKTimestepSetStepDirection)(ARKodeMem ark_mem,
                                            sunrealtype stepdir);
+typedef int (*ARKTimestepSetFromCommandLine)(ARKodeMem ark_mem, int* i,
+                                             char* argv[], const size_t offset,
+                                             sunbooleantype* arg_used);
 
 /* time stepper interface functions -- temporal adaptivity */
 typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
@@ -414,6 +417,7 @@ struct ARKodeMemRec
   ARKTimestepSetOrder step_setorder;
   ARKTimestepGetNumRhsEvals step_getnumrhsevals;
   ARKTimestepSetStepDirection step_setstepdirection;
+  ARKTimestepSetFromCommandLine step_setfromcommandline;
 
   /* Time stepper module -- temporal adaptivity */
   sunbooleantype step_supports_adaptive;

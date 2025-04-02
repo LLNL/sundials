@@ -77,6 +77,9 @@ user-callable routines:
       with these solvers, this use mode is not supported and may result
       in inferior performance.
 
+      This SUNLinearSolver implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNLinSolSetFromCommandLine`
+      to be "spgmr".
 
 .. c:function:: SUNErrCode SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype)
 
@@ -94,6 +97,11 @@ user-callable routines:
    **Return value:**
       * A :c:type:`SUNErrCode`
 
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
+      when using the command-line option "LSid.prec_type".
+
 
 .. c:function:: SUNErrCode SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
 
@@ -109,6 +117,11 @@ user-callable routines:
    **Return value:**
       * A :c:type:`SUNErrCode`
 
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
+      when using the command-line option "LSid.gs_type".
+
 
 .. c:function:: SUNErrCode SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 
@@ -121,6 +134,11 @@ user-callable routines:
 
    **Return value:**
       * A :c:type:`SUNErrCode`
+
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
+      when using the command-line option "LSid.max_restarts".
 
 
 .. _SUNLinSol.SPGMR.Description:

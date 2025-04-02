@@ -18,6 +18,9 @@
 
 %include "../sundials/fsundials.i"
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore KINSetFromCommandLine;
+
 %{
 #include "kinsol/kinsol.h"
 #include "kinsol/kinsol_bbdpre.h"
@@ -30,4 +33,3 @@
 %include "kinsol/kinsol.h"
 %include "kinsol/kinsol_bbdpre.h"
 %include "kinsol/kinsol_ls.h"
-

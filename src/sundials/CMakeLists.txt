@@ -81,6 +81,7 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 set(sundials_SOURCES
     sundials_adaptcontroller.c
     sundials_band.c
+    sundials_cli.c
     sundials_context.c
     sundials_dense.c
     sundials_direct.c

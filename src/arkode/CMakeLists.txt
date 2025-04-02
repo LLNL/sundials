@@ -27,6 +27,7 @@ set(arkode_SOURCES
     arkode_butcher_dirk.c
     arkode_butcher_erk.c
     arkode_butcher.c
+    arkode_cli.c
     arkode_erkstep_io.c
     arkode_erkstep.c
     arkode_forcingstep.c

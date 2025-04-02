@@ -411,6 +411,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: setatimes
   type(C_FUNPTR), public :: setpreconditioner
   type(C_FUNPTR), public :: setscalingvectors
+  type(C_FUNPTR), public :: setfromcommandline
   type(C_FUNPTR), public :: setzeroguess
   type(C_FUNPTR), public :: initialize
   type(C_FUNPTR), public :: setup
@@ -522,6 +523,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: estimatesteptol
   type(C_FUNPTR), public :: destroy
   type(C_FUNPTR), public :: reset
+  type(C_FUNPTR), public :: setfromcommandline
   type(C_FUNPTR), public :: setdefaults
   type(C_FUNPTR), public :: write
   type(C_FUNPTR), public :: seterrorbias
