@@ -669,6 +669,12 @@ typedef struct CVodeMemRec
   N_Vector* cv_Xvecs;      /* array of vectors */
   N_Vector* cv_Zvecs;      /* array of vectors */
 
+  /*----------------
+    Resizing History
+    ----------------*/
+
+  sunbooleantype first_step_after_resize; /* Flag to signal a resize happened */
+
   /*------------------------
     Adjoint sensitivity data
     ------------------------*/

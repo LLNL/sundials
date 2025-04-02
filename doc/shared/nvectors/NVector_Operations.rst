@@ -98,6 +98,10 @@ operations below.
 
       N_VSpace(nvSpec, &lrw, &liw);
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: sunscalartype* N_VGetArrayPointer(N_Vector v)
 

@@ -832,7 +832,7 @@ form
 with :math:`P > 1` additive partitions. Operator splitting methods, such as
 those implemented in SplittingStep, allow each partition to be integrated
 separately, possibly with different numerical integrators or exact solution
-procedures. Coupling is only performed though initial conditions which are
+procedures. Coupling is only performed through initial conditions which are
 passed from the flow of one partition to the next.
 
 The following algorithmic procedure is used in the Splitting-Step module:

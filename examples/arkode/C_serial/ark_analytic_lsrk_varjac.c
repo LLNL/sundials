@@ -171,7 +171,7 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetMaxNumStages", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
-  flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 2000);
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Specify safety factor for user provided dom_eig */
