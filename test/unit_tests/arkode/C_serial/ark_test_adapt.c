@@ -65,8 +65,9 @@ static int check_step(void* const arkode_mem, const N_Vector y,
 
   if (err_norm != SUN_RCONST(0.0))
   {
-    fprintf(stderr, "Expected local error at step %i to be 0 but is " SUN_FORMAT_G "\n", step,
-            err_norm);
+    fprintf(stderr,
+            "Expected local error at step %i to be 0 but is " SUN_FORMAT_G "\n",
+            step, err_norm);
     return 1;
   }
 
@@ -74,8 +75,10 @@ static int check_step(void* const arkode_mem, const N_Vector y,
   ARKodeGetCurrentStep(arkode_mem, &h_actual);
   if (SUNRCompare(h_expected, h_actual))
   {
-    fprintf(stderr, "Expected h at step %i to be " SUN_FORMAT_G " but is " SUN_FORMAT_G "\n", step,
-            h_expected, h_actual);
+    fprintf(stderr,
+            "Expected h at step %i to be " SUN_FORMAT_G " but is " SUN_FORMAT_G
+            "\n",
+            step, h_expected, h_actual);
     return 1;
   }
 
