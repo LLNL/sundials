@@ -3528,7 +3528,7 @@ int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
   if (!step_mem->fe)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
-                    filename, "fe must have been provided to ARKStepCreate to create a SUNAdjointStepper");
+                    filename, "SUNAdjointStepper requires fe != NULL (it only supports explicit RK methods)");
     return ARK_ILL_INPUT;
   }
 
