@@ -54,7 +54,7 @@ or Picard iterations. See :c:func:`KINSetDampingFn` and :c:func:`KINSetDepthFn`,
 respectively, for more information.
 
 A new type, :c:type:`suncountertype`, was added for the integer type used for
-counter variables. It is currently can alias for ``long int``.
+counter variables. It is currently an alias for ``long int``.
 
 **Bug Fixes**
 
