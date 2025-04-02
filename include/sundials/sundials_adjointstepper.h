@@ -54,8 +54,8 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
                                           suncountertype start_idx,
-                                          sunrealtype t0, sunrealtype tf,
-                                          N_Vector y0);
+                                          sunrealtype t0, N_Vector y0,
+                                          sunrealtype tf);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper, void* user_data);

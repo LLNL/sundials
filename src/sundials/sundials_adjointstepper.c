@@ -83,8 +83,8 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper self, sunrealtype tout,
 
 SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper self,
                                           suncountertype start_idx,
-                                          sunrealtype t0, sunrealtype tf,
-                                          N_Vector y0)
+                                          sunrealtype t0, N_Vector y0,
+                                          sunrealtype tf)
 {
   SUNFunctionBegin(self->sunctx);
 

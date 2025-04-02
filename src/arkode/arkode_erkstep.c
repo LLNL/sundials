@@ -1097,7 +1097,7 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
                       ", tf = %" SUN_FORMAT_G "",
                       start_step, stop_step, t0, tf);
           errcode = SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, t0,
-                                                   tf, checkpoint);
+                                                   checkpoint, tf);
           if (errcode)
           {
             arkProcessError(ark_mem, ARK_ADJ_RECOMPUTE_FAIL, __LINE__, __func__,

@@ -91,15 +91,15 @@ The :c:type:`SUNAdjointStepper` class has the following methods:
 
 
 .. c:function:: SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper, suncountertype start_idx,\
-                                                          sunrealtype t0, sunrealtype tf, N_Vector y0)
+                                                          sunrealtype t0, N_Vector y0, sunrealtype tf)
 
    Evolves the forward system in time from (``start_idx``, ``t0``) to (``stop_idx``, ``tf``) with dense checkpointing.
 
    :param adj_stepper: The SUNAdjointStepper object.
    :param start_idx: the index of the step, w.r.t. the original forward integration, to begin forward integration from.
    :param t0: the initial time, w.r.t. the original forward integration, to start forward integration from.
-   :param tf: the final time, w.r.t. the original forward integration, to stop forward integration.
-   :param y0: the initial state, w.r.t. the original forward integration, to start forward integration.
+   :param y0: the initial state, w.r.t. the original forward integration, to start forward integration from.
+   :param tf: the final time, w.r.t. the original forward integration, to stop forward integration at.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
