@@ -297,6 +297,25 @@ SUNAdaptController SUNAdaptController_H0211(SUNContext sunctx)
 }
 
 /* -----------------------------------------------------------------
+ * Function to create an H_{0}321 controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_H0321(SUNContext sunctx)
+{
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
+  SUNCheckLastErrNull();
+
+  SUNCheckCallNull(
+    SUNAdaptController_SetParams_Soderlind(C, SUN_RCONST(1.25), SUN_RCONST(0.5),
+                                           -SUN_RCONST(0.75), SUN_RCONST(0.25),
+                                           SUN_RCONST(0.75)));
+
+  return (C);
+}
+
+/* -----------------------------------------------------------------
  * Function to create an H211 controller (subset of Soderlind)
  */
 

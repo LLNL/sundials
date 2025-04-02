@@ -1499,12 +1499,12 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       inputs with type ``SUN_ADAPTCONTROLLER_MRI_H_TOL``.
 
    .. versionadded:: 6.1.0
-   
+
    .. versionchanged:: x.y.z
-   
+
       The default controller was changed from PID to I.
-   
-      
+
+
 
 
 .. c:function:: int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
@@ -1514,8 +1514,10 @@ Reset accumulated error                                     :c:func:`ARKodeReset
    :param arkode_mem: pointer to the ARKODE memory block.
    :param cname: name of the time adaptivity controller to use.  Allowable values
                  currently include ``"Soderlind"``, ``"PID"``, ``"PI"``, ``"I"``,
-                 ``"ExpGus"``, ``"ImpGus"``, ``"H0211"``, ``"H211"``, ``"H312"``. For
-                 information on these options, see :numref:`SUNAdaptController.Soderlind`.
+                 ``"ExpGus"``, ``"ImpGus"``, ``"ImExGus"``, ``"H0211"``, ``"H0321"``,
+                 ``"H211"``, and ``"H312"``. For information on these options, see
+                 :numref:`SUNAdaptController.Soderlind` and
+                 :numref:`SUNAdaptController.ImExGus`.
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_ILL_INPUT: *cname* did not match an allowed value.
@@ -1614,7 +1616,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       *second*.
 
    .. versionadded:: 6.1.0
-      
+
    .. versionchanged:: x.y.z
 
       The default value was changed from 1.5 to 1.0
@@ -1641,7 +1643,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
    .. versionadded:: 6.1.0
-      
+
    .. versionchanged:: x.y.z
 
       The default upper bound was changed from 1.5 to 1.0
@@ -1791,7 +1793,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       value.
 
    .. versionadded:: 6.1.0
-      
+
    .. versionchanged:: x.y.z
 
       The default default was changed from 0.96 to 0.9. The maximum value is now

@@ -332,6 +332,23 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_H0211(sunctx);
 
+.. c:function:: SUNAdaptController SUNAdaptController_H0321(SUNContext sunctx)
+
+   This constructor creates and allocates memory for a
+   :c:type:`SUNAdaptController_Soderlind` object, set up to replicate the :math:`H_{0}321`
+   controller from :cite:p:`Sod:03`, corresponding with the parameters :math:`k_1=1.25`,
+   :math:`k_2=0.5`, :math:`k_3=-0.75`, :math:`k_4=0.25`, and :math:`k_5=0.75`.
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :returns: if successful, a usable :c:type:`SUNAdaptController` object;
+             otherwise it will return ``NULL``.
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_H0321(sunctx);
+
 .. c:function:: SUNAdaptController SUNAdaptController_H211(SUNContext sunctx)
 
    This constructor creates and allocates memory for a

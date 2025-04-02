@@ -133,6 +133,9 @@ SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_H0211(SUNContext sunctx);
 
 SUNDIALS_EXPORT
+SUNAdaptController SUNAdaptController_H0321(SUNContext sunctx);
+
+SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_H211(SUNContext sunctx);
 
 SUNDIALS_EXPORT

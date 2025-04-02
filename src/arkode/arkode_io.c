@@ -962,9 +962,17 @@ int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
   {
     C = SUNAdaptController_ImpGus(ark_mem->sunctx);
   }
+  else if (strcmp(cname, "ImExGus") == 0)
+  {
+    C = SUNAdaptController_ImExGus(ark_mem->sunctx);
+  }
   else if (strcmp(cname, "H0211") == 0)
   {
     C = SUNAdaptController_H0211(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "H0321") == 0)
+  {
+    C = SUNAdaptController_H0321(ark_mem->sunctx);
   }
   else if (strcmp(cname, "H211") == 0)
   {
