@@ -2378,7 +2378,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   }
 
   /* Throw away the step solution */
-  sunrealtype checkpoint_t = 0.0;
+  sunrealtype checkpoint_t = ZERO;
   N_Vector checkpoint      = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
 
   SUNErrCode errcode =
