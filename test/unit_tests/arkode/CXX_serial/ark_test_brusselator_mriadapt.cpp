@@ -80,7 +80,7 @@
  *      23: H312 controller (as part of MRI-HTOL)
  *      24: H312 controller (alone)
  * - "fast" ERKStep temporal adaptivity controller: fcontrol [default = 1]
- *   Note that this will only be used for 5 <= scontrol <= 16.
+ *   Note that this will only be used for 5 <= scontrol <= 24.
  *      0:   no controller [fixed time steps]
  *      1:   I controller
  *      2:   PI controller
@@ -1217,17 +1217,17 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
               << " input)\n";
     return -1;
   }
-  //   scontrol in [0,22]
-  if ((opts.scontrol < 0) || (opts.scontrol > 22))
+  //   scontrol in [0,24]
+  if ((opts.scontrol < 0) || (opts.scontrol > 24))
   {
-    std::cerr << "ERROR: scontrol must be in [0,22], (" << opts.scontrol
+    std::cerr << "ERROR: scontrol must be in [0,24], (" << opts.scontrol
               << " input)\n";
     return -1;
   }
-  //   fcontrol in [0,9]
-  if ((opts.fcontrol < 0) || (opts.fcontrol > 9))
+  //   fcontrol in [0,10]
+  if ((opts.fcontrol < 0) || (opts.fcontrol > 10))
   {
-    std::cerr << "ERROR: fcontrol must be in [0,9], (" << opts.fcontrol
+    std::cerr << "ERROR: fcontrol must be in [0,10], (" << opts.fcontrol
               << " input)\n";
     return -1;
   }

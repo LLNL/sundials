@@ -78,7 +78,7 @@
  *      23: H312 controller (as part of MRI-HTOL)
  *      24: H312 controller (alone)
  * - "fast" ERKStep temporal adaptivity controller: fcontrol [default = 1]
- *   Note that this will only be used for 5 <= scontrol <= 22.
+ *   Note that this will only be used for 5 <= scontrol <= 24.
  *      0:   no controller [fixed time steps]
  *      1:   I controller
  *      2:   PI controller
