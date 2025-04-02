@@ -195,7 +195,6 @@ static void print_help(int argc, char* argv[], int exit_code)
   fprintf(stderr, "--dt <real>         the timestep size\n");
   fprintf(stderr, "--order <int>       the order of the RK method\n");
   fprintf(stderr, "--check-freq <int>  how often to checkpoint (in steps)\n");
-  fprintf(stderr, "--no-stages         don't checkpoint stages\n");
   fprintf(stderr,
           "--dont-keep         don't keep checkpoints around after loading\n");
   fprintf(stderr, "--help              print these options\n");
