@@ -100,6 +100,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_STEP_DIRECTION_ERR = -52_C_INT
  integer(C_INT), parameter, public :: ARK_ADJ_CHECKPOINT_FAIL = -53_C_INT
  integer(C_INT), parameter, public :: ARK_ADJ_RECOMPUTE_FAIL = -54_C_INT
+ integer(C_INT), parameter, public :: ARK_SUNADJSTEPPER_ERR = -55_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
