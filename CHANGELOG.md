@@ -43,6 +43,9 @@ damping factor and, when using Anderson acceleration, the depth in fixed-point
 or Picard iterations. See `KINSetDampingFn` and `KINSetDepthFn`, respectively,
 for more information.
 
+A new type, `suncountertype`, was added for the integer type used for counter
+variables. It is currently can alias for `long int`.
+
 ### Bug Fixes
 
 Fixed bug in `ARKodeResize` which caused it return an error for MRI methods.

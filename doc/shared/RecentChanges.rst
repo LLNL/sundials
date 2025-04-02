@@ -53,6 +53,9 @@ damping factor and, when using Anderson acceleration, the depth in fixed-point
 or Picard iterations. See :c:func:`KINSetDampingFn` and :c:func:`KINSetDepthFn`,
 respectively, for more information.
 
+A new type, :c:type:`suncountertype`, was added for the integer type used for
+counter variables. It is currently can alias for ``long int``.
+
 **Bug Fixes**
 
 Fixed bug in :c:func:`ARKodeResize` which caused it return an error for MRI
