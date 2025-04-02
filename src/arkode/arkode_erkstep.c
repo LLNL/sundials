@@ -1636,8 +1636,8 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   }
 
   /* Evaluate f_{y}^*(t_i, z_i, p) \Lambda_i and f_{p}^*(t_i, z_i, p) \nu_i */
-  return step_mem->adj_f(t, checkpoint, sens_partial_stage,
-                         sens_complete_stage, user_data);
+  return step_mem->adj_f(t, checkpoint, sens_partial_stage, sens_complete_stage,
+                         user_data);
 }
 
 int erkStepCompatibleWithAdjointSolver(

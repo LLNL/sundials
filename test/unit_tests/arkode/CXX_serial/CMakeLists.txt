@@ -66,8 +66,7 @@ set(unit_tests
     "ark_test_adjoint_ark.cpp\;--check-freq 5\;"
     "ark_test_adjoint_ark.cpp\;--check-freq 1 --dont-keep\;"
     "ark_test_adjoint_ark.cpp\;--check-freq 2 --dont-keep\;"
-    "ark_test_adjoint_ark.cpp\;--check-freq 5 --dont-keep\;"
-)
+    "ark_test_adjoint_ark.cpp\;--check-freq 5 --dont-keep\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
