@@ -3079,6 +3079,7 @@ char* ARKodeGetReturnFlagName(long int flag)
   case ARK_STEPPER_UNSUPPORTED: sprintf(name, "ARK_STEPPER_UNSUPPORTED"); break;
   case ARK_ADJ_RECOMPUTE_FAIL: sprintf(name, "ARK_ADJ_RECOMPUTE_FAIL"); break;
   case ARK_ADJ_CHECKPOINT_FAIL: sprintf(name, "ARK_ADJ_CHECKPOINT_FAIL"); break;
+  case ARK_SUNADJSTEPPER_ERR: sprintf(name, "ARK_SUNADJSTEPPER_ERR"); break;
   case ARK_DOMEIG_FAIL: sprintf(name, "ARK_DOMEIG_FAIL"); break;
   case ARK_MAX_STAGE_LIMIT_FAIL:
     sprintf(name, "ARK_MAX_STAGE_LIMIT_FAIL");

@@ -409,6 +409,8 @@ contains the ARKODE output constants.
    | :index:`ARK_ADJ_RECOMPUTE_FAIL`     | -54  | An occurred recomputing steps during the adjoint           |
    |                                     |      | integration.                                               |
    +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_SUNADJSTEPPER_ERR`      | -55  | An error occurred in the SUNAdjStepper module.             |
+   +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    | **ARKLS linear solver module output constants**                                                         |

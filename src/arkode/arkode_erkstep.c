@@ -1808,7 +1808,7 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_f,
   errcode = SUNStepper_SetReInitFn(fwd_stepper, erkStep_SUNStepperReInit);
   if (errcode)
   {
-    retval = ARK_UNRECOGNIZED_ERROR;
+    retval = ARK_SUNSTEPPER_ERR;
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "SUNStepper_SetReInitFn failed");
     return retval;
@@ -1826,7 +1826,7 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_f,
   errcode = SUNStepper_SetReInitFn(adj_stepper, erkStep_SUNStepperReInit);
   if (errcode)
   {
-    retval = ARK_UNRECOGNIZED_ERROR;
+    retval = ARK_SUNSTEPPER_ERR;
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "SUNStepper_SetReInitFn failed");
     return retval;
@@ -1837,7 +1837,7 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_f,
   errcode = SUNStepper_SetDestroyFn(adj_stepper, arkSUNStepperSelfDestruct);
   if (errcode)
   {
-    retval = ARK_UNRECOGNIZED_ERROR;
+    retval = ARK_SUNSTEPPER_ERR;
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "SUNStepper_SetDestroyFn failed");
     return retval;
@@ -1849,7 +1849,7 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_f,
                                      sunctx, adj_stepper_ptr);
   if (errcode)
   {
-    retval = ARK_UNRECOGNIZED_ERROR;
+    retval = ARK_SUNADJSTEPPER_ERR;
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "SUNAdjointStepper_Create failed");
     return retval;
@@ -1858,7 +1858,7 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_f,
   errcode = SUNAdjointStepper_SetUserData(*adj_stepper_ptr, ark_mem->user_data);
   if (errcode)
   {
-    retval = ARK_UNRECOGNIZED_ERROR;
+    retval = ARK_SUNADJSTEPPER_ERR;
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "SUNAdjointStepper_SetUserData failed");
     return retval;
