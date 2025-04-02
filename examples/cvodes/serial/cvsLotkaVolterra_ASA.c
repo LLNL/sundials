@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVode", 1)) { return 1; }
 
   /* Print the final solution */
-  printf("Forward Solution at t = %" GSYM "\n", t);
+  printf("Forward Solution at t = %" GSYM ":\n", t);
   N_VPrint(u);
 
   /* Allocate memory for the adjoint solution vector */
@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
   N_VScale(SUN_RCONST(-1.0), qB, qB);
 
   /* Print the final adjoint solution */
-  printf("Adjoint Solution at t = %" GSYM "\n", t);
+  printf("Adjoint Solution at t = %" GSYM ":\n", t);
   N_VPrint(uB);
   N_VPrint(qB);
 
