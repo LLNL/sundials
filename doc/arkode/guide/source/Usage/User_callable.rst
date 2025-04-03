@@ -1563,7 +1563,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       the :c:type:`SUNAdaptController` object manually, and then call
       :c:func:`ARKodeSetAdaptController`.
 
-  .. versionadded:: x.y.z
+   .. versionadded:: x.y.z
 
 
 .. c:function:: int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust)
