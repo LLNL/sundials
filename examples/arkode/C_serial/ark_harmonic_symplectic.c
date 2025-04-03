@@ -43,6 +43,8 @@
 #include <arkode/arkode.h>
 #include <arkode/arkode_sprk.h>
 #include <arkode/arkode_sprkstep.h> /* prototypes for SPRKStep fcts., consts */
+#include <arkode/arkode_arkstep.h>
+#include <arkode/arkode_splittingstep.h>
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector type, fcts., macros  */
 #include <stdio.h>
@@ -76,6 +78,8 @@ int main(int argc, char* argv[])
   sunrealtype tret        = NAN;
   sunrealtype err         = NAN;
   void* arkode_mem        = NULL;
+  void* q_mem             = NULL;
+  void* p_mem             = NULL;
   int iout                = 0;
   int retval              = 0;
   int order               = 0;
@@ -122,17 +126,83 @@ int main(int argc, char* argv[])
   ydata[0] = A * cos(phi);
   ydata[1] = -A * omega * sin(phi);
 
-  /* Create SPRKStep integrator */
-  arkode_mem = SPRKStepCreate(xdot, vdot, T0, y, sunctx);
+  if (order > 0) // use SPRKStep
+  {
+    /* Create SPRKStep integrator */
+    arkode_mem = SPRKStepCreate(xdot, vdot, T0, y, sunctx);
 
-  retval = ARKodeSetOrder(arkode_mem, order);
-  if (check_retval(&retval, "ARKodeSetOrder", 1)) { return 1; }
+    retval = ARKodeSetOrder(arkode_mem, order);
+    if (check_retval(&retval, "ARKodeSetOrder", 1)) { return 1; }
 
-  retval = ARKodeSetUserData(arkode_mem, &udata);
-  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
+    retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
+    if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) { return 1; }
 
-  retval = SPRKStepSetUseCompensatedSums(arkode_mem, use_compsums);
-  if (check_retval(&retval, "SPRKStepSetUseCompensatedSums", 1)) { return 1; }
+    retval = ARKodeSetUserData(arkode_mem, &udata);
+    if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
+  }
+  else // use SplittingStep
+  {
+    q_mem = ARKStepCreate(xdot, NULL, T0, y, sunctx);
+
+    retval = ARKodeSetOrder(q_mem, 1);
+    if (check_retval(&retval, "ARKodeSetOrder", 1)) { return 1; }
+
+    retval = ARKodeSetFixedStep(q_mem, dt);
+    if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
+
+    retval = ARKodeSetUserData(q_mem, &udata);
+    if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
+
+    p_mem = ARKStepCreate(vdot, NULL, T0, y, sunctx);
+
+    retval = ARKodeSetOrder(p_mem, 1);
+    if (check_retval(&retval, "ARKodeSetOrder", 1)) { return 1; }
+
+    retval = ARKodeSetFixedStep(p_mem, dt);
+    if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
+
+    retval = ARKodeSetUserData(p_mem, &udata);
+    if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
+
+    SUNStepper steppers[2];
+    ARKodeCreateSUNStepper(q_mem, &steppers[0]);
+    ARKodeCreateSUNStepper(p_mem, &steppers[1]);
+    arkode_mem = SplittingStepCreate(steppers, 2, T0, y, sunctx);
+
+    int table_id;
+    switch (-order)
+    {
+    case 1: table_id = SPRKSTEP_DEFAULT_1; break;
+    case 2: table_id = SPRKSTEP_DEFAULT_2; break;
+    case 3: table_id = SPRKSTEP_DEFAULT_3; break;
+    case 4: table_id = SPRKSTEP_DEFAULT_4; break;
+    case 5: table_id = SPRKSTEP_DEFAULT_5; break;
+    case 6: table_id = SPRKSTEP_DEFAULT_6; break;
+    case 8: table_id = SPRKSTEP_DEFAULT_8; break;
+    case 10: table_id = SPRKSTEP_DEFAULT_10; break;
+    default:
+      fprintf(stderr, "Specified order isn't valid SPRKStep order\n");
+      break;
+    }
+    ARKodeSPRKTable table = ARKodeSPRKTable_Load(table_id);
+
+    sunrealtype alpha = 1.0;
+    sunrealtype* beta = malloc((2*(table->stages+1))*sizeof(sunrealtype));
+    beta[0] = 0.0;
+    beta[1] = 0.0;
+    for (int i=0; i < table->stages; i++)
+    {
+      beta[2*(i+1)] = beta[2*i] + table->ahat[i];
+      beta[2*(i+1)+1] = beta[2*(i+1)-1] + table->a[i];
+    }
+    SplittingStepCoefficients coefficients =
+      SplittingStepCoefficients_Create(1, table->stages, 2, table->q, &alpha,
+        beta);
+    retval = SplittingStepSetCoefficients(arkode_mem, coefficients);
+    if (check_retval(&retval, "SplittingStepSetCoefficients", 1)) { return 1; }
+    free(beta);
+    SplittingStepCoefficients_Destroy(&coefficients);
+  }
 
   retval = ARKodeSetFixedStep(arkode_mem, dt);
   if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
