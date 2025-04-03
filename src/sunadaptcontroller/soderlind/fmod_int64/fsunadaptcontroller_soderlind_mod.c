@@ -510,6 +510,18 @@ SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_H0211(void *farg1) {
 }
 
 
+SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_H0321(void *farg1) {
+  SUNAdaptController fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNAdaptController result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNAdaptController)SUNAdaptController_H0321(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
 SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_H211(void *farg1) {
   SUNAdaptController fresult ;
   SUNContext arg1 = (SUNContext) 0 ;

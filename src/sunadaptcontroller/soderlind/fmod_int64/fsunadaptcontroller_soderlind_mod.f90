@@ -46,6 +46,7 @@ module fsunadaptcontroller_soderlind_mod
  public :: FSUNAdaptController_ImpGus
  public :: FSUNAdaptController_SetParams_ImpGus
  public :: FSUNAdaptController_H0211
+ public :: FSUNAdaptController_H0321
  public :: FSUNAdaptController_H211
  public :: FSUNAdaptController_H312
 
@@ -238,6 +239,14 @@ end function
 
 function swigc_FSUNAdaptController_H0211(farg1) &
 bind(C, name="_wrap_FSUNAdaptController_H0211") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FSUNAdaptController_H0321(farg1) &
+bind(C, name="_wrap_FSUNAdaptController_H0321") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -610,6 +619,19 @@ type(C_PTR) :: farg1
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_H0211(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+function FSUNAdaptController_H0321(sunctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNAdaptController), pointer :: swig_result
+type(C_PTR) :: sunctx
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = sunctx
+fresult = swigc_FSUNAdaptController_H0321(farg1)
 call c_f_pointer(fresult, swig_result)
 end function
 
