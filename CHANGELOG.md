@@ -12,10 +12,10 @@ A new example demonstrating this capability can be found in
 
 ### New Features and Enhancements
 
+#### ARKODE
+
 The following changes have been made to the default ERK, DIRK, and ARK methods
 in ARKODE to utilize more efficient methods:
-
-#### ARKODE
 
 | Type               | Old Default                                                      | New Default                                                        |
 | ------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------------ |
