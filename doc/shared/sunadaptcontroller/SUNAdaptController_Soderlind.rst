@@ -326,6 +326,8 @@ also provides the following additional user-callable routines:
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
 
+   .. versionadded:: x.y.z
+
    Usage:
 
    .. code-block:: c
@@ -342,6 +344,8 @@ also provides the following additional user-callable routines:
    :param sunctx: the current :c:type:`SUNContext` object.
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
+
+   .. versionadded:: x.y.z
 
    Usage:
 
@@ -360,6 +364,8 @@ also provides the following additional user-callable routines:
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
 
+   .. versionadded:: x.y.z
+
    Usage:
 
    .. code-block:: c
@@ -376,6 +382,8 @@ also provides the following additional user-callable routines:
    :param sunctx: the current :c:type:`SUNContext` object.
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
+
+   .. versionadded:: x.y.z
 
    Usage:
 
