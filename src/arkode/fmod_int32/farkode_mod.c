@@ -1181,6 +1181,34 @@ SWIGEXPORT int _wrap_FARKodeSetMaxNumConstrFails(void *farg1, int const *farg2) 
 }
 
 
+SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNAdjointCheckpointScheme arg2 = (SUNAdjointCheckpointScheme) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNAdjointCheckpointScheme)(farg2);
+  result = (int)ARKodeSetAdjointCheckpointScheme(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointIndex(void *farg1, long const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  suncountertype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (suncountertype)(*farg2);
+  result = (int)ARKodeSetAdjointCheckpointIndex(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeSetAccumulatedErrorType(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

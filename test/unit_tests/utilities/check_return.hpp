@@ -18,7 +18,7 @@
 #include <string>
 
 // Check function for non-zero return flag
-static int check_flag(int flag, const std::string funcname)
+inline int check_flag(int flag, const std::string& funcname)
 {
   if (!flag) { return 0; }
   if (flag < 0) { std::cerr << "ERROR: "; }
@@ -28,7 +28,7 @@ static int check_flag(int flag, const std::string funcname)
 }
 
 // Check if a function returned a NULL pointer
-static int check_ptr(void* ptr, const std::string funcname)
+inline int check_ptr(void* ptr, const std::string& funcname)
 {
   if (ptr) { return 0; }
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;

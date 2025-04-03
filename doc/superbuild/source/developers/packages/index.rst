@@ -20,4 +20,5 @@ Packages
 .. toctree::
    :maxdepth: 2
 
-   ARKODE
+   arkode/index.rst
+   cvode/index.rst

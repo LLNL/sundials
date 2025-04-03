@@ -16,7 +16,7 @@ Data Types
 ==========
 
 SUNDIALS defines several data types in the header file ``sundials_types.h``.
-These types are used in the SUNDIALS API and internally in SUNDIALS. It is 
+These types are used in the SUNDIALS API and internally in SUNDIALS. It is
 not necessary to use these types in your application, but the type must
 be compatible with the SUNDIALS types in the API when calling SUNDIALS functions.
 The types that are defined are:
@@ -25,11 +25,13 @@ The types that are defined are:
 
 * :c:type:`sunindextype` -- the integer type used for vector and matrix indices
 
+* :c:type:`suncountertype` -- the integer type used for counter variables
+
 * :c:type:`sunbooleantype` -- the type used for logic operations within SUNDIALS
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
 
-* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI. 
+* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI.
 
 
 Floating point types
@@ -113,6 +115,16 @@ architecture. Thus, a previously existing piece of C or C++ code can use
 SUNDIALS without modifying the code to use ``sunindextype``, so long as the
 SUNDIALS libraries use the appropriate index storage type (for details see
 :numref:`Installation.Options`).
+
+Integer type used for counters
+------------------------------
+
+.. c:type:: suncountertype
+
+   The type ``suncountertype`` is used for counter variables in SUNDIALS
+   (*e.g.*, number of stpes) and is the same as ``long int``.
+
+   .. versionadded:: x.y.z
 
 Boolean type
 ------------

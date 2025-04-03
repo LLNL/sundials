@@ -4,6 +4,12 @@
 
 ### Major Features
 
+A new discrete adjoint capability for explicit Runge-Kutta methods has been
+added to the ARKODE ERKStep and ARKStep stepper modules. This is based on a
+new set of shared classes, `SUNAdjointStepper` and `SUNAdjointCheckpointScheme`.
+A new example demonstrating this capability can be found in
+`examples/arkode/C_serial/ark_lotka_volterra_ASA.c`.
+
 ### New Features and Enhancements
 
 The following changes have been made to the default time step adaptivity
@@ -74,10 +80,18 @@ Improved the efficiency of default ARKODE methods with the following changes:
 | 4th Order ARK      | `ARKODE_ARK436L2SA_ERK_6_3_4` and `ARKODE_ARK436L2SA_DIRK_6_3_4` | `ARKODE_ARK437L2SA_ERK_7_3_4` and `ARKODE_ARK437L2SA_DIRK_7_3_4`   |
 | 5th Order ARK      | `ARKODE_ARK548L2SA_ERK_8_4_5` and `ARKODE_ARK548L2SA_DIRK_8_4_5` | `ARKODE_ARK548L2SAb_ERK_8_4_5` and `ARKODE_ARK548L2SAb_DIRK_8_4_5` |
 
+Added support for resizing CVODE and CVODES when solving initial value problems
+where the number of equations and unknowns changes over time. Resizing requires
+a user supplied history of solution and right-hand side values at the new
+problem size, see `CVodeResizeHistory` for more information.
+
 Added support in KINSOL for setting user-supplied functions to compute the
 damping factor and, when using Anderson acceleration, the depth in fixed-point
 or Picard iterations. See `KINSetDampingFn` and `KINSetDepthFn`, respectively,
 for more information.
+
+A new type, `suncountertype`, was added for the integer type used for counter
+variables. It is currently an alias for `long int`.
 
 ### Bug Fixes
 
@@ -130,10 +144,10 @@ accurate.
 
 ### Major Features
 
-Added a time-stepping module to ARKODE for low storage Runge--Kutta methods,
+Added a time-stepping module to ARKODE for low storage Runge-Kutta methods,
 LSRKStep.  This currently supports five explicit low-storage methods: the
-second-order Runge--Kutta--Chebyshev and Runge--Kutta--Legendre methods, and the
-second- through fourth-order optimal strong stability preserving Runge--Kutta
+second-order Runge-Kutta-Chebyshev and Runge-Kutta-Legendre methods, and the
+second- through fourth-order optimal strong stability preserving Runge-Kutta
 methods. All methods include embeddings for temporal adaptivity.
 
 Added an operator splitting module, SplittingStep, and forcing method module,
@@ -180,6 +194,7 @@ Added a utility routine to wrap any valid ARKODE integrator for use as an
 MRIStep inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
 
 The following DIRK schemes now have coefficients accurate to quad precision:
+
 * `ARKODE_BILLINGTON_3_3_2`
 * `ARKODE_KVAERNO_4_2_3`
 * `ARKODE_CASH_5_2_4`
@@ -318,6 +333,7 @@ Guide](./CONTRIBUTING.md) for more details.
 Added support for Kokkos Kernels v4.
 
 Added the following Runge-Kutta Butcher tables
+
 * `ARKODE_FORWARD_EULER_1_1`
 * `ARKODE_RALSTON_EULER_2_1_2`
 * `ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2`
@@ -326,6 +342,7 @@ Added the following Runge-Kutta Butcher tables
 * `ARKODE_IMPLICIT_TRAPEZOIDAL_2_2`
 
 Added the following MRI coupling tables
+
 * `ARKODE_MRI_GARK_FORWARD_EULER`
 * `ARKODE_MRI_GARK_RALSTON2`
 * `ARKODE_MRI_GARK_RALSTON3`
@@ -375,8 +392,7 @@ instead of `SameMajorVersion`. This fixes the issue seen
 [here](https://github.com/AMReX-Codes/amrex/pull/3835).
 
 Fixed a CMake bug that caused an MPI linking error for our C++ examples in some
-instances. Fixes [GitHub Issue
-#464](https://github.com/LLNL/sundials/issues/464).
+instances. Fixes [GitHub Issue #464](https://github.com/LLNL/sundials/issues/464).
 
 Fixed the runtime library installation path for windows systems. This fix
 changes the default library installation path from
@@ -522,20 +538,20 @@ communicator in place of `MPI_Comm` throughout the SUNDIALS API with a
 `SUNComm`, which is just a typedef to an `int` in builds without MPI
 and a typedef to a `MPI_Comm` in builds with MPI. As a result:
 
-- When MPI is enabled, all SUNDIALS libraries will include MPI symbols and
+* When MPI is enabled, all SUNDIALS libraries will include MPI symbols and
   applications will need to include the path for MPI headers and link against
   the corresponding MPI library.
 
-- All users will need to update their codes because the call to
+* All users will need to update their codes because the call to
   `SUNContext_Create` now takes a `SUNComm` instead
   of type-erased pointer to a communicator. For non-MPI codes,
   pass `SUN_COMM_NULL` to the `comm` argument instead of
   `NULL`. For MPI codes, pass the `MPI_Comm` directly.
 
-- The same change must be made for calls to
+* The same change must be made for calls to
   `SUNLogger_Create` or `SUNProfiler_Create`.
 
-- Some users will need to update their calls to `N_VGetCommunicator`, and
+* Some users will need to update their calls to `N_VGetCommunicator`, and
   update any custom `N_Vector` implementations that provide
   `N_VGetCommunicator`, since it now returns a `SUNComm`.
 
@@ -689,7 +705,7 @@ disabled.
 
 Fixed a bug in `ARKStepSetTableNum` wherein it did not recognize
 `ARKODE_ARK2_ERK_3_1_2` and `ARKODE_ARK2_DIRK_3_1_2` as a valid additive
-Runge--Kutta Butcher table pair.
+Runge-Kutta Butcher table pair.
 
 Fixed a bug in `MRIStepCoupling_Write` where explicit coupling tables were not
 written to the output file pointer.
@@ -2187,7 +2203,7 @@ size values from before reinitialization rather than resetting them to the
 default values.
 
 Added two new embedded ARK methods of orders 4 and 5 to ARKODE (from
-Kennedy & Carpenter, Appl. Numer. Math., 136:183--205, 2019).
+Kennedy & Carpenter, Appl. Numer. Math., 136:183-205, 2019).
 
 Support for optional inequality constraints on individual components of the
 solution vector has been added the ARKODE ERKStep and ARKStep modules. See
@@ -2454,7 +2470,7 @@ this, the existing ARK-based methods have been encapsulated inside the new
 `ARKStep` time-stepping module. Two new time-stepping modules have been added:
 
 * The `ERKStep` module provides an optimized implementation for explicit
-  Runge--Kutta methods with reduced storage and number of calls to the ODE
+  Runge-Kutta methods with reduced storage and number of calls to the ODE
   right-hand side function.
 
 * The `MRIStep` module implements two-rate explicit-explicit multirate
@@ -2826,7 +2842,7 @@ accommodate very high order methods, and an 8th-order adaptive ERK method was
 added.
 
 Support was added for the explicit and implicit methods in an additive
-Runge--Kutta method with different stage times to support new SSP-ARK methods.
+Runge-Kutta method with different stage times to support new SSP-ARK methods.
 
 The FARKODE interface was extended to include a routine to set
 scalar/array-valued residual tolerances, to support Fortran applications with
@@ -2864,7 +2880,7 @@ The missing `ARKSpilsGetNumMtimesEvals` function was added -- this had been
 included in the previous documentation but had not been implemented.
 
 The choice of the method vs embedding the Billington and TRBDF2 explicit
-Runge--Kutta methods were swapped, since in those the lower-order coefficients
+Runge-Kutta methods were swapped, since in those the lower-order coefficients
 result in an A-stable method, while the higher-order coefficients do not. This
 change results in significantly improved robustness when using those methods.
 

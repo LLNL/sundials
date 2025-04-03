@@ -1,4 +1,15 @@
+.. For package-specific references use :ref: rather than :numref: so intersphinx
+   links to the appropriate place on read the docs
+
 **Major Features**
+
+A new discrete adjoint capability for explicit Runge--Kutta methods has been
+added to the ARKODE ERKStep and ARKStep stepper modules. This is based on a new
+set of shared classes, :c:type:`SUNAdjointStepper` and
+:c:type:`SUNAdjointCheckpointScheme`. A new example demonstrating this
+capability can be found in
+``examples/arkode/C_serial/ark_lotka_volterra_ASA.c``. See the
+:ref:`ARKODE.Mathematics.ASA` section of the ARKODE user guide for details.
 
 **New Features and Enhancements**
 
@@ -94,10 +105,18 @@ Improved the efficiency of default ARKODE methods with the following changes:
 |                    | ``ARKODE_ARK548L2SA_DIRK_8_4_5``    | ``ARKODE_ARK548L2SAb_DIRK_8_4_5``    |
 +--------------------+-------------------------------------+--------------------------------------+
 
+Added support for resizing CVODE and CVODES when solving initial value problems
+where the number of equations and unknowns changes over time. Resizing requires
+a user supplied history of solution and right-hand side values at the new
+problem size, see :c:func:`CVodeResizeHistory` for more information.
+
 Added support in KINSOL for setting user-supplied functions to compute the
 damping factor and, when using Anderson acceleration, the depth in fixed-point
 or Picard iterations. See :c:func:`KINSetDampingFn` and :c:func:`KINSetDepthFn`,
 respectively, for more information.
+
+A new type, :c:type:`suncountertype`, was added for the integer type used for
+counter variables. It is currently an alias for ``long int``.
 
 **Bug Fixes**
 
