@@ -56,6 +56,8 @@ add_subdirectory(sunlinsol)
 
 add_subdirectory(sunnonlinsol)
 
+add_subdirectory(sunadjointcheckpointscheme)
+
 if(CXX_FOUND)
   add_subdirectory(logging)
   add_subdirectory(sunmemory)

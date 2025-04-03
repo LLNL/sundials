@@ -2072,6 +2072,48 @@ int ARKodeResetAccumulatedError(void* arkode_mem)
   /* Reset value and counter, and return */
   ark_mem->AccumErrorStart = ark_mem->tn;
   ark_mem->AccumError      = ZERO;
+
+  return (ARK_SUCCESS);
+}
+
+int ARKodeSetAdjointCheckpointScheme(void* arkode_mem,
+                                     SUNAdjointCheckpointScheme checkpoint_scheme)
+
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  ark_mem->checkpoint_scheme = checkpoint_scheme;
+
+  return (ARK_SUCCESS);
+}
+
+int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  if (step_index < 0)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "step_index must be >= 0");
+    return ARK_ILL_INPUT;
+  }
+
+  ark_mem->checkpoint_step_idx = step_index;
+
   return (ARK_SUCCESS);
 }
 
@@ -3035,6 +3077,9 @@ char* ARKodeGetReturnFlagName(long int flag)
   case ARK_RELAX_JAC_FAIL: sprintf(name, "ARK_RELAX_JAC_FAIL"); break;
   case ARK_CONTROLLER_ERR: sprintf(name, "ARK_CONTROLLER_ERR"); break;
   case ARK_STEPPER_UNSUPPORTED: sprintf(name, "ARK_STEPPER_UNSUPPORTED"); break;
+  case ARK_ADJ_RECOMPUTE_FAIL: sprintf(name, "ARK_ADJ_RECOMPUTE_FAIL"); break;
+  case ARK_ADJ_CHECKPOINT_FAIL: sprintf(name, "ARK_ADJ_CHECKPOINT_FAIL"); break;
+  case ARK_SUNADJSTEPPER_ERR: sprintf(name, "ARK_SUNADJSTEPPER_ERR"); break;
   case ARK_DOMEIG_FAIL: sprintf(name, "ARK_DOMEIG_FAIL"); break;
   case ARK_MAX_STAGE_LIMIT_FAIL:
     sprintf(name, "ARK_MAX_STAGE_LIMIT_FAIL");
