@@ -29,6 +29,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'FILE'),
     ('c:identifier', 'size_t'),
     ('cpp:identifier', 'size_t'),
+    ('c:identifier', 'int64_t'),
     # CUDA
     ('cpp:identifier', 'cudaStream_t'),
     ('c:identifier', 'cusparseHandle_t'),
@@ -93,6 +94,7 @@ nitpick_ignore = [
     ('c:identifier', 'braid_Vector'),
     # C types referenced in C++ functions, not sure how to fix
     ('cpp:identifier', 'sunbooleantype'),
+    ('cpp:identifier', 'suncountertype'),
     ('cpp:identifier', 'sunindextype'),
     ('cpp:identifier', 'sunrealtype'),
     ('cpp:identifier', 'SUNErrCode'),

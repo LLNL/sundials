@@ -99,6 +99,12 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNMatMatvec`
 
+   .. c:member:: SUNErrCode (*mathermitiantransposevec)(SUNMatrix, N_Vector, N_Vector)
+
+      The function implementing :c:func:`SUNMatHermitianTransposeVec`
+      
+      .. versionadded:: x.y.z
+
    .. c:member:: SUNErrCode (*space)(SUNMatrix, long int*, long int*)
 
       The function implementing :c:func:`SUNMatSpace`

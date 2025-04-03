@@ -86,3 +86,4 @@ ARKBBDPRE can only be used with NVECTOR_PARALLEL.
    MRIStep/index.rst
    SplittingStep/index.rst
    SPRKStep/index.rst
+   ASA.rst

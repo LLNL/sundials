@@ -16,6 +16,8 @@
 #define _SUNDIALS_CORE_H
 
 #include <sundials/sundials_adaptcontroller.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
+#include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_errors.h>
@@ -28,6 +30,7 @@
 #include <sundials/sundials_nonlinearsolver.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_profiler.h>
+#include <sundials/sundials_stepper.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_version.h>
 
