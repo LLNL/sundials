@@ -641,8 +641,7 @@ int main(int argc, char* argv[])
     break;
   case (18):
     scontrol = SUNAdaptController_H0211(sunctx);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_H0211 (slow)"))
-      return 1;
+    if (check_ptr((void*)scontrol, "SUNAdaptController_H0211 (slow)")) return 1;
     break;
   case (19):
     scontrol_H = SUNAdaptController_H0321(sunctx);
@@ -664,8 +663,7 @@ int main(int argc, char* argv[])
     break;
   case (20):
     scontrol = SUNAdaptController_H0321(sunctx);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_H0321 (slow)"))
-      return 1;
+    if (check_ptr((void*)scontrol, "SUNAdaptController_H0321 (slow)")) return 1;
     break;
   case (21):
     scontrol_H = SUNAdaptController_H211(sunctx);
@@ -687,8 +685,7 @@ int main(int argc, char* argv[])
     break;
   case (22):
     scontrol = SUNAdaptController_H211(sunctx);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_H211 (slow)"))
-      return 1;
+    if (check_ptr((void*)scontrol, "SUNAdaptController_H211 (slow)")) return 1;
     break;
   case (23):
     scontrol_H = SUNAdaptController_H312(sunctx);
@@ -710,8 +707,7 @@ int main(int argc, char* argv[])
     break;
   case (24):
     scontrol = SUNAdaptController_H312(sunctx);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_H312 (slow)"))
-      return 1;
+    if (check_ptr((void*)scontrol, "SUNAdaptController_H312 (slow)")) return 1;
     break;
   }
   if ((opts.bias > -1) && (opts.scontrol > 0))
