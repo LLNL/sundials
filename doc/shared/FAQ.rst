@@ -319,7 +319,7 @@ CVODE(S) / IDA(S) / ARKODE
    While it is impossible to exhaustively explore the question of controller optimality for all application
    problems, we have performed tests on the range of provided controllers on a variety of stiff and non-stiff
    problems, at varying tolerances (:math:`10^{-9} \to 10^{-3}`), and for Runge--Kutta methods at a wide range
-   of orders of accuracy (ERK orders 2-9, and DIRK orders 2-5). From our experiments, stiff problems benefitted
+   of orders of accuracy (ERK orders 2-9 and DIRK orders 2-5). From our experiments, stiff problems benefitted
    from the *I*, *PI*, :math:`H_{0}211`, :math:`H_{0}321`, and *ImpGus* controllers.  On the other hand,
    non-stiff test problems ran most efficiently when using the *PID*, *I*, *ExpGus*, :math:`H211`, and
    :math:`H312` controllers.
