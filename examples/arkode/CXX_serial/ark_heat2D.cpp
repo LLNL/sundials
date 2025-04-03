@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
     case (3): C = SUNAdaptController_ExpGus(ctx); break;
     case (4): C = SUNAdaptController_ImpGus(ctx); break;
     case (5): C = SUNAdaptController_ImExGus(ctx); break;
-    case (6): C = SUNAdaptController_Soderlind(ctx); break;
+    case (6): C = SUNAdaptController_H0321(ctx); break;
     case (7): C = SUNAdaptController_H0211(ctx); break;
     case (8): C = SUNAdaptController_H211(ctx); break;
     case (9): C = SUNAdaptController_H312(ctx); break;
