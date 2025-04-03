@@ -328,7 +328,7 @@ CVODE(S) / IDA(S) / ARKODE
    *ExpGus*, *ImpGus*, and *ImExGus*) were determined via numerical optimization over a given set of test
    problems.  As a result, although those controllers work very well for some applications, they may not
    work well with others.  For users who are interested in exploring novel controller methods, we point out
-   that the :ref:`"Soderlind" <SUNAdaptController.Soderlind>` SUNAdaptController allows complete control
+   that the :ref:`Soderlind SUNAdaptController <SUNAdaptController.Soderlind>` allows complete control
    over all internal parameters via the :c:func:`SUNAdaptController_SetParams_Soderlind` function.
 
 
