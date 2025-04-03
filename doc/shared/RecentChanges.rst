@@ -123,9 +123,9 @@ The Soderlind time step adaptivity controller now starts with an I controller
 until there is sufficient history of past time steps and errors.
 
 Added :c:func:`ARKodeSetAdaptControllerByName` to set a time step adaptivity controller
-with a string. There are also three new controllers:
-:c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H211`, and
-:c:func:`SUNAdaptController_H312`.
+with a string. There are also four new controllers:
+:c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H0321`,
+:c:func:`SUNAdaptController_H211`, and :c:func:`SUNAdaptController_H312`.
 
 Added the ``ARKODE_RALSTON_3_1_2`` and ``ARKODE_TSITOURAS_7_4_5`` explicit
 Runge-Kutta Butcher tables.
