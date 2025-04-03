@@ -1549,7 +1549,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
                  :numref:`SUNAdaptController.ImExGus`.
 
    :retval ARK_SUCCESS: the function exited successfully.
-   :retval ARK_ILL_INPUT: *cname* did not match an allowed value.
+   :retval ARK_ILL_INPUT: ``cname`` did not match an allowed value.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
    :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
                                     by the current time-stepping module.
