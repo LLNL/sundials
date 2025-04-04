@@ -79,7 +79,7 @@ The implementation provides the following operations defined by the
     :param queue: the ``sycl::queue`` handle for the stream that the allocation will be performed on.
     :return: A new :c:type:`SUNMemory` object.
     
-    .. versionadded:: x.y.z
+    .. versionadded:: 7.3.0
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, \

@@ -2309,7 +2309,7 @@ described next.
       sensitivity integration is enabled. See :numref:`IDAS.Usage.Purequad.quad_init`
       and :numref:`IDAS.Usage.FSA.user_callable.sensi_init` for more details.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 6.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -2839,7 +2839,7 @@ The following optional outputs are available from the IDALS modules:
       Replaces the deprecated functions ``IDADlsGetWorkspace`` and
       ``IDASpilsGetWorkspace``.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 6.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -4388,7 +4388,7 @@ IDABBDPRE module:
       are local to each process.  The workspaces referred to here exist in addition
       to those given by the corresponding function :c:func:`IDAGetLinWorkSpace`.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 6.3.0
 
       Work space functions will be removed in version 8.0.0.
 

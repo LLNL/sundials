@@ -2399,7 +2399,7 @@ described next.
       integration is enabled. See :numref:`CVODES.Usage.purequad.quad_malloc` and :numref:`CVODES.Usage.FSA.user_callable.sensi_malloc`
       for more details.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -2920,7 +2920,7 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
 
       Replaces the deprecated functions ``CVDlsGetWorkspace`` and  ``CVSpilsGetWorkspace``.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -3151,7 +3151,7 @@ solver, a suffix (for Linear Solver) has been added here (e.g. ``lenrwLS``).
    **Notes:**
       In terms of the problem size :math:`N`, the actual size of the real workspace  is roughly :math:`3 N` ``sunrealtype`` words.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -3330,7 +3330,7 @@ error.
                          history was supplied, see the output error message for
                          additional details.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
    .. note::
 
@@ -4462,7 +4462,7 @@ the CVBANDPRE module:
 
       The workspaces referred to here exist in addition to those given by the  corresponding function :c:func:`CVodeGetLinWorkSpace`.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -4809,7 +4809,7 @@ the CVBBDPRE module:
    **Notes:**
       The workspace requirements reported by this routine correspond only  to memory allocated within the CVBBDPRE module (the banded  matrix approximation, banded ``SUNLinearSolver`` object, temporary vectors).  These values are local to each process.  The workspaces referred to here exist in addition to those given by the  corresponding function ``CVodeGetLinWorkSpace``.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 

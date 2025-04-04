@@ -124,7 +124,7 @@ Integer type used for counters
    The type ``suncountertype`` is used for counter variables in SUNDIALS
    (*e.g.*, number of stpes) and is the same as ``long int``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 Boolean type
 ------------

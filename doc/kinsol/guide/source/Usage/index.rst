@@ -1386,7 +1386,7 @@ functions are described next.
       workspace (without distinction between ``int``  and ``long int``) is
       :math:`22 + 5 N` (increased by :math:`N` if constraint checking is enabled).
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -1600,7 +1600,7 @@ The following optional outputs are available from the KINLS modules:
       Replaces the deprecated function ``KINDlsGetWorkspace`` and
       ``KINSpilsGetWorkspace``.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -2438,7 +2438,7 @@ KINBBDPRE module:
       The workspaces referred to here exist in addition
       to those given by the corresponding :c:func:`KINGetLinWorkSpace` function.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
