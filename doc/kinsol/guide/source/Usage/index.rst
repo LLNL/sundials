@@ -1119,6 +1119,8 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
    :retval KIN_SUCCESS: The damping function has been successfully set.
    :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
 
+   .. versionadded:: 7.3.0
+
    .. note::
 
       The function provided to :c:func:`KINSetDampingFn` will override any
@@ -1136,6 +1138,8 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
    :retval KIN_SUCCESS: The depth function has been successfully set.
    :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 7.3.0
 
 .. _KINSOL.Usage.CC.optional_inputs.optin_ls:
 
@@ -2153,6 +2157,7 @@ from :numref:`KINSOL.Mathematics.FixedPoint` and
      A :c:type:`KINDampingFn` function should return :math:`0` if successful or
      a non-zero value if an error occurred.
 
+   .. versionadded:: 7.3.0
 
 .. _KINSOL.Usage.CC.user_fct_sim.depthFn:
 
@@ -2205,6 +2210,8 @@ of type :c:type:`KINDepthFn` to modify the Anderson acceleration depth,
 
      A :c:type:`KINDepthFn` function should return :math:`0` if successful or
      a non-zero value if an error occurred.
+
+   .. versionadded:: 7.3.0
 
 
 .. _KINSOL.Usage.CC.kin_bbdpre:
