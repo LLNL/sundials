@@ -1084,8 +1084,9 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
       :c:func:`ARKodeSetMinReduction`,
       :c:func:`ARKodeSetSafetyFactor`,
       :c:func:`ARKodeSetSmallNumEFails`,
-      :c:func:`ARKodeSetStabilityFn`, and
-      :c:func:`ARKodeSetAdaptController`
+      :c:func:`ARKodeSetStabilityFn`,
+      :c:func:`ARKodeSetAdaptController`, and
+      :c:func:`ARKodeSetAdaptControllerByName`
       will be ignored, since temporal adaptivity is disabled.
 
       If both :c:func:`ARKodeSetFixedStep` and
@@ -1482,17 +1483,18 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 =========================================================   ==========================================  ========
 Optional input                                              Function name                               Default
 =========================================================   ==========================================  ========
-Provide a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptController`          PID
-Adjust the method order used in the controller              :c:func:`ARKodeSetAdaptivityAdjustment`     -1
+Provide a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptController`          I
+Specify a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptControllerByName`    I
+Adjust the method order used in the controller              :c:func:`ARKodeSetAdaptivityAdjustment`     0
 Explicit stability safety factor                            :c:func:`ARKodeSetCFLFraction`              0.5
-Time step error bias factor                                 :c:func:`ARKodeSetErrorBias`                1.5
-Bounds determining no change in step size                   :c:func:`ARKodeSetFixedStepBounds`          1.0  1.5
+Time step error bias factor                                 :c:func:`ARKodeSetErrorBias`                1.0
+Bounds determining no change in step size                   :c:func:`ARKodeSetFixedStepBounds`          1.0  1.0
 Maximum step growth factor on convergence fail              :c:func:`ARKodeSetMaxCFailGrowth`           0.25
 Maximum step growth factor on error test fail               :c:func:`ARKodeSetMaxEFailGrowth`           0.3
 Maximum first step growth factor                            :c:func:`ARKodeSetMaxFirstGrowth`           10000.0
 Maximum allowed general step growth factor                  :c:func:`ARKodeSetMaxGrowth`                20.0
 Minimum allowed step reduction factor on error test fail    :c:func:`ARKodeSetMinReduction`             0.1
-Time step safety factor                                     :c:func:`ARKodeSetSafetyFactor`             0.96
+Time step safety factor                                     :c:func:`ARKodeSetSafetyFactor`             0.9
 Error fails before ``MaxEFailGrowth`` takes effect          :c:func:`ARKodeSetSmallNumEFails`           2
 Explicit stability function                                 :c:func:`ARKodeSetStabilityFn`              none
 Set accumulated error estimation type                       :c:func:`ARKodeSetAccumulatedErrorType`     none
@@ -1510,13 +1512,13 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
-   :retval ARK_MEM_FAIL: *C* was ``NULL`` and the PID controller could not be allocated.
+   :retval ARK_MEM_FAIL: *C* was ``NULL`` and the I controller could not be allocated.
    :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
                                     by the current time-stepping module.
 
    .. note::
 
-      If *C* is ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.Soderlind`).
+      If *C* is ``NULL`` then the I controller will be created (see :numref:`SUNAdaptController.Soderlind`).
 
       This is only compatible with time-stepping modules that support temporal adaptivity.
 
@@ -1527,6 +1529,42 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. versionadded:: 6.1.0
 
+   .. versionchanged:: x.y.z
+
+      The default controller was changed from PID to I.
+
+
+
+
+.. c:function:: int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
+
+   Sets a user-supplied time step controller object by name.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param cname: name of the time adaptivity controller to use.  Allowable values
+                 currently include ``"Soderlind"``, ``"PID"``, ``"PI"``, ``"I"``,
+                 ``"ExpGus"``, ``"ImpGus"``, ``"ImExGus"``, ``"H0211"``, ``"H0321"``,
+                 ``"H211"``, and ``"H312"``. For information on these options, see
+                 :numref:`SUNAdaptController.Soderlind` and
+                 :numref:`SUNAdaptController.ImExGus`.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_ILL_INPUT: ``cname`` did not match an allowed value.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
+                                    by the current time-stepping module.
+
+   .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
+      It is not possible to adjust the internal controller parameters when using this
+      function.  Users who wish to adjust these parameters should create and configure
+      the :c:type:`SUNAdaptController` object manually, and then call
+      :c:func:`ARKodeSetAdaptController`.
+
+   .. versionadded:: x.y.z
+
 
 .. c:function:: int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust)
 
@@ -1536,7 +1574,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
    by specifying a value :math:`adjust < 0`.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param adjust: adjustment factor (default is -1).
+   :param adjust: adjustment factor (default is 0).
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1552,6 +1590,10 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       reset following a call to ``*StepReInit``.
 
    .. versionadded:: 6.1.0
+
+   .. versionchanged:: x.y.z
+
+      The default value was changed from -1 to 0
 
 
 .. c:function:: int ARKodeSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
@@ -1584,7 +1626,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param bias: bias applied to error in accuracy-based time
-                step estimation (default is 1.5).
+                step estimation (default is 1.0).
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1604,6 +1646,10 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. versionadded:: 6.1.0
 
+   .. versionchanged:: x.y.z
+
+      The default value was changed from 1.5 to 1.0
+
 
 .. c:function:: int ARKodeSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub)
 
@@ -1611,7 +1657,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param lb: lower bound on window to leave step size fixed (default is 1.0).
-   :param ub: upper bound on window to leave step size fixed (default is 1.5).
+   :param ub: upper bound on window to leave step size fixed (default is 1.0).
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1626,6 +1672,10 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
    .. versionadded:: 6.1.0
+
+   .. versionchanged:: x.y.z
+
+      The default upper bound was changed from 1.5 to 1.0
 
 
 .. c:function:: int ARKodeSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf)
@@ -1756,7 +1806,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
    estimated step.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param safety: safety factor applied to accuracy-based time step (default is 0.96).
+   :param safety: safety factor applied to accuracy-based time step (default is 0.9).
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1772,6 +1822,11 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       value.
 
    .. versionadded:: 6.1.0
+
+   .. versionchanged:: x.y.z
+
+      The default default was changed from 0.96 to 0.9. The maximum value is now
+      exactly 1.0 rather than strictly less than 1.0.
 
 
 .. c:function:: int ARKodeSetSmallNumEFails(void* arkode_mem, int small_nef)

@@ -277,7 +277,6 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeERKStepMem step_mem;
   sunindextype Blrw, Bliw;
-  long int lenrw, leniw;
   int retval;
 
   /* access ARKodeERKStepMem structure */
@@ -302,46 +301,10 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
   }
   step_mem->B = NULL;
 
-  /* Remove current SUNAdaptController object, and replace with "PI" */
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
-    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                      &leniw);
-    if (retval == SUN_SUCCESS)
-    {
-      ark_mem->liw -= leniw;
-      ark_mem->lrw -= lenrw;
-    }
-    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
-    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUN_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptController_Destroy failure");
-      return (ARK_MEM_FAIL);
-    }
-  }
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
-  if (ark_mem->hadapt_mem->hcontroller == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptController_PI allocation failure");
-    return (ARK_MEM_FAIL);
-  }
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
-  {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
-  }
+  /* Load the default SUNAdaptController */
+  retval = arkReplaceAdaptController(ark_mem, NULL, SUNTRUE);
+  if (retval) { return retval; }
 
-  /* Update some controller parameters */
-  (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(1.2));
-  (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(0.8), -SUN_RCONST(0.31));
   return (ARK_SUCCESS);
 }
 

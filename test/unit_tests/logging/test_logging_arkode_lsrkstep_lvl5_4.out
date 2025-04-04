@@ -27,7 +27,7 @@ Start LSRKStep Logging test
  6.103515625000000e-12
 [DEBUG][rank 0][lsrkStep_TakeStepSSP43][embedded solution] y_embedded(:) =
  6.103515625000001e-12
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0017534130561902
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 3.04191165799647e-06
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 6.103515625e-08
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 10000
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 8.07793566946316e-18
@@ -87,9 +87,9 @@ Start LSRKStep Logging test
  1.281744384764923e-06
 [DEBUG][rank 0][lsrkStep_TakeStepSSP43][embedded solution] y_embedded(:) =
  1.281744384764847e-06
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 1.220703125e-07
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.1
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00133903095239776
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 2.44140625e-05
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 7.57632019663408e-10
   1.281744384765625e-06  1.281744384764923e-06  2.117582368135751e-22
 ---------------------------------------------------------------------
@@ -103,7 +103,7 @@ NLS step fails                = 0
 Inequality constraint fails   = 0
 Initial step size             = 6.103515625e-12
 Last step size                = 1.220703125e-06
-Current step size             = 1.220703125e-07
+Current step size             = 2.44140625e-05
 RHS fn evals                  = 14
 Number of stages used         = 4
 End LSRKStep Logging test

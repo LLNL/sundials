@@ -13,70 +13,70 @@
     Preconditioning on left:
          t         steps   steps att.   fe     fi
     -------------------------------------------------
-     0.100000       76       79        0      885
-     0.200000       95       98        0     1095
-     0.300000      106      109        0     1215
-     0.400000      113      116        0     1295
-     0.500000      118      121        0     1355
-     0.600000      123      126        0     1405
-     0.700000      126      129        0     1444
-     0.800000      129      132        0     1474
-     0.900000      132      135        0     1504
-     1.000000      135      138        0     1539
+     0.100000       44       44        0      534
+     0.200000       55       55        0      679
+     0.300000       61       61        0      759
+     0.400000       65       65        0      814
+     0.500000       68       68        0      854
+     0.600000       71       71        0      894
+     0.700000       73       73        0      919
+     0.800000       75       75        0      949
+     0.900000       76       76        0      964
+     1.000000       77       77        0      974
     -------------------------------------------------
-Max. absolute error is   2.11E-09
+Max. absolute error is   4.66E-09
    
  Final Solver Statistics:
-   Internal solver steps =    135 (attempted =    138)
+   Internal solver steps =     77 (attempted =     77)
    Total explicit RHS evals =      0
-   Total implicit RHS evals =   1539
-   Total preconditioner setups =      3
-   Total preconditioner solves =   1390
-   Total nonlinear iterations  =    846
-   Total linear iterations     =    700
-   Average Krylov subspace dimension =   0.8274
+   Total implicit RHS evals =    974
+   Total preconditioner setups =      2
+   Total preconditioner solves =   1459
+   Total nonlinear iterations  =    586
+   Total linear iterations     =   1074
+   Average Krylov subspace dimension =   1.8328
    Total Convergence Failures - Nonlinear =      0
                               - Linear    =      0
-   Total number of error test failures =      3
+   Total number of error test failures =      0
    Main solver real/int workspace sizes =    918   291
    Linear solver real/int workspace sizes =    535   126
    BBD preconditioner real/int workspace sizes =    160    72
-   Total number of g evals =      6
+   Total number of g evals =      4
     
     
     
     Preconditioning on right:
          t         steps   steps att.   fe     fi
     -------------------------------------------------
-     0.100000       76       79        0      885
-     0.200000       95       98        0     1095
-     0.300000      106      109        0     1215
-     0.400000      113      116        0     1295
-     0.500000      118      121        0     1355
-     0.600000      123      126        0     1405
-     0.700000      126      129        0     1444
-     0.800000      129      132        0     1474
-     0.900000      132      135        0     1504
-     1.000000      135      138        0     1539
+     0.100000       44       44        0      534
+     0.200000       55       55        0      679
+     0.300000       61       61        0      759
+     0.400000       65       65        0      814
+     0.500000       68       68        0      854
+     0.600000       71       71        0      894
+     0.700000       73       73        0      919
+     0.800000       75       75        0      949
+     0.900000       76       76        0      964
+     1.000000       77       77        0      974
     -------------------------------------------------
-Max. absolute error is   2.11E-09
+Max. absolute error is   4.66E-09
    
  Final Solver Statistics:
-   Internal solver steps =    135 (attempted =    138)
+   Internal solver steps =     77 (attempted =     77)
    Total explicit RHS evals =      0
-   Total implicit RHS evals =   1539
-   Total preconditioner setups =      3
-   Total preconditioner solves =   1390
-   Total nonlinear iterations  =    846
-   Total linear iterations     =    700
-   Average Krylov subspace dimension =   0.8274
+   Total implicit RHS evals =    974
+   Total preconditioner setups =      2
+   Total preconditioner solves =   1459
+   Total nonlinear iterations  =    586
+   Total linear iterations     =   1074
+   Average Krylov subspace dimension =   1.8328
    Total Convergence Failures - Nonlinear =      0
                               - Linear    =      0
-   Total number of error test failures =      3
+   Total number of error test failures =      0
    Main solver real/int workspace sizes =    918   297
    Linear solver real/int workspace sizes =    535   126
    BBD preconditioner real/int workspace sizes =    160    72
-   Total number of g evals =      6
+   Total number of g evals =      4
     
     
     
