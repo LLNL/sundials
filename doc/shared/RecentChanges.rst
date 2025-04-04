@@ -13,22 +13,10 @@ capability can be found in
 
 **New Features and Enhancements**
 
-Added support for resizing CVODE and CVODES when solving initial value problems
-where the number of equations and unknowns changes over time. Resizing requires
-a user supplied history of solution and right-hand side values at the new
-problem size, see :c:func:`CVodeResizeHistory` for more information.
+*ARKODE*
 
-Improved the precision of the coefficients for ``ARKODE_ARK324L2SA_ERK_4_2_3``,
-``ARKODE_VERNER_9_5_6``, ``ARKODE_VERNER_10_6_7``, ``ARKODE_VERNER_13_7_8``,
-``ARKODE_ARK324L2SA_DIRK_4_2_3``, and ``ARKODE_ESDIRK324L2SA_4_2_3``.
-
-The Soderlind time step adaptivity controller now starts with an I controller
-until there is sufficient history of past time steps and errors.
-
-Added the ``ARKODE_RALSTON_3_1_2`` and ``ARKODE_TSITOURAS_7_4_5`` explicit
-Runge-Kutta Butcher tables.
-
-Improved the efficiency of default ARKODE methods with the following changes:
+The following changes have been made to the default ERK, DIRK, and ARK methods
+in ARKODE to utilize more efficient methods:
 
 +--------------------+-------------------------------------+--------------------------------------+
 | Type               | Old Default                         | New Default                          |
@@ -58,15 +46,116 @@ Improved the efficiency of default ARKODE methods with the following changes:
 |                    | ``ARKODE_ARK548L2SA_DIRK_8_4_5``    | ``ARKODE_ARK548L2SAb_DIRK_8_4_5``    |
 +--------------------+-------------------------------------+--------------------------------------+
 
+The old default methods can be loaded using the functions
+:c:func:`ERKStepSetTableName` or :c:func:`ERKStepSetTableNum` with ERKStep and
+:c:func:`ARKStepSetTableName` or :c:func:`ARKStepSetTableNum` with ARKStep and
+passing the desired method name string or constant, respectively. For example,
+the following call can be used to load the old default fourth order method with
+ERKStep:
+
+.. code-block:: C
+
+   /* Load the old 4th order ERK method using the table name */
+   ierr = ERKStepSetTableName(arkode_mem, "ARKODE_ZONNEVELD_5_3_4");
+
+Similarly with ARKStep, the following calls can be used for ERK, DIRK, or ARK
+methods, respectively:
+
+.. code-block:: C
+
+   /* Load the old 4th order ERK method by name */
+   ierr = ARKStepSetTableName(arkode_mem, "ARKODE_DIRK_NONE",
+                              "ARKODE_ZONNEVELD_5_3_4");
+
+   /* Load the old 4th order DIRK method by name */
+   ierr = ARKStepSetTableName(arkode_mem, "ARKODE_SDIRK_5_3_4",
+                              "ARKODE_ERK_NONE");
+
+   /* Load the old 4th order ARK method by name */
+   ierr = ARKStepSetTableName(arkode_mem, "ARKODE_ARK436L2SA_DIRK_6_3_4",
+                              "ARKODE_ARK436L2SA_ERK_6_3_4");
+
+Additionally, the following changes have been made to the default time step
+adaptivity parameters in ARKODE:
+
++-----------------------+-----------------------+-------------+
+| Parameter             | Old Default           | New Default |
++=======================+=======================+=============+
+| Controller            | PID (PI for ERKStep)  | I           |
++-----------------------+-----------------------+-------------+
+| Safety Factor         | 0.96                  | 0.9         |
++-----------------------+-----------------------+-------------+
+| Bias                  | 1.5 (1.2 for ERKStep) | 1.0         |
++-----------------------+-----------------------+-------------+
+| Fixed Step Bounds     | [1.0, 1.5]            | [1.0, 1.0]  |
++-----------------------+-----------------------+-------------+
+| Adaptivity Adjustment | -1                    | 0           |
++-----------------------+-----------------------+-------------+
+
+The following calls can be used to restore the old defaults for ERKStep:
+
+.. code-block:: c
+
+   SUNAdaptController controller = SUNAdaptController_Soderlind(ctx);
+   SUNAdaptController_SetParams_PI(controller, 0.8, -0.31);
+   ARKodeSetAdaptController(arkode_mem, controller);
+   SUNAdaptController_SetErrorBias(controller, 1.2);
+   ARKodeSetSafetyFactor(arkode_mem, 0.96);
+   ARKodeSetFixedStepBounds(arkode_mem, 1, 1.5);
+   ARKodeSetAdaptivityAdjustment(arkode_mem, -1);
+
+The following calls can be used to restore the old defaults for other ARKODE
+integrators:
+
+.. code-block:: c
+
+   SUNAdaptController controller = SUNAdaptController_PID(ctx);
+   ARKodeSetAdaptController(arkode_mem, controller);
+   SUNAdaptController_SetErrorBias(controller, 1.5);
+   ARKodeSetSafetyFactor(arkode_mem, 0.96);
+   ARKodeSetFixedStepBounds(arkode_mem, 1, 1.5);
+   ARKodeSetAdaptivityAdjustment(arkode_mem, -1);
+
+In both cases above, destroy the controller at the end of the run with
+``SUNAdaptController_Destroy(controller);``.
+
+The Soderlind time step adaptivity controller now starts with an I controller
+until there is sufficient history of past time steps and errors.
+
+Added :c:func:`ARKodeSetAdaptControllerByName` to set a time step adaptivity controller
+with a string. There are also four new controllers:
+:c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H0321`,
+:c:func:`SUNAdaptController_H211`, and :c:func:`SUNAdaptController_H312`.
+
+Added the ``ARKODE_RALSTON_3_1_2`` and ``ARKODE_TSITOURAS_7_4_5`` explicit
+Runge-Kutta Butcher tables.
+
+Improved the precision of the coefficients for ``ARKODE_ARK324L2SA_ERK_4_2_3``,
+``ARKODE_VERNER_9_5_6``, ``ARKODE_VERNER_10_6_7``, ``ARKODE_VERNER_13_7_8``,
+``ARKODE_ARK324L2SA_DIRK_4_2_3``, and ``ARKODE_ESDIRK324L2SA_4_2_3``.
+
+*CVODE / CVODES*
+
+Added support for resizing CVODE and CVODES when solving initial value problems
+where the number of equations and unknowns changes over time. Resizing requires
+a user supplied history of solution and right-hand side values at the new
+problem size, see :c:func:`CVodeResizeHistory` for more information.
+
+*KINSOL*
+
 Added support in KINSOL for setting user-supplied functions to compute the
 damping factor and, when using Anderson acceleration, the depth in fixed-point
 or Picard iterations. See :c:func:`KINSetDampingFn` and :c:func:`KINSetDepthFn`,
 respectively, for more information.
 
+*SUNDIALS Types*
+
 A new type, :c:type:`suncountertype`, was added for the integer type used for
 counter variables. It is currently an alias for ``long int``.
 
 **Bug Fixes**
+
+*ARKODE*
 
 Fixed bug in :c:func:`ARKodeResize` which caused it return an error for MRI
 methods.
@@ -78,13 +167,11 @@ first step.
 Fixed bug in :c:func:`ARKodeSetFixedStep` where it could return ``ARK_SUCCESS``
 despite an error occurring.
 
-Fixed the behavior of :cmakeop:`SUNDIALS_ENABLE_ERROR_CHECKS` so additional
-runtime error checks are disabled by default with all release build types.
-Previously, ``MinSizeRel`` builds enabled additional error checking by default.
-
 Fixed bug in the ARKODE SPRKStep :c:func:`SPRKStepReInit` function and
 :c:func:`ARKodeReset` function with SPRKStep that could cause a segmentation
 fault when compensated summation is not used.
+
+*KINSOL*
 
 Fixed a bug in KINSOL where an incorrect damping parameter is applied on the
 initial iteration with Anderson acceleration unless :c:func:`KINSetDamping` and
@@ -95,6 +182,12 @@ Fixed a bug in KINSOL where errors that occurred when computing Anderson
 acceleration were not captured.
 
 Added missing return values to :c:func:`KINGetReturnFlagName`.
+
+*CMake*
+
+Fixed the behavior of :cmakeop:`SUNDIALS_ENABLE_ERROR_CHECKS` so additional
+runtime error checks are disabled by default with all release build types.
+Previously, ``MinSizeRel`` builds enabled additional error checking by default.
 
 **Deprecation Notices**
 

@@ -4,30 +4,30 @@
         t           u           v           w       
   ---------------------------------------------------
    0.00000E+00  3.90000E+00  1.10000E+00  2.80000E+00
-   1.00000E+00  2.07527E+00  1.05960E+00  2.50156E+00
-   2.00000E+00  1.10046E+00  1.72361E+00  2.50180E+00
-   3.00000E+00  7.89620E-01  2.32667E+00  2.50505E+00
-   4.00000E+00  8.11773E-01  2.72558E+00  2.47709E+00
-   5.00000E+00  1.18700E+00  2.59554E+00  2.49471E+00
-   6.00000E+00  1.88731E+00  1.49410E+00  2.50035E+00
-   7.00000E+00  1.32327E+00  1.61902E+00  2.54489E+00
-   8.00000E+00  9.21787E-01  2.13022E+00  2.51427E+00
-   9.00000E+00  8.49542E-01  2.53948E+00  2.39076E+00
-   1.00000E+01  1.06497E+00  2.59596E+00  2.43417E+00
+   1.00000E+00  2.07527E+00  1.05960E+00  2.50765E+00
+   2.00000E+00  1.10046E+00  1.72361E+00  2.52252E+00
+   3.00000E+00  7.89621E-01  2.32667E+00  2.54900E+00
+   4.00000E+00  8.11773E-01  2.72558E+00  2.48066E+00
+   5.00000E+00  1.18700E+00  2.59554E+00  2.47320E+00
+   6.00000E+00  1.88731E+00  1.49410E+00  2.52229E+00
+   7.00000E+00  1.32327E+00  1.61902E+00  2.53296E+00
+   8.00000E+00  9.21788E-01  2.13022E+00  2.54792E+00
+   9.00000E+00  8.49542E-01  2.53948E+00  2.36832E+00
+   1.00000E+01  1.06497E+00  2.59595E+00  2.46877E+00
   ----------------------------------------------------
   
   General Solver Stats:
-    Total internal steps taken    =     1086
-    Total internal steps attempts =     1108
-    Total rhs exp function calls  =     4413
-    Total rhs imp function calls  =     8703
-    Total jac function calls      =       28
-    Num lin solver setup calls    =      134
-    Num error test failures       =       22
+    Total internal steps taken    =      638
+    Total internal steps attempts =      766
+    Total rhs exp function calls  =     2939
+    Total rhs imp function calls  =     8810
+    Total jac function calls      =      347
+    Num lin solver setup calls    =      591
+    Num error test failures       =      128
     First internal step size      = 2.84252E-08
-    Last internal step size       = 2.19031E-02
-    Next internal step size       = 2.19031E-02
-    Current internal time         = 1.00082E+01
-    Num nonlinear solver iters    =     4290
-    Num nonlinear solver fails    =       12
+    Last internal step size       = 1.94583E-02
+    Next internal step size       = 1.95624E-02
+    Current internal time         = 1.00039E+01
+    Num nonlinear solver iters    =     5871
+    Num nonlinear solver fails    =      346
   
