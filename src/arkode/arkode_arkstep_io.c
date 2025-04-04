@@ -683,7 +683,6 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeARKStepMem step_mem;
   sunindextype Blrw, Bliw;
-  long int lenrw, leniw;
   int retval;
 
   /* access ARKodeARKStepMem structure */

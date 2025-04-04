@@ -310,7 +310,6 @@ int mriStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeMRIStepMem step_mem;
   sunindextype Clenrw, Cleniw;
-  long int lenrw, leniw;
   int retval;
 
   /* access ARKodeMRIStepMem structure */

@@ -277,7 +277,6 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeERKStepMem step_mem;
   sunindextype Blrw, Bliw;
-  long int lenrw, leniw;
   int retval;
 
   /* access ARKodeERKStepMem structure */
