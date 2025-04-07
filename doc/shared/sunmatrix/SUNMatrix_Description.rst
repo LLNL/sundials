@@ -103,7 +103,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNMatHermitianTransposeVec`
       
-      .. versionadded:: x.y.z
+      .. versionadded:: 7.3.0
 
    .. c:member:: SUNErrCode (*space)(SUNMatrix, long int*, long int*)
 

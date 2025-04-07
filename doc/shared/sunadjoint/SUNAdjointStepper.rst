@@ -16,7 +16,7 @@
 The SUNAdjointStepper Class
 ===========================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.3.0
 
 .. c:type:: SUNAdjointStepper
 

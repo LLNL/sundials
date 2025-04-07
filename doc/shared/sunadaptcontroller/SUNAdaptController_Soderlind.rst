@@ -326,7 +326,7 @@ also provides the following additional user-callable routines:
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
    Usage:
 
@@ -345,7 +345,7 @@ also provides the following additional user-callable routines:
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
    Usage:
 
@@ -364,7 +364,7 @@ also provides the following additional user-callable routines:
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
    Usage:
 
@@ -383,7 +383,7 @@ also provides the following additional user-callable routines:
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
    Usage:
 

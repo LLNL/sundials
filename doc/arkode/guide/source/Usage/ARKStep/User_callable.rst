@@ -1468,7 +1468,7 @@ Optional inputs for time step adaptivity
 
       Use :c:func:`ARKodeSetAdaptController` instead.
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default controller was changed from PID to I.
 
@@ -1570,7 +1570,7 @@ Optional inputs for time step adaptivity
 
       Use :c:func:`ARKodeSetAdaptivityAdjustment` instead.
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default value was changed from -1 to 0
 
@@ -1624,7 +1624,7 @@ Optional inputs for time step adaptivity
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
       
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default value was changed from 1.5 to 1.0
 
@@ -1650,7 +1650,7 @@ Optional inputs for time step adaptivity
 
       Use :c:func:`ARKodeSetFixedStepBounds` instead.
       
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default upper bound was changed from 1.5 to 1.0
 
@@ -1794,7 +1794,7 @@ Optional inputs for time step adaptivity
 
       Use :c:func:`ARKodeSetSafetyFactor` instead.
       
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default default was changed from 0.96 to 0.9. The maximum value is now
       exactly 1.0 rather than strictly less than 1.0.

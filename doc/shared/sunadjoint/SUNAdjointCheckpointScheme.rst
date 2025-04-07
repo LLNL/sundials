@@ -15,7 +15,7 @@
 The SUNAdjointCheckpointScheme Class
 ====================================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.3.0
 
 As with other SUNDIALS classes, the :c:type:`SUNAdjointCheckpointScheme` abstract base class is
 implemented using a C structure containing a ``content`` pointer to the derived class member data

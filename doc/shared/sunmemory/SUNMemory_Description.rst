@@ -44,7 +44,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
       .. c:member:: size_t stride;
 
-         .. versionadded:: x.y.z
+         .. versionadded:: 7.3.0
 
          The stride of the data.
 
@@ -98,7 +98,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
          Pointer to the implementation-specific queue (e.g., a ``cudaStream_t*``) 
          to use by default when one is not provided for an operation
          
-         .. versionadded:: x.y.z
+         .. versionadded:: 7.3.0
 
       .. c:member:: SUNMemoryHelper_Ops ops;
 
@@ -125,7 +125,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
          The function implementing :c:func:`SUNMemoryHelper_AllocStrided`
          
-         .. versionadded:: x.y.z
+         .. versionadded:: 7.3.0
 
       .. c:member:: SUNErrCode (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue)
 
@@ -204,7 +204,7 @@ must define:
 
    :return: A new :c:type:`SUNMemory` object
    
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, \
@@ -342,7 +342,7 @@ require a SUNMemoryHelper instance:
    :param queue: pointer to the queue to use by default.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
    
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 
 .. _SUNMemory.Description.Overridable:

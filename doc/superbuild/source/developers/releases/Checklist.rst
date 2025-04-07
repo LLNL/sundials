@@ -67,8 +67,9 @@ web pages.
 
 #. Create release branch ``release/vX.Y.Z`` from ``develop`` in the git repo.
 
-#. Update version numbers and release date information using the ``updateVerson.sh``
-   script.
+#. Update version numbers in ``scripts/updateVerson.sh``.
+
+#. Run the ``updateVerson.sh`` script.
 
    .. code-block:: shell
 

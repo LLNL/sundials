@@ -1450,7 +1450,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.3.0
 
 .. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
 
@@ -1465,7 +1465,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.3.0
 
 
 .. _ARKODE.Usage.ARKodeAdaptivityInputTable:
@@ -1529,7 +1529,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. versionadded:: 6.1.0
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default controller was changed from PID to I.
 
@@ -1563,7 +1563,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       the :c:type:`SUNAdaptController` object manually, and then call
       :c:func:`ARKodeSetAdaptController`.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.3.0
 
 
 .. c:function:: int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust)
@@ -1591,7 +1591,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. versionadded:: 6.1.0
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default value was changed from -1 to 0
 
@@ -1646,7 +1646,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. versionadded:: 6.1.0
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default value was changed from 1.5 to 1.0
 
@@ -1673,7 +1673,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. versionadded:: 6.1.0
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default upper bound was changed from 1.5 to 1.0
 
@@ -1823,7 +1823,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. versionadded:: 6.1.0
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.3.0
 
       The default default was changed from 0.96 to 0.9. The maximum value is now
       exactly 1.0 rather than strictly less than 1.0.
@@ -3401,7 +3401,7 @@ Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumul
 
    .. versionadded:: 6.1.0
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 6.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -4179,7 +4179,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. versionadded:: 6.1.0
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 6.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -4491,7 +4491,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. versionadded:: 6.1.0
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 6.3.0
 
       Work space functions will be removed in version 8.0.0.
 
