@@ -390,7 +390,7 @@ static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
                    long int depth, void* user_data, long int* new_depth,
                    sunbooleantype* remove_index)
 {
-  if (iter < 4) { *new_depth = 1; }
+  if (iter < 2) { *new_depth = 1; }
   else { *new_depth = depth; };
 
   return 0;
