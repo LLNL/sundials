@@ -76,22 +76,22 @@ or by downloading release compressed archives (``.tar.gz`` files) from the
 <https://computing.llnl.gov/projects/sundials/sundials-software>`__. The
 compressed archives allow for downloading the entire SUNDIALS suite or
 individual packages. The name of the distribution archive is of the form
-``SOLVER-x.y.z.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
-``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``x.y.z``
+``SOLVER-7.3.0.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
+``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``7.3.0``
 represents the version number of the SUNDIALS suite or of the individual
 package. After downloading the relevant archives, uncompress and expand the
 sources. For example, by running
 
 .. code-block:: bash
 
-   tar -zxf SOLVER-x.y.z.tar.gz
+   tar -zxf SOLVER-7.3.0.tar.gz
 
-the extracted source files will be under the ``SOLVER-x.y.z`` directory.
+the extracted source files will be under the ``SOLVER-7.3.0`` directory.
 
 In the installation steps below we will refer to the following directories:
 
 * ``SOLVER_DIR`` is the ``sundials`` directory created when cloning from GitHub
-  or the ``SOLVER-x.y.z`` directory created after uncompressing the release
+  or the ``SOLVER-7.3.0`` directory created after uncompressing the release
   archive.
 
 * ``BUILD_DIR`` is the (temporary) directory under which SUNDIALS is built.
@@ -265,11 +265,11 @@ are for a Linux system and are provided as illustration only.
 
 .. note::
 
-   When using a CMake graphical interface (`ccmake` or `cmake-gui`), multiple
-   configuration passes are performed before generating the build files. For
-   options where the default value depends on the value of another option, the
-   initial value is set on the first configuration pass and is not updated
-   automatically if the related option value is changed in subsequent
+   When using a CMake graphical interface (``ccmake`` or ``cmake-gui``),
+   multiple configuration passes are performed before generating the build
+   files. For options where the default value depends on the value of another
+   option, the initial value is set on the first configuration pass and is not
+   updated automatically if the related option value is changed in subsequent
    passes. For example, the default value of :cmakeop:`EXAMPLES_INSTALL_PATH` is
    ``CMAKE_INSTALL_PREFIX/examples``; if the value of
    :cmakeop:`CMAKE_INSTALL_PREFIX` is updated, then
@@ -492,7 +492,7 @@ Fortran Compiler
 
 .. cmakeoption:: CMAKE_Fortran_FLAGS_MINSIZEREL
 
-   C++ compiler flags appended when the :cmakeop:`CMAKE_BUILD_TYPE` is
+   Fortran compiler flags appended when the :cmakeop:`CMAKE_BUILD_TYPE` is
    ``MinSizeRel``
 
    Default: ``-Os``
@@ -596,7 +596,7 @@ Index Size
 
 ..    Default: `int64_t`
 
-..    .. versionadded:: x.y.z
+..    .. versionadded:: 7.3.0
 
 
 .. _Installation.Options.Precision:

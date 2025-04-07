@@ -147,7 +147,7 @@ Stepping Functions
    :param v0: the value of the dependent variable vector :math:`v(t_0)`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 
 .. c:function:: SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR)
@@ -169,7 +169,7 @@ Stepping Functions
    :param ckptIdxR: the step index to begin checkpointing from
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 
 .. c:function:: SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop)
@@ -227,7 +227,7 @@ Stepping Functions
    :param nst: on output, the number of time steps.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 
 .. _SUNStepper.Description.BaseMethods.RhsMode:
@@ -354,7 +354,7 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param fn: the :c:type:`SUNStepperReInitFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 .. c:function:: SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetFn fn)
 
@@ -374,7 +374,7 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param fn: the :c:type:`SUNStepperResetCheckpointIndexFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 
 .. c:function:: SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper, SUNStepperSetStopTimeFn fn)
@@ -416,7 +416,7 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param fn: the :c:type:`SUNStepperGetNumStepsFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 
 .. c:function:: SUNErrCode SUNStepper_SetDestroyFn(SUNStepper stepper, SUNStepperDestroyFn fn)
@@ -468,7 +468,7 @@ abstract base class.
    This type represents a function with the signature of
    :c:func:`SUNStepper_ReInit`.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 
 .. c:type:: SUNErrCode (*SUNStepperResetCheckpointIndexFn)(SUNStepper stepper, suncountertype ckptIdxR)
@@ -476,7 +476,7 @@ abstract base class.
    This type represents a function with the signature of
    :c:func:`SUNStepper_ResetCheckpointIndex`.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0
 
 
 .. c:type:: SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper, sunrealtype tstop)
@@ -507,4 +507,4 @@ abstract base class.
    This type represents a function with the signature of
    :c:func:`SUNStepper_GetNumSteps`.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.3.0

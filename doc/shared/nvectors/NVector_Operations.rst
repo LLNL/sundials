@@ -98,7 +98,7 @@ operations below.
 
       N_VSpace(nvSpec, &lrw, &liw);
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
