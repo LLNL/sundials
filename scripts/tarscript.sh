@@ -395,8 +395,8 @@ if [ $do_cvode = "T" ]; then
     filename="cvode-"$CV_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
-    $scriptdir/cvode  $tarfile $distrobase $doc $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc "F" $tar
+    $scriptdir/cvode.sh  $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
