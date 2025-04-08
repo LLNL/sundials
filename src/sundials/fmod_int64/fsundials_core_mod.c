@@ -1990,6 +1990,138 @@ SWIGEXPORT int _wrap_FSUNQRsol(int const *farg1, void *farg2, SwigComplex_double
 }
 
 
+SWIGEXPORT int _wrap_FSUNQRAdd_MGS(void *farg1, SwigComplex_double *farg2, N_Vector farg3, int const *farg4, int const *farg5, void *farg6) {
+  int fresult ;
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  sunscalartype *arg2 = (sunscalartype *) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int arg4 ;
+  int arg5 ;
+  void *arg6 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (sunscalartype *)(farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (int)(*farg4);
+  arg5 = (int)(*farg5);
+  arg6 = (void *)(farg6);
+  result = (SUNErrCode)SUNQRAdd_MGS(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNQRAdd_ICWY(void *farg1, SwigComplex_double *farg2, N_Vector farg3, int const *farg4, int const *farg5, void *farg6) {
+  int fresult ;
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  sunscalartype *arg2 = (sunscalartype *) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int arg4 ;
+  int arg5 ;
+  void *arg6 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (sunscalartype *)(farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (int)(*farg4);
+  arg5 = (int)(*farg5);
+  arg6 = (void *)(farg6);
+  result = (SUNErrCode)SUNQRAdd_ICWY(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNQRAdd_ICWY_SB(void *farg1, SwigComplex_double *farg2, N_Vector farg3, int const *farg4, int const *farg5, void *farg6) {
+  int fresult ;
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  sunscalartype *arg2 = (sunscalartype *) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int arg4 ;
+  int arg5 ;
+  void *arg6 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (sunscalartype *)(farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (int)(*farg4);
+  arg5 = (int)(*farg5);
+  arg6 = (void *)(farg6);
+  result = (SUNErrCode)SUNQRAdd_ICWY_SB(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNQRAdd_CGS2(void *farg1, SwigComplex_double *farg2, N_Vector farg3, int const *farg4, int const *farg5, void *farg6) {
+  int fresult ;
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  sunscalartype *arg2 = (sunscalartype *) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int arg4 ;
+  int arg5 ;
+  void *arg6 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (sunscalartype *)(farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (int)(*farg4);
+  arg5 = (int)(*farg5);
+  arg6 = (void *)(farg6);
+  result = (SUNErrCode)SUNQRAdd_CGS2(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNQRAdd_DCGS2(void *farg1, SwigComplex_double *farg2, N_Vector farg3, int const *farg4, int const *farg5, void *farg6) {
+  int fresult ;
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  sunscalartype *arg2 = (sunscalartype *) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int arg4 ;
+  int arg5 ;
+  void *arg6 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (sunscalartype *)(farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (int)(*farg4);
+  arg5 = (int)(*farg5);
+  arg6 = (void *)(farg6);
+  result = (SUNErrCode)SUNQRAdd_DCGS2(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNQRAdd_DCGS2_SB(void *farg1, SwigComplex_double *farg2, N_Vector farg3, int const *farg4, int const *farg5, void *farg6) {
+  int fresult ;
+  N_Vector *arg1 = (N_Vector *) 0 ;
+  sunscalartype *arg2 = (sunscalartype *) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  int arg4 ;
+  int arg5 ;
+  void *arg6 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (N_Vector *)(farg1);
+  arg2 = (sunscalartype *)(farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (int)(*farg4);
+  arg5 = (int)(*farg5);
+  arg6 = (void *)(farg6);
+  result = (SUNErrCode)SUNQRAdd_DCGS2_SB(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSolNewEmpty(void *farg1) {
   SUNLinearSolver fresult ;
   SUNContext arg1 = (SUNContext) 0 ;
