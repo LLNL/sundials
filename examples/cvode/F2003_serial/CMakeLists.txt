@@ -29,8 +29,8 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
   list(
     APPEND
     FCVODE_examples
+    "cv_analytic_complex_f2003\;develop\;complex"
     "cv_analytic_fp_f2003\;develop\;real"
-    "cv_analytic_fp_complex\;develop\;complex"
     "cv_analytic_sys_dns_f2003\;develop\;real"
     "cv_analytic_sys_dns_complex\;develop\;complex"
     "cv_analytic_sys_dns_jac_f2003\;develop\;real"

@@ -74,8 +74,8 @@ int main(void)
   sunrealtype dTout  = SUN_RCONST(1.0);       /* time between outputs */
   sunindextype NEQ   = 3;                     /* number of dependent vars. */
   int Nt             = (int)ceil(Tf / dTout); /* number of output times */
-  sunrealtype reltol = 1.0e-6;                /* tolerances */
-  sunrealtype abstol = 1.0e-10;
+  sunrealtype reltol = SUN_RCONST(1.0e-6);    /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-10);
   int maxl = 10;                              /* max linear solver iterations */
 
   /* general problem variables */
