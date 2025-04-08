@@ -25,7 +25,7 @@ Computed solution:
     y = 1
     z = -0.523599
 Solution error:
-    ex = 4.55904e-10
-    ey = 4.23535e-08
-    ez = 3.66131e-08
+    ex = 2.13113e-11
+    ey = 1.62047e-09
+    ez = 2.39899e-09
 PASS

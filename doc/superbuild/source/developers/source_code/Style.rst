@@ -393,3 +393,22 @@ To log extra debugging messages use the following macros:
       .. code-block:: C
 
          SUNLogExtraDebugVecArray(logger, "YS-vector-array", "YS[%d](:) =", YS, 5);
+
+
+Struct Accessor Macros
+----------------------
+
+Since many SUNDIALS structs use a type-erased (i.e., `void*`) "content" pointer, 
+a common idiom occurring in SUNDIALS code is extracting the content, casting it to its original
+type, and then accessing the struct member of interest. To ensure readability, it is 
+recommended to use locally (to the source file in question) defined macros `GET_CONTENT`
+and `IMPL_MEMBER` like the following example:
+
+.. code-block:: c
+
+   #define GET_CONTENT(S)       ((SUNAdjointCheckpointScheme_Fixed_Content)S->content)
+   #define IMPL_MEMBER(S, prop) (GET_CONTENT(S)->prop)
+
+   SUNAdjointCheckpointScheme self;
+   IMPL_MEMBER(self, current_insert_step_node)   = step_data_node;
+   IMPL_MEMBER(self, step_num_of_current_insert) = step_num;

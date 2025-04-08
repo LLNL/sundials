@@ -30,6 +30,7 @@
 
 #include <arkode/arkode_butcher.h>
 #include <stdio.h>
+#include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_stepper.h>
 
@@ -144,9 +145,12 @@ extern "C" {
 #define ARK_DOMEIG_FAIL          -49
 #define ARK_MAX_STAGE_LIMIT_FAIL -50
 
-#define ARK_SUNSTEPPER_ERR -51
-
+#define ARK_SUNSTEPPER_ERR     -51
 #define ARK_STEP_DIRECTION_ERR -52
+
+#define ARK_ADJ_CHECKPOINT_FAIL -53
+#define ARK_ADJ_RECOMPUTE_FAIL  -54
+#define ARK_SUNADJSTEPPER_ERR   -55
 
 #define ARK_UNRECOGNIZED_ERROR -99
 
@@ -284,6 +288,8 @@ SUNDIALS_EXPORT int ARKodeSetStagePredictFn(void* arkode_mem,
 /* Optional input functions (temporal adaptivity) */
 SUNDIALS_EXPORT int ARKodeSetAdaptController(void* arkode_mem,
                                              SUNAdaptController C);
+SUNDIALS_EXPORT int ARKodeSetAdaptControllerByName(void* arkode_mem,
+                                                   const char* cname);
 SUNDIALS_EXPORT int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust);
 SUNDIALS_EXPORT int ARKodeSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac);
 SUNDIALS_EXPORT int ARKodeSetErrorBias(void* arkode_mem, sunrealtype bias);
@@ -305,6 +311,11 @@ SUNDIALS_EXPORT int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin);
 SUNDIALS_EXPORT int ARKodeSetMinStep(void* arkode_mem, sunrealtype hmin);
 SUNDIALS_EXPORT int ARKodeSetMaxStep(void* arkode_mem, sunrealtype hmax);
 SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
+SUNDIALS_EXPORT
+int ARKodeSetAdjointCheckpointScheme(void* arkode_mem,
+                                     SUNAdjointCheckpointScheme checkpoint_scheme);
+SUNDIALS_EXPORT
+int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index);
 SUNDIALS_EXPORT int ARKodeSetAccumulatedErrorType(void* arkode_mem,
                                                   ARKAccumError accum_type);
 SUNDIALS_EXPORT int ARKodeResetAccumulatedError(void* arkode_mem);

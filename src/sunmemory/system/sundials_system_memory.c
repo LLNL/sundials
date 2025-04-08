@@ -51,6 +51,7 @@ SUNMemoryHelper SUNMemoryHelper_Sys(SUNContext sunctx)
 
   /* Set the ops */
   helper->ops->alloc         = SUNMemoryHelper_Alloc_Sys;
+  helper->ops->allocstrided  = SUNMemoryHelper_AllocStrided_Sys;
   helper->ops->dealloc       = SUNMemoryHelper_Dealloc_Sys;
   helper->ops->copy          = SUNMemoryHelper_Copy_Sys;
   helper->ops->getallocstats = SUNMemoryHelper_GetAllocStats_Sys;
@@ -98,6 +99,21 @@ SUNErrCode SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
   }
 
   *memptr = mem;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNMemoryHelper_AllocStrided_Sys(SUNMemoryHelper helper,
+                                            SUNMemory* memptr, size_t mem_size,
+                                            size_t stride,
+                                            SUNMemoryType mem_type, void* queue)
+{
+  SUNFunctionBegin(helper->sunctx);
+
+  SUNCheckCall(
+    SUNMemoryHelper_Alloc_Sys(helper, memptr, mem_size, mem_type, queue));
+
+  (*memptr)->stride = stride;
+
   return SUN_SUCCESS;
 }
 

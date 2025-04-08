@@ -8,24 +8,24 @@ ARKODE solver parameters:
   Minimum error fails before above factor is used = 2
   Step reduction factor on nonlinear convergence failure = 0.25
   Explicit safety factor = 0.5
-  Safety factor = 0.96
+  Safety factor = 0.9
   Growth factor = 20
   Step growth lower bound = 1
-  Step growth upper bound = 1.5
+  Step growth upper bound = 1
   No explicit stability function supplied
 Soderlind SUNAdaptController module:
-  k1 = 0.58
-  k2 = -0.21
-  k3 = 0.1
+  k1 = 1
+  k2 = 0
+  k3 = 0
   k4 = 0
   k5 = 0
-  bias factor = 1.5
+  bias factor = 1
   previous error = 1
   previous-previous error = 1
   previous step = 1
   previous-previous step = 1
   firststeps = 0
-  historysize = 2
+  historysize = 0
   Maximum number of error test failures = 7
   Maximum number of convergence test failures = 10
 ARKStep time step module parameters:
@@ -46,29 +46,29 @@ ARKStep time step module parameters:
    ----------------------------------------------------
     0.00000E+00  6.32978E-01  3.36571E+00  2.03247E+00
     1.00000E+00  6.97285E-01  3.23962E+00  1.99999E+00
-    2.00000E+00  7.89501E-01  3.05139E+00  1.99999E+00
+    2.00000E+00  7.89502E-01  3.05139E+00  1.99999E+00
     3.00000E+00  7.83680E-01  2.93001E+00  1.99999E+00
-    4.00000E+00  6.48122E-01  3.00833E+00  1.99999E+00
-    5.00000E+00  5.52223E-01  3.17028E+00  1.99999E+00
+    4.00000E+00  6.48121E-01  3.00833E+00  1.99999E+00
+    5.00000E+00  5.52222E-01  3.17028E+00  1.99999E+00
     6.00000E+00  5.22111E-01  3.30889E+00  1.99999E+00
-    7.00000E+00  5.20869E-01  3.40614E+00  1.99999E+00
+    7.00000E+00  5.20870E-01  3.40614E+00  1.99999E+00
     8.00000E+00  5.30276E-01  3.46669E+00  1.99999E+00
-    9.00000E+00  5.45196E-01  3.49456E+00  1.99999E+00
+    9.00000E+00  5.45197E-01  3.49456E+00  1.99999E+00
     1.00000E+01  5.65426E-01  3.49094E+00  1.99999E+00
    ----------------------------------------------------
   
   General Solver Stats:
-    Total internal steps taken    =       61
-    Total internal steps attempts =       64
+    Total internal steps taken    =       52
+    Total internal steps attempts =       62
     Total rhs exp function calls  =        0
-    Total rhs imp function calls  =     1166
-    Total jac function calls      =       18
+    Total rhs imp function calls  =     1118
+    Total jac function calls      =       32
     Total mass function calls     =        1
-    Num lin solver setup calls    =       52
-    Num error test failures       =        2
-    Last internal step size       = 2.48235E-01
-    Next internal step size       = 2.48235E-01
+    Num lin solver setup calls    =       64
+    Num error test failures       =        4
+    Last internal step size       = 3.82213E-01
+    Next internal step size       = 3.82213E-01
     Current internal time         = 1.00000E+01
-    Num nonlinear solver iters    =      845
-    Num nonlinear solver fails    =       17
+    Num nonlinear solver iters    =      823
+    Num nonlinear solver fails    =       31
   

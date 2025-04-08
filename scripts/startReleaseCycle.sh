@@ -79,6 +79,9 @@ sedi -e '/RecentChanges_link.rst/ {' \
 
 # Clear recent changes file
 cat > ../doc/shared/RecentChanges.rst <<HEREDOC
+.. For package-specific references use :ref: rather than :numref: so intersphinx
+   links to the appropriate place on read the docs
+
 **Major Features**
 
 **New Features and Enhancements**

@@ -26,13 +26,13 @@
 #define SUNDIALS_INT32_T
 #define SUNDIALS_INDEX_TYPE int32_t
 #else
-// Inform SWIG of the configure-provided types
 #define SUNDIALS_INT64_T
 #define SUNDIALS_INDEX_TYPE int64_t
 #endif
 
 #define SUNDIALS_DOUBLE_PRECISION
 #define SUNDIALS_SCALAR_TYPE_COMPLEX
+#define SUNDIALS_COUNTER_TYPE long int
 #define sunbooleantype int
 
 %ignore SUN_FORMAT_E;
