@@ -285,7 +285,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumErrTestFails instead")
 int ARKStepGetNumErrTestFails(void* arkode_mem, long int* netfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetEstLocalErrors instead")
 int ARKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ARKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumSteps instead")
 int ARKStepGetNumSteps(void* arkode_mem, long int* nsteps);
@@ -349,7 +350,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacTime instead")
 int ARKStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacNumSteps instead")
 int ARKStepGetJacNumSteps(void* arkode_mem, long int* nst_J);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLinWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ARKStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS,
                            long int* leniwLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumJacEvals instead")
@@ -371,7 +373,8 @@ int ARKStepGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLastLinFlag instead")
 int ARKStepGetLastLinFlag(void* arkode_mem, long int* flag);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetMassWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ARKStepGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS,
                             long int* leniwMLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumMassSetups instead")

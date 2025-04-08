@@ -2309,6 +2309,10 @@ described next.
       sensitivity integration is enabled. See :numref:`IDAS.Usage.Purequad.quad_init`
       and :numref:`IDAS.Usage.FSA.user_callable.sensi_init` for more details.
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: int IDAGetNumSteps(void * ida_mem, long int * nsteps)
 
@@ -2834,6 +2838,10 @@ The following optional outputs are available from the IDALS modules:
 
       Replaces the deprecated functions ``IDADlsGetWorkspace`` and
       ``IDASpilsGetWorkspace``.
+
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int IDAGetNumJacEvals(void * ida_mem, long int * njevals)
 
@@ -4379,6 +4387,10 @@ IDABBDPRE module:
       banded ``SUNLinearSolver`` object, temporary vectors).  These values
       are local to each process.  The workspaces referred to here exist in addition
       to those given by the corresponding function :c:func:`IDAGetLinWorkSpace`.
+
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int IDABBDPrecGetNumGfnEvals(void * ida_mem, long int * ngevalsBBDP)
 

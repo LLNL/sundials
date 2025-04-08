@@ -24,6 +24,7 @@
 set(CVODE_examples
     "cvAdvDiff_bnd\;\;develop\;real"
     "cvAnalytic_mels\;\;develop\;real"
+    "cvComplex\;\;develop\;complex"
     "cvDirectDemo_ls\;\;develop\;real"
     "cvDisc_dns\;\;develop\;real"
     "cvDiurnal_kry_bp\;\;develop\;real"

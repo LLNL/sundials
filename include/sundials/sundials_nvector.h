@@ -219,7 +219,9 @@ SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw);
 SUNDIALS_EXPORT sunscalartype* N_VGetArrayPointer(N_Vector v);
 SUNDIALS_EXPORT sunscalartype* N_VGetDeviceArrayPointer(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer(sunscalartype* v_data, N_Vector v);
