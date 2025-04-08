@@ -59,9 +59,9 @@ contains
     yval => FN_VGetArrayPointer(sunvec_y)
     fval => FN_VGetArrayPointer(sunvec_f)
 
-    fval(1) = (t - 1.0d0)*(t - yval(3))*complex(0.0d0, 1.0d0)
-    fval(2) = 2.0d0*yval(1)*complex(0.0d0, 1.0d0) - yval(2) + 4.0d0
-    fval(3) = yval(2) + t**2*exp(-t)*complex(0.0d0, 1.0d0) - exp(-t)*complex(0.0d0, 1.0d0) + 1.0d0
+    fval(1) = (t - 1.0d0)*(t - yval(3))*(0.0d0, 1.0d0)
+    fval(2) = 2.0d0*yval(1)*(0.0d0, 1.0d0) - yval(2) + 4.0d0
+    fval(3) = yval(2) + t**2*exp(-t)*(0.0d0, 1.0d0) - exp(-t)*(0.0d0, 1.0d0) + 1.0d0
 
     retval = 0
     return
@@ -86,9 +86,9 @@ contains
 
     uval => FN_VGetArrayPointer(sunvec_u)
 
-    uval(1) = -t*exp(-t) + complex(0.0d0, 2.0d0)
-    uval(2) = -t**2*exp(-t)*complex(0.0d0, 1.0d0)
-    uval(3) = exp(-t)*complex(0.0d0, 1.0d0) + t
+    uval(1) = -t*exp(-t) + (0.0d0, 2.0d0)
+    uval(2) = -t**2*exp(-t)*(0.0d0, 1.0d0)
+    uval(3) = exp(-t)*(0.0d0, 1.0d0) + t
 
     retval = 0
     return
@@ -118,7 +118,7 @@ contains
     eval => FN_VGetArrayPointer(sunvec_e)
 
     retval = Solution(t, sunvec_e)
-    call FN_VLinearSum(complex(1.0d0, 0.0d0), sunvec_u, complex(-1.0d0, 0.0d0), sunvec_e, sunvec_e)
+    call FN_VLinearSum((1.0d0, 0.0d0), sunvec_u, (-1.0d0, 0.0d0), sunvec_e, sunvec_e)
     error_norm = FN_VMaxNorm(sunvec_e)
     write(*, '(A, ES12.5)') "    Max-norm of the error is ", error_norm
 
@@ -175,9 +175,9 @@ program main
   sunvec_err => FN_VClone(sunvec_y)
 
   yval => FN_VGetArrayPointer(sunvec_y)
-  yval(1) = -t0*exp(-t0) + complex(0.0d0, 2.0d0)
-  yval(2) = -t0**2*exp(-t0)*complex(0.0d0, 1.0d0)
-  yval(3) = exp(-t0)*complex(0.0d0, 1.0d0) + t0
+  yval(1) = -t0*exp(-t0) + (0.0d0, 2.0d0)
+  yval(2) = -t0**2*exp(-t0)*(0.0d0, 1.0d0)
+  yval(3) = exp(-t0)*(0.0d0, 1.0d0) + t0
 
   print *, ""
   print *, "Analytic ODE test problem:"
