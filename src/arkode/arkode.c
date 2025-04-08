@@ -177,17 +177,10 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
 
   /* Indicate that problem needs to be initialized */
   ark_mem->initsetup  = SUNTRUE;
-  ark_mem->init_type  = RESIZE_INIT;
-  ark_mem->firststage = SUNTRUE;
-  
-  /* Reset main ARKODE infrastructure */
-  retval = arkInit(ark_mem, t0, y0, RESIZE_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "ARKode reset failure");
-    return (retval);
+  if (ark_mem->init_type != FIRST_INIT) {
+    ark_mem->init_type  = RESIZE_INIT;
   }
+  ark_mem->firststage = SUNTRUE;
 
   /* Call the stepper-specific resize (if provided) */
   if (ark_mem->step_resize)

@@ -119,8 +119,11 @@ int main(void)
   /* Initially evolve to dTout, and check result */
   retval = ARKodeSetStopTime(arkode_mem, t + dTout);
   check_retval(&retval, "ARKodeSetStopTime", 1);
-  ARKodeReset(arkode_mem, t, y);
-  retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
+  ARKodeResize(arkode_mem, y, 0, t, NULL, NULL);
+  retval = ARKodeEvolve(arkode_mem, t + dTout/2, y, &t, ARK_NORMAL);
+  ARKodeResize(arkode_mem, y, 0, t, NULL, NULL);
+  retval = ARKodeEvolve(arkode_mem, t + dTout/2, y, &t, ARK_NORMAL);
+  ARKodeResize(arkode_mem, y, 0, t, NULL, NULL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, rtol, atol))
   {
