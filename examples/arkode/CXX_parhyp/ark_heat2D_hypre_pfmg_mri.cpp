@@ -50,6 +50,7 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <string>
 
 #include "HYPRE_struct_ls.h"          // HYPRE structured grid solver interface
 #include "arkode/arkode_arkstep.h"    // access to ARKStep
@@ -171,10 +172,10 @@ struct UserData
   int sorder;       // slow method order
   int forder;       // fast ARKode method order
 
-  sunrealtype hf; // fast fixed step size
-  sunrealtype hs; // slow timestep fixed
-  int controller; // step size adaptivity method
-  int maxsteps;   // max number of steps between outputs
+  sunrealtype hf;    // fast fixed step size
+  sunrealtype hs;    // slow timestep fixed
+  string controller; // step size adaptivity method
+  int maxsteps;      // max number of steps between outputs
 
   // Linear solver and preconditioner settings
   int liniters;       // number of linear iterations
@@ -320,7 +321,6 @@ int main(int argc, char* argv[])
   void* inner_arkode_mem            = NULL; // ARKode memory structure
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
   MRIStepCoupling C                 = NULL; // slow coupling coefficients
-  SUNAdaptController Ctrl           = NULL; // timestep adaptivity controller
 
   // Timing variables
   double t1 = 0.0;
@@ -441,19 +441,9 @@ int main(int argc, char* argv[])
     }
     else
     {
-      switch (udata.controller)
-      {
-      case (ARK_ADAPT_PID): Ctrl = SUNAdaptController_PID(sunctx); break;
-      case (ARK_ADAPT_PI): Ctrl = SUNAdaptController_PI(sunctx); break;
-      case (ARK_ADAPT_I): Ctrl = SUNAdaptController_I(sunctx); break;
-      case (ARK_ADAPT_EXP_GUS): Ctrl = SUNAdaptController_ExpGus(sunctx); break;
-      case (ARK_ADAPT_IMP_GUS): Ctrl = SUNAdaptController_ImpGus(sunctx); break;
-      case (ARK_ADAPT_IMEX_GUS):
-        Ctrl = SUNAdaptController_ImExGus(sunctx);
-        break;
-      }
-      flag = ARKodeSetAdaptController(inner_arkode_mem, Ctrl);
-      if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
+      flag = ARKodeSetAdaptControllerByName(inner_arkode_mem,
+                                            udata.controller.c_str());
+      if (check_flag(&flag, "ARKodeSetAdaptControllerByName", 1)) { return 1; }
     }
 
     // Attach user data
@@ -625,7 +615,6 @@ int main(int argc, char* argv[])
     SUNLinSolFree(LSf);                       // Free linear solver
     N_VDestroy(u);                            // Free vectors
     FreeUserData(&udata);                     // Free user data
-    (void)SUNAdaptController_Destroy(Ctrl); // Free timestep adaptivity controller
   }
 
   // Finalize MPI
@@ -2250,7 +2239,7 @@ static int InitUserData(UserData* udata)
 
   udata->hf         = ZERO;  // using adaptive step sizes at fast
   udata->hs         = 0.001; // slow step size
-  udata->controller = 0;     // PID controller
+  udata->controller = "I";   // PID controller
   udata->maxsteps   = 0;     // use ARKode default
 
   // Linear solver and preconditioner options
@@ -2386,10 +2375,7 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata, bool outproc)
     else if (arg == "--forder") { udata->forder = stoi((*argv)[arg_idx++]); }
     else if (arg == "--hf") { udata->hf = stod((*argv)[arg_idx++]); }
     else if (arg == "--hs") { udata->hs = stod((*argv)[arg_idx++]); }
-    else if (arg == "--controller")
-    {
-      udata->controller = stoi((*argv)[arg_idx++]);
-    }
+    else if (arg == "--controller") { udata->controller = (*argv)[arg_idx++]; }
     // Linear solver settings
     else if (arg == "--liniters")
     {

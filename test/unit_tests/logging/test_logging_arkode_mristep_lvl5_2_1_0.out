@@ -80,7 +80,7 @@ Using GMRES iterative linear solver
  1.224744871391589e+00
  1.732050807568864e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0250540564715118
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.000770752153918627
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.000149600681952621
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 10000
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.41930360141754e-19
@@ -142,7 +142,7 @@ Using GMRES iterative linear solver
  1.224744871391589e+00
  1.732049515180057e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0678341013882266
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162683034720563
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00299201363905243
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 7.15097454573916e-09
@@ -204,7 +204,7 @@ Using GMRES iterative linear solver
  1.224744871391589e+00
  1.732039839126277e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00698124453992196
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162594315662662
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00572501758975284
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 9.60651543415442e-08
@@ -319,9 +319,9 @@ Using GMRES iterative linear solver
  1.224744830698462e+00
  1.732021049568849e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00366881850480473
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00352206576461254
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 12.4866397719573
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162503254381799
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0056413347849154
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 9.07735375607885e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
@@ -434,9 +434,9 @@ Using GMRES iterative linear solver
  1.224744706088612e+00
  1.731993073504207e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00334977633913992
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00321578528557432
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 11.4007957626381
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162415572852567
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0056413347849154
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 9.09697160431106e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_5(:) =
@@ -572,9 +572,9 @@ Using GMRES iterative linear solver
  1.224744680358910e+00
  1.731931778624172e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00370242836788071
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00355433123316548
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.15463234217796
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162292126774049
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00871733043016917
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 5.20264561087341e-07
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_1(:) =
@@ -687,9 +687,9 @@ Using GMRES iterative linear solver
  1.224744582089393e+00
  1.731880422875515e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00378836646577124
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00363683180714039
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 12.8935152611934
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162207113412772
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0056413347849154
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 9.1438254893212e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
@@ -802,9 +802,9 @@ Using GMRES iterative linear solver
  1.224744399903711e+00
  1.731819882857605e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00316368169363884
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00303713442589329
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 10.7674319702295
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162130719393885
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0056413347849154
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 9.16107151020152e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_5(:) =
@@ -940,9 +940,9 @@ Using GMRES iterative linear solver
  1.224744285204797e+00
  1.731708273800566e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00369859576382917
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.003550651933276
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.14619099670195
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162022889009787
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00871733043016917
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 5.23731340485972e-07
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_1(:) =
@@ -1055,9 +1055,9 @@ Using GMRES iterative linear solver
  1.224744129359254e+00
  1.731624362133719e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0037846075370574
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00363322323557511
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 12.8807219358444
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0161950672530128
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00564133478491541
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 9.20187837559294e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
@@ -1170,9 +1170,9 @@ Using GMRES iterative linear solver
  1.224743889598695e+00
  1.731531270273552e+00
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00316067845601459
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.003034251317774
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 10.7572106016023
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0161885324982791
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00564133478491541
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 9.21674530387709e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_5(:) =

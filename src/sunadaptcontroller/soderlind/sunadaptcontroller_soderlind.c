@@ -62,14 +62,14 @@
 #define DEFAULT_EXPGUS_K2 SUN_RCONST(0.268)
 #define DEFAULT_IMPGUS_K1 SUN_RCONST(0.98) /* Implicit Gustafsson parameters */
 #define DEFAULT_IMPGUS_K2 SUN_RCONST(0.95)
-#define DEFAULT_BIAS      SUN_RCONST(1.5)
+#define DEFAULT_BIAS      SUN_RCONST(1.0)
 
 /* -----------------------------------------------------------------
  * exported functions
  * ----------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------
- * Function to create a new Soderlind controller
+ * Function to create a new Soderlind controller (a.k.a., H_{0}321)
  */
 
 SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
@@ -275,6 +275,84 @@ SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
   return SUNAdaptController_SetParams_Soderlind(C, k1 + k2, -k2, SUN_RCONST(0.0),
                                                 SUN_RCONST(1.0), SUN_RCONST(0.0));
   return SUN_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an H_{0}211 controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_H0211(SUNContext sunctx)
+{
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
+  SUNCheckLastErrNull();
+
+  SUNCheckCallNull(
+    SUNAdaptController_SetParams_Soderlind(C, SUN_RCONST(0.5), SUN_RCONST(0.5),
+                                           SUN_RCONST(0.0), -SUN_RCONST(0.5),
+                                           SUN_RCONST(0.0)));
+
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an H_{0}321 controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_H0321(SUNContext sunctx)
+{
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
+  SUNCheckLastErrNull();
+
+  SUNCheckCallNull(
+    SUNAdaptController_SetParams_Soderlind(C, SUN_RCONST(1.25), SUN_RCONST(0.5),
+                                           -SUN_RCONST(0.75), SUN_RCONST(0.25),
+                                           SUN_RCONST(0.75)));
+
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an H211 controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_H211(SUNContext sunctx)
+{
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
+  SUNCheckLastErrNull();
+
+  SUNCheckCallNull(
+    SUNAdaptController_SetParams_Soderlind(C, SUN_RCONST(0.25),
+                                           SUN_RCONST(0.25), SUN_RCONST(0.0),
+                                           -SUN_RCONST(0.25), SUN_RCONST(0.0)));
+
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an H312 controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_H312(SUNContext sunctx)
+{
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
+  SUNCheckLastErrNull();
+
+  SUNCheckCallNull(
+    SUNAdaptController_SetParams_Soderlind(C, SUN_RCONST(1.0) / SUN_RCONST(8.0),
+                                           SUN_RCONST(0.25),
+                                           SUN_RCONST(1.0) / SUN_RCONST(8.0),
+                                           -SUN_RCONST(3.0) / SUN_RCONST(8.0),
+                                           -SUN_RCONST(1.0) / SUN_RCONST(8.0)));
+
+  return (C);
 }
 
 /* -----------------------------------------------------------------

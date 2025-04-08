@@ -35,6 +35,8 @@
 #include "sundials/sundials_logger.h"
 #include "sundials_utils.h"
 
+#include "sundials_macros.h"
+
 /*===============================================================
   Exported functions
   ===============================================================*/
@@ -1325,6 +1327,7 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "fixedstep = %i\n", ark_mem->fixedstep);
   fprintf(outfile, "tolsf = " SUN_FORMAT_G "\n", ark_mem->tolsf);
   fprintf(outfile, "call_fullrhs = %i\n", ark_mem->call_fullrhs);
+  fprintf(outfile, "do_adjoint = %i\n", ark_mem->do_adjoint);
 
   /* output counters */
   fprintf(outfile, "nhnil = %i\n", ark_mem->nhnil);
@@ -1639,6 +1642,9 @@ ARKodeMem arkCreate(SUNContext sunctx)
     return (NULL);
   }
 
+  ark_mem->load_checkpoint_fail = SUNFALSE;
+  ark_mem->do_adjoint           = SUNFALSE;
+
   /* Return pointer to ARKODE memory block */
   return (ark_mem);
 }
@@ -1834,6 +1840,9 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
        updated to SUNTRUE by the interpolation module initialization function
        and/or the stepper initialization function in arkInitialSetup */
     ark_mem->call_fullrhs = SUNFALSE;
+
+    /* Adjoint related */
+    ark_mem->checkpoint_step_idx = 0;
 
     /* Indicate that initialization has not been done before */
     ark_mem->initialized = SUNFALSE;
@@ -2716,7 +2725,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   /* update interpolation structure
 
      NOTE: This must be called before updating yn with ycur as the interpolation
-     module may need to save tn, yn from the start of this step */
+     module may need to save tn, yn from the start of this step. */
   if (ark_mem->interp != NULL)
   {
     retval = arkInterpUpdate(ark_mem, ark_mem->interp, ark_mem->tcur);
@@ -2742,6 +2751,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
 
   /* update scalar quantities */
   ark_mem->nst++;
+  ark_mem->checkpoint_step_idx++;
   ark_mem->hold   = ark_mem->h;
   ark_mem->tn     = ark_mem->tcur;
   ark_mem->hprime = ark_mem->h * ark_mem->eta;
@@ -2868,6 +2878,18 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
   case ARK_RELAX_JAC_FAIL:
     arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, __LINE__, __func__, __FILE__,
                     "The relaxation Jacobian failed unrecoverably");
+    break;
+  case ARK_ADJ_RECOMPUTE_FAIL:
+    arkProcessError(ark_mem, ARK_ADJ_RECOMPUTE_FAIL, __LINE__, __func__, __FILE__,
+                    "The forward recomputation of step failed unrecoverably");
+    break;
+  case ARK_ADJ_CHECKPOINT_FAIL:
+    arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                    __FILE__, "A checkpoint operation failed unrecoverably");
+    break;
+  case ARK_SUNADJSTEPPER_ERR:
+    arkProcessError(ark_mem, ARK_SUNADJSTEPPER_ERR, __LINE__, __func__,
+                    __FILE__, "A SUNAdjStepper operation failed unrecoverably");
     break;
   case ARK_DOMEIG_FAIL:
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,

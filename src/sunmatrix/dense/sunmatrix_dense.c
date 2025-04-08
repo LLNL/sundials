@@ -62,15 +62,16 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  A->ops->getid     = SUNMatGetID_Dense;
-  A->ops->clone     = SUNMatClone_Dense;
-  A->ops->destroy   = SUNMatDestroy_Dense;
-  A->ops->zero      = SUNMatZero_Dense;
-  A->ops->copy      = SUNMatCopy_Dense;
-  A->ops->scaleadd  = SUNMatScaleAdd_Dense;
-  A->ops->scaleaddi = SUNMatScaleAddI_Dense;
-  A->ops->matvec    = SUNMatMatvec_Dense;
-  A->ops->space     = SUNMatSpace_Dense;
+  A->ops->getid                    = SUNMatGetID_Dense;
+  A->ops->clone                    = SUNMatClone_Dense;
+  A->ops->destroy                  = SUNMatDestroy_Dense;
+  A->ops->zero                     = SUNMatZero_Dense;
+  A->ops->copy                     = SUNMatCopy_Dense;
+  A->ops->scaleadd                 = SUNMatScaleAdd_Dense;
+  A->ops->scaleaddi                = SUNMatScaleAddI_Dense;
+  A->ops->matvec                   = SUNMatMatvec_Dense;
+  A->ops->mathermitiantransposevec = SUNMatHermitianTransposeVec_Dense;
+  A->ops->space                    = SUNMatSpace_Dense;
 
   /* Create content */
   content = NULL;
@@ -302,8 +303,7 @@ SUNErrCode SUNMatScaleAdd_Dense(sunscalartype c, SUNMatrix A, SUNMatrix B)
 SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SUNFunctionBegin(A->sunctx);
-  sunindextype i, j;
-  sunscalartype *col_j, *xd, *yd;
+  sunscalartype *xd, *yd;
 
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
   SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH);
@@ -319,11 +319,45 @@ SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   SUNAssert(xd != yd, SUN_ERR_MEM_FAIL);
 
   /* Perform operation y = Ax */
-  for (i = 0; i < SM_ROWS_D(A); i++) { yd[i] = ZERO; }
-  for (j = 0; j < SM_COLUMNS_D(A); j++)
+  for (sunindextype i = 0; i < SM_ROWS_D(A); i++) { yd[i] = ZERO; }
+  for (sunindextype j = 0; j < SM_COLUMNS_D(A); j++)
   {
-    col_j = SM_COLUMN_D(A, j);
-    for (i = 0; i < SM_ROWS_D(A); i++) { yd[i] += col_j[i] * xd[j]; }
+    sunscalartype* col_j = SM_COLUMN_D(A, j);
+    for (sunindextype i = 0; i < SM_ROWS_D(A); i++)
+    {
+      yd[i] += col_j[i] * xd[j];
+    }
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNMatHermitianTransposeVec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
+{
+  SUNFunctionBegin(A->sunctx);
+
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNCheck(compatibleMatrixAndVectors(A, y, x), SUN_ERR_ARG_DIMSMISMATCH);
+
+  /* access vector data (return if NULL data pointers) */
+  sunrealtype *xd, *yd;
+  xd = N_VGetArrayPointer(x);
+  SUNCheckLastErr();
+  yd = N_VGetArrayPointer(y);
+  SUNCheckLastErr();
+
+  SUNAssert(xd, SUN_ERR_MEM_FAIL);
+  SUNAssert(yd, SUN_ERR_MEM_FAIL);
+  SUNAssert(xd != yd, SUN_ERR_MEM_FAIL);
+
+  /* Perform operation y = A^T x */
+  for (sunindextype i = 0; i < SM_COLUMNS_D(A); i++) { yd[i] = ZERO; }
+  for (sunindextype i = 0; i < SM_COLUMNS_D(A); i++)
+  {
+    sunrealtype* row_i = SM_COLUMN_D(A, i);
+    for (sunindextype j = 0; j < SM_ROWS_D(A); j++)
+    {
+      yd[i] += row_i[j] * xd[j];
+    }
   }
   return SUN_SUCCESS;
 }

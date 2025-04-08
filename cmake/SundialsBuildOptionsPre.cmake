@@ -64,6 +64,17 @@ set(DOCSTR "Integer type to use for indices in SUNDIALS")
 sundials_option(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "" ADVANCED)
 
 # ---------------------------------------------------------------
+# Option to specify counter type
+# ---------------------------------------------------------------
+
+set(DOCSTR "Integer type to use for counters in SUNDIALS")
+# TODO(DJG): Once all counters use suncountertype replace the set line with:
+# sundials_option(SUNDIALS_COUNTER_TYPE STRING "${DOCSTR}" "long int" ADVANCED)
+set(SUNDIALS_COUNTER_TYPE
+    "long int"
+    CACHE STRING "${DOCSTR}" FORCE)
+
+# ---------------------------------------------------------------
 # Option to enable monitoring
 # ---------------------------------------------------------------
 
@@ -214,6 +225,14 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
     message(
       FATAL_ERROR
         "F2003 interface is not compatible with ${SUNDIALS_PRECISION} precision"
+    )
+  endif()
+
+  # F2003 interface only supports long int counters
+  if(NOT (SUNDIALS_COUNTER_TYPE MATCHES "long int"))
+    message(
+      FATAL_ERROR
+        "F2003 interface is only compatible with long int SUNDIALS_COUNTER_TYPE"
     )
   endif()
 

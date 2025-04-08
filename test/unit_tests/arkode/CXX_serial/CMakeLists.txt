@@ -54,7 +54,19 @@ set(unit_tests
     "ark_test_slowerror_brusselator.cpp\;\;exclude-single"
     "ark_test_slowerror_kpr.cpp\;\;exclude-single"
     "ark_test_slowerror_polynomial.cpp\;\;exclude-single"
-    "ark_test_splittingstep.cpp\;\;")
+    "ark_test_splittingstep.cpp\;\;"
+    "ark_test_adjoint_erk.cpp\;--check-freq 1\;"
+    "ark_test_adjoint_erk.cpp\;--check-freq 2\;"
+    "ark_test_adjoint_erk.cpp\;--check-freq 5\;"
+    "ark_test_adjoint_erk.cpp\;--check-freq 1 --dont-keep\;"
+    "ark_test_adjoint_erk.cpp\;--check-freq 2 --dont-keep\;"
+    "ark_test_adjoint_erk.cpp\;--check-freq 5 --dont-keep\;"
+    "ark_test_adjoint_ark.cpp\;--check-freq 1\;"
+    "ark_test_adjoint_ark.cpp\;--check-freq 2\;"
+    "ark_test_adjoint_ark.cpp\;--check-freq 5\;"
+    "ark_test_adjoint_ark.cpp\;--check-freq 1 --dont-keep\;"
+    "ark_test_adjoint_ark.cpp\;--check-freq 2 --dont-keep\;"
+    "ark_test_adjoint_ark.cpp\;--check-freq 5 --dont-keep\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -81,7 +93,8 @@ foreach(test_tuple ${unit_tests})
     target_include_directories(
       ${test_target}
       PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-              ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
+              ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
+              ${CMAKE_SOURCE_DIR}/test/unit_tests)
 
     # We explicitly choose which object libraries to link to and link in the
     # arkode objects so that we have access to private functions w/o changing
@@ -91,6 +104,7 @@ foreach(test_tuple ${unit_tests})
       $<TARGET_OBJECTS:sundials_arkode_obj>
       sundials_sunmemsys_obj
       sundials_nvecserial_obj
+      sundials_nvecmanyvector_obj
       sundials_sunlinsolband_obj
       sundials_sunlinsoldense_obj
       sundials_sunnonlinsolnewton_obj
@@ -98,6 +112,7 @@ foreach(test_tuple ${unit_tests})
       sundials_sunadaptcontrollerimexgus_obj
       sundials_sunadaptcontrollersoderlind_obj
       sundials_sunadaptcontrollermrihtol_obj
+      sundials_adjointcheckpointscheme_fixed_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

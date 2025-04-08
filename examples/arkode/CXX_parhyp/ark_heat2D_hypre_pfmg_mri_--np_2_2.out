@@ -26,7 +26,7 @@
   forder         = 3
   hf             = 0
   hs             = 0.001
-  controller     = 0
+  controller     = I
   linear         = 0
  --------------------------------- 
   lin iters      = 10

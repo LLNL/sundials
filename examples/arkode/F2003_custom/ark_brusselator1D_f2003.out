@@ -6,13 +6,13 @@
     reltol =  1.0E-06,  abstol =  1.0E-10
          t      ||u||_rms   ||v||_rms   ||w||_rms
     ----------------------------------------------
-    0.100000    0.675713    3.378369    1.999987
+    0.100000    0.675713    3.378369    1.999986
     0.200000    0.688538    3.357681    1.999986
     0.300000    0.702687    3.334519    1.999986
     0.400000    0.718330    3.308631    1.999986
-    0.500000    0.735663    3.279739    1.999988
-    0.600000    0.754906    3.247538    1.999987
-    0.700000    0.776300    3.211707    1.999999
+    0.500000    0.735663    3.279739    1.999985
+    0.600000    0.754906    3.247538    1.999985
+    0.700000    0.776300    3.211707    1.999985
     0.800000    0.800104    3.171913    1.999984
     0.900000    0.826576    3.127830    1.999984
     1.000000    0.855944    3.079177    1.999983
@@ -78,7 +78,7 @@
     7.000000    0.328803    3.311535    1.999994
     7.100000    0.329431    3.338724    1.999994
     7.200000    0.330219    3.365622    1.999994
-    7.300000    0.331154    3.392225    1.999994
+    7.300000    0.331153    3.392225    1.999994
     7.400000    0.332225    3.418531    1.999994
     7.500000    0.333423    3.444537    1.999994
     7.600000    0.334742    3.470239    1.999994
@@ -109,12 +109,12 @@
     ----------------------------------------------
   
  Final Solver Statistics:
-    Internal solver steps =       309, (attempted =       318)
-    Total RHS evals: Fe =      2220,  Fi =      6445
-    Total linear solver setups    =       39
+    Internal solver steps =       293, (attempted =       320)
+    Total RHS evals: Fe =      2216,  Fi =      6514
+    Total linear solver setups    =      116
     Total RHS evals for setting up the linear system =        0
-    Total number of Jacobian evaluations =        7
-    Total number of Newton iterations =     4225
-    Total number of nonlinear solver convergence failures =        2
-    Total number of error test failures =        9
+    Total number of Jacobian evaluations =       53
+    Total number of Newton iterations =     4298
+    Total number of nonlinear solver convergence failures =       50
+    Total number of error test failures =       27
   

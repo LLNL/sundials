@@ -57,13 +57,13 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="7.2.1"
-CV_VER="7.2.1"
-CVS_VER="7.2.1"
-IDA_VER="7.2.1"
-IDAS_VER="6.2.1"
-KIN_VER="7.2.1"
-ARK_VER="6.2.1"
+SUN_VER="7.3.0"
+CV_VER="7.3.0"
+CVS_VER="7.3.0"
+IDA_VER="7.3.0"
+IDAS_VER="6.3.0"
+KIN_VER="7.3.0"
+ARK_VER="6.3.0"
 
 #---------------------------------------------------------
 # Test if the script is executed from within its directory
@@ -243,6 +243,7 @@ cp -r $sundialsdir/include/sunmemory $tmpdir/include/
 cp -r $sundialsdir/include/sunlinsol $tmpdir/include/
 cp -r $sundialsdir/include/sunnonlinsol $tmpdir/include/
 cp -r $sundialsdir/include/sunadaptcontroller $tmpdir/include/
+cp -r $sundialsdir/include/sunadjointcheckpointscheme $tmpdir/include/
 
 cp    $sundialsdir/src/CMakeLists.txt $tmpdir/src/
 cp -r $sundialsdir/src/sundials $tmpdir/src/
@@ -252,6 +253,7 @@ cp -r $sundialsdir/src/sunmemory $tmpdir/src/
 cp -r $sundialsdir/src/sunlinsol $tmpdir/src/
 cp -r $sundialsdir/src/sunnonlinsol $tmpdir/src/
 cp -r $sundialsdir/src/sunadaptcontroller $tmpdir/src/
+cp -r $sundialsdir/src/sunadjointcheckpointscheme $tmpdir/src/
 
 cp    $sundialsdir/test/testRunner $tmpdir/test/
 cp -r $sundialsdir/test/unit_tests $tmpdir/test/
@@ -393,8 +395,8 @@ if [ $do_cvode = "T" ]; then
     filename="cvode-"$CV_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
-    $scriptdir/cvode  $tarfile $distrobase $doc $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc "F" $tar
+    $scriptdir/cvode.sh  $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
