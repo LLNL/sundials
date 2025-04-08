@@ -3493,7 +3493,7 @@ sunbooleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
                             void* resize_data, sunindextype lrw_diff,
                             sunindextype liw_diff, N_Vector tmpl, N_Vector* v)
 {
-  if (*v != NULL)
+  if (v != NULL && *v != NULL)
   {
     if (resize == NULL)
     {
@@ -3529,7 +3529,7 @@ sunbooleantype arkResizeVecArray(ARKVecResizeFn resize, void* resize_data,
 {
   int i;
 
-  if (*v != NULL)
+  if (v != NULL && *v != NULL)
   {
     if (resize == NULL)
     {
