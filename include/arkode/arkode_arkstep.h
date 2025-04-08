@@ -23,6 +23,8 @@
 #include <arkode/arkode_ls.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sundials/sundials_adjointstepper.h>
+#include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -285,7 +287,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumErrTestFails instead")
 int ARKStepGetNumErrTestFails(void* arkode_mem, long int* netfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetEstLocalErrors instead")
 int ARKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ARKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumSteps instead")
 int ARKStepGetNumSteps(void* arkode_mem, long int* nsteps);
@@ -349,7 +352,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacTime instead")
 int ARKStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacNumSteps instead")
 int ARKStepGetJacNumSteps(void* arkode_mem, long int* nst_J);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLinWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ARKStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS,
                            long int* leniwLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumJacEvals instead")
@@ -371,7 +375,8 @@ int ARKStepGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLastLinFlag instead")
 int ARKStepGetLastLinFlag(void* arkode_mem, long int* flag);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetMassWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ARKStepGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS,
                             long int* leniwMLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumMassSetups instead")
@@ -400,6 +405,15 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void ARKStepFree(void** arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintMem instead")
 void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
+
+/* Adjoint solver functions */
+SUNDIALS_EXPORT
+int ARKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_fe,
+                                SUNAdjRhsFn adj_fi, sunrealtype tf, N_Vector sf,
+                                SUNContext sunctx,
+                                SUNAdjointStepper* adj_stepper_ptr);
+
+/* Relaxation functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxFn instead")
 int ARKStepSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxEtaFail instead")

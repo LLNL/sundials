@@ -38,12 +38,12 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails = 0;                 /* counter for test failures  */
-  sunindextype matrows, matcols; /* vector length              */
-  N_Vector x, y;                 /* test vectors               */
-  sunrealtype *xdata, *ydata;    /* pointers to vector data    */
-  SUNMatrix A, I;                /* test matrices              */
-  sunrealtype *Adata, *Idata;    /* pointers to matrix data    */
+  int fails = 0;                       /* counter for test failures  */
+  sunindextype matrows, matcols;       /* vector length              */
+  N_Vector x, y;                       /* test vectors               */
+  sunrealtype *xdata, *ydata;          /* pointers to vector data    */
+  SUNMatrix A, AT, I;                  /* test matrices              */
+  sunrealtype *Adata, *ATdata, *Idata; /* pointers to matrix data    */
   int print_timing, square;
   sunindextype i, j, m, n;
   SUNContext sunctx;
@@ -90,10 +90,11 @@ int main(int argc, char* argv[])
   I = NULL;
 
   /* Create vectors and matrices */
-  x = N_VNew_Serial(matcols, sunctx);
-  y = N_VNew_Serial(matrows, sunctx);
-  A = SUNDenseMatrix(matrows, matcols, sunctx);
-  I = NULL;
+  x  = N_VNew_Serial(matcols, sunctx);
+  y  = N_VNew_Serial(matrows, sunctx);
+  A  = SUNDenseMatrix(matrows, matcols, sunctx);
+  AT = SUNDenseMatrix(matcols, matrows, sunctx);
+  I  = NULL;
   if (square) { I = SUNDenseMatrix(matrows, matcols, sunctx); }
 
   /* Fill matrices and vectors */
@@ -103,6 +104,15 @@ int main(int argc, char* argv[])
     for (i = 0; i < matrows; i++)
     {
       Adata[j * matrows + i] = (j + 1) * (i + j);
+    }
+  }
+
+  ATdata = SUNDenseMatrix_Data(AT);
+  for (j = 0; j < matcols; j++)
+  {
+    for (i = 0; i < matrows; i++)
+    {
+      ATdata[i * matcols + j] = (j + 1) * (i + j);
     }
   }
 
@@ -134,6 +144,7 @@ int main(int argc, char* argv[])
     fails += Test_SUNMatScaleAddI(A, I, 0);
   }
   fails += Test_SUNMatMatvec(A, x, y, 0);
+  fails += Test_SUNMatHermitianTransposeVec(A, AT, x, y, 0);
   fails += Test_SUNMatSpace(A, 0);
 
   /* Print result */
@@ -158,6 +169,7 @@ int main(int argc, char* argv[])
   N_VDestroy(x);
   N_VDestroy(y);
   SUNMatDestroy(A);
+  SUNMatDestroy(AT);
   if (square) { SUNMatDestroy(I); }
   SUNContext_Free(&sunctx);
 

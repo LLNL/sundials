@@ -37,7 +37,12 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
                                       void* queue);
 
 SUNDIALS_EXPORT
-SUNMemoryHelper SUNMemoryHelper_Clone_Cuda(SUNMemoryHelper helper);
+SUNErrCode SUNMemoryHelper_AllocStrided_Cuda(SUNMemoryHelper helper,
+                                             SUNMemory* memptr, size_t mem_size,
+                                             size_t stride,
+                                             SUNMemoryType mem_type, void* queue);
+
+SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_Clone_Cuda(SUNMemoryHelper helper);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
