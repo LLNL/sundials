@@ -77,10 +77,6 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
     LINK_LIBRARIES caliper
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts, we must remove the
-  # CMakeFiles directory.
-  file(REMOVE_RECURSE ${CALIPER_TEST_DIR}/CMakeFiles)
-
   # Process test result
   if(COMPILE_OK)
     message(STATUS "Checking if CALIPER works with SUNDIALS... OK")
