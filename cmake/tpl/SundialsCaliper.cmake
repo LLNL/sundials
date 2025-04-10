@@ -42,9 +42,6 @@ endif()
 
 find_package(CALIPER PATHS "${CALIPER_DIR}" REQUIRED)
 
-message(STATUS "CALIPER_LIB_DIR:     ${caliper_LIB_DIR}")
-message(STATUS "CALIPER_INCLUDE_DIR: ${caliper_INCLUDE_DIR}")
-
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
@@ -55,25 +52,6 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
   # Create the CALIPER_TEST directory
   set(CALIPER_TEST_DIR ${PROJECT_BINARY_DIR}/CALIPER_TEST)
   file(MAKE_DIRECTORY ${CALIPER_TEST_DIR})
-
-  # Create a CMakeLists.txt file
-  file(
-    WRITE ${CALIPER_TEST_DIR}/CMakeLists.txt
-    "cmake_minimum_required(VERSION ${CMAKE_VERSION})\n"
-    "project(ltest C)\n"
-    "set(CMAKE_VERBOSE_MAKEFILE ON)\n"
-    "set(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
-    "set(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\")\n"
-    "set(CMAKE_C_STANDARD \"${CMAKE_C_STANDARD}\")\n"
-    "set(CMAKE_C_FLAGS \"${CMAKE_C_FLAGS}\")\n"
-    "set(CMAKE_C_FLAGS_RELEASE \"${CMAKE_C_FLAGS_RELEASE}\")\n"
-    "set(CMAKE_C_FLAGS_DEBUG \"${CMAKE_C_FLAGS_DEBUG}\")\n"
-    "set(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
-    "set(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
-    "add_executable(ltest ltest.c)\n"
-    "target_include_directories(ltest PRIVATE \"${caliper_INCLUDE_DIR}\")\n"
-    "target_link_libraries(ltest \"-L${caliper_LIB_DIR}\")\n"
-    "target_link_libraries(ltest caliper)\n")
 
   # Create a C source file
   file(
@@ -86,15 +64,25 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
     "  return 0;\n"
     "}\n")
 
+  # Attempt to build and link executable with caliper
+  try_compile(COMPILE_OK ${CALIPER_TEST_DIR}
+    CMAKE_FLAGS
+    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+    -DCMAKE_VERBOSE_MAKEFILE=ON
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DCMAKE_C_STANDARD=${CMAKE_C_STANDARD}
+    -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+    -DCMAKE_C_FLAGS_RELEASE=${CMAKE_C_FLAGS_RELEASE}
+    -DCMAKE_C_FLAGS_DEBUG=${CMAKE_C_FLAGS_DEBUG}
+    -DCMAKE_C_FLAGS_RELWITHDEBUGINFO=${CMAKE_C_FLAGS_RELWITHDEBUGINFO}
+    -DCMAKE_C_FLAGS_MINSIZE=${CMAKE_C_FLAGS_MINSIZE}
+    ${CALIPER_TEST_DIR} ${CALIPER_TEST_DIR}/ltest.c
+    LINK_LIBRARIES caliper
+    OUTPUT_VARIABLE COMPILE_OUTPUT)
+
   # To ensure we do not use stuff from the previous attempts, we must remove the
   # CMakeFiles directory.
   file(REMOVE_RECURSE ${CALIPER_TEST_DIR}/CMakeFiles)
-
-  # Attempt to build and link the "ltest" executable
-  try_compile(
-    COMPILE_OK ${CALIPER_TEST_DIR}
-    ${CALIPER_TEST_DIR} ltest
-    OUTPUT_VARIABLE COMPILE_OUTPUT)
 
   # Process test result
   if(COMPILE_OK)
