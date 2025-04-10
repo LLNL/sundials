@@ -69,8 +69,6 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
     LINK_LIBRARIES caliper
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
-  message(">>> ${COMPILE_OUTPUT}")
-
   # To ensure we do not use stuff from the previous attempts, we must remove the
   # CMakeFiles directory.
   file(REMOVE_RECURSE ${CALIPER_TEST_DIR}/CMakeFiles)
