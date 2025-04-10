@@ -53,9 +53,15 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
   set(CALIPER_TEST_DIR ${PROJECT_BINARY_DIR}/CALIPER_TEST)
   file(MAKE_DIRECTORY ${CALIPER_TEST_DIR})
 
+  if(CXX_FOUND)
+    set(_ext cpp)
+  else()
+    set(_ext c)
+  endif()
+
   # Create a C source file
   file(
-    WRITE ${CALIPER_TEST_DIR}/ltest.c
+    WRITE ${CALIPER_TEST_DIR}/ltest.${_ext}
     "\#include <caliper/cali.h>\n"
     "int main(void)\n"
     "{\n"
@@ -65,7 +71,7 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
     "}\n")
 
   # Attempt to build and link executable with caliper
-  try_compile(COMPILE_OK ${CALIPER_TEST_DIR} ${CALIPER_TEST_DIR}/ltest.c
+  try_compile(COMPILE_OK ${CALIPER_TEST_DIR} ${CALIPER_TEST_DIR}/ltest.${_ext}
     LINK_LIBRARIES caliper
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
