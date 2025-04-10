@@ -71,7 +71,9 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
     "}\n")
 
   # Attempt to build and link executable with caliper
-  try_compile(COMPILE_OK ${CALIPER_TEST_DIR} ${CALIPER_TEST_DIR}/ltest.${_ext}
+  try_compile(
+    COMPILE_OK ${CALIPER_TEST_DIR}
+    ${CALIPER_TEST_DIR}/ltest.${_ext}
     LINK_LIBRARIES caliper
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
