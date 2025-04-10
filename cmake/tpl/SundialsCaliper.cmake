@@ -53,8 +53,8 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
   set(CALIPER_TEST_DIR ${PROJECT_BINARY_DIR}/CALIPER_TEST)
   file(MAKE_DIRECTORY ${CALIPER_TEST_DIR})
 
-  # If C++ is enabled, we build the example as a C++ code as a workaround
-  # for what appears to be a bug in try_compile. If we dont do this, then
+  # If C++ is enabled, we build the example as a C++ code as a workaround for
+  # what appears to be a bug in try_compile. If we dont do this, then
   # try_compile throws an error "No known features for CXX compiler".
   if(CXX_FOUND)
     set(_ext cpp)
