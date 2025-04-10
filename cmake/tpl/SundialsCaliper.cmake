@@ -65,22 +65,11 @@ if(CALIPER_FOUND AND (NOT CALIPER_WORKS))
     "}\n")
 
   # Attempt to build and link executable with caliper
-  try_compile(
-    COMPILE_OK ${CALIPER_TEST_DIR}
-    CMAKE_FLAGS
-      -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-      -DCMAKE_VERBOSE_MAKEFILE=ON
-      -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-      -DCMAKE_C_STANDARD=${CMAKE_C_STANDARD}
-      -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-      -DCMAKE_C_FLAGS_RELEASE=${CMAKE_C_FLAGS_RELEASE}
-      -DCMAKE_C_FLAGS_DEBUG=${CMAKE_C_FLAGS_DEBUG}
-      -DCMAKE_C_FLAGS_RELWITHDEBUGINFO=${CMAKE_C_FLAGS_RELWITHDEBUGINFO}
-      -DCMAKE_C_FLAGS_MINSIZE=${CMAKE_C_FLAGS_MINSIZE}
-      ${CALIPER_TEST_DIR}
-      ${CALIPER_TEST_DIR}/ltest.c
+  try_compile(COMPILE_OK ${CALIPER_TEST_DIR} ${CALIPER_TEST_DIR}/ltest.c
     LINK_LIBRARIES caliper
     OUTPUT_VARIABLE COMPILE_OUTPUT)
+
+  message(">>> ${COMPILE_OUTPUT}")
 
   # To ensure we do not use stuff from the previous attempts, we must remove the
   # CMakeFiles directory.
