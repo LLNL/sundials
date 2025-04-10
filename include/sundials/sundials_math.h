@@ -31,6 +31,22 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Macro : SUN_COMPLEX
+ * -----------------------------------------------------------------
+ * Usage : suncomplextype x = SUN_COMPLEX(ONE, ONE);
+ * -----------------------------------------------------------------
+ * SUN_COMPLEX(real, imag) returns a complex number with real part
+ * real and imaginary part imag. This macro is used to initialize
+ * complex numbers.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUN_COMPLEX
+#define SUN_COMPLEX(real, imag) (real + imag*SUN_I)
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUN_CREAL, SUN_CIMAG, SUN_REAL, SUN_IMAG
  * -----------------------------------------------------------------
  * Usage : sunscalartype x;
@@ -415,6 +431,54 @@ extern "C" {
 #define SUNRceil(x) (ceilf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRceil(x) (ceill((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRcopysign
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype z;
+ *         z = SUNRcopysign(x, y);
+ * -----------------------------------------------------------------
+ * SUNRcopysign(x, y) returns x with the sign of y.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRcopysign
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRcopysign(x, y) (copysign((x), (y)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRcopysign(x, y) (copysignf((x), (y)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRcopysign(x, y) (copysignl((x), (y)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRpowerR
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype base, exponent, ans;
+ *         ans = SUNRpowerR(base,exponent);
+ * -----------------------------------------------------------------
+ * SUNRpowerR returns the value of base^exponent, where both base and
+ * exponent are of type sunrealtype.
+ * -----------------------------------------------------------------
+ */
+#ifndef SUNRpowerR
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRpowerR(base, exponent) (pow(base, exponent))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRpowerR(base, exponent) (powf(base, exponent))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRpowerR(base, exponent) (powl(base, exponent))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"

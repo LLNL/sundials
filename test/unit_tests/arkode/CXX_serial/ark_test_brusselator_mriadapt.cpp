@@ -71,15 +71,27 @@
  *      14: ImpGus controller (alone)
  *      15: ImExGus controller (as part of MRI-HTOL)
  *      16: ImExGus controller (alone)
+ *      17: H0211 controller (as part of MRI-HTOL)
+ *      18: H0211 controller (alone)
+ *      19: H0321 controller (as part of MRI-HTOL)
+ *      20: H0321 controller (alone)
+ *      21: H211 controller (as part of MRI-HTOL)
+ *      22: H211 controller (alone)
+ *      23: H312 controller (as part of MRI-HTOL)
+ *      24: H312 controller (alone)
  * - "fast" ERKStep temporal adaptivity controller: fcontrol [default = 1]
- *   Note that this will only be used for 5 <= scontrol <= 16.
- *      0:  no controller [fixed time steps]
- *      1:  I controller
- *      2:  PI controller
- *      3:  PID controller
- *      4:  ExpGus controller
- *      5:  ImpGus controller
- *      6:  ImExGus controller
+ *   Note that this will only be used for 5 <= scontrol <= 24.
+ *      0:   no controller [fixed time steps]
+ *      1:   I controller
+ *      2:   PI controller
+ *      3:   PID controller
+ *      4:   ExpGus controller
+ *      5:   ImpGus controller
+ *      6:   ImExGus controller
+ *      7:   H0211 controller
+ *      8:   H0321 controller
+ *      9:   H211 controller
+ *      10:  H312 controller
  * - "fast" ERKStep accumulated error type: faccum [default = 0]
  *   Note that this will only be used for multirate scontrol options
  *     -1:  no accumulation
@@ -338,6 +350,22 @@ int main(int argc, char* argv[])
     fcontrol = SUNAdaptController_ImExGus(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_ImExGus")) return 1;
     break;
+  case (7):
+    fcontrol = SUNAdaptController_H0211(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_H0211")) return 1;
+    break;
+  case (8):
+    fcontrol = SUNAdaptController_H0321(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_H0321")) return 1;
+    break;
+  case (9):
+    fcontrol = SUNAdaptController_H211(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_H211")) return 1;
+    break;
+  case (10):
+    fcontrol = SUNAdaptController_H312(sunctx);
+    if (check_ptr((void*)fcontrol, "SUNAdaptController_H312")) return 1;
+    break;
   }
   if ((opts.bias > -1) && (opts.fcontrol > 0))
   {
@@ -592,6 +620,94 @@ int main(int argc, char* argv[])
     scontrol = SUNAdaptController_ImExGus(sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_ImExGus (slow)"))
       return 1;
+    break;
+  case (17):
+    scontrol_H = SUNAdaptController_H0211(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_H0211 (slow H)"))
+      return 1;
+    scontrol_Tol = SUNAdaptController_H0211(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_H0211 (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
+    {
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
+      if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
+    }
+    break;
+  case (18):
+    scontrol = SUNAdaptController_H0211(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_H0211 (slow)")) return 1;
+    break;
+  case (19):
+    scontrol_H = SUNAdaptController_H0321(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_H0321 (slow H)"))
+      return 1;
+    scontrol_Tol = SUNAdaptController_H0321(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_H0321 (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
+    {
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
+      if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
+    }
+    break;
+  case (20):
+    scontrol = SUNAdaptController_H0321(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_H0321 (slow)")) return 1;
+    break;
+  case (21):
+    scontrol_H = SUNAdaptController_H211(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_H211 (slow H)"))
+      return 1;
+    scontrol_Tol = SUNAdaptController_H211(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_H211 (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
+    {
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
+      if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
+    }
+    break;
+  case (22):
+    scontrol = SUNAdaptController_H211(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_H211 (slow)")) return 1;
+    break;
+  case (23):
+    scontrol_H = SUNAdaptController_H312(sunctx);
+    if (check_ptr((void*)scontrol_H, "SUNAdaptController_H312 (slow H)"))
+      return 1;
+    scontrol_Tol = SUNAdaptController_H312(sunctx);
+    if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_H312 (slow Tol)"))
+      return 1;
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
+    {
+      retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
+                                                    opts.htol_minfac,
+                                                    opts.htol_maxfac);
+      if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
+    }
+    break;
+  case (24):
+    scontrol = SUNAdaptController_H312(sunctx);
+    if (check_ptr((void*)scontrol, "SUNAdaptController_H312 (slow)")) return 1;
     break;
   }
   if ((opts.bias > -1) && (opts.scontrol > 0))
@@ -1097,17 +1213,17 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
               << " input)\n";
     return -1;
   }
-  //   scontrol in [0,16]
-  if ((opts.scontrol < 0) || (opts.scontrol > 16))
+  //   scontrol in [0,24]
+  if ((opts.scontrol < 0) || (opts.scontrol > 24))
   {
-    std::cerr << "ERROR: scontrol must be in [0,16], (" << opts.scontrol
+    std::cerr << "ERROR: scontrol must be in [0,24], (" << opts.scontrol
               << " input)\n";
     return -1;
   }
-  //   fcontrol in [0,6]
-  if ((opts.fcontrol < 0) || (opts.fcontrol > 6))
+  //   fcontrol in [0,10]
+  if ((opts.fcontrol < 0) || (opts.fcontrol > 10))
   {
-    std::cerr << "ERROR: fcontrol must be in [0,6], (" << opts.fcontrol
+    std::cerr << "ERROR: fcontrol must be in [0,10], (" << opts.fcontrol
               << " input)\n";
     return -1;
   }
@@ -1300,6 +1416,58 @@ static void PrintSlowAdaptivity(Options opts)
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     break;
+  case (17):
+    std::cout
+      << "    MRI-HTOL controller (using H0211 for H) based on order of MRI "
+      << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
+    break;
+  case (18):
+    std::cout << "    Decoupled H0211 controller for slow time scale, based "
+                 "on order of MRI "
+              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    break;
+  case (19):
+    std::cout
+      << "    MRI-HTOL controller (using H0321 for H) based on order of MRI "
+      << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
+    break;
+  case (20):
+    std::cout << "    Decoupled H0321 controller for slow time scale, based "
+                 "on order of MRI "
+              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    break;
+  case (21):
+    std::cout
+      << "    MRI-HTOL controller (using H211 for H) based on order of MRI "
+      << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
+    break;
+  case (22):
+    std::cout << "    Decoupled H211 controller for slow time scale, based "
+                 "on order of MRI "
+              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    break;
+  case (23):
+    std::cout
+      << "    MRI-HTOL controller (using H312 for H) based on order of MRI "
+      << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
+    break;
+  case (24):
+    std::cout << "    Decoupled H312 controller for slow time scale, based "
+                 "on order of MRI "
+              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
+    break;
   }
   if (opts.bias > -1)
   {
@@ -1379,6 +1547,34 @@ static void PrintFastAdaptivity(Options opts)
   case (6):
     std::cout
       << "    ImExGus controller for fast time scale, based on order of RK "
+      << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
+    break;
+  case (7):
+    std::cout
+      << "    H0211 controller for fast time scale, based on order of RK "
+      << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
+    break;
+  case (8):
+    std::cout
+      << "    H0321 controller for fast time scale, based on order of RK "
+      << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
+    break;
+  case (9):
+    std::cout
+      << "    H211 controller for fast time scale, based on order of RK "
+      << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
+    std::cout << "    fast_rtol = " << opts.fast_rtol
+              << ", atol = " << opts.atol << "\n";
+    break;
+  case (10):
+    std::cout
+      << "    H312 controller for fast time scale, based on order of RK "
       << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";

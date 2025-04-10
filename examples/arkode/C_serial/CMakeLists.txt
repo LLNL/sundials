@@ -24,6 +24,7 @@
 set(ARKODE_examples
     # tests that are always run
     "ark_analytic\;\;\;real"
+    "ark_complex\;\;\;complex"
     # develop tests
     "ark_advection_diffusion_reaction_splitting\;\;develop\;real"
     "ark_analytic_lsrk\;\;develop\;real"
@@ -88,6 +89,8 @@ set(ARKODE_examples
     "ark_KrylovDemo_prec\;\;exclude-single\;real"
     "ark_KrylovDemo_prec\;1\;exclude-single\;real"
     "ark_KrylovDemo_prec\;2\;exclude-single\;real"
+    "ark_lotka_volterra_ASA\;--check-freq 1\;develop\;real"
+    "ark_lotka_volterra_ASA\;--check-freq 5\;develop\;real"
     "ark_onewaycouple_mri\;\;develop\;real"
     "ark_reaction_diffusion_mri\;\;develop\;real"
     "ark_robertson_constraints\;\;exclude-single\;real"

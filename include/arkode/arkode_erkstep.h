@@ -21,6 +21,8 @@
 #include <arkode/arkode_butcher_erk.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sundials/sundials_adjointstepper.h>
+#include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -66,6 +68,12 @@ SUNDIALS_EXPORT int ERKStepGetCurrentButcherTable(void* arkode_mem,
 SUNDIALS_EXPORT int ERKStepGetTimestepperStats(
   void* arkode_mem, long int* expsteps, long int* accsteps,
   long int* step_attempts, long int* nfevals, long int* netfails);
+
+/* Adjoint solver functions */
+SUNDIALS_EXPORT
+int ERKStepCreateAdjointStepper(void* arkode_mem, SUNAdjRhsFn adj_f,
+                                sunrealtype tf, N_Vector sf, SUNContext sunctx,
+                                SUNAdjointStepper* adj_stepper_ptr);
 
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines
@@ -172,7 +180,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumErrTestFails instead")
 int ERKStepGetNumErrTestFails(void* arkode_mem, long int* netfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetEstLocalErrors instead")
 int ERKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ERKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumSteps instead")
 int ERKStepGetNumSteps(void* arkode_mem, long int* nsteps);

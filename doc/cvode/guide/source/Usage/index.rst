@@ -2398,6 +2398,10 @@ described next.
 
       * For the BDF method: :math:`\texttt{lenrw} = 96 + 10N` and :math:`\texttt{leniw} = 50`
 
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
+
 
 
 .. c:function:: int CVodeGetNumSteps(void* cvode_mem, long int *nsteps)
@@ -2922,6 +2926,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
       Replaces the deprecated functions ``CVDlsGetWorkspace`` and
       ``CVSpilsGetWorkspace``.
 
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: int CVodeGetNumJacEvals(void* cvode_mem, long int *njevals)
 
@@ -3152,6 +3160,9 @@ solver, a suffix (for Linear Solver) has been added here (e.g. ``lenrwLS``).
    **Notes:**
       In terms of the problem size :math:`N`, the actual size of the real workspace  is roughly :math:`3 N` ``sunrealtype`` words.
 
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int CVDiagGetNumRhsEvals(void* cvode_mem, long int *nfevalsLS)
 
@@ -3263,6 +3274,91 @@ vector.
       If an error occurred, ``CVodeReInit`` also sends an error message to the
       error handler function.
 
+CVODE resize function
+~~~~~~~~~~~~~~~~~~~~~
+
+For simulations involving changes to the number of equations and unknowns in the
+ODE system, CVODE may be "resized" between steps by calling
+:c:func:`CVodeResizeHistory`. The methods implemented in CVODE utilize solution
+or right-hand side history information to achieve high order. At present, the
+user code is responsible for saving the necessary data over the course of the
+integration in order to resize the integrator. As such, CVODE should typically
+be run in one step mode or built with monitoring enabled and the monitoring
+function used to save the state at the end of each time step. The amount and
+kind of history required for resizing the integrator depends on the method
+selected and the maximum order allowed (see details below). If insufficient
+history is provided when resizing, :c:func:`CVodeResizeHistory` will return an
+error.
+
+.. c:function:: int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist, N_Vector* f_hist, int num_y_hist, int num_f_hist)
+
+   The function :c:func:`CVodeResizeHistory` resizes CVODE using the provided
+   history data at the new problem size.
+
+   For Adams methods the required history data is
+
+   * Solution vectors: :math:`y(t_n)` and :math:`y(t_{n-1})`
+   * Right-hand side vectors: :math:`f(t_n,y(t_n)), f(t_{n-1},y(t_{n-1})), \ldots, f(t_{n-k}, y(t_{n-k}))`
+
+   For BDF methods the required history data is:
+
+   * Solution vectors: :math:`y(t_n), y(t_{n-1}), \ldots, y(t_{n-k})`
+   * Right-hand side vectors: :math:`f(t_n, y(t_n))` and :math:`f(t_{n-1}, y(t_{n-1}))`,
+
+   In both cases, :math:`k=\min\{q+1,q_{\textrm{max}}\}` where :math:`q` is the
+   order of the last step (see :c:func:`CVodeGetLastOrder`) and
+   :math:`q_{\textrm{max}}` is the maximum allowed order (see
+   :c:func:`CVodeSetMaxOrd`). The additional solution/right-hand side values
+   beyond what is strictly needed for the method are used to determine if an
+   order increase should occur after the next step. If insufficient history is
+   provided, an error is returned.
+
+   :param cvode_mem: pointer to the CVODE memory block.
+   :param t_hist: an array of time values for the solution and right-hand side
+                  history. These must be ordered starting from the most recent
+                  value i.e., :math:`t_n > t_{n-1} > \ldots > t_{n-k}` for
+                  forward integration or :math:`t_n < t_{n-1} < \ldots <
+                  t_{n-k}` for backward integration.
+   :param y_hist: an array of solution vectors ordered to align with the
+                  corresponding times given in ``t_hist``.
+   :param f_hist: an array of right-hand side vectors ordered to align with the
+                  corresponding times and solutions given in ``t_hist`` and
+                  ``y_hist``, respectively.
+   :param n_y_hist: number of solution vectors provided in
+                    ``y_hist``. For Adams methods this should be 2 and for BDF
+                    methods this should be :math:`\min\{q+1,q_{\textrm{max}}\}`.
+   :param n_f_hist: number of right-hand side vectors provided in
+                    ``f_hist``. For Adams methods this should be
+                    :math:`\min\{q+1,q_{\textrm{max}}\}` and for BDF methods it
+                    should be 2.
+
+   :retval CV_SUCCESS: The call was successful.
+   :retval CV_MEM_NULL: The CVODE memory block was ``NULL``.
+   :retval CV_ILL_INPUT: An input argument had an illegal value or insufficient
+                         history was supplied, see the output error message for
+                         additional details.
+
+   .. versionadded:: 7.3.0
+
+   .. note::
+
+      Any nonlinear or linear solvers attached to CVODE will also need to be
+      resized. At present, for SUNDIALS-provided algebraic solvers, this
+      requires destroying, re-creating, and re-attaching the solvers
+      following each call to :c:func:`CVodeResizeHistory`. Similarly, any matrix
+      objects provided when attaching the linear solver will also need to be
+      resized.
+
+      If using a vector of absolute tolerances, the absolute tolerance vector
+      will be invalid after the call to :c:func:`CVodeResizeHistory`, so a new
+      absolute tolerance vector should be created and set following each call to
+      :c:func:`CVodeResizeHistory` through a new call to
+      :c:func:`CVodeSVtolerances`.
+
+      If inequality constraint checking is enabled, a call to
+      :c:func:`CVodeResizeHistory` will disable constraint checking. A call to
+      :c:func:`CVodeSetConstraints` is required to re-enable constraint
+      checking.
 
 .. _CVODE.Usage.CC.user_fct_sim:
 
@@ -3946,6 +4042,9 @@ the CVBANDPRE module:
 
       The workspaces referred to here exist in addition to those given by the  corresponding function ``CVodeGetLinWorkSpace``.
 
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int CVBandPrecGetNumRhsEvals(void* cvode_mem, long int *nfevalsBP)
 
@@ -4297,6 +4396,10 @@ the CVBBDPRE module:
 
    **Notes:**
       The workspace requirements reported by this routine correspond only  to memory allocated within the CVBBDPRE module (the banded  matrix approximation, banded ``SUNLinearSolver`` object, temporary vectors).  These values are local to each process.  The workspaces referred to here exist in addition to those given by the  corresponding function ``CVodeGetLinWorkSpace``.
+
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int CVBBDPrecGetNumGfnEvals(void* cvode_mem, long int *ngevalsBBDP)
 

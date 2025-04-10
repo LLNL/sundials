@@ -560,6 +560,9 @@ void* CVodeCreate(int lmm, SUNContext sunctx)
   cv_mem->proj_enabled = SUNFALSE;
   cv_mem->proj_applied = SUNFALSE;
 
+  /* Initialize resize variables */
+  cv_mem->first_step_after_resize = SUNFALSE;
+
   /* Set default values for quad. optional inputs */
 
   cv_mem->cv_quadr     = SUNFALSE;
@@ -2960,6 +2963,11 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
    *    - compute initial step size
    *    - check for approach to tstop
    *    - check for approach to a root
+   *    Or initializations performed after
+   *    resizing the integrator
+   *    - check constraints
+   *    - initialize linear solver
+   *    - initialize nonlinear solver
    * ----------------------------------------
    */
 
@@ -3192,7 +3200,45 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
       }
     }
 
-  } /* end of first call block */
+    /* end of first call block */
+  }
+  else if (cv_mem->first_step_after_resize)
+  {
+    /* Check if the resized y satisfies the constraints */
+    if (cv_mem->cv_constraintsSet)
+    {
+      sunbooleantype conOK = N_VConstrMask(cv_mem->cv_constraints,
+                                           cv_mem->cv_zn[0], cv_mem->cv_tempv);
+      if (!conOK)
+      {
+        cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
+                       "y does not satisfy the constraints");
+        return CV_ILL_INPUT;
+      }
+    }
+
+    /* Initialize the linear solver */
+    if (cv_mem->cv_linit)
+    {
+      ier = cv_mem->cv_linit(cv_mem);
+      if (ier)
+      {
+        cvProcessError(cv_mem, CV_LINIT_FAIL, __LINE__, __func__, __FILE__,
+                       MSGCV_LINIT_FAIL);
+        return CV_LINIT_FAIL;
+      }
+    }
+
+    /* Initialize the nonlinear solver (must occur after linear solver is
+       initialized) so the lsetup and lsolve pointers have been set */
+    ier = cvNlsInit(cv_mem);
+    if (ier)
+    {
+      cvProcessError(cv_mem, CV_NLS_INIT_FAIL, __LINE__, __func__, __FILE__,
+                     MSGCV_NLS_INIT_FAIL);
+      return CV_NLS_INIT_FAIL;
+    }
+  }
 
   /*
    * ------------------------------------------------------
@@ -6156,7 +6202,11 @@ static void cvAdjustParams(CVodeMem cv_mem)
 {
   if (cv_mem->cv_qprime != cv_mem->cv_q)
   {
-    cvAdjustOrder(cv_mem, cv_mem->cv_qprime - cv_mem->cv_q);
+    /* History adjustments for an order change were applied when resizing */
+    if (!(cv_mem->first_step_after_resize))
+    {
+      cvAdjustOrder(cv_mem, cv_mem->cv_qprime - cv_mem->cv_q);
+    }
     cv_mem->cv_q     = cv_mem->cv_qprime;
     cv_mem->cv_L     = cv_mem->cv_q + 1;
     cv_mem->cv_qwait = cv_mem->cv_L;
@@ -6934,7 +6984,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
                          : CV_FAIL_OTHER;
 
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
-                (cv_mem->cv_nst == 0) ||
+                (cv_mem->cv_nst == 0) || (cv_mem->first_step_after_resize) ||
                 (cv_mem->cv_nst >= cv_mem->cv_nstlp + cv_mem->cv_msbp) ||
                 (SUNRabs(cv_mem->cv_gamrat - ONE) > cv_mem->cv_dgmax_lsetup);
 
@@ -7666,6 +7716,8 @@ static void cvCompleteStep(CVodeMem cv_mem)
   cv_mem->cv_hu = cv_mem->cv_h;
   cv_mem->cv_qu = cv_mem->cv_q;
 
+  cv_mem->first_step_after_resize = SUNFALSE;
+
   for (i = cv_mem->cv_q; i >= 2; i--)
   {
     cv_mem->cv_tau[i] = cv_mem->cv_tau[i - 1];
@@ -8150,7 +8202,7 @@ static int cvHandleFailure(CVodeMem cv_mem, int flag)
   default:
     /* This return should never happen */
     cvProcessError(cv_mem, CV_UNRECOGNIZED_ERR, __LINE__, __func__,
-                   __FILE__, "CVODES encountered an unrecognized error. Please report this to the Sundials developers at sundials-users@llnl.gov");
+                   __FILE__, "CVODES encountered an unrecognized error. Please report this to the SUNDIALS developers at sundials-users@llnl.gov");
     return (CV_UNRECOGNIZED_ERR);
   }
 

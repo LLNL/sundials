@@ -241,6 +241,46 @@ int KINSetDampingAA(void* kinmem, sunrealtype beta)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINSetDampingFn
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDampingFn(void* kinmem, KINDampingFn damping_fn)
+{
+  if (kinmem == NULL)
+  {
+    KINProcessError(NULL, KIN_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
+    return KIN_MEM_NULL;
+  }
+  KINMem kin_mem = (KINMem)kinmem;
+
+  kin_mem->kin_damping_fn = damping_fn;
+
+  return KIN_SUCCESS;
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Function : KINSetDepthFn
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDepthFn(void* kinmem, KINDepthFn depth_fn)
+{
+  if (kinmem == NULL)
+  {
+    KINProcessError(NULL, KIN_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
+    return KIN_MEM_NULL;
+  }
+  KINMem kin_mem = (KINMem)kinmem;
+
+  kin_mem->kin_depth_fn = depth_fn;
+
+  return KIN_SUCCESS;
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINSetReturnNewest
  * -----------------------------------------------------------------
  */
@@ -1169,6 +1209,12 @@ char* KINGetReturnFlagName(long int flag)
   case KIN_LINIT_FAIL: sprintf(name, "KIN_LINIT_FAIL"); break;
   case KIN_LSETUP_FAIL: sprintf(name, "KIN_LSETUP_FAIL"); break;
   case KIN_LSOLVE_FAIL: sprintf(name, "KIN_LSOLVE_FAIL"); break;
+  case KIN_SYSFUNC_FAIL: sprintf(name, "KIN_SYSFUNC_FAIL"); break;
+  case KIN_FIRST_SYSFUNC_ERR: sprintf(name, "KIN_FIRST_SYSFUNC_ERR"); break;
+  case KIN_REPTD_SYSFUNC_ERR: sprintf(name, "KIN_REPTD_SYSFUNC_ERR"); break;
+  case KIN_VECTOROP_ERR: sprintf(name, "KIN_VECTOROP_ERR"); break;
+  case KIN_CONTEXT_ERR: sprintf(name, "KIN_CONTEXT_ERR"); break;
+  case KIN_DAMPING_FN_ERR: sprintf(name, "KIN_DAMPING_FN_ERR"); break;
   default: sprintf(name, "NONE");
   }
 
