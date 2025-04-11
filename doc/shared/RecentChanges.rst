@@ -7,4 +7,6 @@
 
 **Bug Fixes**
 
+Fixed a CMake bug that would cause the Caliper compile test to fail at configure time.
+
 **Deprecation Notices**
