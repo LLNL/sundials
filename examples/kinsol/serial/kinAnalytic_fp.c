@@ -36,9 +36,7 @@
 #include "nvector/nvector_serial.h" /* access to serial N_Vector       */
 
 /* precision specific formatting macros */
-#if defined(SUNDIALS_FLOAT128_PRECISION)
-#define GSYM "Qg"
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #elif defined(SUNDIALS_FLOAT128_PRECISION)
 #define GSYM "Qg"
@@ -61,7 +59,7 @@
 #define TEN          SUN_RCONST(10.0)            /* real 10.0 */
 #define TWENTY       SUN_RCONST(20.0)            /* real 20.0 */
 #define SIXTY        SUN_RCONST(60.0)            /* real 60.0 */
-#define PI           SUN_RCONST(3.141592653589793238462643383279502884197169) /* real pi   */
+#define PI           SUN_RCONST(3.1415926535898) /* real pi   */
 
 /* analytic solution */
 #define XTRUE HALF
@@ -362,7 +360,7 @@ static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
     /* Compute the gain = sqrt(1 - ||Q^T fn||^2 / ||fn||^2) */
     sunrealtype gain = SUNRsqrt(ONE - qt_fn_norm_sqr / fn_norm_sqr);
 
-    *damping_factor = SUN_RCONST(0.9) - SUN_RCONST(0.5) * gain;
+    *damping_factor = 0.9 - 0.5 * gain;
   }
 
   return 0;
@@ -430,8 +428,8 @@ static int SetDefaults(UserOpt* uopt)
   if (*uopt == NULL) { return (-1); }
 
   /* Set default options values */
-  (*uopt)->tol            = SUN_RCONST(100.0) * SUNRsqrt(SUN_UNIT_ROUNDOFF);
-  (*uopt)->maxiter        = 60;
+  (*uopt)->tol            = 100 * SUNRsqrt(SUN_UNIT_ROUNDOFF);
+  (*uopt)->maxiter        = 30;
   (*uopt)->m_aa           = 0;               /* no acceleration */
   (*uopt)->delay_aa       = 0;               /* no delay        */
   (*uopt)->orth_aa        = 0;               /* MGS             */

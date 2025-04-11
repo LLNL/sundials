@@ -108,7 +108,7 @@
 #define NPREY       1 /* No. of prey (= no. of predators). */
 #define NUM_SPECIES 2 * NPREY
 
-#define PI     SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define PI     SUN_RCONST(3.141592653589793238462643383279502884)
 #define FOURPI (SUN_RCONST(4.0) * PI)
 
 #define MX    20 /* MX = number of x mesh points      */
@@ -415,7 +415,7 @@ static int Precond(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
   del_y   = webdata->dy;
 
   uround = SUN_UNIT_ROUNDOFF;
-  sqru   = SUNRsqrt(uround);
+  sqru   = sqrt(uround);
 
   mem    = webdata->ida_mem;
   ewt    = webdata->ewt;

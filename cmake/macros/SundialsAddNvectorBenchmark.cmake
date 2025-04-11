@@ -33,7 +33,7 @@ function(sundials_add_nvector_benchmark NAME)
   target_include_directories(${NAME} PRIVATE ${BENCHMARKS_DIR}/nvector)
 
   target_link_libraries(${NAME} PRIVATE ${arg_SUNDIALS_TARGETS}
-                                        ${arg_LINK_LIBRARIES} ${EXE_EXTRA_LINK_LIBS})
+                                        ${arg_LINK_LIBRARIES} -lquadmath)
 
   install(TARGETS ${NAME}
           DESTINATION "${BENCHMARKS_INSTALL_PATH}/${arg_INSTALL_SUBDIR}")

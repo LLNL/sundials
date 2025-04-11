@@ -102,7 +102,7 @@
 #define NPREY       1 /* No. of prey (= no. of predators). */
 #define NUM_SPECIES 2 * NPREY
 
-#define PI     SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define PI     SUN_RCONST(3.141592653589793238462643383279502884)
 #define FOURPI (SUN_RCONST(4.0) * PI)
 
 #define MX    20 /* MX = number of x mesh points      */
@@ -119,8 +119,8 @@
 #define BETA  SUN_RCONST(1000.)  /* Coefficient beta in above eqns.   */
 #define AX    SUN_RCONST(1.0)    /* Total range of x variable         */
 #define AY    SUN_RCONST(1.0)    /* Total range of y variable         */
-#define RTOL  SUN_RCONST(1.e-5)  /* Relative tolerance                */
-#define ATOL  SUN_RCONST(1.e-5)  /* Absolute tolerance                */
+#define RTOL  SUN_RCONST(1.e-16)  /* Relative tolerance                */
+#define ATOL  SUN_RCONST(1.e-16)  /* Absolute tolerance                */
 #define NOUT  6                  /* Number of output times            */
 #define TMULT SUN_RCONST(10.0)   /* Multiplier for tout values        */
 #define TADD  SUN_RCONST(0.3)    /* Increment for tout values         */
@@ -210,10 +210,10 @@ int main(void)
   if (check_retval((void*)cc, "N_VNew_Serial", 0)) { return (1); }
 
   cp = N_VClone(cc);
-  if (check_retval((void*)cp, "N_VClone", 0)) { return (1); }
+  if (check_retval((void*)cp, "N_VNew_Serial", 0)) { return (1); }
 
   id = N_VClone(cc);
-  if (check_retval((void*)id, "N_VClone", 0)) { return (1); }
+  if (check_retval((void*)id, "N_VNew_Serial", 0)) { return (1); }
 
   SetInitialProfiles(cc, cp, id, webdata);
 
@@ -665,7 +665,7 @@ static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype* cxy,
     ratesxy[is] = dotprod(NUM_SPECIES, cxy, acoef[is]);
   }
 
-  fac = ONE + ALPHA * xx * yy + BETA * SUNRsin(FOURPI * xx) * SUNRsin(FOURPI * yy);
+  fac = ONE + ALPHA * xx * yy + BETA * sin(FOURPI * xx) * sin(FOURPI * yy);
 
   for (is = 0; is < NUM_SPECIES; is++)
   {

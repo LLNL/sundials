@@ -140,10 +140,7 @@
 #include <sunlinsol/sunlinsol_dense.h> // dense linear solver
 #include <sunmatrix/sunmatrix_dense.h> // dense matrix type, fcts., macros
 
-#if defined(SUNDIALS_FLOAT128_PRECISION)
-#define ESYM "Qe"
-#define FSYM "Qf"
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
 #define ESYM "Le"
 #define FSYM "Lf"
 #else
@@ -358,7 +355,7 @@ int main(int argc, char* argv[])
   case (1):
     fcontrol = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_I")) return 1;
-    if (!SUNRisnan(opts.k1f))
+    if (!std::isnan(opts.k1f))
     {
       retval = SUNAdaptController_SetParams_I(fcontrol, opts.k1f);
       if (check_flag(retval, "SUNAdaptController_SetParams_I")) return 1;
@@ -367,7 +364,7 @@ int main(int argc, char* argv[])
   case (2):
     fcontrol = SUNAdaptController_PI(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_PI")) return 1;
-    if (!(SUNRisnan(opts.k1f) || SUNRisnan(opts.k2f)))
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
     {
       retval = SUNAdaptController_SetParams_PI(fcontrol, opts.k1f, opts.k2f);
       if (check_flag(retval, "SUNAdaptController_SetParams_PI")) return 1;
@@ -376,7 +373,7 @@ int main(int argc, char* argv[])
   case (3):
     fcontrol = SUNAdaptController_PID(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_PID")) return 1;
-    if (!(SUNRisnan(opts.k1f) || SUNRisnan(opts.k2f) || SUNRisnan(opts.k3f)))
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f) || std::isnan(opts.k3f)))
     {
       retval = SUNAdaptController_SetParams_PID(fcontrol, opts.k1f, opts.k2f,
                                                 opts.k3f);
@@ -386,7 +383,7 @@ int main(int argc, char* argv[])
   case (4):
     fcontrol = SUNAdaptController_ExpGus(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_ExpGus")) return 1;
-    if (!(SUNRisnan(opts.k1f) || SUNRisnan(opts.k2f)))
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
     {
       retval = SUNAdaptController_SetParams_ExpGus(fcontrol, opts.k1f, opts.k2f);
       if (check_flag(retval, "SUNAdaptController_SetParams_ExpGus")) return 1;
@@ -395,7 +392,7 @@ int main(int argc, char* argv[])
   case (5):
     fcontrol = SUNAdaptController_ImpGus(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_ImpGus")) return 1;
-    if (!(SUNRisnan(opts.k1f) || SUNRisnan(opts.k2f)))
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
     {
       retval = SUNAdaptController_SetParams_ImpGus(fcontrol, opts.k1f, opts.k2f);
       if (check_flag(retval, "SUNAdaptController_SetParams_ImpGus")) return 1;
@@ -406,7 +403,7 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)fcontrol, "SUNAdaptController_ImExGus")) return 1;
     break;
   }
-  if (!SUNRisnan(opts.bias) && (opts.fcontrol > 0))
+  if (!std::isnan(opts.bias) && (opts.fcontrol > 0))
   {
     retval = SUNAdaptController_SetErrorBias(fcontrol, opts.bias);
     if (check_flag(retval, "SUNAdaptController_SetErrorBias")) return 1;
@@ -476,7 +473,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_I (mid Tol)"))
       return 1;
-    if (!SUNRisnan(opts.k1s))
+    if (!std::isnan(opts.k1s))
     {
       retval = SUNAdaptController_SetParams_I(scontrol_H, opts.k1s);
       if (check_flag(retval, "SUNAdaptController_SetParams_I")) return 1;
@@ -491,8 +488,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(mcontrol_H, mcontrol_Tol, sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
-          SUNRisnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -518,7 +515,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_PI(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_PI (mid Tol)"))
       return 1;
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_PI(scontrol_H, opts.k1s, opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_PI")) return 1;
@@ -533,8 +530,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(mcontrol_H, mcontrol_Tol, sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
-          SUNRisnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -561,7 +558,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_PID(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_PID (mid Tol)"))
       return 1;
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s) || SUNRisnan(opts.k3s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s) || std::isnan(opts.k3s)))
     {
       retval = SUNAdaptController_SetParams_PID(scontrol_H, opts.k1s, opts.k2s,
                                                 opts.k3s);
@@ -580,8 +577,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(mcontrol_H, mcontrol_Tol, sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
-          SUNRisnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -608,7 +605,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_ExpGus(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_ExpGus (mid Tol)"))
       return 1;
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_ExpGus(scontrol_H, opts.k1s,
                                                    opts.k2s);
@@ -627,8 +624,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(mcontrol_H, mcontrol_Tol, sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
-          SUNRisnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -655,7 +652,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_ImpGus(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_ImpGus (mid Tol)"))
       return 1;
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_ImpGus(scontrol_H, opts.k1s,
                                                    opts.k2s);
@@ -674,8 +671,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(mcontrol_H, mcontrol_Tol, sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
-          SUNRisnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -706,8 +703,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
-          SUNRisnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -726,7 +723,7 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptControllerI (slow)")) return 1;
     mcontrol = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptControllerI (mid)")) return 1;
-    if (!SUNRisnan(opts.k1s))
+    if (!std::isnan(opts.k1s))
     {
       retval = SUNAdaptController_SetParams_I(scontrol, opts.k1s);
       if (check_flag(retval, "SUNAdaptController_SetParams_I")) return 1;
@@ -741,7 +738,7 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_PI (slow)")) return 1;
     mcontrol = SUNAdaptController_PI(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_PI (mid)")) return 1;
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_PI(scontrol, opts.k1s, opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_PI")) return 1;
@@ -756,7 +753,7 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_PID (slow)")) return 1;
     mcontrol = SUNAdaptController_PID(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_PID (mid)")) return 1;
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s) || SUNRisnan(opts.k3s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s) || std::isnan(opts.k3s)))
     {
       retval = SUNAdaptController_SetParams_PID(scontrol, opts.k1s, opts.k2s,
                                                 opts.k3s);
@@ -774,7 +771,7 @@ int main(int argc, char* argv[])
       return 1;
     mcontrol = SUNAdaptController_ExpGus(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_ExpGus (mid)")) return 1;
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_ExpGus(scontrol, opts.k1s, opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ExpGus")) return 1;
@@ -790,7 +787,7 @@ int main(int argc, char* argv[])
       return 1;
     mcontrol = SUNAdaptController_ImpGus(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_ImpGus (mid)")) return 1;
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_ImpGus(scontrol, opts.k1s, opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ImpGus")) return 1;
@@ -810,7 +807,7 @@ int main(int argc, char* argv[])
     break;
   }
   }
-  if (!SUNRisnan(opts.bias) && (opts.scontrol > 0))
+  if (!std::isnan(opts.bias) && (opts.scontrol > 0))
   {
     retval = SUNAdaptController_SetErrorBias(scontrol, opts.bias);
     if (check_flag(retval, "SUNAdaptController_SetErrorBias")) return 1;
@@ -860,7 +857,7 @@ int main(int argc, char* argv[])
       retval = ARKodeSetAdaptivityAdjustment(mid_arkode_mem, 0);
       if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
     }
-    if (!SUNRisnan(opts.slow_safety))
+    if (!std::isnan(opts.slow_safety))
     {
       retval = ARKodeSetSafetyFactor(mid_arkode_mem, opts.slow_safety);
       if (check_flag(retval, "ARKodeSetSafetyFactor")) return 1;
@@ -918,7 +915,7 @@ int main(int argc, char* argv[])
       retval = ARKodeSetAdaptivityAdjustment(arkode_mem, 0);
       if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
     }
-    if (!SUNRisnan(opts.slow_safety))
+    if (!std::isnan(opts.slow_safety))
     {
       retval = ARKodeSetSafetyFactor(arkode_mem, opts.slow_safety);
       if (check_flag(retval, "ARKodeSetSafetyFactor")) return 1;
@@ -983,19 +980,19 @@ int main(int argc, char* argv[])
     u    = ydata[0];
     v    = ydata[1];
     w    = ydata[2];
-    uerr = SUNRabs(yrefdata[0] - u);
-    verr = SUNRabs(yrefdata[1] - v);
-    werr = SUNRabs(yrefdata[2] - w);
+    uerr = std::abs(yrefdata[0] - u);
+    verr = std::abs(yrefdata[1] - v);
+    werr = std::abs(yrefdata[2] - w);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
-    accuracy = SUNMAX(accuracy,
-                        uerr / SUNRabs(opts.atol + opts.rtol * yrefdata[0]));
-    accuracy = SUNMAX(accuracy,
-                        verr / SUNRabs(opts.atol + opts.rtol * yrefdata[1]));
-    accuracy = SUNMAX(accuracy,
-                        werr / SUNRabs(opts.atol + opts.rtol * yrefdata[2]));
+    accuracy = std::max(accuracy,
+                        uerr / std::abs(opts.atol + opts.rtol * yrefdata[0]));
+    accuracy = std::max(accuracy,
+                        verr / std::abs(opts.atol + opts.rtol * yrefdata[1]));
+    accuracy = std::max(accuracy,
+                        werr / std::abs(opts.atol + opts.rtol * yrefdata[2]));
 
     // Periodically output current results to screen
     if (t >= tout)
@@ -1057,10 +1054,10 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Print some final statistics
-  uerrtot = SUNRsqrt(uerrtot / (sunrealtype)nsts);
-  verrtot = SUNRsqrt(verrtot / (sunrealtype)nsts);
-  werrtot = SUNRsqrt(werrtot / (sunrealtype)nsts);
-  errtot  = SUNRsqrt(errtot / SUN_RCONST(3.0) / (sunrealtype)nsts);
+  uerrtot = std::sqrt(uerrtot / (sunrealtype)nsts);
+  verrtot = std::sqrt(verrtot / (sunrealtype)nsts);
+  werrtot = std::sqrt(werrtot / (sunrealtype)nsts);
+  errtot  = std::sqrt(errtot / SUN_RCONST(3.0) / (sunrealtype)nsts);
   std::cout << "\nFinal Solver Statistics:\n";
   std::cout << "   Slow steps = " << nsts << "  (attempts = " << natts
             << ",  fails = " << netfs << ",  innerfails = " << nifs << ")\n";
@@ -1482,17 +1479,17 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 static sunrealtype p(sunrealtype t, const Options& opts)
 {
-  return HALF * SUNRcos(t);
+  return HALF * cos(t);
 }
 
 static sunrealtype q(sunrealtype t, const Options& opts)
 {
-  return (SUNRcos(opts.om * t * (ONE + SUNRexp(-(t - TWO) * (t - TWO)))));
+  return (cos(opts.om * t * (ONE + exp(-(t - TWO) * (t - TWO)))));
 }
 
 static sunrealtype r(sunrealtype t, const Options& opts)
 {
-  return (SUNRcos(opts.om * opts.om * t * (ONE + SUNRexp(-(t - THREE) * (t - THREE)))));
+  return (cos(opts.om * opts.om * t * (ONE + exp(-(t - THREE) * (t - THREE)))));
 }
 
 static sunrealtype pdot(sunrealtype t, const Options& opts)
@@ -1503,7 +1500,7 @@ static sunrealtype pdot(sunrealtype t, const Options& opts)
 static sunrealtype qdot(sunrealtype t, const Options& opts)
 {
   const sunrealtype tTwo  = t - TWO;
-  const sunrealtype eterm = SUNRexp(-tTwo * tTwo);
+  const sunrealtype eterm = exp(-tTwo * tTwo);
   return (-SUNRsin(opts.om * t * (ONE + eterm)) * opts.om *
           (ONE + eterm * (ONE - TWO * t * tTwo)));
 }
@@ -1511,7 +1508,7 @@ static sunrealtype qdot(sunrealtype t, const Options& opts)
 static sunrealtype rdot(sunrealtype t, const Options& opts)
 {
   const sunrealtype tThree = t - THREE;
-  const sunrealtype eterm  = SUNRexp(-tThree * tThree);
+  const sunrealtype eterm  = exp(-tThree * tThree);
   return (-SUNRsin(opts.om * opts.om * t * (ONE + eterm)) * opts.om * opts.om *
           (ONE + eterm * (ONE - TWO * t * tThree)));
 }
@@ -1736,13 +1733,13 @@ static void PrintSlowAdaptivity(Options opts)
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (!SUNRisnan(opts.k1s))
+    if (!std::isnan(opts.k1s))
     {
       std::cout << "    slow/intermediate controller parameter: " << opts.k1s
                 << "\n";
     }
-    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
-          SUNRisnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1756,13 +1753,13 @@ static void PrintSlowAdaptivity(Options opts)
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
     }
-    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
-          SUNRisnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1776,13 +1773,13 @@ static void PrintSlowAdaptivity(Options opts)
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s) || SUNRisnan(opts.k3s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s) || std::isnan(opts.k3s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << " " << opts.k3s << "\n";
     }
-    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
-          SUNRisnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1796,7 +1793,7 @@ static void PrintSlowAdaptivity(Options opts)
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
