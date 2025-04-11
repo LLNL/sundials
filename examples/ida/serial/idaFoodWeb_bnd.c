@@ -102,7 +102,7 @@
 #define NPREY       1 /* No. of prey (= no. of predators). */
 #define NUM_SPECIES 2 * NPREY
 
-#define PI     SUN_RCONST(3.1415926535898)
+#define PI     SUN_RCONST(3.141592653589793238462643383279502884)
 #define FOURPI (SUN_RCONST(4.0) * PI)
 
 #define MX    20 /* MX = number of x mesh points      */
@@ -119,8 +119,8 @@
 #define BETA  SUN_RCONST(1000.)  /* Coefficient beta in above eqns.   */
 #define AX    SUN_RCONST(1.0)    /* Total range of x variable         */
 #define AY    SUN_RCONST(1.0)    /* Total range of y variable         */
-#define RTOL  SUN_RCONST(1.e-5)  /* Relative tolerance                */
-#define ATOL  SUN_RCONST(1.e-5)  /* Absolute tolerance                */
+#define RTOL  SUN_RCONST(1.e-16)  /* Relative tolerance                */
+#define ATOL  SUN_RCONST(1.e-16)  /* Absolute tolerance                */
 #define NOUT  6                  /* Number of output times            */
 #define TMULT SUN_RCONST(10.0)   /* Multiplier for tout values        */
 #define TADD  SUN_RCONST(0.3)    /* Increment for tout values         */
@@ -252,6 +252,10 @@ int main(void)
   /* Attach the matrix and linear solver */
   retval = IDASetLinearSolver(mem, LS, A);
   if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
+
+  /* specifies the maximum number of steps */
+  retval = IDASetMaxNumSteps(mem, 10000000000);
+  if (check_retval(&retval, "IDASetMaxNumSteps", 1)) { return (1); }
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
@@ -489,7 +493,9 @@ static void PrintHeader(sunindextype mu, sunindextype ml, sunrealtype rtol,
   printf("Number of species ns: %d", NUM_SPECIES);
   printf("     Mesh dimensions: %d x %d", MX, MY);
   printf("     System size: %d\n", NEQ);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("Tolerance parameters:  rtol = %Qg   atol = %Qg\n", rtol, atol);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
@@ -526,8 +532,12 @@ static void PrintOutput(void* mem, N_Vector c, sunrealtype t)
 
   c_bl = IJ_Vptr(c, 0, 0);
   c_tr = IJ_Vptr(c, MX - 1, MY - 1);
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%8.2Qe %12.4Qe %12.4Qe   | %3ld  %1d %12.4Qe\n", t, c_bl[0], c_tr[0],
+         nst, kused, hused);
+  for (i = 1; i < NUM_SPECIES; i++)
+    printf("         %12.4Qe %12.4Qe   |\n", c_bl[i], c_tr[i]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%8.2Le %12.4Le %12.4Le   | %3ld  %1d %12.4Le\n", t, c_bl[0], c_tr[0],
          nst, kused, hused);
   for (i = 1; i < NUM_SPECIES; i++)

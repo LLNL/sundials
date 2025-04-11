@@ -70,6 +70,10 @@
 #define EXP(x)  (expl((x)))
 #define SQRT(x) (sqrtl((x)))
 #define LOG(x)  (logl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define EXP(x)  (expq((x)))
+#define SQRT(x) (sqrtq((x)))
+#define LOG(x)  (logq((x)))
 #endif
 
 /* Convince macros for using precision-specific format specifiers */

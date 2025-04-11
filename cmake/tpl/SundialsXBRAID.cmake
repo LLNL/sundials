@@ -42,8 +42,8 @@ if(NOT ENABLE_MPI)
     FATAL_ERROR "MPI is required for XBraid support. Set ENABLE_MPI to ON.")
 endif()
 
-# XBraid does not support single or extended precision
-if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED")
+# XBraid does not support single, extended precision or float128
+if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED"  OR SUNDIALS_PRECISION MATCHES "FLOAT128")
   message(
     FATAL_ERROR "XBraid is not compatible with ${SUNDIALS_PRECISION} precision")
 endif()

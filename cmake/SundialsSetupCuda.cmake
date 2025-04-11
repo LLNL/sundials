@@ -57,9 +57,9 @@ endif()
 # Prohibit CUDA interface when using extended precision.
 # ===============================================================
 
-if(SUNDIALS_PRECISION MATCHES "EXTENDED")
+if((SUNDIALS_PRECISION MATCHES "EXTENDED") || (SUNDIALS_PRECISION MATCHES "FLOAT128"))
   message(
-    FATAL_ERROR "CUDA interfaces are incompatible with extended precision.")
+    FATAL_ERROR "CUDA interfaces are incompatible with extended precision or FLOAT128.")
 endif()
 
 # ===============================================================

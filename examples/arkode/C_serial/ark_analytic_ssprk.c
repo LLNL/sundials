@@ -52,6 +52,8 @@
 #define ATAN(x) (atanf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define ATAN(x) (atanl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define ATAN(x) (atanq((x)))
 #endif
 
 /* User-supplied Functions Called by the Solver */
@@ -81,6 +83,10 @@ int main(void)
   sunrealtype abstol = SUN_RCONST(1.0e-8);
   sunrealtype lambda = SUN_RCONST(-10.0); /* stiffness parameter */
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
+  sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-8);
+  sunrealtype lambda = SUN_RCONST(-10.0); /* stiffness parameter */
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
   sunrealtype lambda = SUN_RCONST(-10.0); /* stiffness parameter */

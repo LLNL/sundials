@@ -51,10 +51,10 @@ message(STATUS "GINKGO CXX FLAGS:   ${GINKGO_INTERFACE_CXX_FLAGS}")
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
-  if(SUNDIALS_PRECISION MATCHES "extended|EXTENDED")
+  if((SUNDIALS_PRECISION MATCHES "extended|EXTENDED") OR (SUNDIALS_PRECISION MATCHES "float128|FLOAT128"))
     message(
       FATAL_ERROR
-        "SUNDIALS GINKGO interface is not compatible with extended precision")
+        "SUNDIALS GINKGO interface is not compatible with extended precision or float128")
   endif()
 
   if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA" AND NOT ENABLE_CUDA)

@@ -43,6 +43,10 @@
 #define GSYM "Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
+#define ESYM "Qe"
+#define FSYM "Qf"
 #else
 #define GSYM "g"
 #define ESYM "e"

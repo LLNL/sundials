@@ -60,16 +60,6 @@
 #define IJth(A, i, j) \
   SM_ELEMENT_D(A, i - 1, j - 1) /* (i,j)-th matrix component i,j=1..NEQ */
 
-/* Precision specific math function macros */
-
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define ABS(x) (fabs((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define ABS(x) (fabsf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define ABS(x) (fabsl((x)))
-#endif
-
 /* Problem Constants */
 
 #define NEQ   3               /* number of equations  */
@@ -309,7 +299,7 @@ static int ewt(N_Vector y, N_Vector w, void* user_data)
   for (i = 1; i <= 3; i++)
   {
     yy = Ith(y, i);
-    ww = rtol * ABS(yy) + atol[i - 1];
+    ww = rtol * SUNRabs(yy) + atol[i - 1];
     if (ww <= 0.0) { return (-1); }
     Ith(w, i) = 1.0 / ww;
   }

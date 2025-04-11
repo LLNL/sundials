@@ -2296,7 +2296,7 @@ static int SetIC(N_Vector u, UserData* udata)
       a = TWO * PI * (x - udata->xl) / (udata->xu - udata->xl);
       b = TWO * PI * (y - udata->yl) / (udata->yu - udata->yl);
 
-      data[UIDX(i, j, nx_loc)] = udata->A + SUN_RCONST(0.5) * sin(a) * sin(b);
+      data[UIDX(i, j, nx_loc)] = udata->A + SUN_RCONST(0.5) * SUNRsin(a) * sin(b);
       data[VIDX(i, j, nx_loc)] = udata->B / udata->A;
     }
   }
