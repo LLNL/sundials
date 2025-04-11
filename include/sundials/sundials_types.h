@@ -122,6 +122,17 @@ typedef long double sunrealtype;
 #define SUN_FORMAT_G      "%." SUN_STRING(LDBL_DIG) "Lg"
 #define SUN_FORMAT_SG     "%+." SUN_STRING(LDBL_DIG) "Lg"
 
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+
+#include <quadmath.h>
+typedef __float128 sunrealtype;
+#define SUN_RCONST(x)     x##Q
+#define SUN_BIG_REAL      FLT128_MAX
+#define SUN_SMALL_REAL    FLT128_MIN
+#define SUN_UNIT_ROUNDOFF FLT128_EPSILON
+#define SUN_FORMAT_E      "% ." SUN_STRING(FLT128_DIG) "Qe"
+#define SUN_FORMAT_G      "%." SUN_STRING(FLT128_DIG) "Qg"
+#define SUN_FORMAT_SG     "%+." SUN_STRING(FLT128_DIG) "Qg"
 #endif
 
 /*

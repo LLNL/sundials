@@ -384,7 +384,7 @@ int main(int argc, char* argv[])
     {
     case (1):
       /* use the square root of the vector length */
-      nrmfac = SQRT((sunrealtype)NEQ);
+      nrmfac = SUNRsqrt((sunrealtype)NEQ);
       break;
     case (2):
       /* compute with dot product */

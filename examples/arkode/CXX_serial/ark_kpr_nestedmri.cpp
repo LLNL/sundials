@@ -1494,14 +1494,14 @@ static sunrealtype r(sunrealtype t, const Options& opts)
 
 static sunrealtype pdot(sunrealtype t, const Options& opts)
 {
-  return -HALF * sin(t);
+  return -HALF * SUNRsin(t);
 }
 
 static sunrealtype qdot(sunrealtype t, const Options& opts)
 {
   const sunrealtype tTwo  = t - TWO;
   const sunrealtype eterm = exp(-tTwo * tTwo);
-  return (-sin(opts.om * t * (ONE + eterm)) * opts.om *
+  return (-SUNRsin(opts.om * t * (ONE + eterm)) * opts.om *
           (ONE + eterm * (ONE - TWO * t * tTwo)));
 }
 
@@ -1509,23 +1509,23 @@ static sunrealtype rdot(sunrealtype t, const Options& opts)
 {
   const sunrealtype tThree = t - THREE;
   const sunrealtype eterm  = exp(-tThree * tThree);
-  return (-sin(opts.om * opts.om * t * (ONE + eterm)) * opts.om * opts.om *
+  return (-SUNRsin(opts.om * opts.om * t * (ONE + eterm)) * opts.om * opts.om *
           (ONE + eterm * (ONE - TWO * t * tThree)));
 }
 
 static sunrealtype utrue(sunrealtype t, const Options& opts)
 {
-  return (std::sqrt(TWO + p(t, opts)));
+  return (SUNRsqrt(TWO + p(t, opts)));
 }
 
 static sunrealtype vtrue(sunrealtype t, const Options& opts)
 {
-  return (std::sqrt(TWO + q(t, opts)));
+  return (SUNRsqrt(TWO + q(t, opts)));
 }
 
 static sunrealtype wtrue(sunrealtype t, const Options& opts)
 {
-  return (std::sqrt(TWO + r(t, opts)));
+  return (SUNRsqrt(TWO + r(t, opts)));
 }
 
 static int Ytrue(sunrealtype t, N_Vector y, const Options& opts)
@@ -1798,8 +1798,8 @@ static void PrintSlowAdaptivity(Options opts)
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
     }
-    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
-          std::isnan(opts.htol_maxfac)))
+    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
+          SUNRisnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1813,13 +1813,13 @@ static void PrintSlowAdaptivity(Options opts)
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
+    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
     }
-    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
-          std::isnan(opts.htol_maxfac)))
+    if (!(SUNRisnan(opts.htol_relch) || SUNRisnan(opts.htol_minfac) ||
+          SUNRisnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
@@ -1841,7 +1841,7 @@ static void PrintSlowAdaptivity(Options opts)
                  "order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (!std::isnan(opts.k1s))
+    if (!SUNRisnan(opts.k1s))
     {
       std::cout << "    slow/intermediate controller parameter: " << opts.k1s
                 << "\n";
@@ -1854,7 +1854,7 @@ static void PrintSlowAdaptivity(Options opts)
                  "order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
+    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
@@ -1867,7 +1867,7 @@ static void PrintSlowAdaptivity(Options opts)
                  "order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s) || std::isnan(opts.k3s)))
+    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s) || SUNRisnan(opts.k3s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << " " << opts.k3s << "\n";
@@ -1880,7 +1880,7 @@ static void PrintSlowAdaptivity(Options opts)
                  "on order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
+    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
@@ -1893,7 +1893,7 @@ static void PrintSlowAdaptivity(Options opts)
                  "on order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
+    if (!(SUNRisnan(opts.k1s) || SUNRisnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
@@ -1909,11 +1909,11 @@ static void PrintSlowAdaptivity(Options opts)
     break;
   }
   }
-  if (!std::isnan(opts.bias))
+  if (!SUNRisnan(opts.bias))
   {
     std::cout << "    controller bias factor: " << opts.bias << "\n";
   }
-  if (!std::isnan(opts.slow_safety))
+  if (!SUNRisnan(opts.slow_safety))
   {
     std::cout << "    slow step safety factor: " << opts.slow_safety << "\n";
   }
@@ -1936,7 +1936,7 @@ static void PrintFastAdaptivity(Options opts)
               << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (!std::isnan(opts.k1f))
+    if (!SUNRisnan(opts.k1f))
     {
       std::cout << "    fast controller parameter: " << opts.k1f << "\n";
     }
@@ -1948,7 +1948,7 @@ static void PrintFastAdaptivity(Options opts)
               << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
+    if (!(SUNRisnan(opts.k1f) || SUNRisnan(opts.k2f)))
     {
       std::cout << "    fast controller parameters: " << opts.k1f << " "
                 << opts.k2f << "\n";
@@ -1961,7 +1961,7 @@ static void PrintFastAdaptivity(Options opts)
               << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f) || std::isnan(opts.k3f)))
+    if (!(SUNRisnan(opts.k1f) || SUNRisnan(opts.k2f) || SUNRisnan(opts.k3f)))
     {
       std::cout << "    fast controller parameters: " << opts.k1f << " "
                 << opts.k2f << " " << opts.k3f << "\n";
@@ -1975,7 +1975,7 @@ static void PrintFastAdaptivity(Options opts)
       << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
+    if (!(SUNRisnan(opts.k1f) || SUNRisnan(opts.k2f)))
     {
       std::cout << "    fast controller parameters: " << opts.k1f << " "
                 << opts.k2f << "\n";
@@ -1989,7 +1989,7 @@ static void PrintFastAdaptivity(Options opts)
       << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
+    if (!(SUNRisnan(opts.k1f) || SUNRisnan(opts.k2f)))
     {
       std::cout << "    fast controller parameters: " << opts.k1f << " "
                 << opts.k2f << "\n";

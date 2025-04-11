@@ -67,6 +67,10 @@
 #define ATAN(x) (atanl((x)))
 #define ACOS(x) (acosl((x)))
 #define COS(x)  (cosl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define ATAN(x) (atanq((x)))
+#define ACOS(x) (acosq((x)))
+#define COS(x)  (cosq((x)))
 #endif
 
 /* User-supplied Functions Called by the Solver */
@@ -107,6 +111,11 @@ int main(void)
   sunrealtype lambda = SUN_RCONST(-1.0e+3); /* stiffness parameter 1 */
   sunrealtype alpha  = SUN_RCONST(1.0e+1);  /* stiffness parameter 2 */
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
+  sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-8);
+  sunrealtype lambda = SUN_RCONST(-1.0e+6); /* stiffness parameter 1 */
+  sunrealtype alpha  = SUN_RCONST(1.0e+2);  /* stiffness parameter 2 */
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
   sunrealtype lambda = SUN_RCONST(-1.0e+6); /* stiffness parameter 1 */

@@ -36,7 +36,11 @@
 #include <sundials/sundials_math.h> /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
+#define ESYM "Qe"
+#define FSYM "Qf"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
@@ -52,6 +56,8 @@
 #define ATAN(x) (atanf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define ATAN(x) (atanl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define ATAN(x) (atanq((x)))
 #endif
 
 /* User-supplied Functions Called by the Solver */
@@ -92,6 +98,10 @@ int main(void)
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
+  sunrealtype lambda = SUN_RCONST(-1000000.0); /* stiffness parameter */
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+  sunrealtype reltol = SUN_RCONST(1.0e-16); /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-16);
   sunrealtype lambda = SUN_RCONST(-1000000.0); /* stiffness parameter */
 #endif
 
@@ -147,7 +157,7 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetMaxNumStages", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
-  flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 1000000000);
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Specify safety factor for user provided dom_eig */

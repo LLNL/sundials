@@ -47,11 +47,16 @@
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define EXP(x) (expl((x)))
 #define LOG(x) (logl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define EXP(x) (expq((x)))
+#define LOG(x) (logq((x)))
 #endif
 
 /* Convince macros for using precision-specific format specifiers */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define ESYM "Le"
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define ESYM "Qe"
 #else
 #define ESYM "e"
 #endif

@@ -38,29 +38,10 @@
 /* precision specific formatting macros */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
 #else
 #define GSYM "g"
-#endif
-
-/* precision specific math function macros */
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define ABS(x)  (fabs((x)))
-#define SQRT(x) (sqrt((x)))
-#define EXP(x)  (exp((x)))
-#define SIN(x)  (sin((x)))
-#define COS(x)  (cos((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define ABS(x)  (fabsf((x)))
-#define SQRT(x) (sqrtf((x)))
-#define EXP(x)  (expf((x)))
-#define SIN(x)  (sinf((x)))
-#define COS(x)  (cosf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define ABS(x)  (fabsl((x)))
-#define SQRT(x) (sqrtl((x)))
-#define EXP(x)  (expl((x)))
-#define SIN(x)  (sinl((x)))
-#define COS(x)  (cosl((x)))
 #endif
 
 /* problem constants */
@@ -347,9 +328,9 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
   y = udata[1];
   z = udata[2];
 
-  gdata[0] = (ONE / THREE) * COS((y - ONE) * z) + (ONE / SIX);
-  gdata[1] = (ONE / NINE) * SQRT(x * x + SIN(z) + ONEPTZEROSIX) + PTNINE;
-  gdata[2] = -(ONE / TWENTY) * EXP(-x * (y - ONE)) - (TEN * PI - THREE) / SIXTY;
+  gdata[0] = (ONE / THREE) * SUNRcos((y - ONE) * z) + (ONE / SIX);
+  gdata[1] = (ONE / NINE) * SUNRsqrt(x * x + SUNRsin(z) + ONEPTZEROSIX) + PTNINE;
+  gdata[2] = -(ONE / TWENTY) * SUNRexp(-x * (y - ONE)) - (TEN * PI - THREE) / SIXTY;
 
   return (0);
 }
@@ -415,9 +396,9 @@ static int check_ans(N_Vector u, sunrealtype tol)
   printf("    z = %" GSYM "\n", data[2]);
 
   /* solution error */
-  ex = ABS(data[0] - XTRUE);
-  ey = ABS(data[1] - YTRUE);
-  ez = ABS(data[2] - ZTRUE);
+  ex = SUNRabs(data[0] - XTRUE);
+  ey = SUNRabs(data[1] - YTRUE);
+  ez = SUNRabs(data[2] - ZTRUE);
 
   /* print the solution error */
   printf("Solution error:\n");
@@ -447,7 +428,7 @@ static int SetDefaults(UserOpt* uopt)
   if (*uopt == NULL) { return (-1); }
 
   /* Set default options values */
-  (*uopt)->tol            = 100 * SQRT(SUN_UNIT_ROUNDOFF);
+  (*uopt)->tol            = 100 * SUNRsqrt(SUN_UNIT_ROUNDOFF);
   (*uopt)->maxiter        = 30;
   (*uopt)->m_aa           = 0;               /* no acceleration */
   (*uopt)->delay_aa       = 0;               /* no delay        */

@@ -51,21 +51,6 @@
 #define ESYM "e"
 #endif
 
-/* Precision specific math function macros */
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SIN(x)  (sin((x)))
-#define COS(x)  (cos((x)))
-#define SQRT(x) (sqrt((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SIN(x)  (sinf((x)))
-#define COS(x)  (cosf((x)))
-#define SQRT(x) (sqrtf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SIN(x)  (sinl((x)))
-#define COS(x)  (cosl((x)))
-#define SQRT(x) (sqrtl((x)))
-#endif
-
 /* Problem Constants */
 #define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
 #define ZERO SUN_RCONST(0.0)
@@ -340,7 +325,7 @@ static int Proj(sunrealtype t, N_Vector ycur, N_Vector corr,
   sunrealtype errxp, erryp;
 
   /* project onto the unit circle */
-  r = SQRT(x * x + y * y);
+  r = SUNRsqrt(x * x + y * y);
 
   xp = x / r;
   yp = y / r;
@@ -490,8 +475,8 @@ static int ComputeSolution(sunrealtype t, N_Vector y, UserData udata)
 {
   sunrealtype* ydata = N_VGetArrayPointer(y);
 
-  ydata[0] = COS((udata->alpha) * t);
-  ydata[1] = SIN((udata->alpha) * t);
+  ydata[0] = SUNRcos((udata->alpha) * t);
+  ydata[1] = SUNRsin((udata->alpha) * t);
 
   return (0);
 }

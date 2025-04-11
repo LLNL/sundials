@@ -106,33 +106,14 @@
 
 /* helpful macros */
 
-#ifndef MAX
-#define MAX(A, B) ((A) > (B) ? (A) : (B))
-#endif
 
 #ifndef SQR
 #define SQR(A) ((A) * (A))
 #endif
 
-#ifndef SQRT
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SQRT(x) (sqrt((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SQRT(x) (sqrtf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SQRT(x) (sqrtl((x)))
-#endif
-#endif
 
-#ifndef ABS
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define ABS(x) (fabs((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define ABS(x) (fabsf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define ABS(x) (fabsl((x)))
-#endif
-#endif
+
+
 
 /* Constants */
 
@@ -343,7 +324,7 @@ int main(int argc, char* argv[])
         {
         case (1):
           /* use the square root of the vector length */
-          nrmfac = SQRT((sunrealtype)NEQ);
+          nrmfac = SUNRsqrt((sunrealtype)NEQ);
           break;
         case (2):
           /* compute with dot product */
@@ -456,8 +437,8 @@ static void InitUserData(WebData wdata)
   dy = wdata->dy = DY;
   for (i = 0; i < ns; i++)
   {
-    cox[i] = diff[i] / SQR(dx);
-    coy[i] = diff[i] / SQR(dy);
+    cox[i] = diff[i] / SUNSQR(dx);
+    coy[i] = diff[i] / SUNSQR(dy);
   }
 
   /* Set remaining method parameters */
@@ -466,7 +447,7 @@ static void InitUserData(WebData wdata)
   wdata->mq   = MQ;
   wdata->mx   = MX;
   wdata->my   = MY;
-  wdata->srur = sqrt(SUN_UNIT_ROUNDOFF);
+  wdata->srur = SUNRsqrt(SUN_UNIT_ROUNDOFF);
   wdata->mxmp = MXMP;
   wdata->ngrp = NGRP;
   wdata->ngx  = NGX;
@@ -515,17 +496,17 @@ static void CInit(N_Vector c, WebData wdata)
   dx    = wdata->dx;
   dy    = wdata->dy;
 
-  x_factor = SUN_RCONST(4.0) / SQR(AX);
-  y_factor = SUN_RCONST(4.0) / SQR(AY);
+  x_factor = SUN_RCONST(4.0) / SUNSQR(AX);
+  y_factor = SUN_RCONST(4.0) / SUNSQR(AY);
   for (jy = 0; jy < MY; jy++)
   {
     y     = jy * dy;
-    argy  = SQR(y_factor * y * (AY - y));
+    argy  = SUNSQR(y_factor * y * (AY - y));
     iyoff = mxns * jy;
     for (jx = 0; jx < MX; jx++)
     {
       x    = jx * dx;
-      argx = SQR(x_factor * x * (AX - x));
+      argx = SUNSQR(x_factor * x * (AX - x));
       ioff = iyoff + ns * jx;
       for (i = 1; i <= ns; i++)
       {
@@ -892,7 +873,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
   f1 = N_VGetArrayPointer(wdata->tmp);
 
   fac = N_VWrmsNorm(fc, rewt);
-  r0  = SUN_RCONST(1000.0) * ABS(gamma) * uround * NEQ * fac;
+  r0  = SUN_RCONST(1000.0) * SUNRabs(gamma) * uround * NEQ * fac;
   if (r0 == ZERO) { r0 = ONE; }
 
   for (igy = 0; igy < ngy; igy++)
@@ -910,7 +891,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
         /* Generate the jth column as a difference quotient */
         jj   = if0 + j;
         save = cdata[jj];
-        r    = MAX(srur * ABS(save), r0 / rewtdata[jj]);
+        r    = SUNMAX(srur * SUNRabs(save), r0 / rewtdata[jj]);
         cdata[jj] += r;
         fac = -gamma / r;
         fblock(t, cdata, jx, jy, f1, wdata);
