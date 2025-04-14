@@ -54,9 +54,15 @@
 #include <sunmatrix/sunmatrix_dense.h> // access to dense SUNMatrix
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
+#define ESYM "Qe"
+#define FSYM "Qf"
 #else
+#define GSYM "g"
 #define ESYM "e"
 #define FSYM "f"
 #endif
@@ -94,10 +100,10 @@ int main()
   void* arkode_mem   = NULL; // empty ARKode memory structure
 
   // Initial problem output
-  cout << "\nAnalytical ODE test problem:\n";
-  cout << "   lambda = " << lambda << "\n";
-  cout << "   reltol = " << reltol << "\n";
-  cout << "   abstol = " << abstol << "\n\n";
+  printf("\nAnalytical ODE test problem:\n");
+  printf("   lambda = %" GSYM "\n", lambda);
+  printf("   reltol = %.1" ESYM "\n", reltol);
+  printf("   abstol = %.1" ESYM "\n\n", abstol);
 
   // Create the SUNDIALS context object for this simulation
   sundials::Context sunctx;
