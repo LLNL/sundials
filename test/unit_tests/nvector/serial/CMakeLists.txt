@@ -21,8 +21,13 @@
 # examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS serial nvector
-set(nvector_serial_examples "test_nvector_serial\;1000 0\;"
-                            "test_nvector_serial\;10000 0\;")
+if(SUNDIALS_SCALAR_TYPE MATCHES "REAL")
+  set(nvector_serial_examples "test_nvector_serial\;1000 0\;"
+                              "test_nvector_serial\;10000 0\;")
+elseif(SUNDIALS_SCALAR_TYPE MATCHES "COMPLEX")
+  set(nvector_serial_examples "test_nvector_serial_Z\;1000 0\;"
+                              "test_nvector_serial_Z\;10000 0\;")
+endif()
 
 # If building F2003 tests
 if(BUILD_FORTRAN_MODULE_INTERFACE)

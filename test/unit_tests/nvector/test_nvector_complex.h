@@ -36,12 +36,21 @@ extern "C" {
 
 extern SUNContext sunctx;
 
+/* Shared test initialization/finalization */
+int Test_Init_Z(SUNComm comm);
+int Test_Finalize_Z(void);
+void Test_Abort_Z(int code);
+void Test_AbortMPI_Z(SUNComm comm, int code);
+
 /* Forward declarations for implementation specific utility functions */
 int check_ans_Z(sunscalartype ans, N_Vector X, sunindextype local_length);
+sunbooleantype has_data_Z(N_Vector X);
 void set_element_Z(N_Vector X, sunindextype i, sunscalartype val);
 void set_element_range_Z(N_Vector X, sunindextype is, sunindextype ie,
                          sunscalartype val);
 sunscalartype get_element_Z(N_Vector X, sunindextype i);
+double max_time_Z(N_Vector X, double time);
+void sync_device_Z(N_Vector X);
 
 /* Vector ID test */
 int Test_N_VGetVectorID_Z(N_Vector X, N_Vector_ID ID, int myid);

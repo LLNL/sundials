@@ -33,7 +33,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector.h>
 
-#include "test_nvector.h"
 #include "test_nvector_complex.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -41,6 +40,9 @@
 #else
 #define FSYM ".17f"
 #endif
+
+/* all tests need a SUNContext */
+SUNContext sunctx = NULL;
 
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
@@ -61,6 +63,38 @@ static int print_time = 0;
 #define PRINT_TIME(test, time) \
   if (print_time) printf(FMT, test, time)
 
+int Test_Init_Z(SUNComm comm)
+{
+  if (sunctx == NULL)
+  {
+    if (SUNContext_Create(comm, &sunctx))
+    {
+      printf("ERROR: SUNContext_Create failed\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
+int Test_Finalize_Z(void)
+{
+  if (sunctx != NULL)
+  {
+    if (SUNContext_Free(&sunctx))
+    {
+      printf("ERROR: SUNContext_Create failed\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
+void Test_Abort_Z(int code)
+{
+  Test_Finalize_Z();
+  abort();
+}
+
 /* ----------------------------------------------------------------------
  * N_VMake Test
  * --------------------------------------------------------------------*/
@@ -75,7 +109,7 @@ int Test_N_VMake_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* check for vector data */
-  if (!has_data(X))
+  if (!has_data_Z(X))
   {
     printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
     printf("    Vector data == NULL \n \n");
@@ -148,7 +182,7 @@ int Test_N_VCloneVectorArray_Z(int count, N_Vector W, sunindextype local_length,
     }
 
     N_VConst(ONE, vs[i]);
-    failure = check_ans(ONE, vs[i], local_length);
+    failure = check_ans_Z(ONE, vs[i], local_length);
     if (failure)
     {
       printf(">>> FAILED test -- N_VCloneVectorArray, Proc %d \n", myid);
@@ -163,7 +197,7 @@ int Test_N_VCloneVectorArray_Z(int count, N_Vector W, sunindextype local_length,
   if (myid == 0) { printf("PASSED test -- N_VCloneVectorArray \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(W, stop_time - start_time);
+  maxt = max_time_Z(W, stop_time - start_time);
   PRINT_TIME("N_VCloneVectorArray", maxt);
 
   return (0);
@@ -202,7 +236,7 @@ int Test_N_VCloneEmptyVectorArray_Z(int count, N_Vector W, int myid)
       return (1);
     }
 
-    if (has_data(vs[i]))
+    if (has_data_Z(vs[i]))
     {
       printf(">>> FAILED test -- N_VCloneEmptyVectorArray, Proc %d \n", myid);
       printf("    Vector[%d] data != NULL \n\n", i);
@@ -216,7 +250,7 @@ int Test_N_VCloneEmptyVectorArray_Z(int count, N_Vector W, int myid)
   if (myid == 0) { printf("PASSED test -- N_VCloneEmptyVectorArray \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(W, stop_time - start_time);
+  maxt = max_time_Z(W, stop_time - start_time);
   PRINT_TIME("N_VCloneEmptyVectorArray", maxt);
 
   return (0);
@@ -244,7 +278,7 @@ int Test_N_VCloneEmpty_Z(N_Vector W, int myid)
   }
 
   /* check vector data */
-  if (has_data(X))
+  if (has_data_Z(X))
   {
     printf(">>> FAILED test -- N_VCloneEmpty, Proc %d \n", myid);
     printf("    Vector data != NULL \n\n");
@@ -257,7 +291,7 @@ int Test_N_VCloneEmpty_Z(N_Vector W, int myid)
   if (myid == 0) { printf("PASSED test -- N_VCloneEmpty \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(W, stop_time - start_time);
+  maxt = max_time_Z(W, stop_time - start_time);
   PRINT_TIME("N_VCloneEmpty", maxt);
 
   return (0);
@@ -296,7 +330,7 @@ int Test_N_VClone_Z(N_Vector W, sunindextype local_length, int myid)
   }
 
   /* check cloned vector data */
-  if (!has_data(X))
+  if (!has_data_Z(X))
   {
     printf(">>> FAILED test -- N_VClone, Proc %d \n", myid);
     printf("    Vector data == NULL \n\n");
@@ -305,7 +339,7 @@ int Test_N_VClone_Z(N_Vector W, sunindextype local_length, int myid)
   }
 
   N_VConst(ONE, X);
-  failure = check_ans(ONE, X, local_length);
+  failure = check_ans_Z(ONE, X, local_length);
   if (failure)
   {
     printf(">>> FAILED test -- N_VClone, Proc %d \n", myid);
@@ -318,7 +352,7 @@ int Test_N_VClone_Z(N_Vector W, sunindextype local_length, int myid)
   if (myid == 0) { printf("PASSED test -- N_VClone \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(W, stop_time - start_time);
+  maxt = max_time_Z(W, stop_time - start_time);
   PRINT_TIME("N_VClone", maxt);
 
   return (0);
@@ -355,7 +389,7 @@ int Test_N_VGetArrayPointer_Z(N_Vector W, sunindextype local_length, int myid)
   Wdata[0]   = ONE; /* Do something with pointer to suppress warning */
 
   /* check vector data */
-  if (!has_data(W))
+  if (!has_data_Z(W))
   {
     printf(">>> FAILED test -- N_VGetArrayPointer, Proc %d \n", myid);
     printf("    Vector data == NULL \n\n");
@@ -363,7 +397,7 @@ int Test_N_VGetArrayPointer_Z(N_Vector W, sunindextype local_length, int myid)
   }
 
   N_VConst(NEG_HALF, W);
-  failure = check_ans(NEG_HALF, W, local_length);
+  failure = check_ans_Z(NEG_HALF, W, local_length);
 
   if (failure)
   {
@@ -375,7 +409,7 @@ int Test_N_VGetArrayPointer_Z(N_Vector W, sunindextype local_length, int myid)
   if (myid == 0) { printf("PASSED test -- N_VGetArrayPointer \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(W, stop_time - start_time);
+  maxt = max_time_Z(W, stop_time - start_time);
   PRINT_TIME("N_VGetArrayPointer", maxt);
 
   return (0);
@@ -431,7 +465,7 @@ int Test_N_VSetArrayPointer_Z(N_Vector W, sunindextype local_length, int myid)
   if (myid == 0) { printf("PASSED test -- N_VSetArrayPointer \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(W, stop_time - start_time);
+  maxt = max_time_Z(W, stop_time - start_time);
   PRINT_TIME("N_VSetArrayPointer", maxt);
 
   return (0);
@@ -462,7 +496,7 @@ int Test_N_VGetLength_Z(N_Vector W, int myid)
   /* use N_VConst and N_VDotProd to compute length */
   N_VConst(SUN_RCONST(1.0), W);
   Wlength2 = (sunindextype)N_VDotProd(W, W);
-  sync_device(W);
+  sync_device_Z(W);
 
   /* return error if lengths disagree */
   if (Wlength != Wlength2)
@@ -537,11 +571,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, ONE, Y, Y);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y should be vector of -1 */
-  failure = check_ans(NEG_ONE, Y, local_length);
+  failure = check_ans_Z(NEG_ONE, Y, local_length);
 
   if (failure)
   {
@@ -551,7 +585,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 1a \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -567,11 +601,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(NEG_ONE, X, ONE, Y, Y);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y should be vector of +1 */
-  failure = check_ans(ONE, Y, local_length);
+  failure = check_ans_Z(ONE, Y, local_length);
 
   if (failure)
   {
@@ -581,7 +615,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 1b \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -597,11 +631,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(HALF, X, ONE, Y, Y);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y should be vector of -1 */
-  failure = check_ans(NEG_ONE, Y, local_length);
+  failure = check_ans_Z(NEG_ONE, Y, local_length);
 
   if (failure)
   {
@@ -611,7 +645,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 1c \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum Time", maxt);
 
   /*
@@ -627,11 +661,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, ONE, Y, X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
-  failure = check_ans(ONE, X, local_length);
+  failure = check_ans_Z(ONE, X, local_length);
 
   if (failure)
   {
@@ -641,7 +675,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 2a \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -657,11 +691,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, NEG_ONE, Y, X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* X should be vector of -1 */
-  failure = check_ans(NEG_ONE, X, local_length);
+  failure = check_ans_Z(NEG_ONE, X, local_length);
 
   if (failure)
   {
@@ -671,7 +705,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 2b \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -687,11 +721,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, TWO, Y, X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
-  failure = check_ans(ONE, X, local_length);
+  failure = check_ans_Z(ONE, X, local_length);
 
   if (failure)
   {
@@ -701,7 +735,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 2c \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -718,11 +752,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, ONE, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
-  failure = check_ans(NEG_ONE, Z, local_length);
+  failure = check_ans_Z(NEG_ONE, Z, local_length);
 
   if (failure)
   {
@@ -732,7 +766,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 3 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -749,11 +783,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, NEG_ONE, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
-  failure = check_ans(ONE, Z, local_length);
+  failure = check_ans_Z(ONE, Z, local_length);
 
   if (failure)
   {
@@ -763,7 +797,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 4a \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -780,11 +814,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(NEG_ONE, X, ONE, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
-  failure = check_ans(NEG_ONE, Z, local_length);
+  failure = check_ans_Z(NEG_ONE, Z, local_length);
 
   if (failure)
   {
@@ -794,7 +828,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 4b \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -811,11 +845,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(ONE, X, TWO, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
-  failure = check_ans(ONE, Z, local_length);
+  failure = check_ans_Z(ONE, Z, local_length);
 
   if (failure)
   {
@@ -825,7 +859,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 5a \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -842,11 +876,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, ONE, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
-  failure = check_ans(NEG_ONE, Z, local_length);
+  failure = check_ans_Z(NEG_ONE, Z, local_length);
 
   if (failure)
   {
@@ -856,7 +890,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 5b \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -873,11 +907,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(NEG_ONE, X, TWO, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
-  failure = check_ans(ONE, Z, local_length);
+  failure = check_ans_Z(ONE, Z, local_length);
 
   if (failure)
   {
@@ -887,7 +921,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 6a \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum Time", maxt);
 
   /*
@@ -904,11 +938,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, NEG_ONE, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
-  failure = check_ans(NEG_ONE, Z, local_length);
+  failure = check_ans_Z(NEG_ONE, Z, local_length);
 
   if (failure)
   {
@@ -918,7 +952,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 6b \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -935,11 +969,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, TWO, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
-  failure = check_ans(ONE, Z, local_length);
+  failure = check_ans_Z(ONE, Z, local_length);
 
   if (failure)
   {
@@ -949,7 +983,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 7 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -966,11 +1000,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, NEG_TWO, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
-  failure = check_ans(NEG_ONE, Z, local_length);
+  failure = check_ans_Z(NEG_ONE, Z, local_length);
 
   if (failure)
   {
@@ -980,7 +1014,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 8 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   /*
@@ -997,11 +1031,11 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VLinearSum(TWO, X, HALF, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
-  failure = check_ans(ONE, Z, local_length);
+  failure = check_ans_Z(ONE, Z, local_length);
 
   if (failure)
   {
@@ -1011,7 +1045,7 @@ int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VLinearSum Case 9 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearSum", maxt);
 
   return (fails);
@@ -1031,11 +1065,11 @@ int Test_N_VConst_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VConst(ONE, X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
-  failure = check_ans(ONE, X, local_length);
+  failure = check_ans_Z(ONE, X, local_length);
 
   if (failure)
   {
@@ -1045,7 +1079,7 @@ int Test_N_VConst_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VConst \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VConst", maxt);
 
   return (fails);
@@ -1067,11 +1101,11 @@ int Test_N_VProd_Z(N_Vector X, N_Vector Y, N_Vector Z,
 
   start_time = get_time();
   N_VProd(X, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
-  failure = check_ans(NEG_ONE, Z, local_length);
+  failure = check_ans_Z(NEG_ONE, Z, local_length);
 
   if (failure)
   {
@@ -1081,7 +1115,7 @@ int Test_N_VProd_Z(N_Vector X, N_Vector Y, N_Vector Z,
   else if (myid == 0) { printf("PASSED test -- N_VProd \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VProd", maxt);
 
   return (fails);
@@ -1103,11 +1137,11 @@ int Test_N_VDiv_Z(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length,
 
   start_time = get_time();
   N_VDiv(X, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of +1/2 */
-  failure = check_ans(HALF, Z, local_length);
+  failure = check_ans_Z(HALF, Z, local_length);
 
   if (failure)
   {
@@ -1117,7 +1151,7 @@ int Test_N_VDiv_Z(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length,
   else if (myid == 0) { printf("PASSED test -- N_VDiv \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDiv", maxt);
 
   return (fails);
@@ -1140,11 +1174,11 @@ int Test_N_VScale_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VScale(TWO, X, X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
-  failure = check_ans(ONE, X, local_length);
+  failure = check_ans_Z(ONE, X, local_length);
 
   if (failure)
   {
@@ -1154,7 +1188,7 @@ int Test_N_VScale_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VScale Case 1 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScale", maxt);
 
   /*
@@ -1170,11 +1204,11 @@ int Test_N_VScale_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VScale(ONE, X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
-  failure = check_ans(NEG_ONE, Z, local_length);
+  failure = check_ans_Z(NEG_ONE, Z, local_length);
 
   if (failure)
   {
@@ -1184,7 +1218,7 @@ int Test_N_VScale_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VScale Case 2 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScale", maxt);
 
   /*
@@ -1200,11 +1234,11 @@ int Test_N_VScale_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VScale(NEG_ONE, X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
-  failure = check_ans(ONE, Z, local_length);
+  failure = check_ans_Z(ONE, Z, local_length);
 
   if (failure)
   {
@@ -1214,7 +1248,7 @@ int Test_N_VScale_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VScale Case 3 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScale", maxt);
 
   /*
@@ -1230,11 +1264,11 @@ int Test_N_VScale_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VScale(TWO, X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
-  failure = check_ans(NEG_ONE, Z, local_length);
+  failure = check_ans_Z(NEG_ONE, Z, local_length);
 
   if (failure)
   {
@@ -1244,7 +1278,7 @@ int Test_N_VScale_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VScale Case 4 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScale", maxt);
 
   return (fails);
@@ -1264,11 +1298,11 @@ int Test_N_VAbs_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VAbs(X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of +1 */
-  failure = check_ans(ONE, Z, local_length);
+  failure = check_ans_Z(ONE, Z, local_length);
 
   if (failure)
   {
@@ -1278,7 +1312,7 @@ int Test_N_VAbs_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VAbs \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VAbs", maxt);
 
   return (fails);
@@ -1298,11 +1332,11 @@ int Test_N_VInv_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
 
   start_time = get_time();
   N_VInv(X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of +1/2 */
-  failure = check_ans(HALF, Z, local_length);
+  failure = check_ans_Z(HALF, Z, local_length);
 
   if (failure)
   {
@@ -1312,7 +1346,7 @@ int Test_N_VInv_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VInv \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VInv", maxt);
 
   return (fails);
@@ -1332,11 +1366,11 @@ int Test_N_VAddConst_Z(N_Vector X, N_Vector Z, sunindextype local_length, int my
 
   start_time = get_time();
   N_VAddConst(X, NEG_TWO, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of -1 */
-  failure = check_ans(NEG_ONE, Z, local_length);
+  failure = check_ans_Z(NEG_ONE, Z, local_length);
 
   if (failure)
   {
@@ -1346,7 +1380,7 @@ int Test_N_VAddConst_Z(N_Vector X, N_Vector Z, sunindextype local_length, int my
   else if (myid == 0) { printf("PASSED test -- N_VAddConst \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VAddConst", maxt);
 
   return (fails);
@@ -1371,7 +1405,7 @@ int Test_N_VDotProd_Z(N_Vector X, N_Vector Y, sunindextype local_length, int myi
 
   start_time = get_time();
   ans        = N_VDotProd(X, Y);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal global vector length */
@@ -1385,7 +1419,7 @@ int Test_N_VDotProd_Z(N_Vector X, N_Vector Y, sunindextype local_length, int myi
   else if (myid == 0) { printf("PASSED test -- N_VDotProd \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProd", maxt);
 
   return (fails);
@@ -1408,7 +1442,7 @@ int Test_N_VDotProdComplex_Z(N_Vector X, N_Vector Y, sunindextype local_length,
 
   start_time = get_time();
   N_VDotProdComplex(X, Y, &ans);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal global vector length */
@@ -1422,7 +1456,7 @@ int Test_N_VDotProdComplex_Z(N_Vector X, N_Vector Y, sunindextype local_length,
   else if (myid == 0) { printf("PASSED test -- N_VDotProd \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProd", maxt);
 
   return (fails);
@@ -1446,7 +1480,7 @@ int Test_N_VMaxNorm_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans        = N_VMaxNorm(X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal 0 */
@@ -1460,7 +1494,7 @@ int Test_N_VMaxNorm_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VMaxNorm Case 1\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VMaxNorm", maxt);
 
   /*
@@ -1480,7 +1514,7 @@ int Test_N_VMaxNorm_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans        = N_VMaxNorm(X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal 2 */
@@ -1495,7 +1529,7 @@ int Test_N_VMaxNorm_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VMaxNorm Case 2\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VMaxNorm", maxt);
 
   return (fails);
@@ -1516,7 +1550,7 @@ int Test_N_VWrmsNorm_Z(N_Vector X, N_Vector W, sunindextype local_length, int my
 
   start_time = get_time();
   ans        = N_VWrmsNorm(X, W);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal 1/4 */
@@ -1530,7 +1564,7 @@ int Test_N_VWrmsNorm_Z(N_Vector X, N_Vector W, sunindextype local_length, int my
   else if (myid == 0) { printf("PASSED test -- N_VWrmsNorm \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VWrmsNorm", maxt);
 
   return (fails);
@@ -1565,7 +1599,7 @@ int Test_N_VWrmsNormMask_Z(N_Vector X, N_Vector W, N_Vector ID,
 
   start_time = get_time();
   ans        = N_VWrmsNormMask(X, W, ID);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* check ans */
@@ -1579,7 +1613,7 @@ int Test_N_VWrmsNormMask_Z(N_Vector X, N_Vector W, N_Vector ID,
   else if (myid == 0) { printf("PASSED test -- N_VWrmsNormMask \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VWrmsNormMask", maxt);
 
   return (fails);
@@ -1601,7 +1635,7 @@ int Test_N_VMin_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans        = N_VMin(X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal 0.5 */
@@ -1616,7 +1650,7 @@ int Test_N_VMin_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VMin \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VMin", maxt);
 
   /* fill vector data */
@@ -1626,7 +1660,7 @@ int Test_N_VMin_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans        = N_VMin(X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal -2 */
@@ -1641,7 +1675,7 @@ int Test_N_VMin_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VMin \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VMin", maxt);
 
   return (fails);
@@ -1666,7 +1700,7 @@ int Test_N_VWL2Norm_Z(N_Vector X, N_Vector W, sunindextype local_length, int myi
 
   start_time = get_time();
   ans        = N_VWL2Norm(X, W);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal 1/4 * sqrt(global_length) */
@@ -1683,7 +1717,7 @@ int Test_N_VWL2Norm_Z(N_Vector X, N_Vector W, sunindextype local_length, int myi
   else if (myid == 0) { printf("PASSED test -- N_VWL2Norm \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VWL2Norm", maxt);
 
   return (fails);
@@ -1707,7 +1741,7 @@ int Test_N_VL1Norm_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans        = N_VL1Norm(X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal global_length */
@@ -1721,7 +1755,7 @@ int Test_N_VL1Norm_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VL1Norm \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VL1Norm", maxt);
 
   return (fails);
@@ -1770,7 +1804,7 @@ int Test_N_VCompare_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myi
 
   start_time = get_time();
   N_VCompare(ONE, X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* check return vector */
@@ -1780,17 +1814,17 @@ int Test_N_VCompare_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myi
     {
     case 0:
       /* Z[i] == 0 */
-      if (get_element(Z, i) != ZERO) { failure = 1; }
+      if (get_element_Z(Z, i) != ZERO) { failure = 1; }
       break;
 
     case 1:
       /* Z[i] == 1 */
-      if (get_element(Z, i) != ONE) { failure = 1; }
+      if (get_element_Z(Z, i) != ONE) { failure = 1; }
       break;
 
     case 2:
       /* Z[i] == 1 */
-      if (get_element(Z, i) != ONE) { failure = 1; }
+      if (get_element_Z(Z, i) != ONE) { failure = 1; }
       break;
     }
   }
@@ -1803,7 +1837,7 @@ int Test_N_VCompare_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myi
   else if (myid == 0) { printf("PASSED test -- N_VCompare \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VCompare", maxt);
 
   return (fails);
@@ -1837,14 +1871,14 @@ int Test_N_VInvTest_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myi
 
   start_time = get_time();
   ans        = N_VInvTest(X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* we expect no zeros */
   exp = SUNTRUE;
 
   /* Z should be vector of +2 */
-  failure = check_ans(TWO, Z, local_length);
+  failure = check_ans_Z(TWO, Z, local_length);
 
   if (failure || (ans != exp))
   {
@@ -1854,7 +1888,7 @@ int Test_N_VInvTest_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myi
   else if (myid == 0) { printf("PASSED test -- N_VInvTest Case 1 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VInvTest", maxt);
 
   /*
@@ -1878,7 +1912,7 @@ int Test_N_VInvTest_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myi
 
   start_time = get_time();
   ans        = N_VInvTest(X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* check return vector */
@@ -1886,11 +1920,11 @@ int Test_N_VInvTest_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myi
   {
     if (i % 2)
     {
-      if (get_element(Z, i) != TWO) { failure = 1; }
+      if (get_element_Z(Z, i) != TWO) { failure = 1; }
     }
     else
     {
-      if (get_element(Z, i) != ZERO) { failure = 1; }
+      if (get_element_Z(Z, i) != ZERO) { failure = 1; }
     }
   }
 
@@ -1902,7 +1936,7 @@ int Test_N_VInvTest_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myi
   else if (myid == 0) { printf("PASSED test -- N_VInvTest Case 2 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VInvTest", maxt);
 
   return (fails);
@@ -1984,11 +2018,11 @@ int Test_N_VConstrMask_Z(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time();
   test       = N_VConstrMask(C, X, M);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* M should be vector of 0 */
-  failure = check_ans(ZERO, M, local_length);
+  failure = check_ans_Z(ZERO, M, local_length);
 
   if (failure || !test)
   {
@@ -1998,7 +2032,7 @@ int Test_N_VConstrMask_Z(N_Vector C, N_Vector X, N_Vector M,
   else if (myid == 0) { printf("PASSED test -- N_VConstrMask Case 1 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VConstrMask", maxt);
 
   /*
@@ -2049,7 +2083,7 @@ int Test_N_VConstrMask_Z(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time();
   test       = N_VConstrMask(C, X, M);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* check mask vector */
@@ -2057,11 +2091,11 @@ int Test_N_VConstrMask_Z(N_Vector C, N_Vector X, N_Vector M,
   {
     if ((i % 5) == 2)
     {
-      if (get_element(M, i) != ZERO) { failure = 1; }
+      if (get_element_Z(M, i) != ZERO) { failure = 1; }
     }
     else
     {
-      if (get_element(M, i) != ONE) { failure = 1; }
+      if (get_element_Z(M, i) != ONE) { failure = 1; }
     }
   }
 
@@ -2073,7 +2107,7 @@ int Test_N_VConstrMask_Z(N_Vector C, N_Vector X, N_Vector M,
   else if (myid == 0) { printf("PASSED test -- N_VConstrMask Case 2 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VConstrMask", maxt);
 
   return (fails);
@@ -2101,7 +2135,7 @@ int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM,
 
   start_time = get_time();
   ans        = N_VMinQuotient(NUM, DENOM);
-  sync_device(NUM);
+  sync_device_Z(NUM);
   stop_time = get_time();
 
   /* ans should equal 1/4 */
@@ -2110,13 +2144,13 @@ int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM,
   if (failure)
   {
     printf(">>> FAILED test -- N_VMinQuotient Case 1, Proc %d \n", myid);
-    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, HALF * HALF);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", SUN_REAL(ans), HALF * HALF);
     fails++;
   }
   else if (myid == 0) { printf("PASSED test -- N_VMinQuotient Case 1 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(NUM, stop_time - start_time);
+  maxt = max_time_Z(NUM, stop_time - start_time);
   PRINT_TIME("N_VMinQuotient", maxt);
 
   /*
@@ -2132,7 +2166,7 @@ int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM,
 
   start_time = get_time();
   ans        = N_VMinQuotient(NUM, DENOM);
-  sync_device(NUM);
+  sync_device_Z(NUM);
   stop_time = get_time();
 
   /* ans should equal SUN_BIG_REAL */
@@ -2141,13 +2175,13 @@ int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM,
   if (failure)
   {
     printf(">>> FAILED test -- N_VMinQuotient Case 2, Proc %d \n", myid);
-    printf("    min = %" FSYM ", expected %" FSYM "\n", ans, SUN_BIG_REAL);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", SUN_REAL(ans), SUN_BIG_REAL);
     fails++;
   }
   else if (myid == 0) { printf("PASSED test -- N_VMinQuotient Case 2 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(NUM, stop_time - start_time);
+  maxt = max_time_Z(NUM, stop_time - start_time);
   PRINT_TIME("N_VMinQuotient", maxt);
 
   return (fails);
@@ -2192,11 +2226,11 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VLinearCombination(1, c, V, Y1);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y1 should be vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, Y1, local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, Y1, local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2210,7 +2244,7 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearCombination", maxt);
 
   /*
@@ -2226,11 +2260,11 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VLinearCombination(1, c, V, X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, X, local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, X, local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2244,7 +2278,7 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearCombination", maxt);
 
   /*
@@ -2261,11 +2295,11 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VLinearCombination(2, c, V, Y1);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y1 should be vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, Y1, local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, Y1, local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2279,7 +2313,7 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearCombination", maxt);
 
   /*
@@ -2297,11 +2331,11 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VLinearCombination(2, c, V, X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* X should be vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, X, local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, X, local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2315,7 +2349,7 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearCombination", maxt);
 
   /*
@@ -2334,11 +2368,11 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VLinearCombination(3, c, V, Y1);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y1 should be vector of +3 */
-  if (ierr == 0) { failure = check_ans(TWO + ONE, Y1, local_length); }
+  if (ierr == 0) { failure = check_ans_Z(TWO + ONE, Y1, local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2352,7 +2386,7 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearCombination", maxt);
 
   /*
@@ -2371,11 +2405,11 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VLinearCombination(3, c, V, Y1);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y1 should be vector of +2 */
-  if (ierr == 0) { failure = check_ans(TWO, Y1, local_length); }
+  if (ierr == 0) { failure = check_ans_Z(TWO, Y1, local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2389,7 +2423,7 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearCombination", maxt);
 
   /*
@@ -2409,11 +2443,11 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VLinearCombination(3, c, V, X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* X should be vector of +2 */
-  if (ierr == 0) { failure = check_ans(TWO, X, local_length); }
+  if (ierr == 0) { failure = check_ans_Z(TWO, X, local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2427,7 +2461,7 @@ int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VLinearCombination", maxt);
 
   /* Free vectors */
@@ -2471,11 +2505,11 @@ int Test_N_VScaleAddMulti_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VScaleAddMulti(1, avals, X, V, V);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* V[0] should be vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, V[0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, V[0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2486,7 +2520,7 @@ int Test_N_VScaleAddMulti_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VScaleAddMulti Case 1a \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMulti", maxt);
 
   /*
@@ -2503,11 +2537,11 @@ int Test_N_VScaleAddMulti_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VScaleAddMulti(1, avals, X, V, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z[0] should be vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, Z[0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, Z[0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2518,7 +2552,7 @@ int Test_N_VScaleAddMulti_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VScaleAddMulti Case 1b \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMulti", maxt);
 
   /*
@@ -2538,15 +2572,15 @@ int Test_N_VScaleAddMulti_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VScaleAddMulti(3, avals, X, V, V);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* V[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, V[0], local_length);
-    failure += check_ans(ZERO, V[1], local_length);
-    failure += check_ans(ONE, V[2], local_length);
+    failure = check_ans_Z(NEG_ONE, V[0], local_length);
+    failure += check_ans_Z(ZERO, V[1], local_length);
+    failure += check_ans_Z(ONE, V[2], local_length);
   }
   else { failure = 1; }
 
@@ -2558,7 +2592,7 @@ int Test_N_VScaleAddMulti_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VScaleAddMulti Case 2a \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMulti", maxt);
 
   /*
@@ -2581,15 +2615,15 @@ int Test_N_VScaleAddMulti_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VScaleAddMulti(3, avals, X, V, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(ZERO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(ZERO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -2601,7 +2635,7 @@ int Test_N_VScaleAddMulti_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VScaleAddMulti Case 2b \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMulti", maxt);
 
   /* Free vectors */
@@ -2639,7 +2673,7 @@ int Test_N_VDotProdMulti_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VDotProdMulti(1, X, V, dotprods);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* dotprod[0] should equal the global vector length */
@@ -2657,7 +2691,7 @@ int Test_N_VDotProdMulti_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VDotProdMulti Case 1 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProdMulti", maxt);
 
   /*
@@ -2672,7 +2706,7 @@ int Test_N_VDotProdMulti_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VDotProdMulti(3, X, V, dotprods);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* dotprod[i] should equal -1, +1, and 2 times the global vector length */
@@ -2692,7 +2726,7 @@ int Test_N_VDotProdMulti_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VDotProdMulti Case 2 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProdMulti", maxt);
 
   /* Free vectors */
@@ -2727,11 +2761,11 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(1, TWO, X, HALF, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[0] should be a vector of 0 */
-  if (ierr == 0) { failure = check_ans(ZERO, Z[0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ZERO, Z[0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -2745,7 +2779,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -2764,15 +2798,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, ONE, X, ONE, Y, Y);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Y[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Y[0], local_length);
-    failure += check_ans(ZERO, Y[1], local_length);
-    failure += check_ans(ONE, Y[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Y[0], local_length);
+    failure += check_ans_Z(ZERO, Y[1], local_length);
+    failure += check_ans_Z(ONE, Y[2], local_length);
   }
   else { failure = 1; }
 
@@ -2788,7 +2822,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -2807,15 +2841,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, NEG_ONE, X, ONE, Y, Y);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Y[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Y[0], local_length);
-    failure += check_ans(ZERO, Y[1], local_length);
-    failure += check_ans(ONE, Y[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Y[0], local_length);
+    failure += check_ans_Z(ZERO, Y[1], local_length);
+    failure += check_ans_Z(ONE, Y[2], local_length);
   }
   else { failure = 1; }
 
@@ -2831,7 +2865,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -2850,15 +2884,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, HALF, X, ONE, Y, Y);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Y[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Y[0], local_length);
-    failure += check_ans(ZERO, Y[1], local_length);
-    failure += check_ans(ONE, Y[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Y[0], local_length);
+    failure += check_ans_Z(ZERO, Y[1], local_length);
+    failure += check_ans_Z(ONE, Y[2], local_length);
   }
   else { failure = 1; }
 
@@ -2874,7 +2908,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -2893,15 +2927,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, ONE, X, ONE, Y, X);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, X[0], local_length);
-    failure += check_ans(ZERO, X[1], local_length);
-    failure += check_ans(ONE, X[2], local_length);
+    failure = check_ans_Z(NEG_ONE, X[0], local_length);
+    failure += check_ans_Z(ZERO, X[1], local_length);
+    failure += check_ans_Z(ONE, X[2], local_length);
   }
   else { failure = 1; }
 
@@ -2917,7 +2951,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -2936,15 +2970,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, ONE, X, NEG_ONE, Y, X);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, X[0], local_length);
-    failure += check_ans(ZERO, X[1], local_length);
-    failure += check_ans(ONE, X[2], local_length);
+    failure = check_ans_Z(NEG_ONE, X[0], local_length);
+    failure += check_ans_Z(ZERO, X[1], local_length);
+    failure += check_ans_Z(ONE, X[2], local_length);
   }
   else { failure = 1; }
 
@@ -2960,7 +2994,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -2979,15 +3013,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, ONE, X, HALF, Y, X);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, X[0], local_length);
-    failure += check_ans(ZERO, X[1], local_length);
-    failure += check_ans(ONE, X[2], local_length);
+    failure = check_ans_Z(NEG_ONE, X[0], local_length);
+    failure += check_ans_Z(ZERO, X[1], local_length);
+    failure += check_ans_Z(ONE, X[2], local_length);
   }
   else { failure = 1; }
 
@@ -3003,7 +3037,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3025,15 +3059,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, ONE, X, ONE, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(ZERO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(ZERO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3048,7 +3082,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3070,15 +3104,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, ONE, X, NEG_ONE, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(ZERO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(ZERO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3094,7 +3128,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3116,15 +3150,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, NEG_ONE, X, ONE, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(ZERO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(ZERO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3140,7 +3174,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3162,15 +3196,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, ONE, X, HALF, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(ZERO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(ZERO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3186,7 +3220,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3208,15 +3242,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, NEG_HALF, X, ONE, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(ZERO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(ZERO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3232,7 +3266,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3254,15 +3288,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, NEG_ONE, X, HALF, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(ZERO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(ZERO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3278,7 +3312,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3300,15 +3334,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, TWO, X, NEG_ONE, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(ZERO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(ZERO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3324,7 +3358,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3346,15 +3380,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, TWO, X, TWO, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 3, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(TWO + ONE, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(TWO + ONE, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3369,7 +3403,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3391,15 +3425,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, TWO, X, NEG_TWO, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of -1, 3, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(TWO + ONE, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(TWO + ONE, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3414,7 +3448,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /*
@@ -3433,15 +3467,15 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
 
   start_time = get_time();
   ierr       = N_VLinearSumVectorArray(3, TWO, X, HALF, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should be a vector of 0, +1, +2 */
   if (ierr == 0)
   {
-    failure = check_ans(ZERO, Z[0], local_length);
-    failure += check_ans(ONE, Z[1], local_length);
-    failure += check_ans(TWO, Z[2], local_length);
+    failure = check_ans_Z(ZERO, Z[0], local_length);
+    failure += check_ans_Z(ONE, Z[1], local_length);
+    failure += check_ans_Z(TWO, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3456,7 +3490,7 @@ int Test_N_VLinearSumVectorArray_Z(N_Vector V, sunindextype local_length, int my
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearSumVectorArray", maxt);
 
   /* Free vectors */
@@ -3493,11 +3527,11 @@ int Test_N_VScaleVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VScaleVectorArray(1, c, Y, Y);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y[0] should be a vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, Y[0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, Y[0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -3511,7 +3545,7 @@ int Test_N_VScaleVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScaleVectorArray", maxt);
 
   /*
@@ -3525,11 +3559,11 @@ int Test_N_VScaleVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VScaleVectorArray(1, c, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z[0] should be a vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, Z[0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, Z[0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -3543,7 +3577,7 @@ int Test_N_VScaleVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScaleVectorArray", maxt);
 
   /*
@@ -3561,15 +3595,15 @@ int Test_N_VScaleVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VScaleVectorArray(3, c, Y, Y);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y[i] should be a vector of +1, -1, 2 */
   if (ierr == 0)
   {
-    failure = check_ans(ONE, Y[0], local_length);
-    failure += check_ans(NEG_ONE, Y[1], local_length);
-    failure += check_ans(TWO, Y[2], local_length);
+    failure = check_ans_Z(ONE, Y[0], local_length);
+    failure += check_ans_Z(NEG_ONE, Y[1], local_length);
+    failure += check_ans_Z(TWO, Y[2], local_length);
   }
   else { failure = 1; }
 
@@ -3584,7 +3618,7 @@ int Test_N_VScaleVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScaleVectorArray", maxt);
 
   /*
@@ -3602,15 +3636,15 @@ int Test_N_VScaleVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VScaleVectorArray(3, c, Y, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z[i] should be a vector of +1, -1, 2 */
   if (ierr == 0)
   {
-    failure = check_ans(ONE, Z[0], local_length);
-    failure += check_ans(NEG_ONE, Z[1], local_length);
-    failure += check_ans(TWO, Z[2], local_length);
+    failure = check_ans_Z(ONE, Z[0], local_length);
+    failure += check_ans_Z(NEG_ONE, Z[1], local_length);
+    failure += check_ans_Z(TWO, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3625,7 +3659,7 @@ int Test_N_VScaleVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VScaleVectorArray", maxt);
 
   /* Free vectors */
@@ -3657,11 +3691,11 @@ int Test_N_VConstVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VConstVectorArray(1, ONE, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y[0] should be a vector of 1 */
-  if (ierr == 0) { failure = check_ans(ONE, Z[0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, Z[0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -3675,7 +3709,7 @@ int Test_N_VConstVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VConstVectorArray", maxt);
 
   /*
@@ -3689,15 +3723,15 @@ int Test_N_VConstVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VConstVectorArray(3, ONE, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Y[i] should be a vector of 1 */
   if (ierr == 0)
   {
-    failure = check_ans(ONE, Z[0], local_length);
-    failure += check_ans(ONE, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(ONE, Z[0], local_length);
+    failure += check_ans_Z(ONE, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -3712,7 +3746,7 @@ int Test_N_VConstVectorArray_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VConstVectorArray", maxt);
 
   /* Free vectors */
@@ -3751,7 +3785,7 @@ int Test_N_VWrmsNormVectorArray_Z(N_Vector X, sunindextype local_length, int myi
 
   start_time = get_time();
   ierr       = N_VWrmsNormVectorArray(1, Z, W, nrm);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* nrm should equal 1/4 */
@@ -3772,7 +3806,7 @@ int Test_N_VWrmsNormVectorArray_Z(N_Vector X, sunindextype local_length, int myi
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VWrmsNormVectorArray", maxt);
 
   /*
@@ -3794,7 +3828,7 @@ int Test_N_VWrmsNormVectorArray_Z(N_Vector X, sunindextype local_length, int myi
 
   start_time = get_time();
   ierr       = N_VWrmsNormVectorArray(3, Z, W, nrm);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal 1/4, 1, 1/2 */
@@ -3817,7 +3851,7 @@ int Test_N_VWrmsNormVectorArray_Z(N_Vector X, sunindextype local_length, int myi
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VWrmsNormVectorArray", maxt);
 
   /* Free vectors */
@@ -3870,7 +3904,7 @@ int Test_N_VWrmsNormMaskVectorArray_Z(N_Vector X, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VWrmsNormMaskVectorArray(1, Z, W, X, nrm);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* nrm should equal fac/4 */
@@ -3892,7 +3926,7 @@ int Test_N_VWrmsNormMaskVectorArray_Z(N_Vector X, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VWrmsNormVectorArray", maxt);
 
   /*
@@ -3918,7 +3952,7 @@ int Test_N_VWrmsNormMaskVectorArray_Z(N_Vector X, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VWrmsNormMaskVectorArray(3, Z, W, X, nrm);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal fac/4, fac, fac/2] */
@@ -3942,7 +3976,7 @@ int Test_N_VWrmsNormMaskVectorArray_Z(N_Vector X, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VWrmsNormVectorArray", maxt);
 
   /* Free vectors */
@@ -3990,11 +4024,11 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VScaleAddMultiVectorArray(1, 1, a, X, Y, Y);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Y[0][0] should be vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, Y[0][0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, Y[0][0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -4009,7 +4043,7 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMultiVectorArray", maxt);
 
   /*
@@ -4026,11 +4060,11 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VScaleAddMultiVectorArray(1, 1, a, X, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[0][0] should be vector of +1 */
-  if (ierr == 0) { failure = check_ans(ONE, Z[0][0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, Z[0][0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -4045,7 +4079,7 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMultiVectorArray", maxt);
 
   /*
@@ -4066,15 +4100,15 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VScaleAddMultiVectorArray(1, 3, a, X, Y, Y);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Y[i][0] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Y[0][0], local_length);
-    failure += check_ans(ZERO, Y[1][0], local_length);
-    failure += check_ans(ONE, Y[2][0], local_length);
+    failure = check_ans_Z(NEG_ONE, Y[0][0], local_length);
+    failure += check_ans_Z(ZERO, Y[1][0], local_length);
+    failure += check_ans_Z(ONE, Y[2][0], local_length);
   }
   else { failure = 1; }
 
@@ -4090,7 +4124,7 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMultiVectorArray", maxt);
 
   /*
@@ -4115,15 +4149,15 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VScaleAddMultiVectorArray(1, 3, a, X, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i][0] should be a vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0][0], local_length);
-    failure += check_ans(ZERO, Z[1][0], local_length);
-    failure += check_ans(ONE, Z[2][0], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0][0], local_length);
+    failure += check_ans_Z(ZERO, Z[1][0], local_length);
+    failure += check_ans_Z(ONE, Z[2][0], local_length);
   }
   else { failure = 1; }
 
@@ -4139,7 +4173,7 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMultiVectorArray", maxt);
 
   /*
@@ -4160,15 +4194,15 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VScaleAddMultiVectorArray(3, 1, a, X, Y, Y);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Y[0][i] should be vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Y[0][0], local_length);
-    failure += check_ans(ZERO, Y[0][1], local_length);
-    failure += check_ans(ONE, Y[0][2], local_length);
+    failure = check_ans_Z(NEG_ONE, Y[0][0], local_length);
+    failure += check_ans_Z(ZERO, Y[0][1], local_length);
+    failure += check_ans_Z(ONE, Y[0][2], local_length);
   }
   else { failure = 1; }
 
@@ -4184,7 +4218,7 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMultiVectorArray", maxt);
 
   /*
@@ -4209,15 +4243,15 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VScaleAddMultiVectorArray(3, 1, a, X, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[0][i] should be vector of -1, 0, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0][0], local_length);
-    failure += check_ans(ZERO, Z[0][1], local_length);
-    failure += check_ans(ONE, Z[0][2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0][0], local_length);
+    failure += check_ans_Z(ZERO, Z[0][1], local_length);
+    failure += check_ans_Z(ONE, Z[0][2], local_length);
   }
   else { failure = 1; }
 
@@ -4233,7 +4267,7 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMultiVectorArray", maxt);
 
   /*
@@ -4263,25 +4297,25 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VScaleAddMultiVectorArray(3, 3, a, X, Y, Y);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   if (ierr == 0)
   {
     /* Y[i][0] should be vector of -1, 0, +1 */
-    failure = check_ans(NEG_ONE, Y[0][0], local_length);
-    failure += check_ans(ZERO, Y[1][0], local_length);
-    failure += check_ans(ONE, Y[2][0], local_length);
+    failure = check_ans_Z(NEG_ONE, Y[0][0], local_length);
+    failure += check_ans_Z(ZERO, Y[1][0], local_length);
+    failure += check_ans_Z(ONE, Y[2][0], local_length);
 
     /* Y[i][1] should be vector of +1, -1, 0 */
-    failure += check_ans(ONE, Y[0][1], local_length);
-    failure += check_ans(NEG_ONE, Y[1][1], local_length);
-    failure += check_ans(ZERO, Y[2][1], local_length);
+    failure += check_ans_Z(ONE, Y[0][1], local_length);
+    failure += check_ans_Z(NEG_ONE, Y[1][1], local_length);
+    failure += check_ans_Z(ZERO, Y[2][1], local_length);
 
     /* Y[i][2] should be vector of -2, 2, 0 */
-    failure += check_ans(NEG_TWO, Y[0][2], local_length);
-    failure += check_ans(TWO, Y[1][2], local_length);
-    failure += check_ans(ZERO, Y[2][2], local_length);
+    failure += check_ans_Z(NEG_TWO, Y[0][2], local_length);
+    failure += check_ans_Z(TWO, Y[1][2], local_length);
+    failure += check_ans_Z(ZERO, Y[2][2], local_length);
   }
   else { failure = 1; }
 
@@ -4297,7 +4331,7 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMultiVectorArray", maxt);
 
   /*
@@ -4342,25 +4376,25 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VScaleAddMultiVectorArray(3, 3, a, X, Y, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   if (ierr == 0)
   {
     /* Z[i][0] should be vector of -1, 0, +1 */
-    failure = check_ans(NEG_ONE, Z[0][0], local_length);
-    failure += check_ans(ZERO, Z[1][0], local_length);
-    failure += check_ans(ONE, Z[2][0], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0][0], local_length);
+    failure += check_ans_Z(ZERO, Z[1][0], local_length);
+    failure += check_ans_Z(ONE, Z[2][0], local_length);
 
     /* Z[i][1] should be vector of +1, -1, 0 */
-    failure += check_ans(ONE, Z[0][1], local_length);
-    failure += check_ans(NEG_ONE, Z[1][1], local_length);
-    failure += check_ans(ZERO, Z[2][1], local_length);
+    failure += check_ans_Z(ONE, Z[0][1], local_length);
+    failure += check_ans_Z(NEG_ONE, Z[1][1], local_length);
+    failure += check_ans_Z(ZERO, Z[2][1], local_length);
 
     /* Z[i][2] should be vector of -2, 2, 0 */
-    failure += check_ans(NEG_TWO, Z[0][2], local_length);
-    failure += check_ans(TWO, Z[1][2], local_length);
-    failure += check_ans(ZERO, Z[2][2], local_length);
+    failure += check_ans_Z(NEG_TWO, Z[0][2], local_length);
+    failure += check_ans_Z(TWO, Z[1][2], local_length);
+    failure += check_ans_Z(ZERO, Z[2][2], local_length);
   }
   else { failure = 1; }
 
@@ -4376,7 +4410,7 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VScaleAddMultiVectorArray", maxt);
 
   /* Free vectors */
@@ -4422,11 +4456,11 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(1, 1, c, X, X[0]);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +1 */
-  if (ierr == 0) { failure = check_ans(ONE, X[0][0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, X[0][0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -4442,7 +4476,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4457,11 +4491,11 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(1, 1, c, X, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +1 */
-  if (ierr == 0) { failure = check_ans(ONE, Z[0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(ONE, Z[0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -4477,7 +4511,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4494,11 +4528,11 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(1, 2, c, X, X[0]);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +2 */
-  if (ierr == 0) { failure = check_ans(TWO, X[0][0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(TWO, X[0][0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -4514,7 +4548,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4533,11 +4567,11 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(1, 2, c, X, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +2 */
-  if (ierr == 0) { failure = check_ans(TWO, Z[0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(TWO, Z[0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -4553,7 +4587,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4573,11 +4607,11 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(1, 3, c, X, X[0]);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][0] should equal +2 */
-  if (ierr == 0) { failure = check_ans(TWO, X[0][0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(TWO, X[0][0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -4593,7 +4627,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4613,11 +4647,11 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(1, 3, c, X, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[0] should equal +2 */
-  if (ierr == 0) { failure = check_ans(TWO, Z[0], local_length); }
+  if (ierr == 0) { failure = check_ans_Z(TWO, Z[0], local_length); }
   else { failure = 1; }
 
   if (failure)
@@ -4633,7 +4667,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4650,15 +4684,15 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(3, 1, c, X, X[0]);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to -1, -1/2, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, X[0][0], local_length);
-    failure += check_ans(NEG_HALF, X[0][1], local_length);
-    failure += check_ans(ONE, X[0][2], local_length);
+    failure = check_ans_Z(NEG_ONE, X[0][0], local_length);
+    failure += check_ans_Z(NEG_HALF, X[0][1], local_length);
+    failure += check_ans_Z(ONE, X[0][2], local_length);
   }
   else { failure = 1; }
 
@@ -4675,7 +4709,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4696,15 +4730,15 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(3, 1, c, X, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to -1, -1/2, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(NEG_ONE, Z[0], local_length);
-    failure += check_ans(NEG_HALF, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(NEG_ONE, Z[0], local_length);
+    failure += check_ans_Z(NEG_HALF, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -4721,7 +4755,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4744,15 +4778,15 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(3, 2, c, X, X[0]);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to +3, +2, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(ONE + TWO, X[0][0], local_length);
-    failure += check_ans(TWO, X[0][1], local_length);
-    failure += check_ans(ONE, X[0][2], local_length);
+    failure = check_ans_Z(ONE + TWO, X[0][0], local_length);
+    failure += check_ans_Z(TWO, X[0][1], local_length);
+    failure += check_ans_Z(ONE, X[0][2], local_length);
   }
   else { failure = 1; }
 
@@ -4769,7 +4803,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4796,15 +4830,15 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(3, 2, c, X, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to +3, +2, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(ONE + TWO, Z[0], local_length);
-    failure += check_ans(TWO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(ONE + TWO, Z[0], local_length);
+    failure += check_ans_Z(TWO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -4821,7 +4855,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4848,15 +4882,15 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(3, 3, c, X, X[0]);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to +4, -1, -4 */
   if (ierr == 0)
   {
-    failure = check_ans(TWO + TWO, X[0][0], local_length);
-    failure += check_ans(NEG_ONE, X[0][1], local_length);
-    failure += check_ans(-TWO - TWO, X[0][2], local_length);
+    failure = check_ans_Z(TWO + TWO, X[0][0], local_length);
+    failure += check_ans_Z(NEG_ONE, X[0][1], local_length);
+    failure += check_ans_Z(-TWO - TWO, X[0][2], local_length);
   }
   else { failure = 1; }
 
@@ -4873,7 +4907,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4900,15 +4934,15 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(3, 3, c, X, X[0]);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* X[0][i] should equal to +2, -2, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(TWO, X[0][0], local_length);
-    failure += check_ans(NEG_TWO, X[0][1], local_length);
-    failure += check_ans(ONE, X[0][2], local_length);
+    failure = check_ans_Z(TWO, X[0][0], local_length);
+    failure += check_ans_Z(NEG_TWO, X[0][1], local_length);
+    failure += check_ans_Z(ONE, X[0][2], local_length);
   }
   else { failure = 1; }
 
@@ -4925,7 +4959,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /*
@@ -4956,15 +4990,15 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
 
   start_time = get_time();
   ierr       = N_VLinearCombinationVectorArray(3, 3, c, X, Z);
-  sync_device(V);
+  sync_device_Z(V);
   stop_time = get_time();
 
   /* Z[i] should equal to +2, -2, +1 */
   if (ierr == 0)
   {
-    failure = check_ans(TWO, Z[0], local_length);
-    failure += check_ans(NEG_TWO, Z[1], local_length);
-    failure += check_ans(ONE, Z[2], local_length);
+    failure = check_ans_Z(TWO, Z[0], local_length);
+    failure += check_ans_Z(NEG_TWO, Z[1], local_length);
+    failure += check_ans_Z(ONE, Z[2], local_length);
   }
   else { failure = 1; }
 
@@ -4981,7 +5015,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
   }
 
   /* find max time across all processes */
-  maxt = max_time(V, stop_time - start_time);
+  maxt = max_time_Z(V, stop_time - start_time);
   PRINT_TIME("N_VLinearCombinationVectorArray", maxt);
 
   /* Free vectors */
@@ -5011,7 +5045,7 @@ int Test_N_VDotProdLocal_Z(N_Vector X, N_Vector Y, sunindextype local_length,
 
   start_time = get_time();
   ans        = N_VDotProdLocal(X, Y);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal rmyid */
@@ -5020,13 +5054,13 @@ int Test_N_VDotProdLocal_Z(N_Vector X, N_Vector Y, sunindextype local_length,
   if (failure)
   {
     printf(">>> FAILED test -- N_VDotProdLocal, Proc %d\n", myid);
-    printf("ans = %" FSYM " expected = %" FSYM "\n", ans, rmyid);
+    printf("ans = %" FSYM " expected = %" FSYM "+ " FSYM "i\n", SUN_REAL(ans), SUN_IMAG(ans), rmyid);
     fails++;
   }
   else if (myid == 0) { printf("PASSED test -- N_VDotProdLocal\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProdLocal", maxt);
 
   return (fails);
@@ -5048,7 +5082,7 @@ int Test_N_VMaxNormLocal_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans        = N_VMaxNormLocal(X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal myidp1 */
@@ -5063,7 +5097,7 @@ int Test_N_VMaxNormLocal_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VMaxNormLocal\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VMaxNormLocal", maxt);
 
   return (fails);
@@ -5085,7 +5119,7 @@ int Test_N_VMinLocal_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans        = N_VMinLocal(X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal negmyid */
@@ -5099,7 +5133,7 @@ int Test_N_VMinLocal_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VMinLocal\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VMinLocal", maxt);
 
   return (fails);
@@ -5120,7 +5154,7 @@ int Test_N_VL1NormLocal_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ans        = N_VL1NormLocal(X);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal myid */
@@ -5136,7 +5170,7 @@ int Test_N_VL1NormLocal_Z(N_Vector X, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VL1NormLocal\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VL1NormLocal", maxt);
 
   return (fails);
@@ -5160,7 +5194,7 @@ int Test_N_VWSqrSumLocal_Z(N_Vector X, N_Vector W, sunindextype local_length,
 
   start_time = get_time();
   ans        = N_VWSqrSumLocal(X, W);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal myid */
@@ -5176,7 +5210,7 @@ int Test_N_VWSqrSumLocal_Z(N_Vector X, N_Vector W, sunindextype local_length,
   else if (myid == 0) { printf("PASSED test -- N_VWSqrSumLocal\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VWL2NormLocal", maxt);
 
   return (fails);
@@ -5204,7 +5238,7 @@ int Test_N_VWSqrSumMaskLocal_Z(N_Vector X, N_Vector W, N_Vector ID,
 
   start_time = get_time();
   ans        = N_VWSqrSumMaskLocal(X, W, ID);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* ans should equal myid */
@@ -5220,7 +5254,7 @@ int Test_N_VWSqrSumMaskLocal_Z(N_Vector X, N_Vector W, N_Vector ID,
   else if (myid == 0) { printf("PASSED test -- N_VWSqrSumMaskLocal\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VWSqrSumMaskLocal", maxt);
 
   return (fails);
@@ -5257,11 +5291,11 @@ int Test_N_VInvTestLocal_Z(N_Vector X, N_Vector Z, sunindextype local_length,
 
   start_time = get_time();
   test       = N_VInvTestLocal(X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* Z should be vector of myid+2 */
-  failure = check_ans(myid + 2, Z, local_length);
+  failure = check_ans_Z(myid + 2, Z, local_length);
 
   if (failure || !test)
   {
@@ -5271,7 +5305,7 @@ int Test_N_VInvTestLocal_Z(N_Vector X, N_Vector Z, sunindextype local_length,
   else if (myid == 0) { printf("PASSED test -- N_VInvTestLocal Case 1\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VInvTestLocal", maxt);
 
   /*
@@ -5291,7 +5325,7 @@ int Test_N_VInvTestLocal_Z(N_Vector X, N_Vector Z, sunindextype local_length,
 
   start_time = get_time();
   test       = N_VInvTestLocal(X, Z);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* check return vector */
@@ -5299,11 +5333,11 @@ int Test_N_VInvTestLocal_Z(N_Vector X, N_Vector Z, sunindextype local_length,
   {
     if (i % 2)
     {
-      if (get_element(Z, i) != TWO) { failure = 1; }
+      if (get_element_Z(Z, i) != TWO) { failure = 1; }
     }
     else
     {
-      if (get_element(Z, i) != ZERO) { failure = 1; }
+      if (get_element_Z(Z, i) != ZERO) { failure = 1; }
     }
   }
 
@@ -5315,7 +5349,7 @@ int Test_N_VInvTestLocal_Z(N_Vector X, N_Vector Z, sunindextype local_length,
   else if (myid == 0) { printf("PASSED test -- N_VInvTestLocal Case 2\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VInvTestLocal", maxt);
 
   return (fails);
@@ -5397,11 +5431,11 @@ int Test_N_VConstrMaskLocal_Z(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time();
   test       = N_VConstrMaskLocal(C, X, M);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* M should be vector of 0 */
-  failure = check_ans(ZERO, M, local_length);
+  failure = check_ans_Z(ZERO, M, local_length);
 
   if (failure || !test)
   {
@@ -5411,7 +5445,7 @@ int Test_N_VConstrMaskLocal_Z(N_Vector C, N_Vector X, N_Vector M,
   else if (myid == 0) { printf("PASSED test -- N_VConstrMaskLocal Case 1 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VConstrMaskLocal", maxt);
 
   /*
@@ -5462,7 +5496,7 @@ int Test_N_VConstrMaskLocal_Z(N_Vector C, N_Vector X, N_Vector M,
 
   start_time = get_time();
   test       = N_VConstrMaskLocal(C, X, M);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* check mask vector */
@@ -5470,11 +5504,11 @@ int Test_N_VConstrMaskLocal_Z(N_Vector C, N_Vector X, N_Vector M,
   {
     if (i % 5 == 2)
     {
-      if (get_element(M, i) != ZERO) { failure = 1; }
+      if (get_element_Z(M, i) != ZERO) { failure = 1; }
     }
     else
     {
-      if (get_element(M, i) != ONE) { failure = 1; }
+      if (get_element_Z(M, i) != ONE) { failure = 1; }
     }
   }
 
@@ -5486,7 +5520,7 @@ int Test_N_VConstrMaskLocal_Z(N_Vector C, N_Vector X, N_Vector M,
   else if (myid == 0) { printf("PASSED test -- N_VConstrMaskLocal Case 2 \n"); }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VConstrMaskLocal", maxt);
 
   return (fails);
@@ -5513,7 +5547,7 @@ int Test_N_VMinQuotientLocal_Z(N_Vector NUM, N_Vector DENOM,
 
   start_time = get_time();
   ans        = N_VMinQuotientLocal(NUM, DENOM);
-  sync_device(NUM);
+  sync_device_Z(NUM);
   stop_time = get_time();
 
   /* ans should equal myid */
@@ -5530,7 +5564,7 @@ int Test_N_VMinQuotientLocal_Z(N_Vector NUM, N_Vector DENOM,
   }
 
   /* find max time across all processes */
-  maxt = max_time(NUM, stop_time - start_time);
+  maxt = max_time_Z(NUM, stop_time - start_time);
   PRINT_TIME("N_VMinQuotientLocal", maxt);
 
   /*
@@ -5546,7 +5580,7 @@ int Test_N_VMinQuotientLocal_Z(N_Vector NUM, N_Vector DENOM,
 
   start_time = get_time();
   ans        = N_VMinQuotientLocal(NUM, DENOM);
-  sync_device(NUM);
+  sync_device_Z(NUM);
   stop_time = get_time();
 
   /* ans should equal SUN_BIG_REAL */
@@ -5563,7 +5597,7 @@ int Test_N_VMinQuotientLocal_Z(N_Vector NUM, N_Vector DENOM,
   }
 
   /* find max time across all processes */
-  maxt = max_time(NUM, stop_time - start_time);
+  maxt = max_time_Z(NUM, stop_time - start_time);
   PRINT_TIME("N_VMinQuotientLocal", maxt);
 
   return (fails);
@@ -5593,7 +5627,7 @@ int Test_N_VDotProdMultiLocal_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VDotProdMultiLocal(1, X, V, dotprods);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* dotprod[0] should equal the local vector length */
@@ -5614,7 +5648,7 @@ int Test_N_VDotProdMultiLocal_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProdMultiLocal", maxt);
 
   /*
@@ -5629,7 +5663,7 @@ int Test_N_VDotProdMultiLocal_Z(N_Vector X, sunindextype local_length, int myid)
 
   start_time = get_time();
   ierr       = N_VDotProdMultiLocal(3, X, V, dotprods);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* dotprod[i] should equal -1, +1, and 2 times the local vector length */
@@ -5652,7 +5686,7 @@ int Test_N_VDotProdMultiLocal_Z(N_Vector X, sunindextype local_length, int myid)
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProdMultiLocal", maxt);
 
   /* Free vectors */
@@ -5694,7 +5728,7 @@ int Test_N_VDotProdMultiAllReduce_Z(N_Vector X, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VDotProdMultiLocal(1, X, V, dotprods);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* dotprod[0] should equal the local vector length */
@@ -5716,13 +5750,13 @@ int Test_N_VDotProdMultiAllReduce_Z(N_Vector X, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProdMultiLocal", maxt);
 
   /* perform the global reduction */
   start_time = get_time();
   ierr       = N_VDotProdMultiAllReduce(1, X, dotprods);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* dotprod[0] should equal the global vector length */
@@ -5744,7 +5778,7 @@ int Test_N_VDotProdMultiAllReduce_Z(N_Vector X, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProdMultiAllReduce", maxt);
 
   /*
@@ -5759,7 +5793,7 @@ int Test_N_VDotProdMultiAllReduce_Z(N_Vector X, sunindextype local_length,
 
   start_time = get_time();
   ierr       = N_VDotProdMultiLocal(3, X, V, dotprods);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* dotprod[i] should equal -1, +1, and 2 times the local vector length */
@@ -5782,13 +5816,13 @@ int Test_N_VDotProdMultiAllReduce_Z(N_Vector X, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProdMultiLocal", maxt);
 
   /* perform the global reduction */
   start_time = get_time();
   ierr       = N_VDotProdMultiAllReduce(3, X, dotprods);
-  sync_device(X);
+  sync_device_Z(X);
   stop_time = get_time();
 
   /* dotprod[i] should equal -1, +1, and 2 times the global vector length */
@@ -5812,7 +5846,7 @@ int Test_N_VDotProdMultiAllReduce_Z(N_Vector X, sunindextype local_length,
   }
 
   /* find max time across all processes */
-  maxt = max_time(X, stop_time - start_time);
+  maxt = max_time_Z(X, stop_time - start_time);
   PRINT_TIME("N_VDotProdMultiAllReduce", maxt);
 
   /* Free vectors */
@@ -5833,7 +5867,7 @@ int Test_N_VBufSize_Z(N_Vector x, sunindextype local_length, int myid)
   /* get buffer size */
   start_time = get_time();
   flag       = N_VBufSize(x, &size);
-  sync_device(x);
+  sync_device_Z(x);
   stop_time = get_time();
 
   /* check return value */
@@ -5853,7 +5887,7 @@ int Test_N_VBufSize_Z(N_Vector x, sunindextype local_length, int myid)
   if (myid == 0) { printf("PASSED test -- N_VBufSize\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(x, stop_time - start_time);
+  maxt = max_time_Z(x, stop_time - start_time);
   PRINT_TIME("N_VBufSize", maxt);
 
   return (0);
@@ -5894,7 +5928,7 @@ int Test_N_VBufPack_Z(N_Vector x, sunindextype local_length, int myid)
   /* fill buffer */
   start_time = get_time();
   flag       = N_VBufPack(x, (void*)buf);
-  sync_device(x);
+  sync_device_Z(x);
   stop_time = get_time();
 
   if (flag != 0)
@@ -5916,7 +5950,7 @@ int Test_N_VBufPack_Z(N_Vector x, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VBufPack\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(x, stop_time - start_time);
+  maxt = max_time_Z(x, stop_time - start_time);
   PRINT_TIME("N_VBufPack", maxt);
 
   /* free buffer */
@@ -5960,7 +5994,7 @@ int Test_N_VBufUnpack_Z(N_Vector x, sunindextype local_length, int myid)
   /* fill vector data */
   start_time = get_time();
   flag       = N_VBufUnpack(x, (void*)buf);
-  sync_device(x);
+  sync_device_Z(x);
   stop_time = get_time();
 
   if (flag != 0)
@@ -5971,7 +6005,7 @@ int Test_N_VBufUnpack_Z(N_Vector x, sunindextype local_length, int myid)
   }
 
   /* x should be vector of ones */
-  failure = check_ans(ONE, x, local_length);
+  failure = check_ans_Z(ONE, x, local_length);
 
   if (failure)
   {
@@ -5982,7 +6016,7 @@ int Test_N_VBufUnpack_Z(N_Vector x, sunindextype local_length, int myid)
   else if (myid == 0) { printf("PASSED test -- N_VBufUnpack\n"); }
 
   /* find max time across all processes */
-  maxt = max_time(x, stop_time - start_time);
+  maxt = max_time_Z(x, stop_time - start_time);
   PRINT_TIME("N_VBufUnpack", maxt);
 
   /* free buffer */
