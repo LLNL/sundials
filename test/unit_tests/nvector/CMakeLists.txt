@@ -24,7 +24,11 @@ endif()
 add_subdirectory(serial)
 
 # Build the nvector test utilities
-add_library(test_nvector_obj OBJECT test_nvector.c test_nvector_complex.c)
+if(SUNDIALS_SCALAR_TYPE MATCHES "REAL")
+  add_library(test_nvector_obj OBJECT test_nvector.c)
+elseif(SUNDIALS_SCALAR_TYPE MATCHES "COMPLEX")
+  add_library(test_nvector_obj OBJECT test_nvector_complex.c)
+endif()
 if(BUILD_SHARED_LIBS)
   # need PIC when shared libs are used since the example executables will link
   # to the shared lib
@@ -47,6 +51,8 @@ if(ENABLE_MPI AND MPI_C_FOUND)
   target_link_libraries(test_nvectormpi_obj PRIVATE MPI::MPI_C
                                                     sundials_nvecparallel)
 endif()
+
+# Include implementation tests
 if(BUILD_NVECTOR_MANYVECTOR)
   add_subdirectory(manyvector)
 endif()
