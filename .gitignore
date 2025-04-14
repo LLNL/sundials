@@ -3,6 +3,7 @@
 /.project
 /builddir
 /build*
+/cmake-build*
 /instdir
 /install*
 /TPLs
