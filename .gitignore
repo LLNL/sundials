@@ -20,6 +20,7 @@
 .vscode
 compile_commands.json
 .clangd
+.idea
 
 # custom test environment setup script
 /test/env/env.sh
