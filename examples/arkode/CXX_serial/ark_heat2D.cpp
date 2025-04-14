@@ -963,11 +963,7 @@ static int OpenOutput(UserData* udata)
   if (udata->output > 0)
   {
     cout << scientific;
-#if  defined(SUNDIALS_FLOAT128_PRECISION)
-    cout << setprecision(FLT128_DIG);
-#else
-    cout << setprecision(numeric_limits<sunrealtype>::digits10);
-#endif
+    cout << setprecision(SUN_DIGITS10);
     if (udata->forcing)
     {
       cout << "          t           ";
@@ -992,8 +988,8 @@ static int OpenOutput(UserData* udata)
     // Each processor outputs subdomain information
     ofstream dout;
     dout.open("heat2d_info.txt");
-    dout << "xu  " << udata->xu << endl;
-    dout << "yu  " << udata->yu << endl;
+    dout << "xu  " << double(udata->xu) << endl;
+    dout << "yu  " << double(udata->yu) << endl;
     dout << "nx  " << udata->nx << endl;
     dout << "ny  " << udata->ny << endl;
     dout << "nt  " << udata->nout + 1 << endl;
@@ -1002,21 +998,13 @@ static int OpenOutput(UserData* udata)
     // Open output streams for solution and error
     udata->uout.open("heat2d_solution.txt");
     udata->uout << scientific;
-#if  defined(SUNDIALS_FLOAT128_PRECISION)
-    udata->uout << setprecision(FLT128_DIG);
-#else
-    udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
-#endif
+    udata->uout << setprecision(SUN_DIGITS10);
 
     if (udata->forcing)
     {
       udata->eout.open("heat2d_error.txt");
       udata->eout << scientific;
-#if  defined(SUNDIALS_FLOAT128_PRECISION)
-      udata->eout << setprecision(FLT128_DIG);
-#else
-      udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
-#endif
+      udata->eout << setprecision(SUN_DIGITS10);
     }
   }
 
@@ -1043,9 +1031,9 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
       // Compute max error
       sunrealtype max = N_VMaxNorm(udata->e);
 
-      cout << setw(39) << t << setw(42) << urms << setw(42) << max << endl;
+      cout << setw(22) << t << setw(25) << urms << setw(25) << double(max) << endl;
     }
-    else { cout << setw(39) << t << setw(42) << urms << endl; }
+    else { cout << setw(22) << t << setw(25) << urms << endl; }
 
     // Write solution and error to disk
     if (udata->output == 2)
@@ -1053,10 +1041,10 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
       sunrealtype* uarray = N_VGetArrayPointer(u);
       if (check_flag((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
-      udata->uout << t << " ";
+      udata->uout << double(t) << " ";
       for (sunindextype i = 0; i < udata->nodes; i++)
       {
-        udata->uout << uarray[i] << " ";
+        udata->uout << double(uarray[i]) << " ";
       }
       udata->uout << endl;
 
@@ -1066,10 +1054,10 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
         sunrealtype* earray = N_VGetArrayPointer(udata->e);
         if (check_flag((void*)earray, "N_VGetArrayPointer", 0)) { return -1; }
 
-        udata->eout << t << " ";
+        udata->eout << double(t) << " ";
         for (sunindextype i = 0; i < udata->nodes; i++)
         {
-          udata->eout << earray[i] << " ";
+          udata->eout << double(earray[i]) << " ";
         }
         udata->eout << endl;
       }
