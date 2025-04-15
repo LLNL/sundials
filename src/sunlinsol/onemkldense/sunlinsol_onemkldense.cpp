@@ -28,7 +28,7 @@ using namespace oneapi::mkl::lapack;
 #include "sundials_debug.h"
 
 // Check for a valid precision and index size
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION) || defined(SUNDIALS_FLOAT128_PRECISION)
 #error "oneMLK unsupported precision"
 #endif
 

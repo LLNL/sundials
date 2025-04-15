@@ -44,7 +44,11 @@
 
 #define NSPECIES 3
 
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+#define WIDTH (10 + FLT128_DIG)
+#else
 #define WIDTH (10 + numeric_limits<sunrealtype>::digits10)
+#endif
 
 // Macro to access each species at an x location
 #define UIDX(i) (NSPECIES * (i))
@@ -1168,7 +1172,7 @@ static int WriteOutput(sunrealtype t, N_Vector y, UserData& udata,
   if (uopts.output)
   {
     // Compute rms norm of the state
-    sunrealtype urms = sqrt(N_VDotProd(y, y) / udata.nx);
+    sunrealtype urms = SUNRsqrt(N_VDotProd(y, y) / udata.nx);
     cout << setw(22) << t << setw(25) << urms << endl;
 
     // Write solution to disk

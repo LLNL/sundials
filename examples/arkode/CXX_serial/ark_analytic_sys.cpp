@@ -214,7 +214,7 @@ int main()
   sunrealtype tout = T0 + dTout;
   cout << "      t        y0        y1        y2\n";
   cout << "   --------------------------------------\n";
-  while (Tf - t > 1.0e-15)
+  while (Tf - t > SUN_RCONST(1.0e-15))
   {
     flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); // call integrator
     if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }

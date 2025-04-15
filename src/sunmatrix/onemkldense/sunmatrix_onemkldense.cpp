@@ -30,7 +30,7 @@
 #include "sundials_sycl.h"
 
 // Check for a valid precision
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION) || defined(SUNDIALS_FLOAT128_PRECISION)
 #error "oneMLK unsupported precision"
 #endif
 
