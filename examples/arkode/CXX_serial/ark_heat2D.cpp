@@ -988,8 +988,8 @@ static int OpenOutput(UserData* udata)
     // Each processor outputs subdomain information
     ofstream dout;
     dout.open("heat2d_info.txt");
-    dout << "xu  " << double(udata->xu) << endl;
-    dout << "yu  " << double(udata->yu) << endl;
+    dout << "xu  " << udata->xu << endl;
+    dout << "yu  " << udata->yu << endl;
     dout << "nx  " << udata->nx << endl;
     dout << "ny  " << udata->ny << endl;
     dout << "nt  " << udata->nout + 1 << endl;
@@ -1041,10 +1041,10 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
       sunrealtype* uarray = N_VGetArrayPointer(u);
       if (check_flag((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
-      udata->uout << double(t) << " ";
+      udata->uout << t << " ";
       for (sunindextype i = 0; i < udata->nodes; i++)
       {
-        udata->uout << double(uarray[i]) << " ";
+        udata->uout << uarray[i] << " ";
       }
       udata->uout << endl;
 
@@ -1054,10 +1054,10 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
         sunrealtype* earray = N_VGetArrayPointer(udata->e);
         if (check_flag((void*)earray, "N_VGetArrayPointer", 0)) { return -1; }
 
-        udata->eout << double(t) << " ";
+        udata->eout << t << " ";
         for (sunindextype i = 0; i < udata->nodes; i++)
         {
-          udata->eout << double(earray[i]) << " ";
+          udata->eout << earray[i] << " ";
         }
         udata->eout << endl;
       }
