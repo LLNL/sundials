@@ -369,8 +369,8 @@ int main(int argc, char* argv[])
     sunrealtype maxerr = N_VMaxNorm(udata->e);
 
     cout << scientific;
-    cout << setprecision(numeric_limits<sunrealtype>::digits10);
-    cout << "  Max error = " << double(maxerr) << endl;
+    cout << setprecision(numeric_limits<double>::digits10);
+    cout << "  Max error = " << maxerr << endl;
   }
 
   // Print timing
@@ -750,25 +750,25 @@ static int PrintUserData(UserData* udata)
   cout << endl;
   cout << "2D Heat PDE test problem:" << endl;
   cout << " --------------------------------- " << endl;
-  cout << "  kx             = " << double(udata->kx) << endl;
-  cout << "  ky             = " << double(udata->ky) << endl;
+  cout << "  kx             = " << udata->kx << endl;
+  cout << "  ky             = " << udata->ky << endl;
   cout << "  forcing        = " << udata->forcing << endl;
-  cout << "  tf             = " << double(udata->tf) << endl;
-  cout << "  xu             = " << double(udata->xu) << endl;
-  cout << "  yu             = " << double(udata->yu) << endl;
+  cout << "  tf             = " << udata->tf << endl;
+  cout << "  xu             = " << udata->xu << endl;
+  cout << "  yu             = " << udata->yu << endl;
   cout << "  nx             = " << udata->nx << endl;
   cout << "  ny             = " << udata->ny << endl;
-  cout << "  dx             = " << double(udata->dx) << endl;
-  cout << "  dy             = " << double(udata->dy) << endl;
+  cout << "  dx             = " << udata->dx << endl;
+  cout << "  dy             = " << udata->dy << endl;
   cout << " --------------------------------- " << endl;
-  cout << "  rtol           = " << double(udata->rtol) << endl;
-  cout << "  atol           = " << double(udata->atol) << endl;
-  cout << "  fixed h        = " << double(udata->hfixed) << endl;
+  cout << "  rtol           = " << udata->rtol << endl;
+  cout << "  atol           = " << udata->atol << endl;
+  cout << "  fixed h        = " << udata->hfixed << endl;
   cout << "  controller     = " << udata->controller << endl;
   cout << "  method         = " << udata->method << endl;
-  cout << "  eigfrequency   = " << double(udata->eigfrequency) << endl;
+  cout << "  eigfrequency   = " << udata->eigfrequency << endl;
   cout << "  stage_max_limit  = " << udata->stage_max_limit << endl;
-  cout << "  eigsafety      = " << double(udata->eigsafety) << endl;
+  cout << "  eigsafety      = " << udata->eigsafety << endl;
   cout << " --------------------------------- " << endl;
   cout << "  output         = " << udata->output << endl;
   cout << "  max steps      = " << udata->maxsteps << endl;
@@ -785,7 +785,7 @@ static int OpenOutput(UserData* udata)
   if (udata->output > 0)
   {
     cout << scientific;
-    cout << setprecision(numeric_limits<sunrealtype>::digits10);
+    cout << setprecision(numeric_limits<double>::digits10);
     if (udata->forcing)
     {
       cout << "          t           ";
@@ -810,8 +810,8 @@ static int OpenOutput(UserData* udata)
     // Each processor outputs subdomain information
     ofstream dout;
     dout.open("heat2d_info.txt");
-    dout << "xu  " << double(udata->xu) << endl;
-    dout << "yu  " << double(udata->yu) << endl;
+    dout << "xu  " << udata->xu << endl;
+    dout << "yu  " << udata->yu << endl;
     dout << "nx  " << udata->nx << endl;
     dout << "ny  " << udata->ny << endl;
     dout << "nt  " << udata->nout + 1 << endl;
@@ -820,13 +820,13 @@ static int OpenOutput(UserData* udata)
     // Open output streams for solution and error
     udata->uout.open("heat2d_solution.txt");
     udata->uout << scientific;
-    udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
+    udata->uout << setprecision(numeric_limits<double>::digits10);
 
     if (udata->forcing)
     {
       udata->eout.open("heat2d_error.txt");
       udata->eout << scientific;
-      udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
+      udata->eout << setprecision(numeric_limits<double>::digits10);
     }
   }
 
@@ -853,9 +853,9 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
       // Compute max error
       sunrealtype max = N_VMaxNorm(udata->e);
 
-      cout << setw(22) << double(t) << setw(25) << double(urms) << setw(25) << double(max) << endl;
+      cout << setw(22) << t << setw(25) << urms << setw(25) << max << endl;
     }
-    else { cout << setw(22) << double(t) << setw(25) << double(urms) << endl; }
+    else { cout << setw(22) << t << setw(25) << urms << endl; }
 
     // Write solution and error to disk
     if (udata->output == 2)
@@ -863,10 +863,10 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
       sunrealtype* uarray = N_VGetArrayPointer(u);
       if (check_flag((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
-      udata->uout << double(t) << " ";
+      udata->uout << t << " ";
       for (sunindextype i = 0; i < udata->nodes; i++)
       {
-        udata->uout << double(uarray[i]) << " ";
+        udata->uout << uarray[i] << " ";
       }
       udata->uout << endl;
 
@@ -876,10 +876,10 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
         sunrealtype* earray = N_VGetArrayPointer(udata->e);
         if (check_flag((void*)earray, "N_VGetArrayPointer", 0)) { return -1; }
 
-        udata->eout << double(t) << " ";
+        udata->eout << t << " ";
         for (sunindextype i = 0; i < udata->nodes; i++)
         {
-          udata->eout << double(earray[i]) << " ";
+          udata->eout << earray[i] << " ";
         }
         udata->eout << endl;
       }

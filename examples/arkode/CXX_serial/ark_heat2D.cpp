@@ -454,11 +454,13 @@ int main(int argc, char* argv[])
 
     sunrealtype maxerr = N_VMaxNorm(udata->e);
 
-    //cout << scientific;
-    //cout << setprecision(numeric_limits<sunrealtype>::digits10);
-    //cout << "  Max error = " << maxerr << endl;
-
-    printf("  Max error = " SUN_FORMAT_E "\n", maxerr);
+    cout << scientific;
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+    cout << setprecision(FLT128_DIG);
+#else
+    cout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
+    cout << "  Max error = " << maxerr << endl;
   }
 
   // Print timing
@@ -913,30 +915,30 @@ static int PrintUserData(UserData* udata)
   cout << endl;
   cout << "2D Heat PDE test problem:" << endl;
   cout << " --------------------------------- " << endl;
-  cout << "  kx             = " << double(udata->kx) << endl;
+  cout << "  kx             = " << udata->kx << endl;
   //printf( "  kx             = " SUN_FORMAT_E "\n",udata->kx);
-  cout << "  ky             = " << double(udata->ky) << endl;
+  cout << "  ky             = " << udata->ky << endl;
   //printf( "  kx             = " SUN_FORMAT_E "\n",udata->ky);
   cout << "  forcing        = " << udata->forcing << endl;
-  cout << "  tf             = " << double(udata->tf) << endl;
+  cout << "  tf             = " << udata->tf << endl;
   //printf( "  tf             = " SUN_FORMAT_E "\n",udata->tf);
-  cout << "  xu             = " << double(udata->xu) << endl;
+  cout << "  xu             = " << udata->xu << endl;
   //printf( "  xu             = " SUN_FORMAT_E "\n",udata->xu);
-  cout << "  yu             = " << double(udata->yu) << endl;
+  cout << "  yu             = " << udata->yu << endl;
   //printf( "  yu             = " SUN_FORMAT_E "\n",udata->yu);
   cout << "  nx             = " << udata->nx << endl;
   cout << "  ny             = " << udata->ny << endl;
-  cout << "  dx             = " << double(udata->dx) << endl;
+  cout << "  dx             = " << udata->dx << endl;
   //printf( "  dx             = " SUN_FORMAT_E "\n",udata->dx);
-  cout << "  dy             = " << double(udata->dy) << endl;
+  cout << "  dy             = " << udata->dy << endl;
   //printf( "  dy             = " SUN_FORMAT_E "\n",udata->dy);
   cout << " --------------------------------- " << endl;
-  cout << "  rtol           = " << double(udata->rtol) << endl;
+  cout << "  rtol           = " << udata->rtol << endl;
   //printf( "  rtol           = " SUN_FORMAT_E "\n",udata->rtol);
-  cout << "  atol           = " << double(udata->atol) << endl;
+  cout << "  atol           = " << udata->atol << endl;
   //printf( "  atol           = " SUN_FORMAT_E "\n",udata->atol);
   cout << "  order          = " << udata->order << endl;
-  cout << "  fixed h        = " << double(udata->hfixed) << endl;
+  cout << "  fixed h        = " << udata->hfixed << endl;
   //printf( "  fixed h        =  " SUN_FORMAT_E "\n",udata->hfixed);
   cout << "  controller     = " << udata->controller << endl;
   cout << "  linear         = " << udata->linear << endl;
@@ -944,7 +946,7 @@ static int PrintUserData(UserData* udata)
   if (udata->pcg) { cout << "  linear solver  = PCG" << endl; }
   else { cout << "  linear solver  = GMRES" << endl; }
   cout << "  lin iters      = " << udata->liniters << endl;
-  cout << "  eps lin        = " << double(udata->epslin) << endl;
+  cout << "  eps lin        = " << udata->epslin   << endl;
   //printf( "  eps lin        = " SUN_FORMAT_E "\n",udata->epslin);
   cout << "  prec           = " << udata->prec << endl;
   cout << "  msbp           = " << udata->msbp << endl;
@@ -963,7 +965,11 @@ static int OpenOutput(UserData* udata)
   if (udata->output > 0)
   {
     cout << scientific;
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+    cout << setprecision(FLT128_DIG);
+#else
     cout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
     if (udata->forcing)
     {
       cout << "          t           ";
@@ -988,8 +994,8 @@ static int OpenOutput(UserData* udata)
     // Each processor outputs subdomain information
     ofstream dout;
     dout.open("heat2d_info.txt");
-    dout << "xu  " << double(udata->xu) << endl;
-    dout << "yu  " << double(udata->yu) << endl;
+    dout << "xu  " << udata->xu << endl;
+    dout << "yu  " << udata->yu << endl;
     dout << "nx  " << udata->nx << endl;
     dout << "ny  " << udata->ny << endl;
     dout << "nt  " << udata->nout + 1 << endl;
@@ -998,13 +1004,21 @@ static int OpenOutput(UserData* udata)
     // Open output streams for solution and error
     udata->uout.open("heat2d_solution.txt");
     udata->uout << scientific;
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+    udata->uout << setprecision(FLT128_DIG);
+#else
     udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
 
     if (udata->forcing)
     {
       udata->eout.open("heat2d_error.txt");
       udata->eout << scientific;
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+      udata->eout << setprecision(FLT128_DIG);
+#else
       udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
     }
   }
 
@@ -1031,9 +1045,9 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
       // Compute max error
       sunrealtype max = N_VMaxNorm(udata->e);
 
-      cout << setw(22) << double(t) << setw(25) << double(urms) << setw(25) << double(max) << endl;
+      cout << setw(39) << t << setw(42) << urms << setw(42) << max << endl;
     }
-    else { cout << setw(22) << double(t) << setw(25) << double(urms) << endl; }
+    else { cout << setw(39) << t << setw(42) << urms << endl; }
 
     // Write solution and error to disk
     if (udata->output == 2)
@@ -1041,10 +1055,10 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
       sunrealtype* uarray = N_VGetArrayPointer(u);
       if (check_flag((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
-      udata->uout << double(t) << " ";
+      udata->uout << t << " ";
       for (sunindextype i = 0; i < udata->nodes; i++)
       {
-        udata->uout << double(uarray[i]) << " ";
+        udata->uout << uarray[i] << " ";
       }
       udata->uout << endl;
 
@@ -1054,10 +1068,10 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
         sunrealtype* earray = N_VGetArrayPointer(udata->e);
         if (check_flag((void*)earray, "N_VGetArrayPointer", 0)) { return -1; }
 
-        udata->eout << double(t) << " ";
+        udata->eout << t << " ";
         for (sunindextype i = 0; i < udata->nodes; i++)
         {
-          udata->eout << double(earray[i]) << " ";
+          udata->eout << earray[i] << " ";
         }
         udata->eout << endl;
       }
@@ -1147,8 +1161,8 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   // Compute average nls iters per step attempt and ls iters per nls iter
   sunrealtype avgnli = (sunrealtype)nni / (sunrealtype)nst_a;
   sunrealtype avgli  = (sunrealtype)nli / (sunrealtype)nni;
-  cout << "  Avg NLS iters per step attempt = " << double(avgnli) << endl;
-  cout << "  Avg LS iters per NLS iter      = " << double(avgli) << endl;
+  cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
+  cout << "  Avg LS iters per NLS iter      = " << avgli << endl;
   cout << endl;
 
   // Get preconditioner stats
