@@ -118,12 +118,12 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Function : SUNRexp
+ * Function : SUNRisnan
  * -----------------------------------------------------------------
- * Usage : sunrealtype exp_x;
- *         exp_x = SUNRexp(x);
+ * Usage : sunrealtype isnan_x;
+ *         isnan_x = SUNRisnan(x);
  * -----------------------------------------------------------------
- * SUNRexp(x) returns e^x (base-e exponential function).
+ * SUNRisnan(x) returns isnan_x.
  * -----------------------------------------------------------------
  */
 
@@ -162,6 +162,32 @@ extern "C" {
 #define SUNRexp(x) (expl((x)))
 #elif defined(SUNDIALS_FLOAT128_PRECISION)
 #define SUNRexp(x) (expq((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRlog
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype log_x;
+ *         log_x = SUNRlog(x);
+ * -----------------------------------------------------------------
+ * SUNRlog(x) returns log_x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRlog
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRlog(x) (log((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRlog(x) (logf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRlog(x) (logl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define SUNRlog(x) (logq((x)))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
@@ -324,6 +350,57 @@ extern "C" {
 #endif
 #endif
 
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRasin
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype cos_x;
+ *         asin_x = SUNRasin(x);
+ * -----------------------------------------------------------------
+ * SUNRasin(x) returns the asin value of x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRasin
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRasin(x) (asin((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRasin(x) (asinf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRasin(x) (asinl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define SUNRasin(x) (asinq((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRatan
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype cos_x;
+ *         atan_x = SUNRatan(x);
+ * -----------------------------------------------------------------
+ * SUNRatan(x) returns the atan value of x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRatan
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRatan(x) (atan((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRatan(x) (atanf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRatan(x) (atanl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define SUNRatan(x) (atanq((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
 /*
  * -----------------------------------------------------------------
  * Function : SUNIpowerI

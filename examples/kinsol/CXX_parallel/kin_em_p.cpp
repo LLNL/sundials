@@ -66,7 +66,15 @@
 #include <sundials/sundials_logger.h>
 // Header file containing UserData and function declarations
 #include "kin_em_p.hpp"
-
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+inline __float128 log(__float128 x) { return logq(x); }
+inline __float128 sqrt(__float128 x) { return sqrtq(x); }
+// 在需要的地方扩展 std 命名空间
+namespace std {
+using ::log;  // 将全局 log(__float128) 引入 std
+using ::sqrt;  // 将全局 sqrt(__float128) 引入 std
+}
+#endif
 // -----------------------------------------------------------------------------
 // Main Program
 // -----------------------------------------------------------------------------
@@ -449,7 +457,7 @@ static int EM(N_Vector u, N_Vector f, void* user_data)
   // --------------
 
   // Scale value for functions
-  sunrealtype scale = ONE / sqrt(TWO * PI);
+  sunrealtype scale = ONE / SUNRsqrt(TWO * PI);
 
   // Get input pointers
   sunrealtype* u_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(u));
@@ -469,9 +477,9 @@ static int EM(N_Vector u, N_Vector f, void* user_data)
     val2 = x_host[i] - u_host[1];
     val3 = x_host[i] - u_host[2];
 
-    px_host[i] = a1 * scale * exp(-(val1 * val1) / TWO);
-    px_host[i] += a2 * scale * exp(-(val2 * val2) / TWO);
-    px_host[i] += a3 * scale * exp(-(val3 * val3) / TWO);
+    px_host[i] = a1 * scale * SUNRexp(-(val1 * val1) / TWO);
+    px_host[i] += a2 * scale * SUNRexp(-(val2 * val2) / TWO);
+    px_host[i] += a3 * scale * SUNRexp(-(val3 * val3) / TWO);
   }
 
   // --------------
@@ -500,9 +508,9 @@ static int EM(N_Vector u, N_Vector f, void* user_data)
     val2 = x_host[i] - u_host[1];
     val3 = x_host[i] - u_host[2];
 
-    frac1 = a1 * scale * exp(-(val1 * val1) / TWO) / px_host[i];
-    frac2 = a2 * scale * exp(-(val2 * val2) / TWO) / px_host[i];
-    frac3 = a3 * scale * exp(-(val3 * val3) / TWO) / px_host[i];
+    frac1 = a1 * scale * SUNRexp(-(val1 * val1) / TWO) / px_host[i];
+    frac2 = a2 * scale * SUNRexp(-(val2 * val2) / TWO) / px_host[i];
+    frac3 = a3 * scale * SUNRexp(-(val3 * val3) / TWO) / px_host[i];
 
     mut_host[0] += x_host[i] * frac1;
     mut_host[1] += x_host[i] * frac2;
