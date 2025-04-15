@@ -451,7 +451,11 @@ static void PrintOutput(void* arkode_mem, int my_pe, MPI_Comm comm, N_Vector u,
     check_flag(&flag, "ARKodeGetNumSteps", 1, my_pe);
     flag = ARKodeGetLastStep(arkode_mem, &hu);
     check_flag(&flag, "ARKodeGetLastStep", 1, my_pe);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("t = %.2Qe   no. steps = %ld   stepsize = %.2Qe\n", t, nst, hu);
+    printf("At bottom left:  c1, c2 = %12.3Qe %12.3Qe \n", uarray[0], uarray[1]);
+    printf("At top right:    c1, c2 = %12.3Qe %12.3Qe \n\n", tempu[0], tempu[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   stepsize = %.2Le\n", t, nst, hu);
     printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", uarray[0], uarray[1]);
     printf("At top right:    c1, c2 = %12.3Le %12.3Le \n\n", tempu[0], tempu[1]);
