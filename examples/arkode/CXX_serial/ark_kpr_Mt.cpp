@@ -75,6 +75,7 @@
 #include <arkode/arkode_arkstep.h> // prototypes for ARKStep fcts., consts
 #include <cmath>
 #include <iostream>
+#include <iomanip>  //for setw
 #include <nvector/nvector_serial.h> // serial N_Vector type, fcts., macros
 #include <stdio.h>
 #include <string.h>

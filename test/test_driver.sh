@@ -69,6 +69,7 @@ help ()
             double   -- (default) use double precision
             single   -- use single precision
             extended -- use extended precision
+            float128 -- use float128 precision
 
         --indexsize SIZE
             Index size to use in a custom test. SIZE must be one of:
@@ -227,6 +228,9 @@ while [[ $# -gt 0 ]]; do
                     ;;
                 DOUBLE|Double|double)
                     sunrealtype=double
+                    ;;
+                EXTENDED|Extended|extended)
+                    sunrealtype=extended
                     ;;
                 EXTENDED|Extended|extended)
                     sunrealtype=extended

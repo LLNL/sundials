@@ -234,7 +234,11 @@ int main(int argc, char* argv[])
   std::ofstream outfile("ark_pendulum.txt");
   outfile << "# vars: t u v energy energy_err\n";
   outfile << std::scientific;
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  outfile << std::setprecision(FLT128_DIG);
+#else
   outfile << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+#endif
   outfile << t << " " << ydata[0] << " " << ydata[1] << " " << eng0 << " "
           << SUN_RCONST(0.0) << std::endl;
 
@@ -246,7 +250,11 @@ int main(int argc, char* argv[])
 
   std::cout << std::endl;
   std::cout << std::scientific;
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  std::cout << std::setprecision(FLT128_DIG);
+#else
   std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+#endif
   std::cout << std::setw(swidth) << 0 << std::setw(rwidth) << t
             << std::setw(rwidth) << ydata[0] << std::setw(rwidth) << ydata[1]
             << std::setw(rwidth) << eng0 << std::setw(rwidth) << SUN_RCONST(0.0);

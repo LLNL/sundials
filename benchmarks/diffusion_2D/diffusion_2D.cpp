@@ -791,7 +791,7 @@ int UserOutput::write(sunrealtype t, N_Vector u, UserData* udata)
     }
 
     // Compute rms norm of the state
-    sunrealtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
+    sunrealtype urms = SUNRsqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
 
     // Output current status
     if (outproc)
