@@ -226,7 +226,7 @@ SUNErrCode SUNAdaptController_Write_MRIHTol(SUNAdaptController C, FILE* fptr)
   fprintf(fptr, "  inner_max_relch  = %32Qg\n", MRIHTOL_INNER_MAX_RELCH(C));
   fprintf(fptr, "  inner_min_tolfac = %32Qg\n", MRIHTOL_INNER_MIN_TOLFAC(C));
   fprintf(fptr, "  inner_max_tolfac = %32Qg\n", MRIHTOL_INNER_MAX_TOLFAC(C));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
   fprintf(fptr, "  inner_max_relch  = %32Lg\n", MRIHTOL_INNER_MAX_RELCH(C));
   fprintf(fptr, "  inner_min_tolfac = %32Lg\n", MRIHTOL_INNER_MIN_TOLFAC(C));
   fprintf(fptr, "  inner_max_tolfac = %32Lg\n", MRIHTOL_INNER_MAX_TOLFAC(C));

@@ -133,6 +133,7 @@ typedef __float128 sunrealtype;
 #define SUN_FORMAT_E      "% ." SUN_STRING(FLT128_DIG) "Qe"
 #define SUN_FORMAT_G      "%." SUN_STRING(FLT128_DIG) "Qg"
 #define SUN_FORMAT_SG     "%+." SUN_STRING(FLT128_DIG) "Qg"
+
 #endif
 
 /*
@@ -264,6 +265,109 @@ typedef int SUNComm;
 #ifdef __cplusplus
 }
 #endif
+
+#if defined(__cplusplus) && defined(SUNDIALS_FLOAT128_PRECISION)
+#include <iostream>
+#include <iomanip>
+#include <quadmath.h>
+#include <cstdio>
+
+std::ostream& operator<<(std::ostream& os, __float128 value) {
+  // 获取流的当前格式状态
+  const int width = os.width();     // 通过 std::setw 设置的宽度
+  const int precision = os.precision(); // 通过 std::setprecision 设置的精度
+  const std::ios_base::fmtflags flags = os.flags(); // 格式标志（如科学计数法）
+
+  // 根据格式标志确定浮点格式字符（e/f/g）
+  char format_specifier = 'g';
+  if (flags & std::ios_base::scientific) {
+    format_specifier = 'e';
+  } else if (flags & std::ios_base::fixed) {
+    format_specifier = 'f';
+  }
+
+  // 动态生成格式字符串（如 "%20.15Qe"）
+  char format_buffer[64];
+  std::snprintf(
+    format_buffer, sizeof(format_buffer),
+    "%%%d.%dQ%c",  // 格式模板：%[width].[precision]Q[e/f/g]
+    width,         // setw 设置的宽度
+    precision,     // setprecision 设置的精度
+    format_specifier
+  );
+
+  // 格式化 __float128 到字符串
+  char value_buffer[128];
+  int n = quadmath_snprintf(
+    value_buffer, sizeof(value_buffer),
+    format_buffer, // 动态生成的格式（如 "%20.15Qe"）
+    value
+  );
+
+  // 输出到流
+  if (n >= 0 && n < sizeof(value_buffer)) {
+    os << value_buffer;
+  } else {
+    os << "[FORMAT ERROR]";
+  }
+
+  // 重置流的宽度（setw 的特性：生效一次后恢复默认）
+  os.width(0);
+
+  return os;
+}
+/*#include <iostream>
+#include <string>
+#include <cstring>
+#include <cstdio>
+#include <iomanip>  // 用于 std::ios_base::fmtflags
+// Overload operator<< for __float128
+std::ostream& operator<<(std::ostream& os, __float128 value) {
+  char buffer[128];
+  char format[10];
+  char tempChar[20];
+  strcpy(format, "% .");
+  // 获取流的格式状态
+  int width = os.width();                  // 当前设置的宽度
+  if(width<41 && width>=6) {
+    sprintf(tempChar, "%d", width-6);
+    strcat(format,tempChar);
+    strcat(format,"Qe");
+  }
+  else{
+    strcat(format,"0Qe");
+  }
+
+  int n = quadmath_snprintf(buffer, sizeof(buffer), format, value);
+  if (n >= 0 && n < sizeof(buffer)) {
+
+    char fill = os.fill();                   // 填充字符（默认空格）
+    std::ios_base::fmtflags flags = os.flags(); // 对齐方式标志
+
+    std::string str(buffer);
+    int len = str.length();
+
+    // 应用宽度和对齐
+    if (len < width) {
+      int padding = width - len;
+      if (flags & std::ios_base::left) {  // 左对齐：右侧填充
+        str.append(padding, fill);
+      } else {                            // 右对齐（默认）：左侧填充
+        str.insert(0, padding, fill);
+      }
+    }
+
+    // 插入处理后的字符串并重置宽度
+    os << str;
+    os.width(0);  // 重要：重置宽度，避免影响后续输出
+  } else {
+    os << "[FORMAT ERROR]";
+  }
+  return os;
+}*/
+#endif
+
+
 
 /*
  *------------------------------------------------------------------

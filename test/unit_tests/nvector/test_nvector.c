@@ -37,7 +37,7 @@
 
 #if defined(SUNDIALS_FLOAT128_PRECISION)
 #define FSYM "Qf"
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_EXTENDED_PRECISION)
 #define FSYM "Lf"
 #else
 #define FSYM ".17f"

@@ -66,6 +66,15 @@
 #include <sundials/sundials_logger.h>
 // Header file containing UserData and function declarations
 #include "kin_em_p.hpp"
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+inline __float128 log(__float128 x) { return logq(x); }
+inline __float128 sqrt(__float128 x) { return sqrtq(x); }
+// 在需要的地方扩展 std 命名空间
+namespace std {
+using ::log;  // 将全局 log(__float128) 引入 std
+using ::sqrt;  // 将全局 sqrt(__float128) 引入 std
+}
+#endif
 // -----------------------------------------------------------------------------
 // Main Program
 // -----------------------------------------------------------------------------
@@ -356,7 +365,7 @@ static int FPFunction(N_Vector u, N_Vector f, void* user_data)
 static int SetupSamples(UserData* udata)
 {
   sunindextype i, j, start, end;
-  double mean, val;
+  sunrealtype mean, val;
 
   // Access problem data
   sunrealtype* samples_local = N_VGetArrayPointer(udata->samples_local);
@@ -366,7 +375,7 @@ static int SetupSamples(UserData* udata)
     N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(udata->mu_true));
   if (check_retval((void*)mu_host, "N_VGetArrayPointer", 0)) { return 1; }
 
-  double std_dev = 1.0;
+  sunrealtype std_dev = ONE;
 
   for (i = 0; i < 3; i++)
   {
@@ -387,13 +396,13 @@ static int SetupSamples(UserData* udata)
     // Setup distribution parameters
     mean = mu_host[i];
     std::default_random_engine generator;
-    std::normal_distribution<double> distribution(mean, std_dev);
+    std::normal_distribution<sunrealtype> distribution(mean, std_dev);
 
     // Get samples
     for (j = start; j < end; j++)
     {
       val              = distribution(generator);
-      samples_local[j] = (sunrealtype)val;
+      samples_local[j] = val;
     }
   }
 

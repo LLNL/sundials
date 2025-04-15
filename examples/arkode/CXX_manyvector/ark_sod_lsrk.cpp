@@ -415,7 +415,7 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
     flux[j][3] = u * w1d[j][3];          // f_mz = rho*w*u = mz*u
     flux[j][4] = u * (w1d[j][4] + p[j]); // f_et = u*(et + p)
     csnd  = SUNRsqrt(udata.gamma * p[j] / w1d[j][0]); // csnd = sqrt(gamma*p/rho)
-    alpha = SUNMAX(alpha, SUNRabs(u) + csnd);
+    alpha = SUNMAX(alpha, abs(u) + csnd);
   }
 
   // compute flux from right side of face at x_{i+1/2}:
