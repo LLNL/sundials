@@ -77,7 +77,9 @@
 #endif
 
 /* Convince macros for using precision-specific format specifiers */
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define ESYM "Qe"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define ESYM "Le"
 #else
 #define ESYM "e"

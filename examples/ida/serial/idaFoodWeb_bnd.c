@@ -119,8 +119,8 @@
 #define BETA  SUN_RCONST(1000.)  /* Coefficient beta in above eqns.   */
 #define AX    SUN_RCONST(1.0)    /* Total range of x variable         */
 #define AY    SUN_RCONST(1.0)    /* Total range of y variable         */
-#define RTOL  SUN_RCONST(1.e-16)  /* Relative tolerance                */
-#define ATOL  SUN_RCONST(1.e-16)  /* Absolute tolerance                */
+#define RTOL  SUN_RCONST(1.e-5)  /* Relative tolerance                */
+#define ATOL  SUN_RCONST(1.e-5)  /* Absolute tolerance                */
 #define NOUT  6                  /* Number of output times            */
 #define TMULT SUN_RCONST(10.0)   /* Multiplier for tout values        */
 #define TADD  SUN_RCONST(0.3)    /* Increment for tout values         */

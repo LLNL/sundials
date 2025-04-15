@@ -378,6 +378,32 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Function : SUNRacos
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype acos_x;
+ *         acos_x = SUNRacos(x);
+ * -----------------------------------------------------------------
+ * SUNRacos(x) returns the acos value of x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRacos
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRacos(x) (acos((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRacos(x) (acosf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRacos(x) (acosl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define SUNRacos(x) (acosq((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUNRatan
  * -----------------------------------------------------------------
  * Usage : sunrealtype cos_x;
