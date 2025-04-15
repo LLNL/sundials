@@ -232,8 +232,8 @@ while [[ $# -gt 0 ]]; do
                 EXTENDED|Extended|extended)
                     sunrealtype=extended
                     ;;
-                FLOAT128|Float128|flaot128)
-                    sunrealtype=flaot128
+                EXTENDED|Extended|extended)
+                    sunrealtype=extended
                     ;;
                 *)
                     echo "ERROR: Invalid real type option $sunrealtype"
