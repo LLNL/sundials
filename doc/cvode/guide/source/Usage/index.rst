@@ -4327,7 +4327,7 @@ the CVBBDPRE preconditioner module are described next.
    **Notes:**
       If one of the half-bandwidths ``mudq`` or ``mldq`` to be used in the
       difference quotient calculation of the approximate Jacobian is negative or
-      exceeds the value ``local_N - 1 ``, it is replaced by ``0`` or
+      exceeds the value ``local_N - 1``, it is replaced by ``0`` or
       ``local_N - 1`` accordingly.
 
       The half-bandwidths ``mudq`` and ``mldq`` need not be the true

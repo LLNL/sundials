@@ -245,7 +245,7 @@ provide his own error handler function (see :numref:`KINSOL.Usage.CC.optional_in
 KINSOL initialization and deallocation functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. c:function:: void KINCreate(SUNContext sunctx)
+.. c:function:: void * KINCreate(SUNContext sunctx)
 
    The function :c:func:`KINCreate` instantiates a KINSOL solver object.
 
@@ -253,7 +253,7 @@ KINSOL initialization and deallocation functions
      - ``sunctx`` -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
-     * ``void``
+     * ``void *``
 
 
 .. c:function:: int KINInit(void * kin_mem, KINSysFn func, N_Vector tmpl)
