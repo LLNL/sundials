@@ -60,7 +60,7 @@
 #define TEN          SUN_RCONST(10.0)            /* real 10.0 */
 #define TWENTY       SUN_RCONST(20.0)            /* real 20.0 */
 #define SIXTY        SUN_RCONST(60.0)            /* real 60.0 */
-#define PI           SUN_RCONST(3.141592653589793238462643383279502884197169) /* real pi   */
+#define PI           SUN_RCONST(3.141592653589793238462643383279502884) /* real pi   */
 
 /* analytic solution */
 #define XTRUE HALF
