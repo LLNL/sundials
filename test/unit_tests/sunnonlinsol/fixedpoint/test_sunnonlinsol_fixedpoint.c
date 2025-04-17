@@ -37,22 +37,12 @@
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 /* precision specific formatting macros */
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #else
 #define GSYM "g"
-#endif
-
-/* precision specific math function macros */
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNRsin(x) (sin((x)))
-#define SUNRcos(x) (cos((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNRsin(x) (sinf((x)))
-#define SUNRcos(x) (cosf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNRsin(x) (sinl((x)))
-#define SUNRcos(x) (cosl((x)))
 #endif
 
 /* problem constants */
@@ -70,7 +60,7 @@
 #define TEN          SUN_RCONST(10.0)            /* real 10.0 */
 #define TWENTY       SUN_RCONST(20.0)            /* real 20.0 */
 #define SIXTY        SUN_RCONST(60.0)            /* real 60.0 */
-#define PI           SUN_RCONST(3.1415926535898) /* real pi   */
+#define PI           SUN_RCONST(3.141592653589793238462643383279502884) /* real pi   */
 
 /* analytic solution */
 #define XTRUE HALF
@@ -111,8 +101,8 @@ int main(int argc, char* argv[])
   IntegratorMem Imem     = NULL;
   int retval             = 0;
   SUNNonlinearSolver NLS = NULL;
-  sunrealtype tol        = 100 * SUNRsqrt(SUN_UNIT_ROUNDOFF);
-  int mxiter             = 20;
+  sunrealtype tol        = SUN_RCONST(100.0) * SUNRsqrt(SUN_UNIT_ROUNDOFF);
+  int mxiter             = 40;
   int maa                = 0;               /* no acceleration */
   sunrealtype damping    = SUN_RCONST(1.0); /* no damping      */
   long int niters        = 0;

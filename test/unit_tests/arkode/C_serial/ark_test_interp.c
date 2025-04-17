@@ -35,7 +35,7 @@
 
 /* Precision specific math function macros */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SIN(x)  (sin((x)))
+#define SUNRsin(x)  (sin((x)))
 #define COS(x)  (cos((x)))
 #define SQRT(x) (sqrt((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
@@ -271,50 +271,50 @@ int main(int argc, char* argv[])
         /* set error values */
         /*   y */
         NV_Ith_S(yerr, 0) =
-          SUNRabs(SIN(SUN_RCONST(2.0) * t_test) - NV_Ith_S(ytest, 0));
+          SUNRabs(SUNRsin(SUN_RCONST(2.0) * t_test) - NV_Ith_S(ytest, 0));
         NV_Ith_S(yerr, 1) =
-          SUNRabs(COS(SUN_RCONST(3.0) * t_test) - NV_Ith_S(ytest, 1));
+          SUNRabs(SUNRcos(SUN_RCONST(3.0) * t_test) - NV_Ith_S(ytest, 1));
         /*   dy */
         NV_Ith_S(dyerr, 0) = SUNRabs(
-          SUN_RCONST(2.0) * COS(SUN_RCONST(2.0) * t_test) - NV_Ith_S(dytest, 0));
+          SUN_RCONST(2.0) * SUNRcos(SUN_RCONST(2.0) * t_test) - NV_Ith_S(dytest, 0));
         NV_Ith_S(dyerr, 1) = SUNRabs(
-          -SUN_RCONST(3.0) * SIN(SUN_RCONST(3.0) * t_test) - NV_Ith_S(dytest, 1));
+          -SUN_RCONST(3.0) * SUNRsin(SUN_RCONST(3.0) * t_test) - NV_Ith_S(dytest, 1));
         /*   d2y */
         NV_Ith_S(d2yerr,
-                 0) = SUNRabs(-SUN_RCONST(4.0) * SIN(SUN_RCONST(2.0) * t_test) -
+                 0) = SUNRabs(-SUN_RCONST(4.0) * SUNRsin(SUN_RCONST(2.0) * t_test) -
                               NV_Ith_S(d2ytest, 0));
         NV_Ith_S(d2yerr,
-                 1) = SUNRabs(-SUN_RCONST(9.0) * COS(SUN_RCONST(3.0) * t_test) -
+                 1) = SUNRabs(-SUN_RCONST(9.0) * SUNRcos(SUN_RCONST(3.0) * t_test) -
                               NV_Ith_S(d2ytest, 1));
         /*   d3y */
         NV_Ith_S(d3yerr,
-                 0) = SUNRabs(-SUN_RCONST(8.0) * COS(SUN_RCONST(2.0) * t_test) -
+                 0) = SUNRabs(-SUN_RCONST(8.0) * SUNRcos(SUN_RCONST(2.0) * t_test) -
                               NV_Ith_S(d3ytest, 0));
         NV_Ith_S(d3yerr,
-                 1) = SUNRabs(SUN_RCONST(27.0) * SIN(SUN_RCONST(3.0) * t_test) -
+                 1) = SUNRabs(SUN_RCONST(27.0) * SUNRsin(SUN_RCONST(3.0) * t_test) -
                               NV_Ith_S(d3ytest, 1));
         /*   d4y */
         NV_Ith_S(d4yerr,
-                 0) = SUNRabs(SUN_RCONST(16.0) * SIN(SUN_RCONST(2.0) * t_test) -
+                 0) = SUNRabs(SUN_RCONST(16.0) * SUNRsin(SUN_RCONST(2.0) * t_test) -
                               NV_Ith_S(d4ytest, 0));
         NV_Ith_S(d4yerr,
-                 1) = SUNRabs(SUN_RCONST(81.0) * COS(SUN_RCONST(3.0) * t_test) -
+                 1) = SUNRabs(SUN_RCONST(81.0) * SUNRcos(SUN_RCONST(3.0) * t_test) -
                               NV_Ith_S(d4ytest, 1));
         /*   d5y */
         NV_Ith_S(d5yerr,
-                 0) = SUNRabs(SUN_RCONST(32.0) * COS(SUN_RCONST(2.0) * t_test) -
+                 0) = SUNRabs(SUN_RCONST(32.0) * SUNRcos(SUN_RCONST(2.0) * t_test) -
                               NV_Ith_S(d5ytest, 0));
         NV_Ith_S(d5yerr, 1) =
-          SUNRabs(-SUN_RCONST(243.0) * SIN(SUN_RCONST(3.0) * t_test) -
+          SUNRabs(-SUN_RCONST(243.0) * SUNRsin(SUN_RCONST(3.0) * t_test) -
                   NV_Ith_S(d5ytest, 1));
 
         /* compute error norms (2-norm per test, max-norm over interval) */
-        yerrs[ih]   = SUNMAX(yerrs[ih], SQRT(N_VDotProd(yerr, yerr)));
-        dyerrs[ih]  = SUNMAX(dyerrs[ih], SQRT(N_VDotProd(dyerr, dyerr)));
-        d2yerrs[ih] = SUNMAX(d2yerrs[ih], SQRT(N_VDotProd(d2yerr, d2yerr)));
-        d3yerrs[ih] = SUNMAX(d3yerrs[ih], SQRT(N_VDotProd(d3yerr, d3yerr)));
-        d4yerrs[ih] = SUNMAX(d4yerrs[ih], SQRT(N_VDotProd(d4yerr, d4yerr)));
-        d5yerrs[ih] = SUNMAX(d5yerrs[ih], SQRT(N_VDotProd(d5yerr, d5yerr)));
+        yerrs[ih]   = SUNMAX(yerrs[ih], SUNRsqrt(N_VDotProd(yerr, yerr)));
+        dyerrs[ih]  = SUNMAX(dyerrs[ih], SUNRsqrt(N_VDotProd(dyerr, dyerr)));
+        d2yerrs[ih] = SUNMAX(d2yerrs[ih], SUNRsqrt(N_VDotProd(d2yerr, d2yerr)));
+        d3yerrs[ih] = SUNMAX(d3yerrs[ih], SUNRsqrt(N_VDotProd(d3yerr, d3yerr)));
+        d4yerrs[ih] = SUNMAX(d4yerrs[ih], SUNRsqrt(N_VDotProd(d4yerr, d4yerr)));
+        d5yerrs[ih] = SUNMAX(d5yerrs[ih], SUNRsqrt(N_VDotProd(d5yerr, d5yerr)));
 
       } /* end itest loop */
 
@@ -502,26 +502,26 @@ int main(int argc, char* argv[])
         /* set error values */
         /*   y */
         NV_Ith_S(yerr, 0) =
-          SUNRabs(SIN(SUN_RCONST(2.0) * t_test) - NV_Ith_S(ytest, 0));
+          SUNRabs(SUNRsin(SUN_RCONST(2.0) * t_test) - NV_Ith_S(ytest, 0));
         NV_Ith_S(yerr, 1) =
-          SUNRabs(COS(SUN_RCONST(3.0) * t_test) - NV_Ith_S(ytest, 1));
+          SUNRabs(SUNRcos(SUN_RCONST(3.0) * t_test) - NV_Ith_S(ytest, 1));
         /*   dy */
         NV_Ith_S(dyerr, 0) = SUNRabs(
-          SUN_RCONST(2.0) * COS(SUN_RCONST(2.0) * t_test) - NV_Ith_S(dytest, 0));
+          SUN_RCONST(2.0) * SUNRcos(SUN_RCONST(2.0) * t_test) - NV_Ith_S(dytest, 0));
         NV_Ith_S(dyerr, 1) = SUNRabs(
-          -SUN_RCONST(3.0) * SIN(SUN_RCONST(3.0) * t_test) - NV_Ith_S(dytest, 1));
+          -SUN_RCONST(3.0) * SUNRsin(SUN_RCONST(3.0) * t_test) - NV_Ith_S(dytest, 1));
         /*   d2y */
         NV_Ith_S(d2yerr,
-                 0) = SUNRabs(-SUN_RCONST(4.0) * SIN(SUN_RCONST(2.0) * t_test) -
+                 0) = SUNRabs(-SUN_RCONST(4.0) * SUNRsin(SUN_RCONST(2.0) * t_test) -
                               NV_Ith_S(d2ytest, 0));
         NV_Ith_S(d2yerr,
-                 1) = SUNRabs(-SUN_RCONST(9.0) * COS(SUN_RCONST(3.0) * t_test) -
+                 1) = SUNRabs(-SUN_RCONST(9.0) * SUNRcos(SUN_RCONST(3.0) * t_test) -
                               NV_Ith_S(d2ytest, 1));
 
         /* compute error norms (2-norm per test, max-norm over interval) */
-        yerrs[ih]   = SUNMAX(yerrs[ih], SQRT(N_VDotProd(yerr, yerr)));
-        dyerrs[ih]  = SUNMAX(dyerrs[ih], SQRT(N_VDotProd(dyerr, dyerr)));
-        d2yerrs[ih] = SUNMAX(d2yerrs[ih], SQRT(N_VDotProd(d2yerr, d2yerr)));
+        yerrs[ih]   = SUNMAX(yerrs[ih], SUNRsqrt(N_VDotProd(yerr, yerr)));
+        dyerrs[ih]  = SUNMAX(dyerrs[ih], SUNRsqrt(N_VDotProd(dyerr, dyerr)));
+        d2yerrs[ih] = SUNMAX(d2yerrs[ih], SUNRsqrt(N_VDotProd(d2yerr, d2yerr)));
 
       } /* end itest loop */
 
@@ -649,12 +649,12 @@ int main(int argc, char* argv[])
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* lambda = (sunrealtype*)user_data;
-  NV_Ith_S(ydot, 0) = (*lambda) * (NV_Ith_S(y, 0) - SIN(SUN_RCONST(2.0) * t)) +
-                      NV_Ith_S(y, 1) - COS(SUN_RCONST(3.0) * t) +
-                      SUN_RCONST(2.0) * COS(SUN_RCONST(2.0) * t);
+  NV_Ith_S(ydot, 0) = (*lambda) * (NV_Ith_S(y, 0) - SUNRsin(SUN_RCONST(2.0) * t)) +
+                      NV_Ith_S(y, 1) - SUNRcos(SUN_RCONST(3.0) * t) +
+                      SUN_RCONST(2.0) * SUNRcos(SUN_RCONST(2.0) * t);
   NV_Ith_S(ydot, 1) = NV_Ith_S(y, 0) - NV_Ith_S(y, 1) -
-                      SIN(SUN_RCONST(2.0) * t) + COS(SUN_RCONST(3.0) * t) -
-                      SUN_RCONST(3.0) * SIN(SUN_RCONST(3.0) * t);
+                      SUNRsin(SUN_RCONST(2.0) * t) + SUNRcos(SUN_RCONST(3.0) * t) -
+                      SUN_RCONST(3.0) * SUNRsin(SUN_RCONST(3.0) * t);
   return 0; /* Return with success */
 }
 

@@ -195,8 +195,8 @@ void setIC(N_Vector yy, N_Vector yp, UserData data)
   J2 = data->J2;
 
   q = pi / TWO;
-  p = asin(-a);
-  x = cos(p);
+  p = SUNRasin(-a);
+  x = SUNRcos(p);
 
   NV_Ith_S(yy, 0) = q;
   NV_Ith_S(yy, 1) = x;
@@ -289,10 +289,10 @@ int ressc(sunrealtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void* user_da
   mu1 = yval[8];
   mu2 = yval[9];
 
-  s1 = sin(q);
-  c1 = cos(q);
-  s2 = sin(p);
-  c2 = cos(p);
+  s1 = SUNRsin(q);
+  c1 = SUNRcos(q);
+  s2 = SUNRsin(p);
+  c2 = SUNRcos(p);
 
   force(yy, Q, data);
 

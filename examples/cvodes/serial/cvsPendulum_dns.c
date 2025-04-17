@@ -72,24 +72,6 @@
 #define ESYM "e"
 #endif
 
-/* Precision specific math function macros */
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SIN(x)  (sin((x)))
-#define COS(x)  (cos((x)))
-#define SQRT(x) (sqrt((x)))
-#define ABS(x)  (fabs((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SIN(x)  (sinf((x)))
-#define COS(x)  (cosf((x)))
-#define SQRT(x) (sqrtf((x)))
-#define ABS(x)  (fabsf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SIN(x)  (sinl((x)))
-#define COS(x)  (cosl((x)))
-#define SQRT(x) (sqrtl((x)))
-#define ABS(x)  (fabsl((x)))
-#endif
-
 /* Problem Constants */
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
