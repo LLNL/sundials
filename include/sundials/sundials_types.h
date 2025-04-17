@@ -320,55 +320,6 @@ std::ostream& operator<<(std::ostream& os, __float128 value) {
 
   return os;
 }
-/*#include <iostream>
-#include <string>
-#include <cstring>
-#include <cstdio>
-#include <iomanip>  // 用于 std::ios_base::fmtflags
-// Overload operator<< for __float128
-std::ostream& operator<<(std::ostream& os, __float128 value) {
-  char buffer[128];
-  char format[10];
-  char tempChar[20];
-  strcpy(format, "% .");
-  // 获取流的格式状态
-  int width = os.width();                  // 当前设置的宽度
-  if(width<41 && width>=6) {
-    sprintf(tempChar, "%d", width-6);
-    strcat(format,tempChar);
-    strcat(format,"Qe");
-  }
-  else{
-    strcat(format,"0Qe");
-  }
-
-  int n = quadmath_snprintf(buffer, sizeof(buffer), format, value);
-  if (n >= 0 && n < sizeof(buffer)) {
-
-    char fill = os.fill();                   // 填充字符（默认空格）
-    std::ios_base::fmtflags flags = os.flags(); // 对齐方式标志
-
-    std::string str(buffer);
-    int len = str.length();
-
-    // 应用宽度和对齐
-    if (len < width) {
-      int padding = width - len;
-      if (flags & std::ios_base::left) {  // 左对齐：右侧填充
-        str.append(padding, fill);
-      } else {                            // 右对齐（默认）：左侧填充
-        str.insert(0, padding, fill);
-      }
-    }
-
-    // 插入处理后的字符串并重置宽度
-    os << str;
-    os.width(0);  // 重要：重置宽度，避免影响后续输出
-  } else {
-    os << "[FORMAT ERROR]";
-  }
-  return os;
-}*/
 #endif
 
 
