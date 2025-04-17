@@ -69,6 +69,10 @@ if(ENABLE_SYCL)
   list(APPEND sundials_HEADERS sundials_sycl_policies.hpp)
 endif()
 
+if(ENABLE_LAPACK)
+  list(APPEND sundials_HEADERS sundials_arnoldi.h)
+endif()
+
 # If enabled, add the XBraid interface header
 if(ENABLE_XBRAID)
   list(APPEND sundials_HEADERS sundials_xbraid.h)
@@ -102,6 +106,15 @@ if(ENABLE_MPI)
   list(APPEND sundials_SOURCES sundials_mpi_errors.c)
 endif()
 
+if(ENABLE_LAPACK)
+  list(APPEND sundials_SOURCES sundials_arnoldi.c)
+  set(_link_lapack_if_needed PUBLIC LAPACK::LAPACK)
+  if(CMAKE_VERSION VERSION_LESS 3.20)
+    list(APPEND _link_lapack_if_needed BLAS::BLAS)
+  endif()
+endif()
+
+
 # Add prefix with complete path to the source files
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
@@ -125,7 +138,7 @@ sundials_add_library(
   SOURCES ${sundials_SOURCES}
   HEADERS ${sundials_HEADERS}
   INCLUDE_SUBDIR sundials
-  LINK_LIBRARIES ${_link_mpi_if_needed}
+  LINK_LIBRARIES ${_link_mpi_if_needed} ${_link_lapack_if_needed}
   OUTPUT_NAME sundials_core
   VERSION ${sundialslib_VERSION}
   SOVERSION ${sundialslib_SOVERSION})
