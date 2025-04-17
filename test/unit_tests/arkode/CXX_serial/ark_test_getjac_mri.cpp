@@ -75,8 +75,8 @@ static int ytrue(sunrealtype t, N_Vector y)
 {
   sunrealtype* ydata = N_VGetArrayPointer(y);
 
-  ydata[0] = sqrt(ONE + r(t));
-  ydata[1] = sqrt(TWO + s(t));
+  ydata[0] = SUNRsqrt(ONE + r(t));
+  ydata[1] = SUNRsqrt(TWO + s(t));
 
   return 0;
 }

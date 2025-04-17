@@ -29,6 +29,8 @@
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
 #else
 #define GSYM "g"
 #endif

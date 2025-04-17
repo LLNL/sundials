@@ -59,16 +59,6 @@
 #define SQR(A) ((A) * (A))
 #endif
 
-#ifndef SQRT
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SQRT(x) (sqrt((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SQRT(x) (sqrtf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SQRT(x) (sqrtl((x)))
-#endif
-#endif
-
 /* Problem Constants */
 
 #define ZERO SUN_RCONST(0.0)

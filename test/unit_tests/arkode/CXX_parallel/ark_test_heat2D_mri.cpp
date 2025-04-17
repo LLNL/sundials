@@ -202,8 +202,8 @@ int main(int argc, char* argv[])
   {
     for (i = 0; i < udata->nxl; i++)
     {
-      data[IDX(i, j, udata->nxl)] = sin(PI * (udata->is + i) * udata->dx) *
-                                    sin(TWO * PI * (udata->js + j) * udata->dy);
+      data[IDX(i, j, udata->nxl)] = SUNRsin(PI * (udata->is + i) * udata->dx) *
+                                    SUNRsin(TWO * PI * (udata->js + j) * udata->dy);
     }
   }
 
