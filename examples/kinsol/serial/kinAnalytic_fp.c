@@ -430,8 +430,8 @@ static int SetDefaults(UserOpt* uopt)
   if (*uopt == NULL) { return (-1); }
 
   /* Set default options values */
-  (*uopt)->tol            = SUN_RCONST(100.0) * SUNRsqrt(SUN_UNIT_ROUNDOFF);
-  (*uopt)->maxiter        = 60;
+  (*uopt)->tol            = SUN_RCONST(1.49012e-06); //SUN_RCONST(100.0) * SUNRsqrt(SUN_UNIT_ROUNDOFF);
+  (*uopt)->maxiter        = 30;
   (*uopt)->m_aa           = 0;               /* no acceleration */
   (*uopt)->delay_aa       = 0;               /* no delay        */
   (*uopt)->orth_aa        = 0;               /* MGS             */

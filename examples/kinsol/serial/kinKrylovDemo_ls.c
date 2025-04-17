@@ -299,7 +299,7 @@ int main(void)
 
       /* Create SUNLinSol_SPBCGS object with right preconditioning and the
          maximum Krylov dimension maxl */
-      maxl = 15;
+      maxl = 20;
       LS   = SUNLinSol_SPBCGS(cc, SUN_PREC_RIGHT, maxl, sunctx);
       if (check_flag((void*)LS, "SUNLinSol_SPBCGS", 0)) { return (1); }
 
@@ -660,7 +660,7 @@ static void InitUserData(UserData data)
   data->dx        = (data->ax) / (MX - 1);
   data->dy        = (data->ay) / (MY - 1);
   data->uround    = SUN_UNIT_ROUNDOFF;
-  data->sqruround = sqrt(data->uround);
+  data->sqruround = SUNRsqrt(data->uround);
 
   /* Set up the coefficients a and b plus others found in the equations */
   np = data->np;
@@ -799,7 +799,10 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 
   printf("Preconditioning uses interaction-only block-diagonal matrix\n");
   printf("Positivity constraints imposed on all components \n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("Tolerance parameters:  fnormtol = %Qg   scsteptol = %Qg\n", fnormtol,
+         scsteptol);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n", fnormtol,
          scsteptol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -811,7 +814,10 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 #endif
 
   printf("\nInitial profile of concentration\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("At all mesh points:  %Qg %Qg %Qg   %Qg %Qg %Qg\n", PREYIN, PREYIN,
+         PREYIN, PREDIN, PREDIN, PREDIN);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n", PREYIN, PREYIN,
          PREYIN, PREDIN, PREDIN, PREDIN);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -841,7 +847,9 @@ static void PrintOutput(N_Vector cc)
   for (is = 0; is < NUM_SPECIES; is++)
   {
     if ((is % 6) * 6 == is) { printf("\n"); }
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf(" %Qg", ct[is]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %Lg", ct[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf(" %g", ct[is]);
@@ -859,7 +867,9 @@ static void PrintOutput(N_Vector cc)
   for (is = 0; is < NUM_SPECIES; is++)
   {
     if ((is % 6) * 6 == is) { printf("\n"); }
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf(" %Qg", ct[is]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %Lg", ct[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf(" %g", ct[is]);

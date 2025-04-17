@@ -180,7 +180,9 @@ int main(void)
   retval = KINGetFuncNorm(kmem, &fnorm);
   if (check_retval(&retval, "KINGetfuncNorm", 1)) { return (1); }
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("\nComputed solution (||F|| = %Qg):\n\n", fnorm);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\nComputed solution (||F|| = %Lg):\n\n", fnorm);
 #else
   printf("\nComputed solution (||F|| = %g):\n\n", fnorm);
@@ -245,7 +247,9 @@ static void PrintOutput(N_Vector y)
   y2 = Ith(y, 2);
   y3 = Ith(y, 3);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("y =%14.6Qe  %14.6Qe  %14.6Qe\n", y1, y2, y3);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("y =%14.6Le  %14.6Le  %14.6Le\n", y1, y2, y3);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("y =%14.6e  %14.6e  %14.6e\n", y1, y2, y3);
