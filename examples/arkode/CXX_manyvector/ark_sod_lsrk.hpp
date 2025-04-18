@@ -89,7 +89,7 @@ public:
       atol(SUN_RCONST(1.e-11)),
       fixed_h(ZERO),
       maxsteps(10000),
-      output(1),
+      output(3),
       nout(10){};
 
 }; // end ARKODEParameters
@@ -304,6 +304,8 @@ inline void find_arg(std::vector<std::string>& args, const std::string key,
     dest = stod(*(it + 1));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
     dest = stold(*(it + 1));
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+    dest = sunrealtype(stold(*(it + 1)));
 #endif
     args.erase(it, it + 2);
   }

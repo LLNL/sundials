@@ -86,7 +86,7 @@
 
 #define NSPECIES 2
 
-#define WIDTH (10 + numeric_limits<sunrealtype>::digits10)
+#define WIDTH (10 + numeric_limits<double>::digits10)
 
 // Macro to access each species at an (x,y) location in a 1D array
 #define UIDX(x, y, nx) (NSPECIES * ((nx) * (y) + (x)))
@@ -2427,7 +2427,7 @@ static int OpenOutput(UserData* udata)
   if (udata->output > 0 && udata->outproc)
   {
     cout << scientific;
-    cout << setprecision(numeric_limits<sunrealtype>::digits10);
+    cout << setprecision(numeric_limits<double>::digits10);
     cout << "          t           ";
     cout << "          ||u||_rms      " << endl;
     cout << " ---------------------";
@@ -2444,7 +2444,7 @@ static int OpenOutput(UserData* udata)
     udata->uout.open(fname.str());
 
     udata->uout << scientific;
-    udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
+    udata->uout << setprecision(numeric_limits<double>::digits10);
 
     // Add 1 to the total number of nodes in the x and y directions and to the
     // end indices in the x and y direction at the North and East boundary to

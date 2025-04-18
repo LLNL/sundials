@@ -300,8 +300,8 @@ static int ewt(N_Vector y, N_Vector w, void* user_data)
   {
     yy = Ith(y, i);
     ww = rtol * SUNRabs(yy) + atol[i - 1];
-    if (ww <= 0.0) { return (-1); }
-    Ith(w, i) = 1.0 / ww;
+    if (ww <= SUN_RCONST(0.0)) { return (-1); }
+    Ith(w, i) = SUN_RCONST(1.0) / ww;
   }
 
   return (0);
@@ -316,7 +316,9 @@ static int ewt(N_Vector y, N_Vector w, void* user_data)
 static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2,
                         sunrealtype y3)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("At t = %0.4Qe      y =%14.6Qe  %14.6Qe  %14.6Qe\n", t, y1, y2, y3);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
