@@ -21,12 +21,14 @@ jobs:
       image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest
       options: --user root
     strategy:
+      fail-fast: false
       max-parallel: 2
       matrix:
         indexsize: [32, 64]
         # Disable extended tests until compiler warnings are addressed
         precision: ['single', 'double']
         buildtype: ['Debug', 'Release', 'RelWithDebInfo']
+        tpls: ['ON']
         exclude:
           - buildtype: Debug
             precision: single
@@ -49,13 +51,14 @@ jobs:
         with:
           indexsize: ${{ matrix.indexsize }}
           precision: ${{ matrix.precision }}
+          tpls: ${{ matrix.tpls }}
         env:
           CMAKE_BUILD_TYPE: ${{ matrix.buildtype }}
       - name: Archive build files from failed build
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: build_files
+          name: build_files_${{ matrix.indexsize }}_${{ matrix.precision }}_${{ matrix.buildtype }}_${{ matrix.tpls }}
           path: |
             ${{ github.workspace }}/test/build_*
             !${{ github.workspace }}/test/build_*/Testing/output
@@ -63,6 +66,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: output_files
+          name: output_files_${{ matrix.indexsize }}_${{ matrix.precision }}_${{ matrix.buildtype }}_${{ matrix.tpls }}
           path: |
             ${{ github.workspace }}/test/build_*/Testing/

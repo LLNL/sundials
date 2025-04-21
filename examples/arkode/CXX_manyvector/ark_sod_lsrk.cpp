@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -112,8 +112,8 @@ int main(int argc, char* argv[])
     // Select number of SSPRK stages
     if (uopts.stages > 0)
     {
-      flag = LSRKStepSetSSPStageNum(arkode_mem, uopts.stages);
-      if (check_flag(flag, "LSRKStepSetSSPStageNum")) { return 1; }
+      flag = LSRKStepSetNumSSPStages(arkode_mem, uopts.stages);
+      if (check_flag(flag, "LSRKStepSetNumSSPStages")) { return 1; }
     }
   }
   else

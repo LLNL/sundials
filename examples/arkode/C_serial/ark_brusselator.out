@@ -7,25 +7,25 @@ Brusselator ODE test problem:
         t           u           v           w
    -------------------------------------------
     0.000000    1.200000    3.100000    3.000000
-    1.000000    1.103849    3.013164    3.499981
-    2.000000    0.687997    3.521384    3.499988
-    3.000000    0.409467    4.277888    3.499993
-    4.000000    0.367889    4.942005    3.499994
-    5.000000    0.413860    5.510615    3.499993
-    6.000000    0.589251    5.855655    3.499990
-    7.000000    4.756472    0.735414    3.499917
-    8.000000    1.813403    1.575799    3.499968
-    9.000000    0.527886    2.807385    3.499991
-   10.000000    0.305598    3.657381    3.499995
+    1.000000    1.103928    3.013077    3.499981
+    2.000000    0.688000    3.521383    3.499988
+    3.000000    0.409457    4.277904    3.499993
+    4.000000    0.367930    4.941982    3.499994
+    5.000000    0.413873    5.510597    3.499993
+    6.000000    0.589234    5.855676    3.499990
+    7.000000    4.756388    0.735572    3.499917
+    8.000000    1.813443    1.575775    3.499968
+    9.000000    0.527894    2.807370    3.499991
+   10.000000    0.305641    3.657353    3.499995
    -------------------------------------------
 
 Final Solver Statistics:
-   Internal solver steps = 252 (attempted = 262)
-   Total RHS evals:  Fe = 0,  Fi = 1910
-   Total linear solver setups = 111
+   Internal solver steps = 169 (attempted = 221)
+   Total RHS evals:  Fe = 0,  Fi = 1790
+   Total linear solver setups = 230
    Total RHS evals for setting up the linear system = 0
-   Total number of Jacobian evaluations = 71
-   Total number of Newton iterations = 3286
-   Total number of nonlinear solver convergence failures = 70
-   Total number of error test failures = 9
-   Total number of failed steps from solver failure = 1
+   Total number of Jacobian evaluations = 159
+   Total number of Newton iterations = 2940
+   Total number of nonlinear solver convergence failures = 158
+   Total number of error test failures = 12
+   Total number of failed steps from solver failure = 40

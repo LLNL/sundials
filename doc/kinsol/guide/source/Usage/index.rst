@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -245,7 +245,7 @@ provide his own error handler function (see :numref:`KINSOL.Usage.CC.optional_in
 KINSOL initialization and deallocation functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. c:function:: void KINCreate(SUNContext sunctx)
+.. c:function:: void * KINCreate(SUNContext sunctx)
 
    The function :c:func:`KINCreate` instantiates a KINSOL solver object.
 
@@ -253,7 +253,7 @@ KINSOL initialization and deallocation functions
      - ``sunctx`` -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
-     * ``void``
+     * ``void *``
 
 
 .. c:function:: int KINInit(void * kin_mem, KINSysFn func, N_Vector tmpl)
@@ -506,6 +506,10 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
   | Anderson Acceleration delay                            | :c:func:`KINSetDelayAA`          | 0                            |
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Anderson Acceleration orthogonalization routine        | :c:func:`KINSetOrthAA`           | ``KIN_ORTH_MGS``             |
+  +--------------------------------------------------------+----------------------------------+------------------------------+
+  | Fixed-point/Picard damping function                    | :c:func:`KINSetDampingFn`        | ``NULL``                     |
+  +--------------------------------------------------------+----------------------------------+------------------------------+
+  | Fixed-point/Picard depth function                      | :c:func:`KINSetDepthFn`          | ``NULL``                     |
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | **KINLS linear solver interface**                      |                                  |                              |
   +--------------------------------------------------------+----------------------------------+------------------------------+
@@ -1102,6 +1106,41 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       ``examples/kinsol/serial/kinAnalytic_fp.c``
 
 
+.. c:function:: int KINSetDampingFn(void* kin_mem, KINDampingFn damping_fn)
+
+   Sets the function used to compute the damping factor, :math:`\beta_n`, in
+   fixed-point or Picard iterations.
+
+   :param kin_mem: pointer to the KINSOL memory block.
+   :param damping_fn: the function to compute the damping parameter or ``NULL``
+                      to disable using a damping factor function. See
+                      :c:type:`KINDampingFn` for more information.
+
+   :retval KIN_SUCCESS: The damping function has been successfully set.
+   :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 7.3.0
+
+   .. note::
+
+      The function provided to :c:func:`KINSetDampingFn` will override any
+      values set with :c:func:`KINSetDamping` or :c:func:`KINSetDampingAA`.
+
+.. c:function:: int KINSetDepthFn(void* kin_mem, KINDepthFn depth_fn)
+
+   Sets the function used to compute the updated depth, :math:`m_n`, in
+   fixed-point or Picard iterations.
+
+   :param kin_mem: pointer to the KINSOL memory block.
+   :param damping_fn: the function to compute the depth parameter or ``NULL``
+                      to disable using a depth function. See
+                      :c:type:`KINDepthFn` for more information.
+
+   :retval KIN_SUCCESS: The depth function has been successfully set.
+   :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 7.3.0
+
 .. _KINSOL.Usage.CC.optional_inputs.optin_ls:
 
 Linear solver interface optional input functions
@@ -1351,6 +1390,10 @@ functions are described next.
       workspace (without distinction between ``int``  and ``long int``) is
       :math:`22 + 5 N` (increased by :math:`N` if constraint checking is enabled).
 
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: int KINGetNumFuncEvals(void * kin_mem, long int * nfevals)
 
@@ -1474,9 +1517,9 @@ functions are described next.
 
    .. note::
 
-      The file ``scripts/sundials_csv.py`` provides python utility functions to
-      read and output the data from a SUNDIALS CSV output file using the key
-      and value pair format.
+      The Python module ``tools/suntools`` provides utilities to read and output
+      the data from a SUNDIALS CSV output file using the key and value pair
+      format.
 
    .. versionadded:: 6.2.0
 
@@ -1560,6 +1603,10 @@ The following optional outputs are available from the KINLS modules:
 
       Replaces the deprecated function ``KINDlsGetWorkspace`` and
       ``KINSpilsGetWorkspace``.
+
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 
 .. c:function:: int KINGetNumJacEvals(void * kin_mem, long int * njevals)
@@ -1770,12 +1817,20 @@ The following optional outputs are available from the KINLS modules:
 User-supplied functions
 -----------------------
 
-The user-supplied functions consist of one function defining the nonlinear system,
-(optionally) a function that handles error and warning messages,
-(optionally) a function that handles informational messages,
-(optionally) one or two functions that provides Jacobian-related information for the linear
-solver, and (optionally) one or two functions that define the preconditioner for use in
-any of the Krylov iterative algorithms.
+With KINSOL, users are required to supply a function of type :c:type:`KINSysFn`
+that defines the nonlinear system to solve. Additionally, users may *optionally*
+supply the any of following functions when relevant:
+
+* Functions that provide Jacobian-related information to linear solvers, see
+  :c:type:`KINLsJacFn` and :c:type:`KINLsJacTimesVecFn`.
+
+* Functions that define the preconditioner setup and solve routines for
+  iterative linear solvers. See :c:type:`KINLsPrecSetupFn` and
+  :c:type:`KINLsPrecSolveFn`, respectively.
+
+* A function to compute the damping parameter in fixed-point or Picard
+  iterations, see :c:type:`KINDampingFn`.
+
 
 .. _KINSOL.Usage.CC.user_fct_sim.resFn:
 
@@ -1799,8 +1854,7 @@ The user must provide a function of type :c:type:`KINSysFn` defined as follows:
       An :c:type:`KINSysFn` function type should return a value of :math:`0` if
       successful, a positive value if a recoverable error occurred (in which
       case KINSOL will attempt to correct), or a negative value if a nonrecoverable
-      error occurred. In the last case, the integrator halts. If a recoverable error
-      occurred, the integrator will attempt to correct and retry.
+      error occurred.
 
    **Notes:**
       Allocation of memory for ``fval`` is handled within KINSOL.
@@ -2068,6 +2122,97 @@ function of type :c:type:`KINLsPrecSetupFn`, defined as follows:
       If the preconditioner solve routine requires no preparation, then a
       preconditioner setup function need not be given.
 
+.. _KINSOL.Usage.CC.user_fct_sim.dampingFn:
+
+Damping function
+~~~~~~~~~~~~~~~~
+
+When using the fixed-point or Picard iterations, the user may provide a function
+of type :c:type:`KINDampingFn` to computing the damping factor, :math:`\beta_n`,
+from :numref:`KINSOL.Mathematics.FixedPoint` and
+:numref:`KINSOL.Mathematics.AndersonAcceleration`.
+
+.. c:type:: int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val, sunrealtype* qt_fn, long int depth, void* user_data, sunrealtype* damping_factor)
+
+   This function computes the damping factor, :math:`0 < \beta_n \leq 1`, for
+   fixed-point and Picard iterations.
+
+   **Parameters:**
+
+   * **iter** -- the iteration being computed, :math:`n + 1`.
+   * **u_val** -- the current iterate, :math:`u_n`.
+   * **g_val** -- the fixed-point function evaluated at the current iterate, :math:`G(u_n)`.
+   * **qt_fn** -- the array :math:`Q^T f_n` of length ``depth`` from
+     :numref:`KINSOL.Mathematics.AndersonAcceleration` which can be used to
+     compute the acceleration gain, :math:`\sqrt{1 - \|Q_n^T f_n\|^2/\|f_n\|^2}`,
+     from :cite:p:`evans2020proof` or ``NULL`` if acceleration is not applied to
+     this iteration.
+   * **depth** -- the size of the Anderson acceleration space, :math:`m_n`, or
+     zero if acceleration is not applied to this iteration.
+   * **user_data** -- the user data pointer passed to :c:func:`KINSetUserData`.
+   * **damping_factor** -- the computed damping factor, :math:`\beta_n`.
+
+   **Returns:**
+
+     A :c:type:`KINDampingFn` function should return :math:`0` if successful or
+     a non-zero value if an error occurred.
+
+   .. versionadded:: 7.3.0
+
+.. _KINSOL.Usage.CC.user_fct_sim.depthFn:
+
+Depth function
+~~~~~~~~~~~~~~
+
+When using the fixed-point or Picard iterations, the user may provide a function
+of type :c:type:`KINDepthFn` to modify the Anderson acceleration depth,
+:math:`m_n`, from :numref:`KINSOL.Mathematics.AndersonAcceleration`.
+
+.. c:type:: int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val, N_Vector f_val, N_Vector* df, sunrealtype* R_mat, long int depth, void* user_data, long int* new_depth, sunbooleantype* remove_index);
+
+   This function computes an Anderson acceleration depth parameter, :math:`0
+   \leq \hat{m}_n \leq \min\{m_n, m_\textrm{max}\}` to replace the current
+   depth, :math:`m_n`, where :math:`m_\textrm{max}` is the maximum
+   acceleration space size (see :c:func:`KINSetMAA`).
+
+   If the new depth computed by this function, :math:`\hat{m}_n`, is less than
+   the current depth, :math:`m_n`, then the :math:`m_n - \hat{m}_n` left-most
+   columns of :math:`\Delta F_n` will be removed and the QR factorization
+   updated accordingly. Otherwise, the current depth and factorization will be
+   retained.
+
+   **Parameters:**
+
+   * **iter** -- the iteration being computed, :math:`n + 1`.
+   * **u_val** -- the current iterate, :math:`u_n`.
+   * **g_val** -- the fixed-point function evaluated at the current iterate,
+     :math:`G(u_n)`.
+   * **f_val** -- the fixed-point residual function evaluated at the current
+     iterate, :math:`f_n = G(u_n) - u_n`.
+   * **df** -- the history of fixed-point residual function differences,
+     :math:`\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1})`, where
+     :math:`\Delta f_i = f_{i+1} - f_i`.
+   * **R_mat** -- the upper triangular matrix, :math:`R_n`, in the QR
+     factorization :math:`\Delta F_n = Q_n R_n`. ``R_mat`` is allocated with
+     space for a dense :math:`m_{\textrm{max}} \times m_{\textrm{max}}` matrix
+     and elements are stored column-wise. On input, ``R_mat`` contains the
+     entries for an :math:`m_n \times m_n` matrix.
+   * **depth** -- the current size of the Anderson acceleration space,
+     :math:`m_n`.
+   * **user_data** -- the user data pointer passed to :c:func:`KINSetUserData`.
+   * **new_depth** -- the computed depth, :math:`\hat{m}_n`, to replace
+     the current depth, :math:`m_n`.
+   * **remove_index** -- this parameter is currently unused (``NULL``) and
+     will be used to provide future support for indicating which columns of
+     :math:`\Delta F_n` to remove.
+
+   **Returns:**
+
+     A :c:type:`KINDepthFn` function should return :math:`0` if successful or
+     a non-zero value if an error occurred.
+
+   .. versionadded:: 7.3.0
+
 
 .. _KINSOL.Usage.CC.kin_bbdpre:
 
@@ -2299,6 +2444,10 @@ KINBBDPRE module:
 
       The workspaces referred to here exist in addition
       to those given by the corresponding :c:func:`KINGetLinWorkSpace` function.
+
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int KINBBDPrecGetNumGfnEvals(void * kin_mem, long int * ngevalsBBDP)
 

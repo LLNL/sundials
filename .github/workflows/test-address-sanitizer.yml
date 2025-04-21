@@ -1,0 +1,60 @@
+#
+name: Build and Test - Ubuntu/gcc (Address Sanitizer)
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  sanitizer_build_and_test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest
+      options: --user root
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        indexsize: [32, 64]
+        precision: ['double']
+        buildtype: ['Debug']
+        # Address sanitizer is enabled in test_driver.sh with TPLs OFF
+        tpls: ['OFF']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Run test_driver.sh
+        uses: ./.github/actions/test-driver
+        with:
+          indexsize: ${{ matrix.indexsize }}
+          precision: ${{ matrix.precision }}
+          tpls: ${{ matrix.tpls }}
+        env:
+          CMAKE_BUILD_TYPE: ${{ matrix.buildtype }}
+      - name: Archive build files from failed build
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: build_files_${{ matrix.indexsize }}_${{ matrix.precision }}_${{ matrix.buildtype }}_${{ matrix.tpls }}
+          path: |
+            ${{ github.workspace }}/test/build_*
+            !${{ github.workspace }}/test/build_*/Testing/output
+      - name: Archive output files from failed build
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: output_files_${{ matrix.indexsize }}_${{ matrix.precision }}_${{ matrix.buildtype }}_${{ matrix.tpls }}
+          path: |
+            ${{ github.workspace }}/test/build_*/Testing/

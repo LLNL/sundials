@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -168,6 +168,10 @@ ARKodeSPRKTable functions
    :param sprk_table: The :c:type:`ARKodeSPRKTable`.
    :param liw: Pointer to store the integer workspace size.
    :param lrw: Pointer to store the real workspace size.
+
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_table)
 

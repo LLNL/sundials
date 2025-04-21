@@ -3,7 +3,7 @@
  * Programmer(s): Daniel R. Reynolds and Ting Yan @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -204,7 +204,7 @@ static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate,
 static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype* cxy,
                      sunrealtype* ratesxy, UserData webdata);
 static sunrealtype dotprod(sunindextype size, sunrealtype* x1, sunrealtype* x2);
-static int check_retval(void* returnvalue, char* funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -862,7 +862,7 @@ static sunrealtype dotprod(sunindextype size, sunrealtype* x1, sunrealtype* x2)
  *            NULL pointer
  */
 
-static int check_retval(void* returnvalue, char* funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
   int* retval;
 

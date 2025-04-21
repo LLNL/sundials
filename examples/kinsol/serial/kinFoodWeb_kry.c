@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -98,8 +98,6 @@
 #define NUM_SPECIES \
   6 /* must equal 2*(number of prey or predators)
                               number of prey = number of predators       */
-
-#define PI SUN_RCONST(3.1415926535898) /* pi */
 
 #define MX       8 /* MX = number of x mesh points */
 #define MY       8 /* MY = number of y mesh points */

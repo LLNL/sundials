@@ -2,7 +2,7 @@
 # Programmer(s):  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -22,7 +22,7 @@ if(BUILD_ARKODE
     set(benchmark_target "advection_reaction_3D_kokkos.${backend}")
 
     # benchmark source files
-    add_executable(
+    sundials_add_executable(
       ${benchmark_target}
       advection_reaction_3D.cpp
       arkode_driver.cpp

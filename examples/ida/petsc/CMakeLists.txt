@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles, Eddy Banks and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -60,7 +60,7 @@ foreach(example_tuple ${IDA_examples})
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     # group examples in IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")

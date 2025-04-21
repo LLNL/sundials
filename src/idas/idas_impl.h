@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -28,14 +28,6 @@
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "41.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
 #endif
 
 /*=================================================================*/
@@ -988,31 +980,13 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
  * =================================================================
  */
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define MSG_TIME       "t = %Lg, "
-#define MSG_TIME_H     "t = %Lg and h = %Lg, "
-#define MSG_TIME_INT   "t = %Lg is not between tcur - hu = %Lg and tcur = %Lg."
-#define MSG_TIME_TOUT  "tout = %Lg"
-#define MSG_TIME_TSTOP "tstop = %Lg"
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define MSG_TIME       "t = %lg, "
-#define MSG_TIME_H     "t = %lg and h = %lg, "
-#define MSG_TIME_INT   "t = %lg is not between tcur - hu = %lg and tcur = %lg."
-#define MSG_TIME_TOUT  "tout = %lg"
-#define MSG_TIME_TSTOP "tstop = %lg"
-
-#else
-
-#define MSG_TIME       "t = %g, "
-#define MSG_TIME_H     "t = %g and h = %g, "
-#define MSG_TIME_INT   "t = %g is not between tcur - hu = %g and tcur = %g."
-#define MSG_TIME_TOUT  "tout = %g"
-#define MSG_TIME_TSTOP "tstop = %g"
-
-#endif
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
+#define MSG_TIME_INT                                                \
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* General errors */
 
@@ -1133,19 +1107,19 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
   ". tout too far back in direction of integration."
 
 #define MSG_ERR_FAILS \
-  "At " MSG_TIME_H "the error test failed repeatedly or with |h| = hmin."
+  "At " MSG_TIME_H ", the error test failed repeatedly or with |h| = hmin."
 #define MSG_CONV_FAILS \
   "At " MSG_TIME_H     \
-  "the corrector convergence failed repeatedly or with |h| = hmin."
+  ", the corrector convergence failed repeatedly or with |h| = hmin."
 #define MSG_SETUP_FAILED \
-  "At " MSG_TIME "the linear solver setup failed unrecoverably."
+  "At " MSG_TIME ", the linear solver setup failed unrecoverably."
 #define MSG_SOLVE_FAILED \
-  "At " MSG_TIME "the linear solver solve failed unrecoverably."
-#define MSG_REP_RES_ERR "At " MSG_TIME "repeated recoverable residual errors."
+  "At " MSG_TIME ", the linear solver solve failed unrecoverably."
+#define MSG_REP_RES_ERR "At " MSG_TIME " repeated recoverable residual errors."
 #define MSG_RES_NONRECOV \
-  "At " MSG_TIME "the residual function failed unrecoverably."
+  "At " MSG_TIME ", the residual function failed unrecoverably."
 #define MSG_FAILED_CONSTR \
-  "At " MSG_TIME "unable to satisfy inequality constraints."
+  "At " MSG_TIME ", unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED                                                \
   "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable " \
   "manner."
@@ -1245,7 +1219,7 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
   "problem was solved."
 #define MSGAM_BACK_ERROR \
   "Error occurred while integrating backward problem # %d"
-#define MSGAM_BAD_TINTERP "Bad t = %g for interpolation."
+#define MSGAM_BAD_TINTERP "Bad t = " SUN_FORMAT_G " for interpolation."
 #define MSGAM_BAD_T       "Bad t for interpolation."
 #define MSGAM_WRONG_INTERP \
   "This function cannot be called for the specified interp type."

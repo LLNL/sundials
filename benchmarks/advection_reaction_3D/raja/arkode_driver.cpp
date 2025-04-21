@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -58,7 +58,6 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = true;
@@ -248,7 +247,6 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = false;
@@ -449,7 +447,6 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   int iout;                   /* output counter                */
   long int nst, nst_a, netf;  /* step stats                    */
   long int nfe;               /* RHS stats                     */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = true;

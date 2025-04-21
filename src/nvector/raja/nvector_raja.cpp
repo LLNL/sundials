@@ -3,7 +3,7 @@
  *                David J. Gardner @ LLNL
  * ---------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -616,15 +616,8 @@ void N_VPrintFile_Raja(N_Vector X, FILE* outfile)
 
   for (i = 0; i < NVEC_RAJA_CONTENT(X)->length; i++)
   {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Lg\n", NVEC_RAJA_HDATAp(X)[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16g\n", NVEC_RAJA_HDATAp(X)[i]);
-#else
-    fprintf(outfile, "%11.8g\n", NVEC_RAJA_HDATAp(X)[i]);
-#endif
+    fprintf(outfile, SUN_FORMAT_E "\n", NVEC_RAJA_HDATAp(X)[i]);
   }
-  fprintf(outfile, "\n");
 
   return;
 }

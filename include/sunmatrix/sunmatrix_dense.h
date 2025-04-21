@@ -5,7 +5,7 @@
  * Based on code sundials_direct.h by: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -99,8 +99,12 @@ SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_Dense(sunrealtype c, SUNMatrix A,
 SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_Dense(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x,
                                               N_Vector y);
-SUNDIALS_EXPORT SUNErrCode SUNMatSpace_Dense(SUNMatrix A, long int* lenrw,
-                                             long int* leniw);
+SUNDIALS_EXPORT SUNErrCode SUNMatHermitianTransposeVec_Dense(SUNMatrix A,
+                                                             N_Vector x,
+                                                             N_Vector y);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+SUNErrCode SUNMatSpace_Dense(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -78,6 +78,10 @@ below.
    .. code-block:: c
 
       retval = SUNMatSpace(A, &lrw, &liw);
+
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 
 .. c:function:: SUNErrCode SUNMatZero(SUNMatrix A)
@@ -157,9 +161,9 @@ below.
 
 .. c:function:: SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 
-   Performs the matrix-vector product *y \gets Ax*.  It should
-   only be called with vectors *x* and *y* that are compatible with
-   the matrix *A* -- both in storage type and dimensions.  The return
+   Performs the matrix-vector product :math:`y \gets Ax`.  It should
+   only be called with vectors :math:`x` and :math:`y` that are compatible with
+   the matrix :math:`A` -- both in storage type and dimensions.  The return
    value denotes the success/failure of the operation:
 
    .. math::
@@ -170,3 +174,22 @@ below.
    .. code-block:: c
 
       retval = SUNMatMatvec(A, x, y);
+
+
+.. c:function:: SUNErrCode SUNMatHermitianTransposeVec(SUNMatrix A, N_Vector x, N_Vector y)
+
+   Performs the matrix-vector product :math:`y \gets A^*x` where :math:`*` is the
+   Hermitian (conjugate) transpose.   It should only be called with vectors :math:`x`
+   and :math:`y` that are compatible with the matrix :math:`A^*` -- both in storage
+   type and dimensions.  The return value denotes the success/failure of the operation:
+
+   .. math::
+      y_i = \sum_{j=1}^n \bar{A}_{j,i} x_j, \quad i=1,\ldots,m.
+      
+   where :math:`\bar{c}` denotes the complex conjugate of :math:`c`.  
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNMatHermitianTransposeVec(A, x, y);

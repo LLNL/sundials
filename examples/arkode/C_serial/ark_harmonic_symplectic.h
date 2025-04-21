@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -34,15 +34,30 @@ typedef struct
   sunrealtype dt;
 } ProgramArgs;
 
+static void SetDefaultArgs(ProgramArgs* args)
+{
+  args->order            = 4;
+  args->num_output_times = 8;
+  args->use_compsums     = 0;
+  args->use_tstop        = 1;
+  args->dt               = SUN_RCONST(1e-3);
+  args->Tf               = SUN_RCONST(2.0) * PI;
+}
+
 static void PrintHelp(void)
 {
+  ProgramArgs defaults;
+  SetDefaultArgs(&defaults);
   fprintf(stderr, "ark_harmonic_symplectic: an ARKODE example demonstrating "
                   "the SPRKStep time-stepping module solving a simple harmonic "
                   "oscillator\n");
   /* clang-format off */
-  fprintf(stderr, "  --order <int>               the order of the method to use (default 4)\n");
-  fprintf(stderr, "  --dt <Real>                 the fixed-time step size to use (default 0.01)\n");
-  fprintf(stderr, "  --nout <int>                the number of output times (default 100)\n");
+  fprintf(stderr, "  --order <int>               the order of the method to use (default %d)\n",
+    defaults.order);
+  fprintf(stderr, "  --dt <Real>                 the fixed-time step size to use (default %.1Le)\n",
+    (long double)defaults.dt);
+  fprintf(stderr, "  --nout <int>                the number of output times (default %d)\n",
+    defaults.num_output_times);
   fprintf(stderr, "  --use-compensated-sums      turns on compensated summation in ARKODE where applicable\n");
   fprintf(stderr, "  --disable-tstop             turns off tstop mode\n");
   /* clang-format on */
@@ -52,12 +67,7 @@ static int ParseArgs(int argc, char* argv[], ProgramArgs* args)
 {
   int argi = 0;
 
-  args->order            = 4;
-  args->num_output_times = 8;
-  args->use_compsums     = 0;
-  args->use_tstop        = 1;
-  args->dt               = SUN_RCONST(1e-3);
-  args->Tf               = SUN_RCONST(2.0) * PI;
+  SetDefaultArgs(args);
 
   for (argi = 1; argi < argc; argi++)
   {
@@ -69,12 +79,24 @@ static int ParseArgs(int argc, char* argv[], ProgramArgs* args)
     else if (!strcmp(argv[argi], "--tf"))
     {
       argi++;
-      args->Tf = atof(argv[argi]);
+#if defined(SUNDIALS_SINGLE_PRECISION)
+      args->Tf = strtof(argv[argi], NULL);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+      args->Tf = strtod(argv[argi], NULL);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+      args->Tf = strtold(argv[argi], NULL);
+#endif
     }
     else if (!strcmp(argv[argi], "--dt"))
     {
       argi++;
-      args->dt = atof(argv[argi]);
+#if defined(SUNDIALS_SINGLE_PRECISION)
+      args->dt = strtof(argv[argi], NULL);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+      args->dt = strtod(argv[argi], NULL);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+      args->dt = strtold(argv[argi], NULL);
+#endif
     }
     else if (!strcmp(argv[argi], "--nout"))
     {

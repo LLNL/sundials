@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -12,7 +12,8 @@
 
 # include location of public and private header files
 
-add_executable(test_cvodes_error_handling test_cvodes_error_handling.cpp)
+sundials_add_executable(test_cvodes_error_handling
+                        test_cvodes_error_handling.cpp)
 target_include_directories(
   test_cvodes_error_handling
   PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>

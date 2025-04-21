@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -191,6 +191,10 @@ the ARKBANDPRE module:
 
       The workspaces referred to here exist in addition to those given by
       the corresponding function :c:func:`ARKodeGetLinWorkSpace()`.
+
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 
 
@@ -619,6 +623,10 @@ the ARKBBDPRE module:
 
       The workspaces referred to here exist in addition to those given by
       the corresponding function :c:func:`ARKodeGetLinWorkSpace()`.
+
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 
 

@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -198,10 +198,9 @@ macro(sundials_add_library target)
           list(REMOVE_ITEM _stripped_all_libs ${_item})
         endif()
       endforeach()
-      add_custom_target(fake_to_force_build_order_${obj_target})
-      add_dependencies(fake_to_force_build_order_${obj_target}
-                       ${_stripped_all_libs})
-      add_dependencies(${obj_target} fake_to_force_build_order_${obj_target})
+      add_custom_target(fake_${obj_target})
+      add_dependencies(fake_${obj_target} ${_stripped_all_libs})
+      add_dependencies(${obj_target} fake_${obj_target})
       target_link_libraries(${obj_target} ${_all_libs})
     endif()
 

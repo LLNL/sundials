@@ -2,7 +2,7 @@
  * Programmer(s): Mustafa Aggul @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -34,7 +34,7 @@ extern "C" {
   LSRK time step module private math function macros
   ===============================================================
  * SUNRlog calls the appropriate version of log
- * 
+ *
  * SUNRsinh calls the appropriate version of sinh
  *
  * SUNRcosh calls the appropriate version of cosh
@@ -176,7 +176,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
                               SUNContext sunctx);
 int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
                             N_Vector y0);
-int lsrkStep_Init(ARKodeMem ark_mem, int init_type);
+int lsrkStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type);
 int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode);
 int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
@@ -200,7 +200,6 @@ int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                  ARKodeMem* ark_mem, ARKodeLSRKStepMem* step_mem);
 int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                            ARKodeLSRKStepMem* step_mem);
-sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl);
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);

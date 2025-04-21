@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -41,7 +41,7 @@ foreach(test_tuple ${tests})
   set(target ${package}_diffusion_2D_mpi)
 
   # create executable
-  add_executable(${target} ${sources})
+  sundials_add_executable(${target} ${sources})
 
   add_dependencies(benchmark ${target})
 

@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -97,6 +97,10 @@ operations below.
    .. code-block:: c
 
       N_VSpace(nvSpec, &lrw, &liw);
+
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 
 .. c:function:: sunrealtype* N_VGetArrayPointer(N_Vector v)
@@ -596,7 +600,7 @@ operation, we give the name, usage of the function, and a description
 of its mathematical operations below.
 
 
-.. c:function:: SUNErrCode N_VLinearSumVectorArray(int nv, sunrealtype a, N_Vector X, sunrealtype b, N_Vector* Y, N_Vector* Z)
+.. c:function:: SUNErrCode N_VLinearSumVectorArray(int nv, sunrealtype a, N_Vector* X, sunrealtype b, N_Vector* Y, N_Vector* Z)
 
    This routine computes the linear sum of two vector arrays of *nv* vectors with :math:`n` elements:
 

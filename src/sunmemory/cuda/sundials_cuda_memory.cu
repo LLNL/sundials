@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -189,6 +189,21 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNMemoryHelper_AllocStrided_Cuda(SUNMemoryHelper helper,
+                                             SUNMemory* memptr, size_t mem_size,
+                                             size_t stride,
+                                             SUNMemoryType mem_type, void* queue)
+{
+  SUNFunctionBegin(helper->sunctx);
+
+  SUNCheckCall(
+    SUNMemoryHelper_Alloc_Cuda(helper, memptr, mem_size, mem_type, queue));
+
+  (*memptr)->stride = stride;
+
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
                                         void* queue)
 {
@@ -303,6 +318,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
   cudaStream_t stream = 0;
 
   if (queue != NULL) { stream = *((cudaStream_t*)queue); }
+  else if (helper->queue != NULL) { *((cudaStream_t*)helper->queue); }
 
   switch (src->type)
   {

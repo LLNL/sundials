@@ -3,7 +3,7 @@
  *                Aaron Collier, Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -50,14 +50,13 @@ extern "C" {
 #define KIN_LINIT_FAIL          -10
 #define KIN_LSETUP_FAIL         -11
 #define KIN_LSOLVE_FAIL         -12
-
-#define KIN_SYSFUNC_FAIL      -13
-#define KIN_FIRST_SYSFUNC_ERR -14
-#define KIN_REPTD_SYSFUNC_ERR -15
-
-#define KIN_VECTOROP_ERR -16
-
-#define KIN_CONTEXT_ERR -17
+#define KIN_SYSFUNC_FAIL        -13
+#define KIN_FIRST_SYSFUNC_ERR   -14
+#define KIN_REPTD_SYSFUNC_ERR   -15
+#define KIN_VECTOROP_ERR        -16
+#define KIN_CONTEXT_ERR         -17
+#define KIN_DAMPING_FN_ERR      -18
+#define KIN_DEPTH_FN_ERR        -19
 
 /* Anderson Acceleration Orthogonalization Choice */
 #define KIN_ORTH_MGS   0
@@ -85,6 +84,15 @@ typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void* user_data);
 typedef void (*KINInfoHandlerFn)(const char* module, const char* function,
                                  char* msg, void* user_data);
 
+typedef int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val,
+                            sunrealtype* qt_fn, long int depth, void* user_data,
+                            sunrealtype* damping_factor);
+
+typedef int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val,
+                          N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
+                          long int depth, void* user_data, long int* new_depth,
+                          sunbooleantype* remove_indices);
+
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -106,6 +114,8 @@ SUNDIALS_EXPORT int KINSetMAA(void* kinmem, long int maa);
 SUNDIALS_EXPORT int KINSetOrthAA(void* kinmem, int orthaa);
 SUNDIALS_EXPORT int KINSetDelayAA(void* kinmem, long int delay);
 SUNDIALS_EXPORT int KINSetDampingAA(void* kinmem, sunrealtype beta);
+SUNDIALS_EXPORT int KINSetDampingFn(void* kinmem, KINDampingFn damping_fn);
+SUNDIALS_EXPORT int KINSetDepthFn(void* kinmem, KINDepthFn depth_fn);
 SUNDIALS_EXPORT int KINSetReturnNewest(void* kinmem, sunbooleantype ret_newest);
 SUNDIALS_EXPORT int KINSetNumMaxIters(void* kinmem, long int mxiter);
 SUNDIALS_EXPORT int KINSetNoInitSetup(void* kinmem, sunbooleantype noInitSetup);
@@ -129,8 +139,9 @@ SUNDIALS_EXPORT int KINSetConstraints(void* kinmem, N_Vector constraints);
 SUNDIALS_EXPORT int KINSetSysFunc(void* kinmem, KINSysFn func);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int KINGetWorkSpace(void* kinmem, long int* lenrw,
-                                    long int* leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int KINGetWorkSpace(void* kinmem, long int* lenrw, long int* leniw);
 SUNDIALS_EXPORT int KINGetNumNonlinSolvIters(void* kinmem, long int* nniters);
 SUNDIALS_EXPORT int KINGetNumFuncEvals(void* kinmem, long int* nfevals);
 SUNDIALS_EXPORT int KINGetNumBetaCondFails(void* kinmem, long int* nbcfails);

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,11 +23,16 @@
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
+#include <arkode/arkode_mristep.h>
+
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
+#include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
+#include <sundials/sundials_types.h>
 
 #include "arkode_adapt_impl.h"
 #include "arkode_relaxation_impl.h"
@@ -35,17 +40,10 @@
 #include "arkode_types_impl.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
+#include "sundials_stepper_impl.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "41.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
 #endif
 
 /*===============================================================
@@ -209,7 +207,8 @@ typedef int (*ARKMassSolveFn)(ARKodeMem ark_mem, N_Vector b,
 typedef int (*ARKMassFreeFn)(ARKodeMem ark_mem);
 
 /* time stepper interface functions -- general */
-typedef int (*ARKTimestepInitFn)(ARKodeMem ark_mem, int init_type);
+typedef int (*ARKTimestepInitFn)(ARKodeMem ark_mem, sunrealtype tout,
+                                 int init_type);
 typedef int (*ARKTimestepFullRHSFn)(ARKodeMem ark_mem, sunrealtype t,
                                     N_Vector y, N_Vector f, int mode);
 typedef int (*ARKTimestepStepFn)(ARKodeMem ark_mem, sunrealtype* dsm, int* nflag);
@@ -227,9 +226,12 @@ typedef int (*ARKTimestepSetDefaults)(ARKodeMem ark_mem);
 typedef int (*ARKTimestepSetOrder)(ARKodeMem ark_mem, int maxord);
 typedef int (*ARKTimestepGetNumRhsEvals)(ARKodeMem ark_mem, int partition_index,
                                          long int* num_rhs_evals);
+typedef int (*ARKTimestepSetStepDirection)(ARKodeMem ark_mem,
+                                           sunrealtype stepdir);
 
 /* time stepper interface functions -- temporal adaptivity */
 typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
+typedef int (*ARKSetAdaptControllerFn)(ARKodeMem ark_mem, SUNAdaptController C);
 
 /* time stepper interface functions -- relaxation */
 typedef int (*ARKTimestepSetRelaxFn)(ARKodeMem ark_mem, ARKRelaxFn rfn,
@@ -289,6 +291,11 @@ typedef int (*ARKTimestepAttachMasssolFn)(
   sunbooleantype time_dep, SUNLinearSolver_Type msolve_type, void* mass_mem);
 typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
 typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
+
+/* time stepper interface functions -- forcing */
+typedef int (*ARKTimestepSetForcingFn)(ARKodeMem ark_mem, sunrealtype tshift,
+                                       sunrealtype tscale, N_Vector* f,
+                                       int nvecs);
 
 /*===============================================================
   ARKODE interpolation module definition
@@ -410,9 +417,11 @@ struct ARKodeMemRec
   ARKTimestepSetDefaults step_setdefaults;
   ARKTimestepSetOrder step_setorder;
   ARKTimestepGetNumRhsEvals step_getnumrhsevals;
+  ARKTimestepSetStepDirection step_setstepdirection;
 
   /* Time stepper module -- temporal adaptivity */
   sunbooleantype step_supports_adaptive;
+  ARKSetAdaptControllerFn step_setadaptcontroller;
   ARKTimestepGetEstLocalErrors step_getestlocalerrors;
 
   /* Time stepper module -- relaxation */
@@ -455,6 +464,9 @@ struct ARKodeMemRec
   ARKTimestepGetMassMemFn step_getmassmem;
   ARKMassMultFn step_mmult;
 
+  /* Time stepper module -- forcing */
+  ARKTimestepSetForcingFn step_setforcing;
+
   /* N_Vector storage */
   N_Vector ewt;                 /* error weight vector                        */
   N_Vector rwt;                 /* residual weight vector                     */
@@ -494,7 +506,7 @@ struct ARKodeMemRec
                                   overtake tstop */
   sunrealtype eta;            /* eta = hprime / h                         */
   sunrealtype tcur;           /* current internal value of t
-                                  (changes with each stage)                */
+                                  (changes with each stage)               */
   sunrealtype tretlast;       /* value of tret last returned by ARKODE    */
   sunbooleantype fixedstep;   /* flag to disable temporal adaptivity      */
   ARKodeHAdaptMem hadapt_mem; /* time step adaptivity structure           */
@@ -528,6 +540,9 @@ struct ARKodeMemRec
   sunrealtype terr;  /* error in tn for compensated sums            */
   sunrealtype hold;  /* last successful h value used                */
   sunrealtype tolsf; /* tolerance scale factor (suggestion to user) */
+  ARKAccumError AccumErrorType; /* accumulated error estimation type   */
+  sunrealtype AccumErrorStart;  /* time of last accumulated error reset */
+  sunrealtype AccumError;       /* accumulated error estimate               */
   sunbooleantype VabstolMallocDone;
   sunbooleantype VRabstolMallocDone;
   sunbooleantype MallocDone;
@@ -552,6 +567,16 @@ struct ARKodeMemRec
   ARKPostProcessFn ProcessStage;
 
   sunbooleantype use_compensated_sums;
+
+  /* Adjoint solver data */
+  sunbooleantype load_checkpoint_fail;
+  sunbooleantype do_adjoint;
+  suncountertype adj_stage_idx; /* current stage index (only valid in adjoint context)*/
+  suncountertype adj_step_idx; /* current step index (only valid in adjoint context)*/
+
+  /* Checkpointing data */
+  SUNAdjointCheckpointScheme checkpoint_scheme;
+  suncountertype checkpoint_step_idx; /* the step number for checkpointing */
 
   /* XBraid interface variables */
   sunbooleantype force_pass; /* when true the step attempt loop will ignore the
@@ -609,7 +634,8 @@ void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
                      sunindextype liw1, long int* liw);
 void arkFreeVectors(ARKodeMem ark_mem);
 sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem);
-sunbooleantype arkCheckNvector(N_Vector tmpl);
+sunbooleantype arkCheckNvectorRequired(N_Vector tmpl);
+sunbooleantype arkCheckNvectorOptional(ARKodeMem ark_mem);
 
 int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
 int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
@@ -640,12 +666,29 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
                        ARKodeHAdaptMem* hadapt_mem);
 
+int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C,
+                              sunbooleantype take_ownership);
 int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
                            sunrealtype adapt_params[3]);
 int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data);
 
 ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char* imethod);
 ARKODE_ERKTableID arkButcherTableERKNameToID(const char* emethod);
+
+/* utility functions for wrapping ARKODE as an MRIStep inner stepper */
+int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+                           sunrealtype tout, N_Vector y);
+int ark_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                            N_Vector y, N_Vector f, int mode);
+int ark_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
+                          N_Vector yR);
+int ark_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                        sunrealtype* accum_error);
+int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
+int ark_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
+
+/* utility functions for wrapping ARKODE as a SUNStepper */
+SUNErrCode arkSUNStepperSelfDestruct(SUNStepper stepper);
 
 /* XBraid interface functions */
 int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass);
@@ -655,31 +698,13 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   Reusable ARKODE Error Messages
   ===============================================================*/
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define MSG_TIME       "t = %Lg"
-#define MSG_TIME_H     "t = %Lg and h = %Lg"
-#define MSG_TIME_INT   "t = %Lg is not between tcur - hold = %Lg and tcur = %Lg."
-#define MSG_TIME_TOUT  "tout = %Lg"
-#define MSG_TIME_TSTOP "tstop = %Lg"
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define MSG_TIME       "t = %lg"
-#define MSG_TIME_H     "t = %lg and h = %lg"
-#define MSG_TIME_INT   "t = %lg is not between tcur - hold = %lg and tcur = %lg."
-#define MSG_TIME_TOUT  "tout = %lg"
-#define MSG_TIME_TSTOP "tstop = %lg"
-
-#else
-
-#define MSG_TIME       "t = %g"
-#define MSG_TIME_H     "t = %g and h = %g"
-#define MSG_TIME_INT   "t = %g is not between tcur - hold = %g and tcur = %g."
-#define MSG_TIME_TOUT  "tout = %g"
-#define MSG_TIME_TSTOP "tstop = %g"
-
-#endif
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
+#define MSG_TIME_INT                                                \
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* Initialization and I/O error messages */
 #define MSG_ARK_NO_MEM         "arkode_mem = NULL illegal."
@@ -789,6 +814,10 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   "solver configuration)."
 #define MSG_ARK_INTERPOLATION_FAIL \
   "At " MSG_TIME ", interpolating the solution failed."
+#define MSG_ARK_ADJOINT_BAD_VECTOR                                           \
+  "JacPFn or JPvpFn was provided, but the number of subvectors in y is not " \
+  "2. To perform ASA w.r.t. parameters, one subvector should be the state "  \
+  "vector, and the other should be the parameter vector."
 
 /*===============================================================
 
@@ -995,31 +1024,95 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   This routine must compute the full ODE right-hand side function
   at the inputs (t,y), and store the result in the N_Vector f.
   Depending on the type of stepper, this may be just the single
-  ODE RHS function supplied (e.g. ERK, DIRK, IRK), or it may be
+  ODE RHS function supplied (e.g. ERK, DIRK), or it may be
   the sum of many ODE RHS functions (e.g. ARK, MRI).  The 'mode'
   indicates where this routine is called:
 
-     ARK_FULLRHS_START -> called at the beginning of a simulation
-                          i.e., at (tn, yn) = (t0, y0) or (tR, yR)
+     ARK_FULLRHS_START -> called in the following circumstances:
+                          (a) at the beginning of a simulation
+                              i.e., at (tn, yn) = (t0, y0) or
+                              (tR, yR), or
+                          (b) when transitioning between time
+                              steps t_{n-1} \to t_{n} to fill
+                              f_{n-1} within the Hermite
+                              interpolation module.
 
-     ARK_FULLRHS_END   -> called at the end of a successful step i.e,
-                          at (tcur, ycur) or the start of the subsequent
-                          step i.e., at (tn, yn) = (tcur, ycur) from
-                          the end of the last step
+                          In each case, the stepper may check the
+                          fn_is_current flag to know whether
+                          ARKODE believes that the RHS may have
+                          already been computed at this (t,y)
+                          value, in which case the stepper can
+                          copy the RHS data from its own internal
+                          storage instead of recomputing. If
+                          these values are not current, then the
+                          RHS should be recomputed, and the
+                          stepper should consider storing the
+                          values internally, for potential reuse
+                          later.
 
-     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+     ARK_FULLRHS_END   -> called in the following circumstances:
+                          (a) when temporal root-finding is
+                              enabled, this will be called
+                              in-between steps t_{n-1} \to t_{n}
+                              to fill f_{n},
+                          (b) when high-order dense output is
+                              requested from the Hermite
+                              interpolation module in-between
+                              steps t_{n-1} \to t_{n} to fill
+                              f_{n}, or
+                          (c) when an implicit predictor is
+                              requested from the Hermite
+                              interpolation module within the
+                              time step t_{n} \to t_{n+1}, in
+                              which case f_{n} needs to be
+                              filled.
 
-  It is recommended that the stepper use the mode information to
-  maximize reuse between calls to this function and RHS
-  evaluations inside the stepper itself.
+                          Again, the stepper may check the
+                          fn_is_current flag to know whether
+                          ARKODE believes that the RHS may have
+                          already been computed at this (t,y)
+                          value, in which case the stepper can
+                          copy the RHS data from its own
+                          internal storage instead of
+                          recomputing. If these values are not
+                          current, then the RHS should be
+                          recomputed, and the stepper should
+                          consider storing the values internally,
+                          for potential reuse later.
 
-  This routine is only required to be supplied to ARKODE if:
-  * ARKODE's initial time step selection algorithm is used,
+     ARK_FULLRHS_OTHER -> called in the following circumstances:
+                          (a) when estimating the initial time
+                              step size,
+                          (b) for high-order dense output with the
+                              Hermite interpolation module,
+                          (c) by an "outer" stepper when ARKODE is
+                              used as an inner solver), or
+                          (d) when a high-order implicit predictor
+                              is requested from the Hermite
+                              interpolation module within the time
+                              step t_{n} \to t_{n+1}.
+
+                          While instances (a)-(c) will occur
+                          in-between calls to the stepper's
+                          ARKTimestepStepFn, instance (d) would
+                          occur from within the ARKTimestepStepFn
+                          (only if it calls an arkPredict_* function
+                          that internally calls arkInterpEvaluate).
+                          Since the (t,y) input does not correspond
+                          to an "official" time step, the RHS
+                          functions should always be evaluated, and
+                          the values should *not* be stored anywhere
+                          that will interfere with other reused
+                          stepper data.
+
+  This routine is only *required* to be supplied to ARKODE if:
+  * ARKODE's initial time step selection algorithm (arkHin) is used,
   * the user requests temporal root-finding,
   * the Hermite interpolation module is used, or
-  * the user requests the "bootstrap" implicit predictor.
+  * the time-stepping module requests the "bootstrap" implicit predictor.
   Note that any stepper can itself require that this routine
-  exist for its own internal business (e.g., ERKStep).
+  exist for its own internal business (as in both ERKStep and ARKStep),
+  and/or call this routine for its own internal purposes.
 
   This routine should return 0 if successful, and a negative value
   otherwise.  If an error does occur, an appropriate message

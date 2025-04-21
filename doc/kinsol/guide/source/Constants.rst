@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -159,7 +159,17 @@ KINSOL output constants
   | ``KIN_REPTD_SYSFUNC_ERR``    | -15   | The system function had repeated    |
   |                              |       | recoverable errors.                 |
   +------------------------------+-------+-------------------------------------+
-
+  | ``KIN_VECTOROP_ERR``         | -16   | A vector operation failed.          |
+  +------------------------------+-------+-------------------------------------+
+  | ``KIN_CONTEXT_ERR``          | -17   | An error occurred in the SUNDIALS   |
+  |                              |       | context object.                     |
+  +------------------------------+-------+-------------------------------------+
+  | ``KIN_DAMPING_FN_ERR``       | -18   | The damping function returned a     |
+  |                              |       | non-zero value.                     |
+  +------------------------------+-------+-------------------------------------+
+  | ``KIN_DEPTH_FN_ERR``         | -19   | The depth function returned a       |
+  |                              |       | non-zero value.                     |
+  +------------------------------+-------+-------------------------------------+
 
 .. tabularcolumns:: |\Y{0.3}|\Y{0.1}|\Y{0.6}|
 

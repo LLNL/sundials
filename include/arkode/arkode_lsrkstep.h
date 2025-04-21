@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds and Mustafa Aggul @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -83,7 +83,7 @@ SUNDIALS_EXPORT int LSRKStepSetMaxNumStages(void* arkode_mem,
 SUNDIALS_EXPORT int LSRKStepSetDomEigSafetyFactor(void* arkode_mem,
                                                   sunrealtype dom_eig_safety);
 
-SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
+SUNDIALS_EXPORT int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
 
 /* Optional output functions */
 

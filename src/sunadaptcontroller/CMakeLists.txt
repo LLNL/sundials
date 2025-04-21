@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -11,9 +11,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# controller level CMakeLists.txt for SUNDIALS
+# adaptivity controller level CMakeLists.txt for SUNDIALS
 # ------------------------------------------------------------------------------
 
-# required native matrices
+# required native adaptivity controllers
 add_subdirectory(imexgus)
 add_subdirectory(soderlind)
+add_subdirectory(mrihtol)

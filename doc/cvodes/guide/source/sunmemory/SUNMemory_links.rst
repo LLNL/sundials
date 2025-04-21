@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -11,6 +11,7 @@
    ----------------------------------------------------------------
 
 .. include:: ../../../../shared/sunmemory/SUNMemory_Description.rst
+.. include:: ../../../../shared/sunmemory/SUNMemory_System.rst
 .. include:: ../../../../shared/sunmemory/SUNMemory_CUDA.rst
 .. include:: ../../../../shared/sunmemory/SUNMemory_HIP.rst
 .. include:: ../../../../shared/sunmemory/SUNMemory_SYCL.rst

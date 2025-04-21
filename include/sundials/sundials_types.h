@@ -3,7 +3,7 @@
  *                Aaron Collier, and Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -84,6 +84,9 @@ extern "C" {
  *------------------------------------------------------------------
  */
 
+#define SUN_STRING_HELPER(x) #x
+#define SUN_STRING(x)        SUN_STRING_HELPER(x)
+
 #if defined(SUNDIALS_SINGLE_PRECISION)
 
 typedef float sunrealtype;
@@ -91,6 +94,11 @@ typedef float sunrealtype;
 #define SUN_BIG_REAL      FLT_MAX
 #define SUN_SMALL_REAL    FLT_MIN
 #define SUN_UNIT_ROUNDOFF FLT_EPSILON
+// TODO(SBR): In C11, FLT_DECIMAL_DIG may be a better choice
+#define SUN_FORMAT_E "% ." SUN_STRING(FLT_DIG) "e"
+#define SUN_FORMAT_G "%." SUN_STRING(FLT_DIG) "g"
+// TODO(SBR): This can probably be removed once a complex format macro is added
+#define SUN_FORMAT_SG "%+." SUN_STRING(FLT_DIG) "g"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
@@ -99,6 +107,9 @@ typedef double sunrealtype;
 #define SUN_BIG_REAL      DBL_MAX
 #define SUN_SMALL_REAL    DBL_MIN
 #define SUN_UNIT_ROUNDOFF DBL_EPSILON
+#define SUN_FORMAT_E      "% ." SUN_STRING(DBL_DIG) "e"
+#define SUN_FORMAT_G      "%." SUN_STRING(DBL_DIG) "g"
+#define SUN_FORMAT_SG     "%+." SUN_STRING(DBL_DIG) "g"
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 
@@ -107,6 +118,9 @@ typedef long double sunrealtype;
 #define SUN_BIG_REAL      LDBL_MAX
 #define SUN_SMALL_REAL    LDBL_MIN
 #define SUN_UNIT_ROUNDOFF LDBL_EPSILON
+#define SUN_FORMAT_E      "% ." SUN_STRING(LDBL_DIG) "Le"
+#define SUN_FORMAT_G      "%." SUN_STRING(LDBL_DIG) "Lg"
+#define SUN_FORMAT_SG     "%+." SUN_STRING(LDBL_DIG) "Lg"
 
 #endif
 
@@ -122,6 +136,16 @@ typedef long double sunrealtype;
  */
 
 typedef SUNDIALS_INDEX_TYPE sunindextype;
+
+/*
+ *------------------------------------------------------------------
+ * Type : suncountertype
+ *------------------------------------------------------------------
+ * Defines integer type to be used for counters within sundials.
+ *------------------------------------------------------------------
+ */
+
+typedef SUNDIALS_COUNTER_TYPE suncountertype;
 
 /*
  *------------------------------------------------------------------
@@ -229,5 +253,19 @@ typedef int SUNComm;
 #ifdef __cplusplus
 }
 #endif
+
+/*
+ *------------------------------------------------------------------
+ * Type : SUNDataIOMode
+ *------------------------------------------------------------------
+ * Type that controls IO modes for certain data operations, notably
+ * checkpoints for adjoints.
+ *------------------------------------------------------------------
+ */
+
+typedef enum
+{
+  SUNDATAIOMODE_INMEM,
+} SUNDataIOMode;
 
 #endif /* _SUNDIALS_TYPES_H */

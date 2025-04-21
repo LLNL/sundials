@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -47,8 +47,13 @@ E. functions that apply for time-stepping modules that support relaxation Runge-
 
 In the function descriptions below, we identify those that have any of the restrictions B-E above.
 Then in the introduction for each of the stepper-specific documentation sections
-(:numref:`ARKODE.Usage.ARKStep.UserCallable`, :numref:`ARKODE.Usage.ERKStep.UserCallable`,
-:numref:`ARKODE.Usage.MRIStep.UserCallable`, and :numref:`ARKODE.Usage.SPRKStep.UserCallable`)
+(:numref:`ARKODE.Usage.ARKStep.UserCallable`,
+:numref:`ARKODE.Usage.ERKStep.UserCallable`,
+:numref:`ARKODE.Usage.ForcingStep.UserCallable`,
+:numref:`ARKODE.Usage.LSRKStep.UserCallable`,
+:numref:`ARKODE.Usage.MRIStep.UserCallable`,
+:numref:`ARKODE.Usage.SplittingStep.UserCallable`,
+and :numref:`ARKODE.Usage.SPRKStep.UserCallable`)
 we clarify the categories of these functions that are supported.
 
 
@@ -58,7 +63,10 @@ ARKODE initialization and deallocation functions
 ------------------------------------------------------
 
 For functions to create an ARKODE stepper instance see :c:func:`ARKStepCreate`,
-:c:func:`ERKStepCreate`, :c:func:`MRIStepCreate`, or :c:func:`SPRKStepCreate`.
+:c:func:`ERKStepCreate`, :c:func:`ForcingStepCreate`,
+:c:func:`LSRKStepCreateSTS`, :c:func:`LSRKStepCreateSSP`,
+:c:func:`MRIStepCreate`, :c:func:`SplittingStepCreate`, or
+:c:func:`SPRKStepCreate`.
 
 .. c:function:: void ARKodeFree(void** arkode_mem)
 
@@ -790,9 +798,9 @@ the user has set a stop time (with a call to the optional input function
    :retval ARK_MASSSETUP_FAIL: the mass matrix solver's setup routine failed.
    :retval ARK_MASSSOLVE_FAIL: the mass matrix solver's solve routine failed.
    :retval ARK_VECTOROP_ERR: a vector operation error occurred.
-   :retval ARK_DOMEIG_FAIL: the dominant eigenvalue function failed. It is either 
+   :retval ARK_DOMEIG_FAIL: the dominant eigenvalue function failed. It is either
                             not provided or returns an illegal value.
-   :retval ARK_MAX_STAGE_LIMIT_FAIL: stepper failed to achieve stable results. Either 
+   :retval ARK_MAX_STAGE_LIMIT_FAIL: stepper failed to achieve stable results. Either
                                      reduce the step size or increase the stage_max_limit
 
    .. note::
@@ -871,29 +879,30 @@ Optional inputs for ARKODE
 
 .. cssclass:: table-bordered
 
-================================================  =======================================  =======================
-Optional input                                    Function name                            Default
-================================================  =======================================  =======================
-Return ARKODE parameters to their defaults        :c:func:`ARKodeSetDefaults`              internal
-Set integrator method order                       :c:func:`ARKodeSetOrder`                 4
-Set dense output interpolation type (SPRKStep)    :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_LAGRANGE``
-Set dense output interpolation type (others)      :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_HERMITE``
-Set dense output polynomial degree                :c:func:`ARKodeSetInterpolantDegree`     5
-Disable time step adaptivity (fixed-step mode)    :c:func:`ARKodeSetFixedStep`             disabled
-Supply an initial step size to attempt            :c:func:`ARKodeSetInitStep`              estimated
-Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKodeSetMaxHnilWarns`          10
-Maximum no. of internal steps before *tout*       :c:func:`ARKodeSetMaxNumSteps`           500
-Maximum absolute step size                        :c:func:`ARKodeSetMaxStep`               :math:`\infty`
-Minimum absolute step size                        :c:func:`ARKodeSetMinStep`               0.0
-Set a value for :math:`t_{stop}`                  :c:func:`ARKodeSetStopTime`              undefined
-Interpolate at :math:`t_{stop}`                   :c:func:`ARKodeSetInterpolateStopTime`   ``SUNFALSE``
-Disable the stop time                             :c:func:`ARKodeClearStopTime`            N/A
-Supply a pointer for user data                    :c:func:`ARKodeSetUserData`              ``NULL``
-Maximum no. of ARKODE error test failures         :c:func:`ARKodeSetMaxErrTestFails`       7
-Set inequality constraints on solution            :c:func:`ARKodeSetConstraints`           ``NULL``
-Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstrFails`     10
-================================================  =======================================  =======================
-
+=================================================  ==========================================  =======================
+Optional input                                     Function name                               Default
+=================================================  ==========================================  =======================
+Return ARKODE parameters to their defaults         :c:func:`ARKodeSetDefaults`                 internal
+Set integrator method order                        :c:func:`ARKodeSetOrder`                    4
+Set dense output interpolation type                :c:func:`ARKodeSetInterpolantType`          stepper-specific
+Set dense output polynomial degree                 :c:func:`ARKodeSetInterpolantDegree`        method-dependent
+Disable time step adaptivity (fixed-step mode)     :c:func:`ARKodeSetFixedStep`                disabled
+Set forward or backward integration direction      :c:func:`ARKodeSetStepDirection`            0.0
+Supply an initial step size to attempt             :c:func:`ARKodeSetInitStep`                 estimated
+Maximum no. of warnings for :math:`t_n+h = t_n`    :c:func:`ARKodeSetMaxHnilWarns`             10
+Maximum no. of internal steps before *tout*        :c:func:`ARKodeSetMaxNumSteps`              500
+Maximum absolute step size                         :c:func:`ARKodeSetMaxStep`                  :math:`\infty`
+Minimum absolute step size                         :c:func:`ARKodeSetMinStep`                  0.0
+Set a value for :math:`t_{stop}`                   :c:func:`ARKodeSetStopTime`                 undefined
+Interpolate at :math:`t_{stop}`                    :c:func:`ARKodeSetInterpolateStopTime`      ``SUNFALSE``
+Disable the stop time                              :c:func:`ARKodeClearStopTime`               N/A
+Supply a pointer for user data                     :c:func:`ARKodeSetUserData`                 ``NULL``
+Maximum no. of ARKODE error test failures          :c:func:`ARKodeSetMaxErrTestFails`          7
+Set inequality constraints on solution             :c:func:`ARKodeSetConstraints`              ``NULL``
+Set max number of constraint failures              :c:func:`ARKodeSetMaxNumConstrFails`        10
+Set the checkpointing scheme to use (for adjoint)  :c:func:`ARKodeSetAdjointCheckpointScheme`  ``NULL``
+Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointCheckpointIndex`   0
+=================================================  ==========================================  =======================
 
 
 
@@ -974,8 +983,8 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
    Disabling interpolation will reduce the memory footprint of an integrator by
    two or more state vectors (depending on the interpolant type and degree)
    which can be beneficial when interpolation is not needed e.g., when
-   integrating to a final time without output in between or using ARKStep as an
-   explicit fast time scale integrator with MRI methods.
+   integrating to a final time without output in between or using a solver from
+   ARKODE as a fast time scale integrator with MRI methods.
 
    This routine frees any previously-allocated interpolation module, and
    re-creates one according to the specified argument.
@@ -992,15 +1001,13 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
    .. versionchanged:: 6.1.0
 
+      This function replaces stepper specific versions in ARKStep, ERKStep,
+      MRIStep, and SPRKStep.
+
       Added the ``ARK_INTERP_NONE`` option to disable interpolation.
 
       Values set by a previous call to :c:func:`ARKStepSetInterpolantDegree` are
       no longer nullified by a call to :c:func:`ARKStepSetInterpolantType`.
-
-   .. versionadded:: 6.1.0
-
-      This function replaces stepper specific versions in ARKStep, ERKStep,
-      MRIStep, and SPRKStep.
 
 
 .. c:function:: int ARKodeSetInterpolantDegree(void* arkode_mem, int degree)
@@ -1077,8 +1084,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       :c:func:`ARKodeSetMinReduction`,
       :c:func:`ARKodeSetSafetyFactor`,
       :c:func:`ARKodeSetSmallNumEFails`,
-      :c:func:`ARKodeSetStabilityFn`, and
-      :c:func:`ARKodeSetAdaptController`
+      :c:func:`ARKodeSetStabilityFn`,
+      :c:func:`ARKodeSetAdaptController`, and
+      :c:func:`ARKodeSetAdaptControllerByName`
       will be ignored, since temporal adaptivity is disabled.
 
       If both :c:func:`ARKodeSetFixedStep` and
@@ -1096,6 +1104,35 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       worst they may interfere with the desired fixed step size.
 
    .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
+
+   Specifies the direction of integration (forward or backward).
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param stepdir: value whose sign determines the direction. A positive value
+                   selects forward integration, a negative value selects
+                   backward integration, and zero leaves the current direction
+                   unchanged.
+
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: an argument had an illegal value.
+
+   .. note::
+
+      The step direction can only be set after a call to either ``*Create``,
+      ``*StepReInit``, or :c:func:`ARKodeReset` but before a call to
+      :c:func:`ARKodeEvolve`.
+
+      When the direction changes for an adaptive method, the adaptivity
+      controller and next step size are reset. A new initial step size will be
+      estimated at the next call to :c:func:`ARKodeEvolve` or can be specified
+      with :c:func:`ARKodeSetInitStep`.
+
+   .. versionadded:: 6.2.0
 
 
 
@@ -1401,6 +1438,35 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
    .. versionadded:: 6.1.0
 
 
+.. c:function:: int ARKodeSetAdjointCheckpointScheme(void* arkode_mem, SUNAdjointCheckpointScheme checkpoint_scheme)
+
+   Specifies the :c:type:`SUNAdjointCheckpointScheme` to use for saving states
+   during the forward integration, and loading states during backward integration
+   of an adjoint system.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param checkpoint_scheme: the checkpoint scheme to use, or ``NULL`` to disable checkpointing.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+
+   .. versionadded:: 6.3.0
+
+.. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
+
+   Specifies the step index (that is step number) to insert the next checkpoint at.
+
+   This is incremented along with the step count, but it is useful to be able to reset
+   this index during recomputations of missing states during the backward adjoint integration.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param step_idx: the step to insert the next checkpoint at.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+
+   .. versionadded:: 6.3.0
+
 
 .. _ARKODE.Usage.ARKodeAdaptivityInputTable:
 
@@ -1417,19 +1483,22 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 =========================================================   ==========================================  ========
 Optional input                                              Function name                               Default
 =========================================================   ==========================================  ========
-Provide a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptController`          PID
-Adjust the method order used in the controller              :c:func:`ERKStepSetAdaptivityAdjustment`    -1
+Provide a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptController`          I
+Specify a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptControllerByName`    I
+Adjust the method order used in the controller              :c:func:`ARKodeSetAdaptivityAdjustment`     0
 Explicit stability safety factor                            :c:func:`ARKodeSetCFLFraction`              0.5
-Time step error bias factor                                 :c:func:`ARKodeSetErrorBias`                1.5
-Bounds determining no change in step size                   :c:func:`ARKodeSetFixedStepBounds`          1.0  1.5
+Time step error bias factor                                 :c:func:`ARKodeSetErrorBias`                1.0
+Bounds determining no change in step size                   :c:func:`ARKodeSetFixedStepBounds`          1.0  1.0
 Maximum step growth factor on convergence fail              :c:func:`ARKodeSetMaxCFailGrowth`           0.25
 Maximum step growth factor on error test fail               :c:func:`ARKodeSetMaxEFailGrowth`           0.3
 Maximum first step growth factor                            :c:func:`ARKodeSetMaxFirstGrowth`           10000.0
 Maximum allowed general step growth factor                  :c:func:`ARKodeSetMaxGrowth`                20.0
 Minimum allowed step reduction factor on error test fail    :c:func:`ARKodeSetMinReduction`             0.1
-Time step safety factor                                     :c:func:`ARKodeSetSafetyFactor`             0.96
-Error fails before MaxEFailGrowth takes effect              :c:func:`ARKodeSetSmallNumEFails`           2
+Time step safety factor                                     :c:func:`ARKodeSetSafetyFactor`             0.9
+Error fails before ``MaxEFailGrowth`` takes effect          :c:func:`ARKodeSetSmallNumEFails`           2
 Explicit stability function                                 :c:func:`ARKodeSetStabilityFn`              none
+Set accumulated error estimation type                       :c:func:`ARKodeSetAccumulatedErrorType`     none
+Reset accumulated error                                     :c:func:`ARKodeResetAccumulatedError`
 =========================================================   ==========================================  ========
 
 
@@ -1439,12 +1508,49 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
    Sets a user-supplied time-step controller object.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param C: user-supplied time adaptivity controller.  If ``NULL`` then the PID controller
-             will be created (see :numref:`SUNAdaptController.Soderlind`).
+   :param C: user-supplied time adaptivity controller.
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
-   :retval ARK_MEM_FAIL: *C* was ``NULL`` and the PID controller could not be allocated.
+   :retval ARK_MEM_FAIL: *C* was ``NULL`` and the I controller could not be allocated.
+   :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
+                                    by the current time-stepping module.
+
+   .. note::
+
+      If *C* is ``NULL`` then the I controller will be created (see :numref:`SUNAdaptController.Soderlind`).
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
+      Not all time-stepping modules are compatible with all types of :c:type:`SUNAdaptController`
+      objects.  While all steppers that support temporal adaptivity support controllers with
+      :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_H``, only MRIStep supports
+      inputs with type ``SUN_ADAPTCONTROLLER_MRI_H_TOL``.
+
+   .. versionadded:: 6.1.0
+
+   .. versionchanged:: 6.3.0
+
+      The default controller was changed from PID to I.
+
+
+
+
+.. c:function:: int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
+
+   Sets a user-supplied time step controller object by name.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param cname: name of the time adaptivity controller to use.  Allowable values
+                 currently include ``"Soderlind"``, ``"PID"``, ``"PI"``, ``"I"``,
+                 ``"ExpGus"``, ``"ImpGus"``, ``"ImExGus"``, ``"H0211"``, ``"H0321"``,
+                 ``"H211"``, and ``"H312"``. For information on these options, see
+                 :numref:`SUNAdaptController.Soderlind` and
+                 :numref:`SUNAdaptController.ImExGus`.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_ILL_INPUT: ``cname`` did not match an allowed value.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
    :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
                                     by the current time-stepping module.
 
@@ -1452,7 +1558,12 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
       This is only compatible with time-stepping modules that support temporal adaptivity.
 
-  .. versionadded:: 6.1.0
+      It is not possible to adjust the internal controller parameters when using this
+      function.  Users who wish to adjust these parameters should create and configure
+      the :c:type:`SUNAdaptController` object manually, and then call
+      :c:func:`ARKodeSetAdaptController`.
+
+   .. versionadded:: 6.3.0
 
 
 .. c:function:: int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust)
@@ -1463,7 +1574,7 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
    by specifying a value :math:`adjust < 0`.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param adjust: adjustment factor (default is -1).
+   :param adjust: adjustment factor (default is 0).
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1479,6 +1590,10 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
       reset following a call to ``*StepReInit``.
 
    .. versionadded:: 6.1.0
+
+   .. versionchanged:: 6.3.0
+
+      The default value was changed from -1 to 0
 
 
 .. c:function:: int ARKodeSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
@@ -1511,7 +1626,7 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param bias: bias applied to error in accuracy-based time
-                step estimation (default is 1.5).
+                step estimation (default is 1.0).
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1531,6 +1646,10 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
    .. versionadded:: 6.1.0
 
+   .. versionchanged:: 6.3.0
+
+      The default value was changed from 1.5 to 1.0
+
 
 .. c:function:: int ARKodeSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub)
 
@@ -1538,7 +1657,7 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param lb: lower bound on window to leave step size fixed (default is 1.0).
-   :param ub: upper bound on window to leave step size fixed (default is 1.5).
+   :param ub: upper bound on window to leave step size fixed (default is 1.0).
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1553,6 +1672,10 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
       Any interval *not* containing 1.0 will imply a reset to the default values.
 
    .. versionadded:: 6.1.0
+
+   .. versionchanged:: 6.3.0
+
+      The default upper bound was changed from 1.5 to 1.0
 
 
 .. c:function:: int ARKodeSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf)
@@ -1683,7 +1806,7 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
    estimated step.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param safety: safety factor applied to accuracy-based time step (default is 0.96).
+   :param safety: safety factor applied to accuracy-based time step (default is 0.9).
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1699,6 +1822,11 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
       value.
 
    .. versionadded:: 6.1.0
+
+   .. versionchanged:: 6.3.0
+
+      The default default was changed from 0.96 to 0.9. The maximum value is now
+      exactly 1.0 rather than strictly less than 1.0.
 
 
 .. c:function:: int ARKodeSetSmallNumEFails(void* arkode_mem, int small_nef)
@@ -1753,6 +1881,84 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
       function :math:`f^E(t,y)` contains stiff terms.
 
    .. versionadded:: 6.1.0
+
+
+The following routines are used to control algorithms that ARKODE can use to estimate
+the accumulated temporal error over multiple time steps.  While these may be informational
+for users on their applications, this functionality is required when using multirate
+temporal adaptivity in MRIStep via the :ref:`SUNAdaptController_MRIHTol <SUNAdaptController.MRIHTol>`
+module.  For time-stepping modules that compute both a solution and embedding, :math:`y_n`
+and :math:`\tilde{y}_n`, these may be combined to create a vector-valued local temporal error
+estimate for the current internal step, :math:`y_n - \tilde{y}_n`.  These local errors may be
+accumulated by ARKODE in a variety of ways, as determined by the enumerated type
+:c:enum:`ARKAccumError`.  In each of the cases below, the accumulation is taken over all steps
+since the most recent call to either :c:func:`ARKodeSetAccumulatedErrorType` or
+:c:func:`ARKodeResetAccumulatedError`. Below the set :math:`\mathcal{S}` contains
+the indices of the steps since the last call to either of the aforementioned functions.
+The norm is taken using the tolerance-informed error-weight vector (see
+:c:func:`ARKodeGetErrWeights`), and ``reltol`` is the user-specified relative solution
+tolerance.
+
+.. c:enum:: ARKAccumError
+
+   The type of error accumulation that ARKODE should use.
+
+   .. versionadded:: 6.2.0
+
+   .. c:enumerator:: ARK_ACCUMERROR_NONE
+
+      No accumulation should be performed
+
+   .. c:enumerator:: ARK_ACCUMERROR_MAX
+
+      Computes :math:`\text{reltol} \max\limits_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`
+
+   .. c:enumerator:: ARK_ACCUMERROR_SUM
+
+      Computes :math:`\text{reltol} \sum\limits_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`
+
+   .. c:enumerator:: ARK_ACCUMERROR_AVG
+
+      Computes :math:`\frac{\text{reltol}}{\Delta t_{\mathcal{S}}} \sum\limits_{i \in \mathcal{S}} h_i \|y_i - \tilde{y}_i\|_{WRMS}`,
+      where :math:`h_i` is the step size used when computing :math:`y_i`, and
+      :math:`\Delta t_{\mathcal{S}}` denotes the elapsed time over which
+      :math:`\mathcal{S}` is taken.
+
+
+.. c:function:: int ARKodeSetAccumulatedErrorType(void* arkode_mem, ARKAccumError accum_type)
+
+   Sets the strategy to use for accumulating a temporal error estimate
+   over multiple time steps.  By default, ARKODE will not accumulate any
+   local error estimates (i.e., the default *accum_type* is ``ARK_ACCUMERROR_NONE``).
+
+   A non-default error accumulation strategy can be disabled by calling
+   :c:func:`ARKodeSetAccumulatedErrorType` with the argument ``ARK_ACCUMERROR_NONE``.
+
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param accum_type: accumulation strategy.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
+                                    by the current time-stepping module.
+
+   .. versionadded:: 6.2.0
+
+
+.. c:function:: int ARKodeResetAccumulatedError(void* arkode_mem)
+
+   Resets the accumulated temporal error estimate, that was triggered by a previous call to
+   :c:func:`ARKodeSetAccumulatedErrorType`.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
+   :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
+                                    by the current time-stepping module.
+
+   .. versionadded:: 6.2.0
 
 
 
@@ -3157,6 +3363,7 @@ Cumulative number of internal steps                    :c:func:`ARKodeGetNumStep
 Actual initial time step size used                     :c:func:`ARKodeGetActualInitStep`
 Step size used for the last successful step            :c:func:`ARKodeGetLastStep`
 Step size to be attempted on the next step             :c:func:`ARKodeGetCurrentStep`
+Integration direction, e.g., forward or backward       :c:func:`ARKodeGetStepDirection`
 Current internal time reached by the solver            :c:func:`ARKodeGetCurrentTime`
 Current internal solution reached by the solver        :c:func:`ARKodeGetCurrentState`
 Current :math:`\gamma` value used by the solver        :c:func:`ARKodeGetCurrentGamma`
@@ -3175,6 +3382,7 @@ No. of failed steps due to a nonlinear solver failure  :c:func:`ARKodeGetNumStep
 Estimated local truncation error vector                :c:func:`ARKodeGetEstLocalErrors`
 Number of constraint test failures                     :c:func:`ARKodeGetNumConstrFails`
 Retrieve a pointer for user data                       :c:func:`ARKodeGetUserData`
+Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumulatedError`
 =====================================================  ============================================
 
 
@@ -3192,6 +3400,10 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
    .. versionadded:: 6.1.0
+
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 
 .. c:function:: int ARKodeGetNumSteps(void* arkode_mem, long int* nsteps)
@@ -3256,6 +3468,22 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
    .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKodeGetStepDirection(void *arkode_mem, sunrealtype *stepdir)
+
+   Returns the direction of integration that will be used on the next internal
+   step.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param stepdir: a positive number if integrating forward, a negative number
+                   if integrating backward, or zero if the direction has not
+                   been set.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+
+   .. versionadded:: 6.2.0
 
 
 .. c:function:: int ARKodeGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
@@ -3402,9 +3630,9 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
 
    .. note::
 
-      The file ``scripts/sundials_csv.py`` provides python utility functions to
-      read and output the data from a SUNDIALS CSV output file using the key
-      and value pair format.
+      The Python module ``tools/suntools`` provides utilities to read and output
+      the data from a SUNDIALS CSV output file using the key and value pair
+      format.
 
    .. versionadded:: 6.1.0
 
@@ -3425,8 +3653,8 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
 .. c:function:: int ARKodeGetNumExpSteps(void* arkode_mem, long int* expsteps)
 
    Returns the cumulative number of stability-limited steps
-   taken by the solver (so far). If the combination of the maximum number of stages 
-   and the current time step size in the LSRKStep module will not allow for a stable 
+   taken by the solver (so far). If the combination of the maximum number of stages
+   and the current time step size in the LSRKStep module will not allow for a stable
    step, the counter also accounts for such returns.
 
    :param arkode_mem: pointer to the ARKODE memory block.
@@ -3507,7 +3735,7 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_ILL_INPUT: if ``num_partiton`` was invalid for the stepper or
                           ``num_rhs_evals`` was ``NULL``
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
 
 .. c:function:: int ARKodeGetNumErrTestFails(void* arkode_mem, long int* netfails)
@@ -3609,6 +3837,25 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
    .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
+
+   Returns the accumulated temporal error estimate.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param accum_error: pointer to accumulated error estimate.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_WARNING: accumulated error estimation is currently disabled.
+   :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
+                                    by the current time-stepping module.
+
+   .. versionadded:: 6.2.0
+
+
+
 
 
 .. _ARKODE.Usage.ARKodeImplicitSolverOutputs:
@@ -3932,6 +4179,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. versionadded:: 6.1.0
 
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: int ARKodeGetNumJacEvals(void* arkode_mem, long int* njevals)
 
@@ -4239,6 +4490,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
       processors).
 
    .. versionadded:: 6.1.0
+
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 
 .. c:function:: int ARKodeGetNumMassSetups(void* arkode_mem, long int* nmsetups)
@@ -4616,6 +4871,11 @@ vector.
       If an error occurred, :c:func:`ARKodeReset` also sends an error message to
       the error handler function.
 
+   .. warning::
+
+      Calling :c:func:`ARKodeReset` during forward integration of an IVP with
+      checkpointing for adjoint sensitivity analysis is not supported.
+
    .. versionadded:: 6.1.0
 
 
@@ -4725,3 +4985,82 @@ rescale the upcoming time step by the specified factor.  If a value
       * ``examples/arkode/C_serial/ark_heat1D_adapt.c``
 
    .. versionadded:: 6.1.0
+
+
+.. _ARKODE.Usage.MRIStepInterface:
+
+Using an ARKODE solver as an MRIStep "inner" solver
+---------------------------------------------------
+
+When using an integrator from ARKODE as the inner (fast) integrator with MRIStep, the
+utility function :c:func:`ARKodeCreateMRIStepInnerStepper` should be used to
+wrap the ARKODE memory block as an :c:type:`MRIStepInnerStepper`.
+
+.. c:function:: int ARKodeCreateMRIStepInnerStepper(void *inner_arkode_mem, MRIStepInnerStepper *stepper)
+
+   Wraps an ARKODE integrator as an :c:type:`MRIStepInnerStepper` for use
+   with MRIStep.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param stepper: the :c:type:`MRIStepInnerStepper` object to create.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_FAIL: a memory allocation failed.
+   :retval ARK_STEPPER_UNSUPPORTED: the time-stepping module does not currently support use as an inner stepper.
+
+   .. note::
+
+      Currently, ARKODE integrators based on ARKStep, ERKStep, and MRIStep
+      support use as an MRIStep inner stepper.
+
+   **Example usage:**
+
+      .. code-block:: C
+
+         /* fast (inner) and slow (outer) ARKODE objects */
+         void *inner_arkode_mem = NULL;
+         void *outer_arkode_mem = NULL;
+
+         /* MRIStepInnerStepper to wrap the inner (fast) object */
+         MRIStepInnerStepper stepper = NULL;
+
+         /* create an ARKODE object, setting fast (inner) right-hand side
+            functions and the initial condition */
+         inner_arkode_mem = *StepCreate(...);
+
+         /* configure the inner integrator */
+         retval = ARKodeSet*(inner_arkode_mem, ...);
+
+         /* create MRIStepInnerStepper wrapper for the ARKODE integrator */
+         flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
+
+         /* create an MRIStep object, setting the slow (outer) right-hand side
+            functions and the initial condition */
+         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
+
+
+.. _ARKODE.Usage.SUNStepperInterface:
+
+Using an ARKODE solver as a SUNStepper
+--------------------------------------
+
+The utility function :c:func:`ARKodeCreateSUNStepper` wraps an ARKODE memory
+block as a :c:type:`SUNStepper`.
+
+.. c:function:: int ARKodeCreateSUNStepper(void *inner_arkode_mem, SUNStepper *stepper)
+
+   Wraps an ARKODE integrator as a :c:type:`SUNStepper`.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param stepper: the :c:type:`SUNStepper` object.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_FAIL: a memory allocation failed.
+   :retval ARK_SUNSTEPPER_ERR: the :c:type:`SUNStepper` initialization failed.
+
+   .. warning::
+      Currently, ``stepper`` will be equipped with an implementation for the
+      :c:func:`SUNStepper_SetForcing` function only if ``inner_arkode_mem`` is
+      an ARKStep, ERKStep, or MRIStep integrator.
+
+   .. versionadded:: 6.2.0

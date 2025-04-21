@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -2309,6 +2309,10 @@ described next.
       sensitivity integration is enabled. See :numref:`IDAS.Usage.Purequad.quad_init`
       and :numref:`IDAS.Usage.FSA.user_callable.sensi_init` for more details.
 
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: int IDAGetNumSteps(void * ida_mem, long int * nsteps)
 
@@ -2631,9 +2635,9 @@ described next.
 
    .. note::
 
-      The file ``scripts/sundials_csv.py`` provides python utility functions to
-      read and output the data from a SUNDIALS CSV output file using the key
-      and value pair format.
+      The Python module ``tools/suntools`` provides utilities to read and output
+      the data from a SUNDIALS CSV output file using the key and value pair
+      format.
 
    .. versionadded:: 5.2.0
 
@@ -2834,6 +2838,10 @@ The following optional outputs are available from the IDALS modules:
 
       Replaces the deprecated functions ``IDADlsGetWorkspace`` and
       ``IDASpilsGetWorkspace``.
+
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int IDAGetNumJacEvals(void * ida_mem, long int * njevals)
 
@@ -4379,6 +4387,10 @@ IDABBDPRE module:
       banded ``SUNLinearSolver`` object, temporary vectors).  These values
       are local to each process.  The workspaces referred to here exist in addition
       to those given by the corresponding function :c:func:`IDAGetLinWorkSpace`.
+
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int IDABBDPrecGetNumGfnEvals(void * ida_mem, long int * ngevalsBBDP)
 

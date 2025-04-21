@@ -2,7 +2,7 @@
    Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -421,6 +421,9 @@ linear solve.  *All routines are optional.*
 
          retval = SUNLinSolSpace(LS, &lrw, &liw);
 
+   .. deprecated:: 7.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 
 
