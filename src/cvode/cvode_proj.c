@@ -4,7 +4,7 @@
  * Based on CPODES by Radu Serban @ LLNL
  * ---------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -218,7 +218,7 @@ int CVodeSetProjFailEta(void* cvode_mem, sunrealtype eta)
   else
   {
     /* Update the eta value */
-    proj_mem->eta_pfail = PROJ_FAIL_ETA;
+    proj_mem->eta_pfail = eta;
   }
 
   return (CV_SUCCESS);

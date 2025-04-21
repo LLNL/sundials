@@ -3,7 +3,7 @@
  *                and Dan Shumaker @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -106,6 +106,9 @@ SUNDIALS_EXPORT void* CVodeCreate(int lmm, SUNContext sunctx);
 SUNDIALS_EXPORT int CVodeInit(void* cvode_mem, CVRhsFn f, sunrealtype t0,
                               N_Vector y0);
 SUNDIALS_EXPORT int CVodeReInit(void* cvode_mem, sunrealtype t0, N_Vector y0);
+SUNDIALS_EXPORT int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist,
+                                       N_Vector* y_hist, N_Vector* f_hist,
+                                       int num_y_hist, int num_f_hist);
 
 /* Tolerance input functions */
 SUNDIALS_EXPORT int CVodeSStolerances(void* cvode_mem, sunrealtype reltol,
@@ -186,8 +189,9 @@ SUNDIALS_EXPORT int CVodeGetDky(void* cvode_mem, sunrealtype t, int k,
                                 N_Vector dky);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int CVodeGetWorkSpace(void* cvode_mem, long int* lenrw,
-                                      long int* leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int CVodeGetWorkSpace(void* cvode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_EXPORT int CVodeGetNumSteps(void* cvode_mem, long int* nsteps);
 SUNDIALS_EXPORT int CVodeGetNumRhsEvals(void* cvode_mem, long int* nfevals);
 SUNDIALS_EXPORT int CVodeGetNumLinSolvSetups(void* cvode_mem,

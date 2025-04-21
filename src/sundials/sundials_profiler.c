@@ -2,7 +2,7 @@
  * Programmer: Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -12,6 +12,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -103,6 +104,15 @@ static void sunTimerStructFree(void* TS)
   }
 }
 
+static SUNErrCode sunProfilerDestroyKeyValue(SUNHashMapKeyValue* kv_ptr)
+{
+  if (!kv_ptr || !(*kv_ptr)) { return SUN_SUCCESS; }
+  sunTimerStructFree((*kv_ptr)->value);
+  free((*kv_ptr)->key);
+  free(*kv_ptr);
+  return SUN_SUCCESS;
+}
+
 static void sunStartTiming(sunTimerStruct* entry)
 {
   sunclock_gettime_monotonic(entry->tic);
@@ -182,7 +192,7 @@ SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
   if (max_entries <= 0) { max_entries = 2560; }
 
   /* Create the hashmap used to store the timers */
-  if (SUNHashMap_New(max_entries, &profiler->map))
+  if (SUNHashMap_New(max_entries, sunProfilerDestroyKeyValue, &profiler->map))
   {
     sunTimerStructFree((void*)profiler->overhead);
     free(profiler);
@@ -225,7 +235,7 @@ SUNErrCode SUNProfiler_Free(SUNProfiler* p)
 
   if (*p)
   {
-    SUNHashMap_Destroy(&(*p)->map, sunTimerStructFree);
+    SUNHashMap_Destroy(&(*p)->map);
     sunTimerStructFree((void*)(*p)->overhead);
 #if SUNDIALS_MPI_ENABLED
     if ((*p)->comm != SUN_COMM_NULL) { MPI_Comm_free(&(*p)->comm); }
@@ -240,7 +250,7 @@ SUNErrCode SUNProfiler_Free(SUNProfiler* p)
 
 SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name)
 {
-  SUNErrCode ier;
+  int64_t ier;
   sunTimerStruct* timer = NULL;
 
   if (!p) { return SUN_ERR_ARG_CORRUPT; }
@@ -255,8 +265,8 @@ SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name)
     {
       sunTimerStructFree(timer);
       sunStopTiming(p->overhead);
-      if (ier == -1) { return SUN_ERR_PROFILER_MAPINSERT; }
-      if (ier == -2) { return SUN_ERR_PROFILER_MAPFULL; }
+      if (ier == SUNHASHMAP_ERROR) { return SUN_ERR_PROFILER_MAPINSERT; }
+      if (ier == SUNHASHMAP_DUPLICATE) { return SUN_ERR_PROFILER_MAPFULL; }
     }
   }
 
@@ -269,7 +279,7 @@ SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name)
 
 SUNErrCode SUNProfiler_End(SUNProfiler p, const char* name)
 {
-  SUNErrCode ier;
+  int64_t ier;
   sunTimerStruct* timer;
 
   if (!p) { return SUN_ERR_ARG_CORRUPT; }
@@ -280,8 +290,11 @@ SUNErrCode SUNProfiler_End(SUNProfiler p, const char* name)
   if (ier)
   {
     sunStopTiming(p->overhead);
-    if (ier == -1) { return SUN_ERR_PROFILER_MAPGET; }
-    if (ier == -2) { return SUN_ERR_PROFILER_MAPKEYNOTFOUND; }
+    if (ier == SUNHASHMAP_ERROR) { return SUN_ERR_PROFILER_MAPGET; }
+    if (ier == SUNHASHMAP_KEYNOTFOUND)
+    {
+      return SUN_ERR_PROFILER_MAPKEYNOTFOUND;
+    }
   }
 
   sunStopTiming(timer);
@@ -333,9 +346,6 @@ SUNErrCode SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name,
 
 SUNErrCode SUNProfiler_Reset(SUNProfiler p)
 {
-  int i                 = 0;
-  sunTimerStruct* timer = NULL;
-
   if (!p) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Reset the overhead timer */
@@ -343,10 +353,13 @@ SUNErrCode SUNProfiler_Reset(SUNProfiler p)
   sunStartTiming(p->overhead);
 
   /* Reset all timers */
-  for (i = 0; i < p->map->max_size; i++)
+  for (int64_t i = 0; i < SUNHashMap_Capacity(p->map); i++)
   {
-    if (!(p->map->buckets[i])) { continue; }
-    timer = p->map->buckets[i]->value;
+    SUNHashMapKeyValue* kvp =
+      SUNStlVector_SUNHashMapKeyValue_At(p->map->buckets, i);
+
+    if (!kvp || !(*kvp)) { continue; }
+    sunTimerStruct* timer = (*kvp)->value;
     if (timer) { sunResetTiming(timer); }
   }
 
@@ -361,8 +374,7 @@ SUNErrCode SUNProfiler_Reset(SUNProfiler p)
 
 SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
 {
-  SUNErrCode ier             = 0;
-  int i                      = 0;
+  int64_t ier                = 0;
   int rank                   = 0;
   sunTimerStruct* timer      = NULL;
   SUNHashMapKeyValue* sorted = NULL;
@@ -376,8 +388,8 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
   SUNDIALS_MARK_BEGIN(p, SUNDIALS_ROOT_TIMER);
 
   ier = SUNHashMap_GetValue(p->map, SUNDIALS_ROOT_TIMER, (void**)&timer);
-  if (ier == -1) { return SUN_ERR_PROFILER_MAPGET; }
-  if (ier == -2) { return SUN_ERR_PROFILER_MAPKEYNOTFOUND; }
+  if (ier == SUNHASHMAP_ERROR) { return SUN_ERR_PROFILER_MAPGET; }
+  if (ier == SUNHASHMAP_KEYNOTFOUND) { return SUN_ERR_PROFILER_MAPKEYNOTFOUND; }
   p->sundials_time = timer->elapsed;
 
 #if SUNDIALS_MPI_ENABLED
@@ -417,7 +429,7 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
 #endif
 
     /* Print all the other timers out */
-    for (i = 0; i < p->map->size; i++)
+    for (int64_t i = 0; i < SUNHashMap_Capacity(p->map); i++)
     {
       if (sorted[i]) { sunPrintTimer(sorted[i], fp, (void*)p); }
     }
@@ -457,7 +469,7 @@ static void sunTimerStructReduceMaxAndSum(void* a, void* b, int* len,
 /* Find the max and average time across all ranks */
 SUNErrCode sunCollectTimers(SUNProfiler p)
 {
-  int i, rank, nranks;
+  int rank, nranks;
 
   MPI_Comm comm = p->comm;
   MPI_Comm_rank(comm, &rank);
@@ -465,11 +477,21 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
 
   sunTimerStruct** values = NULL;
 
+  /* MPI restricts us to int, but the hashmap allows int64_t.
+     We add a check here to make sure that the capacity does
+     not exceed an int, although it is unlikely we ever will. */
+  if (SUNHashMap_Capacity(p->map) > INT_MAX)
+  {
+    return SUN_ERR_PROFILER_MAPFULL;
+  }
+  int map_size = (int)SUNHashMap_Capacity(p->map);
+
   /* Extract the elapsed times from the hash map */
   SUNHashMap_Values(p->map, (void***)&values, sizeof(sunTimerStruct));
   sunTimerStruct* reduced =
-    (sunTimerStruct*)malloc(p->map->size * sizeof(sunTimerStruct));
-  for (i = 0; i < p->map->size; ++i) { reduced[i] = *values[i]; }
+    (sunTimerStruct*)malloc(map_size * sizeof(sunTimerStruct));
+  if (!reduced) { return SUN_ERR_MALLOC_FAIL; }
+  for (int i = 0; i < map_size; ++i) { reduced[i] = *values[i]; }
 
   /* Register MPI datatype for sunTimerStruct */
   MPI_Datatype tmp_type, MPI_sunTimerStruct;
@@ -492,12 +514,12 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
   /* Compute max and average time across all ranks */
   if (rank == 0)
   {
-    MPI_Reduce(MPI_IN_PLACE, reduced, p->map->size, MPI_sunTimerStruct,
+    MPI_Reduce(MPI_IN_PLACE, reduced, map_size, MPI_sunTimerStruct,
                MPI_sunTimerStruct_MAXANDSUM, 0, comm);
   }
   else
   {
-    MPI_Reduce(reduced, reduced, p->map->size, MPI_sunTimerStruct,
+    MPI_Reduce(reduced, reduced, map_size, MPI_sunTimerStruct,
                MPI_sunTimerStruct_MAXANDSUM, 0, comm);
   }
 
@@ -507,7 +529,7 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
   MPI_Op_free(&MPI_sunTimerStruct_MAXANDSUM);
 
   /* Update the values that are in this rank's hash map. */
-  for (i = 0; i < p->map->size; ++i)
+  for (int i = 0; i < map_size; ++i)
   {
     values[i]->average = reduced[i].average / (double)nranks;
     values[i]->maximum = reduced[i].maximum;

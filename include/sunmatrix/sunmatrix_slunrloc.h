@@ -3,7 +3,7 @@
  * Programmer(s): Cody Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -76,8 +76,9 @@ SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_SLUNRloc(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatMatvecSetup_SLUNRloc(SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_SLUNRloc(SUNMatrix A, N_Vector x,
                                                  N_Vector y);
-SUNDIALS_EXPORT SUNErrCode SUNMatSpace_SLUNRloc(SUNMatrix A, long int* lenrw,
-                                                long int* leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+SUNErrCode SUNMatSpace_SLUNRloc(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus
 }

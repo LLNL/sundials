@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -34,6 +34,11 @@ ARKStep supports *all categories*:
 * implicit nonlinear and/or linear solvers
 * non-identity mass matrices
 * relaxation Runge--Kutta methods
+
+ARKStep also has forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
 
 
 .. _ARKODE.Usage.ARKStep.Initialization:
@@ -1450,18 +1455,22 @@ Optional inputs for time step adaptivity
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.Soderlind`).
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the I controller will be created (see :numref:`SUNAdaptController.Soderlind`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
+      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the I controller could not be allocated.
 
    .. versionadded:: 5.7.0
 
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetAdaptController` instead.
+
+   .. versionchanged:: 6.3.0
+
+      The default controller was changed from PID to I.
 
 
 .. c:function:: int ARKStepSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
@@ -1544,7 +1553,7 @@ Optional inputs for time step adaptivity
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *adjust* -- adjustment factor (default is -1).
+      * *adjust* -- adjustment factor (default is 0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1560,6 +1569,10 @@ Optional inputs for time step adaptivity
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetAdaptivityAdjustment` instead.
+
+   .. versionchanged:: 6.3.0
+
+      The default value was changed from -1 to 0
 
 
 
@@ -1593,7 +1606,7 @@ Optional inputs for time step adaptivity
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *bias* -- bias applied to error in accuracy-based time
-        step estimation (default is 1.5).
+        step estimation (default is 1.0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1610,6 +1623,10 @@ Optional inputs for time step adaptivity
    .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
+      
+   .. versionchanged:: 6.3.0
+
+      The default value was changed from 1.5 to 1.0
 
 
 .. c:function:: int ARKStepSetFixedStepBounds(void* arkode_mem, sunrealtype lb, sunrealtype ub)
@@ -1619,7 +1636,7 @@ Optional inputs for time step adaptivity
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *lb* -- lower bound on window to leave step size fixed (default is 1.0).
-      * *ub* -- upper bound on window to leave step size fixed (default is 1.5).
+      * *ub* -- upper bound on window to leave step size fixed (default is 1.0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1632,6 +1649,10 @@ Optional inputs for time step adaptivity
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetFixedStepBounds` instead.
+      
+   .. versionchanged:: 6.3.0
+
+      The default upper bound was changed from 1.5 to 1.0
 
 
 .. c:function:: int ARKStepSetMaxCFailGrowth(void* arkode_mem, sunrealtype etacf)
@@ -1758,7 +1779,7 @@ Optional inputs for time step adaptivity
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *safety* -- safety factor applied to accuracy-based time step (default is 0.96).
+      * *safety* -- safety factor applied to accuracy-based time step (default is 0.9).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1772,6 +1793,11 @@ Optional inputs for time step adaptivity
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetSafetyFactor` instead.
+      
+   .. versionchanged:: 6.3.0
+
+      The default default was changed from 0.96 to 0.9. The maximum value is now
+      exactly 1.0 rather than strictly less than 1.0.
 
 
 .. c:function:: int ARKStepSetSmallNumEFails(void* arkode_mem, int small_nef)
@@ -3055,9 +3081,9 @@ Main solver optional output functions
 
    .. note::
 
-      The file ``scripts/sundials_csv.py`` provides python utility functions to
-      read and output the data from a SUNDIALS CSV output file using the key
-      and value pair format.
+      The Python module ``tools/suntools`` provides utilities to read and output
+      the data from a SUNDIALS CSV output file using the key and value pair
+      format.
 
    .. versionadded:: 5.2.0
 
@@ -3155,7 +3181,7 @@ Main solver optional output functions
       The *nfi_evals* value does not account for calls made to
       :math:`f^I` by a linear solver or preconditioner module.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.2.0
 
       Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
@@ -4399,7 +4425,11 @@ wrap an ARKStep memory block as an :c:type:`MRIStepInnerStepper`.
 
          /* create an MRIStep object, setting the slow (outer) right-hand side
             functions and the initial condition */
-         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
+         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx);
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`ARKodeCreateMRIStepInnerStepper` instead.

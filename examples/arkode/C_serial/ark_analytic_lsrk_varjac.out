@@ -1,3 +1,4 @@
+
 Analytical ODE test problem with a variable Jacobian:
 The stiffness of the problem is directly proportional to
 "lambda - alpha*cos((10 - t)/10*pi)"
@@ -22,22 +23,22 @@ The stiffness of the problem is directly proportional to
    ---------------------
 
 Final Statistics:
-Current time                 = 10.0056139321959
-Steps                        = 1651
-Step attempts                = 1653
-Stability limited steps      = 0
-Accuracy limited steps       = 1653
-Error test fails             = 2
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 1.930101110942615e-10
-Last step size               = 0.02203090645841201
-Current step size            = 0.02203090645841201
-RHS fn evals                 = 150640
-Number of dom_eig updates    = 68
-Max. num. of stages used     = 187
-Max. num. of stages allowed  = 200
-Max. spectral radius         = 1010099.739553962
-Min. spectral radius         = 1009899
+Current time                  = 10.0176850761672
+Steps                         = 1218
+Step attempts                 = 1274
+Stability limited steps       = 102
+Accuracy limited steps        = 1274
+Error test fails              = 56
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 1.93010111094261e-10
+Last step size                = 0.0231428715572232
+Current step size             = 0.035071188930862
+RHS fn evals                  = 133006
+Number of dom_eig updates     = 80
+Max. num. of stages used      = 199
+Max. num. of stages allowed   = 200
+Max. spectral radius          = 1010100.38096708
+Min. spectral radius          = 1009899
 
-ACCURACY at the final time   = 1.54099e-13
+ACCURACY at the final time   = 2.42473e-13

@@ -1,0 +1,225 @@
+name: Docs - PDFs
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  docs_install_guide_pdf:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install latex
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends \
+            fonts-texgyre \
+            latexmk \
+            tex-gyre \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-plain-generic
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install sphinx
+        run: |
+          pip install -r doc/requirements.txt
+
+      # Build the combined html docs first to create a local objects.inv file
+      # for intersphinx to resolve cross references between package guides e.g.,
+      # a new function is referenced in the change log and so it not included in
+      # the objects.inv file from readthedocs yet
+      - name: Build combined docs
+        run: cd doc/superbuild && make html
+
+      - name: Build docs
+        run: cd doc/install_guide && make latexpdf
+
+      - name: Archive files from failed build
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: latex_build_files
+          path: |
+            ${{github.workspace}}/doc/install_guide/build/latex
+
+      - name: Archive PDF from successful build
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: install_guide
+          path: |
+            ${{github.workspace}}/doc/install_guide/build/latex/INSTALL_GUIDE.pdf
+
+  docs_package_pdf:
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 2
+      matrix:
+        package: [arkode, cvode, cvodes, ida, idas, kinsol]
+        # TODO(DJG): when all user guides and example docs use sphinx remove
+        # the example documentation jobs below and use the alternative lines
+        # commented out in this job
+        # type: [guide, examples]
+
+    steps:
+      - name: Install latex
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends \
+            fonts-texgyre \
+            latexmk \
+            tex-gyre \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-plain-generic
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install sphinx
+        run: |
+          pip install -r doc/requirements.txt
+
+      # Build the combined html docs first to create a local objects.inv file
+      # for intersphinx to resolve cross references between package guides e.g.,
+      # a new function is referenced in the change log and so it not included in
+      # the objects.inv file from readthedocs yet
+      - name: Build combined docs
+        run: cd doc/superbuild && make html
+
+      - name: Build docs
+        run: cd doc/${{matrix.package}}/guide && make latexpdf
+        # run: cd doc/${{matrix.package}}/${{matrix.type}} && make latexpdf
+
+      - name: Archive files from failed build
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: latex_build_files
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}/guide/build/latex
+          # path: |
+          # ${{github.workspace}}/doc/${{matrix.package}}/${{matrix.type}}/build/latex
+
+      - name: Archive PDFs from successful build
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ${{matrix.package}}_user_guide
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}/guide/build/latex/*_guide.pdf
+          # name: ${{matrix.package}}_${{matrix.type}}
+          # path: |
+          #   ${{github.workspace}}/doc/${{matrix.package}}/${{matrix.type}}/build/latex/*_${{matrix.type}}.pdf
+
+  # Sphinx examples documentation PDFs
+  docs_examples_sphinx_pdf:
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 2
+      matrix:
+        package: [arkode]
+
+    steps:
+      - name: Install latex
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends \
+            fonts-texgyre \
+            latexmk \
+            tex-gyre \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-plain-generic
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install sphinx
+        run: |
+          pip install -r doc/requirements.txt
+
+      - name: Build docs
+        run: cd doc/${{matrix.package}}/examples && make latexpdf
+
+      - name: Archive files from failed build
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: latex_build_files
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}/examples/build/latex
+
+      - name: Archive PDFs from successful build
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ${{matrix.package}}_examples_docs
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}/examples/build/latex/*_examples.pdf
+
+  # Latex examples documentation PDFs
+  docs_examples_latex_pdf:
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 2
+      matrix:
+        package: [cvode, cvodes, ida, idas, kinsol]
+
+    steps:
+      - name: Install latex
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends \
+            fonts-texgyre \
+            latexmk \
+            tex-gyre \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-plain-generic
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Build docs
+        run: cd doc/${{matrix.package}} && make ex
+
+      - name: Archive files from failed build
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: latex_build_files
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}
+            !${{github.workspace}}/doc/${{matrix.package}}/guide
+
+      - name: Archive PDFs from successful build
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ${{matrix.package}}_examples_docs
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}/*_examples.pdf

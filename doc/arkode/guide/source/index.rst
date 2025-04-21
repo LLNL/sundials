@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -65,6 +65,8 @@ with support by the `US Department of Energy <http://www.doe.gov>`_,
    sunlinsol/index.rst
    sunnonlinsol/index.rst
    sunadaptcontroller/index.rst
+   sunstepper/index.rst
+   sunadjoint/index.rst
    sunmemory/index.rst
    sundials/Install_link.rst
    Constants

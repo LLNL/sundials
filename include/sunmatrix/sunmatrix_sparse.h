@@ -6,7 +6,7 @@
  *     Slaven Peles @ LLNL, and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -176,6 +176,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNMatHermitianTransposeVec_Sparse(SUNMatrix A, N_Vector x,
+                                              N_Vector y);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus

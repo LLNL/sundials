@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -25,6 +25,9 @@ implementation defines the constructor
    Allocates and returns a ``SUNMemoryHelper`` object for handling CUDA memory
    if successful. Otherwise it returns ``NULL``.
 
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :return: if successful, a usable :c:type:`SUNMemoryHelper` object; otherwise it will return ``NULL``.
+
 
 .. _SUNMemory.CUDA.Operations:
 
@@ -45,31 +48,39 @@ The implementation provides the following operations defined by the
    ownership of ``ptr`` and will be deallocated when
    :c:func:`SUNMemoryHelper_Dealloc` is called.
 
-   **Arguments:**
-
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``memptr`` -- pointer to the allocated ``SUNMemory``.
-   * ``mem_size`` -- the size in bytes of the ``ptr``.
-   * ``mem_type`` -- the ``SUNMemoryType`` of the ``ptr``. Supported values are:
-
+   :param helper: the ``SUNMemoryHelper`` object.
+   :param memptr: pointer to the allocated ``SUNMemory``.
+   :param mem_size: the size in bytes of the ``ptr``.
+   :param mem_type: the ``SUNMemoryType`` of the ``ptr``. Supported values are:
      * ``SUNMEMTYPE_HOST`` -- memory is allocated with a call to ``malloc``.
-
-     * ``SUNMEMTYPE_PINNED`` -- memory is allocated with a call to
-       ``cudaMallocHost``.
-
-     * ``SUNMEMTYPE_DEVICE`` -- memory is allocated with a call to
-       ``cudaMalloc``.
-
-     * ``SUNMEMTYPE_UVM`` -- memory is allocated with a call to
-       ``cudaMallocManaged``.
-
-   * ``queue`` -- currently unused.
+     * ``SUNMEMTYPE_PINNED`` -- memory is allocated with a call to ``cudaMallocHost``.
+     * ``SUNMEMTYPE_DEVICE`` -- memory is allocated with a call to ``cudaMalloc``.
+     * ``SUNMEMTYPE_UVM`` -- memory is allocated with a call to ``cudaMallocManaged``.
+   :param queue: currently unused.
+   :return: A new :c:type:`SUNMemory` object.
 
 
-   **Returns:**
+.. c:function:: SUNMemory SUNMemoryHelper_AllocStrided_Cuda(SUNMemoryHelper helper, \
+                                                           SUNMemory memptr, \
+                                                           size_t mem_size, \
+                                                           size_t stride, \
+                                                           SUNMemoryType mem_type, \
+                                                           void* queue)
 
-   * A new :c:type:`SUNMemory` object.
+    Allocates a ``SUNMemory`` object whose ``ptr`` field is allocated for
+    ``mem_size`` bytes and is of type ``mem_type``. The new object will have 
+    ownership of ``ptr`` and will be deallocated when :c:func:`SUNMemoryHelper_Dealloc` is called.
 
+    :param helper: the ``SUNMemoryHelper`` object.
+    :param memptr: pointer to the allocated ``SUNMemory``.
+    :param mem_size: the size in bytes of the ``ptr``.
+    :param stride: the number of bytes between elements in the array.
+    :param mem_type: the ``SUNMemoryType`` of the ``ptr``.
+    :param queue: currently unused.
+    :return: A new :c:type:`SUNMemory` object.
+    
+    .. versionadded:: 7.3.0
+    
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, \
                                                  SUNMemory mem, void* queue)
@@ -77,15 +88,10 @@ The implementation provides the following operations defined by the
    Deallocates the ``mem->ptr`` field if it is owned by ``mem``, and then
    deallocates the ``mem`` object.
 
-   **Arguments:**
-
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``mem`` -- the ``SUNMemory`` object.
-   * ``queue`` -- currently unused.
-
-   **Returns:**
-
-   * A :c:type:`SUNErrCode` indicating success or failure.
+   :param helper: the ``SUNMemoryHelper`` object.
+   :param mem: the ``SUNMemory`` object.
+   :param queue: currently unused.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, \
@@ -98,17 +104,12 @@ The implementation provides the following operations defined by the
    will use the memory types of ``dst`` and ``src`` to determine the appropriate
    transfer type necessary.
 
-   **Arguments:**
-
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``dst`` -- the destination memory to copy to.
-   * ``src`` -- the source memory to copy from.
-   * ``mem_size`` -- the number of bytes to copy.
-   * ``queue`` -- currently unused.
-
-   **Returns:**
-
-   * A :c:type:`SUNErrCode` indicating success or failure.
+   :param helper: the ``SUNMemoryHelper`` object.
+   :param dst: the destination memory to copy to.
+   :param src: the source memory to copy from.
+   :param mem_size: the number of bytes to copy.
+   :param queue: currently unused.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, \
@@ -122,18 +123,13 @@ The implementation provides the following operations defined by the
    will use the memory types of ``dst`` and ``src`` to determine the appropriate
    transfer type necessary.
 
-   **Arguments:**
-
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``dst`` -- the destination memory to copy to.
-   * ``src`` -- the source memory to copy from.
-   * ``mem_size`` -- the number of bytes to copy.
-   * ``queue`` -- the ``cudaStream_t`` handle for the stream that the copy will
+   :param helper: the ``SUNMemoryHelper`` object.
+   :param dst: the destination memory to copy to.
+   :param src: the source memory to copy from.
+   :param mem_size: the number of bytes to copy.
+   :param queue: the ``cudaStream_t`` handle for the stream that the copy will
      be performed on.
-
-   **Returns:**
-
-   * A :c:type:`SUNErrCode` indicating success or failure.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
@@ -142,15 +138,10 @@ The implementation provides the following operations defined by the
 
    Returns statistics about memory allocations performed with the helper.
 
-   **Arguments:**
-
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``mem_type`` -- the ``SUNMemoryType`` to get stats for.
-   * ``num_allocations`` --  (output argument) number of memory allocations done through the helper.
-   * ``num_deallocations`` --  (output argument) number of memory deallocations done through the helper.
-   * ``bytes_allocated`` --  (output argument) total number of bytes allocated through the helper at the moment this function is called.
-   * ``bytes_high_watermark`` --  (output argument) max number of bytes allocated through the helper at any moment in the lifetime of the helper.
-
-   **Returns:**
-
-   * A :c:type:`SUNErrCode` indicating success or failure.
+   :param helper: the ``SUNMemoryHelper`` object.
+   :param mem_type: the ``SUNMemoryType`` to get stats for.
+   :param num_allocations: (output argument) number of memory allocations done through the helper.
+   :param num_deallocations: (output argument) number of memory deallocations done through the helper.
+   :param bytes_allocated: (output argument) total number of bytes allocated through the helper at the moment this function is called.
+   :param bytes_high_watermark: (output argument) max number of bytes allocated through the helper at any moment in the lifetime of the helper.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.

@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -141,20 +141,3 @@ endif()
 if(BUILD_KINSOL)
   add_subdirectory(kinsol)
 endif()
-
-# Add CPODES examples
-if(BUILD_CPODES)
-  add_subdirectory(cpodes)
-endif()
-
-# Add the nvector examples
-add_subdirectory(nvector)
-
-# Add the sunmatrix examples
-add_subdirectory(sunmatrix)
-
-# Add the sunlinearsolver examples
-add_subdirectory(sunlinsol)
-
-# Add the sunnonlinearsolver examples
-add_subdirectory(sunnonlinsol)

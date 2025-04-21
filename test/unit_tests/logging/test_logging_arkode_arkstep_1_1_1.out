@@ -1,0 +1,40 @@
+Start ARKStep Logging test
+Using DIRK method
+Using Newton nonlinear solver
+Using dense direct linear solver
+           t                        u                        v                      u err                    v err            
+------------------------------------------------------------------------------------------------------------------------------
+ 0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
+ 1.029860256095084e-04    1.224744870309106e+00    1.732050195224331e+00    2.220446049250313e-16    5.417888360170764e-14
+ 1.634494202883973e-02    1.224717601252216e+00    1.716695279840718e+00    3.832499873013262e-09    5.257355883969694e-09
+ 3.254857113431928e-02    1.224636743029931e+00    1.671973557804309e+00    7.607053653657658e-09    1.398835069998938e-08
+------------------------------------------------------------------------------------------------------------------------------
+Current time                  = 0.0325485711343193
+Steps                         = 3
+Step attempts                 = 3
+Stability limited steps       = 0
+Accuracy limited steps        = 3
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.000102986025609508
+Last step size                = 0.0162036291054795
+Current step size             = 0.0160002694380036
+Explicit RHS fn evals         = 0
+Implicit RHS fn evals         = 51
+NLS iters                     = 33
+NLS fails                     = 0
+NLS iters per step            = 11
+LS setups                     = 2
+Jac fn evals                  = 1
+LS RHS fn evals               = 0
+Prec setup evals              = 0
+Prec solves                   = 0
+LS iters                      = 0
+LS fails                      = 0
+Jac-times setups              = 0
+Jac-times evals               = 0
+LS iters per NLS iter         = 0
+Jac evals per NLS iter        = 0.0303030303030303
+Prec evals per NLS iter       = 0
+End ARKStep Logging test

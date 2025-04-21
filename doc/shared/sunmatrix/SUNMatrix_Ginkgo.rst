@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -26,7 +26,7 @@ Since Ginkgo is a modern C++ library, SUNMATRIX_GINKGO is also written in
 modern C++ (it requires C++14). Unlike most other SUNDIALS modules, it is a header only library.
 To use the SUNMATRIX_GINKGO ``SUNMatrix``, users will need to include ``sunmatrix/sunmatrix_ginkgo.hpp``.
 More instructions on building SUNDIALS with Ginkgo enabled are given in
-:numref:`Installation.CMake.ExternalLibraries`. For instructions on building and using
+:numref:`Installation.Options.Ginkgo`. For instructions on building and using
 Ginkgo itself, refer to the `Ginkgo website and documentation <https://ginkgo-project.github.io/>`_.
 
 .. note::

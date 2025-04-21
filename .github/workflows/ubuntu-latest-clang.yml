@@ -1,0 +1,118 @@
+name: Build - Ubuntu/Clang (no TPLs)
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build_cycle_log_levels:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        # Level 2 is also used in other builds (it's the default) but include it
+        # here to ensure it's tested with all warning flags
+        logging_level: [0, 1, 2, 3, 4, 5]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory.
+      run: |
+        cmake \
+        -B ${{github.workspace}}/build \
+        -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -D CMAKE_C_COMPILER=$(which clang) \
+        -D CMAKE_CXX_COMPILER=$(which clang++) \
+        -D SUNDIALS_LOGGING_LEVEL=${{matrix.logging_level}} \
+        -D ENABLE_ALL_WARNINGS=ON \
+        -D ENABLE_WARNINGS_AS_ERRORS=ON \
+        -D SUNDIALS_TEST_ENABLE_DEV_TESTS=ON \
+        -D SUNDIALS_TEST_ENABLE_UNIT_TESTS=ON \
+        -D SUNDIALS_TEST_ENABLE_GTEST=OFF \
+        -D SUNDIALS_TEST_FLOAT_PRECISION=4 \
+        -D SUNDIALS_TEST_INTEGER_PRECISION=10
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      # Run logging tests
+      run: |
+        ctest \
+        --test-dir ${{github.workspace}}/build \
+        --label-regex logging \
+        --verbose
+
+    - name: Archive build files from failed build
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build_files_logging_level_${{ matrix.logging_level }}
+        path: |
+          ${{ github.workspace }}/build
+          !${{ github.workspace }}/build/Testing/output
+
+    - name: Archive output files from failed build
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: output_files_logging_level_${{ matrix.logging_level }}
+        path: |
+          ${{ github.workspace }}/build/Testing/
+
+  build_cycle_profiling:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        profiling: ['OFF', 'ON']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory.
+      run: |
+        cmake \
+        -B ${{github.workspace}}/build \
+        -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -D CMAKE_C_COMPILER=$(which clang) \
+        -D CMAKE_CXX_COMPILER=$(which clang++) \
+        -D SUNDIALS_BUILD_WITH_PROFILING=${{matrix.profiling}} \
+        -D ENABLE_ALL_WARNINGS=ON \
+        -D ENABLE_WARNINGS_AS_ERRORS=ON
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Archive build files from failed build
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: build_files_profiling_${{ matrix.profiling }}
+        path: |
+          ${{ github.workspace }}/build
+          !${{ github.workspace }}/build/Testing/output
+
+    - name: Archive output files from failed build
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: output_files_profiling_${{ matrix.profiling }}
+        path: |
+          ${{ github.workspace }}/build/Testing/

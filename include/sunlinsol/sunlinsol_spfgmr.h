@@ -5,7 +5,7 @@
  *    Hilari C. Tiedeman @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -113,9 +113,10 @@ SUNDIALS_EXPORT int SUNLinSolNumIters_SPFGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_SPFGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPFGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPFGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSpace_SPFGMR(SUNLinearSolver S,
-                                                 long int* lenrwLS,
-                                                 long int* leniwLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+SUNErrCode SUNLinSolSpace_SPFGMR(SUNLinearSolver S, long int* lenrwLS,
+                                 long int* leniwLS);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolFree_SPFGMR(SUNLinearSolver S);
 
 #ifdef __cplusplus

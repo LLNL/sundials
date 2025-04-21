@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -165,10 +165,10 @@ int main(int argc, char* argv[])
   }
 
   /* Create inner stepper */
-  retval = ARKStepCreateMRIStepInnerStepper(arkode_inner_mem, &inner_stepper);
+  retval = ARKodeCreateMRIStepInnerStepper(arkode_inner_mem, &inner_stepper);
   if (retval)
   {
-    fprintf(stderr, "ARKStepCreateMRIStepInnerStepper returned %i", retval);
+    fprintf(stderr, "ARKodeCreateMRIStepInnerStepper returned %i", retval);
     return 1;
   }
 

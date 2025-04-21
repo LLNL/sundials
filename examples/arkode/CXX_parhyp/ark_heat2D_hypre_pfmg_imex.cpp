@@ -4,7 +4,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -52,6 +52,7 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <string>
 
 #include "HYPRE_struct_ls.h"          // HYPRE structured grid solver interface
 #include "arkode/arkode_arkstep.h"    // access to ARKStep
@@ -62,11 +63,10 @@
 #include "sunlinsol/sunlinsol_spgmr.h" // access to GMRES SUNLinearSolver
 
 // Macros for problem constants
-#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
-#define EIGHT SUN_RCONST(8.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x, y, n) ((n) * (y) + (x))
@@ -172,9 +172,9 @@ struct UserData
   bool linear;      // enable/disable linearly implicit option
   int order;        // ARKode method order
 
-  sunrealtype hf; // fixed step size
-  int controller; // step size adaptivity method
-  int maxsteps;   // max number of steps between outputs
+  sunrealtype hf;    // fixed step size
+  string controller; // step size adaptivity method
+  int maxsteps;      // max number of steps between outputs
 
   // Linear solver and preconditioner settings
   int liniters;       // number of linear iterations
@@ -310,11 +310,10 @@ static int check_flag(void* flagvalue, const string funcname, int opt);
 
 int main(int argc, char* argv[])
 {
-  int flag;                    // reusable error-checking flag
-  N_Vector u           = NULL; // vector for storing solution
-  SUNLinearSolver LS   = NULL; // linear solver memory structure
-  void* arkode_mem     = NULL; // ARKode memory structure
-  SUNAdaptController C = NULL; // Time adaptivity controller
+  int flag;                  // reusable error-checking flag
+  N_Vector u         = NULL; // vector for storing solution
+  SUNLinearSolver LS = NULL; // linear solver memory structure
+  void* arkode_mem   = NULL; // ARKode memory structure
 
   // Timing variables
   double t1 = 0.0;
@@ -448,17 +447,8 @@ int main(int argc, char* argv[])
     }
     else
     {
-      switch (udata.controller)
-      {
-      case (ARK_ADAPT_PID): C = SUNAdaptController_PID(sunctx); break;
-      case (ARK_ADAPT_PI): C = SUNAdaptController_PI(sunctx); break;
-      case (ARK_ADAPT_I): C = SUNAdaptController_I(sunctx); break;
-      case (ARK_ADAPT_EXP_GUS): C = SUNAdaptController_ExpGus(sunctx); break;
-      case (ARK_ADAPT_IMP_GUS): C = SUNAdaptController_ImpGus(sunctx); break;
-      case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(sunctx); break;
-      }
-      flag = ARKodeSetAdaptController(arkode_mem, C);
-      if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
+      flag = ARKodeSetAdaptControllerByName(arkode_mem, udata.controller.c_str());
+      if (check_flag(&flag, "ARKodeSetAdaptControllerByName", 1)) { return 1; }
     }
 
     // Specify linearly implicit non-time-dependent RHS
@@ -553,11 +543,10 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "HYPRE_Finalize", 1)) { return 1; }
 #endif
 
-    ARKodeFree(&arkode_mem);             // Free integrator memory
-    SUNLinSolFree(LS);                   // Free linear solver
-    N_VDestroy(u);                       // Free vectors
-    FreeUserData(&udata);                // Free user data
-    (void)SUNAdaptController_Destroy(C); // Free time adaptivity controller
+    ARKodeFree(&arkode_mem); // Free integrator memory
+    SUNLinSolFree(LS);       // Free linear solver
+    N_VDestroy(u);           // Free vectors
+    FreeUserData(&udata);    // Free user data
   }
 
   // Finalize MPI
@@ -2296,7 +2285,7 @@ static int InitUserData(UserData* udata)
   udata->order  = 3;                  // method order
 
   udata->hf         = ZERO; // using adaptive step sizes at fast
-  udata->controller = 0;    // PID controller
+  udata->controller = "I";  // PID controller
   udata->maxsteps   = 0;    // use ARKode default
 
   // Linear solver and preconditioner options
@@ -2429,10 +2418,7 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata, bool outproc)
     else if (arg == "--linear") { udata->linear = true; }
     else if (arg == "--order") { udata->order = stoi((*argv)[arg_idx++]); }
     else if (arg == "--hf") { udata->hf = stod((*argv)[arg_idx++]); }
-    else if (arg == "--controller")
-    {
-      udata->controller = stoi((*argv)[arg_idx++]);
-    }
+    else if (arg == "--controller") { udata->controller = (*argv)[arg_idx++]; }
     // Linear solver settings
     else if (arg == "--liniters")
     {
@@ -2608,7 +2594,7 @@ static int PrintUserData(UserData* udata)
   cout << "  linear         = " << udata->linear << endl;
   cout << " --------------------------------- " << endl;
   cout << "  lin iters      = " << udata->liniters << endl;
-  cout << "  eps lins       = " << udata->epslin << endl;
+  cout << "  eps lin        = " << udata->epslin << endl;
   cout << "  prectype       = " << udata->prectype << endl;
   cout << "  msbp           = " << udata->msbp << endl;
   cout << "  pfmg_relax     = " << udata->pfmg_relax << endl;

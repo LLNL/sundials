@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -16,7 +16,7 @@ Data Types
 ==========
 
 SUNDIALS defines several data types in the header file ``sundials_types.h``.
-These types are used in the SUNDIALS API and internally in SUNDIALS. It is 
+These types are used in the SUNDIALS API and internally in SUNDIALS. It is
 not necessary to use these types in your application, but the type must
 be compatible with the SUNDIALS types in the API when calling SUNDIALS functions.
 The types that are defined are:
@@ -25,11 +25,13 @@ The types that are defined are:
 
 * :c:type:`sunindextype` -- the integer type used for vector and matrix indices
 
+* :c:type:`suncountertype` -- the integer type used for counter variables
+
 * :c:type:`sunbooleantype` -- the type used for logic operations within SUNDIALS
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
 
-* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI. 
+* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI.
 
 
 Floating point types
@@ -84,7 +86,7 @@ usage is consistent with the typedef for ``sunrealtype``) and call the appropria
 math library functions directly. Thus, a previously existing piece of C or C++
 code can use SUNDIALS without modifying the code to use ``sunrealtype``,
 ``SUN_RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries are built
-to use the corresponding precision (see :numref:`Installation.CMake.Options`).
+to use the corresponding precision (see :numref:`Installation.Options`).
 
 Integer types used for indexing
 -------------------------------
@@ -112,7 +114,17 @@ this usage is consistent with the typedef for ``sunindextype`` on their
 architecture. Thus, a previously existing piece of C or C++ code can use
 SUNDIALS without modifying the code to use ``sunindextype``, so long as the
 SUNDIALS libraries use the appropriate index storage type (for details see
-:numref:`Installation.CMake.Options`).
+:numref:`Installation.Options`).
+
+Integer type used for counters
+------------------------------
+
+.. c:type:: suncountertype
+
+   The type ``suncountertype`` is used for counter variables in SUNDIALS
+   (*e.g.*, number of stpes) and is the same as ``long int``.
+
+   .. versionadded:: 7.3.0
 
 Boolean type
 ------------
@@ -154,9 +166,9 @@ Output formatting type
 
    .. note::
 
-      The file ``scripts/sundials_csv.py`` provides python utility functions to
-      read and output the data from a SUNDIALS CSV output file using the key
-      and value pair format.
+      The Python module ``tools/suntools`` provides utilities to read and output
+      the data from a SUNDIALS CSV output file using the key and value pair
+      format.
 
 MPI types
 ---------

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -21,6 +21,7 @@
 #include <arkode/arkode_erkstep.h>
 
 #include "arkode_impl.h"
+#include "sundials/sundials_adjointstepper.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -47,6 +48,9 @@ typedef struct ARKodeERKStepMemRec
   /* ERK problem specification */
   ARKRhsFn f; /* y' = f(t,y)                */
 
+  /* Adjoint problem specification */
+  SUNAdjRhsFn adj_f;
+
   /* ARK method storage and parameters */
   N_Vector* F;          /* explicit RHS at each stage */
   int q;                /* method order               */
@@ -60,6 +64,15 @@ typedef struct ARKodeERKStepMemRec
   /* Reusable arrays for fused vector operations */
   sunrealtype* cvals;
   N_Vector* Xvecs;
+  int nfusedopvecs; /* length of cvals and Xvecs arrays */
+
+  /* Data for using ERKStep with external polynomial forcing */
+  sunrealtype tshift;       /* time normalization shift       */
+  sunrealtype tscale;       /* time normalization scaling     */
+  N_Vector* forcing;        /* array of forcing vectors       */
+  int nforcing;             /* number of forcing vectors      */
+  sunrealtype* stage_times; /* workspace for applying forcing */
+  sunrealtype* stage_coefs; /* workspace for applying forcing */
 
 }* ARKodeERKStepMem;
 
@@ -68,10 +81,12 @@ typedef struct ARKodeERKStepMemRec
   ===============================================================*/
 
 /* Interface routines supplied to ARKODE */
-int erkStep_Init(ARKodeMem ark_mem, int init_type);
+int erkStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type);
 int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
+                             int* nflagPtr);
 int erkStep_SetDefaults(ARKodeMem ark_mem);
 int erkStep_SetOrder(ARKodeMem ark_mem, int ord);
 int erkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
@@ -84,22 +99,33 @@ void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
 int erkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
                            long int* rhs_evals);
 int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
+int erkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* f, int nvecs);
 
 /* Internal utility routines */
 int erkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                 ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem);
 int erkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                           ARKodeERKStepMem* step_mem);
-sunbooleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
+void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype* stage_times,
+                          sunrealtype* stage_coefs, int jmax, int* nvec);
 
 /* private functions for relaxation */
 int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* relax_jac_fn_evals, sunrealtype* delta_e_out);
 int erkStep_GetOrder(ARKodeMem ark_mem);
+
+/* private functions for adjoints */
+int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
+                   N_Vector sens_complete_stage, void* content);
+
+int erkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
+                                       ARKodeERKStepMem step_mem, int lineno,
+                                       const char* fname, const char* filename);
 
 /*===============================================================
   Reusable ERKStep Error Messages

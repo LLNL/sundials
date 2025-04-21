@@ -27,8 +27,10 @@ jobs:
         include:
           - msystem: MINGW64
             target-prefix: mingw-w64-x86_64
+            install-tpls: true
           - msystem: MINGW32
             target-prefix: mingw-w64-i686
+            install-tpls: false
 
     steps:
     - uses: actions/checkout@v4
@@ -43,8 +45,8 @@ jobs:
             ${{ matrix.target-prefix }}-cmake
             ${{ matrix.target-prefix }}-gcc
             ${{ matrix.target-prefix }}-gcc-fortran
-            ${{ matrix.target-prefix }}-openblas
-            ${{ matrix.target-prefix }}-suitesparse
+            ${{ matrix.install-tpls && format('{0}-openblas', matrix.target-prefix) || '' }}
+            ${{ matrix.install-tpls && format('{0}-suitesparse', matrix.target-prefix) || '' }}
 
     - name: Configure CMake (Static)
       # Configure CMake in a 'build' subdirectory
@@ -58,9 +60,9 @@ jobs:
           -DBUILD_SHARED_LIBS=OFF \
           -DSUNDIALS_BUILD_WITH_PROFILING=ON \
           -DSUNDIALS_LOGGING_LEVEL=2 \
-          -DSUNDIALS_TEST_UNITTESTS=OFF \
+          -DSUNDIALS_TEST_ENABLE_UNIT_TESTS=OFF \
           -DEXAMPLES_ENABLE_CXX=ON \
-          -DENABLE_KLU=ON
+          -DENABLE_KLU=${{ matrix.install-tpls && 'ON' || 'OFF' }}
 
     - name: Build (Static)
       # Build program
@@ -85,9 +87,9 @@ jobs:
           -DBUILD_STATIC_LIBS=OFF \
           -DSUNDIALS_BUILD_WITH_PROFILING=ON \
           -DSUNDIALS_LOGGING_LEVEL=2 \
-          -DSUNDIALS_TEST_UNITTESTS=OFF \
+          -DSUNDIALS_TEST_ENABLE_UNIT_TESTS=OFF \
           -DEXAMPLES_ENABLE_CXX=ON \
-          -DENABLE_KLU=ON
+          -DENABLE_KLU=${{ matrix.install-tpls && 'ON' || 'OFF' }}
 
     - name: Build (Shared)
       # Build program

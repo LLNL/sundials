@@ -1,7 +1,7 @@
 ..
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -26,7 +26,7 @@ file known as the "answer" file (aka "out" or "output" file). The output typical
 solution and/or some quantities derived from the solution as well as statistics about how the
 integration and/or solve (e.g., number of time steps). When changes are made to SUNDIALS, we ensure
 that these output files do not change unless it is expected/desired. Practically, this is ensured
-by our :ref:`CI testing <CI>`.
+by our CI.
 
 Due to difference in microarichtectures and the nature of floating point arithmetic, it is quite
 possible that the output generated on one machine may differ from the output generated on another.
@@ -51,7 +51,7 @@ is expected/desired. Changing output files requires careful verification that th
 - For the ``.out`` files in `sundials-codes/answers <https://github.com/sundials-codes/answers>`_:
 
   #. Navigate to `test/answers` in the sundials repository. If there is nothing in this directory,
-     you need to run `git submodule init && git submodule update`. Alternatively clone the answers
+     you need to run ``git submodule init && git submodule update``. Alternatively clone the answers
      repository outside of the SUNDIALS source tree.
 
   #. Checkout the main branch: ``git checkout main``.

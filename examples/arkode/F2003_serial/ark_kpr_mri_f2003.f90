@@ -3,7 +3,7 @@
 ! Based on ark_kpr_mri.c in examples/arkode/C_serial.
 ! -------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2024, Lawrence Livermore National Security
+! Copyright (c) 2002-2025, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -886,9 +886,9 @@ program main
   end if
 
   ! Create inner stepper */
-  retval = FARKStepCreateMRIStepInnerStepper(inner_arkode_mem, inner_stepper)
+  retval = FARKodeCreateMRIStepInnerStepper(inner_arkode_mem, inner_stepper)
   if (retval /= 0) then
-    print *, 'ERROR: FARKStepCreateMRIStepInnerStepper failed'
+    print *, 'ERROR: FARKodeCreateMRIStepInnerStepper failed'
     stop 1
   end if
 

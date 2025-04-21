@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,10 +38,10 @@ extern "C" {
 
 /* Time step controller default values */
 #define CFLFAC    SUN_RCONST(0.5)
-#define SAFETY    SUN_RCONST(0.96) /* CVODE uses 1.0  */
+#define SAFETY    SUN_RCONST(0.9)  /* CVODE uses 1.0  */
 #define GROWTH    SUN_RCONST(20.0) /* CVODE uses 10.0 */
 #define HFIXED_LB SUN_RCONST(1.0)  /* CVODE uses 1.0  */
-#define HFIXED_UB SUN_RCONST(1.5)  /* CVODE uses 1.5  */
+#define HFIXED_UB SUN_RCONST(1.0)  /* CVODE uses 1.5  */
 
 /* maximum step size change on first step */
 #define ETAMX1 SUN_RCONST(10000.0)
@@ -60,7 +60,7 @@ extern "C" {
    DEPRECATED, REMOVE AT SAME TIME AS ARKStepSetAdaptivityMethod */
 #define PQ 0
 /* adjustment to apply within controller to method order of accuracy */
-#define ADJUST -1
+#define ADJUST 0
 
 /*===============================================================
   ARKODE Time Step Adaptivity Data Structure

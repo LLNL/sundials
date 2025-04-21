@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -1090,7 +1090,6 @@ int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails
 
 SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y)
 {
-  void* tmp_comm;
   SUNNonlinearSolver NLS;
   TaskLocalNewton_Content content;
 
@@ -1416,18 +1415,18 @@ int SetupProblem(int argc, char* argv[], UserData* udata, UserOptions* uopt,
   udata->WFID = NULL;
 
   /* set default integrator options */
-  uopt->order     = 3;          /* method order             */
-  uopt->expl      = 0;          /* imex or explicit         */
-  uopt->t0        = 0.0;        /* initial time             */
-  uopt->tf        = 10.0;       /* final time               */
-  uopt->rtol      = 1.0e-6;     /* relative tolerance       */
-  uopt->atol      = 1.0e-9;     /* absolute tolerance       */
-  uopt->global    = 0;          /* use global NLS           */
-  uopt->fused     = 0;          /* use fused vector ops     */
-  uopt->monitor   = 0;          /* print solution to screen */
-  uopt->printtime = 0;          /* print timing             */
-  uopt->nout      = 40;         /* number of output times   */
-  uopt->outputdir = (char*)"."; /* output directory         */
+  uopt->order     = 3;      /* method order             */
+  uopt->expl      = 0;      /* imex or explicit         */
+  uopt->t0        = 0.0;    /* initial time             */
+  uopt->tf        = 10.0;   /* final time               */
+  uopt->rtol      = 1.0e-6; /* relative tolerance       */
+  uopt->atol      = 1.0e-9; /* absolute tolerance       */
+  uopt->global    = 0;      /* use global NLS           */
+  uopt->fused     = 0;      /* use fused vector ops     */
+  uopt->monitor   = 0;      /* print solution to screen */
+  uopt->printtime = 0;      /* print timing             */
+  uopt->nout      = 40;     /* number of output times   */
+  uopt->outputdir = ".";    /* output directory         */
 
   /* check for input args */
   if (argc > 1)

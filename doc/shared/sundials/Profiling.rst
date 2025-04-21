@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -237,13 +237,3 @@ It is applicable to any of the SUNDIALS solver packages.
    }
    SUNDIALS_MARK_END(profobj, "Integration loop");
    PrintFinalStats(cvode_mem);  /* Print some final statistics   */
-
-
-.. _SUNDIALS.Profiling.Other:
-
-Other Considerations
---------------------
-
-If many regions are being timed, it may be necessary to increase the maximum
-number of profiler entries (the default is ``2560``). This can be done
-by setting the environment variable ``SUNPROFILER_MAX_ENTRIES``.

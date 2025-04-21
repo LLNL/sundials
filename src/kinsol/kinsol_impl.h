@@ -4,7 +4,7 @@
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -31,14 +31,6 @@
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "19.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
 #endif
 
 /*
@@ -184,12 +176,14 @@ typedef struct KINMemRec
   N_Vector* kin_q_aa;      /* vector array needed for AA                      */
   sunrealtype kin_beta_aa; /* beta damping parameter for AA                   */
   sunrealtype* kin_gamma_aa; /* array of size maa used in AA                    */
-  sunrealtype* kin_R_aa;  /* array of size maa*maa used in AA                */
-  sunrealtype* kin_T_aa;  /* array of size maa*maa used in AA with ICWY MGS  */
-  long int* kin_ipt_map;  /* array of size maa*maa/2 used in AA              */
-  long int kin_m_aa;      /* parameter for AA, Broyden or NLEN               */
-  long int kin_delay_aa;  /* number of iterations to delay AA */
-  int kin_orth_aa;        /* parameter for AA determining orthogonalization
+  sunrealtype* kin_R_aa; /* array of size maa*maa used in AA                */
+  sunrealtype* kin_T_aa; /* array of size maa*maa used in AA with ICWY MGS  */
+  long int kin_m_aa;     /* parameter for AA, Broyden or NLEN               */
+  long int kin_delay_aa; /* number of iterations to delay AA */
+  long int kin_current_depth;  /* current Anderson acceleration space size */
+  KINDampingFn kin_damping_fn; /* function to determine the damping factor */
+  KINDepthFn kin_depth_fn;     /* function to determine the depth with AA */
+  int kin_orth_aa;             /* parameter for AA determining orthogonalization
                                  routine
                                  0 - Modified Gram Schmidt (standard)
                                  1 - ICWY Modified Gram Schmidt (Bjorck)
@@ -199,6 +193,7 @@ typedef struct KINMemRec
   SUNQRData kin_qr_data;  /* Additional parameters required for QRAdd routine
                                  set for AA                                      */
   sunbooleantype kin_damping_aa; /* flag to apply damping in AA                     */
+  sunbooleantype kin_dot_prod_sb; /* use single buffer dot product */
   sunrealtype* kin_cv; /* scalar array for fused vector operations        */
   N_Vector* kin_Xv;    /* vector array for fused vector operations        */
 
@@ -475,50 +470,50 @@ void KINInfoHandler(const char* module, const char* function, char* msg,
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 
 #define INFO_RVAR   "%s = %26.16Lg"
-#define INFO_NNI    "nni = %4ld   nfe = %6ld   fnorm = %26.16Lg"
-#define INFO_TOL    "scsteptol = %12.3Lg  fnormtol = %12.3Lg"
+#define INFO_NNI    "nni = %4ld, nfe = %6ld, fnorm = %26.16Lg"
+#define INFO_TOL    "scsteptol = %12.3Lg, fnormtol = %12.3Lg"
 #define INFO_FMAX   "scaled f norm (for stopping) = %12.3Lg"
 #define INFO_PNORM  "pnorm = %12.4Le"
 #define INFO_PNORM1 "(ivio=1) pnorm = %12.4Le"
 #define INFO_FNORM  "fnorm(L2) = %20.8Le"
-#define INFO_LAM    "min_lam = %11.4Le   f1norm = %11.4Le   pnorm = %11.4Le"
+#define INFO_LAM    "min_lam = %11.4Le, f1norm = %11.4Le, pnorm = %11.4Le"
 #define INFO_ALPHA \
-  "fnorm = %15.8Le   f1norm = %15.8Le   alpha_cond = %15.8Le  lam = %15.8Le"
-#define INFO_BETA "f1norm = %15.8Le   beta_cond = %15.8Le   lam = %15.8Le"
+  "fnorm = %15.8Le, f1norm = %15.8Le, alpha_cond = %15.8Le, lam = %15.8Le"
+#define INFO_BETA "f1norm = %15.8Le, beta_cond = %15.8Le, lam = %15.8Le"
 #define INFO_ALPHABETA \
-  "f1norm = %15.8Le  alpha_cond = %15.8Le  beta_cond = %15.8Le  lam = %15.8Le"
+  "f1norm = %15.8Le, alpha_cond = %15.8Le, beta_cond = %15.8Le, lam = %15.8Le"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
 #define INFO_RVAR   "%s = %26.16lg"
-#define INFO_NNI    "nni = %4ld   nfe = %6ld   fnorm = %26.16lg"
-#define INFO_TOL    "scsteptol = %12.3lg  fnormtol = %12.3lg"
+#define INFO_NNI    "nni = %4ld, nfe = %6ld, fnorm = %26.16lg"
+#define INFO_TOL    "scsteptol = %12.3lg, fnormtol = %12.3lg"
 #define INFO_FMAX   "scaled f norm (for stopping) = %12.3lg"
 #define INFO_PNORM  "pnorm = %12.4le"
 #define INFO_PNORM1 "(ivio=1) pnorm = %12.4le"
 #define INFO_FNORM  "fnorm(L2) = %20.8le"
-#define INFO_LAM    "min_lam = %11.4le   f1norm = %11.4le   pnorm = %11.4le"
+#define INFO_LAM    "min_lam = %11.4le, f1norm = %11.4le, pnorm = %11.4le"
 #define INFO_ALPHA \
-  "fnorm = %15.8le   f1norm = %15.8le   alpha_cond = %15.8le  lam = %15.8le"
-#define INFO_BETA "f1norm = %15.8le   beta_cond = %15.8le   lam = %15.8le"
+  "fnorm = %15.8le, f1norm = %15.8le, alpha_cond = %15.8le,lam = %15.8le"
+#define INFO_BETA "f1norm = %15.8le, beta_cond = %15.8le, lam = %15.8le"
 #define INFO_ALPHABETA \
-  "f1norm = %15.8le  alpha_cond = %15.8le  beta_cond = %15.8le  lam = %15.8le"
+  "f1norm = %15.8le, alpha_cond = %15.8le, beta_cond = %15.8le, lam = %15.8le"
 
 #else
 
 #define INFO_RVAR   "%s = %26.16g"
-#define INFO_NNI    "nni = %4ld   nfe = %6ld   fnorm = %26.16g"
-#define INFO_TOL    "scsteptol = %12.3g  fnormtol = %12.3g"
+#define INFO_NNI    "nni = %4ld, nfe = %6ld, fnorm = %26.16g"
+#define INFO_TOL    "scsteptol = %12.3g, fnormtol = %12.3g"
 #define INFO_FMAX   "scaled f norm (for stopping) = %12.3g"
 #define INFO_PNORM  "pnorm = %12.4e"
 #define INFO_PNORM1 "(ivio=1) pnorm = %12.4e"
 #define INFO_FNORM  "fnorm(L2) = %20.8e"
-#define INFO_LAM    "min_lam = %11.4e   f1norm = %11.4e   pnorm = %11.4e"
+#define INFO_LAM    "min_lam = %11.4e, f1norm = %11.4e, pnorm = %11.4e"
 #define INFO_ALPHA \
-  "fnorm = %15.8e   f1norm = %15.8e   alpha_cond = %15.8e  lam = %15.8e"
-#define INFO_BETA "f1norm = %15.8e   beta_cond = %15.8e   lam = %15.8e"
+  "fnorm = %15.8e, f1norm = %15.8e, alpha_cond = %15.8e, lam = %15.8e"
+#define INFO_BETA "f1norm = %15.8e, beta_cond = %15.8e, lam = %15.8e"
 #define INFO_ALPHABETA \
-  "f1norm = %15.8e  alpha_cond = %15.8e  beta_cond = %15.8e  lam = %15.8e"
+  "f1norm = %15.8e, alpha_cond = %15.8e, beta_cond = %15.8e, lam = %15.8e"
 
 #endif
 

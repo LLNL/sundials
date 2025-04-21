@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -51,6 +51,15 @@ if((CMAKE_CXX_COMPILER_ID MATCHES GNU)
   if(_hasflag)
     set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler=-mno-float128")
   endif()
+endif()
+
+# ===============================================================
+# Prohibit CUDA interface when using extended precision.
+# ===============================================================
+
+if(SUNDIALS_PRECISION MATCHES "EXTENDED")
+  message(
+    FATAL_ERROR "CUDA interfaces are incompatible with extended precision.")
 endif()
 
 # ===============================================================
