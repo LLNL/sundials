@@ -60,16 +60,6 @@
 #define IJth(A, i, j) \
   SM_ELEMENT_D(A, i - 1, j - 1) /* (i,j)-th matrix component i,j=1..NEQ */
 
-/* Precision specific math function macros */
-
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define ABS(x) (fabs((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define ABS(x) (fabsf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define ABS(x) (fabsl((x)))
-#endif
-
 /* Problem Constants */
 
 #define NEQ   3               /* number of equations  */
@@ -326,15 +316,15 @@ static int ewt(N_Vector y, N_Vector w, void* user_data)
 static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2,
                         sunrealtype y3)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("At t = %0.4Qe      y =%14.6Qe  %14.6Qe  %14.6Qe\n", t, y1, y2, y3);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
 #else
   printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
 #endif
-
-  return;
 }
 
 static void PrintRootInfo(int root_f1, int root_f2)

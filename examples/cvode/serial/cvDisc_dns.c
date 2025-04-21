@@ -344,7 +344,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* f_data)
   switch (*flag)
   {
   case RHS1: NV_Ith_S(ydot, 0) = -NV_Ith_S(y, 0); break;
-  case RHS2: NV_Ith_S(ydot, 0) = -5.0 * NV_Ith_S(y, 0); break;
+  case RHS2: NV_Ith_S(ydot, 0) = -SUN_RCONST(5.0) * NV_Ith_S(y, 0); break;
   }
 
   return (0);

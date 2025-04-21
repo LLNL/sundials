@@ -593,8 +593,6 @@ static void PrintIntro2(void)
 static void PrintHeader2(void)
 {
   printf("\n      t        max.err      qu     hu \n");
-
-  return;
 }
 
 static void PrintOutput2(sunrealtype t, sunrealtype erm, int qu, sunrealtype hu)
@@ -606,8 +604,6 @@ static void PrintOutput2(sunrealtype t, sunrealtype erm, int qu, sunrealtype hu)
 #else
   printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
 #endif
-
-  return;
 }
 
 static int f2(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
@@ -692,7 +688,7 @@ static sunrealtype MaxError(N_Vector y, sunrealtype t)
   if (t == ZERO) { return (ZERO); }
 
   ydata = N_VGetArrayPointer(y);
-  if (t <= THIRTY) { ex = exp(-TWO * t); }
+  if (t <= THIRTY) { ex = SUNRexp(-TWO * t); }
 
   for (j = 0; j < P2_MESHY; j++)
   {

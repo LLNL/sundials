@@ -66,7 +66,9 @@
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNmatrix       */
 
 /* Precision specific formatting macros */
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define ESYM "Qe"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define ESYM "Le"
 #else
 #define ESYM "e"

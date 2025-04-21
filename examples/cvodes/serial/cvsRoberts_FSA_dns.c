@@ -388,9 +388,9 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   IJth(J, 1, 2) = p2 * y3;
   IJth(J, 1, 3) = p2 * y2;
   IJth(J, 2, 1) = p1;
-  IJth(J, 2, 2) = -p2 * y3 - 2 * p3 * y2;
+  IJth(J, 2, 2) = -p2 * y3 - SUN_RCONST(2.0) * p3 * y2;
   IJth(J, 2, 3) = -p2 * y2;
-  IJth(J, 3, 2) = 2 * p3 * y2;
+  IJth(J, 3, 2) = SUN_RCONST(2.0) * p3 * y2;
 
   return (0);
 }
@@ -422,7 +422,7 @@ static int fS(int Ns, sunrealtype t, N_Vector y, N_Vector ydot, int iS,
   s3 = Ith(yS, 3);
 
   sd1 = -p1 * s1 + p2 * y3 * s2 + p2 * y2 * s3;
-  sd3 = 2 * p3 * y2 * s2;
+  sd3 = SUN_RCONST(2.0) * p3 * y2 * s2;
   sd2 = -sd1 - sd3;
 
   switch (iS)
@@ -539,7 +539,9 @@ static void PrintOutput(void* cvode_mem, sunrealtype t, N_Vector u)
   retval = CVodeGetLastStep(cvode_mem, &hu);
   check_retval(&retval, "CVodeGetLastStep", 1);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%8.3Qe %2d  %8.3Qe %5ld\n", t, qu, hu, nst);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%8.3Le %2d  %8.3Le %5ld\n", t, qu, hu, nst);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%8.3e %2d  %8.3e %5ld\n", t, qu, hu, nst);
@@ -549,7 +551,9 @@ static void PrintOutput(void* cvode_mem, sunrealtype t, N_Vector u)
 
   printf("                  Solution       ");
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%12.4Qe %12.4Qe %12.4Qe \n", udata[0], udata[1], udata[2]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", udata[0], udata[1], udata[2]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%12.4e %12.4e %12.4e \n", udata[0], udata[1], udata[2]);
@@ -569,7 +573,9 @@ static void PrintOutputS(N_Vector* uS)
   sdata = N_VGetArrayPointer(uS[0]);
   printf("                  Sensitivity 1  ");
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%12.4Qe %12.4Qe %12.4Qe \n", sdata[0], sdata[1], sdata[2]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
@@ -580,7 +586,9 @@ static void PrintOutputS(N_Vector* uS)
   sdata = N_VGetArrayPointer(uS[1]);
   printf("                  Sensitivity 2  ");
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%12.4Qe %12.4Qe %12.4Qe \n", sdata[0], sdata[1], sdata[2]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
@@ -591,7 +599,9 @@ static void PrintOutputS(N_Vector* uS)
   sdata = N_VGetArrayPointer(uS[2]);
   printf("                  Sensitivity 3  ");
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%12.4Qe %12.4Qe %12.4Qe \n", sdata[0], sdata[1], sdata[2]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le %12.4Le %12.4Le \n", sdata[0], sdata[1], sdata[2]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%12.4e %12.4e %12.4e \n", sdata[0], sdata[1], sdata[2]);
