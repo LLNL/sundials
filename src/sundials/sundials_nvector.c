@@ -124,6 +124,7 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
    */
 
   ops->nvgetlocallength = NULL;
+  ops->nvrandom = NULL;
 
   /* local reduction operations (optional) */
   ops->nvdotprodlocal     = NULL;
@@ -246,6 +247,8 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
   /*
    * OPTIONAL operations with no default implementation.
    */
+
+  v->ops->nvrandom = w->ops->nvrandom;
 
   /* local reduction operations */
   v->ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
@@ -824,6 +827,23 @@ SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
   }
 
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(X[0][0]));
+  return (ier);
+}
+
+/* -------------------------------------------------------------
+ * OPTIONAL routine to fill a vector with uniformly-distributed
+ * random numbers in [0,1]
+ * -------------------------------------------------------------*/
+
+SUNErrCode N_VRandom(N_Vector x)
+{
+  SUNErrCode ier = SUN_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
+  if (x->ops->nvrandom != NULL)
+  {
+    ier = (x->ops->nvrandom(x));
+  }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return (ier);
 }
 

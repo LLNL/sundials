@@ -174,6 +174,7 @@ int main(int argc, char* argv[])
   fails += Test_N_VInvTest(X, Z, local_length, myid);
   fails += Test_N_VConstrMask(X, Y, Z, local_length, myid);
   fails += Test_N_VMinQuotient(X, Y, local_length, myid);
+  if (X->ops->nvrandom) { fails += Test_N_VRandom(X, myid); }
 
   /* Fused and vector array operations tests (disabled) */
   if (myid == 0)
