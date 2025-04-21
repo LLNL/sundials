@@ -279,7 +279,7 @@ int main(int argc, char* argv[])
   sunrealtype maxerr = N_VMaxNorm(e);
 
   std::cout << std::scientific
-            << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
+            << std::setprecision(std::numeric_limits<double>::digits10)
             << "  Max error = " << maxerr << std::endl;
 
   // --------------------

@@ -475,7 +475,7 @@ int main(int argc, char* argv[])
       if (outproc)
       {
         cout << scientific;
-        cout << setprecision(numeric_limits<sunrealtype>::digits10);
+        cout << setprecision(numeric_limits<double>::digits10);
         cout << "  Max error = " << maxerr << endl;
       }
     }
@@ -1547,7 +1547,7 @@ static int OpenOutput(UserData* udata)
   if (udata->output > 0 && outproc)
   {
     cout << scientific;
-    cout << setprecision(numeric_limits<sunrealtype>::digits10);
+    cout << setprecision(numeric_limits<double>::digits10);
     if (udata->forcing)
     {
       cout << "          t           ";
@@ -1597,7 +1597,7 @@ static int OpenOutput(UserData* udata)
     udata->uout.open(fname.str());
 
     udata->uout << scientific;
-    udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
+    udata->uout << setprecision(numeric_limits<double>::digits10);
 
     if (udata->forcing)
     {
@@ -1608,7 +1608,7 @@ static int OpenOutput(UserData* udata)
       udata->eout.open(fname.str());
 
       udata->eout << scientific;
-      udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
+      udata->eout << setprecision(numeric_limits<double>::digits10);
     }
   }
 
