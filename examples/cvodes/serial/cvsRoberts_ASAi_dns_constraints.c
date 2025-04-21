@@ -300,7 +300,9 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVodeGetQuad", 1)) { return (1); }
 
   printf("--------------------------------------------------------\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("G:          %12.4Qe \n", Ith(q, 1));
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("G:          %12.4Le \n", Ith(q, 1));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("G:          %12.4e \n", Ith(q, 1));
@@ -752,7 +754,9 @@ static int fQB(sunrealtype t, N_Vector y, N_Vector yB, N_Vector qBdot,
 
 static void PrintHead(sunrealtype tB0)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("Backward integration from tB0 = %12.4Qe\n\n", tB0);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Backward integration from tB0 = %12.4Le\n\n", tB0);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Backward integration from tB0 = %12.4e\n\n", tB0);
@@ -768,7 +772,14 @@ static void PrintHead(sunrealtype tB0)
 static void PrintOutput1(sunrealtype time, sunrealtype t, N_Vector y, N_Vector yB)
 {
   printf("--------------------------------------------------------\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("returned t: %12.4Qe\n", time);
+  printf("tout:       %12.4Qe\n", t);
+  printf("lambda(t):  %12.4Qe %12.4Qe %12.4Qe\n", Ith(yB, 1), Ith(yB, 2),
+         Ith(yB, 3));
+  printf("y(t):       %12.4Qe %12.4Qe %12.4Qe\n", Ith(y, 1), Ith(y, 2),
+         Ith(y, 3));
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("returned t: %12.4Le\n", time);
   printf("tout:       %12.4Le\n", t);
   printf("lambda(t):  %12.4Le %12.4Le %12.4Le\n", Ith(yB, 1), Ith(yB, 2),
@@ -798,7 +809,15 @@ static void PrintOutput1(sunrealtype time, sunrealtype t, N_Vector y, N_Vector y
 static void PrintOutput(sunrealtype tfinal, N_Vector y, N_Vector yB, N_Vector qB)
 {
   printf("--------------------------------------------------------\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("returned t: %12.4Qe\n", tfinal);
+  printf("lambda(t0): %12.4Qe %12.4Qe %12.4Qe\n", Ith(yB, 1), Ith(yB, 2),
+         Ith(yB, 3));
+  printf("y(t0):      %12.4Qe %12.4Qe %12.4Qe\n", Ith(y, 1), Ith(y, 2),
+         Ith(y, 3));
+  printf("dG/dp:      %12.4Qe %12.4Qe %12.4Qe\n", -Ith(qB, 1), -Ith(qB, 2),
+         -Ith(qB, 3));
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("returned t: %12.4Le\n", tfinal);
   printf("lambda(t0): %12.4Le %12.4Le %12.4Le\n", Ith(yB, 1), Ith(yB, 2),
          Ith(yB, 3));

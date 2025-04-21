@@ -293,6 +293,8 @@ static int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
   sunrealtype urms = SUNRsqrt(N_VDotProd(u, u) / udata.nx / udata.ny);
 
   // Output current status
+  std::cout << std::scientific
+            << std::setprecision(std::numeric_limits<double>::digits10);
   std::cout << std::setw(22) << t << std::setw(25) << urms << std::setw(25)
             << max << std::endl;
 
