@@ -161,6 +161,9 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
   content->own_data = SUNFALSE;
   content->data     = NULL;
 
+  /* Seed random number generator to ensure reproducibility between runs */
+  srand(1);
+
   return (v);
 }
 
@@ -866,7 +869,6 @@ SUNErrCode N_VRandom_Serial(N_Vector x)
   SUNFunctionBegin(x->sunctx);
   sunrealtype *xd = NULL;
   xd = NV_DATA_S(x);
-  sranddev();
   for (int i = 0; i < NV_LENGTH_S(x); i++)
   {
     xd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;

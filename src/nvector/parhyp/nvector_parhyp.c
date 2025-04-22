@@ -153,6 +153,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
 {
   N_Vector v;
   N_VectorContent_ParHyp content;
+  int myid;
 
   /* Create an empty vector object */
   v = NULL;
@@ -232,6 +233,10 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
   content->comm          = comm;
   content->own_parvector = SUNFALSE;
   content->x             = NULL;
+
+  /* Seed random number generator with MPI rank ID to ensure distinct streams */
+  SUNCheckMPICallNull(MPI_Comm_rank(comm, &myid));
+  srand(myid+1);
 
   return (v);
 }
@@ -941,7 +946,6 @@ SUNErrCode N_VRandom_ParHyp(N_Vector x)
   SUNFunctionBegin(x->sunctx);
   sunrealtype *xd = NULL;
   xd = NV_DATA_PH(x);
-  sranddev();
   for (int i = 0; i < NV_LOCLENGTH_PH(x); i++)
   {
     xd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;

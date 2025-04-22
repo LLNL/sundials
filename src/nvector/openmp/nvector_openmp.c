@@ -39,6 +39,7 @@
 #define ONEPT5 SUN_RCONST(1.5)
 
 /* Private functions for special cases of vector operations */
+static SUNErrCode N_VRandom_OpenMP(N_Vector x);
 static void VCopy_OpenMP(N_Vector x, N_Vector z);             /* z=x */
 static void VSum_OpenMP(N_Vector x, N_Vector y, N_Vector z);  /* z=x+y     */
 static void VDiff_OpenMP(N_Vector x, N_Vector y, N_Vector z); /* z=x-y     */
@@ -140,6 +141,7 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads,
   v->ops->nvinvtest      = N_VInvTest_OpenMP;
   v->ops->nvconstrmask   = N_VConstrMask_OpenMP;
   v->ops->nvminquotient  = N_VMinQuotient_OpenMP;
+  v->ops->nvrandom       = N_VRandom_OpenMP;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
@@ -179,6 +181,9 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads,
   content->num_threads = num_threads;
   content->own_data    = SUNFALSE;
   content->data        = NULL;
+
+  /* Seed random number generator to ensure reproducibility between runs */
+  srand(1);
 
   return (v);
 }
@@ -989,6 +994,22 @@ sunrealtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom)
   }
 
   return (min);
+}
+
+/* ----------------------------------------------------------------------------
+ * Fills the vector with pseudorandom numbers (this is not threaded)
+ */
+
+SUNErrCode N_VRandom_OpenMP(N_Vector x)
+{
+  SUNFunctionBegin(x->sunctx);
+  sunrealtype *xd = NULL;
+  xd = NV_DATA_OMP(x);
+  for (int i = 0; i < NV_LENGTH_OMP(x); i++)
+  {
+    xd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
+  }
+  return SUN_SUCCESS;
 }
 
 /* ----------------------------------------------------------------------------
