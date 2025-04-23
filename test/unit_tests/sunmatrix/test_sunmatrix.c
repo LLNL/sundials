@@ -4,7 +4,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,7 +38,6 @@ static double get_time(void);
 int print_time      = 0;
 int print_all_ranks = 0;
 
-#define FMT "%s Time: %22.15e\n\n"
 #define PRINT_TIME(format, time) \
   if (print_time) printf(format, time)
 
@@ -569,6 +568,79 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
   {
     PRINT_TIME("    SUNMatMatvec Time: %22.15e \n \n", stop_time - start_time);
   }
+
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
+ * SUNMatHermitianTransposeVec Test (y should be correct A^T*x product)
+ * --------------------------------------------------------------------*/
+int Test_SUNMatHermitianTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
+                                     N_Vector y, int myid)
+{
+  int failure;
+  double start_time, stop_time;
+  N_Vector z, w;
+  sunrealtype tol = 100 * SUN_UNIT_ROUNDOFF;
+
+  if (A->ops->matvec == NULL)
+  {
+    TEST_STATUS("    PASSED test -- SUNMatHermitianTransposeVec not "
+                "implemented\n",
+                myid);
+    return (0);
+  }
+
+  w = N_VClone(x); /* reference solution computed with Matvec */
+  z = N_VClone(x); /* will be computed with MatvecTranspose */
+
+  /* Compute reference solution */
+  failure = SUNMatMatvec(AT, y, w); /* w = A^Ty */
+  sync_device(A);
+  if (failure)
+  {
+    TEST_STATUS2(">>> FAILED test -- SUNMatHermitianTransposeVec: SUNMatMatvec "
+                 "returned %d \n",
+                 failure, myid);
+    return (1);
+  }
+
+  /* Compute the solution with the routine we are testing */
+  start_time = get_time();
+  failure    = SUNMatHermitianTransposeVec(A, y, z); /* z = A^Ty */
+  sync_device(A);
+  stop_time = get_time();
+
+  if (failure)
+  {
+    TEST_STATUS2(">>> FAILED test -- SUNMatHermitianTransposeVec: "
+                 "SUNMatHermitianTransposeVec returned %d \n",
+                 failure, myid);
+    return (1);
+  }
+
+  failure = check_vector(w, z, tol);
+
+  if (failure)
+  {
+    TEST_STATUS(">>> FAILED test -- SUNMatHermitianTransposeVec check \n", myid);
+    PRINT_TIME("    SUNMatHermitianTransposeVec Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else
+  {
+    TEST_STATUS("    PASSED test -- SUNMatHermitianTransposeVec \n", myid);
+  }
+
+  if (myid == 0)
+  {
+    PRINT_TIME("    SUNMatHermitianTransposeVec Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
+  N_VDestroy(w);
+  N_VDestroy(z);
 
   return (0);
 }

@@ -3,7 +3,7 @@
  *      Alan C. Hindmarsh, Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -47,8 +47,10 @@ SUNDIALS_EXPORT int IDABBDPrecReInit(void* ida_mem, sunindextype mudq,
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int IDABBDPrecGetWorkSpace(void* ida_mem, long int* lenrwBBDP,
-                                           long int* leniwBBDP);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int IDABBDPrecGetWorkSpace(void* ida_mem, long int* lenrwBBDP,
+                           long int* leniwBBDP);
 
 SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void* ida_mem,
                                              long int* ngevalsBBDP);

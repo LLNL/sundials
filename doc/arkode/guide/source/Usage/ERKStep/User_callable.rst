@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -953,23 +953,24 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.Soderlind`).
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the I controller will be created (see :numref:`SUNAdaptController.Soderlind`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
-      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
-
-   **Notes:**
-      When *C* is ``NULL``, the PID controller that is created is not the same as the ERKStep default (PI).
-      To reset ERKStep to its default behavior after a non-default controller has been used, users should either
-      specifically create the PI controller *C* and attach it here, or call :c:func:`ERKStepSetDefaults()`.
+      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the I controller could not be allocated.
 
    .. versionadded:: 5.7.0
 
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetAdaptController` instead.
+
+   .. versionchanged:: 6.3.0
+
+      The default controller was changed from PI to I. Additionally, in prior
+      versions, passing ``NULL`` to this function would attach the PID
+      controller.
 
 
 
@@ -1050,7 +1051,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *adjust* -- adjustment factor (default is -1).
+      * *adjust* -- adjustment factor (default is 0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1066,6 +1067,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetAdaptivityAdjustment` instead.
+
+   .. versionchanged:: 6.3.0
+
+      The default value was changed from -1 to 0
 
 
 
@@ -1100,7 +1105,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
       * *bias* -- bias applied to error in accuracy-based time
-        step estimation (default is 1.5).
+        step estimation (default is 1.0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1117,6 +1122,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
+      
+   .. versionchanged:: 6.3.0
+
+      The default value was changed from 1.5 to 1.0
 
 
 
@@ -1127,7 +1136,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
       * *lb* -- lower bound on window to leave step size fixed (default is 1.0).
-      * *ub* -- upper bound on window to leave step size fixed (default is 1.5).
+      * *ub* -- upper bound on window to leave step size fixed (default is 1.0).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1140,6 +1149,10 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetFixedStepBounds` instead.
+      
+   .. versionchanged:: 6.3.0
+
+      The default upper bound was changed from 1.5 to 1.0
 
 
 
@@ -1247,7 +1260,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *safety* -- safety factor applied to accuracy-based time step (default is 0.96).
+      * *safety* -- safety factor applied to accuracy-based time step (default is 0.9).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1261,6 +1274,11 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetSafetyFactor` instead.
+      
+   .. versionchanged:: 6.3.0
+
+      The default default was changed from 0.96 to 0.9. The maximum value is now
+      exactly 1.0 rather than strictly less than 1.0.
 
 
 

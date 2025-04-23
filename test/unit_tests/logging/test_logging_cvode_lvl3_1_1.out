@@ -4,7 +4,7 @@ Using dense direct linear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][cvStep][begin-step-attempt] step = 1, tn = 0, h = 0.0001029860256095084, q = 1
+[INFO][rank 0][cvStep][begin-step-attempt] step = 1, tn = 0, h = 0.000102986025609508, q = 1
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.2
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -18,9 +18,9 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 2.207987840210415e-11
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
-[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.2499621932116032
+[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.249962193211603
  1.029860256095084e-04    1.224744869195325e+00    1.732049582942459e+00    1.113781733508290e-09    6.122818176912403e-07
-[INFO][rank 0][cvStep][begin-step-attempt] step = 2, tn = 0.0001029860256095084, h = 0.0001029860256095084, q = 1
+[INFO][rank 0][cvStep][begin-step-attempt] step = 2, tn = 0.000102986025609508, h = 0.000102986025609508, q = 1
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.2
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -29,9 +29,9 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 0.499923682675401
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 1
-[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.2499618413377005
+[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.249961841337701
  2.059720512190168e-04    1.224744864802806e+00    1.732047133692213e+00    2.258852216385776e-09    1.224499561969239e-06
-[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.0002059720512190168, h = 0.001029860256095084, q = 2
+[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.000205972051219017, h = 0.00102986025609508, q = 2
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.4064516129032258
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -45,8 +45,8 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.001726792321093216
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
-[INFO][rank 0][cvStep][end-step-attempt] status = failed error test, dsm = 8.198477691401965, eflag = 5
-[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.0002059720512190168, h = 0.0002810714214160092, q = 2
+[INFO][rank 0][cvStep][end-step-attempt] status = failed error test, dsm = 8.19847769140197, eflag = 5
+[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.000205972051219017, h = 0.000281071421416009, q = 2
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.4217683352485581
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -60,34 +60,34 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 1.190779226370788e-05
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
-[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.5885920559914323
+[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.588592055991432
  4.870434726350260e-04    1.224744841922706e+00    1.732034367987314e+00    5.258602220337139e-09    2.744232363793842e-06
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.000487043472635026
-Steps                        = 3
-Error test fails             = 1
-NLS step fails               = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.0002810714214160092
-Current step size            = 0.0002810714214160092
-Last method order            = 2
-Current method order         = 2
-Stab. lim. order reductions  = 0
-RHS fn evals                 = 10
-NLS iters                    = 7
-NLS fails                    = 0
-NLS iters per step           = 2.333333333333333
-LS setups                    = 3
-Jac fn evals                 = 1
-LS RHS fn evals              = 0
-Prec setup evals             = 0
-Prec solves                  = 0
-LS iters                     = 0
-LS fails                     = 0
-Jac-times setups             = 0
-Jac-times evals              = 0
-LS iters per NLS iter        = 0
-Jac evals per NLS iter       = 0.1428571428571428
-Prec evals per NLS iter      = 0
-Root fn evals                = 0
+Current time                  = 0.000487043472635026
+Steps                         = 3
+Error test fails              = 1
+NLS step fails                = 0
+Initial step size             = 0.000102986025609508
+Last step size                = 0.000281071421416009
+Current step size             = 0.000281071421416009
+Last method order             = 2
+Current method order          = 2
+Stab. lim. order reductions   = 0
+RHS fn evals                  = 10
+NLS iters                     = 7
+NLS fails                     = 0
+NLS iters per step            = 2.33333333333333
+LS setups                     = 3
+Jac fn evals                  = 1
+LS RHS fn evals               = 0
+Prec setup evals              = 0
+Prec solves                   = 0
+LS iters                      = 0
+LS fails                      = 0
+Jac-times setups              = 0
+Jac-times evals               = 0
+LS iters per NLS iter         = 0
+Jac evals per NLS iter        = 0.142857142857143
+Prec evals per NLS iter       = 0
+Root fn evals                 = 0
 End CVODE Logging test

@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -22,7 +22,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
 .. c:type:: struct SUNMemory_ *SUNMemory
 
-   The ``SUNMemory`` type is a pointer the structure
+   The :c:type:`SUNMemory` type is a pointer the structure
 
    .. c:struct:: SUNMemory_
 
@@ -42,26 +42,28 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
          The size of the data allocated.
 
+      .. c:member:: size_t stride;
+
+         .. versionadded:: 7.3.0
+
+         The stride of the data.
+
 .. c:function:: SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
 
-   This function returns an empty ``SUNMemory`` object.
+   This function returns an empty :c:type:`SUNMemory` object.
 
-   **Arguments:**
+   :param sunctx: the :c:type:`SUNContext` object.
 
-   * ``sunctx`` -- the ``SUNContext`` object.
-
-   **Returns:**
-
-   * an uninitialized ``SUNMemory`` object
+   :return: an uninitialized :c:type:`SUNMemory` object
 
    .. versionchanged:: 7.0.0
 
-      The function signature was updated to add the ``SUNContext`` argument.
+      The function signature was updated to add the :c:type:`SUNContext` argument.
 
 
 .. c:enum:: SUNMemoryType
 
-   The ``SUNMemoryType`` type is an enumeration that defines the supported
+   The :c:type:`SUNMemoryType` type is an enumeration that defines the supported
    memory types:
 
    .. c:enumerator:: SUNMEMTYPE_HOST
@@ -83,13 +85,20 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
 .. c:type:: struct SUNMemoryHelper_ *SUNMemoryHelper
 
-   The ``SUNMemoryHelper`` type is a pointer to the structure
+   The :c:type:`SUNMemoryHelper` type is a pointer to the structure
 
    .. c:struct:: SUNMemoryHelper_
 
       .. c:member:: void* content;
 
          Pointer to the implementation-specific member data
+
+      .. c:member:: void* queue;
+
+         Pointer to the implementation-specific queue (e.g., a ``cudaStream_t*``) 
+         to use by default when one is not provided for an operation
+         
+         .. versionadded:: 7.3.0
 
       .. c:member:: SUNMemoryHelper_Ops ops;
 
@@ -111,6 +120,12 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
       .. c:member:: SUNErrCode (*alloc)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size, SUNMemoryType mem_type, void* queue)
 
          The function implementing :c:func:`SUNMemoryHelper_Alloc`
+
+      .. c:member:: SUNErrCode (*allocstrided)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size, size_t stride, SUNMemoryType mem_type, void* queue)
+
+         The function implementing :c:func:`SUNMemoryHelper_AllocStrided`
+         
+         .. versionadded:: 7.3.0
 
       .. c:member:: SUNErrCode (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue)
 
@@ -151,24 +166,45 @@ must define:
                                                 SUNMemoryType mem_type, \
                                                 void* queue)
 
-   Allocates a ``SUNMemory`` object whose ``ptr`` field is allocated for
+   Allocates a :c:type:`SUNMemory` object whose ``ptr`` field is allocated for
    ``mem_size`` bytes and is of type ``mem_type``. The new object will have
    ownership of ``ptr`` and will be deallocated when
    :c:func:`SUNMemoryHelper_Dealloc` is called.
 
-   **Arguments:**
-
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``memptr`` -- pointer to the allocated ``SUNMemory``.
-   * ``mem_size`` -- the size in bytes of the ``ptr``.
-   * ``mem_type`` -- the ``SUNMemoryType`` of the ``ptr``.
-   * ``queue`` -- typically a handle for an object representing an alternate
+   :param helper: the :c:type:`SUNMemoryHelper` object.
+   :param memptr: pointer to the allocated :c:type:`SUNMemory`.
+   :param mem_size: the size in bytes of the ``ptr``.
+   :param mem_type: the :c:type:`SUNMemoryType` of the ``ptr``.
+   :param queue: typically a handle for an object representing an alternate
      execution stream (e.g., a CUDA/HIP stream or SYCL queue), but it can
      also be any implementation specific data.
 
-   **Returns:**
+   :return: A new :c:type:`SUNMemory` object
 
-   * A new :c:type:`SUNMemory` object.
+
+.. c:function:: SUNMemory SUNMemoryHelper_AllocStrided(SUNMemoryHelper helper, \
+                                                       SUNMemory* memptr, \
+                                                       size_t mem_size, size_t stride, \
+                                                       SUNMemoryType mem_type, \
+                                                       void* queue)
+
+   Allocates a :c:type:`SUNMemory` object whose ``ptr`` field is allocated for
+   ``mem_size`` bytes with the specified stride, and is of type ``mem_type``.
+   The new object will have ownership of ``ptr`` and will be deallocated when
+   :c:func:`SUNMemoryHelper_Dealloc` is called.
+
+   :param helper: the :c:type:`SUNMemoryHelper` object.
+   :param memptr: pointer to the allocated :c:type:`SUNMemory`.
+   :param mem_size: the size in bytes of the ``ptr``.
+   :param stride: the stride of the memory in bytes.
+   :param mem_type: the :c:type:`SUNMemoryType` of the ``ptr``.
+   :param queue: typically a handle for an object representing an alternate
+     execution stream (e.g., a CUDA/HIP stream or SYCL queue), but it can
+     also be any implementation specific data.
+
+   :return: A new :c:type:`SUNMemory` object
+   
+   .. versionadded:: 7.3.0
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Dealloc(SUNMemoryHelper helper, \
@@ -177,17 +213,13 @@ must define:
    Deallocates the ``mem->ptr`` field if it is owned by ``mem``, and then
    deallocates the ``mem`` object.
 
-   **Arguments:**
-
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``mem`` -- the ``SUNMemory`` object.
-   * ``queue`` -- typically a handle for an object representing an alternate
+   :param helper: the :c:type:`SUNMemoryHelper` object.
+   :param mem: the :c:type:`SUNMemory` object.
+   :param queue: typically a handle for an object representing an alternate
      execution stream (e.g., a CUDA/HIP stream or SYCL queue), but it can
      also be any implementation specific data.
 
-   **Returns:**
-
-   * A :c:type:`SUNErrCode` indicating success or failure.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Copy(SUNMemoryHelper helper, \
@@ -200,19 +232,15 @@ must define:
    object should use the memory types of ``dst`` and ``src`` to determine
    the appropriate transfer type necessary.
 
-   **Arguments:**
-
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``dst`` -- the destination memory to copy to.
-   * ``src`` -- the source memory to copy from.
-   * ``mem_size`` -- the number of bytes to copy.
-   * ``queue`` -- typically a handle for an object representing an alternate
+   :param helper: the :c:type:`SUNMemoryHelper` object.
+   :param dst: the destination memory to copy to.
+   :param src: the source memory to copy from.
+   :param mem_size: the number of bytes to copy.
+   :param queue: typically a handle for an object representing an alternate
      execution stream (e.g., a CUDA/HIP stream or SYCL queue), but it can
      also be any implementation specific data.
 
-   **Returns:**
-
-   * A :c:type:`SUNErrCode` indicating success or failure.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
 
@@ -226,79 +254,67 @@ require a SUNMemoryHelper instance:
 
 .. c:function:: SUNMemory SUNMemoryHelper_Alias(SUNMemoryHelper helper, SUNMemory mem1)
 
-   Returns a ``SUNMemory`` object whose ``ptr`` field points to the same address
+   Returns a :c:type:`SUNMemory` object whose ``ptr`` field points to the same address
    as ``mem1``. The new object *will not* have ownership of ``ptr``, therefore,
    it will not free ``ptr`` when :c:func:`SUNMemoryHelper_Dealloc` is called.
 
-   **Arguments:**
+   :param helper: a :c:type:`SUNMemoryHelper` object.
+   :param mem1: a :c:type:`SUNMemory` object.
 
-   * ``helper`` -- a ``SUNMemoryHelper`` object.
-   * ``mem1`` -- a ``SUNMemory`` object.
 
-   **Returns:**
-
-   * A ``SUNMemory`` object or ``NULL`` if an error occurs.
+   :return: A :c:type:`SUNMemory` object or ``NULL`` if an error occurs.
 
    .. versionchanged:: 7.0.0
 
-      The ``SUNMemoryHelper`` argument was added to the function signature.
+      The :c:type:`SUNMemoryHelper` argument was added to the function signature.
 
 
 .. c:function:: SUNMemory SUNMemoryHelper_Wrap(SUNMemoryHelper helper, void* ptr, \
                                                SUNMemoryType mem_type)
 
-   Returns a ``SUNMemory`` object whose ``ptr`` field points to the ``ptr``
+   Returns a :c:type:`SUNMemory` object whose ``ptr`` field points to the ``ptr``
    argument passed to the function. The new object *will not* have ownership of
    ``ptr``, therefore, it will not free ``ptr`` when
    :c:func:`SUNMemoryHelper_Dealloc` is called.
 
-   **Arguments:**
+   :param helper: a :c:type:`SUNMemoryHelper` object.
+   :param ptr: the data pointer to wrap in a :c:type:`SUNMemory` object.
+   :param mem_type: the :c:type:`SUNMemoryType` of the ``ptr``.
 
-   * ``helper`` -- a ``SUNMemoryHelper`` object.
-   * ``ptr`` -- the data pointer to wrap in a ``SUNMemory`` object.
-   * ``mem_type`` -- the ``SUNMemoryType`` of the ``ptr``.
 
-   **Returns:**
-
-   * A ``SUNMemory`` object or ``NULL`` if an error occurs.
+   :return: A :c:type:`SUNMemory` object or ``NULL`` if an error occurs.
 
    .. versionchanged:: 7.0.0
 
-      The ``SUNMemoryHelper`` argument was added to the function signature.
+      The :c:type:`SUNMemoryHelper` argument was added to the function signature.
 
 
 .. c:function:: SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
 
-   Returns an empty ``SUNMemoryHelper``. This is useful for building custom
-   ``SUNMemoryHelper`` implementations.
+   Returns an empty :c:type:`SUNMemoryHelper`. This is useful for building custom
+   :c:type:`SUNMemoryHelper` implementations.
 
-   **Arguments:**
+   :param helper: a :c:type:`SUNMemoryHelper` object.
 
-   * ``helper`` -- a ``SUNMemoryHelper`` object.
 
-   **Returns:**
-
-   * A ``SUNMemoryHelper`` object or ``NULL`` if an error occurs.
+   :return: A :c:type:`SUNMemoryHelper` object or ``NULL`` if an error occurs.
 
    .. versionchanged:: 7.0.0
 
-      The ``SUNMemoryHelper`` argument was added to the function signature.
+      The :c:type:`SUNMemoryHelper` argument was added to the function signature.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_CopyOps(SUNMemoryHelper src, \
                                             SUNMemoryHelper dst)
 
    Copies the ``ops`` field of ``src`` to the ``ops`` field of ``dst``.
-   This is useful for building custom ``SUNMemoryHelper`` implementations.
+   This is useful for building custom :c:type:`SUNMemoryHelper` implementations.
 
-   **Arguments:**
+   :param src: the object to copy from.
+   :param dst: the object to copy to.
 
-   * ``src`` -- the object to copy from.
-   * ``dst`` -- the object to copy to.
 
-   **Returns:**
-
-   * A :c:type:`SUNErrCode` indicating success or failure.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNMemoryHelper_GetAllocStats(SUNMemoryHelper helper, SUNMemoryType mem_type, unsigned long* num_allocations, \
@@ -307,18 +323,26 @@ require a SUNMemoryHelper instance:
 
    Returns statistics about the allocations performed with the helper.
 
-   **Arguments:**
+   :param helper: the :c:type:`SUNMemoryHelper` object.
+   :param mem_type: the :c:type:`SUNMemoryType` to get stats for.
+   :param num_allocations:  (output argument) number of allocations done through the helper.
+   :param num_deallocations:  (output argument) number of deallocations done through the helper.
+   :param bytes_allocated:  (output argument) total number of bytes allocated through the helper at the moment this function is called.
+   :param bytes_high_watermark:  (output argument) max number of bytes allocated through the helper at any moment in the lifetime of the helper.
 
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``mem_type`` -- the ``SUNMemoryType`` to get stats for.
-   * ``num_allocations`` --  (output argument) number of allocations done through the helper.
-   * ``num_deallocations`` --  (output argument) number of deallocations done through the helper.
-   * ``bytes_allocated`` --  (output argument) total number of bytes allocated through the helper at the moment this function is called.
-   * ``bytes_high_watermark`` --  (output argument) max number of bytes allocated through the helper at any moment in the lifetime of the helper.
 
-   **Returns:**
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-   * A :c:type:`SUNErrCode` indicating success or failure.
+
+.. c:function:: SUNErrCode SUNMemoryHelper_SetDefaultQueue(SUNMemoryHelper helper, void* queue)
+
+   Sets the default queue for the helper.
+
+   :param helper: the :c:type:`SUNMemoryHelper` object.
+   :param queue: pointer to the queue to use by default.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+   
+   .. versionadded:: 7.3.0
 
 
 .. _SUNMemory.Description.Overridable:
@@ -342,17 +366,14 @@ overridable* operations which an implementation may define:
    different execution stream needs to be provided to perform the copy in,
    e.g. with ``CUDA`` this would be a ``cudaStream_t``.
 
-   **Arguments:**
-
-   * ``helper`` -- the ``SUNMemoryHelper`` object.
-   * ``dst`` -- the destination memory to copy to.
-   * ``src`` -- the source memory to copy from.
-   * ``mem_size`` -- the number of bytes to copy.
-   * ``queue`` -- typically a handle for an object representing an alternate
+   :param helper: the :c:type:`SUNMemoryHelper` object.
+   :param dst: the destination memory to copy to.
+   :param src: the source memory to copy from.
+   :param mem_size: the number of bytes to copy.
+   :param queue: typically a handle for an object representing an alternate
      execution stream (e.g., a CUDA/HIP stream or SYCL queue), but it can
      also be any implementation specific data.
 
-   **Returns:**
 
    An ``int`` flag indicating success (zero) or failure (non-zero).
 
@@ -361,18 +382,13 @@ overridable* operations which an implementation may define:
       If this operation is not defined by the implementation, then
       :c:func:`SUNMemoryHelper_Copy` will be used.
 
-
 .. c:function:: SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
 
-   Clones the ``SUNMemoryHelper`` object itself.
+   Clones the :c:type:`SUNMemoryHelper` object itself.
 
-   **Arguments:**
+   :param helper: the :c:type:`SUNMemoryHelper` object to clone.
 
-   * ``helper`` -- the ``SUNMemoryHelper`` object to clone.
-
-   **Returns:**
-
-   * A ``SUNMemoryHelper`` object.
+   :return: A :c:type:`SUNMemoryHelper` object.
 
    .. note::
 
@@ -383,15 +399,11 @@ overridable* operations which an implementation may define:
 
 .. c:function:: SUNErrCode SUNMemoryHelper_Destroy(SUNMemoryHelper helper)
 
-   Destroys (frees) the ``SUNMemoryHelper`` object itself.
+   Destroys (frees) the :c:type:`SUNMemoryHelper` object itself.
 
-   **Arguments:**
+   :param helper: the :c:type:`SUNMemoryHelper` object to destroy.
 
-   * ``helper`` -- the ``SUNMemoryHelper`` object to destroy.
-
-   **Returns:**
-
-   * A :c:type:`SUNErrCode` indicating success or failure.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
    .. note::
 

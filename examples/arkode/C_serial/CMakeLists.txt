@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -86,6 +86,8 @@ set(ARKODE_examples
     "ark_KrylovDemo_prec\;\;exclude-single"
     "ark_KrylovDemo_prec\;1\;exclude-single"
     "ark_KrylovDemo_prec\;2\;exclude-single"
+    "ark_lotka_volterra_ASA\;--check-freq 1\;develop"
+    "ark_lotka_volterra_ASA\;--check-freq 5\;develop"
     "ark_onewaycouple_mri\;\;develop"
     "ark_reaction_diffusion_mri\;\;develop"
     "ark_robertson_constraints\;\;exclude-single"
@@ -130,7 +132,7 @@ foreach(example_tuple ${ARKODE_examples})
 
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     # folder for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -173,7 +175,7 @@ if(BUILD_SUNLINSOL_KLU)
     list(GET example_tuple 1 example_type)
 
     # example source files
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -208,7 +210,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     list(GET example_tuple 1 example_type)
 
     # example source files
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

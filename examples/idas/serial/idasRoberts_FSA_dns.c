@@ -2,7 +2,7 @@
  * Programmer(s): Cosmin Petra and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -65,7 +65,6 @@
 #define TMULT SUN_RCONST(10.0) /* output time factor */
 #define NOUT  12               /* number of output times */
 
-#define NP 3 /* number of problem parameters */
 #define NS 3 /* number of sensitivities computed */
 
 #define ZERO SUN_RCONST(0.0)

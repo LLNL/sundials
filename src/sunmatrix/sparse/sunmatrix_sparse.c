@@ -7,7 +7,7 @@
  *     Slaven Peles @ LLNL, and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -42,6 +42,8 @@ static sunbooleantype compatibleMatrixAndVectors(SUNMatrix A, N_Vector x,
                                                  N_Vector y);
 static SUNErrCode Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y);
 static SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y);
+static SUNErrCode MatTransposeVec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y);
+static SUNErrCode MatTransposeVec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y);
 static SUNErrCode format_convert(const SUNMatrix A, SUNMatrix B);
 
 /*
@@ -79,15 +81,16 @@ SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N, sunindextype NNZ,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  A->ops->getid     = SUNMatGetID_Sparse;
-  A->ops->clone     = SUNMatClone_Sparse;
-  A->ops->destroy   = SUNMatDestroy_Sparse;
-  A->ops->zero      = SUNMatZero_Sparse;
-  A->ops->copy      = SUNMatCopy_Sparse;
-  A->ops->scaleadd  = SUNMatScaleAdd_Sparse;
-  A->ops->scaleaddi = SUNMatScaleAddI_Sparse;
-  A->ops->matvec    = SUNMatMatvec_Sparse;
-  A->ops->space     = SUNMatSpace_Sparse;
+  A->ops->getid                    = SUNMatGetID_Sparse;
+  A->ops->clone                    = SUNMatClone_Sparse;
+  A->ops->destroy                  = SUNMatDestroy_Sparse;
+  A->ops->zero                     = SUNMatZero_Sparse;
+  A->ops->copy                     = SUNMatCopy_Sparse;
+  A->ops->scaleadd                 = SUNMatScaleAdd_Sparse;
+  A->ops->scaleaddi                = SUNMatScaleAddI_Sparse;
+  A->ops->matvec                   = SUNMatMatvec_Sparse;
+  A->ops->mathermitiantransposevec = SUNMatHermitianTransposeVec_Sparse;
+  A->ops->space                    = SUNMatSpace_Sparse;
 
   /* Create content */
   content = NULL;
@@ -417,20 +420,11 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
     fprintf(outfile, "  ");
     for (i = (SM_INDEXPTRS_S(A))[j]; i < (SM_INDEXPTRS_S(A))[j + 1]; i++)
     {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-      fprintf(outfile, "%ld: %.32Lg   ", (long int)(SM_INDEXVALS_S(A))[i],
-              (SM_DATA_S(A))[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-      fprintf(outfile, "%ld: %.16g   ", (long int)(SM_INDEXVALS_S(A))[i],
-              (SM_DATA_S(A))[i]);
-#else
-      fprintf(outfile, "%ld: %.8g   ", (long int)(SM_INDEXVALS_S(A))[i],
-              (SM_DATA_S(A))[i]);
-#endif
+      fprintf(outfile, "%ld: " SUN_FORMAT_E "  ",
+              (long int)(SM_INDEXVALS_S(A))[i], (SM_DATA_S(A))[i]);
     }
     fprintf(outfile, "\n");
   }
-  fprintf(outfile, "\n");
   return;
 }
 
@@ -943,6 +937,22 @@ SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNMatHermitianTransposeVec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
+{
+  SUNFunctionBegin(A->sunctx);
+  SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
+  SUNCheck(compatibleMatrixAndVectors(A, y, x), SUN_ERR_ARG_DIMSMISMATCH);
+
+  /* Perform operation */
+  if (SM_SPARSETYPE_S(A) == CSC_MAT)
+  {
+    SUNCheckCall(MatTransposeVec_SparseCSC(A, x, y));
+  }
+  else { SUNCheckCall(MatTransposeVec_SparseCSR(A, x, y)); }
+
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw, long int* leniw)
 {
   SUNFunctionBegin(A->sunctx);
@@ -1045,6 +1055,40 @@ SUNErrCode Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
   return SUN_SUCCESS;
 }
 
+SUNErrCode MatTransposeVec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
+{
+  sunindextype i, j;
+  sunindextype *Ap, *Ai;
+  sunrealtype *Ax, *xd, *yd;
+  SUNFunctionBegin(A->sunctx);
+
+  /* access data from CSC structure (return if failure) */
+  Ap = SM_INDEXPTRS_S(A);
+  SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
+  Ai = SM_INDEXVALS_S(A);
+  SUNAssert(Ai, SUN_ERR_ARG_CORRUPT);
+  Ax = SM_DATA_S(A);
+  SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
+
+  /* access vector data (return if failure) */
+  xd = N_VGetArrayPointer(x);
+  SUNCheckLastErr();
+  yd = N_VGetArrayPointer(y);
+  SUNCheckLastErr();
+
+  /* initialize result vector */
+  for (i = 0; i < SM_COLUMNS_S(A); i++) { yd[i] = ZERO; }
+
+  /* iterate through matrix columns (rows of the transposed matrix) */
+  for (j = 0; j < SM_COLUMNS_S(A); j++)
+  {
+    /* iterate through non-zero elements in the current column */
+    for (i = Ap[j]; i < Ap[j + 1]; i++) { yd[j] += Ax[i] * xd[Ai[i]]; }
+  }
+
+  return SUN_SUCCESS;
+}
+
 /* -----------------------------------------------------------------
  * Computes y=A*x, where A is a CSR SUNMatrix_Sparse of dimension MxN, x is a
  * compatible N_Vector object of length N, and y is a compatible
@@ -1075,6 +1119,7 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
   SUNAssert(xd, SUN_ERR_ARG_CORRUPT);
   SUNAssert(yd, SUN_ERR_ARG_CORRUPT);
   SUNAssert(xd != yd, SUN_ERR_ARG_CORRUPT);
+
   /* initialize result */
   for (i = 0; i < SM_ROWS_S(A); i++) { yd[i] = ZERO; }
 
@@ -1083,6 +1128,42 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
   {
     /* iterate along row of A, performing product */
     for (j = Ap[i]; j < Ap[i + 1]; j++) { yd[i] += Ax[j] * xd[Aj[j]]; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode MatTransposeVec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
+{
+  sunindextype i, j;
+  sunindextype *Ap, *Aj;
+  sunrealtype *Ax, *xd, *yd;
+  SUNFunctionBegin(A->sunctx);
+
+  /* access data from CSR structure (return if failure) */
+  Ap = SM_INDEXPTRS_S(A);
+  SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
+  Aj = SM_INDEXVALS_S(A);
+  SUNAssert(Aj, SUN_ERR_ARG_CORRUPT);
+  Ax = SM_DATA_S(A);
+  SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
+
+  /* access vector data (return if failure) */
+  xd = N_VGetArrayPointer(x);
+  SUNCheckLastErr();
+  yd = N_VGetArrayPointer(y);
+  SUNCheckLastErr();
+  SUNAssert(xd, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(yd, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(xd != yd, SUN_ERR_ARG_CORRUPT);
+
+  /* initialize result vector */
+  for (i = 0; i < SM_COLUMNS_S(A); i++) { yd[i] = ZERO; }
+
+  /* iterate over rows of the original matrix (columns of the transposed matrix) */
+  for (i = 0; i < SM_ROWS_S(A); i++)
+  {
+    for (j = Ap[i]; j < Ap[i + 1]; j++) { yd[Aj[j]] += Ax[j] * xd[i]; }
   }
 
   return SUN_SUCCESS;

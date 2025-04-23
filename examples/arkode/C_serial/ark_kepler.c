@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -113,10 +113,6 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   SUNNonlinearSolver NLS = NULL;
   UserData udata         = NULL;
   sunrealtype* ydata     = NULL;
-  sunrealtype tout       = NAN;
-  sunrealtype tret       = NAN;
-  sunrealtype H0         = NAN;
-  sunrealtype L0         = NAN;
   sunrealtype num_orbits = 0;
   FILE* conserved_fp     = NULL;
   FILE* solution_fp      = NULL;
@@ -245,10 +241,10 @@ int SolveProblem(ProgramArgs* args, ProblemResult* result, SUNContext sunctx)
   }
 
   /* Print out starting energy, momentum before integrating */
-  tret = T0;
-  tout = T0 + dTout;
-  H0   = Hamiltonian(y);
-  L0   = AngularMomentum(y);
+  sunrealtype tret = T0;
+  sunrealtype tout = T0 + dTout;
+  sunrealtype H0   = Hamiltonian(y);
+  sunrealtype L0   = AngularMomentum(y);
   fprintf(stdout, "t = %.4Lf, H(p,q) = %.16Lf, L(p,q) = %.16Lf\n",
           (long double)tret, (long double)H0, (long double)L0);
   fprintf(times_fp, "%.16Lf\n", (long double)tret);

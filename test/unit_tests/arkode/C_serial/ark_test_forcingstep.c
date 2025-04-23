@@ -2,7 +2,7 @@
  * Programmer(s): Steven B. Roberts @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -41,9 +41,9 @@ static int f_forward_2(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data
 }
 
 /* Integrates the ODE
- * 
+ *
  * y' = [t / y] + [1 / y]
- * 
+ *
  * with initial condition y(0) = 1 and partitioning specified by the square
  * brackets. We integrate to t = 1 and check the error against the exact
  * solution y(t) = |t + 1|.
@@ -121,10 +121,10 @@ static int f_mixed_direction_2(sunrealtype t, N_Vector z, N_Vector zdot,
 }
 
 /* Integrates the ODE
- * 
+ *
  * y_1' = y_2 - t
  * y_2' = t - y_1
- * 
+ *
  * with initial condition y(0) = [1, 1]^T backward in time to t = -1, then
  * forward to t = 0.4, and backward to t = 0. We apply a splitting method using
  * a component partitioning and check that the numerical solution is close to
@@ -198,9 +198,9 @@ static int test_mixed_directions(SUNContext ctx)
 }
 
 /* Integrates the ODE
- * 
+ *
  * y' = [t / y] + [1 / y]
- * 
+ *
  * with initial condition y(0) = 1 and partitioning specified by the square
  * brackets. We integrate to t = 1 then reinitialize the forcing method by
  * swapping the SUNSteppers and updating the initial condition to y(1) = -1.
@@ -269,7 +269,7 @@ static int test_reinit(SUNContext ctx)
   return fail;
 }
 
-int main()
+int main(void)
 {
   SUNContext ctx = NULL;
   SUNErrCode err = SUNContext_Create(SUN_COMM_NULL, &ctx);

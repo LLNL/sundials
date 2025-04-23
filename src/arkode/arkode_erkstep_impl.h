@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -21,6 +21,7 @@
 #include <arkode/arkode_erkstep.h>
 
 #include "arkode_impl.h"
+#include "sundials/sundials_adjointstepper.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -46,6 +47,9 @@ typedef struct ARKodeERKStepMemRec
 {
   /* ERK problem specification */
   ARKRhsFn f; /* y' = f(t,y)                */
+
+  /* Adjoint problem specification */
+  SUNAdjRhsFn adj_f;
 
   /* ARK method storage and parameters */
   N_Vector* F;          /* explicit RHS at each stage */
@@ -81,6 +85,8 @@ int erkStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type);
 int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
+                             int* nflagPtr);
 int erkStep_SetDefaults(ARKodeMem ark_mem);
 int erkStep_SetOrder(ARKodeMem ark_mem, int ord);
 int erkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
@@ -101,7 +107,6 @@ int erkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                 ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem);
 int erkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                           ARKodeERKStepMem* step_mem);
-sunbooleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
@@ -113,6 +118,14 @@ int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* relax_jac_fn_evals, sunrealtype* delta_e_out);
 int erkStep_GetOrder(ARKodeMem ark_mem);
+
+/* private functions for adjoints */
+int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
+                   N_Vector sens_complete_stage, void* content);
+
+int erkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
+                                       ARKodeERKStepMem step_mem, int lineno,
+                                       const char* fname, const char* filename);
 
 /*===============================================================
   Reusable ERKStep Error Messages

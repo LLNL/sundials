@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -27,10 +27,13 @@ struct SUNStepper_Ops_
   SUNStepperEvolveFn evolve;
   SUNStepperOneStepFn onestep;
   SUNStepperFullRhsFn fullrhs;
+  SUNStepperReInitFn reinit;
   SUNStepperResetFn reset;
+  SUNStepperResetCheckpointIndexFn resetcheckpointindex;
   SUNStepperSetStopTimeFn setstoptime;
   SUNStepperSetStepDirectionFn setstepdirection;
   SUNStepperSetForcingFn setforcing;
+  SUNStepperGetNumStepsFn getnumsteps;
   SUNStepperDestroyFn destroy;
 };
 

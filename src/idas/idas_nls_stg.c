@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -19,9 +19,8 @@
 #include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
-#define PT0001 SUN_RCONST(0.0001) /* real 0.0001 */
-#define ONE    SUN_RCONST(1.0)    /* real 1.0    */
-#define TWENTY SUN_RCONST(20.0)   /* real 20.0   */
+#define ONE    SUN_RCONST(1.0)  /* real 1.0    */
+#define TWENTY SUN_RCONST(20.0) /* real 20.0   */
 
 /* nonlinear solver parameters */
 #define MAXIT 4 /* default max number of nonlinear iterations    */

@@ -6,7 +6,7 @@
  *    Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -77,15 +77,16 @@ SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu, sunindextype ml,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  A->ops->getid     = SUNMatGetID_Band;
-  A->ops->clone     = SUNMatClone_Band;
-  A->ops->destroy   = SUNMatDestroy_Band;
-  A->ops->zero      = SUNMatZero_Band;
-  A->ops->copy      = SUNMatCopy_Band;
-  A->ops->scaleadd  = SUNMatScaleAdd_Band;
-  A->ops->scaleaddi = SUNMatScaleAddI_Band;
-  A->ops->matvec    = SUNMatMatvec_Band;
-  A->ops->space     = SUNMatSpace_Band;
+  A->ops->getid                    = SUNMatGetID_Band;
+  A->ops->clone                    = SUNMatClone_Band;
+  A->ops->destroy                  = SUNMatDestroy_Band;
+  A->ops->zero                     = SUNMatZero_Band;
+  A->ops->copy                     = SUNMatCopy_Band;
+  A->ops->scaleadd                 = SUNMatScaleAdd_Band;
+  A->ops->scaleaddi                = SUNMatScaleAddI_Band;
+  A->ops->matvec                   = SUNMatMatvec_Band;
+  A->ops->mathermitiantransposevec = SUNMatHermitianTransposeVec_Band;
+  A->ops->space                    = SUNMatSpace_Band;
 
   /* Create content */
   content = NULL;
@@ -138,17 +139,10 @@ void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
     for (j = 0; j < start; j++) { fprintf(outfile, "%12s  ", ""); }
     for (j = start; j <= finish; j++)
     {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-      fprintf(outfile, "%12Lg  ", SM_ELEMENT_B(A, i, j));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-      fprintf(outfile, "%12g  ", SM_ELEMENT_B(A, i, j));
-#else
-      fprintf(outfile, "%12g  ", SM_ELEMENT_B(A, i, j));
-#endif
+      fprintf(outfile, SUN_FORMAT_E "  ", SM_ELEMENT_B(A, i, j));
     }
     fprintf(outfile, "\n");
   }
-  fprintf(outfile, "\n");
   return;
 }
 
@@ -412,6 +406,35 @@ SUNErrCode SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y)
     is    = SUNMAX(0, j - SM_UBAND_B(A));
     ie    = SUNMIN(SM_ROWS_B(A) - 1, j + SM_LBAND_B(A));
     for (i = is; i <= ie; i++) { yd[i] += col_j[i - j] * xd[j]; }
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNMatHermitianTransposeVec_Band(SUNMatrix A, N_Vector x, N_Vector y)
+{
+  SUNFunctionBegin(A->sunctx);
+  sunindextype i, j, is, ie;
+  sunrealtype *col_j, *xd, *yd;
+
+  SUNCheck(compatibleMatrixAndVectors(A, y, x), SUN_ERR_ARG_DIMSMISMATCH);
+
+  /* access vector data (return if failure) */
+  xd = N_VGetArrayPointer(x);
+  SUNCheckLastErr();
+  yd = N_VGetArrayPointer(y);
+  SUNCheckLastErr();
+
+  SUNAssert(xd, SUN_ERR_MEM_FAIL);
+  SUNAssert(yd, SUN_ERR_MEM_FAIL);
+
+  /* Perform operation */
+  for (i = 0; i < SM_ROWS_B(A); i++) { yd[i] = ZERO; }
+  for (j = 0; j < SM_COLUMNS_B(A); j++)
+  {
+    col_j = SM_COLUMN_B(A, j);
+    is    = SUNMAX(0, j - SM_UBAND_B(A));
+    ie    = SUNMIN(SM_ROWS_B(A) - 1, j + SM_LBAND_B(A));
+    for (i = is; i <= ie; i++) { yd[j] += col_j[i - j] * xd[i]; }
   }
   return SUN_SUCCESS;
 }

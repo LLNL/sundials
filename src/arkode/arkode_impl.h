@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -24,11 +24,15 @@
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
 #include <arkode/arkode_mristep.h>
+
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
+#include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
+#include <sundials/sundials_types.h>
 
 #include "arkode_adapt_impl.h"
 #include "arkode_relaxation_impl.h"
@@ -40,14 +44,6 @@
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "41.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
 #endif
 
 /*===============================================================
@@ -572,6 +568,16 @@ struct ARKodeMemRec
 
   sunbooleantype use_compensated_sums;
 
+  /* Adjoint solver data */
+  sunbooleantype load_checkpoint_fail;
+  sunbooleantype do_adjoint;
+  suncountertype adj_stage_idx; /* current stage index (only valid in adjoint context)*/
+  suncountertype adj_step_idx; /* current step index (only valid in adjoint context)*/
+
+  /* Checkpointing data */
+  SUNAdjointCheckpointScheme checkpoint_scheme;
+  suncountertype checkpoint_step_idx; /* the step number for checkpointing */
+
   /* XBraid interface variables */
   sunbooleantype force_pass; /* when true the step attempt loop will ignore the
                               return value (kflag) from arkCheckTemporalError
@@ -628,7 +634,8 @@ void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
                      sunindextype liw1, long int* liw);
 void arkFreeVectors(ARKodeMem ark_mem);
 sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem);
-sunbooleantype arkCheckNvector(N_Vector tmpl);
+sunbooleantype arkCheckNvectorRequired(N_Vector tmpl);
+sunbooleantype arkCheckNvectorOptional(ARKodeMem ark_mem);
 
 int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
 int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
@@ -680,6 +687,9 @@ int ark_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
 int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
 int ark_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
+/* utility functions for wrapping ARKODE as a SUNStepper */
+SUNErrCode arkSUNStepperSelfDestruct(SUNStepper stepper);
+
 /* XBraid interface functions */
 int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass);
 int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
@@ -688,31 +698,13 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   Reusable ARKODE Error Messages
   ===============================================================*/
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define MSG_TIME       "t = %Lg"
-#define MSG_TIME_H     "t = %Lg and h = %Lg"
-#define MSG_TIME_INT   "t = %Lg is not between tcur - hold = %Lg and tcur = %Lg."
-#define MSG_TIME_TOUT  "tout = %Lg"
-#define MSG_TIME_TSTOP "tstop = %Lg"
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define MSG_TIME       "t = %lg"
-#define MSG_TIME_H     "t = %lg and h = %lg"
-#define MSG_TIME_INT   "t = %lg is not between tcur - hold = %lg and tcur = %lg."
-#define MSG_TIME_TOUT  "tout = %lg"
-#define MSG_TIME_TSTOP "tstop = %lg"
-
-#else
-
-#define MSG_TIME       "t = %g"
-#define MSG_TIME_H     "t = %g and h = %g"
-#define MSG_TIME_INT   "t = %g is not between tcur - hold = %g and tcur = %g."
-#define MSG_TIME_TOUT  "tout = %g"
-#define MSG_TIME_TSTOP "tstop = %g"
-
-#endif
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
+#define MSG_TIME_INT                                                \
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* Initialization and I/O error messages */
 #define MSG_ARK_NO_MEM         "arkode_mem = NULL illegal."
@@ -822,6 +814,10 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   "solver configuration)."
 #define MSG_ARK_INTERPOLATION_FAIL \
   "At " MSG_TIME ", interpolating the solution failed."
+#define MSG_ARK_ADJOINT_BAD_VECTOR                                           \
+  "JacPFn or JPvpFn was provided, but the number of subvectors in y is not " \
+  "2. To perform ASA w.r.t. parameters, one subvector should be the state "  \
+  "vector, and the other should be the parameter vector."
 
 /*===============================================================
 

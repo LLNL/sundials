@@ -3,7 +3,7 @@
 #                Radu Serban, and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -26,7 +26,8 @@ set(cvode_SOURCES
     cvode_io.c
     cvode_ls.c
     cvode_nls.c
-    cvode_proj.c)
+    cvode_proj.c
+    cvode_resize.c)
 
 # Add variable cvode_HEADERS with the exported CVODE header files
 set(cvode_HEADERS cvode.h cvode_bandpre.h cvode_bbdpre.h cvode_diag.h

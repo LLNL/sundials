@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -100,7 +100,8 @@ N_Vector N_VClone_ManyVector(N_Vector w);
 SUNDIALS_EXPORT
 void N_VDestroy_ManyVector(N_Vector v);
 
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 void N_VSpace_ManyVector(N_Vector v, sunindextype* lrw, sunindextype* liw);
 
 SUNDIALS_EXPORT

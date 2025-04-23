@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -27,11 +27,9 @@ and :cite:p:`Sod:06`.  This controller has the form
 
 with default parameter values :math:`k_1 = 1.25`, :math:`k_2 = 0.5`,
 :math:`k_3 = -0.75`, :math:`k_4 = 0.25`, and :math:`k_5 = 0.75`, where
-:math:`p` is the global order of the time integration method.  In this estimate,
-a floor of :math:`\varepsilon_* > 10^{-10}` is enforced to avoid division-by-zero
-errors.  During the first two steps (when :math:`\varepsilon_{n-2}`,
-:math:`\varepsilon_{n-1}`, :math:`h_{n-2}`, and :math:`h_{n-2}` may be unavailable),
-the corresponding terms are merely omitted during estimation of :math:`h'`.
+:math:`p` is the global order of the time integration method. If there is
+insufficient history of past time steps and errors, i.e., on the first or second
+time step, an I controller is used.
 
 The SUNAdaptController_Soderlind controller is implemented as a derived
 SUNAdaptController class, and defines its *content* field as:
@@ -50,6 +48,7 @@ SUNAdaptController class, and defines its *content* field as:
      sunrealtype hp;
      sunrealtype hpp;
      int firststeps;
+     int historysize;
    };
 
 These entries of the *content* field contain the following information:
@@ -68,15 +67,17 @@ These entries of the *content* field contain the following information:
 * ``firststeps`` - counter to handle first two steps (where previous
   step sizes and errors are unavailable).
 
+* ``historysize`` - number of past step sizes or errors needed.
+
 The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_soderlind.h``.
 
 We note that through appropriate selection of the parameters :math:`k_*`,
-this controller may create a wide range of proposed temporal adaptivity controllers,
-including the PID, PI, I, as well as Gustafsson's explicit and implicit controllers,
-:cite:p:`Gust:91` and :cite:p:`Gust:94`.  As a convenience, utility routines to
-create these controllers and set their parameters (as special cases of the
-SUNAdaptController_Soderlind) are provided.
+this controller may create a wide range of proposed temporal adaptivity
+controllers, including the :math:`H_{0}321`, I, PI, PID, as well as Gustafsson's
+explicit and implicit controllers, :cite:p:`Gust:91` and :cite:p:`Gust:94`,
+among others.  As a convenience, utility routines to create a variety of these
+controllers and set their parameters (as special cases of SUNAdaptController_Soderlind) are provided.
 
 The SUNAdaptController_Soderlind class provides implementations of all operations
 relevant to a ``SUN_ADAPTCONTROLLER_H`` controller listed in
@@ -243,7 +244,7 @@ also provides the following additional user-callable routines:
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
    This user-callable function provides control over the relevant parameters
-   above for the explicit Gustafsson controller, setting :math:`k_3 = k_4 = k_5 = 0`. 
+   above for the explicit Gustafsson controller, setting :math:`k_3 = k_4 = k_5 = 0`.
    This should be called *before* the time integrator is called to evolve the problem.
 
    .. note::
@@ -313,3 +314,79 @@ also provides the following additional user-callable routines:
    .. code-block:: c
 
       retval = SUNAdaptController_SetParams_ImpGus(C, 0.98, 0.95);
+
+.. c:function:: SUNAdaptController SUNAdaptController_H0211(SUNContext sunctx)
+
+   This constructor creates and allocates memory for a
+   :c:type:`SUNAdaptController_Soderlind` object, set up to replicate the :math:`H_{0}211`
+   controller from :cite:p:`Sod:03`, corresponding with the parameters :math:`k_1=0.5`,
+   :math:`k_2=0.5`, :math:`k_4=-0.5`, and :math:`k_3=k_5=0`.
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :returns: if successful, a usable :c:type:`SUNAdaptController` object;
+             otherwise it will return ``NULL``.
+
+   .. versionadded:: 7.3.0
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_H0211(sunctx);
+
+.. c:function:: SUNAdaptController SUNAdaptController_H0321(SUNContext sunctx)
+
+   This constructor creates and allocates memory for a
+   :c:type:`SUNAdaptController_Soderlind` object, set up to replicate the :math:`H_{0}321`
+   controller from :cite:p:`Sod:03`, corresponding with the parameters :math:`k_1=1.25`,
+   :math:`k_2=0.5`, :math:`k_3=-0.75`, :math:`k_4=0.25`, and :math:`k_5=0.75`.
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :returns: if successful, a usable :c:type:`SUNAdaptController` object;
+             otherwise it will return ``NULL``.
+
+   .. versionadded:: 7.3.0
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_H0321(sunctx);
+
+.. c:function:: SUNAdaptController SUNAdaptController_H211(SUNContext sunctx)
+
+   This constructor creates and allocates memory for a
+   :c:type:`SUNAdaptController_Soderlind` object, set up to replicate the :math:`H211`
+   controller from :cite:p:`Sod:03`, corresponding with the parameters :math:`k_1=0.25`,
+   :math:`k_2=0.25`, :math:`k_4=-0.25`, and :math:`k_3=k_5=0`.
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :returns: if successful, a usable :c:type:`SUNAdaptController` object;
+             otherwise it will return ``NULL``.
+
+   .. versionadded:: 7.3.0
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_H211(sunctx);
+
+.. c:function:: SUNAdaptController SUNAdaptController_H312(SUNContext sunctx)
+
+   This constructor creates and allocates memory for a
+   SUNAdaptController_Soderlind object, set up to replicate the :math:`H312`
+   controller from :cite:p:`Sod:03`, corresponding with the parameters :math:`k_1=0.125`,
+   :math:`k_2=0.25`, :math:`k_3=0.125`, :math:`k_4=-0.375`, and :math:`k_5=-0.125`.
+
+   :param sunctx: the current :c:type:`SUNContext` object.
+   :returns: if successful, a usable :c:type:`SUNAdaptController` object;
+             otherwise it will return ``NULL``.
+
+   .. versionadded:: 7.3.0
+
+   Usage:
+
+   .. code-block:: c
+
+      SUNAdaptController C = SUNAdaptController_H312(sunctx);

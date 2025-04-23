@@ -3,7 +3,7 @@
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -1560,7 +1560,7 @@ int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred, N_Vector fpred,
 
   /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok */
   dgamma         = SUNRabs((cv_mem->cv_gamma / cv_mem->cv_gammap) - ONE);
-  cvls_mem->jbad = (cv_mem->cv_nst == 0) ||
+  cvls_mem->jbad = (cv_mem->cv_nst == 0) || (cv_mem->first_step_after_resize) ||
                    (cv_mem->cv_nst >= cvls_mem->nstlj + cvls_mem->msbj) ||
                    ((convfail == CV_FAIL_BAD_J) &&
                     (dgamma < cvls_mem->dgmax_jbad)) ||

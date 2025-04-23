@@ -4,7 +4,7 @@
  *                Radu Serban @ LLNL
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -104,8 +104,9 @@ SUNDIALS_EXPORT int CVodeSetLinSysFn(void* cvode_mem, CVLsLinSysFn linsys);
 SUNDIALS_EXPORT int CVodeGetJac(void* cvode_mem, SUNMatrix* J);
 SUNDIALS_EXPORT int CVodeGetJacTime(void* cvode_mem, sunrealtype* t_J);
 SUNDIALS_EXPORT int CVodeGetJacNumSteps(void* cvode_mem, long int* nst_J);
-SUNDIALS_EXPORT int CVodeGetLinWorkSpace(void* cvode_mem, long int* lenrwLS,
-                                         long int* leniwLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int CVodeGetLinWorkSpace(void* cvode_mem, long int* lenrwLS, long int* leniwLS);
 SUNDIALS_EXPORT int CVodeGetNumJacEvals(void* cvode_mem, long int* njevals);
 SUNDIALS_EXPORT int CVodeGetNumPrecEvals(void* cvode_mem, long int* npevals);
 SUNDIALS_EXPORT int CVodeGetNumPrecSolves(void* cvode_mem, long int* npsolves);

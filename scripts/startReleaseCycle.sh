@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -79,6 +79,9 @@ sedi -e '/RecentChanges_link.rst/ {' \
 
 # Clear recent changes file
 cat > ../doc/shared/RecentChanges.rst <<HEREDOC
+.. For package-specific references use :ref: rather than :numref: so intersphinx
+   links to the appropriate place on read the docs
+
 **Major Features**
 
 **New Features and Enhancements**
@@ -117,3 +120,16 @@ do
     sedi 's/Changes to SUNDIALS.*/Changes to SUNDIALS in release X.Y.Z/I' \
          "../doc/${pkg}/guide/source/Introduction.rst"
 done
+
+# ------------------------------------------------------------------------------
+# Update install guide
+# ------------------------------------------------------------------------------
+
+sedi "s/SOLVER-.*.gz/SOLVER-x.y.z.tar.gz/g" \
+     ../doc/shared/sundials/Install.rst
+
+sedi "s/SOLVER-[0-9]\.[0-9]\.[0-9]/SOLVER-x.y.z/g" \
+     ../doc/shared/sundials/Install.rst
+
+sedi "s/\`\`[0-9]\.[0-9]\.[0-9]\`\`/\`\`x.y.z\`\`/g" \
+     ../doc/shared/sundials/Install.rst

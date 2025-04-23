@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,6 +23,18 @@
 #include <string.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
+
+/* width of name field in sunfprintf_<type> for aligning table output */
+#define SUN_TABLE_WIDTH 29
+
+static inline char* sunSignedToString(int64_t val)
+{
+  char* str     = NULL;
+  size_t length = snprintf(NULL, 0, "%lld", (long long)val);
+  str           = (char*)malloc(sizeof(*str) * (length + 1));
+  snprintf(str, length + 1, "%lld", (long long)val);
+  return str;
+}
 
 static inline char* sunCombineFileAndLine(int line, const char* file)
 {
@@ -69,6 +81,58 @@ static inline void sunCompensatedSum(sunrealtype base, sunrealtype inc,
   volatile sunrealtype tmp2 = base + tmp1;
   *error                    = (tmp2 - base) - tmp1;
   *sum                      = tmp2;
+}
+
+static inline void sunfprintf_real(FILE* fp, SUNOutputFormat fmt,
+                                   sunbooleantype start, const char* name,
+                                   sunrealtype value)
+{
+  if (fmt == SUN_OUTPUTFORMAT_TABLE)
+  {
+    fprintf(fp, "%-*s = " SUN_FORMAT_G "\n", SUN_TABLE_WIDTH, name, value);
+  }
+  else
+  {
+    if (!start) { fprintf(fp, ","); }
+    fprintf(fp, "%s," SUN_FORMAT_E, name, value);
+  }
+}
+
+static inline void sunfprintf_long(FILE* fp, SUNOutputFormat fmt,
+                                   sunbooleantype start, const char* name,
+                                   long value)
+{
+  if (fmt == SUN_OUTPUTFORMAT_TABLE)
+  {
+    fprintf(fp, "%-*s = %ld\n", SUN_TABLE_WIDTH, name, value);
+  }
+  else
+  {
+    if (!start) { fprintf(fp, ","); }
+    fprintf(fp, "%s,%ld", name, value);
+  }
+}
+
+static inline void sunfprintf_long_array(FILE* fp, SUNOutputFormat fmt,
+                                         sunbooleantype start, const char* name,
+                                         long* value, size_t count)
+{
+  if (count < 1) { return; }
+
+  if (fmt == SUN_OUTPUTFORMAT_TABLE)
+  {
+    fprintf(fp, "%-*s = %ld", SUN_TABLE_WIDTH, name, value[0]);
+    for (size_t i = 1; i < count; i++) { fprintf(fp, ", %ld", value[i]); }
+    fprintf(fp, "\n");
+  }
+  else
+  {
+    if (!start) { fprintf(fp, ","); }
+    for (size_t i = 0; i < count; i++)
+    {
+      fprintf(fp, "%s %zu,%ld", name, i, value[i]);
+    }
+  }
 }
 
 #endif /* _SUNDIALS_UTILS_H */

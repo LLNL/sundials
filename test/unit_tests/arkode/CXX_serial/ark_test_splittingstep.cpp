@@ -2,7 +2,7 @@
  * Programmer(s): Steven B. Roberts @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -30,7 +30,7 @@
 /* Integrates the ODE
  *
  * y' = \sum_{i=0}^{P-1} 2^i / (1 - 2^P) * y,    y(0) = 1
- * 
+ *
  * with a 3rd order operator splitting method. Each partition is solved by an
  * ERK method. Using the exact solution y(t) = exp(-t), we confirm the numerical
  * solution is sufficiently accurate.
@@ -101,10 +101,10 @@ static int test_forward(sundials::Context& ctx, int order, int partitions)
 }
 
 /* Integrates the ODE
- * 
+ *
  * y_1' = y_2 - t
  * y_2' = t - y_1
- * 
+ *
  * with initial condition y(0) = [1, 1]^T backward in time to t = -1, then
  * forward to t = 0.4, and backward to t = 0. We apply a splitting method using
  * a component partitioning and check that the numerical solution is close to
@@ -118,7 +118,7 @@ static int test_mixed_directions(const sundials::Context& ctx, const char* name)
   constexpr auto t3         = t0;
   constexpr auto dt         = -SUN_RCONST(1.23e-3);
   constexpr auto local_tol  = SUN_RCONST(1.0e-6);
-  constexpr auto global_tol = SUN_RCONST(20.0) * local_tol;
+  constexpr auto global_tol = SUN_RCONST(25.0) * local_tol;
   auto y                    = N_VNew_Serial(2, ctx);
   N_VConst(SUN_RCONST(1.0), y);
   auto err = N_VClone(y);
@@ -199,15 +199,15 @@ static int test_mixed_directions(const sundials::Context& ctx, const char* name)
 }
 
 /* Integrates the ODE
- * 
+ *
  * y' = [y^2] - [y*(y + 1)] = -y
- * 
+ *
  * with initial condition y(0) = 1 and partitioning specified by the square
  * brackets. Powers and products are done componentwise. At t = 0.5, we resize
  * from 1D to 2D:
- * 
+ *
  * y_new = [1, y_old]^T
- * 
+ *
  * Then we integrate to t = 1 and check the error against the exact solution
  * y(1) = [exp(-0.5), exp(-1)].
  */
@@ -355,9 +355,9 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
 }
 
 /* Integrates the ODE
- * 
+ *
  * y' = -0.6*y - 0.4*y
- * 
+ *
  * with initial condition y(0) = 1 with a sixth order splitting method and
  * exact, custom SUNSteppers for the two partitions. We integrate to t = 1 and
  * compare the numerical solution to the exact solution y(t) = exp(-t).
@@ -405,9 +405,9 @@ static int test_custom_stepper(const sundials::Context& ctx, int order)
 }
 
 /* Integrates the ODE
- * 
+ *
  * y' = [y / (1 + t)] + [-y / (2 + t)] + [y / (3 + t)]
- * 
+ *
  * with initial condition y(0) = 1 and partitioning specified by the square
  * brackets. After integration to t = 1, the third partition and its
  * corresponding SUNStepper are dropped from the ODE so there are only two

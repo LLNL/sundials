@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -10,14 +10,27 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 
+# List of test tuples of the form "name\;args"
+set(unit_tests "test_sundials_datanode\;" "test_sundials_stlvector\;"
+               "test_sundials_hashmap\;")
+
 if(SUNDIALS_ENABLE_ERROR_CHECKS)
-  if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
-    add_executable(test_sundials_errors test_sundials_errors.cpp)
-    target_link_libraries(
-      test_sundials_errors PRIVATE sundials_core sundials_nvecserial
-                                   GTest::gtest_main GTest::gmock)
-    gtest_discover_tests(test_sundials_errors)
-  endif()
+  list(APPEND unit_tests "test_sundials_errors\;")
 endif()
 
-add_subdirectory(reductions)
+# Add the build and install targets for each test
+if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
+  foreach(test_tuple ${unit_tests})
+    # parse the test tuple
+    list(GET test_tuple 0 test)
+    list(GET test_tuple 1 test_args)
+
+    add_executable(
+      ${test} ${test}.cpp ${PROJECT_SOURCE_DIR}/src/sundials/sundials_hashmap.c)
+    target_link_libraries(
+      ${test} PRIVATE sundials_core sundials_nvecserial sundials_sunmemsys_obj
+                      GTest::gtest_main GTest::gmock)
+
+    gtest_discover_tests(${test})
+  endforeach()
+endif()

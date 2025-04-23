@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,12 +38,8 @@
 /* precision specific formatting macros */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
 #else
 #define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
 #endif
 
 /* precision specific math function macros */
@@ -76,15 +72,12 @@
 #define PTNINE       SUN_RCONST(0.9)             /* real 0.9  */
 #define ONE          SUN_RCONST(1.0)             /* real 1.0  */
 #define ONEPTZEROSIX SUN_RCONST(1.06)            /* real 1.06 */
-#define ONEPTONE     SUN_RCONST(1.1)             /* real 1.1  */
 #define THREE        SUN_RCONST(3.0)             /* real 3.0  */
-#define FOUR         SUN_RCONST(4.0)             /* real 4.0  */
 #define SIX          SUN_RCONST(6.0)             /* real 6.0  */
 #define NINE         SUN_RCONST(9.0)             /* real 9.0  */
 #define TEN          SUN_RCONST(10.0)            /* real 10.0 */
 #define TWENTY       SUN_RCONST(20.0)            /* real 20.0 */
 #define SIXTY        SUN_RCONST(60.0)            /* real 60.0 */
-#define EIGHTYONE    SUN_RCONST(81.0)            /* real 81.0 */
 #define PI           SUN_RCONST(3.1415926535898) /* real pi   */
 
 /* analytic solution */
@@ -95,17 +88,28 @@
 /* problem options */
 typedef struct
 {
-  sunrealtype tol;        /* solve tolerance                  */
-  long int maxiter;       /* max number of iterations         */
-  long int m_aa;          /* number of acceleration vectors   */
-  long int delay_aa;      /* number of iterations to delay AA */
-  int orth_aa;            /* orthogonalization method         */
-  sunrealtype damping_fp; /* damping parameter for FP         */
-  sunrealtype damping_aa; /* damping parameter for AA         */
+  sunrealtype tol;               /* solve tolerance                  */
+  long int maxiter;              /* max number of iterations         */
+  long int m_aa;                 /* number of acceleration vectors   */
+  long int delay_aa;             /* number of iterations to delay AA */
+  int orth_aa;                   /* orthogonalization method         */
+  sunrealtype damping_fp;        /* damping parameter for FP         */
+  sunrealtype damping_aa;        /* damping parameter for AA         */
+  sunbooleantype use_damping_fn; /* damping function                 */
+  sunbooleantype use_depth_fn;   /* depth function                   */
 }* UserOpt;
 
 /* Nonlinear fixed point function */
 static int FPFunction(N_Vector u, N_Vector f, void* user_data);
+
+static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
+                     sunrealtype* qt_fn, long int depth, void* user_data,
+                     sunrealtype* damping_factor);
+
+static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
+                   N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
+                   long int depth, void* user_data, long int* new_depth,
+                   sunbooleantype* remove_index);
 
 /* Check the system solution */
 static int check_ans(N_Vector u, sunrealtype tol);
@@ -167,6 +171,10 @@ int main(int argc, char* argv[])
   printf("    delay_aa     = %ld\n", uopt->delay_aa);
   printf("    damping_aa   = %" GSYM "\n", uopt->damping_aa);
   printf("    damping_fp   = %" GSYM "\n", uopt->damping_fp);
+  if (uopt->use_damping_fn) { printf("    damping_fn   = ON\n"); }
+  else { printf("    damping_fn   = OFF\n"); }
+  if (uopt->use_depth_fn) { printf("    depth_fn     = ON\n"); }
+  else { printf("    depth_fn     = OFF\n"); }
   printf("    orth routine = %d\n", uopt->orth_aa);
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
@@ -225,6 +233,20 @@ int main(int argc, char* argv[])
     /* Set acceleration delay */
     retval = KINSetDelayAA(kmem, uopt->delay_aa);
     if (check_retval(&retval, "KINSetDelayAA", 1)) { return (1); }
+  }
+
+  if (uopt->use_damping_fn)
+  {
+    /* Attach user defined damping function */
+    retval = KINSetDampingFn(kmem, DampingFn);
+    if (check_retval(&retval, "KINSetDampingFn", 1)) { return (1); }
+  }
+
+  if (uopt->use_depth_fn)
+  {
+    /* Attach user defined depth function */
+    retval = KINSetDepthFn(kmem, DepthFn);
+    if (check_retval(&retval, "KINSetDepthFn", 1)) { return (1); }
   }
 
   /* Set info log file and print level */
@@ -332,6 +354,48 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
   return (0);
 }
 
+static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
+                     sunrealtype* qt_fn, long int depth, void* user_data,
+                     sunrealtype* damping_factor)
+{
+  if (depth == 0) { *damping_factor = 0.5; }
+  else
+  {
+    /* Compute ||Q^T fn||^2 */
+    sunrealtype qt_fn_norm_sqr = ZERO;
+    for (long int i = 0; i < depth; i++)
+    {
+      qt_fn_norm_sqr += qt_fn[i] * qt_fn[i];
+    }
+
+    /* Compute ||fn||^2 = ||G(u_n) - u_n||^2 */
+    sunrealtype* g_data = N_VGetArrayPointer(g_val);
+    sunrealtype* u_data = N_VGetArrayPointer(u_val);
+    sunrealtype fn[3];
+    for (int i = 0; i < 3; i++) { fn[i] = g_data[i] - u_data[i]; }
+    sunrealtype fn_norm_sqr = ZERO;
+    for (int i = 0; i < 3; i++) { fn_norm_sqr += fn[i] * fn[i]; }
+
+    /* Compute the gain = sqrt(1 - ||Q^T fn||^2 / ||fn||^2) */
+    sunrealtype gain = SUNRsqrt(ONE - qt_fn_norm_sqr / fn_norm_sqr);
+
+    *damping_factor = 0.9 - 0.5 * gain;
+  }
+
+  return 0;
+}
+
+static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
+                   N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
+                   long int depth, void* user_data, long int* new_depth,
+                   sunbooleantype* remove_index)
+{
+  if (iter < 2) { *new_depth = 1; }
+  else { *new_depth = depth; };
+
+  return 0;
+}
+
 /* -----------------------------------------------------------------------------
  * Check the solution of the nonlinear system and return PASS or FAIL
  * ---------------------------------------------------------------------------*/
@@ -383,13 +447,15 @@ static int SetDefaults(UserOpt* uopt)
   if (*uopt == NULL) { return (-1); }
 
   /* Set default options values */
-  (*uopt)->tol        = 100 * SQRT(SUN_UNIT_ROUNDOFF);
-  (*uopt)->maxiter    = 30;
-  (*uopt)->m_aa       = 0;               /* no acceleration */
-  (*uopt)->delay_aa   = 0;               /* no delay        */
-  (*uopt)->orth_aa    = 0;               /* MGS             */
-  (*uopt)->damping_fp = SUN_RCONST(1.0); /* no FP dampig    */
-  (*uopt)->damping_aa = SUN_RCONST(1.0); /* no AA damping   */
+  (*uopt)->tol            = 100 * SQRT(SUN_UNIT_ROUNDOFF);
+  (*uopt)->maxiter        = 30;
+  (*uopt)->m_aa           = 0;               /* no acceleration */
+  (*uopt)->delay_aa       = 0;               /* no delay        */
+  (*uopt)->orth_aa        = 0;               /* MGS             */
+  (*uopt)->damping_fp     = SUN_RCONST(1.0); /* no FP dampig    */
+  (*uopt)->damping_aa     = SUN_RCONST(1.0); /* no AA damping   */
+  (*uopt)->use_damping_fn = SUNFALSE;        /* no damping fn   */
+  (*uopt)->use_depth_fn   = SUNFALSE;        /* no depth fn     */
 
   return (0);
 }
@@ -433,6 +499,16 @@ static int ReadInputs(int* argc, char*** argv, UserOpt uopt)
       arg_index++;
       uopt->damping_aa = atof((*argv)[arg_index++]);
     }
+    else if (strcmp((*argv)[arg_index], "--damping_fn") == 0)
+    {
+      arg_index++;
+      uopt->use_damping_fn = SUNTRUE;
+    }
+    else if (strcmp((*argv)[arg_index], "--depth_fn") == 0)
+    {
+      arg_index++;
+      uopt->use_depth_fn = SUNTRUE;
+    }
     else if (strcmp((*argv)[arg_index], "--orth_aa") == 0)
     {
       arg_index++;
@@ -468,6 +544,8 @@ static void InputHelp(void)
   printf("   --damping_fp : fixed point damping parameter\n");
   printf("   --damping_aa : Anderson acceleration damping parameter\n");
   printf("   --orth_aa    : Anderson acceleration orthogonalization method\n");
+  printf("   --damping_fn : user defined damping function\n");
+  printf("   --depth_fn   : user defined depth function\n");
 
   return;
 }

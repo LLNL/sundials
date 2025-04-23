@@ -4,7 +4,7 @@
 # Based on CMakeLists.txt in cvode/serial by Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -59,7 +59,7 @@ foreach(example_tuple ${all_examples})
 
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.cu)
+    sundials_add_executable(${example} ${example}.cu)
 
     # folder for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")

@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -37,7 +37,12 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
                                       void* queue);
 
 SUNDIALS_EXPORT
-SUNMemoryHelper SUNMemoryHelper_Clone_Cuda(SUNMemoryHelper helper);
+SUNErrCode SUNMemoryHelper_AllocStrided_Cuda(SUNMemoryHelper helper,
+                                             SUNMemory* memptr, size_t mem_size,
+                                             size_t stride,
+                                             SUNMemoryType mem_type, void* queue);
+
+SUNDIALS_EXPORT SUNMemoryHelper SUNMemoryHelper_Clone_Cuda(SUNMemoryHelper helper);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,

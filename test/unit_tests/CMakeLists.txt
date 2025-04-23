@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -55,6 +55,8 @@ add_subdirectory(sunmatrix)
 add_subdirectory(sunlinsol)
 
 add_subdirectory(sunnonlinsol)
+
+add_subdirectory(sunadjointcheckpointscheme)
 
 if(CXX_FOUND)
   add_subdirectory(logging)

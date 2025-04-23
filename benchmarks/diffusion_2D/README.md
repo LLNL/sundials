@@ -76,7 +76,7 @@ listed below.
 | `--msbp <int>`                       | The linear solver setup frequency (CVODE and ARKODE only, 0 uses the integrator default) | 0       |
 | Additional ARKODE Options            |                                                                                          |         |
 | `--order <int>`                      | Methods order                                                                            | 3       |
-| `--controller <int>`                 | Error controller option                                                                  | 0       |
+| `--controller <I,PI,PID,...>`        | Error controller option                                                                  | 0       |
 | `--nonlinear`                        | Treat the problem as nonlinearly implicit                                                | Linear  |
 
 ## Building

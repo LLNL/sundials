@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -683,7 +683,6 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeARKStepMem step_mem;
   sunindextype Blrw, Bliw;
-  long int lenrw, leniw;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -734,40 +733,10 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   if (step_mem->NLS && step_mem->ownNLS) { SUNNonlinSolFree(step_mem->NLS); }
   step_mem->NLS = NULL;
 
-  /* Remove pre-existing SUNAdaptController object, and replace with "PID" */
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
-    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                      &leniw);
-    if (retval == SUN_SUCCESS)
-    {
-      ark_mem->liw -= leniw;
-      ark_mem->lrw -= lenrw;
-    }
-    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
-    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUN_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptController_Destroy failure");
-      return (ARK_MEM_FAIL);
-    }
-  }
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
-  if (ark_mem->hadapt_mem->hcontroller == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptController_PID allocation failure");
-    return (ARK_MEM_FAIL);
-  }
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
-  {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
-  }
+  /* Load the default SUNAdaptController */
+  retval = arkReplaceAdaptController(ark_mem, NULL, SUNTRUE);
+  if (retval) { return retval; }
+
   return (ARK_SUCCESS);
 }
 
@@ -1290,132 +1259,63 @@ int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  switch (fmt)
+  /* function evaluations */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Explicit RHS fn evals", step_mem->nfe);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Implicit RHS fn evals", step_mem->nfi);
+
+  /* nonlinear solver stats */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS iters", step_mem->nls_iters);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", step_mem->nls_fails);
+  if (ark_mem->nst > 0)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    /* function evaluations */
-    fprintf(outfile, "Explicit RHS fn evals        = %ld\n", step_mem->nfe);
-    fprintf(outfile, "Implicit RHS fn evals        = %ld\n", step_mem->nfi);
+    sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step",
+                    (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
+  }
 
-    /* nonlinear solver stats */
-    fprintf(outfile, "NLS iters                    = %ld\n", step_mem->nls_iters);
-    fprintf(outfile, "NLS fails                    = %ld\n", step_mem->nls_fails);
-    if (ark_mem->nst > 0)
+  /* linear solver stats */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "LS setups", step_mem->nsetups);
+  if (ark_mem->step_getlinmem(ark_mem))
+  {
+    arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac fn evals", arkls_mem->nje);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS RHS fn evals", arkls_mem->nfeDQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec setup evals", arkls_mem->npe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec solves", arkls_mem->nps);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS iters", arkls_mem->nli);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS fails", arkls_mem->ncfl);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups",
+                    arkls_mem->njtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals",
+                    arkls_mem->njtimes);
+    if (step_mem->nls_iters > 0)
     {
-      fprintf(outfile, "NLS iters per step           = %" RSYM "\n",
-              (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter",
+                      (sunrealtype)arkls_mem->nli /
+                        (sunrealtype)step_mem->nls_iters);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter",
+                      (sunrealtype)arkls_mem->nje /
+                        (sunrealtype)step_mem->nls_iters);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter",
+                      (sunrealtype)arkls_mem->npe /
+                        (sunrealtype)step_mem->nls_iters);
     }
+  }
 
-    /* linear solver stats */
-    fprintf(outfile, "LS setups                    = %ld\n", step_mem->nsetups);
-    if (ark_mem->step_getlinmem(ark_mem))
-    {
-      arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
-      fprintf(outfile, "Jac fn evals                 = %ld\n", arkls_mem->nje);
-      fprintf(outfile, "LS RHS fn evals              = %ld\n", arkls_mem->nfeDQ);
-      fprintf(outfile, "Prec setup evals             = %ld\n", arkls_mem->npe);
-      fprintf(outfile, "Prec solves                  = %ld\n", arkls_mem->nps);
-      fprintf(outfile, "LS iters                     = %ld\n", arkls_mem->nli);
-      fprintf(outfile, "LS fails                     = %ld\n", arkls_mem->ncfl);
-      fprintf(outfile, "Jac-times setups             = %ld\n",
-              arkls_mem->njtsetup);
-      fprintf(outfile, "Jac-times evals              = %ld\n",
-              arkls_mem->njtimes);
-      if (step_mem->nls_iters > 0)
-      {
-        fprintf(outfile, "LS iters per NLS iter        = %" RSYM "\n",
-                (sunrealtype)arkls_mem->nli / (sunrealtype)step_mem->nls_iters);
-        fprintf(outfile, "Jac evals per NLS iter       = %" RSYM "\n",
-                (sunrealtype)arkls_mem->nje / (sunrealtype)step_mem->nls_iters);
-        fprintf(outfile, "Prec evals per NLS iter      = %" RSYM "\n",
-                (sunrealtype)arkls_mem->npe / (sunrealtype)step_mem->nls_iters);
-      }
-    }
-
-    /* mass solve stats */
-    if (ark_mem->step_getmassmem(ark_mem))
-    {
-      arklsm_mem = (ARKLsMassMem)(ark_mem->step_getmassmem(ark_mem));
-      fprintf(outfile, "Mass setups                  = %ld\n",
-              arklsm_mem->nmsetups);
-      fprintf(outfile, "Mass solves                  = %ld\n",
-              arklsm_mem->nmsolves);
-      fprintf(outfile, "Mass Prec setup evals        = %ld\n", arklsm_mem->npe);
-      fprintf(outfile, "Mass Prec solves             = %ld\n", arklsm_mem->nps);
-      fprintf(outfile, "Mass LS iters                = %ld\n", arklsm_mem->nli);
-      fprintf(outfile, "Mass LS fails                = %ld\n", arklsm_mem->ncfl);
-      fprintf(outfile, "Mass-times setups            = %ld\n",
-              arklsm_mem->nmtsetup);
-      fprintf(outfile, "Mass-times evals             = %ld\n",
-              arklsm_mem->nmtimes);
-    }
-    break;
-
-  case SUN_OUTPUTFORMAT_CSV:
-    /* function evaluations */
-    fprintf(outfile, ",Explicit RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",Implicit RHS fn evals,%ld", step_mem->nfi);
-
-    /* nonlinear solver stats */
-    fprintf(outfile, ",NLS iters,%ld", step_mem->nls_iters);
-    fprintf(outfile, ",NLS fails,%ld", step_mem->nls_fails);
-    if (ark_mem->nst > 0)
-    {
-      fprintf(outfile, ",NLS iters per step,%" RSYM,
-              (sunrealtype)step_mem->nls_iters / (sunrealtype)ark_mem->nst);
-    }
-    else { fprintf(outfile, ",NLS iters per step,0"); }
-
-    /* linear solver stats */
-    fprintf(outfile, ",LS setups,%ld", step_mem->nsetups);
-    if (ark_mem->step_getlinmem(ark_mem))
-    {
-      arkls_mem = (ARKLsMem)(ark_mem->step_getlinmem(ark_mem));
-      fprintf(outfile, ",Jac fn evals,%ld", arkls_mem->nje);
-      fprintf(outfile, ",LS RHS fn evals,%ld", arkls_mem->nfeDQ);
-      fprintf(outfile, ",Prec setup evals,%ld", arkls_mem->npe);
-      fprintf(outfile, ",Prec solves,%ld", arkls_mem->nps);
-      fprintf(outfile, ",LS iters,%ld", arkls_mem->nli);
-      fprintf(outfile, ",LS fails,%ld", arkls_mem->ncfl);
-      fprintf(outfile, ",Jac-times setups,%ld", arkls_mem->njtsetup);
-      fprintf(outfile, ",Jac-times evals,%ld", arkls_mem->njtimes);
-      if (step_mem->nls_iters > 0)
-      {
-        fprintf(outfile, ",LS iters per NLS iter,%" RSYM,
-                (sunrealtype)arkls_mem->nli / (sunrealtype)step_mem->nls_iters);
-        fprintf(outfile, ",Jac evals per NLS iter,%" RSYM,
-                (sunrealtype)arkls_mem->nje / (sunrealtype)step_mem->nls_iters);
-        fprintf(outfile, ",Prec evals per NLS iter,%" RSYM,
-                (sunrealtype)arkls_mem->npe / (sunrealtype)step_mem->nls_iters);
-      }
-      else
-      {
-        fprintf(outfile, ",LS iters per NLS iter,0");
-        fprintf(outfile, ",Jac evals per NLS iter,0");
-        fprintf(outfile, ",Prec evals per NLS iter,0");
-      }
-    }
-
-    /* mass solve stats */
-    if (ark_mem->step_getmassmem(ark_mem))
-    {
-      arklsm_mem = (ARKLsMassMem)(ark_mem->step_getmassmem(ark_mem));
-      fprintf(outfile, ",Mass setups,%ld", arklsm_mem->nmsetups);
-      fprintf(outfile, ",Mass solves,%ld", arklsm_mem->nmsolves);
-      fprintf(outfile, ",Mass Prec setup evals,%ld", arklsm_mem->npe);
-      fprintf(outfile, ",Mass Prec solves,%ld", arklsm_mem->nps);
-      fprintf(outfile, ",Mass LS iters,%ld", arklsm_mem->nli);
-      fprintf(outfile, ",Mass LS fails,%ld", arklsm_mem->ncfl);
-      fprintf(outfile, ",Mass-times setups,%ld", arklsm_mem->nmtsetup);
-      fprintf(outfile, ",Mass-times evals,%ld", arklsm_mem->nmtimes);
-    }
-    fprintf(outfile, "\n");
-    break;
-
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return (ARK_ILL_INPUT);
+  /* mass solve stats */
+  if (ark_mem->step_getmassmem(ark_mem))
+  {
+    arklsm_mem = (ARKLsMassMem)(ark_mem->step_getmassmem(ark_mem));
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass setups", arklsm_mem->nmsetups);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass solves", arklsm_mem->nmsolves);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass Prec setup evals",
+                    arklsm_mem->npe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass Prec solves", arklsm_mem->nps);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass LS iters", arklsm_mem->nli);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass LS fails", arklsm_mem->ncfl);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass-times setups",
+                    arklsm_mem->nmtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Mass-times evals",
+                    arklsm_mem->nmtimes);
   }
 
   return (ARK_SUCCESS);
@@ -1457,14 +1357,16 @@ int arkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   if (step_mem->implicit)
   {
     fprintf(fp, "  Implicit predictor method = %i\n", step_mem->predictor);
-    fprintf(fp, "  Implicit solver tolerance coefficient = %" RSYM "\n",
+    fprintf(fp, "  Implicit solver tolerance coefficient = " SUN_FORMAT_G "\n",
             step_mem->nlscoef);
     fprintf(fp, "  Maximum number of nonlinear corrections = %i\n",
             step_mem->maxcor);
-    fprintf(fp, "  Nonlinear convergence rate constant = %" RSYM "\n",
+    fprintf(fp, "  Nonlinear convergence rate constant = " SUN_FORMAT_G "\n",
             step_mem->crdown);
-    fprintf(fp, "  Nonlinear divergence tolerance = %" RSYM "\n", step_mem->rdiv);
-    fprintf(fp, "  Gamma factor LSetup tolerance = %" RSYM "\n", step_mem->dgmax);
+    fprintf(fp, "  Nonlinear divergence tolerance = " SUN_FORMAT_G "\n",
+            step_mem->rdiv);
+    fprintf(fp, "  Gamma factor LSetup tolerance = " SUN_FORMAT_G "\n",
+            step_mem->dgmax);
     fprintf(fp, "  Number of steps between LSetup calls = %i\n", step_mem->msbp);
   }
   fprintf(fp, "\n");
@@ -1546,6 +1448,8 @@ int ARKStepSetDefaults(void* arkode_mem)
 
 int ARKStepSetOptimalParams(void* arkode_mem)
 {
+  /* TODO: do we need to do something here? This is deprecated with no
+   * ARKodeSetOptimalParams to replace it */
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;

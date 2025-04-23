@@ -4,7 +4,7 @@
  *                Cody Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -93,6 +93,7 @@ struct _generic_SUNMatrix_Ops
   SUNErrCode (*scaleaddi)(sunrealtype, SUNMatrix);
   SUNErrCode (*matvecsetup)(SUNMatrix);
   SUNErrCode (*matvec)(SUNMatrix, N_Vector, N_Vector);
+  SUNErrCode (*mathermitiantransposevec)(SUNMatrix, N_Vector, N_Vector);
   SUNErrCode (*space)(SUNMatrix, long int*, long int*);
 };
 
@@ -147,6 +148,10 @@ SUNDIALS_EXPORT
 SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNMatHermitianTransposeVec(SUNMatrix A, N_Vector x, N_Vector y);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 SUNErrCode SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus

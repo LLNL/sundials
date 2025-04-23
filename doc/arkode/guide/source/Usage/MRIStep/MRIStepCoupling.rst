@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -353,6 +353,10 @@ are defined ``arkode/arkode_mristep.h``.
 
    :retval ARK_SUCCESS: if successful.
    :retval ARK_MEM_NULL: if the Butcher table memory was ``NULL``.
+
+   .. deprecated:: 6.3.0
+
+      Work space functions will be removed in version 8.0.0.
 
 
 .. c:function:: void MRIStepCoupling_Free(MRIStepCoupling C)

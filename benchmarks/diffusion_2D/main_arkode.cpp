@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,15 +23,15 @@
 struct UserOptions
 {
   // Integrator settings
-  sunrealtype rtol   = SUN_RCONST(1.0e-5);  // relative tolerance
-  sunrealtype atol   = SUN_RCONST(1.0e-10); // absolute tolerance
-  sunrealtype hfixed = ZERO;                // fixed step size
-  int order          = 3;                   // ARKode method order
-  int controller     = 0;                   // step size adaptivity method
-  int maxsteps       = 0;                   // max steps between outputs
-  int onestep        = 0;                   // one step mode, number of steps
-  bool linear        = true;                // linearly implicit RHS
-  bool implicit      = true; // implicit (ARKStep) vs explicit STS (LSRKStep)
+  sunrealtype rtol       = SUN_RCONST(1.0e-5);  // relative tolerance
+  sunrealtype atol       = SUN_RCONST(1.0e-10); // absolute tolerance
+  sunrealtype hfixed     = ZERO;                // fixed step size
+  int order              = 3;                   // ARKode method order
+  std::string controller = "I";                 // step size adaptivity method
+  int maxsteps           = 0;                   // max steps between outputs
+  int onestep            = 0;    // one step mode, number of steps
+  bool linear            = true; // linearly implicit RHS
+  bool implicit = true; // implicit (ARKStep) vs explicit STS (LSRKStep)
   ARKODE_LSRKMethodType lsrkmethod = ARKODE_LSRK_RKC_2; // LSRK method type
 
   // Linear solver and preconditioner settings
@@ -344,7 +344,6 @@ int main(int argc, char* argv[])
     }
 
     // Set fixed step size or adaptivity method
-    SUNAdaptController C = nullptr;
     if (uopts.hfixed > ZERO)
     {
       flag = ARKodeSetFixedStep(arkode_mem, uopts.hfixed);
@@ -352,17 +351,8 @@ int main(int argc, char* argv[])
     }
     else
     {
-      switch (uopts.controller)
-      {
-      case (ARK_ADAPT_PID): C = SUNAdaptController_PID(ctx); break;
-      case (ARK_ADAPT_PI): C = SUNAdaptController_PI(ctx); break;
-      case (ARK_ADAPT_I): C = SUNAdaptController_I(ctx); break;
-      case (ARK_ADAPT_EXP_GUS): C = SUNAdaptController_ExpGus(ctx); break;
-      case (ARK_ADAPT_IMP_GUS): C = SUNAdaptController_ImpGus(ctx); break;
-      case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
-      }
-      flag = ARKodeSetAdaptController(arkode_mem, C);
-      if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
+      flag = ARKodeSetAdaptControllerByName(arkode_mem, uopts.controller.c_str());
+      if (check_flag(&flag, "ARKodeSetAdaptControllerByName", 1)) { return 1; }
     }
 
     // Set max steps between outputs
@@ -439,7 +429,6 @@ int main(int argc, char* argv[])
 
     // Free MPI Cartesian communicator
     MPI_Comm_free(&(udata.comm_c));
-    (void)SUNAdaptController_Destroy(C); // Free timestep adaptivity controller
 
     ARKodeFree(&arkode_mem);
     if (uopts.implicit)
@@ -555,7 +544,7 @@ int UserOptions::parse_args(vector<string>& args, bool outproc)
   it = find(args.begin(), args.end(), "--controller");
   if (it != args.end())
   {
-    controller = stoi(*(it + 1));
+    controller = *(it + 1);
     args.erase(it, it + 2);
   }
 

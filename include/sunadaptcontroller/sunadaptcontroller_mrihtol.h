@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -77,7 +77,8 @@ SUNDIALS_EXPORT
 int SUNAdaptController_UpdateMRIHTol_MRIHTol(SUNAdaptController C,
                                              sunrealtype H, sunrealtype tolfac,
                                              sunrealtype DSM, sunrealtype dsm);
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int SUNAdaptController_Space_MRIHTol(SUNAdaptController C, long int* lenrw,
                                      long int* leniw);
 
