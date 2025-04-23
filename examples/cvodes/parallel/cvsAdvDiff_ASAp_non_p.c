@@ -728,7 +728,10 @@ static void PrintOutput(sunrealtype g_val, N_Vector uB, UserData data)
 
   if (my_pe == npes)
   {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("\ng(tf) = %8Qe\n\n", g_val);
+    printf("dgdp(tf)\n  [ 1]: %8Qe\n  [ 2]: %8Qe\n\n", -uBdata[0], -uBdata[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("\ng(tf) = %8Le\n\n", g_val);
     printf("dgdp(tf)\n  [ 1]: %8Le\n  [ 2]: %8Le\n\n", -uBdata[0], -uBdata[1]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -752,7 +755,10 @@ static void PrintOutput(sunrealtype g_val, N_Vector uB, UserData data)
 
     printf("mu(t0)\n");
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    for (i = 0; i < NEQ; i++)
+      printf("  [%2ld]: %8Qe\n", (long int)i + 1, mu[i]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     for (i = 0; i < NEQ; i++)
       printf("  [%2ld]: %8Le\n", (long int)i + 1, mu[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
