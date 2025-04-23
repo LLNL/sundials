@@ -1,5 +1,17 @@
+# ---------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ---------------------------------------------------------------
 
 
+# Setup nanobind
 find_package(Python 3.8 COMPONENTS Interpreter Development.Module REQUIRED)
 execute_process(
   COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
@@ -9,12 +21,14 @@ find_package(nanobind CONFIG REQUIRED)
 # Add the source file
 set(sundials_SOURCES pysundials.cpp sundials_core.cpp sundials/sundials_nvector.cpp arkode.cpp nvector/nvector_serial.cpp)
 
-# Create the library
+# Create the Python sundials library
 nanobind_add_module(pysundials ${sundials_SOURCES})
 
+# Include private header locations
 target_include_directories(pysundials PRIVATE ${SUNDIALS_SOURCE_DIR}/src ${SUNDIALS_SOURCE_DIR}/src/arkode)
 
 # Link against sundials libraries
 target_link_libraries(pysundials PRIVATE sundials_arkode sundials_nvecserial sundials_core)
 
+# Copy tests to the build directory
 configure_file(test_interface.py ${CMAKE_CURRENT_BINARY_DIR}/test_interface.py COPYONLY)

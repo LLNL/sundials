@@ -235,7 +235,7 @@ endif()
 # ---------------------------------------------------------------
 
 set(DOCSTR "Enable Python interfaces")
-sundials_option(BUILD_PYTHON_INTERFACE BOOL "${DOCSTR}" OFF)
+sundials_option(SUNDIALS_ENABLE_PYTHON BOOL "${DOCSTR}" OFF)
 
 # ---------------------------------------------------------------
 # Options for benchmark suite

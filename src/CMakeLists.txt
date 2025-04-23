@@ -60,6 +60,6 @@ if(BUILD_CPODES)
   add_subdirectory(cpodes)
 endif()
 
-if(BUILD_PYTHON_INTERFACE)
+if(SUNDIALS_ENABLE_PYTHON)
   add_subdirectory(bindings/python)
 endif()
