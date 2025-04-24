@@ -5,22 +5,6 @@ from pysundials.core import *
 from pysundials.arkode import *
 
 
-class MyODEProblem:
-    def __init__(self, lamb=1.1):
-        self.lamb = lamb
-
-    def fe(self, t, yvec, ydotvec):
-        y = N_VGetArrayPointer(yvec)
-        ydot = N_VGetArrayPointer(ydotvec)
-        ydot[0] = self.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.atan(t)
-        return 0
-
-    def fi(self, t, yvec, ydotvec):
-        y = N_VGetArrayPointer(yvec)
-        ydot = N_VGetArrayPointer(ydotvec)
-        ydot[0] = self.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.atan(t)
-        return 0
-
 
 ode_problem = MyODEProblem2()
 

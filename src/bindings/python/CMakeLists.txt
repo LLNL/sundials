@@ -32,8 +32,8 @@ target_link_libraries(pysundials PRIVATE sundials_arkode sundials_nvecserial sun
 
 # Copy tests to the build directory
 add_custom_target(copy-python-tests ALL 
-  COMMAND ${CMAKE_COMMAND} -E copy
-  ${CMAKE_CURRENT_LIST_DIR}/test_interface.py
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_CURRENT_LIST_DIR}/tests
   ${CMAKE_CURRENT_BINARY_DIR})
 
 add_dependencies(pysundials copy-python-tests)
