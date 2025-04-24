@@ -118,7 +118,7 @@ class ClassView : public sundials::ConvertibleTo<T>
 {
 public:
   ClassView() : object_(nullptr) {}
-
+  ClassView(T& object) : object_(std::make_unique<T>(object)) {}
   ClassView(T&& object) : object_(std::make_unique<T>(object)) {}
 
   ClassView(const ClassView&)  = delete;
