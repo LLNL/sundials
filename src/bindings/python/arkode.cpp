@@ -1,19 +1,20 @@
-#include <memory>
 #include <iostream>
-#include <unordered_map>
+#include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
+#include <unordered_map>
 
-#include <sundials/sundials_core.h>
 #include <arkode/arkode.h>
-#include <arkode/arkode_erkstep.h>
 #include <arkode/arkode.hpp>
+#include <arkode/arkode_erkstep.h>
+#include <sundials/sundials_core.h>
 
 namespace nb = nanobind;
 
 using erk_rhsfn_type = int(sunrealtype, N_Vector, N_Vector, void*);
 
-struct function_pointers {
+struct function_pointers
+{
   nb::object rhs_fn;
 };
 
@@ -22,91 +23,93 @@ struct function_pointers {
 // in user_data. Unfortunately, we do not have a dedicated pointer like user_data
 // for every single callback function. We will have to change that.
 
-int erk_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data) {
+int erk_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
+{
   auto fn_ptrs = static_cast<function_pointers*>(user_data);
   auto erk_rhs = nb::cast<std::function<erk_rhsfn_type>>(fn_ptrs->rhs_fn);
   return erk_rhs(t, y, ydot, user_data);
 }
 
-void bind_arkode(nb::module_ &m) {
+void bind_arkode(nb::module_& m)
+{
   //
   // ARKODE Constants
   //
 
-  m.attr("ARK_NORMAL") = ARK_NORMAL;
-  m.attr("ARK_ONE_STEP") = ARK_ONE_STEP;
-  m.attr("ARK_ADAPT_CUSTOM") = ARK_ADAPT_CUSTOM;
-  m.attr("ARK_ADAPT_PID") = ARK_ADAPT_PID;
-  m.attr("ARK_ADAPT_PI") = ARK_ADAPT_PI;
-  m.attr("ARK_ADAPT_I") = ARK_ADAPT_I;
-  m.attr("ARK_ADAPT_EXP_GUS") = ARK_ADAPT_EXP_GUS;
-  m.attr("ARK_ADAPT_IMP_GUS") = ARK_ADAPT_IMP_GUS;
-  m.attr("ARK_ADAPT_IMEX_GUS") = ARK_ADAPT_IMEX_GUS;
-  m.attr("ARK_FULLRHS_START") = ARK_FULLRHS_START;
-  m.attr("ARK_FULLRHS_END") = ARK_FULLRHS_END;
-  m.attr("ARK_FULLRHS_OTHER") = ARK_FULLRHS_OTHER;
-  m.attr("ARK_INTERP_MAX_DEGREE") = ARK_INTERP_MAX_DEGREE;
-  m.attr("ARK_INTERP_NONE") = ARK_INTERP_NONE;
-  m.attr("ARK_INTERP_HERMITE") = ARK_INTERP_HERMITE;
-  m.attr("ARK_INTERP_LAGRANGE") = ARK_INTERP_LAGRANGE;
-  m.attr("ARK_SUCCESS") = ARK_SUCCESS;
-  m.attr("ARK_TSTOP_RETURN") = ARK_TSTOP_RETURN;
-  m.attr("ARK_ROOT_RETURN") = ARK_ROOT_RETURN;
-  m.attr("ARK_WARNING") = ARK_WARNING;
-  m.attr("ARK_TOO_MUCH_WORK") = ARK_TOO_MUCH_WORK;
-  m.attr("ARK_TOO_MUCH_ACC") = ARK_TOO_MUCH_ACC;
-  m.attr("ARK_ERR_FAILURE") = ARK_ERR_FAILURE;
-  m.attr("ARK_CONV_FAILURE") = ARK_CONV_FAILURE;
-  m.attr("ARK_LINIT_FAIL") = ARK_LINIT_FAIL;
-  m.attr("ARK_LSETUP_FAIL") = ARK_LSETUP_FAIL;
-  m.attr("ARK_LSOLVE_FAIL") = ARK_LSOLVE_FAIL;
-  m.attr("ARK_RHSFUNC_FAIL") = ARK_RHSFUNC_FAIL;
-  m.attr("ARK_FIRST_RHSFUNC_ERR") = ARK_FIRST_RHSFUNC_ERR;
-  m.attr("ARK_REPTD_RHSFUNC_ERR") = ARK_REPTD_RHSFUNC_ERR;
-  m.attr("ARK_UNREC_RHSFUNC_ERR") = ARK_UNREC_RHSFUNC_ERR;
-  m.attr("ARK_RTFUNC_FAIL") = ARK_RTFUNC_FAIL;
-  m.attr("ARK_LFREE_FAIL") = ARK_LFREE_FAIL;
-  m.attr("ARK_MASSINIT_FAIL") = ARK_MASSINIT_FAIL;
-  m.attr("ARK_MASSSETUP_FAIL") = ARK_MASSSETUP_FAIL;
-  m.attr("ARK_MASSSOLVE_FAIL") = ARK_MASSSOLVE_FAIL;
-  m.attr("ARK_MASSFREE_FAIL") = ARK_MASSFREE_FAIL;
-  m.attr("ARK_MASSMULT_FAIL") = ARK_MASSMULT_FAIL;
-  m.attr("ARK_CONSTR_FAIL") = ARK_CONSTR_FAIL;
-  m.attr("ARK_MEM_FAIL") = ARK_MEM_FAIL;
-  m.attr("ARK_MEM_NULL") = ARK_MEM_NULL;
-  m.attr("ARK_ILL_INPUT") = ARK_ILL_INPUT;
-  m.attr("ARK_NO_MALLOC") = ARK_NO_MALLOC;
-  m.attr("ARK_BAD_K") = ARK_BAD_K;
-  m.attr("ARK_BAD_T") = ARK_BAD_T;
-  m.attr("ARK_BAD_DKY") = ARK_BAD_DKY;
-  m.attr("ARK_TOO_CLOSE") = ARK_TOO_CLOSE;
-  m.attr("ARK_VECTOROP_ERR") = ARK_VECTOROP_ERR;
-  m.attr("ARK_NLS_INIT_FAIL") = ARK_NLS_INIT_FAIL;
-  m.attr("ARK_NLS_SETUP_FAIL") = ARK_NLS_SETUP_FAIL;
-  m.attr("ARK_NLS_SETUP_RECVR") = ARK_NLS_SETUP_RECVR;
-  m.attr("ARK_NLS_OP_ERR") = ARK_NLS_OP_ERR;
-  m.attr("ARK_INNERSTEP_ATTACH_ERR") = ARK_INNERSTEP_ATTACH_ERR;
-  m.attr("ARK_INNERSTEP_FAIL") = ARK_INNERSTEP_FAIL;
-  m.attr("ARK_OUTERTOINNER_FAIL") = ARK_OUTERTOINNER_FAIL;
-  m.attr("ARK_INNERTOOUTER_FAIL") = ARK_INNERTOOUTER_FAIL;
-  m.attr("ARK_POSTPROCESS_FAIL") = ARK_POSTPROCESS_FAIL;
-  m.attr("ARK_POSTPROCESS_STEP_FAIL") = ARK_POSTPROCESS_STEP_FAIL;
+  m.attr("ARK_NORMAL")                 = ARK_NORMAL;
+  m.attr("ARK_ONE_STEP")               = ARK_ONE_STEP;
+  m.attr("ARK_ADAPT_CUSTOM")           = ARK_ADAPT_CUSTOM;
+  m.attr("ARK_ADAPT_PID")              = ARK_ADAPT_PID;
+  m.attr("ARK_ADAPT_PI")               = ARK_ADAPT_PI;
+  m.attr("ARK_ADAPT_I")                = ARK_ADAPT_I;
+  m.attr("ARK_ADAPT_EXP_GUS")          = ARK_ADAPT_EXP_GUS;
+  m.attr("ARK_ADAPT_IMP_GUS")          = ARK_ADAPT_IMP_GUS;
+  m.attr("ARK_ADAPT_IMEX_GUS")         = ARK_ADAPT_IMEX_GUS;
+  m.attr("ARK_FULLRHS_START")          = ARK_FULLRHS_START;
+  m.attr("ARK_FULLRHS_END")            = ARK_FULLRHS_END;
+  m.attr("ARK_FULLRHS_OTHER")          = ARK_FULLRHS_OTHER;
+  m.attr("ARK_INTERP_MAX_DEGREE")      = ARK_INTERP_MAX_DEGREE;
+  m.attr("ARK_INTERP_NONE")            = ARK_INTERP_NONE;
+  m.attr("ARK_INTERP_HERMITE")         = ARK_INTERP_HERMITE;
+  m.attr("ARK_INTERP_LAGRANGE")        = ARK_INTERP_LAGRANGE;
+  m.attr("ARK_SUCCESS")                = ARK_SUCCESS;
+  m.attr("ARK_TSTOP_RETURN")           = ARK_TSTOP_RETURN;
+  m.attr("ARK_ROOT_RETURN")            = ARK_ROOT_RETURN;
+  m.attr("ARK_WARNING")                = ARK_WARNING;
+  m.attr("ARK_TOO_MUCH_WORK")          = ARK_TOO_MUCH_WORK;
+  m.attr("ARK_TOO_MUCH_ACC")           = ARK_TOO_MUCH_ACC;
+  m.attr("ARK_ERR_FAILURE")            = ARK_ERR_FAILURE;
+  m.attr("ARK_CONV_FAILURE")           = ARK_CONV_FAILURE;
+  m.attr("ARK_LINIT_FAIL")             = ARK_LINIT_FAIL;
+  m.attr("ARK_LSETUP_FAIL")            = ARK_LSETUP_FAIL;
+  m.attr("ARK_LSOLVE_FAIL")            = ARK_LSOLVE_FAIL;
+  m.attr("ARK_RHSFUNC_FAIL")           = ARK_RHSFUNC_FAIL;
+  m.attr("ARK_FIRST_RHSFUNC_ERR")      = ARK_FIRST_RHSFUNC_ERR;
+  m.attr("ARK_REPTD_RHSFUNC_ERR")      = ARK_REPTD_RHSFUNC_ERR;
+  m.attr("ARK_UNREC_RHSFUNC_ERR")      = ARK_UNREC_RHSFUNC_ERR;
+  m.attr("ARK_RTFUNC_FAIL")            = ARK_RTFUNC_FAIL;
+  m.attr("ARK_LFREE_FAIL")             = ARK_LFREE_FAIL;
+  m.attr("ARK_MASSINIT_FAIL")          = ARK_MASSINIT_FAIL;
+  m.attr("ARK_MASSSETUP_FAIL")         = ARK_MASSSETUP_FAIL;
+  m.attr("ARK_MASSSOLVE_FAIL")         = ARK_MASSSOLVE_FAIL;
+  m.attr("ARK_MASSFREE_FAIL")          = ARK_MASSFREE_FAIL;
+  m.attr("ARK_MASSMULT_FAIL")          = ARK_MASSMULT_FAIL;
+  m.attr("ARK_CONSTR_FAIL")            = ARK_CONSTR_FAIL;
+  m.attr("ARK_MEM_FAIL")               = ARK_MEM_FAIL;
+  m.attr("ARK_MEM_NULL")               = ARK_MEM_NULL;
+  m.attr("ARK_ILL_INPUT")              = ARK_ILL_INPUT;
+  m.attr("ARK_NO_MALLOC")              = ARK_NO_MALLOC;
+  m.attr("ARK_BAD_K")                  = ARK_BAD_K;
+  m.attr("ARK_BAD_T")                  = ARK_BAD_T;
+  m.attr("ARK_BAD_DKY")                = ARK_BAD_DKY;
+  m.attr("ARK_TOO_CLOSE")              = ARK_TOO_CLOSE;
+  m.attr("ARK_VECTOROP_ERR")           = ARK_VECTOROP_ERR;
+  m.attr("ARK_NLS_INIT_FAIL")          = ARK_NLS_INIT_FAIL;
+  m.attr("ARK_NLS_SETUP_FAIL")         = ARK_NLS_SETUP_FAIL;
+  m.attr("ARK_NLS_SETUP_RECVR")        = ARK_NLS_SETUP_RECVR;
+  m.attr("ARK_NLS_OP_ERR")             = ARK_NLS_OP_ERR;
+  m.attr("ARK_INNERSTEP_ATTACH_ERR")   = ARK_INNERSTEP_ATTACH_ERR;
+  m.attr("ARK_INNERSTEP_FAIL")         = ARK_INNERSTEP_FAIL;
+  m.attr("ARK_OUTERTOINNER_FAIL")      = ARK_OUTERTOINNER_FAIL;
+  m.attr("ARK_INNERTOOUTER_FAIL")      = ARK_INNERTOOUTER_FAIL;
+  m.attr("ARK_POSTPROCESS_FAIL")       = ARK_POSTPROCESS_FAIL;
+  m.attr("ARK_POSTPROCESS_STEP_FAIL")  = ARK_POSTPROCESS_STEP_FAIL;
   m.attr("ARK_POSTPROCESS_STAGE_FAIL") = ARK_POSTPROCESS_STAGE_FAIL;
-  m.attr("ARK_USER_PREDICT_FAIL") = ARK_USER_PREDICT_FAIL;
-  m.attr("ARK_INTERP_FAIL") = ARK_INTERP_FAIL;
-  m.attr("ARK_INVALID_TABLE") = ARK_INVALID_TABLE;
-  m.attr("ARK_CONTEXT_ERR") = ARK_CONTEXT_ERR;
-  m.attr("ARK_RELAX_FAIL") = ARK_RELAX_FAIL;
-  m.attr("ARK_RELAX_MEM_NULL") = ARK_RELAX_MEM_NULL;
-  m.attr("ARK_RELAX_FUNC_FAIL") = ARK_RELAX_FUNC_FAIL;
-  m.attr("ARK_RELAX_JAC_FAIL") = ARK_RELAX_JAC_FAIL;
-  m.attr("ARK_CONTROLLER_ERR") = ARK_CONTROLLER_ERR;
-  m.attr("ARK_STEPPER_UNSUPPORTED") = ARK_STEPPER_UNSUPPORTED;
-  m.attr("ARK_DOMEIG_FAIL") = ARK_DOMEIG_FAIL;
-  m.attr("ARK_MAX_STAGE_LIMIT_FAIL") = ARK_MAX_STAGE_LIMIT_FAIL;
-  m.attr("ARK_SUNSTEPPER_ERR") = ARK_SUNSTEPPER_ERR;
-  m.attr("ARK_STEP_DIRECTION_ERR") = ARK_STEP_DIRECTION_ERR;
-  m.attr("ARK_UNRECOGNIZED_ERROR") = ARK_UNRECOGNIZED_ERROR;
+  m.attr("ARK_USER_PREDICT_FAIL")      = ARK_USER_PREDICT_FAIL;
+  m.attr("ARK_INTERP_FAIL")            = ARK_INTERP_FAIL;
+  m.attr("ARK_INVALID_TABLE")          = ARK_INVALID_TABLE;
+  m.attr("ARK_CONTEXT_ERR")            = ARK_CONTEXT_ERR;
+  m.attr("ARK_RELAX_FAIL")             = ARK_RELAX_FAIL;
+  m.attr("ARK_RELAX_MEM_NULL")         = ARK_RELAX_MEM_NULL;
+  m.attr("ARK_RELAX_FUNC_FAIL")        = ARK_RELAX_FUNC_FAIL;
+  m.attr("ARK_RELAX_JAC_FAIL")         = ARK_RELAX_JAC_FAIL;
+  m.attr("ARK_CONTROLLER_ERR")         = ARK_CONTROLLER_ERR;
+  m.attr("ARK_STEPPER_UNSUPPORTED")    = ARK_STEPPER_UNSUPPORTED;
+  m.attr("ARK_DOMEIG_FAIL")            = ARK_DOMEIG_FAIL;
+  m.attr("ARK_MAX_STAGE_LIMIT_FAIL")   = ARK_MAX_STAGE_LIMIT_FAIL;
+  m.attr("ARK_SUNSTEPPER_ERR")         = ARK_SUNSTEPPER_ERR;
+  m.attr("ARK_STEP_DIRECTION_ERR")     = ARK_STEP_DIRECTION_ERR;
+  m.attr("ARK_UNRECOGNIZED_ERROR")     = ARK_UNRECOGNIZED_ERROR;
 
   //
   // ARKODE functions
@@ -115,7 +118,9 @@ void bind_arkode(nb::module_ &m) {
   nb::class_<sundials::experimental::ARKodeView>(m, "ARKodeView")
     .def(nb::init<>())
     .def(nb::init<void*>())
-    .def("get", nb::overload_cast<>(&sundials::experimental::ARKodeView::get, nb::const_), nb::rv_policy::reference);
+    .def("get",
+         nb::overload_cast<>(&sundials::experimental::ARKodeView::get, nb::const_),
+         nb::rv_policy::reference);
 
   m.def("ARKodeResize", &ARKodeResize);
   m.def("ARKodeReset", &ARKodeReset);
@@ -184,7 +189,6 @@ void bind_arkode(nb::module_ &m) {
   m.def("ARKodeComputeState", &ARKodeComputeState);
   m.def("ARKodeGetNumRhsEvals", &ARKodeGetNumRhsEvals);
   m.def("ARKodeGetNumStepAttempts", &ARKodeGetNumStepAttempts);
-  m.def("ARKodeGetWorkSpace", &ARKodeGetWorkSpace);
   m.def("ARKodeGetNumSteps", &ARKodeGetNumSteps);
   m.def("ARKodeGetLastStep", &ARKodeGetLastStep);
   m.def("ARKodeGetCurrentStep", &ARKodeGetCurrentStep);
@@ -217,7 +221,6 @@ void bind_arkode(nb::module_ &m) {
   // m.def("ARKodeGetJac", &ARKodeGetJac);
   m.def("ARKodeGetJacTime", &ARKodeGetJacTime);
   m.def("ARKodeGetJacNumSteps", &ARKodeGetJacNumSteps);
-  m.def("ARKodeGetLinWorkSpace", &ARKodeGetLinWorkSpace);
   m.def("ARKodeGetNumJacEvals", &ARKodeGetNumJacEvals);
   m.def("ARKodeGetNumPrecEvals", &ARKodeGetNumPrecEvals);
   m.def("ARKodeGetNumPrecSolves", &ARKodeGetNumPrecSolves);
@@ -230,7 +233,6 @@ void bind_arkode(nb::module_ &m) {
   m.def("ARKodeGetLinReturnFlagName", &ARKodeGetLinReturnFlagName);
   // m.def("ARKodeGetCurrentMassMatrix", &ARKodeGetCurrentMassMatrix);
   m.def("ARKodeGetResWeights", &ARKodeGetResWeights);
-  m.def("ARKodeGetMassWorkSpace", &ARKodeGetMassWorkSpace);
   m.def("ARKodeGetNumMassSetups", &ARKodeGetNumMassSetups);
   m.def("ARKodeGetNumMassMultSetups", &ARKodeGetNumMassMultSetups);
   m.def("ARKodeGetNumMassMult", &ARKodeGetNumMassMult);
@@ -263,15 +265,20 @@ void bind_arkode(nb::module_ &m) {
   //
   // ERKStep functions
   //
-  m.def("ERKStepCreate", [](std::function<erk_rhsfn_type> rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx) {
-    // static nb::object the_static_rhs = ;
-    // function_pointers["rhsfn"] = the_static_rhs;
-    function_pointers* ptrs = new function_pointers; // need to clean this up in ARKodeFree
-    ptrs->rhs_fn = nb::borrow(nb::cast(rhs)); // with nb::borrow, we will need to delete the rhs_fn during cleanup
-    void* ark_mem = ERKStepCreate(erk_rhsfn_wrapper, t0, y0, sunctx);
-    ARKodeSetUserData(ark_mem, static_cast<void*>(ptrs));
-    return ark_mem;
-  });
+  m.def("ERKStepCreate",
+        [](std::function<erk_rhsfn_type> rhs, sunrealtype t0, N_Vector y0,
+           SUNContext sunctx)
+        {
+          // static nb::object the_static_rhs = ;
+          // function_pointers["rhsfn"] = the_static_rhs;
+          function_pointers* ptrs =
+            new function_pointers; // need to clean this up in ARKodeFree
+          ptrs->rhs_fn  = nb::borrow(nb::cast(
+            rhs)); // with nb::borrow, we will need to delete the rhs_fn during cleanup
+          void* ark_mem = ERKStepCreate(erk_rhsfn_wrapper, t0, y0, sunctx);
+          ARKodeSetUserData(ark_mem, static_cast<void*>(ptrs));
+          return ark_mem;
+        });
   m.def("ERKStepReInit", &ERKStepReInit);
   m.def("ERKStepSetTable", &ERKStepSetTable);
   m.def("ERKStepSetTableNum", &ERKStepSetTableNum);
