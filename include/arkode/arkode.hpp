@@ -32,13 +32,15 @@ struct ARKodeDeleter
   }
 };
 
-class ARKodeView : public ClassView<void*, ARKodeDeleter>
-{
-private:
-  void* callback_functions;
+using ARKodeView = ClassView<void*, ARKodeDeleter>;
+
+// class ARKodeView : public ClassView<void*, ARKodeDeleter>
+// {
+// private:
+//   void* callback_functions;
 
 
-};
+// };
 
 } // namespace experimental
 } // namespace sundials

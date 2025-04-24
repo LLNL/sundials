@@ -75,9 +75,6 @@ m.def("N_VCloneEmpty",
     "py::return_value_policy::reference", 
     nb::rv_policy::reference);
 
-m.def("N_VSpace",
-    N_VSpace, nb::arg("v"), nb::arg("lrw"), nb::arg("liw"));
-
 m.def("N_VGetCommunicator",
     N_VGetCommunicator, nb::arg("v"));
 
