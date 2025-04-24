@@ -248,4 +248,5 @@ void bind_arkode(nb::module_& m)
   // m.def("ARKodeCreateSUNStepper", &ARKodeCreateSUNStepper);
 
   bind_arkode_erkstep(m);
+  bind_arkode_arkstep(m);
 }

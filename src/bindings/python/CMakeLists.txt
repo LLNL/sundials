@@ -19,7 +19,7 @@ execute_process(
 find_package(nanobind CONFIG REQUIRED)
 
 # Add the source file
-set(sundials_SOURCES pysundials.cpp sundials_core.cpp sundials/sundials_nvector.cpp 
+set(sundials_SOURCES pysundials.cpp sundials/sundials_core.cpp sundials/sundials_nvector.cpp 
   arkode/arkode.cpp arkode/arkode_arkstep.cpp arkode/arkode_erkstep.cpp nvector/nvector_serial.cpp)
 
 # Create the Python sundials library

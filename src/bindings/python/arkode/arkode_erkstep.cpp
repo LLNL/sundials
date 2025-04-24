@@ -28,9 +28,6 @@ int erk_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
 void bind_arkode_erkstep(nb::module_& m)
 {
-  //
-  // ERKStep functions
-  //
   m.def("ERKStepCreate",
         [](std::function<erk_rhsfn_type> rhs, sunrealtype t0, N_Vector y0,
            SUNContext sunctx)

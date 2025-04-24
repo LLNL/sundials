@@ -49,7 +49,7 @@ class AnalyticIMEXODEProblem:
         return 0
 
     def fi(self, t, yvec, ydotvec):
-        y = N_VGetArrayPointer(yvec)
-        ydot = N_VGetArrayPointer(ydotvec)
-        ydot[0] = self.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.arctan(t)
+        # y = N_VGetArrayPointer(yvec)
+        # ydot = N_VGetArrayPointer(ydotvec)
+        # ydot[0] = self.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.arctan(t)
         return 0
