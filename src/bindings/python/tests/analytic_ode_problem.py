@@ -38,7 +38,7 @@ class AnalyticODEProblem:
 #     ydot[0] = AnalyticODEProblemNumbaJit.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.arctan(t)
 #     return 0
 
-class MyIMEXODEProblem:
+class AnalyticIMEXODEProblem:
     def __init__(self, lamb=1.0):
         self.lamb = lamb
 

@@ -14,7 +14,7 @@ def main():
 
   # Get the array and change a value in it
   arr = N_VGetArrayPointer(nv.get()) # Option 1: have to call get when passing the NVectorView
-  # # arr = nv.GetArrayPointer() # Option 2: wrap N_V calls as NVectorView class methods
+  # arr = nv.GetArrayPointer() # Option 2: wrap N_V calls as NVectorView class methods
   arr[0] = 0.0 # set initial condition
 
   ode_problem = AnalyticODEProblem()

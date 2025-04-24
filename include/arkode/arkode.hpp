@@ -36,10 +36,12 @@ using ARKodeView = ClassView<void*, ARKodeDeleter>;
 
 // class ARKodeView : public ClassView<void*, ARKodeDeleter>
 // {
+// public:
+//   ARKodeView() : ClassView() {}
+//   ARKodeView(void*&& object) : ClassView(object) {}
+
 // private:
 //   void* callback_functions;
-
-
 // };
 
 } // namespace experimental

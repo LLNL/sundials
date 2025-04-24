@@ -3,10 +3,9 @@
 import numpy as np
 from pysundials.core import *
 from pysundials.arkode import *
+from analytic_ode_problem import AnalyticIMEXODEProblem
 
-
-
-ode_problem = MyODEProblem2()
+ode_problem = AnalyticIMEXODEProblem()
 
 sunctx = SUNContextView()
 nv = NVectorView(N_VNew_Serial(1, sunctx.get()))
