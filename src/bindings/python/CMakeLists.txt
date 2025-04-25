@@ -31,7 +31,15 @@ set(sundials_SOURCES
     arkode/arkode_arkstep.cpp
     arkode/arkode_erkstep.cpp
     nvector/nvector_serial.cpp
-    sunlinsol/sunlinsol_spgmr.cpp)
+    sunlinsol/sunlinsol_spgmr.cpp
+    sunlinsol/sunlinsol_dense.cpp
+    sunlinsol/sunlinsol_band.cpp
+    sunlinsol/sunlinsol_spbcgs.cpp
+    sunlinsol/sunlinsol_spfgmr.cpp
+    sunlinsol/sunlinsol_sptfqmr.cpp
+    sunlinsol/sunlinsol_pcg.cpp
+    # sunlinsol/sunlinsol_lapackdense.cpp sunlinsol/sunlinsol_lapackband.cpp
+)
 
 # Create the Python sundials library
 nanobind_add_module(pysundials ${sundials_SOURCES})
