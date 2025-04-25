@@ -8,6 +8,7 @@
 namespace nb = nanobind;
 
 void bind_nvector(nb::module_& m);
+void bind_linearsolver(nb::module_& m);
 
 void bind_core(nb::module_& m)
 {
@@ -126,4 +127,5 @@ void bind_core(nb::module_& m)
 
 
   bind_nvector(m);
+  bind_linearsolver(m);
 }

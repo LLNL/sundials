@@ -4,16 +4,17 @@
 #include <nanobind/stl/function.h>
 #include <unordered_map>
 
+#include <sundials/sundials_core.hpp>
+
 #include <arkode/arkode.h>
 #include <arkode/arkode.hpp>
-#include <arkode/arkode_erkstep.h>
-#include <sundials/sundials_core.h>
+#include <arkode/arkode_ls.h>
 
 namespace nb = nanobind;
 
 // Forward declarations of functions defined in other translation units
-void bind_arkode_erkstep(nb::module_ &m);
-void bind_arkode_arkstep(nb::module_ &m);
+void bind_arkode_erkstep(nb::module_& m);
+void bind_arkode_arkstep(nb::module_& m);
 
 void bind_arkode(nb::module_& m)
 {
@@ -96,16 +97,16 @@ void bind_arkode(nb::module_& m)
   m.attr("ARK_STEP_DIRECTION_ERR")     = ARK_STEP_DIRECTION_ERR;
   m.attr("ARK_UNRECOGNIZED_ERROR")     = ARK_UNRECOGNIZED_ERROR;
 
-  //
-  // ARKODE functions
-  //
-
   nb::class_<sundials::experimental::ARKodeView>(m, "ARKodeView")
     .def(nb::init<>())
     .def(nb::init<void*>())
     .def("get",
          nb::overload_cast<>(&sundials::experimental::ARKodeView::get, nb::const_),
          nb::rv_policy::reference);
+
+  //
+  // arkode.h definitions
+  //
 
   m.def("ARKodeResize", &ARKodeResize);
   m.def("ARKodeReset", &ARKodeReset);
@@ -246,6 +247,26 @@ void bind_arkode(nb::module_& m)
   m.def("ARKodeGetNumRelaxSolveFails", &ARKodeGetNumRelaxSolveFails);
   m.def("ARKodeGetNumRelaxSolveIters", &ARKodeGetNumRelaxSolveIters);
   // m.def("ARKodeCreateSUNStepper", &ARKodeCreateSUNStepper);
+
+  //
+  // arkode_ls.h definitions
+  //
+
+  m.def("ARKodeSetLinearSolver", &ARKodeSetLinearSolver,
+    nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("A").none());
+  m.def("ARKodeSetJacFn", &ARKodeSetJacFn);
+  m.def("ARKodeSetJacEvalFrequency", &ARKodeSetJacEvalFrequency);
+  m.def("ARKodeSetLinSysFn", &ARKodeSetLinSysFn);
+  m.def("ARKodeSetPreconditioner", &ARKodeSetPreconditioner);
+  m.def("ARKodeSetLSNormFactor", &ARKodeSetLSNormFactor);
+  m.def("ARKodeSetEpsLin", &ARKodeSetEpsLin);
+  m.def("ARKodeGetNumLinIters", &ARKodeGetNumLinIters);
+  m.def("ARKodeGetNumLinConvFails", &ARKodeGetNumLinConvFails);
+  m.def("ARKodeGetNumPrecEvals", &ARKodeGetNumPrecEvals);
+  m.def("ARKodeGetNumPrecSolves", &ARKodeGetNumPrecSolves);
+  m.def("ARKodeGetNumLinRhsEvals", &ARKodeGetNumLinRhsEvals);
+  m.def("ARKodeGetLastLinFlag", &ARKodeGetLastLinFlag);
+  m.def("ARKodeGetLinReturnFlagName", &ARKodeGetLinReturnFlagName);
 
   bind_arkode_erkstep(m);
   bind_arkode_arkstep(m);
