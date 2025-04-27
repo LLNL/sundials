@@ -89,7 +89,7 @@ public:
       atol(SUN_RCONST(1.e-11)),
       fixed_h(ZERO),
       maxsteps(10000),
-      output(3),
+      output(1),
       nout(10){};
 
 }; // end ARKODEParameters

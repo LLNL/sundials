@@ -130,7 +130,7 @@ struct UserData
   // Fixed Point Solver settings
   sunrealtype rtol; // relative tolerance
   int maa;          // m for Anderson Acceleration
-  double damping;   // damping for Anderson Acceleration
+  sunrealtype damping;   // damping for Anderson Acceleration
   int orthaa;       // orthogonalization routine for AA
   int maxits;       // max number of fixed point iterations
 
@@ -298,7 +298,7 @@ static sunrealtype c11(sunrealtype u_val)
 // c(u) = sqrt(5) * (u - u^2)
 static sunrealtype c12(sunrealtype u_val)
 {
-  sunrealtype temp = sqrt(5);
+  sunrealtype temp = SUNRsqrt(5);
   sunrealtype u2   = u_val * u_val;
   return temp * (u_val - u2);
 }

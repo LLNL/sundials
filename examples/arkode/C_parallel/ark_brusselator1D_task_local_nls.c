@@ -155,10 +155,10 @@ typedef struct
   N_Vector wmask;
 
   /* problem parameters */
-  long long nvar; /* number of species            */
-  long long nx;   /* number of intervals globally */
-  long long nxl;  /* number of intervals locally  */
-  long long NEQ;  /* number of equations locally  */
+  sunindextype nvar; /* number of species            */
+  sunindextype nx;   /* number of intervals globally */
+  sunindextype nxl;  /* number of intervals locally  */
+  sunindextype NEQ;  /* number of equations locally  */
   sunrealtype dx;      /* mesh spacing                 */
   sunrealtype xmax;    /* maximum x value              */
   sunrealtype A;       /* concentration of species A   */
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
   UserData udata;    /* user data                    */
   UserOptions uopt;  /* user options                 */
   int retval;        /* reusable error-checking flag */
-  long long i;       /* loop counter                 */
+  sunindextype i;       /* loop counter                 */
   FILE* MFID;        /* mesh output file pointer     */
   char fname[MXSTR];
   MPI_Comm comm;
@@ -609,8 +609,8 @@ static int EvolveProblemExplicit(N_Vector y, UserData udata, UserOptions uopt,
 /* Write time and solution to disk */
 static int WriteOutput(sunrealtype t, N_Vector y, UserData udata, UserOptions uopt)
 {
-  long long i;
-  long long nvar = udata->nvar;
+  sunindextype i;
+  sunindextype nvar = udata->nvar;
   sunrealtype u, v, w;
   sunrealtype* data = NULL;
 
@@ -671,8 +671,8 @@ static int WriteOutput(sunrealtype t, N_Vector y, UserData udata, UserOptions uo
 static int SetIC(N_Vector y, UserData udata)
 {
   /* Variable shortcuts */
-  long long nvar = udata->nvar;
-  long long N    = udata->nxl;
+  sunindextype nvar = udata->nvar;
+  sunindextype N    = udata->nxl;
   sunrealtype dx      = udata->dx;
   sunrealtype A       = udata->A;
   sunrealtype B       = udata->B;
@@ -685,7 +685,7 @@ static int SetIC(N_Vector y, UserData udata)
   /* Local variables */
   sunrealtype* data = NULL;
   sunrealtype x, us, vs, ws, p;
-  long long i;
+  sunindextype i;
 
   /* Gaussian distribution defaults */
   sunrealtype mu    = udata->xmax / SUN_RCONST(2.0);
@@ -725,8 +725,8 @@ static int Advection(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   UserData udata = (UserData)user_data;
 
   /* set variable shortcuts */
-  long long nvar = udata->nvar;
-  long long N    = udata->nxl;
+  sunindextype nvar = udata->nvar;
+  sunindextype N    = udata->nxl;
   sunrealtype dx      = udata->dx;
   sunrealtype c       = udata->c;
 
@@ -734,7 +734,7 @@ static int Advection(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype* Ydata  = NULL;
   sunrealtype* dYdata = NULL;
   sunrealtype tmp;
-  long long i, var;
+  sunindextype i, var;
   int retval;
 
   /* set output to zero */
@@ -814,8 +814,8 @@ static int Reaction(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   UserData udata = (UserData)user_data;
 
   /* set variable shortcuts */
-  long long nvar = udata->nvar;
-  long long N    = udata->nxl;
+  sunindextype nvar = udata->nvar;
+  sunindextype N    = udata->nxl;
   sunrealtype A       = udata->A;
   sunrealtype B       = udata->B;
   sunrealtype k1      = udata->k1;
@@ -829,7 +829,7 @@ static int Reaction(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype* Ydata  = NULL;
   sunrealtype* dYdata = NULL;
   sunrealtype u, v, w;
-  long long i;
+  sunindextype i;
 
   /* access data arrays */
   Ydata = N_VGetArrayPointer(y);
@@ -949,11 +949,11 @@ static int TaskLocalLSolve(N_Vector delta, void* arkode_mem)
   sunrealtype* Zdata  = NULL;
   sunrealtype* Bdata  = NULL;
   sunrealtype u, v, w;
-  long long i, j;
+  sunindextype i, j;
   int retval;
 
   /* shortcuts */
-  long long nvar, N;
+  sunindextype nvar, N;
   sunrealtype k2, k3, k4, k6;
   N_Vector b_node;
   SUNMatrix Jac;
@@ -1224,11 +1224,11 @@ static int PSetup(sunrealtype t, N_Vector y, N_Vector ydot, sunbooleantype jok,
   UserData udata = (UserData)user_data;
   sunrealtype* Ydata;
   sunrealtype u, v, w;
-  long long i, blocki;
+  sunindextype i, blocki;
   int retval = 0;
 
   /* shortcuts */
-  long long nvar, N;
+  sunindextype nvar, N;
   sunrealtype k2, k3, k4, k6;
   SUNMatrix P;
   SUNLinearSolver LS;
@@ -1383,7 +1383,7 @@ static int ExchangeAllStart(N_Vector y, UserData udata)
 
   /* shortcuts */
   sunrealtype c    = udata->c;
-  long long N = udata->nxl;
+  sunindextype N = udata->nxl;
   int nvar    = udata->nvar;
   int myid    = udata->myid;
   int first   = 0;
@@ -1476,8 +1476,8 @@ static int SetupProblem(int argc, char* argv[], UserData udata,
   MPI_Comm_size(udata->comm, &udata->nprocs);
 
   /* default problem parameters */
-  const long long nvar = 3;   /* number of solution fields               */
-  const long long NX   = 100; /* global spatial mesh size (NX intervals) */
+  const sunindextype nvar = 3;   /* number of solution fields               */
+  const sunindextype NX   = 100; /* global spatial mesh size (NX intervals) */
   const sunrealtype xmax    = 1.0; /* maximum x value          */
   const sunrealtype A       = 1.0; /* problem parameters                      */
   const sunrealtype B       = 3.5;
@@ -1727,10 +1727,10 @@ static int SetupProblem(int argc, char* argv[], UserData udata,
     printf("  NX = %lli, NXL = %lli, dx = %.6" FSYM ", xmax = %.6" FSYM "\n", udata->nx,
            udata->nxl, udata->dx, udata->xmax);
     printf("Problem Parameters:\n");
-    printf("  A = %Qg\n", udata->A);
-    printf("  B = %Qg\n", udata->B);
-    printf("  k = %Qg\n", udata->k1);
-    printf("  c = %Qg\n", udata->c);
+    printf("  A = %" GSYM "\n", udata->A);
+    printf("  B = %" GSYM "\n", udata->B);
+    printf("  k = %" GSYM "\n", udata->k1);
+    printf("  c = %" GSYM "\n", udata->c);
     printf("Integrator Options:\n");
     printf("  order            = %d\n", uopt->order);
     printf("  method           = %s\n", uopt->explicit ? "explicit" : "imex");

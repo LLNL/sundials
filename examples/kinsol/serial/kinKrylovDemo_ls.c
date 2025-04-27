@@ -299,7 +299,7 @@ int main(void)
 
       /* Create SUNLinSol_SPBCGS object with right preconditioning and the
          maximum Krylov dimension maxl */
-      maxl = 20;
+      maxl = 15;
       LS   = SUNLinSol_SPBCGS(cc, SUN_PREC_RIGHT, maxl, sunctx);
       if (check_flag((void*)LS, "SUNLinSol_SPBCGS", 0)) { return (1); }
 
