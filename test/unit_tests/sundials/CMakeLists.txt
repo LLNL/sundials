@@ -12,7 +12,9 @@
 
 # List of test tuples of the form "name\;args"
 set(unit_tests "test_sundials_datanode\;" "test_sundials_stlvector\;"
-               "test_sundials_hashmap\;")
+               "test_sundials_hashmap\;" 
+               "test_sundials_QRfactorization\;" "test_sundials_GramSchmidt\;" 
+               "test_sundials_QRAddVariants\;")
 
 if(SUNDIALS_ENABLE_ERROR_CHECKS)
   list(APPEND unit_tests "test_sundials_errors\;")
