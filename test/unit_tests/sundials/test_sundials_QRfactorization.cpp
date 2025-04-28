@@ -145,11 +145,9 @@ int main(int argc, char* argv[])
     if ((SUNabs(cimag(yg[k])-cimag(exactSol[k])))>tolerance){checkSolImag=1;}
   }
   if (checkSolReal==0 && checkSolImag==0){
-    // printf("Test Passed!\n");
     cout << "Test Passed!" << "\n";
   }
   else {
-    // printf("Test failed!\n");
     cout << "Test Failed!" << "\n";
     return 1;
   }

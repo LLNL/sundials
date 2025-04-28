@@ -125,27 +125,22 @@ int main(int argc, char* argv[])
 
     if (strcmp(functionName, "sunqradd_mgs") == 0) {
       SUNQRAdd_MGS(Q, R, df_True, m, mMax, qrdata);
-      // printf("Using SUNQRAdd_MGS \n");
       cout << "Using SUNQRAdd_MGS!" << "\n";
     }
     else if (strcmp(functionName, "sunqradd_icwy") == 0) {
       SUNQRAdd_ICWY(Q, R, df_True, m, mMax, qrdata);
-      // printf("Using SUNQRAdd_ICWY \n");
       cout << "Using SUNQRAdd_ICWY!" << "\n";
     }
     else if (strcmp(functionName, "sunqradd_cgs2") == 0) {
       SUNQRAdd_CGS2(Q, R, df_True, m, mMax, qrdata);
-      // printf("Using SUNQRAdd_CGS2 \n");
       cout << "Using SUNQRAdd_CGS2!" << "\n";
       
     }
     else if (strcmp(functionName, "sunqradd_dcgs2") == 0) {
       SUNQRAdd_DCGS2(Q, R, df_True, m, mMax, qrdata);
-      // printf("Using SUNQRAdd_DCGS2 \n");
       cout << "Using SUNQRAdd_DCGS2!" << "\n";
     }
     else {
-      // printf("Incorrect function name, use: sunqradd_mgs or sunqradd_icwy or sunqradd_cgs2 or sunqradd_dcgs2. \nUsing default: sunqradd_mgs\n");
       cout << "Incorrect function name, use: sunqradd_mgs or sunqradd_icwy or sunqradd_cgs2 or sunqradd_dcgs2" << endl;
       cout << "Using default: sunqradd_mgs!" << endl;
       SUNQRAdd_MGS(Q, R, df_True, m, mMax, qrdata); // Default function
@@ -270,27 +265,22 @@ int main(int argc, char* argv[])
     }
 
     if (strcmp(functionName, "sunqradd_mgs") == 0) {
-      // printf("Using SUNQRAdd_MGS\n");
       cout << "Using SUNQRAdd_MGS!" << "\n";
       SUNQRAdd_MGS(Q, R, df_True, m, mMax, qrdata);
     }
     else if (strcmp(functionName, "sunqradd_icwy") == 0) {
-      // printf("Using SUNQRAdd_ICWY \n");
       cout << "Using SUNQRAdd_ICWY!" << "\n";
       SUNQRAdd_ICWY(Q, R, df_True, m, mMax, qrdata);
     }
     else if (strcmp(functionName, "sunqradd_cgs2") == 0) {
-      // printf("Using SUNQRAdd_CGS2 \n");
       cout << "Using SUNQRAdd_CGS2!" << "\n";
       SUNQRAdd_CGS2(Q, R, df_True, m, mMax, qrdata);
     }
     else if (strcmp(functionName, "sunqradd_dcgs2") == 0) {
-      // printf("Using SUNQRAdd_DCGS2 \n");
       cout << "Using SUNQRAdd_DCGS2!" << "\n";
       SUNQRAdd_DCGS2(Q, R, df_True, m, mMax, qrdata);
     }
     else {
-      // printf("Incorrect function name, use: sunqradd_mgs or sunqradd_icwy or sunqradd_cgs2 or sunqradd_dcgs2. \nUsing default: sunqradd_mgs\n");
       cout << "Incorrect function name, use: sunqradd_mgs or sunqradd_icwy or sunqradd_cgs2 or sunqradd_dcgs2" << endl;
       cout << "Using default: sunqradd_mgs!" << endl;
       SUNQRAdd_MGS(Q, R, df_True, m, mMax, qrdata); // Default function
@@ -347,11 +337,9 @@ int main(int argc, char* argv[])
 
   /* Check if the computed last columns of Q and R are correct. */
   if ((solnCheckReal==0) && (solnCheckImag==0) && (orthogonalReal==0) && (orthogonalImag==0) && (unit_vectorsReal==0) && (unit_vectorsImag==0)) {
-    // printf("Test passed!\n");
     cout << "Test Passed!" << "\n";
   } 
   else {
-    // printf("Test failed!\n");
     cout << "Test Failed!" << "\n";
     return 1;
   }
