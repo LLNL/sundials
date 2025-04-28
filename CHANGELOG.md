@@ -1,5 +1,17 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release X.Y.Z
+
+### Major Features
+
+### New Features and Enhancements
+
+### Bug Fixes
+
+Fixed a CMake bug that would cause the Caliper compile test to fail at configure time.
+
+### Deprecation Notices
+
 ## Changes to SUNDIALS in release 7.3.0
 
 ### Major Features
