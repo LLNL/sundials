@@ -219,9 +219,6 @@ int SUNQRfact(int n, sunscalartype** h, sunscalartype* q, int job)
       {
         temp3    = (SUNSQR(temp1)) / (SUNSQR(temp2));
         absTemp2 = SUNabs(temp2);
-        // absTemp1 = SUNabs(temp1);
-        // c = ONE / ((absTemp2 / absTemp1) * SUNRsqrt(ONE + SUN_REAL(temp3)));
-        // s = -c * (temp1 * SUNCONJ(temp2)) / (SUNSQR(temp1));
         s = -ONE / ((temp2 / absTemp2) * SUNRsqrt(ONE + SUN_REAL(temp3)));
         c = -s * (SUNCONJ(temp1)/SUNCONJ(temp2));
       }
@@ -229,8 +226,6 @@ int SUNQRfact(int n, sunscalartype** h, sunscalartype* q, int job)
       {
         temp3 = (SUNSQR(temp2)) / (SUNSQR(temp1));
         absTemp1 = SUNabs(temp1);
-        // c     = ONE / SUNRsqrt(ONE + SUN_REAL(temp3));
-        // s = -c * (temp1 * SUNCONJ(temp2)) / (SUNabs(temp1));
         c = ONE / ((temp1 / absTemp1) *SUNRsqrt(ONE + SUN_REAL(temp3)));
         s = -c * (SUNCONJ(temp2)/SUNCONJ(temp1));
       }
@@ -276,9 +271,6 @@ int SUNQRfact(int n, sunscalartype** h, sunscalartype* q, int job)
     {
       temp3    = (SUNSQR(temp1)) / (SUNSQR(temp2));
       absTemp2 = SUNabs(temp2);
-      // absTemp1 = SUNabs(temp1);
-      // c = ONE / ((absTemp2 / absTemp1) * SUNRsqrt(ONE + SUN_REAL(temp3)));
-      // s = -c * (temp1 * SUNCONJ(temp2)) / (SUNSQR(temp1));
       s = -ONE / ((temp2 / absTemp2) * SUNRsqrt(ONE + SUN_REAL(temp3)));
       c = -s * (SUNCONJ(temp1)/SUNCONJ(temp2));
     }
@@ -286,8 +278,6 @@ int SUNQRfact(int n, sunscalartype** h, sunscalartype* q, int job)
     {
       temp3 = (SUNSQR(temp2)) / (SUNSQR(temp1));
       absTemp1 = SUNabs(temp1);
-      // c     = ONE / SUNRsqrt(ONE + SUN_REAL(temp3));
-      // s     = -c * (temp1 * SUNCONJ(temp2)) / (SUNSQR(temp1));
       c = ONE / ((temp1 / absTemp1) *SUNRsqrt(ONE + SUN_REAL(temp3)));
       s = -c * (SUNCONJ(temp2)/SUNCONJ(temp1));
     }

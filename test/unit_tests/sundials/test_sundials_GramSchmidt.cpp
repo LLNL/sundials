@@ -201,7 +201,6 @@ int main(int argc, char* argv[])
     }
 
     if (strcmp(functionName, "ClassicalGS") == 0) {
-      // printf("Using Classical Gram Schmidt \n");
       cout << "Using Classical Gram Schmidt!" << "\n";
       for (k=0; k<5; k++){
         SUNClassicalGS(V, H, k, 5, &vnorm, stemp, vtemp);
@@ -209,7 +208,6 @@ int main(int argc, char* argv[])
       }
     }
     else if (strcmp(functionName, "ModifiedGS") == 0) {
-      // printf("Using Modified Gram Schmidt \n");
       cout << "Using Modified Gram Schmidt!" << "\n";
       for (k=0; k<5; k++){
         SUNModifiedGS(V, H, k, 5, &vnorm);
@@ -217,7 +215,6 @@ int main(int argc, char* argv[])
       }
     }
     else {
-      // printf("Incorrect function name, use: ClassicalGS or ModifiedGS. \nUsing default: ClassicalGS\n");
       cout << "Incorrect function name, use: ClassicalGS or ModifiedGS." << endl;
       cout << "Using default: ClassicalGS!" << endl;
       for (k=0; k<5; k++){
@@ -253,11 +250,9 @@ int main(int argc, char* argv[])
 
   /* Check if the columns of Q are orthonormal. */
   if ((orthogonalReal==0) && (orthogonalImag==0) && (unit_vectorsReal==0) && (unit_vectorsImag==0)){
-    // printf("The columns of Q are orthonormal!\nTest Passed!\n");
     cout << "Test Passed!" << "\n";
   } 
   else {
-    // printf("The columns of Q are not orthonormal!\nTest failed!\n");
     cout << "Test Failed!" << "\n";
     return 1;
   } 
