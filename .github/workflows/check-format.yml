@@ -61,7 +61,7 @@ jobs:
 
       - name: Run checker on code
         run: |
-          ./scripts/format.sh CMakeLists.txt benchmarks cmake examples include src test
+          ./scripts/format.sh .
 
       - name: Run git diff to see if anything changed
         run: /usr/bin/git diff --exit-code
