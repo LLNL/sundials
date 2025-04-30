@@ -31,8 +31,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Install sphinx
         run: |
@@ -90,8 +88,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Install sphinx
         run: |
@@ -152,8 +148,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Install sphinx
         run: |
@@ -201,8 +195,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Build docs
         run: cd doc/${{matrix.package}} && make ex

@@ -46,15 +46,12 @@ jobs:
       - name: Check out repository code
         if: github.event_name != 'issue_comment'
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Check out repository code
         if: github.event_name == 'issue_comment'
         uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ github.event.issue.number }}/head
-          submodules: false
           fetch-depth: 0
 
       - name: Add safe directory
