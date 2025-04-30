@@ -51,7 +51,7 @@ def main():
 
     # git stats from git
     cmd = 'git diff --numstat '+args.key1+' '+args.key2+' > tmp.txt'
-    print cmd
+    print(cmd)
     call(cmd, shell=True)
 
     totaladded   = 0
@@ -68,12 +68,12 @@ def main():
                 if ((added == '-') or (removed == '-')):
                     continue
                 else:
-                    print added, removed, filename
+                    print(added, removed, filename)
                     totaladded   += int(added)
                     totalremoved += int(removed)
 
     netchange = totaladded - totalremoved
-    print totaladded, totalremoved, netchange
+    print(totaladded, totalremoved, netchange)
 
 # ------------------------------------------------------------------------------
 # run the main routine

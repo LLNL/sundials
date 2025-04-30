@@ -48,12 +48,12 @@ def main():
    
     # check if readfile exists
     if (not os.path.isfile(args.readfile)):
-        print "Error:",args.readfile,"not found"
+        print("Error:",args.readfile,"not found")
         return -1
 
     # check that outfile does not already exist
     if (os.path.isfile(args.outfile)):
-        print "Error:",args.outfile,"already exists"
+        print("Error:",args.outfile,"already exists")
         return -1
 
     # create set to hold lines already seen
@@ -70,7 +70,7 @@ def main():
                     # output it to the results file
                     if line not in lines_seen: 
                         lines_seen.add(line)
-                        print >> fw, line
+                        print(line, file=fw)
 
 # ------------------------------------------------------------------------------
 # run the main routine
