@@ -16,6 +16,7 @@
 # logs produced by the SUNLogger with an MRI method.
 # -----------------------------------------------------------------------------
 
+
 def main():
 
     import argparse
@@ -23,25 +24,41 @@ def main():
 
     from suntools import logs as sunlog
 
-    parser = argparse.ArgumentParser(description='Plots')
+    parser = argparse.ArgumentParser(description="Plots")
 
-    parser.add_argument('logfile', type=str,
-                        help='Log file to plot')
+    parser.add_argument("logfile", type=str, help="Log file to plot")
 
-    parser.add_argument('--step-number', action='store_true',
-                        help='Plot value vs step number')
+    parser.add_argument(
+        "--step-number", action="store_true", help="Plot value vs step number"
+    )
 
-    parser.add_argument('--step-range', type=int, nargs=2,
-                        default=None, metavar=('LOWER_BOUND', 'UPPER_BOUND'),
-                        help='Step range to plot')
+    parser.add_argument(
+        "--step-range",
+        type=int,
+        nargs=2,
+        default=None,
+        metavar=("LOWER_BOUND", "UPPER_BOUND"),
+        help="Step range to plot",
+    )
 
-    parser.add_argument('--time-range', type=float, nargs=2,
-                        default=None, metavar=('LOWER_BOUND', 'UPPER_BOUND'),
-                        help='Time range to plot')
+    parser.add_argument(
+        "--time-range",
+        type=float,
+        nargs=2,
+        default=None,
+        metavar=("LOWER_BOUND", "UPPER_BOUND"),
+        help="Time range to plot",
+    )
 
-    parser.add_argument('--save', type=str, nargs='?', const='fig.pdf',
-                        default=None, metavar='FILE_NAME',
-                        help='''Save figure to file''')
+    parser.add_argument(
+        "--save",
+        type=str,
+        nargs="?",
+        const="fig.pdf",
+        default=None,
+        metavar="FILE_NAME",
+        help="""Save figure to file""",
+    )
 
     # parse command line args
     args = parser.parse_args()
@@ -50,20 +67,27 @@ def main():
     log = sunlog.log_file_to_list(args.logfile)
 
     # plot log data
-    steps_s, times_s, vals_s = sunlog.get_history(log, 'h',
-                                                  step_range=args.step_range,
-                                                  time_range=args.time_range,
-                                                  group_by_level=True)
+    steps_s, times_s, vals_s = sunlog.get_history(
+        log,
+        "h",
+        step_range=args.step_range,
+        time_range=args.time_range,
+        group_by_level=True,
+    )
 
     # get data for error test failures
-    steps_etf, times_etf, vals_etf = sunlog.get_history(log, 'h', 'failed error test',
-                                                        step_range=args.step_range,
-                                                        time_range=args.time_range)
+    steps_etf, times_etf, vals_etf = sunlog.get_history(
+        log,
+        "h",
+        "failed error test",
+        step_range=args.step_range,
+        time_range=args.time_range,
+    )
 
     # get data for solver failures
-    steps_sf, times_sf, vals_sf = sunlog.get_history(log, 'h', 'failed solve',
-                                                     step_range=args.step_range,
-                                                     time_range=args.time_range)
+    steps_sf, times_sf, vals_sf = sunlog.get_history(
+        log, "h", "failed solve", step_range=args.step_range, time_range=args.time_range
+    )
 
     if args.step_number:
         x_s = steps_s
@@ -78,10 +102,21 @@ def main():
     colors = plt.get_cmap("tab10")
 
     for idx, level in enumerate(x_s):
-        ax.plot(x_s[level], vals_s[level], color=colors(idx), marker='.', zorder=0.1, label=f'level {level} successful')
-        
-    ax.scatter(x_etf, vals_etf, color='red', marker='x', zorder=0.2, label='error test failed')
-    ax.scatter(x_sf, vals_sf, color='darkorange', marker='d', zorder=0.2, label='solver failed')
+        ax.plot(
+            x_s[level],
+            vals_s[level],
+            color=colors(idx),
+            marker=".",
+            zorder=0.1,
+            label=f"level {level} successful",
+        )
+
+    ax.scatter(
+        x_etf, vals_etf, color="red", marker="x", zorder=0.2, label="error test failed"
+    )
+    ax.scatter(
+        x_sf, vals_sf, color="darkorange", marker="d", zorder=0.2, label="solver failed"
+    )
 
     if args.step_number:
         ax.set_xlabel("step")
@@ -89,16 +124,17 @@ def main():
         ax.set_xlabel("time")
 
     ax.set_ylabel("step size")
-    ax.legend(loc='best')
-    ax.grid(alpha=0.3, linestyle='--')
+    ax.legend(loc="best")
+    ax.grid(alpha=0.3, linestyle="--")
 
     if args.save:
-        plt.savefig(args.save, bbox_inches='tight')
+        plt.savefig(args.save, bbox_inches="tight")
     else:
         plt.show()
 
 
 # run the main routine
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     sys.exit(main())
