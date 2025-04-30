@@ -280,8 +280,8 @@ int main(int argc, char* argv[])
   if (check_ptr((void*)yref, "N_VNew_Serial")) return 1;
 
   // Set initial conditions
-  sunrealtype* ydata    = N_VGetArrayPointer(y);
-  sunrealtype* yrefdata = N_VGetArrayPointer(yref);
+  sunscalartype* ydata    = N_VGetArrayPointer(y);
+  sunscalartype* yrefdata = N_VGetArrayPointer(yref);
   ydata[0]              = SUN_RCONST(1.2);
   ydata[1]              = SUN_RCONST(3.1);
   ydata[2]              = SUN_RCONST(3.0);
@@ -783,7 +783,8 @@ int main(int argc, char* argv[])
   sunrealtype t2    = T0;
   sunrealtype dTout = (Tf - T0) / Nt;
   sunrealtype tout  = T0 + dTout;
-  sunrealtype u, v, w, uerr, verr, werr, uerrtot, verrtot, werrtot, errtot;
+  sunscalartype u, v, w;
+  sunrealtype uerr, verr, werr, uerrtot, verrtot, werrtot, errtot;
   sunrealtype accuracy;
   uerr = verr = werr = uerrtot = verrtot = werrtot = errtot = accuracy = ZERO;
   printf("        t          u          v          w       uerr      verr      "
@@ -793,7 +794,7 @@ int main(int argc, char* argv[])
          "----\n");
   printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.1" ESYM
          "   %.1" ESYM "   %.1" ESYM "\n",
-         t, ydata[0], ydata[1], ydata[2], uerr, verr, werr);
+         t, SUN_REAL(ydata[0]), SUN_REAL(ydata[1]), SUN_REAL(ydata[2]), uerr, verr, werr);
   while (Tf - t > SUN_RCONST(1.0e-8))
   {
     // reset reference solver so that it begins with identical state
@@ -844,7 +845,7 @@ int main(int argc, char* argv[])
       tout = (tout > Tf) ? Tf : tout;
       printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM
              "   %.1" ESYM "   %.1" ESYM "   %.1" ESYM "\n",
-             t, u, v, w, uerr, verr, werr);
+             t, SUN_REAL(u), SUN_REAL(v), SUN_REAL(w), uerr, verr, werr);
     }
   }
   printf("   "
@@ -936,9 +937,9 @@ int main(int argc, char* argv[])
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype w = ydata[2];
 
   // fill in the RHS function:
   dydata[0] = ZERO;
@@ -953,11 +954,11 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  const sunscalartype w = ydata[2];
 
   // fill in the RHS function:
   dydata[0] = opts->a - (w + ONE) * u + v * u * u;
@@ -972,10 +973,10 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
 
   // fill in the RHS function:
   dydata[0] = opts->a + v * u * u;
@@ -989,10 +990,10 @@ static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fsi routine to compute the slow portion of the ODE RHS.(currently same as fse)
 static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype w = ydata[2];
 
   // fill in the RHS function:
   dydata[0] = -(w + ONE) * u;
@@ -1006,11 +1007,11 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  const sunscalartype w = ydata[2];
 
   // fill in the RHS function:
   dydata[0] = opts->a - (w + ONE) * u + v * u * u;
@@ -1030,10 +1031,10 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  const sunscalartype w = ydata[2];
 
   // fill in the Jacobian:
   SM_ELEMENT_D(J, 0, 0) = -(w + ONE) + TWO * u * v;
@@ -1055,9 +1056,9 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype w = ydata[2];
 
   // fill in the Jacobian:
   SM_ELEMENT_D(J, 0, 0) = -(w + ONE);
@@ -1080,10 +1081,10 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  const sunscalartype w = ydata[2];
 
   // fill in the Jacobian:
   SM_ELEMENT_D(J, 0, 0) = -(w + ONE) + TWO * u * v;

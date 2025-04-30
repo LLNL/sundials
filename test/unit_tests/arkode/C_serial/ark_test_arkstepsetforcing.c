@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
   void* arkode_mem   = NULL; /* ARKode memory structure                  */
   int i, j;                  /* loop counters                            */
   sunrealtype tret;          /* integrator return time                   */
-  sunrealtype* data;         /* array for accessing vector data          */
+  sunscalartype* data;       /* array for accessing vector data          */
   long int nst, nst_a;       /* number of integrator steps               */
   long int mxsteps = 100000; /* max steps before output                  */
 
@@ -499,10 +499,10 @@ static int compute_ans(sunrealtype t, sunrealtype tshift, sunrealtype tscale,
   int i;
   sunrealtype tau;
   N_Vector* vecs;
-  sunrealtype* vals;
+  sunscalartype* vals;
 
   vals = NULL;
-  vals = (sunrealtype*)calloc(order + 1, sizeof(sunrealtype));
+  vals = (sunscalartype*)calloc(order + 1, sizeof(sunscalartype));
   if (vals == NULL) { return (1); }
 
   vecs = NULL;

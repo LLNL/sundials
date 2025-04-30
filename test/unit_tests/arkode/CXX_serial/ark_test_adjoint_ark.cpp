@@ -127,8 +127,8 @@ static int adj_rhs(sunrealtype t, N_Vector y, N_Vector sens, N_Vector sens_dot,
 static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
                  sunrealtype t)
 {
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* dg = N_VGetArrayPointer(dgvec);
+  sunscalartype* u  = N_VGetArrayPointer(uvec);
+  sunscalartype* dg = N_VGetArrayPointer(dgvec);
 
   dg[0] = -SUN_RCONST(1.0) + u[0];
   dg[1] = -SUN_RCONST(1.0) + u[1];
@@ -137,7 +137,7 @@ static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
 static void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
                  sunrealtype t)
 {
-  sunrealtype* dg = N_VGetArrayPointer(dgvec);
+  sunscalartype* dg = N_VGetArrayPointer(dgvec);
 
   dg[0] = SUN_RCONST(0.0);
   dg[1] = SUN_RCONST(0.0);

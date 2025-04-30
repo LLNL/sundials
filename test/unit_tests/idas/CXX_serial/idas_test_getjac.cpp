@@ -80,7 +80,7 @@ static sunrealtype sdot(sunrealtype t) { return -TWENTY * sin(TWENTY * t); }
 // Compute the true solution
 static int ytrue(sunrealtype t, N_Vector y)
 {
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
 
   ydata[0] = sqrt(ONE + r(t));
   ydata[1] = sqrt(TWO + s(t));
@@ -91,7 +91,7 @@ static int ytrue(sunrealtype t, N_Vector y)
 // Compute the derivative of the true solution
 static int yptrue(sunrealtype t, N_Vector yp)
 {
-  sunrealtype* ypdata = N_VGetArrayPointer(yp);
+  sunscalartype* ypdata = N_VGetArrayPointer(yp);
 
   ypdata[0] = HALF * rdot(t) / sqrt(ONE + r(t));
   ypdata[1] = HALF * sdot(t) / sqrt(TWO + s(t));
@@ -117,18 +117,18 @@ static int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector res,
   const sunrealtype c = udata[2];
   const sunrealtype d = udata[3];
 
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
 
-  sunrealtype* ypdata  = N_VGetArrayPointer(yp);
-  const sunrealtype up = ypdata[0];
-  const sunrealtype vp = ypdata[1];
+  sunscalartype* ypdata  = N_VGetArrayPointer(yp);
+  const sunscalartype up = ypdata[0];
+  const sunscalartype vp = ypdata[1];
 
-  const sunrealtype tmp1 = -ONE + u * u - r(t);
-  const sunrealtype tmp2 = -TWO + v * v - s(t);
+  const sunscalartype tmp1 = -ONE + u * u - r(t);
+  const sunscalartype tmp2 = -TWO + v * v - s(t);
 
-  sunrealtype* rdata = N_VGetArrayPointer(res);
+  sunscalartype* rdata = N_VGetArrayPointer(res);
 
   rdata[0] = a * tmp1 + b * tmp2 + rdot(t) - TWO * u * up;
   rdata[1] = c * tmp1 + d * tmp2 + sdot(t) - TWO * v * vp;
@@ -151,14 +151,14 @@ static int J(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp,
   const sunrealtype c = udata[2];
   const sunrealtype d = udata[3];
 
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* ypdata = N_VGetArrayPointer(yp);
-  sunrealtype* Jdata  = SUNDenseMatrix_Data(J);
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* ypdata = N_VGetArrayPointer(yp);
+  sunscalartype* Jdata  = SUNDenseMatrix_Data(J);
 
-  const sunrealtype u  = ydata[0];
-  const sunrealtype v  = ydata[1];
-  const sunrealtype up = ypdata[0];
-  const sunrealtype vp = ypdata[1];
+  const sunscalartype u  = ydata[0];
+  const sunscalartype v  = ydata[1];
+  const sunscalartype up = ypdata[0];
+  const sunscalartype vp = ypdata[1];
 
   Jdata[0] = TWO * u * (a - cj) - TWO * up;
   Jdata[1] = TWO * c * u;
@@ -341,10 +341,10 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "J")) { return 1; }
 
   // Compare finite difference and true Jacobian
-  sunrealtype* Jdq_data = SUNDenseMatrix_Data(Jdq);
+  sunscalartype* Jdq_data = SUNDenseMatrix_Data(Jdq);
   if (check_ptr(Jdq_data, "SUNDenseMatrix_Data")) { return 1; }
 
-  sunrealtype* Jtrue_data = SUNDenseMatrix_Data(Jtrue);
+  sunscalartype* Jtrue_data = SUNDenseMatrix_Data(Jtrue);
   if (check_ptr(Jtrue_data, "SUNDenseMatrix_Data")) { return 1; }
 
   // Output Jacobian data
@@ -372,7 +372,8 @@ int main(int argc, char* argv[])
               << std::right
               << std::abs(Jdq_data[i] - Jtrue_data[i]) / Jtrue_data[i]
               << std::endl;
-    result += SUNRCompareTol(Jdq_data[i], Jtrue_data[i], tol);
+    result += SUNRCompareTol(SUN_REAL(Jdq_data[i]), SUN_REAL(Jtrue_data[i]), tol);
+    result += SUNRCompareTol(SUN_IMAG(Jdq_data[i]), SUN_IMAG(Jtrue_data[i]), tol);
   }
 
   // Clean up and return with successful completion

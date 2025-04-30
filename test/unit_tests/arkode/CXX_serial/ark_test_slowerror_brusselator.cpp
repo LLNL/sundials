@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
   if (check_retval((void*)y, "N_VNew_Serial", 0)) return 1;
   N_Vector* yref = N_VCloneVectorArray(udata.Npart + 1, y);
   if (check_retval((void*)yref, "N_VNew_Serial", 0)) return 1;
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
   if (check_retval((void*)ydata, "N_VGetArrayPointer", 0)) return 1;
   ydata[0] = u0;
   ydata[1] = v0;
@@ -370,11 +370,11 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0]; // access solution values
-  const sunrealtype v = ydata[1];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0]; // access solution values
+  const sunscalartype v = ydata[1];
+  const sunscalartype w = ydata[2];
 
   // fill in the RHS function
   dydata[0] = udata->a - (w + ONE) * u + v * u * u;
@@ -388,10 +388,10 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0]; // access solution values
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0]; // access solution values
+  const sunscalartype w = ydata[2];
 
   // fill in the RHS function
   dydata[0] = ZERO;
@@ -405,11 +405,11 @@ static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0]; // access solution values
-  const sunrealtype v = ydata[1];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0]; // access solution values
+  const sunscalartype v = ydata[1];
+  const sunscalartype w = ydata[2];
 
   // fill in the RHS function
   dydata[0] = udata->a - (w + ONE) * u + v * u * u;
@@ -424,10 +424,10 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0]; // access solution values
-  const sunrealtype v = ydata[1];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0]; // access solution values
+  const sunscalartype v = ydata[1];
+  const sunscalartype w = ydata[2];
 
   // fill in the Jacobian
   SM_ELEMENT_D(J, 0, 0) = -(w + ONE) + TWO * u * v;
@@ -450,9 +450,9 @@ static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0]; // access solution values
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0]; // access solution values
+  const sunscalartype w = ydata[2];
 
   // fill in the Jacobian
   SM_ELEMENT_D(J, 0, 0) = ZERO;
@@ -488,8 +488,8 @@ static int run_test(void* mristep_mem, void* arkode_ref, N_Vector y,
   N_Vector ele        = N_VClone(y);
   N_Vector ewt        = N_VClone(y);
   N_Vector vtemp      = N_VClone(y);
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* y2data = N_VGetArrayPointer(y2);
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* y2data = N_VGetArrayPointer(y2);
 
   // Set storage for errors
   vector<vector<sunrealtype>> dsm(Hvals.size(),

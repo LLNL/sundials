@@ -148,9 +148,9 @@ int main(int argc, char* argv[])
   SUNMatrix A        = NULL; // empty matrix for solver
   SUNLinearSolver LS = NULL; // empty linear solver object
   UserData udata;            // user-data structure
-  sunrealtype* ydata = NULL;
-  udata.ep           = SUN_RCONST(0.0004); // stiffness parameter
-  udata.Npart        = 20;                 // partition size
+  sunscalartype* ydata = NULL;
+  udata.ep             = SUN_RCONST(0.0004); // stiffness parameter
+  udata.Npart          = 20;                 // partition size
 
   //
   // Initialization
@@ -344,11 +344,11 @@ int main(int argc, char* argv[])
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0]; // access solution values
-  const sunrealtype v = ydata[1];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0]; // access solution values
+  const sunscalartype v = ydata[1];
+  const sunscalartype w = ydata[2];
 
   // fill in the RHS function
   dydata[0] = udata->a - (w + ONE) * u + v * u * u;
@@ -363,10 +363,10 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0]; // access solution values
-  const sunrealtype v = ydata[1];
-  const sunrealtype w = ydata[2];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0]; // access solution values
+  const sunscalartype v = ydata[1];
+  const sunscalartype w = ydata[2];
 
   // fill in the Jacobian
   SM_ELEMENT_D(J, 0, 0) = -(w + ONE) + TWO * u * v;
@@ -450,8 +450,8 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
         if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
         // Compute/print solution error
-        sunrealtype* ydata     = N_VGetArrayPointer(y);
-        sunrealtype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
+        sunscalartype* ydata     = N_VGetArrayPointer(y);
+        sunscalartype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
         const sunrealtype udsm = abs(ydata[0] - yrefdata[0]) /
                                  (abstol + rtols[irtol] * abs(yrefdata[0]));
         const sunrealtype vdsm = abs(ydata[1] - yrefdata[1]) /
@@ -547,8 +547,8 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
         if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
         // Compute/print solution error
-        sunrealtype* ydata     = N_VGetArrayPointer(y);
-        sunrealtype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
+        sunscalartype* ydata     = N_VGetArrayPointer(y);
+        sunscalartype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
         const sunrealtype udsm = abs(ydata[0] - yrefdata[0]) /
                                  (abstol + reltol * abs(yrefdata[0]));
         const sunrealtype vdsm = abs(ydata[1] - yrefdata[1]) /
@@ -630,8 +630,8 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
       dsm_est[ipart] = reltol * N_VWrmsNorm(y2, ewt);
       Nsteps[ipart] += nsteps2;
 
-      sunrealtype* ydata     = N_VGetArrayPointer(y);
-      sunrealtype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
+      sunscalartype* ydata     = N_VGetArrayPointer(y);
+      sunscalartype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
       const sunrealtype udsm = abs(ydata[0] - yrefdata[0]) /
                                (abstol + reltol * abs(yrefdata[0]));
       const sunrealtype vdsm = abs(ydata[1] - yrefdata[1]) /
