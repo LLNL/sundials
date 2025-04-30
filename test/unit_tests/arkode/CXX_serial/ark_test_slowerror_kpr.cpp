@@ -299,11 +299,11 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype tmp1, tmp2;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-p(t))/(2*u)] + [pdot(t)/(2u)]
@@ -320,11 +320,11 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype tmp1, tmp2;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-p(t))/(2*u)] + [pdot(t)/(2u)]
@@ -341,11 +341,11 @@ static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype tmp1, tmp2;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [0  0]*[(-2+u^2-p(t))/(2*u)] + [     0      ]
@@ -363,10 +363,10 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype t11, t22;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype t11, t22;
 
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-p(t)-2)/(2*u^2),  0] + [-p'(t)/(2*u^2),  0]
@@ -386,9 +386,9 @@ static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
 
   // fill in the Jacobian:
   //   [G/2 + (G*(1+p(t))-pdot(t))/(2*u^2)   e/2+e*(2+s(t))/(2*v^2)]
@@ -419,7 +419,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
   N_Vector ele       = N_VClone(y);
   N_Vector ewt       = N_VClone(y);
   N_Vector vtemp     = N_VClone(y);
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
 
   // Set storage for errors
   vector<vector<sunrealtype>> dsm(Hvals.size(),
@@ -504,7 +504,7 @@ static sunrealtype vtrue(sunrealtype t, UserData& udata)
 
 static int Ytrue(sunrealtype t, N_Vector y, UserData& udata)
 {
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
   ydata[0]           = utrue(t);
   ydata[1]           = vtrue(t, udata);
   return (0);

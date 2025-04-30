@@ -25,9 +25,20 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include <string.h>
-#include "sundials_iterative.h"
-#include "sundials_iterative_impl.h" 
+#include <sundials/sundials_math.h>
+#include <nvector/nvector_serial.h>
+#include <sundials/sundials_iterative.h>
+
+/* Declaration of SUNQRData structure (copied from src/sundials/sundials_iterative_impl.h) */
+typedef struct _SUNQRData* SUNQRData;
+struct _SUNQRData
+{
+  N_Vector vtemp;
+  N_Vector vtemp2;
+  sunscalartype* temp_array;
+};
 
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -64,7 +75,7 @@ int main(int argc, char* argv[])
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
   {
-    printf("ERROR: SUNContext_Create failed\n");
+    std::cerr << "ERROR: SUNContext_Create failed\n";
     return (-1);
   }
   SUNQRData qrdata;
@@ -72,7 +83,7 @@ int main(int argc, char* argv[])
 
   #if defined(SUNDIALS_SCALAR_TYPE_REAL)
     /* Create vectors */
-    x = N_VNew(3, sunctx);
+    x = N_VNew_Serial(3, sunctx);
     Q = N_VCloneVectorArray(3, x);
     N_Vector vtemp = N_VClone(x);
     N_Vector vtemp2 = N_VClone(x);
@@ -91,31 +102,31 @@ int main(int argc, char* argv[])
 
     /* the vector to orthogonalise */
     sunscalartype* dfdata = N_VGetArrayPointer(df_True);
-    dfdata[0] = 4.0;
-    dfdata[1] = -68.0;
-    dfdata[2] = -41.0;
+    dfdata[0] = SUN_RCONST(4.0);
+    dfdata[1] = SUN_RCONST(-68.0);
+    dfdata[2] = SUN_RCONST(-41.0);
 
     /* set up matrix, last column is obtained from any of the QRAdd functions */
     sunscalartype* vdata = N_VGetArrayPointer(Q[0]);
-    vdata[0] = SUN_RCONST(6.0 / 7.0);
-    vdata[1] = 3.0 / 7.0;
-    vdata[2] = -2.0 / 7.0;
+    vdata[0] = SUN_RCONST(6.0) / SUN_RCONST(7.0);
+    vdata[1] = SUN_RCONST(3.0) / SUN_RCONST(7.0);
+    vdata[2] = SUN_RCONST(-2.0) / SUN_RCONST(7.0);
 
     vdata = N_VGetArrayPointer(Q[1]);
-    vdata[0] = -69.0 / 175.0;
-    vdata[1] = 158.0 / 175.0;
-    vdata[2] = 6.0 / 35.0;
+    vdata[0] = SUN_RCONST(-69.0) / SUN_RCONST(175.0);
+    vdata[1] = SUN_RCONST(158.0) / SUN_RCONST(175.0);
+    vdata[2] = SUN_RCONST(6.0) / SUN_RCONST(35.0);
 
     vdata = N_VGetArrayPointer(Q[2]);
-    vdata[0] = 0.0;
-    vdata[1] = 0.0;
-    vdata[2] = 0.0;
+    vdata[0] = SUN_RCONST(0.0);
+    vdata[1] = SUN_RCONST(0.0);
+    vdata[2] = SUN_RCONST(0.0);
 
-    /* upper trinagular matrix R, the last column is obtained from any of the QRAdd functions*/
-    sunscalartype R[9] = {14.0, 0.0, 0.0,
-                         21.0, 175.0, 0.0,
-                         0.0, 0.0, 0.0 };//R matrix stored as a column vector by stacking columns together starting with the first column 
- 
+    /* upper triangular matrix R (stored column-wise), the last column is obtained from any of the QRAdd functions*/
+    sunscalartype R[9] = {SUN_RCONST(14.0), SUN_RCONST(0.0), SUN_RCONST(0.0),
+                          SUN_RCONST(21.0), SUN_RCONST(175.0), SUN_RCONST(0.0),
+                          SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0) };
+
 
     char functionName[100] = "sunqradd_mgs"; // default function name
 
@@ -125,24 +136,24 @@ int main(int argc, char* argv[])
 
     if (strcmp(functionName, "sunqradd_mgs") == 0) {
       SUNQRAdd_MGS(Q, R, df_True, m, mMax, qrdata);
-      cout << "Using SUNQRAdd_MGS!" << "\n";
+      std::cout << "Using SUNQRAdd_MGS!" << "\n";
     }
     else if (strcmp(functionName, "sunqradd_icwy") == 0) {
       SUNQRAdd_ICWY(Q, R, df_True, m, mMax, qrdata);
-      cout << "Using SUNQRAdd_ICWY!" << "\n";
+      std::cout << "Using SUNQRAdd_ICWY!" << "\n";
     }
     else if (strcmp(functionName, "sunqradd_cgs2") == 0) {
       SUNQRAdd_CGS2(Q, R, df_True, m, mMax, qrdata);
-      cout << "Using SUNQRAdd_CGS2!" << "\n";
-      
+      std::cout << "Using SUNQRAdd_CGS2!" << "\n";
+
     }
     else if (strcmp(functionName, "sunqradd_dcgs2") == 0) {
       SUNQRAdd_DCGS2(Q, R, df_True, m, mMax, qrdata);
-      cout << "Using SUNQRAdd_DCGS2!" << "\n";
+      std::cout << "Using SUNQRAdd_DCGS2!" << "\n";
     }
     else {
-      cout << "Incorrect function name, use: sunqradd_mgs or sunqradd_icwy or sunqradd_cgs2 or sunqradd_dcgs2" << endl;
-      cout << "Using default: sunqradd_mgs!" << endl;
+      std::cout << "Incorrect function name, use: sunqradd_mgs or sunqradd_icwy or sunqradd_cgs2 or sunqradd_dcgs2" << std::endl;
+      std::cout << "Using default: sunqradd_mgs!" << std::endl;
       SUNQRAdd_MGS(Q, R, df_True, m, mMax, qrdata); // Default function
     }
 
@@ -160,10 +171,10 @@ int main(int argc, char* argv[])
     for (k=0; k<3; k++) {
       for (l=0; l<3; l++) {
         float vnorm = N_VDotProd(Q[k],Q[l]);
-        if ((k==l) && (SUNabs(SUNabs(creal(vnorm))-SUN_RCONST(1.0)))>tolerance){unit_vectorsReal = 1;} //unit vectors
-        if ((k==l) && (SUNabs(cimag(vnorm))>tolerance)){unit_vectorsImag = 1;}
-        if ((k!=l) && (SUNabs(creal(vnorm))>tolerance)) {orthogonalReal = 1;}//orthogonal vectors
-        if ((k!=l) && (SUNabs(cimag(vnorm))>tolerance)) {orthogonalImag = 1;}
+        if ((k==l) && (SUNabs(SUNabs(SUN_REAL(vnorm))-SUN_RCONST(1.0)))>tolerance){unit_vectorsReal = 1;} //unit vectors
+        if ((k==l) && (SUNabs(SUN_IMAG(vnorm))>tolerance)){unit_vectorsImag = 1;}
+        if ((k!=l) && (SUNabs(SUN_REAL(vnorm))>tolerance)) {orthogonalReal = 1;}//orthogonal vectors
+        if ((k!=l) && (SUNabs(SUN_IMAG(vnorm))>tolerance)) {orthogonalImag = 1;}
       }
     }
 
@@ -175,20 +186,20 @@ int main(int argc, char* argv[])
 
     /* use the last column in R to check if the product of the last column of Q and R gives df_True */
     sunscalartype* finalR = N_VGetArrayPointer(df_Approx);
-    finalR[0] = 0.0;
-    finalR[1] = 0.0;
-    finalR[2] = 0.0;
+    finalR[0] = SUN_RCONST(0.0);
+    finalR[1] = SUN_RCONST(0.0);
+    finalR[2] = SUN_RCONST(0.0);
 
     /* multiply Q by the last column of R (the result) and the final answer should be df */
     N_VLinearCombination(3, Rdata, Q, df_Approx);
     for (l=0;l<3;l++) {
-      if (SUNabs(creal(dfdata[l]) - creal(finalR[l]))>tolerance ){solnCheckReal = 1;}
-      if (SUNabs(cimag(dfdata[l]) - cimag(finalR[l]))>tolerance ){solnCheckImag = 1;}
+      if (SUNabs(SUN_REAL(dfdata[l]) - SUN_REAL(finalR[l]))>tolerance ){solnCheckReal = 1;}
+      if (SUNabs(SUN_IMAG(dfdata[l]) - SUN_IMAG(finalR[l]))>tolerance ){solnCheckImag = 1;}
     }
 
   #elif defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
     /* Create vectors */
-    x = N_VNew(5, sunctx);
+    x = N_VNew_Serial(5, sunctx);
     Q = N_VCloneVectorArray(5, x);
     N_Vector vtemp = N_VClone(x);
     N_Vector vtemp2 = N_VClone(x);
@@ -207,57 +218,57 @@ int main(int argc, char* argv[])
 
     /* the vector to orthogonalise */
     sunscalartype* dfdata = N_VGetArrayPointer(df_True);
-    dfdata[0] = 4.0+5.0*I;
-    dfdata[1] = 6.0+3.0*I;
-    dfdata[2] = 2.0-1.0*I;
-    dfdata[3] = 2.0+5.0*I;
-    dfdata[4] = 3.0-5.0*I;
+    dfdata[0] = SUN_CCONST(4.0, 5.0);
+    dfdata[1] = SUN_CCONST(6.0, 3.0);
+    dfdata[2] = SUN_CCONST(2.0, -1.0);
+    dfdata[3] = SUN_CCONST(2.0, 5.0);
+    dfdata[4] = SUN_CCONST(3.0, -5.0);
 
     /* set up matrix, last column is obtained from any of the QRAdd functions */
     sunscalartype* vdata = N_VGetArrayPointer(Q[0]);
-    vdata[0] = SUN_RCONST(0.113227703414460) + 0.226455406828919*I;
-    vdata[1] = 0.226455406828919 + 0.339683110243379*I;
-    vdata[2] = 0.339683110243379 + 0.113227703414460*I;
-    vdata[3] = 0.226455406828919 - 0.339683110243379*I;
-    vdata[4] = 0.679366220486758 + 0.113227703414460*I;
+    vdata[0] = SUN_CCONST(0.113227703414460, 0.226455406828919);
+    vdata[1] = SUN_CCONST(0.226455406828919, 0.339683110243379);
+    vdata[2] = SUN_CCONST(0.339683110243379, 0.113227703414460);
+    vdata[3] = SUN_CCONST(0.226455406828919, -0.339683110243379);
+    vdata[4] = SUN_CCONST(0.679366220486758, 0.113227703414460);
 
     vdata = N_VGetArrayPointer(Q[1]);
-    vdata[0] = 0.358047898868247 - 0.209079065032553*I;
-    vdata[1] = 0.449519989819989 + 0.164649763713135*I;
-    vdata[2] = 0.352820922242433 + 0.044429301319417*I;
-    vdata[3] = -0.334526504052085 - 0.007840464938720*I;
-    vdata[4] = -0.376342317058596 + 0.467814408010337*I;
+    vdata[0] = SUN_CCONST(0.358047898868247, -0.209079065032553);
+    vdata[1] = SUN_CCONST(0.449519989819989, 0.164649763713135);
+    vdata[2] = SUN_CCONST(0.352820922242433, 0.044429301319417);
+    vdata[3] = SUN_CCONST(-0.334526504052085, -0.007840464938720);
+    vdata[4] = SUN_CCONST(-0.376342317058596, 0.467814408010337);
 
     vdata = N_VGetArrayPointer(Q[2]);
-    vdata[0] = 0.368417696619559 + 0.108720463349240*I;
-    vdata[1] = 0.382885110056019 - 0.076920802132466*I;
-    vdata[2] = -0.108648842490643 + 0.349438169091529*I;
-    vdata[3] = 0.326877598633683 + 0.632698664840043*I;
-    vdata[4] = 0.056007511422335 - 0.236062349933527*I;
+    vdata[0] = SUN_CCONST(0.368417696619559, 0.108720463349240);
+    vdata[1] = SUN_CCONST(0.382885110056019, -0.076920802132466);
+    vdata[2] = SUN_CCONST(-0.108648842490643, 0.349438169091529);
+    vdata[3] = SUN_CCONST(0.326877598633683, 0.632698664840043);
+    vdata[4] = SUN_CCONST(0.056007511422335, -0.236062349933527);
 
     vdata = N_VGetArrayPointer(Q[3]);
-    vdata[0] = -0.173120531596438 - 0.317326783017719*I;
-    vdata[1] = 0.305340355271806 + 0.559154947299423*I;
-    vdata[2] = -0.270428892207880 - 0.452932177178935*I;
-    vdata[3] = 0.395829946721830 + 0.018686126433033*I;
-    vdata[4] = -0.144400733195965 - 0.085349715976197*I;
+    vdata[0] = SUN_CCONST(-0.173120531596438, -0.317326783017719);
+    vdata[1] = SUN_CCONST(0.305340355271806, 0.559154947299423);
+    vdata[2] = SUN_CCONST(-0.270428892207880, -0.452932177178935);
+    vdata[3] = SUN_CCONST(0.395829946721830, 0.018686126433033);
+    vdata[4] = SUN_CCONST(-0.144400733195965, -0.085349715976197);
 
     vdata = N_VGetArrayPointer(Q[4]);
-    vdata[0] = 0.0 + 0.0*I;
-    vdata[1] = 0.0 + 0.0*I;
-    vdata[2] = 0.0 + 0.0*I;
-    vdata[3] = 0.0 + 0.0*I;
-    vdata[4] = 0.0 + 0.0*I;
+    vdata[0] = SUN_CCONST(0.0, 0.0);
+    vdata[1] = SUN_CCONST(0.0, 0.0);
+    vdata[2] = SUN_CCONST(0.0, 0.0);
+    vdata[3] = SUN_CCONST(0.0, 0.0);
+    vdata[4] = SUN_CCONST(0.0, 0.0);
 
-    /* upper trinagular matrix R, the last column is obtained from any of the QRAdd functions*/
-    sunscalartype R[25] = {8.831760866327848+0.0*I, 0.0, 0.0, 0.0, 0.0,
-                         7.586256128768794+2.717464881947030*I, 4.905517563326268-0.000000000000002*I, 0.0, 0.0, 0.0,
-                         5.887840577551898+0.113227703414459*I, -0.606329288594409-0.786659982184980*I, 7.438685615532769+0.000000000000000*I, 0.0, 0.0,
-                         3.623286509262707 - 3.396831102433787*I, 4.432476178690121 - 2.524629710268074*I, -1.780852648997921 - 2.366997755750347*I,  4.851661421774982 + 0.000000000000001*I, 0.0,
-                         0.0, 0.0, 0.0, 0.0, 0.0 };//R matrix stored as a column vector by stacking columns together starting with the first column
+    /* upper triangular matrix R (stored column-wise), the last column is obtained from any of the QRAdd functions */
+    sunscalartype R[25] = {SUN_CCONST(8.831760866327848,0.0), SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0),
+                           SUN_CCONST(7.586256128768794,2.717464881947030), SUN_RCONST(4.905517563326268), SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0),
+                           SUN_CCONST(5.887840577551898,0.113227703414459), SUN_CCONST(-0.606329288594409,-0.786659982184980), SUN_CCONST(7.438685615532769,0.0), SUN_RCONST(0.0), SUN_RCONST(0.0),
+                           SUN_CCONST(3.623286509262707, -3.396831102433787), SUN_CCONST(4.432476178690121, -2.524629710268074), SUN_CCONST(-1.780852648997921, -2.366997755750347), SUN_CCONST(4.851661421774982, 0.0), SUN_RCONST(0.0),
+                         SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0) };
 
 
-    /* perform QR decomposition using Gram-Schmidt process for df, enter any QRAdd function to use */                       
+    /* perform QR decomposition using Gram-Schmidt process for df, enter any QRAdd function to use */
     char functionName[100] = "sunqradd_mgs"; // default function name
 
     if (argc > 1) {
@@ -265,24 +276,24 @@ int main(int argc, char* argv[])
     }
 
     if (strcmp(functionName, "sunqradd_mgs") == 0) {
-      cout << "Using SUNQRAdd_MGS!" << "\n";
+      std::cout << "Using SUNQRAdd_MGS!" << "\n";
       SUNQRAdd_MGS(Q, R, df_True, m, mMax, qrdata);
     }
     else if (strcmp(functionName, "sunqradd_icwy") == 0) {
-      cout << "Using SUNQRAdd_ICWY!" << "\n";
+      std::cout << "Using SUNQRAdd_ICWY!" << "\n";
       SUNQRAdd_ICWY(Q, R, df_True, m, mMax, qrdata);
     }
     else if (strcmp(functionName, "sunqradd_cgs2") == 0) {
-      cout << "Using SUNQRAdd_CGS2!" << "\n";
+      std::cout << "Using SUNQRAdd_CGS2!" << "\n";
       SUNQRAdd_CGS2(Q, R, df_True, m, mMax, qrdata);
     }
     else if (strcmp(functionName, "sunqradd_dcgs2") == 0) {
-      cout << "Using SUNQRAdd_DCGS2!" << "\n";
+      std::cout << "Using SUNQRAdd_DCGS2!" << "\n";
       SUNQRAdd_DCGS2(Q, R, df_True, m, mMax, qrdata);
     }
     else {
-      cout << "Incorrect function name, use: sunqradd_mgs or sunqradd_icwy or sunqradd_cgs2 or sunqradd_dcgs2" << endl;
-      cout << "Using default: sunqradd_mgs!" << endl;
+      std::cout << "Incorrect function name, use: sunqradd_mgs or sunqradd_icwy or sunqradd_cgs2 or sunqradd_dcgs2" << std::endl;
+      std::cout << "Using default: sunqradd_mgs!" << std::endl;
       SUNQRAdd_MGS(Q, R, df_True, m, mMax, qrdata); // Default function
     }
 
@@ -300,10 +311,10 @@ int main(int argc, char* argv[])
     for (k=0; k<5; k++) {
       for (l=0; l<5; l++) {
         float vnorm = N_VDotProd(Q[k],Q[l]);
-        if ((k==l) && (SUNabs(SUNabs(creal(vnorm))-SUN_RCONST(1.0)))>tolerance){unit_vectorsReal = 1;} //unit vectors
-        if ((k==l) && (SUNabs(cimag(vnorm))>tolerance)){unit_vectorsImag = 1;}
-        if ((k!=l) && (SUNabs(creal(vnorm))>tolerance)) {orthogonalReal = 1;}//orthogonal vectors
-        if ((k!=l) && (SUNabs(cimag(vnorm))>tolerance)) {orthogonalImag = 1;}
+        if ((k==l) && (SUNabs(SUNabs(SUN_REAL(vnorm))-SUN_RCONST(1.0)))>tolerance){unit_vectorsReal = 1;} //unit vectors
+        if ((k==l) && (SUNabs(SUN_IMAG(vnorm))>tolerance)){unit_vectorsImag = 1;}
+        if ((k!=l) && (SUNabs(SUN_REAL(vnorm))>tolerance)) {orthogonalReal = 1;}//orthogonal vectors
+        if ((k!=l) && (SUNabs(SUN_IMAG(vnorm))>tolerance)) {orthogonalImag = 1;}
       }
     }
 
@@ -317,17 +328,17 @@ int main(int argc, char* argv[])
 
     /* use the last column in R to check if the product of the last column of Q and R gives df_True */
     sunscalartype* finalR = N_VGetArrayPointer(df_Approx);
-    finalR[0] = 0.0;
-    finalR[1] = 0.0;
-    finalR[2] = 0.0;
-    finalR[3] = 0.0;
-    finalR[4] = 0.0;
+    finalR[0] = SUN_RCONST(0.0);
+    finalR[1] = SUN_RCONST(0.0);
+    finalR[2] = SUN_RCONST(0.0);
+    finalR[3] = SUN_RCONST(0.0);
+    finalR[4] = SUN_RCONST(0.0);
 
     /* multiply Q by the last column of R (the result) and the final answer should be df */
     N_VLinearCombination(5, Rdata, Q, df_Approx);
     for (l=0;l<5;l++){
-      if (SUNabs(creal(dfdata[l]) - creal(finalR[l]))>tolerance ){solnCheckReal = 1;}
-      if (SUNabs(cimag(dfdata[l]) - cimag(finalR[l]))>tolerance ){solnCheckImag = 1;}
+      if (SUNabs(SUN_REAL(dfdata[l]) - SUN_REAL(finalR[l]))>tolerance ){solnCheckReal = 1;}
+      if (SUNabs(SUN_IMAG(dfdata[l]) - SUN_IMAG(finalR[l]))>tolerance ){solnCheckImag = 1;}
     }
 
   #else
@@ -337,10 +348,10 @@ int main(int argc, char* argv[])
 
   /* Check if the computed last columns of Q and R are correct. */
   if ((solnCheckReal==0) && (solnCheckImag==0) && (orthogonalReal==0) && (orthogonalImag==0) && (unit_vectorsReal==0) && (unit_vectorsImag==0)) {
-    cout << "Test Passed!" << "\n";
-  } 
+    std::cout << "Test Passed!" << "\n";
+  }
   else {
-    cout << "Test Failed!" << "\n";
+    std::cout << "Test Failed!" << "\n";
     return 1;
   }
 

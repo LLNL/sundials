@@ -284,11 +284,11 @@ int main(int argc, char* argv[])
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype tmp1, tmp2;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-p(t))/(2*u)] + [pdot(t)/(2u)]
@@ -306,10 +306,10 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData* udata     = (UserData*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype t11, t22;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype t11, t22;
 
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-p(t)-2)/(2*u^2),  0] + [-r'(t)/(2*u^2),  0]
@@ -344,7 +344,7 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   vector<sunrealtype> dsm(udata.Npart);
   vector<sunrealtype> dsm_est(udata.Npart);
   vector<long int> Nsteps(udata.Npart);
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
 
   // Loop over tolerances
   cout << "\nAdaptive-step runs:\n";
@@ -445,7 +445,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   vector<sunrealtype> dsm(udata.Npart);
   vector<sunrealtype> dsm_est(udata.Npart);
   vector<long int> Nsteps(udata.Npart);
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
 
   // Loop over step sizes
   cout << "\nFixed-step runs:\n";
@@ -654,7 +654,7 @@ static sunrealtype vtrue(sunrealtype t, UserData& udata)
 
 static int Ytrue(sunrealtype t, N_Vector y, UserData& udata)
 {
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
   ydata[0]           = utrue(t);
   ydata[1]           = vtrue(t, udata);
   return (0);

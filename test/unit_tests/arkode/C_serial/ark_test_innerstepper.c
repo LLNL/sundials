@@ -28,18 +28,18 @@
 
 static int ode_slow_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype* y_data    = N_VGetArrayPointer(ydot);
-  sunrealtype* ydot_data = N_VGetArrayPointer(ydot);
-  ydot_data[0]           = -ONE * y_data[0];
+  sunscalartype* y_data    = N_VGetArrayPointer(ydot);
+  sunscalartype* ydot_data = N_VGetArrayPointer(ydot);
+  ydot_data[0]             = -ONE * y_data[0];
   return 0;
 }
 
 static int fast_evolve(MRIStepInnerStepper fast_mem, sunrealtype t0,
                        sunrealtype tf, N_Vector y)
 {
-  int i               = 0;
-  sunrealtype h_fast  = (t0 - tf) / SUN_RCONST(10.0);
-  sunrealtype* y_data = N_VGetArrayPointer(y);
+  int i                 = 0;
+  sunrealtype h_fast    = (t0 - tf) / SUN_RCONST(10.0);
+  sunscalartype* y_data = N_VGetArrayPointer(y);
 
   for (i = 0; i < 10; i++) { y_data[0] += (h_fast * -ONE * y_data[0]); }
 
