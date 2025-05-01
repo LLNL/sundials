@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
     }
 
     /* Threshold for orthogonal vectors in matrix Q and imaginary component for the norm of a column vector in Q */
-    sunrealtype tolerance = 1e-14;
+    sunrealtype tolerance = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
     /* check dot product results */
     int unit_vectorsReal = 0;
@@ -298,7 +298,7 @@ int main(int argc, char* argv[])
     }
 
     /* Threshold for orthogonal vectors in matrix Q and imaginary component for the norm of a column vector in Q */
-    sunrealtype tolerance = 1e-14;
+    sunrealtype tolerance = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
     /* check dot product results */
     int unit_vectorsReal = 0;

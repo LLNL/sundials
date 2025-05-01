@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
   SUNQRsol(ndim, H, givens, yg);
 
   /* Compare the approximated solution with the actual solution */
-  sunrealtype tolerance = SUN_RCONST(1e-14);
+  sunrealtype tolerance = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
   int checkSolReal = 0;
   int checkSolImag = 0;
   for (k=0; k<ndim; k++){
