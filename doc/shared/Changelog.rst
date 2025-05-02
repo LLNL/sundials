@@ -21,10 +21,14 @@ Changelog
 
 .. SED_REPLACEMENT_KEY
 
+.. _Changelog.X.Y.Z:
+
 Changes to SUNDIALS in release X.Y.Z
 ====================================
 
 .. include:: RecentChanges_link.rst
+
+.. _Changelog.7.4.0:
 
 Changes to SUNDIALS in release 7.4.0
 ====================================
@@ -59,6 +63,8 @@ the number of "recompute passes" and has been fixed.
 
 The :c:func:`SPRKStepSetUseCompensatedSums` function has been deprecated. Use
 the :c:func:`ARKodeSetUseCompensatedSums` function instead.
+
+.. _Changelog.7.3.0:
 
 Changes to SUNDIALS in release 7.3.0
 ====================================
@@ -260,6 +266,8 @@ All work space functions, e.g., ``CVodeGetWorkSpace`` and
 ``ARKodeGetLinWorkSpace``, have been deprecated and will be removed in version
 8.0.0.
 
+.. _Changelog.7.2.1:
+
 Changes to SUNDIALS in release 7.2.1
 ====================================
 
@@ -275,6 +283,8 @@ Fixed a bug in ARKStep where an extra right-hand side evaluation would occur
 each time step when enabling the :c:func:`ARKodeSetAutonomous` option and using
 an IMEX method where the DIRK table has an implicit first stage and is not stiffly
 accurate.
+
+.. _Changelog.7.2.0:
 
 Changes to SUNDIALS in release 7.2.0
 ====================================
@@ -453,6 +463,8 @@ The ARKODE stepper specific functions to retrieve the number of right-hand side
 function evaluations have been deprecated. Use :c:func:`ARKodeGetNumRhsEvals`
 instead.
 
+.. _Changelog.7.1.1:
+
 Changes to SUNDIALS in release 7.1.1
 ====================================
 
@@ -460,6 +472,8 @@ Changes to SUNDIALS in release 7.1.1
 
 Fixed a `bug <https://github.com/LLNL/sundials/pull/523>`__ in v7.1.0 with the
 SYCL N_Vector ``N_VSpace`` function.
+
+.. _Changelog.7.1.0:
 
 Changes to SUNDIALS in release 7.1.0
 ====================================
@@ -597,6 +611,8 @@ The unsupported implementations of ``N_VGetArrayPointer`` and
 ``N_VSetArrayPointer`` for the *hypre* and PETSc vectors are now deprecated.
 Users should access the underlying wrapped external library vector objects
 instead with ``N_VGetVector_ParHyp`` and ``N_VGetVector_Petsc``, respectively.
+
+.. _Changelog.7.0.0:
 
 Changes to SUNDIALS in release 7.0.0
 ====================================
@@ -814,6 +830,8 @@ rely on these are recommended to transition to the corresponding :c:type:`SUNMat
    sundials_dense.h
    sundials_band.h
 
+.. _Changelog.6.7.0:
+
 Changes to SUNDIALS in release 6.7.0
 ====================================
 
@@ -888,11 +906,15 @@ Fixed missing soversions in some :c:type:`SUNLinearSolver` and
 Renamed some internal types in CVODES and IDAS to allow both packages to be
 built together in the same binary.
 
+.. _Changelog.6.6.2:
+
 Changes to SUNDIALS in release 6.6.2
 ====================================
 
 Fixed the build system support for MAGMA when using a NVIDIA HPC SDK
 installation of CUDA and fixed the targets used for rocBLAS and rocSPARSE.
+
+.. _Changelog.6.6.1:
 
 Changes to SUNDIALS in release 6.6.1
 ====================================
@@ -911,6 +933,8 @@ be cleared when using normal mode if the requested output time is the same as
 the stop time. Additionally, with ARKODE, CVODE, and CVODES this fix removes an
 unnecessary interpolation of the solution at the stop time that could occur in
 this case.
+
+.. _Changelog.6.6.0:
 
 Changes to SUNDIALS in release 6.6.0
 ====================================
@@ -951,6 +975,8 @@ after a failed step in which an inequality constraint violation occurred. In
 this case, the values returned by :c:func:`ARKStepGetEstLocalErrors` or
 :c:func:`ERKStepGetEstLocalErrors` may have been invalid.
 
+.. _Changelog.6.5.1:
+
 Changes to SUNDIALS in release 6.5.1
 ====================================
 
@@ -976,6 +1002,8 @@ and set the interpolant degree to zero before evolving the problem.
 Fixed build errors when using SuperLU_DIST with ROCM enabled to target AMD GPUs.
 
 Fixed compilation errors in some SYCL examples when using the ``icx`` compiler.
+
+.. _Changelog.6.5.0:
 
 Changes to SUNDIALS in release 6.5.0
 ====================================
@@ -1027,6 +1055,8 @@ the SUNDIALS Fortran interfaces with bounds checking will now work.
 
 Fixed an implicit conversion error in the Butcher table for ESDIRK5(4)7L[2]SA2.
 
+.. _Changelog.6.4.1:
+
 Changes to SUNDIALS in release 6.4.1
 ====================================
 
@@ -1037,6 +1067,8 @@ Fortran 2003 interface test for the serial :c:type:`N_Vector`.
 
 Fixed a bug in the LAPACK band and dense linear solvers which would cause the
 tests to fail on some platforms.
+
+.. _Changelog.6.4.0:
 
 Changes to SUNDIALS in release 6.4.0
 ====================================
@@ -1086,6 +1118,8 @@ different number of stages than originally selected.
 Fixed a memory leak where the projection memory would not be deallocated when
 calling :c:func:`CVodeFree`.
 
+.. _Changelog.6.3.0:
+
 Changes to SUNDIALS in release 6.3.0
 ====================================
 
@@ -1129,6 +1163,8 @@ link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
 Changed ``SUNDIALS_LOGGING_ENABLE_MPI`` CMake option default to be ``OFF``. This
 fixes `GitHub Issue #177 <https://github.com/LLNL/sundials/issues/177>`__.
+
+.. _Changelog.6.2.0:
 
 Changes to SUNDIALS in release 6.2.0
 ====================================
@@ -1287,6 +1323,8 @@ The ``SUNLinSolSetInfoFile_*`` and ``SUNNonlinSolSetInfoFile_*`` family of
 functions are now enabled by setting the CMake option
 :cmakeop:`SUNDIALS_LOGGING_LEVEL` to a value ``>= 3``.
 
+.. _Changelog.6.1.1:
+
 Changes to SUNDIALS in release 6.1.1
 ====================================
 
@@ -1302,6 +1340,8 @@ Fixed exported ``SUNDIALSConfig.cmake``.
 
 Fixed Fortran interface to :c:type:`MRIStepInnerStepper` and
 :c:type:`MRIStepCoupling` structures and functions.
+
+.. _Changelog.6.1.0:
 
 Changes to SUNDIALS in release 6.1.0
 ====================================
@@ -1329,6 +1369,8 @@ Caliper.
 Fixed ``sundials_export.h`` include in ``sundials_config.h``.
 
 Fixed memory leaks in the SuperLU_MT linear solver interface.
+
+.. _Changelog.6.0.0:
 
 Changes to SUNDIALS in release 6.0.0
 ====================================
@@ -1854,6 +1896,8 @@ and 5 to :c:func:`ARKStepSetPredictorMethod`) and the "bootstrap" predictor in
 MRIStep (option 4 to :c:func:`MRIStepSetPredictorMethod`). These functions will
 output a deprecation warning message and will be removed in a future release.
 
+.. _Changelog.5.8.0:
+
 Changes to SUNDIALS in release 5.8.0
 ====================================
 
@@ -1938,6 +1982,8 @@ than the finite difference Jacobian-vector product approximation.
 A bug was fixed in the KINSOL Picard iteration where the value of
 :c:func:`KINSetMaxSetupCalls` would be ignored.
 
+.. _Changelog.5.7.0:
+
 Changes to SUNDIALS in release 5.7.0
 ====================================
 
@@ -1953,6 +1999,8 @@ the linear solver support general dense linear systems as well as block diagonal
 linear systems, and both are targeted at GPUs (AMD or NVIDIA). See
 :numref:`SUNLinSol.MagmaDense` for more details.
 
+.. _Changelog.5.6.1:
+
 Changes to SUNDIALS in release 5.6.1
 ====================================
 
@@ -1960,6 +2008,8 @@ Fixed a CMake bug which caused an error if the :cmakeop:`CMAKE_CXX_STANDARD` and
 :cmakeop:`SUNDIALS_RAJA_BACKENDS` options were not provided.
 
 Fixed some compiler warnings when using the IBM XL compilers.
+
+.. _Changelog.5.6.0:
 
 Changes to SUNDIALS in release 5.6.0
 ====================================
@@ -1986,6 +2036,8 @@ The SUNDIALS matrix and linear solver interfaces to the :ref:`cuSparse matrix
 :c:func:`N_VGetDeviceArrayPointer` operation, and that the pointer returned by
 :c:func:`N_VGetDeviceArrayPointer` is a valid CUDA device pointer.
 
+.. _Changelog.5.5.0:
+
 Changes to SUNDIALS in release 5.5.0
 ====================================
 
@@ -1995,6 +2047,8 @@ should be fully backwards compatible for almost all users. SUNDIALS
 now exports CMake targets and installs a ``SUNDIALSConfig.cmake`` file.
 
 Added support for SuperLU DIST 6.3.0 or newer.
+
+.. _Changelog.5.4.0:
 
 Changes to SUNDIALS in release 5.4.0
 ====================================
@@ -2128,6 +2182,8 @@ The following functions should be used instead:
 * :c:func:`ARKStepSetJacEvalFrequency`
 * :c:func:`ARKStepSetLSetupFrequency`
 
+.. _Changelog.5.3.0:
+
 Changes to SUNDIALS in release 5.3.0
 ====================================
 
@@ -2195,6 +2251,8 @@ disabled and then re-enabled to update the inequality constraint values after
 resizing a problem. Resizing a problem will now disable constraints and a call
 to :c:func:`ARKStepSetConstraints` or :c:func:`ERKStepSetConstraints` is
 required to re-enable constraint checking for the new problem size.
+
+.. _Changelog.5.2.0:
 
 Changes to SUNDIALS in release 5.2.0
 ====================================
@@ -2271,6 +2329,8 @@ future release. The new functions :c:func:`ARKStepSetInterpolantDegree`,
 :c:func:`ARKStepSetInterpolantDegree`, and :c:func:`ARKStepSetInterpolantDegree`
 should be used instead.
 
+.. _Changelog.5.1.0:
+
 Changes to SUNDIALS in release 5.1.0
 ====================================
 
@@ -2319,6 +2379,8 @@ variables :cmakeop:`PETSC_INCLUDES` and :cmakeop:`PETSC_LIBRARIES` instead of
 Fixed a bug in the Fortran 2003 interfaces to the ARKODE Butcher table routines
 and structure. This includes changing the :c:type:`ARKodeButcherTable` type to
 be a ``type(c_ptr)`` in Fortran.
+
+.. _Changelog.5.0.0:
 
 Changes to SUNDIALS in release 5.0.0
 ====================================
@@ -2610,6 +2672,8 @@ Fixed a bug in the KINSOL linear solver interface where the auxiliary scalar
 ``sJpnorm`` was not computed when necessary with the Picard iteration and the
 auxiliary scalar ``sFdotJp`` was unnecessarily computed in some cases.
 
+.. _Changelog.4.1.0:
+
 Changes to SUNDIALS in release 4.1.0
 ====================================
 
@@ -2640,6 +2704,8 @@ cases.
 Fixed a bug in :c:func:`ARKodeButcherTable_Write` when printing a Butcher table
 without an embedding.
 
+.. _Changelog.4.0.2:
+
 Changes to SUNDIALS in release 4.0.2
 ====================================
 
@@ -2650,11 +2716,15 @@ linear solver (DLS) and scaled preconditioned iterarive linear solvers (SPILS)
 to a source file. The symbols are now included in the appropriate package
 library, e.g. ``libsundials_cvode.lib``.
 
+.. _Changelog.4.0.1:
+
 Changes to SUNDIALS in release 4.0.1
 ====================================
 
 A bug in ARKODE where single precision builds would fail to compile has been
 fixed.
+
+.. _Changelog.4.0.0:
 
 Changes to SUNDIALS in release 4.0.0
 ====================================
@@ -2844,6 +2914,8 @@ ARKODE's dense output infrastructure has been improved to support higher-degree
 Hermite polynomial interpolants (up to degree 5) over the last successful time
 step.
 
+.. _Changelog.3.2.1:
+
 Changes to SUNDIALS in release 3.2.1
 ====================================
 
@@ -2856,6 +2928,8 @@ default library installation path from ``CMAKE_INSTALL_PREFIX/lib`` to
 directory name is automatically set to ``lib``, ``lib64``, or
 ``lib/<multiarch-tuple>`` depending on the system, but maybe be overridden by
 setting :cmakeop:`CMAKE_INSTALL_LIBDIR`.
+
+.. _Changelog.3.2.0:
 
 Changes to SUNDIALS in release 3.2.0
 ====================================
@@ -2921,6 +2995,8 @@ Fixed a bug in IDAS where the saved residual value used in the nonlinear solve
 for consistent initial conditions was passed as temporary workspace and could be
 overwritten.
 
+.. _Changelog.3.1.2:
+
 Changes to SUNDIALS in release 3.1.2
 ====================================
 
@@ -2973,6 +3049,8 @@ replaced by ``CVSpilsSetJacTimesBS``. The deprecated function
 
 Changed LICENSE install path to ``instdir/include/sundials``.
 
+.. _Changelog.3.1.1:
+
 Changes to SUNDIALS in release 3.1.1
 ====================================
 
@@ -3017,6 +3095,8 @@ Fixed compilation issue with GCC 7.3.0 and Fortran programs that do not require
 a :c:type:`SUNMatrix` or :c:type:`SUNLinearSolver` e.g., iterative linear
 solvers, explicit methods in ARKODE, functional iteration in CVODE, etc.
 
+.. _Changelog.3.1.0:
+
 Changes to SUNDIALS in release 3.1.0
 ====================================
 
@@ -3026,6 +3106,8 @@ file (e.g., :c:func:`N_VPrintFile_Serial`).
 Added ``make test`` and ``make test_install`` options to the build system for
 testing SUNDIALS after building with ``make`` and installing with ``make
 install`` respectively.
+
+.. _Changelog.3.0.0:
 
 Changes to SUNDIALS in release 3.0.0
 ====================================
@@ -3165,6 +3247,8 @@ Corrected KINSOL Fortran name translation for ``FKIN_SPFGMR``.
 Renamed ``KINLocalFn`` and ``KINCommFn`` to :c:type:`KINBBDLocalFn` and
 :c:type:`KINBBDCommFn` respectively in the BBD preconditioner module for
 consistency with other SUNDIALS solvers.
+
+.. _Changelog.2.7.0:
 
 Changes to SUNDIALS in release 2.7.0
 ====================================
@@ -3324,6 +3408,8 @@ with sparse direct solvers.
 Removed the Matlab interface from distribution as it has not been updated since
 2009.
 
+.. _Changelog.2.6.2:
+
 Changes to SUNDIALS in release 2.6.2
 ====================================
 
@@ -3364,6 +3450,8 @@ In IDAS, made SuperLUMT call for backward problem consistent with CVODES.
 In CVODE, IDA, and ARKODE, fixed Fortran interfaces to enable calls to
 ``GetErrWeights``, ``GetEstLocalErrors``, and ``GetDky`` within a time step.
 
+.. _Changelog.2.6.1:
+
 Changes to SUNDIALS in release 2.6.1
 ====================================
 
@@ -3373,6 +3461,8 @@ In all six solver interfaces to KLU and SuperLUMT, added ``#include`` lines, and
 removed redundant KLU structure allocations.
 
 Minor bug fixes in ARKODE.
+
+.. _Changelog.2.6.0:
 
 Changes to SUNDIALS in release 2.6.0
 ====================================
@@ -3508,6 +3598,8 @@ In the FKINSOL optional input routines ``FKINSETIIN``, ``FKINSETRIN``, and
 ``FKINSETVIN``, the optional fourth argument ``key_length`` was removed, with
 hardcoded key string lengths passed to all ``strncmp`` tests.
 
+.. _Changelog.2.5.0:
+
 Changes to SUNDIALS in release 2.5.0
 ====================================
 
@@ -3571,6 +3663,8 @@ Three minor errors were fixed - involving setting ``etachoice`` in the
 Matlab/KINSOL interface, a missing error case in ``KINPrintInfo``, and avoiding
 an exponential overflow in the evaluation of ``omega``.
 
+.. _Changelog.2.4.0:
+
 Changes to SUNDIALS in release 2.4.0
 ====================================
 
@@ -3619,6 +3713,8 @@ problems.
 All backward problems defined by the user are internally managed through a
 linked list and identified in the user interface through a unique identifier.
 
+.. _Changelog.2.3.0:
+
 Changes to SUNDIALS in release 2.3.0
 ====================================
 
@@ -3657,6 +3753,8 @@ In IDA, a bug was fixed in the internal difference-quotient dense and banded
 Jacobian approximations, related to the estimation of the perturbation (which
 could have led to a failure of the linear solver when zero components with
 sufficiently small absolute tolerances were present).
+
+.. _Changelog.2.2.0:
 
 Changes to SUNDIALS in release 2.2.0
 ====================================
@@ -3709,6 +3807,8 @@ using ``FKINSETIIN`` (integer inputs), ``FKINSETRIN`` (real inputs), and
 ``IOUT`` and ``ROUT`` arrays which are owned by the user and passed as arguments
 to ``FKINMALLOC``.
 
+.. _Changelog.2.1.1:
+
 Changes to SUNDIALS in release 2.1.1
 ====================================
 
@@ -3716,6 +3816,8 @@ The function ``N_VCloneEmpty`` was added to the global vector operations table.
 
 A minor bug was fixed in the interpolation functions of the adjoint CVODES
 module.
+
+.. _Changelog.2.1.0:
 
 Changes to SUNDIALS in release 2.1.0
 ====================================
@@ -3731,6 +3833,8 @@ release user data right after its use.
 
 The build systems has been further improved to make it more robust.
 
+.. _Changelog.2.0.2:
+
 Changes to SUNDIALS in release 2.0.2
 ====================================
 
@@ -3745,6 +3849,8 @@ erroneous behavior of the rootfinding procedure on the integration first step.
 
 A new chapter in the User Guide was added - with constants that appear in the
 user interface.
+
+.. _Changelog.2.0.1:
 
 Changes to SUNDIALS in release 2.0.1
 ====================================
@@ -3767,6 +3873,8 @@ calculations on successive runs without memory allocation and deallocation.
 In CVODES bug fixes related to forward sensitivity computations (possible loss
 of accuracy on a BDF order increase and incorrect logic in testing user-supplied
 absolute tolerances) were made.
+
+.. _Changelog.2.0.0:
 
 Changes to SUNDIALS in release 2.0.0
 ====================================
