@@ -1,0 +1,112 @@
+
+-- Do forward problem --
+
+Initial condition:
+ 1.000000000000000e+00
+ 1.000000000000000e+00
+Forward Solution:
+ 2.772850901841442e+00
+ 2.587108781425562e-01
+ARKODE Stats for Forward Solution:
+Current time                  = 1.00009999999991
+Steps                         = 10001
+Step attempts                 = 10001
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.0001
+Last step size                = 0.0001
+Current step size             = 0.0001
+Explicit RHS fn evals         = 40005
+Implicit RHS fn evals         = 0
+NLS iters                     = 0
+NLS fails                     = 0
+NLS iters per step            = 0
+LS setups                     = 0
+
+
+-- Do adjoint problem using Jacobian matrix --
+
+Adjoint terminal condition:
+ 1.772850901841442e+00
+-7.412891218574438e-01
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+Adjoint Solution:
+ 3.520550418956932e+00
+-2.193097020595348e+00
+ 4.341732371423008e+00
+-2.000834248934306e+00
+ 1.010074324848020e+00
+-1.395706319490111e+00
+
+SUNAdjointStepper Stats:
+Num backwards steps           = 10001
+Num recompute passes          = 0
+
+
+-- Redo adjoint problem using VJP --
+
+Adjoint Solution:
+ 3.520550418956932e+00
+-2.193097020595348e+00
+ 4.341685917743410e+00
+-2.000883243764453e+00
+ 1.010121298083820e+00
+-1.395734974499228e+00
+
+SUNAdjointStepper Stats:
+Num backwards steps           = 10001
+Num recompute passes          = 0
+
+
+-- Redo adjoint problem with change of variables tau = -t  --
+
+Initial condition:
+ 1.000000000000000e+00
+ 1.000000000000000e+00
+Forward Solution:
+ 2.772850901841443e+00
+ 2.587108781425562e-01
+ARKODE Stats for Forward Solution:
+Current time                  = -9.99999999061824e-05
+Steps                         = 10001
+Step attempts                 = 10001
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = -0.0001
+Last step size                = -0.0001
+Current step size             = -0.0001
+Explicit RHS fn evals         = 40005
+Implicit RHS fn evals         = 0
+NLS iters                     = 0
+NLS fails                     = 0
+NLS iters per step            = 0
+LS setups                     = 0
+
+Adjoint terminal condition:
+ 1.772850901841443e+00
+-7.412891218574438e-01
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+Adjoint Solution:
+ 3.520550418956936e+00
+-2.193097020595350e+00
+ 4.341685917743414e+00
+-2.000883243764455e+00
+ 1.010121298083821e+00
+-1.395734974499230e+00
+
+SUNAdjointStepper Stats:
+Num backwards steps           = 10001
+Num recompute passes          = 0
+

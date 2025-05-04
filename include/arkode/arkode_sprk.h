@@ -77,7 +77,8 @@ ARKodeSPRKTable ARKodeSPRKTable_Copy(ARKodeSPRKTable that_sprk_storage);
 SUNDIALS_EXPORT
 void ARKodeSPRKTable_Write(ARKodeSPRKTable sprk_table, FILE* outfile);
 
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 void ARKodeSPRKTable_Space(ARKodeSPRKTable sprk_storage, sunindextype* liw,
                            sunindextype* lrw);
 SUNDIALS_EXPORT

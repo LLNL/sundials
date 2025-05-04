@@ -139,6 +139,16 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
 
 /*
  *------------------------------------------------------------------
+ * Type : suncountertype
+ *------------------------------------------------------------------
+ * Defines integer type to be used for counters within sundials.
+ *------------------------------------------------------------------
+ */
+
+typedef SUNDIALS_COUNTER_TYPE suncountertype;
+
+/*
+ *------------------------------------------------------------------
  * Type : sunbooleantype
  *------------------------------------------------------------------
  * Constants : SUNFALSE and SUNTRUE
@@ -243,5 +253,19 @@ typedef int SUNComm;
 #ifdef __cplusplus
 }
 #endif
+
+/*
+ *------------------------------------------------------------------
+ * Type : SUNDataIOMode
+ *------------------------------------------------------------------
+ * Type that controls IO modes for certain data operations, notably
+ * checkpoints for adjoints.
+ *------------------------------------------------------------------
+ */
+
+typedef enum
+{
+  SUNDATAIOMODE_INMEM,
+} SUNDataIOMode;
 
 #endif /* _SUNDIALS_TYPES_H */

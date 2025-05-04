@@ -105,12 +105,12 @@ struct UserData
   sunrealtype dy;
 
   // Integrator settings
-  sunrealtype rtol;   // relative tolerance
-  sunrealtype atol;   // absolute tolerance
-  sunrealtype hfixed; // fixed step size
-  int controller;     // step size adaptivity method
-  int maxsteps;       // max number of steps between outputs
-  bool diagnostics;   // output diagnostics
+  sunrealtype rtol;       // relative tolerance
+  sunrealtype atol;       // absolute tolerance
+  sunrealtype hfixed;     // fixed step size
+  std::string controller; // step size adaptivity method
+  int maxsteps;           // max number of steps between outputs
+  bool diagnostics;       // output diagnostics
 
   // LSRKStep options
   ARKODE_LSRKMethodType method; // LSRK method choice
@@ -189,11 +189,10 @@ static int check_flag(void* flagvalue, const string funcname, int opt);
 
 int main(int argc, char* argv[])
 {
-  int flag;                    // reusable error-checking flag
-  UserData* udata      = NULL; // user data structure
-  N_Vector u           = NULL; // vector for storing solution
-  void* arkode_mem     = NULL; // ARKODE memory structure
-  SUNAdaptController C = NULL; // Adaptivity controller
+  int flag;                // reusable error-checking flag
+  UserData* udata  = NULL; // user data structure
+  N_Vector u       = NULL; // vector for storing solution
+  void* arkode_mem = NULL; // ARKODE memory structure
 
   // Timing variables
   chrono::time_point<chrono::steady_clock> t1;
@@ -294,17 +293,8 @@ int main(int argc, char* argv[])
   }
   else
   {
-    switch (udata->controller)
-    {
-    case (ARK_ADAPT_PID): C = SUNAdaptController_PID(ctx); break;
-    case (ARK_ADAPT_PI): C = SUNAdaptController_PI(ctx); break;
-    case (ARK_ADAPT_I): C = SUNAdaptController_I(ctx); break;
-    case (ARK_ADAPT_EXP_GUS): C = SUNAdaptController_ExpGus(ctx); break;
-    case (ARK_ADAPT_IMP_GUS): C = SUNAdaptController_ImpGus(ctx); break;
-    case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
-    }
-    flag = ARKodeSetAdaptController(arkode_mem, C);
-    if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
+    flag = ARKodeSetAdaptControllerByName(arkode_mem, udata->controller.c_str());
+    if (check_flag(&flag, "ARKodeSetAdaptControllerByName", 1)) { return 1; }
   }
 
   // Set max steps between outputs
@@ -398,8 +388,7 @@ int main(int argc, char* argv[])
   N_VDestroy(u);           // Free vectors
   FreeUserData(udata);     // Free user data
   delete udata;
-  (void)SUNAdaptController_Destroy(C); // Free time adaptivity controller
-  SUNContext_Free(&ctx);               // Free context
+  SUNContext_Free(&ctx); // Free context
 
   return 0;
 }
@@ -547,7 +536,7 @@ static int InitUserData(UserData* udata)
   udata->rtol        = SUN_RCONST(1.e-5);  // relative tolerance
   udata->atol        = SUN_RCONST(1.e-10); // absolute tolerance
   udata->hfixed      = ZERO;               // using adaptive step sizes
-  udata->controller  = 0;                  // PID controller
+  udata->controller  = "I";                // I controller
   udata->maxsteps    = 0;                  // use default
   udata->diagnostics = false;              // output diagnostics
 
@@ -621,10 +610,7 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
     else if (arg == "--rtol") { udata->rtol = stod((*argv)[arg_idx++]); }
     else if (arg == "--atol") { udata->atol = stod((*argv)[arg_idx++]); }
     else if (arg == "--fixedstep") { udata->hfixed = stod((*argv)[arg_idx++]); }
-    else if (arg == "--controller")
-    {
-      udata->controller = stoi((*argv)[arg_idx++]);
-    }
+    else if (arg == "--controller") { udata->controller = (*argv)[arg_idx++]; }
     else if (arg == "--diagnostics") { udata->diagnostics = true; }
     else if (arg == "--method")
     {

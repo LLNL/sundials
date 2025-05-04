@@ -72,9 +72,6 @@ int main(int argc, char* argv[])
   N_Vector y              = NULL;
   N_Vector solution       = NULL;
   sunrealtype* ydata      = NULL;
-  sunrealtype tout        = NAN;
-  sunrealtype tret        = NAN;
-  sunrealtype err         = NAN;
   void* arkode_mem        = NULL;
   int iout                = 0;
   int retval              = 0;
@@ -141,8 +138,8 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Print out starting energy, momentum before integrating */
-  tret = T0;
-  tout = T0 + dTout;
+  sunrealtype tret = T0;
+  sunrealtype tout = T0 + dTout;
   fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.6Lf\n",
           (long double)tret, (long double)ydata[0],
           (long double)Energy(y, dt, &udata), (long double)SUN_RCONST(0.0));
@@ -158,7 +155,7 @@ int main(int argc, char* argv[])
 
     /* Compute L2 error */
     N_VLinearSum(-SUN_RCONST(1.0), solution, SUN_RCONST(1.0), y, solution);
-    err = sqrt(N_VDotProd(solution, solution));
+    sunrealtype err = sqrt(N_VDotProd(solution, solution));
 
     /* Output current integration status */
     fprintf(stdout, "t = %.6Lf, x(t) = %.6Lf, E = %.6Lf, sol. err = %.16Le\n",
