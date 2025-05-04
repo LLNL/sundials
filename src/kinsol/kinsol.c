@@ -3011,7 +3011,7 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
     }
     N_VLinearSum(c, Q[i], s, Q[i + 1], kin_mem->kin_vtemp2);
     N_VLinearSum(c, Q[i + 1], -s, Q[i], Q[i + 1]);
-    N_VScale(ONE, kin_mem->kin_vtemp2, Q[i]);   
+    N_VScale(ONE, kin_mem->kin_vtemp2, Q[i]);
   }
 
   /* Shift R to the left by one. */
