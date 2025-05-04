@@ -3175,6 +3175,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                                    kin_mem->kin_current_depth,
                                    kin_mem->kin_user_data, &new_depth, NULL);
     if (retval)
+    {
       KINProcessError(kin_mem, KIN_DEPTH_FN_ERR, __LINE__, __func__, __FILE__,
                       "The depth function failed.");
       return KIN_DEPTH_FN_ERR;
