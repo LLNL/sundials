@@ -67,56 +67,18 @@ def main():
     log = sunlog.log_file_to_list(args.logfile)
 
     # plot log data
-    steps_s, times_s, vals_s = sunlog.get_history(
-        log,
-        "h",
-        step_range=args.step_range,
-        time_range=args.time_range,
-        group_by_level=True,
-    )
-
-    # get data for error test failures
-    steps_etf, times_etf, vals_etf = sunlog.get_history(
-        log,
-        "h",
-        "failed error test",
-        step_range=args.step_range,
-        time_range=args.time_range,
-    )
-
-    # get data for solver failures
-    steps_sf, times_sf, vals_sf = sunlog.get_history(
-        log, "h", "failed solve", step_range=args.step_range, time_range=args.time_range
+    steps, times, vals = sunlog.get_history(
+        log, "h", step_range=args.step_range, time_range=args.time_range
     )
 
     if args.step_number:
-        x_s = steps_s
-        x_etf = steps_etf
-        x_sf = steps_sf
+        x = steps
     else:
-        x_s = times_s
-        x_etf = times_etf
-        x_sf = times_sf
+        x = times
 
     fig, ax = plt.subplots()
-    colors = plt.get_cmap("tab10")
 
-    for idx, level in enumerate(x_s):
-        ax.plot(
-            x_s[level],
-            vals_s[level],
-            color=colors(idx),
-            marker=".",
-            zorder=0.1,
-            label=f"level {level} successful",
-        )
-
-    ax.scatter(
-        x_etf, vals_etf, color="red", marker="x", zorder=0.2, label="error test failed"
-    )
-    ax.scatter(
-        x_sf, vals_sf, color="darkorange", marker="d", zorder=0.2, label="solver failed"
-    )
+    ax.scatter(x, vals, color="green", marker="o")
 
     if args.step_number:
         ax.set_xlabel("step")
@@ -124,7 +86,6 @@ def main():
         ax.set_xlabel("time")
 
     ax.set_ylabel("step size")
-    ax.legend(loc="best")
     ax.grid(alpha=0.3, linestyle="--")
 
     if args.save:

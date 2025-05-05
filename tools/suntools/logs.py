@@ -371,32 +371,7 @@ def print_log(log, indent=0):
         print(f"{spaces}}}")
 
 
-def get_history(
-    log, key, step_status=None, time_range=None, step_range=None, group_by_level=False
-):
-    """
-    Extract the step/time series of the requested value.
-    """
-
-    steps, times, values, levels = _get_history(
-        log, key, step_status, time_range, step_range
-    )
-    if group_by_level:
-        from collections import defaultdict
-
-        steps_by_level = defaultdict(list)
-        times_by_level = defaultdict(list)
-        values_by_level = defaultdict(list)
-        for s, t, v, l in zip(steps, times, values, levels):
-            steps_by_level[l].append(s)
-            times_by_level[l].append(t)
-            values_by_level[l].append(v)
-        return steps_by_level, times_by_level, values_by_level
-    else:
-        return steps, times, values
-
-
-def _get_history(log, key, step_status, time_range, step_range):
+def get_history(log, key, step_status=None, time_range=None, step_range=None):
     """
     Extract the step/time series of the requested value.
     """
@@ -404,13 +379,11 @@ def _get_history(log, key, step_status, time_range, step_range):
     steps = []
     times = []
     values = []
-    levels = []
 
     for entry in log:
 
         step = np.longlong(entry["step"])
         time = np.double(entry["tn"])
-        level = entry["level"]
 
         if time_range is not None:
             if time < time_range[0] or time > time_range[1]:
@@ -430,18 +403,16 @@ def _get_history(log, key, step_status, time_range, step_range):
         steps.append(step)
         times.append(time)
         values.append(convert_to_num(entry[key]))
-        levels.append(level)
 
         if "stages" in entry:
             for s in entry["stages"]:
-                next_level_key = f"time-level-{level + 1}"
+                next_level_key = f'time-level-{entry["level"] + 1}'
                 if next_level_key in s:
-                    sub_steps, sub_times, sub_values, sub_levels = _get_history(
-                        s[next_level_key], key, step_status, time_range, None
+                    sub_steps, sub_times, sub_values = get_history(
+                        s[next_level_key], key
                     )
                     steps.extend(sub_steps)
                     times.extend(sub_times)
                     values.extend(sub_values)
-                    levels.extend(sub_levels)
 
-    return steps, times, values, levels
+    return steps, times, values
