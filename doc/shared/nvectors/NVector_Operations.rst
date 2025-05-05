@@ -209,12 +209,12 @@ operations below.
       z_i = a x_i + b y_i, \quad i=0,\ldots,n-1.
 
    The output vector *z* can be the same as the input vector *x* but not *y*.
-   
+
    .. versionchanged:: x.y.z
-   
-      Prior versions of SUNDIALS assumed that the output vector *z* could be used as  **either** of the input 
-      vectors (*x* or *y*).  While all of the `N_Vector` implementations included with SUNDIALS still allow the
-      output vector *z* to be the same as the input vector *x* or *y*, the API no longer requires it. 
+
+      Prior versions of SUNDIALS assumed that the output vector *z* could be used as **either** of the input
+      vectors (*x* or *y*). While all of the `N_Vector` implementations included with SUNDIALS still allow the
+      output vector *z* to be the same as the input vector *x* or *y*, the API no longer requires it.
 
 
    Usage:
@@ -616,14 +616,14 @@ of its mathematical operations below.
    where *a* and *b* are scalars, :math:`x_j` and :math:`y_j` are
    vectors in the vector arrays *X* and *Y* respectively, and
    :math:`z_j` is a vector in the output vector array *Z*. The operation returns a :c:type:`SUNErrCode`.
-   
+
    The output vector array *Z* can be the same as the input vector array *X* but not *Y*.
-      
+
    .. versionchanged:: x.y.z
-   
+
       Prior versions of SUNDIALS assumed that some of the output vectors :math:`z_j` could be used as
       **any** of the input vectors.  While all of the `N_Vector` implementations included with SUNDIALS
-      still allow this use case, the API no longer requires it. 
+      still allow this use case, the API no longer requires it.
 
    Usage:
 
