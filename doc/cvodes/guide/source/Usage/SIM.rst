@@ -2757,6 +2757,9 @@ described next.
    **Return value:**
      * A string containing the name of the corresponding constant
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
 
 .. _CVODES.Usage.SIM.optional_output.optout_root:
@@ -3106,7 +3109,7 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
       Replaces the deprecated functions ``CVDlsGetLastFlag`` and  ``CVSpilsGetLastFlag``.
 
 
-.. c:function:: int CVodeGetLinReturnFlagName(long int lsflag)
+.. c:function:: char* CVodeGetLinReturnFlagName(long int lsflag)
 
    The function ``CVodeGetLinReturnFlagName`` returns the name of the CVLS constant corresponding to ``lsflag``.
 
@@ -3119,6 +3122,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
    .. versionadded:: 4.0.0
 
       Replaces the deprecated functions ``CVDlsGetReturnFlagName`` and  ``CVSpilsGetReturnFlagName``.
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
 
 .. _CVODES.Usage.SIM.optional_output.optout_diag:
@@ -3199,6 +3206,10 @@ solver, a suffix (for Linear Solver) has been added here (e.g. ``lenrwLS``).
 
    **Return value:**
      * A string containing the name of the corresponding constant.
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
 
 .. _CVODES.Usage.SIM.reinit:
