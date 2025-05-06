@@ -2623,6 +2623,10 @@ described next.
    **Return value:**
       * ``char*`` -- the flag name string
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
+
 
 .. _IDA.Usage.CC.optional_output.optout_iccalc:
 
@@ -3018,6 +3022,10 @@ The following optional outputs are available from the IDALS modules:
       * ``char*`` -- the flag name string or if
         :math:`1 \leq \mathtt{lsflag} \leq N` (LU factorization failed), this
         function returns "NONE".
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
    .. versionadded:: 4.0.0
 
