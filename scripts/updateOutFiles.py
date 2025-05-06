@@ -29,24 +29,15 @@ def main():
 
     parser = argparse.ArgumentParser(description="Update output files")
 
-    parser.add_argument(
-        "source", type=str, help="Full path of build directory to read files from"
-    )
+    parser.add_argument("source", type=str, help="Full path of build directory to read files from")
     parser.add_argument(
         "destination", type=str, help="Full path of sundials location to write files to"
     )
+    parser.add_argument("--all", "-a", action="store_true", help="Update all output files")
     parser.add_argument(
-        "--all", "-a", action="store_true", help="Update all output files"
+        "--copy", "-c", action="store_true", help="Copy file to destination if not found"
     )
-    parser.add_argument(
-        "--copy",
-        "-c",
-        action="store_true",
-        help="Copy file to destination if not found",
-    )
-    parser.add_argument(
-        "--verbose", "-v", action="count", default=0, help="Enable verbose output"
-    )
+    parser.add_argument("--verbose", "-v", action="count", default=0, help="Enable verbose output")
 
     # parse command line args
     args = parser.parse_args()
@@ -75,9 +66,7 @@ def main():
             if f.endswith(".out"):
                 tests.append(f)
     else:
-        failed = os.path.join(
-            args.source, "Testing", "Temporary", "LastTestsFailed.log"
-        )
+        failed = os.path.join(args.source, "Testing", "Temporary", "LastTestsFailed.log")
 
         # extract test names from list and append .out
         with open(failed, "r") as f:
@@ -114,9 +103,7 @@ def main():
             if not found:
                 if args.copy:
                     print(f"Warning: did not find {t}, copying to {args.destination}")
-                    shutil.copy(
-                        os.path.join(output, t), os.path.join(args.destination, t)
-                    )
+                    shutil.copy(os.path.join(output, t), os.path.join(args.destination, t))
                 else:
                     print(f"Warning: did not find {t}")
 

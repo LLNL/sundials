@@ -28,9 +28,7 @@ def main():
 
     parser.add_argument("logfile", type=str, help="Log file to plot")
 
-    parser.add_argument(
-        "--step-number", action="store_true", help="Plot value vs step number"
-    )
+    parser.add_argument("--step-number", action="store_true", help="Plot value vs step number")
 
     parser.add_argument(
         "--step-range",

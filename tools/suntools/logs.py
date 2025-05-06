@@ -81,9 +81,7 @@ def parse_logfile_line(line, line_number, all_lines):
         line_dict["rank"] = convert_to_num(matches[0][1].split()[1])
         line_dict["scope"] = matches[0][2]
         line_dict["label"] = matches[0][3]
-        line_dict["payload"] = parse_logfile_payload(
-            matches[0][4], line_number, all_lines
-        )
+        line_dict["payload"] = parse_logfile_payload(matches[0][4], line_number, all_lines)
     return line_dict
 
 
@@ -408,9 +406,7 @@ def get_history(log, key, step_status=None, time_range=None, step_range=None):
             for s in entry["stages"]:
                 next_level_key = f'time-level-{entry["level"] + 1}'
                 if next_level_key in s:
-                    sub_steps, sub_times, sub_values = get_history(
-                        s[next_level_key], key
-                    )
+                    sub_steps, sub_times, sub_values = get_history(s[next_level_key], key)
                     steps.extend(sub_steps)
                     times.extend(sub_times)
                     values.extend(sub_values)

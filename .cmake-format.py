@@ -55,10 +55,7 @@ with section("parse"):
                 "SOVERSION": 1,
                 "VERSION": 1,
             },
-            "pargs": {
-                "flags": ["STATIC_ONLY", "SHARED_ONLY", "OBJECT_LIB_ONLY"],
-                "nargs": "1+",
-            },
+            "pargs": {"flags": ["STATIC_ONLY", "SHARED_ONLY", "OBJECT_LIB_ONLY"], "nargs": "1+"},
         },
         "sundials_add_nvector_benchmark": {
             "kwargs": {

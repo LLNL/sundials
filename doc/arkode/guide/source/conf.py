@@ -319,7 +319,7 @@ texinfo_documents = [
         "ARKODE",
         "Time integration package for multi-rate systems of ordinary differential equations.",
         "Miscellaneous",
-    ),
+    )
 ]
 
 # Documents to append as an appendix to all manuals.

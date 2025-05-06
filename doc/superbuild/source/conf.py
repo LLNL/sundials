@@ -41,9 +41,7 @@ extensions = [
     "sphinx_toolbox.collapse",
 ]
 
-intersphinx_mapping = {
-    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
-}
+intersphinx_mapping = {"sphinx": ("https://www.sphinx-doc.org/en/master/", None)}
 
 # No non-external references will be resolved by intersphinx
 intersphinx_disabled_reftypes = ["*"]

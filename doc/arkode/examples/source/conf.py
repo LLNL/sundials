@@ -424,13 +424,7 @@ Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (
-        "index",
-        "arkode_example",
-        "ARKODE Example Documentation",
-        ["Daniel R. Reynolds"],
-        1,
-    )
+    ("index", "arkode_example", "ARKODE Example Documentation", ["Daniel R. Reynolds"], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -451,7 +445,7 @@ texinfo_documents = [
         "ARKODE_example",
         "Example programs for the ARKODE time integration package for multi-rate systems of ordinary differential equations.",
         "Miscellaneous",
-    ),
+    )
 ]
 
 # Documents to append as an appendix to all manuals.

@@ -55,9 +55,7 @@ def main():
         help="Time range to plot",
     )
 
-    parser.add_argument(
-        "--step-number", action="store_true", help="Plot value vs step number"
-    )
+    parser.add_argument("--step-number", action="store_true", help="Plot value vs step number")
 
     parser.add_argument("--scatter", action="store_true", help="Create scatter plot")
 
@@ -90,11 +88,7 @@ def main():
 
         # get successful step data
         steps_s, times_s, vals_s = sunlog.get_history(
-            log,
-            args.val,
-            "success",
-            step_range=args.step_range,
-            time_range=args.time_range,
+            log, args.val, "success", step_range=args.step_range, time_range=args.time_range
         )
 
         # get data for error test failures
@@ -108,11 +102,7 @@ def main():
 
         # get data for solver failures
         steps_sf, times_sf, vals_sf = sunlog.get_history(
-            log,
-            args.val,
-            "failed solve",
-            step_range=args.step_range,
-            time_range=args.time_range,
+            log, args.val, "failed solve", step_range=args.step_range, time_range=args.time_range
         )
 
         # plot log data
@@ -145,20 +135,14 @@ def main():
 
         # plot successful data
         if args.scatter:
-            ax.scatter(
-                x_s, vals_s, color=s_color, marker="o", label=s_label, zorder=0.1
-            )
+            ax.scatter(x_s, vals_s, color=s_color, marker="o", label=s_label, zorder=0.1)
         else:
             ax.plot(x_s, vals_s, color=s_color, marker=".", label=s_label, zorder=0.1)
 
         # always add failures as scatter plot
-        ax.scatter(
-            x_etf, vals_etf, color=etf_color, marker="x", label=etf_label, zorder=0.2
-        )
+        ax.scatter(x_etf, vals_etf, color=etf_color, marker="x", label=etf_label, zorder=0.2)
 
-        ax.scatter(
-            x_sf, vals_sf, color=sf_color, marker="d", label=sf_label, zorder=0.2
-        )
+        ax.scatter(x_sf, vals_sf, color=sf_color, marker="d", label=sf_label, zorder=0.2)
 
     if args.logx:
         ax.set_xscale("log")
