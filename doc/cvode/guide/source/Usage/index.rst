@@ -2757,6 +2757,10 @@ described next.
    **Return value:**
      * A string containing the name of the corresponding constant
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
+
 
 
 .. _CVODE.Usage.CC.optional_output.optout_root:
@@ -3114,7 +3118,7 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
       ``CVSpilsGetLastFlag``.
 
 
-.. c:function:: int CVodeGetLinReturnFlagName(long int lsflag)
+.. c:function:: char* CVodeGetLinReturnFlagName(long int lsflag)
 
    The function ``CVodeGetLinReturnFlagName`` returns the name of the CVLS constant corresponding to ``lsflag``.
 
@@ -3123,6 +3127,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
 
    **Return value:**
      * The return value is a string containing the name of the corresponding constant. If :math:`1 \leq \text{lsflag} \leq N` (LU factorization failed), this routine returns "NONE".
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
    .. versionadded:: 4.0.0
 
@@ -3207,6 +3215,10 @@ solver, a suffix (for Linear Solver) has been added here (e.g. ``lenrwLS``).
 
    **Return value:**
      * A string containing the name of the corresponding constant.
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
 
 .. _CVODE.Usage.CC.reinit:
