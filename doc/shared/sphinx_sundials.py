@@ -14,8 +14,9 @@
 
 from sphinx.application import Sphinx
 
+
 def setup(app: Sphinx):
     # Create new object type for CMake options
-    app.add_object_type('cmakeoption', 'cmakeop', 'single: CMake options; %s')
+    app.add_object_type("cmakeoption", "cmakeop", "single: CMake options; %s")
     # Create new configuration value set in conf.py
-    app.add_config_value('package_name', '', 'env', types=[str])
+    app.add_config_value("package_name", "", "env", types=[str])

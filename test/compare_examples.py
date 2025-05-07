@@ -132,9 +132,7 @@ def compare_against_release(releaseDir, file, threshold):
     testName = th.metadata["env.TEST_NAME"].values[0]
 
     # Gather release run
-    releaseFile = glob.glob(
-        "%s/Testing/*/%s.*.cali" % (releaseDir, testName), recursive=True
-    )
+    releaseFile = glob.glob("%s/Testing/*/%s.*.cali" % (releaseDir, testName), recursive=True)
     th_release = tt.Thicket.from_caliperreader(releaseFile)
 
     metrics = ["Max time/rank"]

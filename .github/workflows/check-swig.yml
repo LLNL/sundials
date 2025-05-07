@@ -29,8 +29,6 @@ jobs:
 
       - name: Check out repository code
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Add safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
