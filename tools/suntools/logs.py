@@ -81,9 +81,7 @@ def parse_logfile_line(line, line_number, all_lines):
         line_dict["rank"] = convert_to_num(matches[0][1].split()[1])
         line_dict["scope"] = matches[0][2]
         line_dict["label"] = matches[0][3]
-        line_dict["payload"] = parse_logfile_payload(
-            matches[0][4], line_number, all_lines
-        )
+        line_dict["payload"] = parse_logfile_payload(matches[0][4], line_number, all_lines)
     return line_dict
 
 
@@ -378,9 +376,7 @@ def get_history(
     Extract the step/time series of the requested value.
     """
 
-    steps, times, values, levels = _get_history(
-        log, key, step_status, time_range, step_range
-    )
+    steps, times, values, levels = _get_history(log, key, step_status, time_range, step_range)
     if group_by_level:
         from collections import defaultdict
 

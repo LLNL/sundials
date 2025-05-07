@@ -28,9 +28,7 @@ def main():
 
     parser.add_argument("logfile", type=str, help="Log file to plot")
 
-    parser.add_argument(
-        "--step-number", action="store_true", help="Plot value vs step number"
-    )
+    parser.add_argument("--step-number", action="store_true", help="Plot value vs step number")
 
     parser.add_argument(
         "--step-range",
@@ -68,20 +66,12 @@ def main():
 
     # plot log data
     steps_s, times_s, vals_s = sunlog.get_history(
-        log,
-        "h",
-        step_range=args.step_range,
-        time_range=args.time_range,
-        group_by_level=True,
+        log, "h", step_range=args.step_range, time_range=args.time_range, group_by_level=True
     )
 
     # get data for error test failures
     steps_etf, times_etf, vals_etf = sunlog.get_history(
-        log,
-        "h",
-        "failed error test",
-        step_range=args.step_range,
-        time_range=args.time_range,
+        log, "h", "failed error test", step_range=args.step_range, time_range=args.time_range
     )
 
     # get data for solver failures
@@ -111,12 +101,8 @@ def main():
             label=f"level {level} successful",
         )
 
-    ax.scatter(
-        x_etf, vals_etf, color="red", marker="x", zorder=0.2, label="error test failed"
-    )
-    ax.scatter(
-        x_sf, vals_sf, color="darkorange", marker="d", zorder=0.2, label="solver failed"
-    )
+    ax.scatter(x_etf, vals_etf, color="red", marker="x", zorder=0.2, label="error test failed")
+    ax.scatter(x_sf, vals_sf, color="darkorange", marker="d", zorder=0.2, label="solver failed")
 
     if args.step_number:
         ax.set_xlabel("step")

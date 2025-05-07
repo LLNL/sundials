@@ -323,7 +323,7 @@ texinfo_documents = [
         "SUNDIALS Installation",
         "Installation Guide for SUNDIALS",
         "Miscellaneous",
-    ),
+    )
 ]
 
 # Documents to append as an appendix to all manuals.

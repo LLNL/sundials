@@ -35,15 +35,11 @@ def main():
     import matplotlib.pyplot as plt
     import matplotlib.ticker as mtick
 
-    parser = argparse.ArgumentParser(
-        description="Plot data from NVector performance tests"
-    )
+    parser = argparse.ArgumentParser(description="Plot data from NVector performance tests")
 
     parser.add_argument("op", type=str, help="Which NVector operation to plot")
 
-    parser.add_argument(
-        "datadir", type=str, help="Directory where test output files are located"
-    )
+    parser.add_argument("datadir", type=str, help="Directory where test output files are located")
 
     parser.add_argument(
         "--timevelem",
@@ -53,10 +49,7 @@ def main():
     )
 
     parser.add_argument(
-        "--noheatmap",
-        dest="heatmap",
-        action="store_false",
-        help="Turn off heatmap plots",
+        "--noheatmap", dest="heatmap", action="store_false", help="Turn off heatmap plots"
     )
 
     parser.add_argument(
@@ -67,10 +60,7 @@ def main():
     )
 
     parser.add_argument(
-        "--show",
-        dest="show",
-        action="store_true",
-        help="Display plots rather than saving to file",
+        "--show", dest="show", action="store_true", help="Display plots rather than saving to file"
     )
 
     parser.add_argument(
@@ -227,14 +217,10 @@ def main():
     upper_unfused = avg_unfused + cdev_unfused
 
     # check if the fused average times are within the unfused confidence interval
-    fused_in = np.where(
-        np.logical_and(avg_fused < upper_unfused, avg_fused > lower_unfused)
-    )
+    fused_in = np.where(np.logical_and(avg_fused < upper_unfused, avg_fused > lower_unfused))
 
     # check if the unfused average times are within the fused confidence interval
-    unfused_in = np.where(
-        np.logical_and(avg_unfused < upper_fused, avg_unfused > lower_fused)
-    )
+    unfused_in = np.where(np.logical_and(avg_unfused < upper_fused, avg_unfused > lower_fused))
 
     # get which numbers of vectors and elements for fused tests are in the
     # confidence interval of the unfused times
@@ -354,9 +340,7 @@ def main():
         if args.show:
             plt.show()
         else:
-            plt.savefig(
-                args.op + "-heatmap.pdf", additional_artists=art, bbox_inches="tight"
-            )
+            plt.savefig(args.op + "-heatmap.pdf", additional_artists=art, bbox_inches="tight")
         plt.close()
 
     # --------------------------------------------------------------------------
@@ -394,26 +378,15 @@ def main():
 
             if args.loglog:
                 ax.loglog(nelem, avg_fused[i], color=colors[i], linestyle="-", label=nv)
-                ax.loglog(
-                    nelem, avg_unfused[i], color=colors[i], linestyle="--", label=None
-                )
+                ax.loglog(nelem, avg_unfused[i], color=colors[i], linestyle="--", label=None)
             else:
                 ax.plot(nelem, avg_fused[i], color=colors[i], linestyle="-", label=nv)
-                ax.plot(
-                    nelem, avg_unfused[i], color=colors[i], linestyle="--", label=None
-                )
+                ax.plot(nelem, avg_unfused[i], color=colors[i], linestyle="--", label=None)
 
             # plot confidence interval
+            ax.fill_between(nelem, lower_fused[i], upper_fused[i], color=colors[i], alpha=0.3)
             ax.fill_between(
-                nelem, lower_fused[i], upper_fused[i], color=colors[i], alpha=0.3
-            )
-            ax.fill_between(
-                nelem,
-                lower_unfused[i],
-                upper_unfused[i],
-                color=colors[i],
-                hatch=".",
-                alpha=0.3,
+                nelem, lower_unfused[i], upper_unfused[i], color=colors[i], hatch=".", alpha=0.3
             )
 
         ax.legend()
@@ -445,47 +418,22 @@ def main():
 
             # plot run times
             if args.loglog:
-                ax.loglog(
-                    nelem, avg_fused[idx], color="red", linestyle="-", label="Fused"
-                )
-                ax.loglog(
-                    nelem,
-                    avg_unfused[idx],
-                    color="blue",
-                    linestyle="--",
-                    label="Unfused",
-                )
+                ax.loglog(nelem, avg_fused[idx], color="red", linestyle="-", label="Fused")
+                ax.loglog(nelem, avg_unfused[idx], color="blue", linestyle="--", label="Unfused")
             else:
-                ax.plot(
-                    nelem, avg_fused[idx], color="red", linestyle="-", label="Fused"
-                )
-                ax.plot(
-                    nelem,
-                    avg_unfused[idx],
-                    color="blue",
-                    linestyle="--",
-                    label="Unfused",
-                )
+                ax.plot(nelem, avg_fused[idx], color="red", linestyle="-", label="Fused")
+                ax.plot(nelem, avg_unfused[idx], color="blue", linestyle="--", label="Unfused")
 
             # plot confidence intervals
+            ax.fill_between(nelem, lower_fused[idx], upper_fused[idx], color="red", alpha=0.2)
             ax.fill_between(
-                nelem, lower_fused[idx], upper_fused[idx], color="red", alpha=0.2
-            )
-            ax.fill_between(
-                nelem,
-                lower_unfused[idx],
-                upper_unfused[idx],
-                color="blue",
-                hatch=".",
-                alpha=0.2,
+                nelem, lower_unfused[idx], upper_unfused[idx], color="blue", hatch=".", alpha=0.2
             )
 
             ax.legend()
             ax.grid()
 
-            plt.title(
-                "Average Time Fused vs Unfused with " + str(nv) + " vectors\n" + args.op
-            )
+            plt.title("Average Time Fused vs Unfused with " + str(nv) + " vectors\n" + args.op)
             plt.xlabel("vector length")
             ax.set_ylabel("time (s)")
 

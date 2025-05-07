@@ -58,10 +58,7 @@ def main():
     )
 
     parser.add_argument(
-        "--jobid",
-        dest="jobID",
-        type=int,
-        help="job id of the current run to identify .cali files",
+        "--jobid", dest="jobID", type=int, help="job id of the current run to identify .cali files"
     )
 
     parser.add_argument(
@@ -91,8 +88,7 @@ def main():
     # thread per file
     with mp.Pool() as pool:
         for res in pool.starmap(
-            process_benchmark,
-            [(jobID, release, releaseDir, i, threshold) for i in benchFiles],
+            process_benchmark, [(jobID, release, releaseDir, i, threshold) for i in benchFiles]
         ):
             if res:
                 outFile.write(res + "\n")
