@@ -3647,6 +3647,10 @@ Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumul
    :return: The return value is a string containing the name of
             the corresponding constant.
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
+
    .. versionadded:: 6.1.0
 
 
@@ -4453,6 +4457,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
              the corresponding constant. If using the ``SUNLINSOL_DENSE`` or
              ``SUNLINSOL_BAND`` modules, then if  1 :math:`\le` `lsflag`
              :math:`\le n` (LU factorization failed), this routine returns "NONE".
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
    .. note::
 

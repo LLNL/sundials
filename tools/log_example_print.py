@@ -15,16 +15,16 @@
 # Example script that prints a parsed log file
 # -----------------------------------------------------------------------------
 
+
 def main():
 
     import argparse
 
     from suntools import logs as sunlog
 
-    parser = argparse.ArgumentParser(description='Plots')
+    parser = argparse.ArgumentParser(description="Plots")
 
-    parser.add_argument('logfile', type=str,
-                        help='Log file to print')
+    parser.add_argument("logfile", type=str, help="Log file to print")
 
     # parse command line args
     args = parser.parse_args()
@@ -34,6 +34,7 @@ def main():
 
 
 # run the main routine
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     sys.exit(main())
