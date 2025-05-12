@@ -15,8 +15,7 @@ def test_implicit():
   ls = SUNLinearSolverView(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
 
   # Get the array and change a value in it
-  arr = N_VGetArrayPointer(nv.get()) # Option 1: have to call get when passing the NVectorView
-  # arr = nv.GetArrayPointer() # Option 2: wrap N_V calls as NVectorView class methods
+  arr = N_VGetArrayPointer(nv.get())
   arr[0] = 0.0 # set initial condition
 
   ode_problem = AnalyticIMEXODEProblem()
@@ -40,8 +39,7 @@ def test_explicit():
   nv = NVectorView(N_VNew_Serial(1, sunctx.get()))
 
   # Get the array and change a value in it
-  arr = N_VGetArrayPointer(nv.get()) # Option 1: have to call get when passing the NVectorView
-  # arr = nv.GetArrayPointer() # Option 2: wrap N_V calls as NVectorView class methods
+  arr = N_VGetArrayPointer(nv.get())
   arr[0] = 0.0 # set initial condition
 
   ode_problem = AnalyticIMEXODEProblem()
@@ -64,8 +62,7 @@ def test_imex():
   ls = SUNLinearSolverView(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
 
   # Get the array and change a value in it
-  arr = N_VGetArrayPointer(nv.get()) # Option 1: have to call get when passing the NVectorView
-  # arr = nv.GetArrayPointer() # Option 2: wrap N_V calls as NVectorView class methods
+  arr = N_VGetArrayPointer(nv.get())
   arr[0] = 0.0 # set initial condition
 
   ode_problem = AnalyticIMEXODEProblem()
