@@ -17,7 +17,6 @@
 #ifndef _SUNDIALS_NVECTOR_HPP
 #define _SUNDIALS_NVECTOR_HPP
 
-#include <memory>
 #include <sundials/sundials_base.hpp>
 #include <sundials/sundials_nvector.h>
 #include "sundials_nvector.h"
@@ -28,6 +27,7 @@ using BaseNVector = BaseObject<_generic_N_Vector, _generic_N_Vector_Ops>;
 } // namespace impl
 
 namespace experimental {
+
 struct NVectorDeleter
 {
   void operator()(N_Vector v)
@@ -37,6 +37,7 @@ struct NVectorDeleter
 };
 
 using NVectorView = ClassView<N_Vector, NVectorDeleter>;
+
 } // namespace experimental
 } // namespace sundials
 

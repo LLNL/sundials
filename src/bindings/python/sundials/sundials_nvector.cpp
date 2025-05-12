@@ -17,6 +17,7 @@
  * produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
+#include "sundials/sundials_nvector.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 
@@ -26,6 +27,8 @@ namespace nb = nanobind;
 
 void bind_nvector(nb::module_& m)
 {
+#include "sundials_nvector_generated.cpp"
+
   nb::class_<sundials::experimental::NVectorView>(m, "NVectorView")
     .def(nb::init<>())
     .def(nb::init<_generic_N_Vector*>())
@@ -34,22 +37,16 @@ void bind_nvector(nb::module_& m)
                              nb::const_),
          nb::rv_policy::reference);
 
-    // I don't think implicit conversion will work unless we make the View classes convertible to the underlying type instead of the pointer type
-    // nb::implicitly_convertible<sundials::experimental::NVectorView, _generic_N_Vector*>();
-
-    m.def("N_VGetArrayPointer",
-          [](N_Vector v)
-          {
-            auto ptr = N_VGetArrayPointer(v);
-            if (!ptr)
-            {
-              throw std::runtime_error("Failed to get array pointer");
-            }
-            auto owner = nb::find(v);
-            size_t shape[1]{static_cast<size_t>(N_VGetLength(v))};
-            return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>,
-                               nb::c_contig>(ptr, 1, shape, owner);
-          });
+  m.def("N_VGetArrayPointer",
+        [](N_Vector v)
+        {
+          auto ptr = N_VGetArrayPointer(v);
+          if (!ptr) { throw std::runtime_error("Failed to get array pointer"); }
+          auto owner = nb::find(v);
+          size_t shape[1]{static_cast<size_t>(N_VGetLength(v))};
+          return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>,
+                             nb::c_contig>(ptr, 1, shape, owner);
+        });
   m.def("N_VGetDeviceArrayPointer",
         [](N_Vector v)
         {
@@ -71,6 +68,4 @@ void bind_nvector(nb::module_& m)
           }
           N_VSetArrayPointer(arr.data(), v);
         });
-
-#include "sundials_nvector_generated.cpp"
 }
