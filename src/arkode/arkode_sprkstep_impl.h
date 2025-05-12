@@ -22,7 +22,7 @@
 #include <arkode/arkode_sprk.h>
 #include <arkode/arkode_sprkstep.h>
 
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

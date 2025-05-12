@@ -17,25 +17,25 @@
  * use.
  *--------------------------------------------------------------*/
 
-#include "arkode/arkode.h"
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <arkode/arkode.h>
+#include <arkode/priv/arkode_impl.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_config.h>
+#include <sundials/sundials_context.h>
+#include <sundials/sundials_logger.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#include "arkode_impl.h"
 #include "arkode_interp_impl.h"
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_logger.h"
-#include "sundials_utils.h"
-
+#include "sundials_logger_impl.h"
 #include "sundials_macros.h"
+#include "sundials_utils.h"
 
 /*===============================================================
   Exported functions

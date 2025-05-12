@@ -21,12 +21,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <arkode/arkode.h>
+#include <arkode/arkode_sprk.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#include "arkode/arkode.h"
-#include "arkode/arkode_sprk.h"
 #include "arkode_sprkstep_impl.h"
+#include "sundials_utils.h"
 
 /*===============================================================
   Exported optional input functions.

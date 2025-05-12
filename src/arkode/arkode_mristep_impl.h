@@ -22,7 +22,7 @@
 #include "arkode/arkode_mristep.h"
 
 /* Private header files */
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 #include "arkode_ls_impl.h"
 #include "arkode_mri_tables_impl.h"
 

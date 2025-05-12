@@ -17,10 +17,11 @@
  *--------------------------------------------------------------*/
 
 #include <arkode/arkode.h>
+#include <arkode/priv/arkode_impl.h>
 #include <sundials/sundials_stepper.h>
-#include "arkode_impl.h"
+
 #include "sundials/sundials_types.h"
-#include "sundials_macros.h"
+#include "sundials_stepper_impl.h"
 
 static SUNErrCode arkSUNStepperEvolveHelper(SUNStepper stepper,
                                             sunrealtype tout, N_Vector y,

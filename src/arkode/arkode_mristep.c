@@ -16,18 +16,22 @@
  * This is the implementation file for ARKODE's MRI time stepper module.
  * ---------------------------------------------------------------------------*/
 
-#include "arkode/arkode_mristep.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
-#include "arkode/arkode.h"
-#include "arkode_impl.h"
+#include <arkode/arkode.h>
+#include <arkode/arkode_mristep.h>
+#include <arkode/priv/arkode_impl.h>
+
 #include "arkode_interp_impl.h"
 #include "arkode_mristep_impl.h"
+#include "sundials_logger_impl.h"
+#include "sundials_macros.h"
+#include "sundials_stepper_impl.h"
 
 /*===============================================================
   Exported functions

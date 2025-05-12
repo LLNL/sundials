@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 #include "arkode_mristep_impl.h"
 
 /*--------------------------------------------

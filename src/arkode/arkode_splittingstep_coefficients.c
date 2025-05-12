@@ -14,10 +14,12 @@
  * This is the implementation file for splitting coefficients
  *--------------------------------------------------------------*/
 
-#include <arkode/arkode_splittingstep.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "arkode_impl.h"
+#include <arkode/arkode_splittingstep.h>
+
+#include <arkode/priv/arkode_impl.h>
 
 /*---------------------------------------------------------------
   Routine to allocate splitting coefficients with zero values for

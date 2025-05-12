@@ -17,7 +17,7 @@
 #ifndef _ARKSTEP_XBRAID_IMP_H
 #define _ARKSTEP_XBRAID_IMP_H
 
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 #include "braid.h"
 #include "sundials/sundials_types.h"
 

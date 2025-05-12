@@ -20,14 +20,15 @@
  *   tempv4 - holds J_relax, the Jacobian of the relaxation function
  * ---------------------------------------------------------------------------*/
 
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "arkode_impl.h"
-#include "arkode_relaxation_impl.h"
-#include "sundials/sundials_types.h"
+#include <arkode/priv/arkode_impl.h>
+#include <arkode/priv/arkode_relaxation_impl.h>
+#include <sundials/sundials_types.h>
+
+#include "sundials_logger_impl.h"
 
 /* =============================================================================
  * Private Functions

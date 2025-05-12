@@ -15,12 +15,14 @@
  * tables.
  *--------------------------------------------------------------*/
 
-#include <arkode/arkode_butcher_erk.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include <arkode/arkode_butcher_erk.h>
 #include <sundials/sundials_math.h>
 
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 
 /*---------------------------------------------------------------
   Returns Butcher table structure for pre-set Runge Kutta methods.

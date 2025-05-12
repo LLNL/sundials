@@ -23,18 +23,21 @@
 #include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_stepper.h>
 #include <sundials/sundials_types.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
+#include <arkode/priv/arkode_impl.h>
 #include "arkode/arkode.h"
 #include "arkode/arkode_arkstep.h"
 #include "arkode/arkode_butcher.h"
 #include "arkode_arkstep_impl.h"
-#include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 
-#include "sundials/sundials_stepper.h"
 #include "sundials_adjointstepper_impl.h"
+#include "sundials_logger_impl.h"
+#include "sundials_macros.h"
+#include "sundials_stepper_impl.h"
 
 /*===============================================================
   Exported functions

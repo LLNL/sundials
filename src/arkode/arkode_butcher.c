@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
 
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 
 /* tolerance for checking order conditions */
 #define TOL (SUNRsqrt(SUN_UNIT_ROUNDOFF))

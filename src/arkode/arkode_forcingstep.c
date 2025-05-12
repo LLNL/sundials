@@ -15,10 +15,13 @@
  *----------------------------------------------------------------------------*/
 
 #include <arkode/arkode_forcingstep.h>
+#include <arkode/priv/arkode_impl.h>
 #include <sundials/sundials_nvector.h>
 
 #include "arkode_forcingstep_impl.h"
-#include "arkode_impl.h"
+#include "sundials_logger_impl.h"
+#include "sundials_macros.h"
+#include "sundials_stepper_impl.h"
 
 /*------------------------------------------------------------------------------
   Shortcut routine to unpack step_mem structure from ark_mem. If missing it

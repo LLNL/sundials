@@ -21,7 +21,7 @@
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_mristep.h>
 
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 #include "arkode_ls_impl.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

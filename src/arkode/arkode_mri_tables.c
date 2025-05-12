@@ -20,7 +20,7 @@
 #include <string.h>
 #include <sundials/sundials_math.h>
 
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 #include "arkode_mristep_impl.h"
 
 /* ===========================================================================

@@ -20,7 +20,7 @@
 
 #include <arkode/arkode_erkstep.h>
 
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 #include "sundials/sundials_adjointstepper.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

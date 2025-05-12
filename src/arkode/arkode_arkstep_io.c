@@ -25,6 +25,7 @@
 #include <sundials/sundials_types.h>
 
 #include "arkode_arkstep_impl.h"
+#include "sundials_utils.h"
 
 /*===============================================================
   Exported optional input functions.

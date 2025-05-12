@@ -15,19 +15,20 @@
  * module.
  *--------------------------------------------------------------*/
 
-#include "arkode/arkode_sprkstep.h"
-
-#include <arkode/arkode.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <arkode/arkode.h>
+#include <arkode/arkode_sprkstep.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 
-#include "arkode_impl.h"
-#include "arkode_interp_impl.h"
+#include <arkode/priv/arkode_impl.h>
 #include "arkode_sprkstep_impl.h"
+#include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 /*===============================================================
   Exported functions

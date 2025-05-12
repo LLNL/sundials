@@ -15,13 +15,15 @@
  * SUNNonlinearSolver object
  *--------------------------------------------------------------*/
 
+#include <arkode/priv/arkode_impl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/sundials_math.h>
 
 #include "arkode_arkstep_impl.h"
-#include "arkode_impl.h"
+#include "sundials_logger_impl.h"
+#include "sundials_macros.h"
 
 /*===============================================================
   Interface routines supplied to ARKODE

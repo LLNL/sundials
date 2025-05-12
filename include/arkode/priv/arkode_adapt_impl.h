@@ -22,7 +22,7 @@
 #include <stdarg.h>
 #include <sundials/sundials_adaptcontroller.h>
 
-#include "arkode_types_impl.h"
+#include <arkode/priv/arkode_types_impl.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

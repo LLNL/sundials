@@ -22,7 +22,7 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#include "arkode_impl.h"
+#include <arkode/priv/arkode_impl.h>
 
 /*===============================================================
   Exported functions

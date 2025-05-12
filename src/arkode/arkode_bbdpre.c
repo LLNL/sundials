@@ -23,9 +23,10 @@
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
 
+#include <arkode/priv/arkode_impl.h>
 #include "arkode_bbdpre_impl.h"
-#include "arkode_impl.h"
 #include "arkode_ls_impl.h"
+#include "sundials_macros.h"
 
 #define MIN_INC_MULT SUN_RCONST(1000.0)
 #define ZERO         SUN_RCONST(0.0)

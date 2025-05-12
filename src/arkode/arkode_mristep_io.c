@@ -22,6 +22,7 @@
 #include <sundials/sundials_types.h>
 
 #include "arkode_mristep_impl.h"
+#include "sundials_utils.h"
 
 /*===============================================================
   Exported optional input functions.

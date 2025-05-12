@@ -15,10 +15,11 @@
  * SUNAdaptController module.
  * -----------------------------------------------------------------*/
 
-#include "arkode_user_controller.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "arkode_user_controller.h"
+#include "sundials_macros.h"
 
 /* ---------------
  * Macro accessors

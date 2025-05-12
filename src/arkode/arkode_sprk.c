@@ -20,8 +20,8 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
+#include <arkode/priv/arkode_impl.h>
 #include "arkode/arkode_butcher.h"
-#include "arkode_impl.h"
 
 static ARKodeSPRKTable arkodeSymplecticEuler(void)
 {
