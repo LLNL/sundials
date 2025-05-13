@@ -1,10 +1,16 @@
 import argparse
 import litgen
 from codemanip import code_utils
+import yaml
 
 def generate_code(options, source_code):
   generated_code = litgen.generate_code(options, source_code)
   return generated_code
+
+def load_exclusions_from_yaml(file_path):
+    with open(file_path, 'r') as yaml_file:
+        data = yaml.safe_load(yaml_file)
+    return data.get('fn_exclude_by_name__regex', [])
 
 def main():
   parser = argparse.ArgumentParser(description='Generate Python bindings for SUNDIALS using litgen and nanobind.')
@@ -20,16 +26,10 @@ def main():
   options.python_run_black_formatter = True
   options.python_convert_to_snake_case = False
 
-  options.fn_exclude_by_name__regex = code_utils.join_string_by_pipe_char([
-    "Free",
-    "N_VDestroy",
-    "ArrayPointer",
-    "BufPack",
-    "BufUnpack",
-    "VectorArray",
-    "Multi",
-    "LinearCombination"
-  ])
+  exclusions_yaml_path = 'sundials/generate.yaml'  # Path to the YAML file
+  exclusions = load_exclusions_from_yaml(exclusions_yaml_path)
+
+  options.fn_exclude_by_name__regex = code_utils.join_string_by_pipe_char(exclusions)
 
   # TODO(CJB): this does not seem to work
   # options.fn_return_force_policy_reference_for_pointers__regex = code_utils.join_string_by_pipe_char([

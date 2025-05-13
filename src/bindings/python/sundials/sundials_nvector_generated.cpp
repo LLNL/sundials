@@ -24,31 +24,29 @@ auto pyEnumN_Vector_ID =
     .value("SUNDIALS_NVEC_MPIPLUSX", SUNDIALS_NVEC_MPIPLUSX, "")
     .value("SUNDIALS_NVEC_CUSTOM", SUNDIALS_NVEC_CUSTOM, "");
 
-nb::class_<_generic_N_Vector_Ops>(
-  m, "_generic_N_Vector_Ops",
-  "Structure containing function pointers to vector operations")
-  .def(nb::init<>()) // implicit default constructor
+auto pyClass_generic_N_Vector_Ops =
+  nb::class_<_generic_N_Vector_Ops>(m,
+                                    "_generic_N_Vector_Ops", "Structure containing function pointers to vector operations")
+    .def(nb::init<>()) // implicit default constructor
   ;
 
-nb::class_<_generic_N_Vector>(
-  m, "_generic_N_Vector",
-  " A vector is a structure with an implementation-dependent\n   'content' "
-  "field, and a pointer to a structure of vector\n   operations corresponding "
-  "to that implementation.")
-  .def(
-    "__init__",
-    [](_generic_N_Vector* self, N_Vector_Ops ops = N_Vector_Ops(),
-       SUNContext sunctx = SUNContext())
-    {
-      new (self) _generic_N_Vector();
-      auto r    = self;
-      r->ops    = ops;
-      r->sunctx = sunctx;
-    },
-    nb::arg("ops") = N_Vector_Ops(), nb::arg("sunctx") = SUNContext())
-  .def_rw("content", &_generic_N_Vector::content, "")
-  .def_rw("ops", &_generic_N_Vector::ops, "")
-  .def_rw("sunctx", &_generic_N_Vector::sunctx, "");
+auto pyClass_generic_N_Vector =
+  nb::class_<_generic_N_Vector>(m,
+                                "_generic_N_Vector", " A vector is a structure with an implementation-dependent\n   'content' field, and a pointer to a structure of vector\n   operations corresponding to that implementation.")
+    .def(
+      "__init__",
+      [](_generic_N_Vector* self, N_Vector_Ops ops = N_Vector_Ops(),
+         SUNContext sunctx = SUNContext())
+      {
+        new (self) _generic_N_Vector(); // placement new
+        auto r    = self;
+        r->ops    = ops;
+        r->sunctx = sunctx;
+      },
+      nb::arg("ops") = N_Vector_Ops(), nb::arg("sunctx") = SUNContext())
+    .def_rw("content", &_generic_N_Vector::content, "")
+    .def_rw("ops", &_generic_N_Vector::ops, "")
+    .def_rw("sunctx", &_generic_N_Vector::sunctx, "");
 
 m.def("N_VNewEmpty", N_VNewEmpty, nb::arg("sunctx"),
       "py::return_value_policy::reference", nb::rv_policy::reference);

@@ -1,0 +1,10 @@
+fn_exclude_by_name__regex:
+- "Free"
+- "N_VDestroy"
+- "Space"
+- "ArrayPointer"
+- "BufPack"
+- "BufUnpack"
+- "VectorArray"
+- "Multi"
+- "LinearCombination"
