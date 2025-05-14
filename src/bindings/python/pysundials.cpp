@@ -62,12 +62,4 @@ NB_MODULE(pysundials, m)
     nb::module_ pcg_m = m.def_submodule("core", "A submodule of 'pysundials'");
     bind_sunlinsol_pcg(pcg_m);
   }
-
-  // nb::module_ lapackdense_m = m.def_submodule("core",
-  //                                             "A submodule of 'pysundials'");
-  // bind_sunlinsol_lapackdense(lapackdense_m);
-
-  // nb::module_ lapackband_m = m.def_submodule("core",
-  //                                            "A submodule of 'pysundials'");
-  // bind_sunlinsol_lapackband(lapackband_m);
 }

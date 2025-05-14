@@ -1,10 +1,37 @@
-fn_exclude_by_name__regex:
-- "Free"
-- "N_VDestroy"
-- "Space"
-- "ArrayPointer"
-- "BufPack"
-- "BufUnpack"
-- "VectorArray"
-- "Multi"
-- "LinearCombination"
+modules:
+  all:
+    fn_exclude_by_name__regex:
+    - "Free"
+    - "Destroy"
+    - "Space"
+  sundials_adaptcontroller:
+    path: sundials/sundials_adaptcontroller_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_adaptcontroller.h
+  sundials_adjointcheckpointscheme:
+    path: sundials/sundials_adjointcheckpointscheme_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_adjointcheckpointscheme.h
+  sundials_adjointstepper:
+    path: sundials/sundials_adjointstepper_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_adjointstepper.h
+  sundials_errors:
+    path: sundials/sundials_errors_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_errors.h
+  sundials_linearsolver:
+    path: sundials/sundials_linearsolver_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_linearsolver.h
+  sundials_nvector:
+    path: sundials/sundials_nvector_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_nvector.h
+    fn_exclude_by_name__regex:
+    - "ArrayPointer"
+    - "BufPack"
+    - "BufUnpack"
+    - "VectorArray"
+    - "Multi"
+    - "LinearCombination"

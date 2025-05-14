@@ -25,6 +25,9 @@ find_package(nanobind CONFIG REQUIRED)
 set(sundials_SOURCES
     pysundials.cpp
     sundials/sundials_core.cpp
+    sundials/sundials_adaptcontroller.cpp
+    # sundials/sundials_adjointcheckpointscheme.cpp
+    # sundials/sundials_adjointstepper.cpp
     sundials/sundials_nvector.cpp
     sundials/sundials_linearsolver.cpp
     arkode/arkode.cpp
@@ -38,7 +41,6 @@ set(sundials_SOURCES
     sunlinsol/sunlinsol_spfgmr.cpp
     sunlinsol/sunlinsol_sptfqmr.cpp
     sunlinsol/sunlinsol_pcg.cpp
-    # sunlinsol/sunlinsol_lapackdense.cpp sunlinsol/sunlinsol_lapackband.cpp
 )
 
 # Create the Python sundials library

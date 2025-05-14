@@ -75,9 +75,6 @@ m.def("SUNLinSolLastFlag",
     SUNLinSolLastFlag, 
     nb::arg("S"), 
     " TODO(CJB): sunindextype being the return type here could cause a problem if\n              sunindextype happened to be smaller than an int.");
-
-m.def("SUNLinSolSpace",
-    SUNLinSolSpace, nb::arg("S"), nb::arg("lenrwLS"), nb::arg("leniwLS"));
 // #ifdef __cplusplus
 // 
 // #endif

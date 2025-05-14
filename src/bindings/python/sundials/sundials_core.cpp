@@ -7,6 +7,9 @@
 
 namespace nb = nanobind;
 
+void bind_adaptcontroller(nb::module_& m);
+void bind_sunadjointcheckpointscheme(nb::module_& m);
+void bind_sunadjointstepper(nb::module_& m);
 void bind_nvector(nb::module_& m);
 void bind_linearsolver(nb::module_& m);
 
@@ -126,6 +129,9 @@ void bind_core(nb::module_& m)
         { return SUNContext_SetLogger(sunctx, logger); });
 
 
+  bind_adaptcontroller(m);
+  // bind_sunadjointcheckpointscheme(m);
+  // bind_sunadjointstepper(m);
   bind_nvector(m);
   bind_linearsolver(m);
 }

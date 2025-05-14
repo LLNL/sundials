@@ -27,7 +27,7 @@ namespace nb = nanobind;
 
 void bind_nvector(nb::module_& m)
 {
-#include "sundials_nvector_generated.cpp"
+#include "sundials_nvector_generated.hpp"
 
   nb::class_<sundials::experimental::NVectorView>(m, "NVectorView")
     .def(nb::init<>())
