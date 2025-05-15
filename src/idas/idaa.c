@@ -311,6 +311,7 @@ void IDAAdjFree(void* ida_mem)
     free(IDAADJ_mem);
 
     IDA_mem->ida_adj_mem = NULL;
+    IDA_mem->ida_adjMallocDone = SUNFALSE;
   }
 }
 
