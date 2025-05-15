@@ -98,6 +98,9 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_MAX_STAGE_LIMIT_FAIL = -50_C_INT
  integer(C_INT), parameter, public :: ARK_SUNSTEPPER_ERR = -51_C_INT
  integer(C_INT), parameter, public :: ARK_STEP_DIRECTION_ERR = -52_C_INT
+ integer(C_INT), parameter, public :: ARK_ADJ_CHECKPOINT_FAIL = -53_C_INT
+ integer(C_INT), parameter, public :: ARK_ADJ_RECOMPUTE_FAIL = -54_C_INT
+ integer(C_INT), parameter, public :: ARK_SUNADJSTEPPER_ERR = -55_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
@@ -156,6 +159,11 @@ module farkode_mod
  public :: FARKodeSetNonlinConvCoef
  public :: FARKodeSetStagePredictFn
  public :: FARKodeSetAdaptController
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
+ public :: FARKodeSetAdaptControllerByName
  public :: FARKodeSetAdaptivityAdjustment
  public :: FARKodeSetCFLFraction
  public :: FARKodeSetErrorBias
@@ -175,6 +183,8 @@ module farkode_mod
  public :: FARKodeSetMinStep
  public :: FARKodeSetMaxStep
  public :: FARKodeSetMaxNumConstrFails
+ public :: FARKodeSetAdjointCheckpointScheme
+ public :: FARKodeSetAdjointCheckpointIndex
  public :: FARKodeSetAccumulatedErrorType
  public :: FARKodeResetAccumulatedError
  public :: FARKodeEvolve
@@ -192,10 +202,6 @@ module farkode_mod
  public :: FARKodeGetRootInfo
  public :: FARKodeGetUserData
  public :: FARKodePrintAllStats
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
  public :: FARKodeGetReturnFlagName
  public :: FARKodeWriteParameters
  public :: FARKodeGetNumExpSteps
@@ -383,7 +389,9 @@ module farkode_mod
   enumerator :: ARKODE_FORWARD_EULER_1_1
   enumerator :: ARKODE_RALSTON_EULER_2_1_2
   enumerator :: ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2
-  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2
+  enumerator :: ARKODE_RALSTON_3_1_2
+  enumerator :: ARKODE_TSITOURAS_7_4_5
+  enumerator :: ARKODE_MAX_ERK_NUM = ARKODE_TSITOURAS_7_4_5
  end enum
  integer, parameter, public :: ARKODE_ERKTableID = kind(ARKODE_ERK_NONE)
  public :: ARKODE_ERK_NONE, ARKODE_MIN_ERK_NUM, ARKODE_HEUN_EULER_2_1_2, ARKODE_BOGACKI_SHAMPINE_4_2_3, &
@@ -392,7 +400,8 @@ module farkode_mod
     ARKODE_VERNER_8_5_6, ARKODE_FEHLBERG_13_7_8, ARKODE_KNOTH_WOLKE_3_3, ARKODE_ARK437L2SA_ERK_7_3_4, &
     ARKODE_ARK548L2SAb_ERK_8_4_5, ARKODE_ARK2_ERK_3_1_2, ARKODE_SOFRONIOU_SPALETTA_5_3_4, ARKODE_SHU_OSHER_3_2_3, &
     ARKODE_VERNER_9_5_6, ARKODE_VERNER_10_6_7, ARKODE_VERNER_13_7_8, ARKODE_VERNER_16_8_9, ARKODE_FORWARD_EULER_1_1, &
-    ARKODE_RALSTON_EULER_2_1_2, ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2, ARKODE_MAX_ERK_NUM
+    ARKODE_RALSTON_EULER_2_1_2, ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2, ARKODE_RALSTON_3_1_2, ARKODE_TSITOURAS_7_4_5, &
+    ARKODE_MAX_ERK_NUM
  public :: FARKodeButcherTable_LoadERK
  public :: FARKodeButcherTable_LoadERKByName
  public :: FARKodeButcherTable_ERKIDToName
@@ -852,6 +861,16 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKodeSetAdaptControllerByName(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetAdaptControllerByName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+type(C_PTR), value :: farg1
+type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKodeSetAdaptivityAdjustment(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetAdaptivityAdjustment") &
 result(fresult)
@@ -1022,6 +1041,24 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetAdjointCheckpointScheme") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetAdjointCheckpointIndex") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -3130,6 +3167,41 @@ fresult = swigc_FARKodeSetAdaptController(farg1, farg2)
 swig_result = fresult
 end function
 
+
+subroutine SWIG_string_to_chararray(string, chars, wrap)
+  use, intrinsic :: ISO_C_BINDING
+  character(kind=C_CHAR, len=*), intent(IN) :: string
+  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
+  type(SwigArrayWrapper), intent(OUT) :: wrap
+  integer :: i
+
+  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
+  do i=1,len(string)
+    chars(i) = string(i:i)
+  end do
+  i = len(string) + 1
+  chars(i) = C_NULL_CHAR ! C string compatibility
+  wrap%data = c_loc(chars)
+  wrap%size = len(string)
+end subroutine
+
+function FARKodeSetAdaptControllerByName(arkode_mem, cname) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+character(kind=C_CHAR, len=*), target :: cname
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+
+farg1 = arkode_mem
+call SWIG_string_to_chararray(cname, farg2_chars, farg2)
+fresult = swigc_FARKodeSetAdaptControllerByName(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKodeSetAdaptivityAdjustment(arkode_mem, adjust) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3437,6 +3509,38 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = maxfails
 fresult = swigc_FARKodeSetMaxNumConstrFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR) :: checkpoint_scheme
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = checkpoint_scheme
+fresult = swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetAdjointCheckpointIndex(arkode_mem, step_index) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), intent(in) :: step_index
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = arkode_mem
+farg2 = step_index
+fresult = swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -5351,24 +5455,6 @@ farg1 = imethod
 fresult = swigc_FARKodeButcherTable_LoadDIRK(farg1)
 swig_result = fresult
 end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
 
 function FARKodeButcherTable_LoadDIRKByName(imethod) &
 result(swig_result)

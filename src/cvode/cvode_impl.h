@@ -486,6 +486,7 @@ typedef struct CVodeMemRec
   /* -----------------------
     Nonlinear solver switching
     ------------------------ */
+
   sunbooleantype force_next_step;
   int lsodkr_strategy;
   int gustafsoder_strategy;
@@ -503,6 +504,11 @@ typedef struct CVodeMemRec
   sunrealtype cv_stifr;
   sunrealtype cv_alpharef;
 
+  /*----------------
+    Resizing History
+    ----------------*/
+
+  sunbooleantype first_step_after_resize; /* Flag to signal a resize happened */
 
 }* CVodeMem;
 

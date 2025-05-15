@@ -1,0 +1,122 @@
+
+-- Do forward problem --
+
+Initial condition:
+ 1.000000000000000e+00
+ 1.000000000000000e+00
+Forward Solution:
+ 2.772850901841442e+00
+ 2.587108781425562e-01
+ARKODE Stats for Forward Solution:
+Current time                  = 1.00009999999991
+Steps                         = 10001
+Step attempts                 = 10001
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.0001
+Last step size                = 0.0001
+Current step size             = 0.0001
+RHS fn evals                  = 40005
+
+
+-- Do adjoint problem using Jacobian matrix --
+
+Adjoint terminal condition:
+ 1.772850901841442e+00
+-7.412891218574438e-01
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+Adjoint Solution:
+ 3.520521083096132e+00
+-2.193058654880129e+00
+ 4.341723140071459e+00
+-2.000828453469009e+00
+ 1.010058096372930e+00
+-1.395684713865074e+00
+
+SUNAdjointStepper Stats:
+Num backwards steps           = 10001
+Num recompute passes          = 2000
+
+
+-- Redo adjoint problem using VJP --
+
+Initial condition:
+ 1.000000000000000e+00
+ 1.000000000000000e+00
+Forward Solution:
+ 2.772850901841442e+00
+ 2.587108781425562e-01
+ARKODE Stats for Forward Solution:
+Current time                  = 1.00009999999991
+Steps                         = 10001
+Step attempts                 = 10001
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.0001
+Last step size                = 0.0001
+Current step size             = 0.0001
+RHS fn evals                  = 40005
+
+Adjoint Solution:
+ 3.520521083096132e+00
+-2.193058654880129e+00
+ 4.341632075409988e+00
+-2.000888294161178e+00
+ 1.010121229156859e+00
+-1.395720900341188e+00
+
+SUNAdjointStepper Stats:
+Num backwards steps           = 10001
+Num recompute passes          = 2000
+
+
+-- Redo adjoint problem with change of variables tau = -t  --
+
+Initial condition:
+ 1.000000000000000e+00
+ 1.000000000000000e+00
+Forward Solution:
+ 2.772850901841443e+00
+ 2.587108781425562e-01
+ARKODE Stats for Forward Solution:
+Current time                  = -9.99999999061824e-05
+Steps                         = 10001
+Step attempts                 = 10001
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = -0.0001
+Last step size                = -0.0001
+Current step size             = -0.0001
+RHS fn evals                  = 40005
+
+Adjoint terminal condition:
+ 1.772850901841443e+00
+-7.412891218574438e-01
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+Adjoint Solution:
+ 3.520521083096133e+00
+-2.193058654880130e+00
+ 4.341632075409989e+00
+-2.000888294161179e+00
+ 1.010121229156860e+00
+-1.395720900341189e+00
+
+SUNAdjointStepper Stats:
+Num backwards steps           = 10001
+Num recompute passes          = 2000
+

@@ -84,6 +84,11 @@
  */
 #define SUNDIALS_INDEX_TYPE @SUNDIALS_CINDEX_TYPE@
 
+/* Define the type used for 'suncountertype'.
+ * The macro will be defined with a type of the appropriate size.
+ */
+#define SUNDIALS_COUNTER_TYPE @SUNDIALS_COUNTER_TYPE@
+
 /* Use POSIX timers if available.
  *     #define SUNDIALS_HAVE_POSIX_TIMERS
  */

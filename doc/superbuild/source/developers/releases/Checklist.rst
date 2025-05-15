@@ -67,10 +67,12 @@ web pages.
 
 #. Create release branch ``release/vX.Y.Z`` from ``develop`` in the git repo.
 
-#. Update version numbers and release date information using the ``updateVerson.sh``
-   script.
-   
+#. Update version numbers in ``scripts/updateVerson.sh``.
+
+#. Run the ``updateVerson.sh`` script.
+
    .. code-block:: shell
+
       pushd scripts/ && ./updateVersion.sh && popd
 
 #. If this is a major release, search the SUNDIALS code for
@@ -108,9 +110,9 @@ Release Procedure
       The final step (pushing to main) requires temporarily changing the GitHub
       repository settings to allow whoever is doing the push an exception in the
       ``main`` branch protection rules.
-      
+
    .. danger::
-   
+
       Remember to remove this exception to the branch protection rules after making
       the push to update ``main``.
 

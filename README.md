@@ -2,7 +2,7 @@
 
 [![track SUNDIALS downloads](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml/badge.svg)](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml)
 
-### Version 7.2.1 (Dec 2024) ###
+### Version 7.3.0 (Apr 2025) ###
 
 **Center for Applied Scientific Computing, Lawrence Livermore National Laboratory**
 
@@ -19,7 +19,7 @@ nonlinear algebraic systems:
 
 * ARKODE - for integrating stiff, nonstiff, and multirate ODEs of the form
 
-  $$M(t) \\, y' = f_1(t,y) + f_2(t,y), \quad y(t_0) = y_0$$
+  $$M(t) y' = f_1(t,y) + f_2(t,y), \quad y(t_0) = y_0$$
 
 * CVODE - for integrating stiff and nonstiff ODEs of the form
 

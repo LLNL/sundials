@@ -63,8 +63,6 @@ int main(int argc, char* argv[])
   SUNContext sunctx    = NULL;
   N_Vector y           = NULL;
   sunrealtype* ydata   = NULL;
-  sunrealtype tout     = NAN;
-  sunrealtype tret     = NAN;
   void* arkode_mem     = NULL;
   int iout             = 0;
   int retval           = 0;
@@ -119,8 +117,8 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Print out starting Hamiltonian before integrating */
-  tret = T0;
-  tout = T0 + dTout;
+  sunrealtype tret = T0;
+  sunrealtype tout = T0 + dTout;
   /* Output current integration status */
   fprintf(stdout, "t = %.6Lf, q(t) = %.6Lf, H = %.6Lf\n", (long double)tret,
           (long double)ydata[1], (long double)Hamiltonian(y, tret));

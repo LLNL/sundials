@@ -31,7 +31,8 @@ set(cvodes_SOURCES
     cvodes_nls_sim.c
     cvodes_nls_stg.c
     cvodes_nls_stg1.c
-    cvodes_proj.c)
+    cvodes_proj.c
+    cvodes_resize.c)
 
 # Add variable cvodes_HEADERS with the exported CVODES header files
 set(cvodes_HEADERS cvodes.h cvodes_bandpre.h cvodes_bbdpre.h cvodes_diag.h

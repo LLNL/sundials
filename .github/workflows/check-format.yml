@@ -46,8 +46,6 @@ jobs:
       - name: Check out repository code
         if: github.event_name != 'issue_comment'
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Check out repository code
         if: github.event_name == 'issue_comment'
@@ -61,10 +59,10 @@ jobs:
 
       - name: Run checker on code
         run: |
-          ./scripts/format.sh CMakeLists.txt benchmarks cmake examples include src test
+          ./scripts/format.sh .
 
       - name: Run git diff to see if anything changed
-        run: /usr/bin/git diff --name-only --exit-code
+        run: /usr/bin/git diff --exit-code
 
       - name: Run git diff if we failed
         if: failure()

@@ -93,12 +93,12 @@ int ARKodeSetDefaults(void* arkode_mem)
   ark_mem->hadapt_mem->growth = GROWTH; /* step adaptivity growth factor */
   ark_mem->hadapt_mem->lbound = HFIXED_LB; /* step adaptivity no-change lower bound */
   ark_mem->hadapt_mem->ubound = HFIXED_UB; /* step adaptivity no-change upper bound */
-  ark_mem->hadapt_mem->expstab = arkExpStab; /* internal explicit stability fn */
-  ark_mem->hadapt_mem->estab_data = NULL;    /* no explicit stability fn data */
-  ark_mem->hadapt_mem->pq         = PQ;      /* embedding order */
-  ark_mem->hadapt_mem->p          = 0;       /* no default embedding order */
-  ark_mem->hadapt_mem->q          = 0;       /* no default method order */
-  ark_mem->hadapt_mem->adjust     = ADJUST;  /* controller order adjustment */
+  ark_mem->hadapt_mem->expstab    = NULL;   /* no explicit stability fn */
+  ark_mem->hadapt_mem->estab_data = NULL;   /* no explicit stability fn data */
+  ark_mem->hadapt_mem->pq         = PQ;     /* embedding order */
+  ark_mem->hadapt_mem->p          = 0;      /* no default embedding order */
+  ark_mem->hadapt_mem->q          = 0;      /* no default method order */
+  ark_mem->hadapt_mem->adjust     = ADJUST; /* controller order adjustment */
 
   /* Set stepper defaults (if provided) */
   if (ark_mem->step_setdefaults)
@@ -919,6 +919,94 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
 }
 
 /*---------------------------------------------------------------
+  ARKodeSetAdaptControllerByName:
+
+  Specifies a SUNAdaptController time step controller object by
+  its name.
+  ---------------------------------------------------------------*/
+int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Create new controller based on the name */
+  SUNAdaptController C = NULL;
+  if (strcmp(cname, "Soderlind") == 0)
+  {
+    C = SUNAdaptController_Soderlind(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "PID") == 0)
+  {
+    C = SUNAdaptController_PID(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "PI") == 0)
+  {
+    C = SUNAdaptController_PI(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "I") == 0)
+  {
+    C = SUNAdaptController_I(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "ExpGus") == 0)
+  {
+    C = SUNAdaptController_ExpGus(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "ImpGus") == 0)
+  {
+    C = SUNAdaptController_ImpGus(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "ImExGus") == 0)
+  {
+    C = SUNAdaptController_ImExGus(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "H0211") == 0)
+  {
+    C = SUNAdaptController_H0211(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "H0321") == 0)
+  {
+    C = SUNAdaptController_H0321(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "H211") == 0)
+  {
+    C = SUNAdaptController_H211(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "H312") == 0)
+  {
+    C = SUNAdaptController_H312(ark_mem->sunctx);
+  }
+  else
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Unknown controller");
+    return ARK_ILL_INPUT;
+  }
+
+  if (C == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "SUNAdaptController allocation failure");
+    return (ARK_MEM_FAIL);
+  }
+
+  /* Send controller to be used by ARKODE */
+  retval = ARKodeSetAdaptController(arkode_mem, C);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  /* Update controller ownership flag */
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
   ARKodeSetMaxNumSteps:
 
   Specifies the maximum number of integration steps
@@ -1240,9 +1328,7 @@ int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed)
   else { ark_mem->fixedstep = SUNFALSE; }
 
   /* Notify ARKODE to use hfixed as the initial step size, and return */
-  retval = ARKodeSetInitStep(arkode_mem, hfixed);
-
-  return (ARK_SUCCESS);
+  return ARKodeSetInitStep(arkode_mem, hfixed);
 }
 
 /*---------------------------------------------------------------
@@ -1292,7 +1378,7 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
       return retval;
     }
 
-    if (h != ZERO && ((h > ZERO) != (stepdir > ZERO)))
+    if (h != SUNRcopysign(h, stepdir))
     {
       /* Reverse the sign of h. If adaptive, h will be overwritten anyway by the
        * initial step estimation since ARKodeReset must be called before this.
@@ -1656,7 +1742,7 @@ int ARKodeSetSafetyFactor(void* arkode_mem, sunrealtype safety)
   }
 
   /* check for allowable parameters */
-  if (safety >= ONE)
+  if (safety > ONE)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Illegal safety factor");
@@ -1963,16 +2049,8 @@ int ARKodeSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data)
   }
 
   /* NULL argument sets default, otherwise set inputs */
-  if (EStab == NULL)
-  {
-    hadapt_mem->expstab    = arkExpStab;
-    hadapt_mem->estab_data = ark_mem;
-  }
-  else
-  {
-    hadapt_mem->expstab    = EStab;
-    hadapt_mem->estab_data = estab_data;
-  }
+  hadapt_mem->expstab    = EStab;
+  hadapt_mem->estab_data = estab_data;
 
   return (ARK_SUCCESS);
 }
@@ -2082,6 +2160,48 @@ int ARKodeResetAccumulatedError(void* arkode_mem)
   /* Reset value and counter, and return */
   ark_mem->AccumErrorStart = ark_mem->tn;
   ark_mem->AccumError      = ZERO;
+
+  return (ARK_SUCCESS);
+}
+
+int ARKodeSetAdjointCheckpointScheme(void* arkode_mem,
+                                     SUNAdjointCheckpointScheme checkpoint_scheme)
+
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  ark_mem->checkpoint_scheme = checkpoint_scheme;
+
+  return (ARK_SUCCESS);
+}
+
+int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  if (step_index < 0)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "step_index must be >= 0");
+    return ARK_ILL_INPUT;
+  }
+
+  ark_mem->checkpoint_step_idx = step_index;
+
   return (ARK_SUCCESS);
 }
 
@@ -3045,6 +3165,9 @@ char* ARKodeGetReturnFlagName(long int flag)
   case ARK_RELAX_JAC_FAIL: sprintf(name, "ARK_RELAX_JAC_FAIL"); break;
   case ARK_CONTROLLER_ERR: sprintf(name, "ARK_CONTROLLER_ERR"); break;
   case ARK_STEPPER_UNSUPPORTED: sprintf(name, "ARK_STEPPER_UNSUPPORTED"); break;
+  case ARK_ADJ_RECOMPUTE_FAIL: sprintf(name, "ARK_ADJ_RECOMPUTE_FAIL"); break;
+  case ARK_ADJ_CHECKPOINT_FAIL: sprintf(name, "ARK_ADJ_CHECKPOINT_FAIL"); break;
+  case ARK_SUNADJSTEPPER_ERR: sprintf(name, "ARK_SUNADJSTEPPER_ERR"); break;
   case ARK_DOMEIG_FAIL: sprintf(name, "ARK_DOMEIG_FAIL"); break;
   case ARK_MAX_STAGE_LIMIT_FAIL:
     sprintf(name, "ARK_MAX_STAGE_LIMIT_FAIL");
@@ -3145,9 +3268,9 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
           ark_mem->hadapt_mem->lbound);
   fprintf(fp, "  Step growth upper bound = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->ubound);
-  if (ark_mem->hadapt_mem->expstab == arkExpStab)
+  if (ark_mem->hadapt_mem->expstab == NULL)
   {
-    fprintf(fp, "  Default explicit stability function\n");
+    fprintf(fp, "  No explicit stability function supplied\n");
   }
   else { fprintf(fp, "  User provided explicit stability function\n"); }
   if (ark_mem->hadapt_mem->hcontroller != NULL)
@@ -3212,11 +3335,11 @@ int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C,
   /* On NULL-valued input, create default SUNAdaptController object */
   if (C == NULL)
   {
-    C = SUNAdaptController_PID(ark_mem->sunctx);
+    C = SUNAdaptController_I(ark_mem->sunctx);
     if (C == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptControllerPID allocation failure");
+                      "SUNAdaptController_I allocation failure");
       return (ARK_MEM_FAIL);
     }
     ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -3503,7 +3626,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
   arkSetAdaptivityFn:
 
   Specifies the user-provided time step adaptivity function to use.
-  If 'hfun' is NULL-valued, then the default PID controller will
+  If 'hfun' is NULL-valued, then the default I controller will
   be used instead.
 
   Users should transition to constructing a custom SUNAdaptController
@@ -3552,11 +3675,11 @@ int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
   C = NULL;
   if (hfun == NULL)
   {
-    C = SUNAdaptController_PID(ark_mem->sunctx);
+    C = SUNAdaptController_I(ark_mem->sunctx);
     if (C == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptController_PID allocation failure");
+                      "SUNAdaptController_I allocation failure");
       return (ARK_MEM_FAIL);
     }
   }
