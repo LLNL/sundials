@@ -539,8 +539,8 @@ static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
       jy   = ly + isuby * MYSUB;
       ydn  = YMIN + (jy - SUN_RCONST(0.5)) * dely;
       yup  = ydn + dely;
-      cydn = verdco * exp(SUN_RCONST(0.2) * ydn);
-      cyup = verdco * exp(SUN_RCONST(0.2) * yup);
+      cydn = verdco * SUNRexp(SUN_RCONST(0.2) * ydn);
+      cyup = verdco * SUNRexp(SUN_RCONST(0.2) * yup);
       diag = -(cydn + cyup + SUN_RCONST(2.0) * hordco);
       for (lx = 0; lx < MXSUB; lx++)
       {
@@ -1081,11 +1081,11 @@ static void fcalc(sunrealtype t, sunrealtype udata[], sunrealtype dudata[],
 
   /* Set diurnal rate coefficients as functions of t, and save q4 in
   data block for use by preconditioner evaluation routine */
-  s = sin((data->om) * t);
+  s = SUNRsin((data->om) * t);
   if (s > ZERO)
   {
-    q3     = exp(-A3 / s);
-    q4coef = exp(-A4 / s);
+    q3     = SUNRexp(-A3 / s);
+    q4coef = SUNRexp(-A4 / s);
   }
   else
   {
@@ -1102,8 +1102,8 @@ static void fcalc(sunrealtype t, sunrealtype udata[], sunrealtype dudata[],
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn  = YMIN + (jy - .5) * dely;
     yup  = ydn + dely;
-    cydn = verdco * exp(SUN_RCONST(0.2) * ydn);
-    cyup = verdco * exp(SUN_RCONST(0.2) * yup);
+    cydn = verdco * SUNRexp(SUN_RCONST(0.2) * ydn);
+    cyup = verdco * SUNRexp(SUN_RCONST(0.2) * yup);
     for (lx = 0; lx < MXSUB; lx++)
     {
       /* Extract c1 and c2, and set kinetic rate terms */
@@ -1188,7 +1188,9 @@ static void PrintOutput(void* cvode_mem, int my_pe, MPI_Comm comm,
     retval = CVodeGetLastStep(cvode_mem, &hu);
     check_retval(&retval, "CVodeGetLastStep", 1, my_pe);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%8.3Qe %2d  %8.3Qe %5ld\n", t, qu, hu, nst);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%8.3Le %2d  %8.3Le %5ld\n", t, qu, hu, nst);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("%8.3e %2d  %8.3e %5ld\n", t, qu, hu, nst);
@@ -1197,7 +1199,9 @@ static void PrintOutput(void* cvode_mem, int my_pe, MPI_Comm comm,
 #endif
 
     printf("                                Solution       ");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%12.4Qe %12.4Qe \n", udata[0], tempu[0]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", udata[0], tempu[0]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("%12.4e %12.4e \n", udata[0], tempu[0]);
@@ -1207,7 +1211,9 @@ static void PrintOutput(void* cvode_mem, int my_pe, MPI_Comm comm,
 
     printf("                                               ");
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%12.4Qe %12.4Qe \n", udata[1], tempu[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", udata[1], tempu[1]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("%12.4e %12.4e \n", udata[1], tempu[1]);
@@ -1255,7 +1261,9 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector* uS)
     printf("                                "
            "----------------------------------------\n");
     printf("                                Sensitivity 1  ");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%12.4Qe %12.4Qe \n", sdata[0], temps[0]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", sdata[0], temps[0]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("%12.4e %12.4e \n", sdata[0], temps[0]);
@@ -1263,7 +1271,9 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector* uS)
     printf("%12.4e %12.4e \n", sdata[0], temps[0]);
 #endif
     printf("                                               ");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%12.4Qe %12.4Qe \n", sdata[1], temps[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", sdata[1], temps[1]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("%12.4e %12.4e \n", sdata[1], temps[1]);
@@ -1297,7 +1307,9 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector* uS)
     printf("                                "
            "----------------------------------------\n");
     printf("                                Sensitivity 2  ");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%12.4Qe %12.4Qe \n", sdata[0], temps[0]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", sdata[0], temps[0]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("%12.4e %12.4e \n", sdata[0], temps[0]);
@@ -1305,7 +1317,9 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector* uS)
     printf("%12.4e %12.4e \n", sdata[0], temps[0]);
 #endif
     printf("                                               ");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%12.4Qe %12.4Qe \n", sdata[1], temps[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%12.4Le %12.4Le \n", sdata[1], temps[1]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("%12.4e %12.4e \n", sdata[1], temps[1]);

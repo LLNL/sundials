@@ -91,7 +91,11 @@
 #include <sunlinsol/sunlinsol_dense.h> /* dense linear solver                  */
 #include <sunmatrix/sunmatrix_dense.h> /* dense matrix type, fcts., macros     */
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM ".20Qg"
+#define ESYM "Qe"
+#define FSYM "Qf"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM ".20Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
@@ -149,7 +153,7 @@ int main(int argc, char* argv[])
   sunrealtype G      = SUN_RCONST(-100.0);    /* stiffness at slow time scale */
   sunrealtype w      = SUN_RCONST(100.0);     /* time-scale separation factor */
   sunrealtype reltol = SUN_RCONST(0.01);
-  sunrealtype abstol = 1e-11;
+  sunrealtype abstol = SUN_RCONST(1e-11);
 
   /* general problem variables */
   int retval;                               /* reusable error-checking flag */
@@ -292,50 +296,50 @@ int main(int argc, char* argv[])
   case (7):
     printf("    slow solver: ARKODE_MRI_GARK_IRK21a\n");
     implicit_slow = SUNTRUE;
-    reltol        = SUNMAX(hs * hs, 1e-10);
-    abstol        = 1e-11;
+    reltol        = SUNMAX(hs * hs, SUN_RCONST(1e-10));
+    abstol        = SUN_RCONST(1e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (8):
     printf("    slow solver: ARKODE_MRI_GARK_ESDIRK34a\n");
     implicit_slow = SUNTRUE;
-    reltol        = SUNMAX(hs * hs * hs, 1e-10);
-    abstol        = 1e-11;
+    reltol        = SUNMAX(hs * hs * hs, SUN_RCONST(1e-10));
+    abstol        = SUN_RCONST(1e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (9):
     printf("    slow solver: ARKODE_IMEX_MRI_GARK3b\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs * hs, 1e-10);
-    abstol    = 1e-11;
+    reltol    = SUNMAX(hs * hs * hs, SUN_RCONST(1e-10));
+    abstol    = SUN_RCONST(1e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (10):
     printf("    slow solver: ARKODE_IMEX_MRI_GARK4\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs * hs * hs, 1e-14);
-    abstol    = 1e-14;
+    reltol    = SUNMAX(hs * hs * hs * hs, SUN_RCONST(1e-14));
+    abstol    = SUN_RCONST(1e-14);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (11):
     printf("    slow solver: ARKODE_IMEX_MRI_SR21\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs, 1e-10);
-    abstol    = 1e-11;
+    reltol    = SUNMAX(hs * hs, SUN_RCONST(1e-10));
+    abstol    = SUN_RCONST(1e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (12):
     printf("    slow solver: ARKODE_IMEX_MRI_SR32\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs * hs, 1e-10);
-    abstol    = 1e-11;
+    reltol    = SUNMAX(hs * hs * hs, SUN_RCONST(1e-10));
+    abstol    = SUN_RCONST(1e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (13):
     printf("    slow solver: ARKODE_IMEX_MRI_SR43\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs * hs * hs, 1e-14);
-    abstol    = 1e-14;
+    reltol    = SUNMAX(hs * hs * hs * hs, SUN_RCONST(1e-14));
+    abstol    = SUN_RCONST(1e-14);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   }
@@ -348,8 +352,8 @@ int main(int argc, char* argv[])
   case (1):
     printf("    fast solver: esdirk-3-3\n");
     implicit_fast = SUNTRUE;
-    reltol        = SUNMAX(hs * hs * hs, 1e-10);
-    abstol        = 1e-11;
+    reltol        = SUNMAX(hs * hs * hs, SUN_RCONST(1e-10));
+    abstol        = SUN_RCONST(1e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (2):
@@ -1015,24 +1019,24 @@ static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 static sunrealtype r(sunrealtype t, void* user_data)
 {
-  return (SUN_RCONST(0.5) * cos(t));
+  return (SUN_RCONST(0.5) * SUNRcos(t));
 }
 
 static sunrealtype s(sunrealtype t, void* user_data)
 {
   sunrealtype* rpar = (sunrealtype*)user_data;
-  return (cos(rpar[1] * t));
+  return (SUNRcos(rpar[1] * t));
 }
 
 static sunrealtype rdot(sunrealtype t, void* user_data)
 {
-  return (-SUN_RCONST(0.5) * sin(t));
+  return (-SUN_RCONST(0.5) * SUNRsin(t));
 }
 
 static sunrealtype sdot(sunrealtype t, void* user_data)
 {
   sunrealtype* rpar = (sunrealtype*)user_data;
-  return (-rpar[1] * sin(rpar[1] * t));
+  return (-rpar[1] * SUNRsin(rpar[1] * t));
 }
 
 static sunrealtype utrue(sunrealtype t, void* user_data)

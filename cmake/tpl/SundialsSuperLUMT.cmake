@@ -37,7 +37,7 @@ endif()
 # -----------------------------------------------------------------------------
 
 # SUPERLUMT does not support extended precision
-if(SUNDIALS_PRECISION MATCHES "EXTENDED")
+if((SUNDIALS_PRECISION MATCHES "EXTENDED") OR (SUNDIALS_PRECISION MATCHES "FLOAT128"))
   message(
     FATAL_ERROR
       "SUPERLUMT is not compatible with ${SUNDIALS_PRECISION} precision")

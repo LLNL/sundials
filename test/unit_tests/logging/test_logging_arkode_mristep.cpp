@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
 
   // Output initial contion
   cout << scientific;
-  cout << setprecision(numeric_limits<sunrealtype>::digits10);
+  cout << setprecision(numeric_limits<double>::digits10);
   cout << "           t              ";
   cout << "          u              ";
   cout << "          v              ";

@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 
   // Output initial contion
   std::cout << std::scientific;
-  std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+  std::cout << std::setprecision(std::numeric_limits<double>::digits10);
   std::cout << "           t              ";
   std::cout << "          u              ";
   std::cout << "          v              ";

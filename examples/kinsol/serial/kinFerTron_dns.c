@@ -333,8 +333,8 @@ static int func(N_Vector u, N_Vector f, void* user_data)
   l2 = udata[4];
   L2 = udata[5];
 
-  fdata[0] = PT5 * sin(x1 * x2) - PT25 * x2 / PI - PT5 * x1;
-  fdata[1] = (ONE - PT25 / PI) * (exp(TWO * x1) - E) + E * x2 / PI - TWO * E * x1;
+  fdata[0] = PT5 * SUNRsin(x1 * x2) - PT25 * x2 / PI - PT5 * x1;
+  fdata[1] = (ONE - PT25 / PI) * (SUNRexp(TWO * x1) - E) + E * x2 / PI - TWO * E * x1;
   fdata[2] = l1 - x1 + lb[0];
   fdata[3] = L1 - x1 + ub[0];
   fdata[4] = l2 - x2 + lb[1];
@@ -411,7 +411,9 @@ static void PrintHeader(sunrealtype fnormtol, sunrealtype scsteptol)
 {
   printf("\nFerraris and Tronconi test problem\n");
   printf("Tolerance parameters:\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("  fnormtol  = %10.6Qg\n  scsteptol = %10.6Qg\n", fnormtol, scsteptol);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("  fnormtol  = %10.6Lg\n  scsteptol = %10.6Lg\n", fnormtol, scsteptol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("  fnormtol  = %10.6g\n  scsteptol = %10.6g\n", fnormtol, scsteptol);
@@ -426,7 +428,9 @@ static void PrintHeader(sunrealtype fnormtol, sunrealtype scsteptol)
 
 static void PrintOutput(N_Vector u)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf(" %8.6Qg  %8.6Qg\n", Ith(u, 1), Ith(u, 2));
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %8.6Lg  %8.6Lg\n", Ith(u, 1), Ith(u, 2));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf(" %8.6g  %8.6g\n", Ith(u, 1), Ith(u, 2));

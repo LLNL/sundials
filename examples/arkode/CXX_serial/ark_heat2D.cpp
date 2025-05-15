@@ -455,7 +455,11 @@ int main(int argc, char* argv[])
     sunrealtype maxerr = N_VMaxNorm(udata->e);
 
     cout << scientific;
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+    cout << setprecision(FLT128_DIG);
+#else
     cout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
     cout << "  Max error = " << maxerr << endl;
   }
 
@@ -527,8 +531,8 @@ static int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
     sunrealtype bx = (udata->kx) * TWO * PI * PI;
     sunrealtype by = (udata->ky) * TWO * PI * PI;
 
-    sunrealtype sin_t_cos_t = sin(PI * t) * cos(PI * t);
-    sunrealtype cos_sqr_t   = cos(PI * t) * cos(PI * t);
+    sunrealtype sin_t_cos_t = SUNRsin(PI * t) * SUNRcos(PI * t);
+    sunrealtype cos_sqr_t   = SUNRcos(PI * t) * SUNRcos(PI * t);
 
     for (sunindextype j = 1; j < ny - 1; j++)
     {
@@ -537,11 +541,11 @@ static int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
         x = i * udata->dx;
         y = j * udata->dy;
 
-        sin_sqr_x = sin(PI * x) * sin(PI * x);
-        sin_sqr_y = sin(PI * y) * sin(PI * y);
+        sin_sqr_x = SUNRsin(PI * x) * SUNRsin(PI * x);
+        sin_sqr_y = SUNRsin(PI * y) * SUNRsin(PI * y);
 
-        cos_sqr_x = cos(PI * x) * cos(PI * x);
-        cos_sqr_y = cos(PI * y) * cos(PI * y);
+        cos_sqr_x = SUNRcos(PI * x) * SUNRcos(PI * x);
+        cos_sqr_y = SUNRcos(PI * y) * SUNRcos(PI * y);
 
         farray[IDX(i, j, nx)] =
           -TWO * PI * sin_sqr_x * sin_sqr_y * sin_t_cos_t -
@@ -833,7 +837,7 @@ static int Solution(sunrealtype t, N_Vector u, UserData* udata)
   sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Constants for computing solution
-  cos_sqr_t = cos(PI * t) * cos(PI * t);
+  cos_sqr_t = SUNRcos(PI * t) * SUNRcos(PI * t);
 
   // Initialize u to zero (handles boundary conditions)
   N_VConst(ZERO, u);
@@ -848,8 +852,8 @@ static int Solution(sunrealtype t, N_Vector u, UserData* udata)
       x = i * udata->dx;
       y = j * udata->dy;
 
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
+      sin_sqr_x = SUNRsin(PI * x) * SUNRsin(PI * x);
+      sin_sqr_y = SUNRsin(PI * y) * SUNRsin(PI * y);
 
       uarray[IDX(i, j, udata->nx)] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
     }
@@ -912,27 +916,38 @@ static int PrintUserData(UserData* udata)
   cout << "2D Heat PDE test problem:" << endl;
   cout << " --------------------------------- " << endl;
   cout << "  kx             = " << udata->kx << endl;
+  //printf( "  kx             = " SUN_FORMAT_E "\n",udata->kx);
   cout << "  ky             = " << udata->ky << endl;
+  //printf( "  kx             = " SUN_FORMAT_E "\n",udata->ky);
   cout << "  forcing        = " << udata->forcing << endl;
   cout << "  tf             = " << udata->tf << endl;
+  //printf( "  tf             = " SUN_FORMAT_E "\n",udata->tf);
   cout << "  xu             = " << udata->xu << endl;
+  //printf( "  xu             = " SUN_FORMAT_E "\n",udata->xu);
   cout << "  yu             = " << udata->yu << endl;
+  //printf( "  yu             = " SUN_FORMAT_E "\n",udata->yu);
   cout << "  nx             = " << udata->nx << endl;
   cout << "  ny             = " << udata->ny << endl;
   cout << "  dx             = " << udata->dx << endl;
+  //printf( "  dx             = " SUN_FORMAT_E "\n",udata->dx);
   cout << "  dy             = " << udata->dy << endl;
+  //printf( "  dy             = " SUN_FORMAT_E "\n",udata->dy);
   cout << " --------------------------------- " << endl;
   cout << "  rtol           = " << udata->rtol << endl;
+  //printf( "  rtol           = " SUN_FORMAT_E "\n",udata->rtol);
   cout << "  atol           = " << udata->atol << endl;
+  //printf( "  atol           = " SUN_FORMAT_E "\n",udata->atol);
   cout << "  order          = " << udata->order << endl;
   cout << "  fixed h        = " << udata->hfixed << endl;
+  //printf( "  fixed h        =  " SUN_FORMAT_E "\n",udata->hfixed);
   cout << "  controller     = " << udata->controller << endl;
   cout << "  linear         = " << udata->linear << endl;
   cout << " --------------------------------- " << endl;
   if (udata->pcg) { cout << "  linear solver  = PCG" << endl; }
   else { cout << "  linear solver  = GMRES" << endl; }
   cout << "  lin iters      = " << udata->liniters << endl;
-  cout << "  eps lin        = " << udata->epslin << endl;
+  cout << "  eps lin        = " << udata->epslin   << endl;
+  //printf( "  eps lin        = " SUN_FORMAT_E "\n",udata->epslin);
   cout << "  prec           = " << udata->prec << endl;
   cout << "  msbp           = " << udata->msbp << endl;
   cout << " --------------------------------- " << endl;
@@ -950,7 +965,11 @@ static int OpenOutput(UserData* udata)
   if (udata->output > 0)
   {
     cout << scientific;
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+    cout << setprecision(FLT128_DIG);
+#else
     cout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
     if (udata->forcing)
     {
       cout << "          t           ";
@@ -985,13 +1004,21 @@ static int OpenOutput(UserData* udata)
     // Open output streams for solution and error
     udata->uout.open("heat2d_solution.txt");
     udata->uout << scientific;
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+    udata->uout << setprecision(FLT128_DIG);
+#else
     udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
 
     if (udata->forcing)
     {
       udata->eout.open("heat2d_error.txt");
       udata->eout << scientific;
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+      udata->eout << setprecision(FLT128_DIG);
+#else
       udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
     }
   }
 
@@ -1006,7 +1033,7 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
   if (udata->output > 0)
   {
     // Compute rms norm of the state
-    sunrealtype urms = sqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
+    sunrealtype urms = SUNRsqrt(N_VDotProd(u, u) / udata->nx / udata->ny);
 
     // Output current status
     if (udata->forcing)
@@ -1018,9 +1045,9 @@ static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata)
       // Compute max error
       sunrealtype max = N_VMaxNorm(udata->e);
 
-      cout << setw(22) << t << setw(25) << urms << setw(25) << max << endl;
+      cout << setw(39) << t << setw(42) << urms << setw(42) << max << endl;
     }
-    else { cout << setw(22) << t << setw(25) << urms << endl; }
+    else { cout << setw(39) << t << setw(42) << urms << endl; }
 
     // Write solution and error to disk
     if (udata->output == 2)

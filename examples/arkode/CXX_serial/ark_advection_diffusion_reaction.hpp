@@ -44,7 +44,11 @@
 
 #define NSPECIES 3
 
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+#define WIDTH (10 + FLT128_DIG)
+#else
 #define WIDTH (10 + numeric_limits<sunrealtype>::digits10)
+#endif
 
 // Macro to access each species at an x location
 #define UIDX(i) (NSPECIES * (i))
@@ -632,6 +636,8 @@ inline void find_arg(vector<string>& args, const string key, sunrealtype& dest)
     dest = stod(*(it + 1));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
     dest = stold(*(it + 1));
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+    dest = sunrealtype(stold(*(it + 1)));
 #endif
     args.erase(it, it + 2);
   }
@@ -1132,7 +1138,11 @@ static int OpenOutput(UserData& udata, UserOptions& uopts)
   if (uopts.output)
   {
     cout << scientific;
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    cout << setprecision(FLT128_DIG);
+#else
     cout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
     cout << "          t           ";
     cout << "          ||y||_rms      " << endl;
     cout << " ---------------------";
@@ -1148,8 +1158,12 @@ static int OpenOutput(UserData& udata, UserOptions& uopts)
     uopts.uout.open(fname.str());
 
     uopts.uout << scientific;
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+    uopts.uout << setprecision(FLT128_DIG);
+#else
     uopts.uout << setprecision(numeric_limits<sunrealtype>::digits10);
-    uopts.uout << "# title Advection-Diffusion-Reaction (Brusselator)" << endl;
+#endif
+      uopts.uout << "# title Advection-Diffusion-Reaction (Brusselator)" << endl;
     uopts.uout << "# nvar 3" << endl;
     uopts.uout << "# vars u v w" << endl;
     uopts.uout << "# nt " << uopts.nout + 1 << endl;
@@ -1168,8 +1182,13 @@ static int WriteOutput(sunrealtype t, N_Vector y, UserData& udata,
   if (uopts.output)
   {
     // Compute rms norm of the state
-    sunrealtype urms = sqrt(N_VDotProd(y, y) / udata.nx);
-    cout << setw(22) << t << setw(25) << urms << endl;
+    sunrealtype urms = SUNRsqrt(N_VDotProd(y, y) / udata.nx);
+#if  defined(SUNDIALS_FLOAT128_PRECISION)
+    uopts.uout << setprecision(FLT128_DIG);
+#else
+    uopts.uout << setprecision(numeric_limits<sunrealtype>::digits10);
+#endif
+    cout << setw(39) << t << setw(42) << urms << endl;
 
     // Write solution to disk
     if (uopts.output >= 2)

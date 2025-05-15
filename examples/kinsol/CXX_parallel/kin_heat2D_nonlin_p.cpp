@@ -244,7 +244,7 @@ int main(int argc, char* argv[])
     if (outproc)
     {
       cout << scientific;
-      cout << setprecision(numeric_limits<sunrealtype>::digits10);
+      cout << setprecision(numeric_limits<double>::digits10);
       cout << "  Max error = " << maxerr << endl;
       cout << endl;
     }
@@ -727,11 +727,11 @@ static int SetupRHS(void* user_data)
       x = (udata->is + i) * udata->dx;
       y = (udata->js + j) * udata->dy;
 
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
+      sin_sqr_x = SUNRsin(PI * x) * SUNRsin(PI * x);
+      sin_sqr_y = SUNRsin(PI * y) * SUNRsin(PI * y);
 
-      cos_sqr_x = cos(PI * x) * cos(PI * x);
-      cos_sqr_y = cos(PI * y) * cos(PI * y);
+      cos_sqr_x = SUNRcos(PI * x) * SUNRcos(PI * x);
+      cos_sqr_y = SUNRcos(PI * y) * SUNRcos(PI * y);
 
       barray[IDX(i, j, nx_loc)] = bx * (cos_sqr_x - sin_sqr_x) * sin_sqr_y +
                                   by * (cos_sqr_y - sin_sqr_y) * sin_sqr_x;
@@ -1266,8 +1266,8 @@ static int Solution(N_Vector u, UserData* udata)
       x = (udata->is + i) * udata->dx;
       y = (udata->js + j) * udata->dy;
 
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
+      sin_sqr_x = SUNRsin(PI * x) * SUNRsin(PI * x);
+      sin_sqr_y = SUNRsin(PI * y) * SUNRsin(PI * y);
 
       uarray[IDX(i, j, udata->nx_loc)] = sin_sqr_x * sin_sqr_y;
     }
@@ -1445,7 +1445,7 @@ static int WriteSolution(N_Vector u, UserData* udata)
   udata->uout.open(fname.str());
 
   udata->uout << scientific;
-  udata->uout << setprecision(numeric_limits<sunrealtype>::digits10);
+  udata->uout << setprecision(numeric_limits<double>::digits10);
 
   // Write solution and error to disk
   sunrealtype* uarray = N_VGetArrayPointer(u);
@@ -1479,7 +1479,7 @@ static int OpenOutput(UserData* udata)
     udata->rout.open(fname.str());
 
     udata->rout << scientific;
-    udata->rout << setprecision(numeric_limits<sunrealtype>::digits10);
+    udata->rout << setprecision(numeric_limits<double>::digits10);
 
     // Open output stream for error
     fname.str("");
@@ -1488,7 +1488,7 @@ static int OpenOutput(UserData* udata)
     udata->eout.open(fname.str());
 
     udata->eout << scientific;
-    udata->eout << setprecision(numeric_limits<sunrealtype>::digits10);
+    udata->eout << setprecision(numeric_limits<double>::digits10);
   }
 
   return 0;
@@ -1512,11 +1512,11 @@ static int WriteOutput(N_Vector u, N_Vector f, UserData* udata)
   if (outproc)
   {
     // Output residual
-    udata->rout << sqrt(res);
+    udata->rout << SUNRsqrt(res);
     udata->rout << endl;
 
     // Output error
-    udata->eout << sqrt(err);
+    udata->eout << SUNRsqrt(err);
     udata->eout << endl;
   }
 

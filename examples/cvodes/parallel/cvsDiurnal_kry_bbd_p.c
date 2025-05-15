@@ -487,7 +487,12 @@ static void PrintOutput(void* cvode_mem, int my_pe, MPI_Comm comm, N_Vector u,
     check_retval(&retval, "CVodeGetLastOrder", 1, my_pe);
     retval = CVodeGetLastStep(cvode_mem, &hu);
     check_retval(&retval, "CVodeGetLastStep", 1, my_pe);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("t = %.2Qe   no. steps = %ld   order = %d   stepsize = %.2Qe\n", t,
+           nst, qu, hu);
+    printf("At bottom left:  c1, c2 = %12.3Qe %12.3Qe \n", uarray[0], uarray[1]);
+    printf("At top right:    c1, c2 = %12.3Qe %12.3Qe \n\n", tempu[0], tempu[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n", t,
            nst, qu, hu);
     printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", uarray[0], uarray[1]);
@@ -878,11 +883,11 @@ static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u, N_Vector udot,
   /* Set diurnal rate coefficients as functions of t, and save q4 in
   data block for use by preconditioner evaluation routine            */
 
-  s = sin((data->om) * t);
+  s = SUNRsin((data->om) * t);
   if (s > ZERO)
   {
-    q3     = exp(-A3 / s);
-    q4coef = exp(-A4 / s);
+    q3     = SUNRexp(-A3 / s);
+    q4coef = SUNRexp(-A4 / s);
   }
   else
   {
@@ -901,8 +906,8 @@ static int flocal(sunindextype Nlocal, sunrealtype t, N_Vector u, N_Vector udot,
 
     ydn  = YMIN + (jy - SUN_RCONST(0.5)) * dely;
     yup  = ydn + dely;
-    cydn = verdco * exp(SUN_RCONST(0.2) * ydn);
-    cyup = verdco * exp(SUN_RCONST(0.2) * yup);
+    cydn = verdco * SUNRexp(SUN_RCONST(0.2) * ydn);
+    cyup = verdco * SUNRexp(SUN_RCONST(0.2) * yup);
     for (lx = 0; lx < MXSUB; lx++)
     {
       /* Extract c1 and c2, and set kinetic rate terms */

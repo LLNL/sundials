@@ -37,7 +37,7 @@ endif()
 # -----------------------------------------------------------------------------
 
 # SuperLU_DIST only supports double precision
-if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED")
+if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "FLOAT128")
   message(
     FATAL_ERROR
       "SuperLU_DIST is not compatible with ${SUNDIALS_PRECISION} precision")

@@ -44,6 +44,8 @@
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
 #else
 #define GSYM "g"
 #endif
@@ -336,6 +338,10 @@ static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y)
   printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n", rtol,
          atval[0], atval[1], atval[2]);
   printf("Initial conditions y0 = (%g %g %g)\n", yval[0], yval[1], yval[2]);
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("Tolerance parameters:  rtol = %Qg   atol = %Qg %Qg %Qg \n", rtol,
+         atval[0], atval[1], atval[2]);
+  printf("Initial conditions y0 = (%Qg %Qg %Qg)\n", yval[0], yval[1], yval[2]);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n", rtol,
          atval[0], atval[1], atval[2]);
@@ -369,7 +375,10 @@ static void PrintOutput(void* mem, sunrealtype t, N_Vector y)
   check_retval(&retval, "IDAGetNumSteps", 1);
   retval = IDAGetLastStep(mem, &hused);
   check_retval(&retval, "IDAGetLastStep", 1);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%10.4Qe %12.4Qe %12.4Qe %12.4Qe | %3ld  %1d %12.4Qe\n", t, yval[0],
+         yval[1], yval[2], nst, kused, hused);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%10.4Le %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n", t, yval[0],
          yval[1], yval[2], nst, kused, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)

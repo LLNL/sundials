@@ -30,7 +30,7 @@ endif()
 # Option to specify precision (sunrealtype)
 # ---------------------------------------------------------------
 
-set(DOCSTR "single, double, or extended")
+set(DOCSTR "single, double, extended, or float128")
 sundials_option(SUNDIALS_PRECISION STRING "${DOCSTR}" "DOUBLE")
 string(TOUPPER ${SUNDIALS_PRECISION} _upper_SUNDIALS_PRECISION)
 set(SUNDIALS_PRECISION
@@ -129,11 +129,11 @@ endif()
 # ---------------------------------------------------------------
 
 if(UNIX)
-  sundials_option(SUNDIALS_MATH_LIBRARY PATH
-                  "Which math library (e.g., libm) to link to" "-lm" ADVANCED)
+  sundials_option(SUNDIALS_MATH_LIBRARY STRING
+                  "Which math library (e.g., libm libquadmath) to link to" "-lm" ADVANCED)
 else()
-  sundials_option(SUNDIALS_MATH_LIBRARY PATH
-                  "Which math library (e.g., libm) to link to" "" ADVANCED)
+  sundials_option(SUNDIALS_MATH_LIBRARY STRING
+                  "Which math library (e.g., libm libquadmath) to link to" "" ADVANCED)
 endif()
 # all executables will be linked against the math library
 set(EXE_EXTRA_LINK_LIBS "${SUNDIALS_MATH_LIBRARY}")

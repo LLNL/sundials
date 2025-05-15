@@ -3335,7 +3335,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
     bnorm  = N_VWrmsNorm(b, ark_mem->rwt);
 
     SUNLogInfo(ARK_LOGGER, "begin-linear-solve",
-               "iterative = 1, b-norm = %.16g, b-tol = %.16g, res-tol = %.16g",
+               "iterative = 1, b-norm = %" SUN_FORMAT_G ", b-tol = %" SUN_FORMAT_G ", res-tol = %" SUN_FORMAT_G ,
                bnorm, deltar, deltar * arkls_mem->nrmfac);
 
     if (bnorm <= deltar)

@@ -19,7 +19,8 @@
 
 # Examples to build
 set(KINSOL_examples "kin_heat2D_nonlin_p.cpp\;--np 2 2\;1\;4\;exclude-single"
-                    "kin_em_p.cpp\;\;1\;2\;exclude-single")
+                    "kin_em_p.cpp\;\;1\;2\;exclude-single"
+)
 
 # Add the build target for each example
 foreach(example_tuple ${KINSOL_examples})

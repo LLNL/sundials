@@ -114,6 +114,17 @@ constexpr auto LocalNvector = N_VNew_Serial;
 #define GPU_SAFE_CALL
 #endif
 
+
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
+#define FSYM "Qf"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define FSYM "f"
+#endif
 /* Main Program */
 int main(int argc, char* argv[])
 {

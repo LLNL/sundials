@@ -38,6 +38,10 @@
 #define GSYM "Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
+#define ESYM "Qe"
+#define FSYM "Qf"
 #else
 #define GSYM "g"
 #define ESYM "e"
@@ -124,13 +128,17 @@ int main(void)
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
   if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
 
+  /* specifies the maximum number of steps */
+  retval = IDASetMaxNumSteps(ida_mem, 10000000000);
+  if (check_retval(&retval, "IDASetMaxNumSteps", 1)) { return (1); }
+
   /* In loop, call IDASolve, print results, and test for error.
      Stops when the final time has been reached. */
   t    = T0;
   tout = T0 + dTout;
   printf("        t          x1         x2\n");
   printf("   ----------------------------------\n");
-  while (Tf - t > 1.0e-15)
+  while (Tf - t > SUN_RCONST(1.0e-15))
   {
     retval = IDASolve(ida_mem, tout, &t, yy, yp, IDA_NORMAL); /* call integrator */
     if (check_retval(&retval, "IDASolve", 1)) { return (1); }
@@ -202,7 +210,7 @@ int fres(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector rr, void* user_data)
   sunrealtype TWO   = SUN_RCONST(2.0);
 
   NV_Ith_S(rr, 0) = (ONE - alpha) / (t - TWO) * x1 - x1 + (alpha - ONE) * x2 +
-                    TWO * exp(t) - x1p;
+                    TWO * SUNRexp(t) - x1p;
   NV_Ith_S(rr, 1) = (t + TWO) * x1 - (t + TWO) * SUNRexp(t);
 
   return (0);

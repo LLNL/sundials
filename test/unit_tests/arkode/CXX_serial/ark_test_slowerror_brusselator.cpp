@@ -534,7 +534,7 @@ static int run_test(void* mristep_mem, void* arkode_ref, N_Vector y,
       sunrealtype wdsm = abs(ydata[2] - y2data[2]) /
                          (abstol + reltol * abs(y2data[2]));
       dsm[iH][ipart] =
-        sqrt((udsm * udsm + vdsm * vdsm + wdsm * wdsm) / SUN_RCONST(3.0));
+        SUNRsqrt((udsm * udsm + vdsm * vdsm + wdsm * wdsm) / SUN_RCONST(3.0));
       cout << "  H " << Hvals[iH] << "  method " << method << "  t " << t
            << "  dsm " << dsm[iH][ipart] << "  dsm_est " << dsm_est[iH][ipart]
            << endl;

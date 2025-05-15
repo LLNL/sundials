@@ -641,7 +641,9 @@ static void PrintHeader(sunindextype SystemSize, int maxl, sunrealtype rtol,
   printf("     Total system size: %ld\n", (long int)SystemSize);
   printf("Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("     Processor array: %d x %d\n", NPEX, NPEY);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("Tolerance parameters:  rtol = %Qg   atol = %Qg\n", rtol, atol);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
@@ -712,7 +714,12 @@ static void PrintOutput(void* ida_mem, N_Vector cc, sunrealtype tt,
     retval = IDAGetLastStep(ida_mem, &hused);
     check_retval(&retval, "IDAGetLastStep", 1, thispe);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%8.2Qe %12.4Qe %12.4Qe   | %3ld  %1d %12.4Qe\n", tt, cdata[0],
+           clast[0], nst, kused, hused);
+    for (i = 1; i < NUM_SPECIES; i++)
+      printf("         %12.4Qe %12.4Qe   |\n", cdata[i], clast[i]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%8.2Le %12.4Le %12.4Le   | %3ld  %1d %12.4Le\n", tt, cdata[0],
            clast[0], nst, kused, hused);
     for (i = 1; i < NUM_SPECIES; i++)

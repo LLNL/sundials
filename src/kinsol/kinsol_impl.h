@@ -467,7 +467,23 @@ void KINInfoHandler(const char* module, const char* function, char* msg,
 #define INFO_RETVAL "Return value: %d"
 #define INFO_ADJ    "no. of lambda adjustments = %ld"
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+
+#define INFO_RVAR   "%s = %26.16Qg"
+#define INFO_NNI    "nni = %4ld, nfe = %6ld, fnorm = %26.16Qg"
+#define INFO_TOL    "scsteptol = %12.3Qg, fnormtol = %12.3Qg"
+#define INFO_FMAX   "scaled f norm (for stopping) = %12.3Qg"
+#define INFO_PNORM  "pnorm = %12.4Qe"
+#define INFO_PNORM1 "(ivio=1) pnorm = %12.4Qe"
+#define INFO_FNORM  "fnorm(L2) = %20.8Qe"
+#define INFO_LAM    "min_lam = %11.4Qe, f1norm = %11.4Qe, pnorm = %11.4Qe"
+#define INFO_ALPHA \
+  "fnorm = %15.8Qe, f1norm = %15.8Qe, alpha_cond = %15.8Qe, lam = %15.8Qe"
+#define INFO_BETA "f1norm = %15.8Qe, beta_cond = %15.8Qe, lam = %15.8Qe"
+#define INFO_ALPHABETA \
+  "f1norm = %15.8Qe, alpha_cond = %15.8Qe, beta_cond = %15.8Qe, lam = %15.8Qe"
+
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 
 #define INFO_RVAR   "%s = %26.16Lg"
 #define INFO_NNI    "nni = %4ld, nfe = %6ld, fnorm = %26.16Lg"

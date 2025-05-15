@@ -66,7 +66,6 @@
 #include <sundials/sundials_logger.h>
 // Header file containing UserData and function declarations
 #include "kin_em_p.hpp"
-
 // -----------------------------------------------------------------------------
 // Main Program
 // -----------------------------------------------------------------------------
@@ -357,7 +356,7 @@ static int FPFunction(N_Vector u, N_Vector f, void* user_data)
 static int SetupSamples(UserData* udata)
 {
   sunindextype i, j, start, end;
-  sunrealtype mean, val;
+  double mean, val;
 
   // Access problem data
   sunrealtype* samples_local = N_VGetArrayPointer(udata->samples_local);
@@ -367,7 +366,7 @@ static int SetupSamples(UserData* udata)
     N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(udata->mu_true));
   if (check_retval((void*)mu_host, "N_VGetArrayPointer", 0)) { return 1; }
 
-  sunrealtype std_dev = ONE;
+  double std_dev = 1.0;
 
   for (i = 0; i < 3; i++)
   {
@@ -388,13 +387,13 @@ static int SetupSamples(UserData* udata)
     // Setup distribution parameters
     mean = mu_host[i];
     std::default_random_engine generator;
-    std::normal_distribution<sunrealtype> distribution(mean, std_dev);
+    std::normal_distribution<double> distribution(mean, std_dev);
 
     // Get samples
     for (j = start; j < end; j++)
     {
       val              = distribution(generator);
-      samples_local[j] = val;
+      samples_local[j] = (sunrealtype)val;
     }
   }
 
@@ -449,7 +448,7 @@ static int EM(N_Vector u, N_Vector f, void* user_data)
   // --------------
 
   // Scale value for functions
-  sunrealtype scale = ONE / sqrt(TWO * PI);
+  sunrealtype scale = ONE / SUNRsqrt(TWO * PI);
 
   // Get input pointers
   sunrealtype* u_host = N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(u));
@@ -469,9 +468,9 @@ static int EM(N_Vector u, N_Vector f, void* user_data)
     val2 = x_host[i] - u_host[1];
     val3 = x_host[i] - u_host[2];
 
-    px_host[i] = a1 * scale * exp(-(val1 * val1) / TWO);
-    px_host[i] += a2 * scale * exp(-(val2 * val2) / TWO);
-    px_host[i] += a3 * scale * exp(-(val3 * val3) / TWO);
+    px_host[i] = a1 * scale * SUNRexp(-(val1 * val1) / TWO);
+    px_host[i] += a2 * scale * SUNRexp(-(val2 * val2) / TWO);
+    px_host[i] += a3 * scale * SUNRexp(-(val3 * val3) / TWO);
   }
 
   // --------------
@@ -500,9 +499,9 @@ static int EM(N_Vector u, N_Vector f, void* user_data)
     val2 = x_host[i] - u_host[1];
     val3 = x_host[i] - u_host[2];
 
-    frac1 = a1 * scale * exp(-(val1 * val1) / TWO) / px_host[i];
-    frac2 = a2 * scale * exp(-(val2 * val2) / TWO) / px_host[i];
-    frac3 = a3 * scale * exp(-(val3 * val3) / TWO) / px_host[i];
+    frac1 = a1 * scale * SUNRexp(-(val1 * val1) / TWO) / px_host[i];
+    frac2 = a2 * scale * SUNRexp(-(val2 * val2) / TWO) / px_host[i];
+    frac3 = a3 * scale * SUNRexp(-(val3 * val3) / TWO) / px_host[i];
 
     mut_host[0] += x_host[i] * frac1;
     mut_host[1] += x_host[i] * frac2;
