@@ -210,7 +210,7 @@ int fres(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector rr, void* user_data)
   sunrealtype TWO   = SUN_RCONST(2.0);
 
   NV_Ith_S(rr, 0) = (ONE - alpha) / (t - TWO) * x1 - x1 + (alpha - ONE) * x2 +
-                    TWO * exp(t) - x1p;
+                    TWO * SUNRexp(t) - x1p;
   NV_Ith_S(rr, 1) = (t + TWO) * x1 - (t + TWO) * SUNRexp(t);
 
   return (0);
