@@ -380,7 +380,7 @@ void CVodeAdjFree(void* cvode_mem)
     /* Free CVODEA memory */
     free(ca_mem);
     cv_mem->cv_adj_mem = NULL;
-    cv_adjMallocDone = SUNFALSE;
+    cv_mem->cv_adjMallocDone = SUNFALSE;
   }
 }
 
