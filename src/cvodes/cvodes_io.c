@@ -408,7 +408,7 @@ int CVodeSetEtaFixedStepBounds(void* cvode_mem, sunrealtype eta_min_fx,
   }
   else { cv_mem->cv_eta_min_fx = eta_min_fx; }
 
-  if (eta_max_fx <= ONE) { cv_mem->cv_eta_max_fx = ETA_MAX_FX_DEFAULT; }
+  if (eta_max_fx < ONE) { cv_mem->cv_eta_max_fx = ETA_MAX_FX_DEFAULT; }
   else { cv_mem->cv_eta_max_fx = eta_max_fx; }
 
   return (CV_SUCCESS);
