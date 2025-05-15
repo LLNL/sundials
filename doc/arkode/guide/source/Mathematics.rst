@@ -1203,7 +1203,7 @@ expensive, and where convergence can be seriously hindered through use
 of an inaccurate matrix.  To accommodate these scenarios, the step is
 left unchanged when :math:`\eta \in [\eta_L, \eta_U]`.  The default
 values for this interval are :math:`\eta_L = 1` and :math:`\eta_U =
-1.0` (so small step size adjustments are possible), and may be m
+1.0` (so small step size adjustments are possible), and may be
 modified by the user.
 
 We note that any choices for :math:`\eta` (or equivalently,
