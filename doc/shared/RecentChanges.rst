@@ -9,4 +9,6 @@
 
 Fixed a CMake bug that would cause the Caliper compile test to fail at configure time.
 
+Fixed a bug in CVODE/CVODES :c:func:`CVodeSetEtaFixedStepBounds` function which disallowed setting `eta_max_fx=1.0`.
+
 **Deprecation Notices**
