@@ -1055,6 +1055,8 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
     cv_mem->switchtonewton_precondition_count = precondition_newton;
   }
 
+  fprintf(stdout, ">>> SUNDIALS set NLS algorithm = %d, max_nli = %ld, aa_vectors = %d, alpharef = %.16g, hyst_fixed = %d, hyst_newton = %d, precondition_fixed = %d, precondition_newton = %d\n", algorithm, max_nli, aa_vectors, alpharef, hystersis_fixed, hystersis_newton, precondition_fixed, precondition_newton);
+
   return CV_SUCCESS;
 }
 
