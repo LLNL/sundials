@@ -87,14 +87,14 @@ int IDASetEtaFixedStepBounds(void* ida_mem, sunrealtype eta_min_fx,
   IDA_mem = (IDAMem)ida_mem;
 
   /* set allowed value or use default */
-  if (eta_min_fx >= ZERO && eta_min_fx <= ONE)
+  if (eta_min_fx < ZERO || eta_min_fx >= ONE)
   {
-    IDA_mem->ida_eta_min_fx = eta_min_fx;
+    IDA_mem->ida_eta_min_fx = ETA_MIN_FX_DEFAULT;
   }
-  else { IDA_mem->ida_eta_min_fx = ETA_MIN_FX_DEFAULT; }
+  else { IDA_mem->ida_eta_min_fx = eta_min_fx; }
 
-  if (eta_max_fx >= ONE) { IDA_mem->ida_eta_max_fx = eta_max_fx; }
-  else { IDA_mem->ida_eta_max_fx = ETA_MAX_FX_DEFAULT; }
+  if (eta_max_fx < ONE) { IDA_mem->ida_eta_max_fx = ETA_MAX_FX_DEFAULT; }
+  else { IDA_mem->ida_eta_max_fx = eta_max_fx; }
 
   return (IDA_SUCCESS);
 }
