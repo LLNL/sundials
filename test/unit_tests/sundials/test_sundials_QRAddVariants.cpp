@@ -17,7 +17,6 @@
 
  * The solvers tested are the different QR decomposition variants
  * used in Anderson Acceleration.
- * The matrix and vectors used here are complex-valued.
  * ------------------------------------------------------------------------
  */
 
