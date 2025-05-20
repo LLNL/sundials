@@ -32,7 +32,7 @@ extern "C" {
  sunbooleantype arnoldi_CheckNVector(N_Vector tmpl);
  sunrealtype arnoldi_Magnitude(const suncomplextype *c);
  int arnoldi_Compare(const void *a, const void *b);
- void* arnoldi_Create_Common(void* Adata, N_Vector q, int maxl, SUNContext sunctx);
+ void* arnoldi_Create_Common(void* Data, N_Vector q, int maxl, SUNContext sunctx);
 
  /*
   * -----------------------------------------------------------------

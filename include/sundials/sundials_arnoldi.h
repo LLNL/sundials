@@ -29,6 +29,7 @@ extern "C" {
 /* Default ARNOLDI parameters */
 #define ARNOLDI_MAXL_DEFAULT 3
 #define DEFAULT_POWER_OF_A   0
+#define MAX_DQITERS          3 /* max. # of attempts to recover in DQ J*v */
 
 /* SUNRhsFn type definition */
 typedef int (*SUNRhsFn)(sunrealtype t, N_Vector y, N_Vector ydot,
@@ -50,14 +51,15 @@ typedef struct ARNOLDIMemRec
   /* ARNOLDI MEMORY specification */
   SUNATimesFn ATimes;   /* User provided ATimes function */
   SUNRhsFn SUNRhs;      /* User provided SUNRhs function */
-  void* Adata;          /* ATimes function data*/
+  void* Data;           /* ATimes function data*/
 
-  N_Vector *V, q;       /* Krylov subspace vectors */
-  sunrealtype **Hes;    /* Hessenberg matrix Hes */
+  N_Vector *V, q, w;    /* Krylov subspace vectors */
 
   int maxl;             /* Krylov subspace dimension */
   int power_of_A;       /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
+  int nfeDQ;            /* Number of function evaluations */
 
+  sunrealtype **Hes;    /* Hessenberg matrix Hes */
 }* ARNOLDIMem;
 
 // Struct to hold the real and imaginary parts
@@ -72,10 +74,14 @@ typedef struct {
 
 /* Creation and Estimation functions */
 
-SUNDIALS_EXPORT void* ArnoldiCreateATimes(SUNATimesFn ATimes, void* Adata,
+SUNDIALS_EXPORT void* ArnoldiCreateATimes(SUNATimesFn ATimes, void* AData,
                 N_Vector q, int maxl, SUNContext sunctx);
-SUNDIALS_EXPORT void* ArnoldiCreateSUNRhs(SUNRhsFn SUNRhs, void* Adata,
-                N_Vector q, int maxl, SUNContext sunctx);
+
+SUNDIALS_EXPORT void* ArnoldiCreateSUNRhs(SUNRhsFn SUNRhs, void* RhsData,
+                sunrealtype t, N_Vector y, N_Vector fy,
+                N_Vector q, N_Vector Jq,
+                int maxl, SUNContext sunctx);
+
 SUNDIALS_EXPORT int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem);
 
 SUNDIALS_EXPORT int ArnoldiPreProcess(ARNOLDIMem arnoldi_mem);
