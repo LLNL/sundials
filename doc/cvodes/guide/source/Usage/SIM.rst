@@ -892,7 +892,7 @@ Main solver optional input functions
 
    .. note::
 
-      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.
+      The *argc* and *argv* arguments should typically be those supplied to the user's ``main`` routine.
       These are left unchanged by :c:func:`CVodeSetFromCommandLine`.
 
       If the *cvid* argument is ``NULL`` then ``cvodes.`` will be used for all CVODES command-line
@@ -1706,9 +1706,6 @@ the :c:func:`CVodeSetEpsLin` function.
       This function must be called after the CVLS linear solver  interface has been initialized through a call to :c:func:`CVodeSetLinearSolver`.
 
       Prior to the introduction of ``N_VGetLength`` in SUNDIALS v5.0.0  (CVODES v5.0.0) the value of ``nrmfac`` was computed using the vector  dot product i.e., the ``nrmfac < 0`` case.
-
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.ls_norm_factor".
 
       This routine will be called by :c:func:`CVodeSetFromCommandLine`
       when using the command-line option "cvid.ls_norm_factor".

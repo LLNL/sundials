@@ -108,6 +108,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   int i, j, retval;
+  SUNErrCode sunretval;
   sunbooleantype write_parameters = SUNFALSE;
   for (i = 1; i < argc; i++)
   {
@@ -131,11 +132,12 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      retval = sunCheckAndSetIntArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetIntArg(arkode_mem, &i, argv, offset,
                                     int_pairs[j].key, int_pairs[j].set,
                                     &arg_used);
-      if (retval != ARK_SUCCESS)
+      if (sunretval != SUN_SUCCESS)
       {
+        retval = ARK_ILL_INPUT;
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         int_pairs[j].key);
@@ -148,11 +150,12 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      retval = sunCheckAndSetLongArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetLongArg(arkode_mem, &i, argv, offset,
                                      long_pairs[j].key, long_pairs[j].set,
                                      &arg_used);
-      if (retval != ARK_SUCCESS)
+      if (sunretval != SUN_SUCCESS)
       {
+        retval = ARK_ILL_INPUT;
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         long_pairs[j].key);
@@ -165,11 +168,12 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      retval = sunCheckAndSetRealArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetRealArg(arkode_mem, &i, argv, offset,
                                      real_pairs[j].key, real_pairs[j].set,
                                      &arg_used);
-      if (retval != ARK_SUCCESS)
+      if (sunretval != SUN_SUCCESS)
       {
+        retval = ARK_ILL_INPUT;
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         real_pairs[j].key);
@@ -182,11 +186,12 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all pair-of-real command-line options */
     for (j = 0; j < num_tworeal_keys; j++)
     {
-      retval = sunCheckAndSetTwoRealArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetTwoRealArg(arkode_mem, &i, argv, offset,
                                         tworeal_pairs[j].key,
                                         tworeal_pairs[j].set, &arg_used);
-      if (retval != ARK_SUCCESS)
+      if (sunretval != SUN_SUCCESS)
       {
+        retval = ARK_ILL_INPUT;
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         tworeal_pairs[j].key);
@@ -199,11 +204,12 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all action command-line options */
     for (j = 0; j < num_action_keys; j++)
     {
-      retval = sunCheckAndSetActionArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetActionArg(arkode_mem, &i, argv, offset,
                                        action_pairs[j].key, action_pairs[j].set,
                                        &arg_used);
-      if (retval != ARK_SUCCESS)
+      if (sunretval != SUN_SUCCESS)
       {
+        retval = ARK_ILL_INPUT;
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         action_pairs[j].key);

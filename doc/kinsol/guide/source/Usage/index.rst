@@ -540,7 +540,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
    .. note::
 
-      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.
+      The *argc* and *argv* arguments should typically be those supplied to the user's ``main`` routine.
       These are left unchanged by :c:func:`KINSetFromCommandLine`.
 
       If the *kinid* argument is ``NULL`` then ``kinsol.`` will be used for all KINSOL command-line

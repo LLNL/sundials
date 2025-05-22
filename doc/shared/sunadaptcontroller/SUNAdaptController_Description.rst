@@ -280,7 +280,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    .. note::
 
-      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.  These
+      The *argc* and *argv* arguments should typically be those supplied to the user's ``main`` routine.  These
       are left unchanged by :c:func:`SUNAdaptController_SetFromCommandLine`.
 
       If the *Cid* argument is ``NULL`` then an implementation-specific prefix will be used for the

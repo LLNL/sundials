@@ -887,7 +887,7 @@ Main solver optional input functions
 
    .. note::
 
-      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.
+      The *argc* and *argv* arguments should typically be those supplied to the user's ``main`` routine.
       These are left unchanged by :c:func:`CVodeSetFromCommandLine`.
 
       If the *cvid* argument is ``NULL`` then ``cvode.`` will be used for all CVODE command-line
@@ -1965,7 +1965,7 @@ step size adaptivity.
       :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`.
 
       This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.set_max_early_step".
+      when using the command-line option "cvid.eta_max_early_step".
 
    .. versionadded:: 6.2.0
 
@@ -2099,9 +2099,6 @@ step size adaptivity.
       The number of error test failures necessary to enforce the maximum step
       size factor :math:`\eta_{\mathrm{min\_ef}}` can be set with
       :c:func:`CVodeSetNumFailsEtaMaxErrFail`.
-
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.num_efails_eta_max_err_fail".
 
       This routine will be called by :c:func:`CVodeSetFromCommandLine`
       when using the command-line option "cvid.eta_max_err_fail".

@@ -141,13 +141,13 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_ImExGus(SUNAdaptController C,
     if (strcmp(argv[i] + offset, "params") == 0)
     {
       i += 1;
-      sunrealtype rarg1 = atof(argv[i]);
+      sunrealtype rarg1 = SUNStrToReal(argv[i]);
       i += 1;
-      sunrealtype rarg2 = atof(argv[i]);
+      sunrealtype rarg2 = SUNStrToReal(argv[i]);
       i += 1;
-      sunrealtype rarg3 = atof(argv[i]);
+      sunrealtype rarg3 = SUNStrToReal(argv[i]);
       i += 1;
-      sunrealtype rarg4 = atof(argv[i]);
+      sunrealtype rarg4 = SUNStrToReal(argv[i]);
       retval = SUNAdaptController_SetParams_ImExGus(C, rarg1, rarg2, rarg3,
                                                     rarg4);
       if (retval != SUN_SUCCESS) { return retval; }
@@ -166,7 +166,7 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_ImExGus(SUNAdaptController C,
     if (strcmp(argv[i] + offset, "error_bias") == 0)
     {
       i += 1;
-      sunrealtype rarg = atof(argv[i]);
+      sunrealtype rarg = SUNStrToReal(argv[i]);
       retval           = SUNAdaptController_SetErrorBias_ImExGus(C, rarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;

@@ -74,7 +74,7 @@ The module SUNLinSol_SuperLUMT provides the following user-callable routines:
 
       This SUNLinearSolver implementation sets the default prefix for command-line
       arguments processed by :c:func:`SUNLinSolSetFromCommandLine`
-      to be "superlumt.".
+      to be "superlumt".
 
 
 .. c:function:: SUNErrCode SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)

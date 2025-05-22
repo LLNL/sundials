@@ -253,7 +253,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    .. note::
 
-      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.  These
+      The *argc* and *argv* arguments should typically be those supplied to the user's ``main`` routine.  These
       are left unchanged by :c:func:`SUNLinSolSetFromCommandLine`.
 
       If the *LSid* argument is ``NULL`` then an implementation-specific prefix will be used for the
