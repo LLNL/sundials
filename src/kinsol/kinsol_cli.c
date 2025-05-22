@@ -75,8 +75,8 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
                                       sizeof(*tworeal_pairs);
 
   SUNErrCode sunretval;
-  int i, j, retval;
-  for (i = 1; i < argc; i++)
+  int idx, j, retval;
+  for (idx = 1; idx < argc; idx++)
   {
     sunbooleantype arg_used = SUNFALSE;
 
@@ -85,20 +85,20 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     size_t offset;
     if (kinid != NULL)
     {
-      if (strncmp(argv[i], kinid, strlen(kinid)) != 0) { continue; }
+      if (strncmp(argv[idx], kinid, strlen(kinid)) != 0) { continue; }
       offset = strlen(kinid) + 1;
     }
     else
     {
       static const char* prefix = "kinsol.";
-      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }
 
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      sunretval = sunCheckAndSetIntArg(kinmem, &i, argv, offset, int_pairs[j].key,
+      sunretval = sunCheckAndSetIntArg(kinmem, &idx, argv, offset, int_pairs[j].key,
                                     int_pairs[j].set, &arg_used);
       if (sunretval != KIN_SUCCESS)
       {
@@ -115,7 +115,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      sunretval = sunCheckAndSetLongArg(kinmem, &i, argv, offset, long_pairs[j].key,
+      sunretval = sunCheckAndSetLongArg(kinmem, &idx, argv, offset, long_pairs[j].key,
                                      long_pairs[j].set, &arg_used);
       if (sunretval != KIN_SUCCESS)
       {
@@ -132,7 +132,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      sunretval = sunCheckAndSetRealArg(kinmem, &i, argv, offset, real_pairs[j].key,
+      sunretval = sunCheckAndSetRealArg(kinmem, &idx, argv, offset, real_pairs[j].key,
                                      real_pairs[j].set, &arg_used);
       if (sunretval != KIN_SUCCESS)
       {
@@ -149,7 +149,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     /* check all pair-of-real command-line options */
     for (j = 0; j < num_tworeal_keys; j++)
     {
-      sunretval = sunCheckAndSetTwoRealArg(kinmem, &i, argv, offset,
+      sunretval = sunCheckAndSetTwoRealArg(kinmem, &idx, argv, offset,
                                         tworeal_pairs[j].key,
                                         tworeal_pairs[j].set, &arg_used);
       if (sunretval != KIN_SUCCESS)
@@ -166,7 +166,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
 
     /* warn for uninterpreted kinid.X arguments */
     KINProcessError(kin_mem, KIN_WARNING, __LINE__, __func__, __FILE__,
-                    "WARNING: argument %s was not handled\n", argv[i]);
+                    "WARNING: argument %s was not handled\n", argv[idx]);
   }
 
   return (KIN_SUCCESS);

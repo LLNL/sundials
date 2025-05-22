@@ -250,9 +250,9 @@ SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
 {
   SUNFunctionBegin(S->sunctx);
 
-  int i, j;
+  int idx, j;
   SUNErrCode retval;
-  for (i = 1; i < argc; i++)
+  for (idx = 1; idx < argc; idx++)
   {
     sunbooleantype arg_used = SUNFALSE;
 
@@ -261,21 +261,21 @@ SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
     size_t offset;
     if (LSid != NULL)
     {
-      if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
+      if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;
     }
     else
     {
       static const char* prefix = "magmadense.";
-      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }
 
     /* control over SetAsync function */
-    if (strcmp(argv[i] + offset, "async") == 0)
+    if (strcmp(argv[idx] + offset, "async") == 0)
     {
-      i += 1;
-      int iarg = atoi(argv[i]);
+      idx += 1;
+      int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_MagmaDense_SetAsync(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       arg_used = SUNTRUE;

@@ -128,42 +128,42 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
 {
   SUNFunctionBegin(C->sunctx);
 
-  int i;
+  int idx;
   SUNErrCode retval;
   sunbooleantype write_parameters = SUNFALSE;
-  for (i = 1; i < argc; i++)
+  for (idx = 1; idx < argc; idx++)
   {
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
     size_t offset;
     if (Cid != NULL)
     {
-      if (strncmp(argv[i], Cid, strlen(Cid)) != 0) { continue; }
+      if (strncmp(argv[idx], Cid, strlen(Cid)) != 0) { continue; }
       offset = strlen(Cid) + 1;
     }
     else
     {
       static const char* prefix = "sunadaptcontroller_mrihtol.";
-      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }
 
     /* control over SetParams function */
-    if (strcmp(argv[i] + offset, "params") == 0)
+    if (strcmp(argv[idx] + offset, "params") == 0)
     {
-      i += 1;
-      sunrealtype rarg1 = SUNStrToReal(argv[i]);
-      i += 1;
-      sunrealtype rarg2 = SUNStrToReal(argv[i]);
-      i += 1;
-      sunrealtype rarg3 = SUNStrToReal(argv[i]);
+      idx += 1;
+      sunrealtype rarg1 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg2 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg3 = SUNStrToReal(argv[idx]);
       retval = SUNAdaptController_SetParams_MRIHTol(C, rarg1, rarg2, rarg3);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* control over SetDefaults function */
-    if (strcmp(argv[i] + offset, "defaults") == 0)
+    if (strcmp(argv[idx] + offset, "defaults") == 0)
     {
       retval = SUNAdaptController_SetDefaults_MRIHTol(C);
       if (retval != SUN_SUCCESS) { return retval; }
@@ -171,17 +171,17 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
     }
 
     /* control over SetErrorBias function */
-    if (strcmp(argv[i] + offset, "error_bias") == 0)
+    if (strcmp(argv[idx] + offset, "error_bias") == 0)
     {
-      i += 1;
-      sunrealtype rarg = SUNStrToReal(argv[i]);
+      idx += 1;
+      sunrealtype rarg = SUNStrToReal(argv[idx]);
       retval           = SUNAdaptController_SetErrorBias_MRIHTol(C, rarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* check whether it was requested that all parameters be printed to screen */
-    if (strcmp(argv[i] + offset, "write_parameters") == 0)
+    if (strcmp(argv[idx] + offset, "write_parameters") == 0)
     {
       write_parameters = SUNTRUE;
       continue;

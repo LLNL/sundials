@@ -497,7 +497,7 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 
   Provides command-line control over LSRKStep-specific "set" routines.
   ---------------------------------------------------------------*/
-int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
+int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
                                 size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of command-line arguments, and the corresponding set routines */
@@ -525,7 +525,7 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   int j, retval;
   for (j = 0; j < num_char_keys; j++)
   {
-    retval = sunCheckAndSetCharArg((void*)ark_mem, i, argv, offset,
+    retval = sunCheckAndSetCharArg((void*)ark_mem, argidx, argv, offset,
                                    char_pairs[j].key, char_pairs[j].set,
                                    arg_used);
     if (retval != ARK_SUCCESS)
@@ -541,7 +541,7 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   /* check all "long int" command-line options */
   for (j = 0; j < num_long_keys; j++)
   {
-    retval = sunCheckAndSetLongArg((void*)ark_mem, i, argv, offset,
+    retval = sunCheckAndSetLongArg((void*)ark_mem, argidx, argv, offset,
                                    long_pairs[j].key, long_pairs[j].set,
                                    arg_used);
     if (retval != ARK_SUCCESS)
@@ -557,7 +557,7 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   /* check all "int" command-line options */
   for (j = 0; j < num_int_keys; j++)
   {
-    retval = sunCheckAndSetIntArg((void*)ark_mem, i, argv, offset,
+    retval = sunCheckAndSetIntArg((void*)ark_mem, argidx, argv, offset,
                                   int_pairs[j].key, int_pairs[j].set, arg_used);
     if (retval != ARK_SUCCESS)
     {
@@ -572,7 +572,7 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   /* check all "real" command-line options */
   for (j = 0; j < num_real_keys; j++)
   {
-    retval = sunCheckAndSetRealArg((void*)ark_mem, i, argv, offset,
+    retval = sunCheckAndSetRealArg((void*)ark_mem, argidx, argv, offset,
                                    real_pairs[j].key, real_pairs[j].set,
                                    arg_used);
     if (retval != ARK_SUCCESS)

@@ -107,10 +107,10 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"reset_accumulated_error", ARKodeResetAccumulatedError}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
-  int i, j, retval;
+  int idx, j, retval;
   SUNErrCode sunretval;
   sunbooleantype write_parameters = SUNFALSE;
-  for (i = 1; i < argc; i++)
+  for (idx = 1; idx < argc; idx++)
   {
     sunbooleantype arg_used = SUNFALSE;
 
@@ -119,20 +119,20 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     size_t offset;
     if (arkid != NULL)
     {
-      if (strncmp(argv[i], arkid, strlen(arkid)) != 0) { continue; }
+      if (strncmp(argv[idx], arkid, strlen(arkid)) != 0) { continue; }
       offset = strlen(arkid) + 1;
     }
     else
     {
       static const char* prefix = "arkode.";
-      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }
 
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      sunretval = sunCheckAndSetIntArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetIntArg(arkode_mem, &idx, argv, offset,
                                     int_pairs[j].key, int_pairs[j].set,
                                     &arg_used);
       if (sunretval != SUN_SUCCESS)
@@ -150,7 +150,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      sunretval = sunCheckAndSetLongArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetLongArg(arkode_mem, &idx, argv, offset,
                                      long_pairs[j].key, long_pairs[j].set,
                                      &arg_used);
       if (sunretval != SUN_SUCCESS)
@@ -168,7 +168,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      sunretval = sunCheckAndSetRealArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetRealArg(arkode_mem, &idx, argv, offset,
                                      real_pairs[j].key, real_pairs[j].set,
                                      &arg_used);
       if (sunretval != SUN_SUCCESS)
@@ -186,7 +186,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all pair-of-real command-line options */
     for (j = 0; j < num_tworeal_keys; j++)
     {
-      sunretval = sunCheckAndSetTwoRealArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetTwoRealArg(arkode_mem, &idx, argv, offset,
                                         tworeal_pairs[j].key,
                                         tworeal_pairs[j].set, &arg_used);
       if (sunretval != SUN_SUCCESS)
@@ -204,7 +204,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all action command-line options */
     for (j = 0; j < num_action_keys; j++)
     {
-      sunretval = sunCheckAndSetActionArg(arkode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetActionArg(arkode_mem, &idx, argv, offset,
                                        action_pairs[j].key, action_pairs[j].set,
                                        &arg_used);
       if (sunretval != SUN_SUCCESS)
@@ -221,19 +221,19 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
 
     /*** handle all remaining command-line options ***/
 
-    if (strcmp(argv[i] + offset, "interpolant_type") == 0)
+    if (strcmp(argv[idx] + offset, "interpolant_type") == 0)
     {
-      i++;
+      idx++;
       retval = ARK_ILL_INPUT;
-      if (strcmp(argv[i], "ARK_INTERP_HERMITE") == 0)
+      if (strcmp(argv[idx], "ARK_INTERP_HERMITE") == 0)
       {
         retval = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
       }
-      else if (strcmp(argv[i], "ARK_INTERP_LAGRANGE") == 0)
+      else if (strcmp(argv[idx], "ARK_INTERP_LAGRANGE") == 0)
       {
         retval = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
       }
-      else if (strcmp(argv[i], "ARK_INTERP_NONE") == 0)
+      else if (strcmp(argv[idx], "ARK_INTERP_NONE") == 0)
       {
         retval = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_NONE);
       }
@@ -241,30 +241,30 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       {
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s %s",
-                        argv[i - 1], argv[i]);
+                        argv[idx - 1], argv[idx]);
         return retval;
       }
       arg_used = SUNTRUE;
       continue;
     }
 
-    if (strcmp(argv[i] + offset, "accum_error_type") == 0)
+    if (strcmp(argv[idx] + offset, "accum_error_type") == 0)
     {
-      i++;
+      idx++;
       retval = ARK_ILL_INPUT;
-      if (strcmp(argv[i], "ARK_ACCUMERROR_NONE") == 0)
+      if (strcmp(argv[idx], "ARK_ACCUMERROR_NONE") == 0)
       {
         retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_NONE);
       }
-      else if (strcmp(argv[i], "ARK_ACCUMERROR_MAX") == 0)
+      else if (strcmp(argv[idx], "ARK_ACCUMERROR_MAX") == 0)
       {
         retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_MAX);
       }
-      else if (strcmp(argv[i], "ARK_ACCUMERROR_SUM") == 0)
+      else if (strcmp(argv[idx], "ARK_ACCUMERROR_SUM") == 0)
       {
         retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_SUM);
       }
-      else if (strcmp(argv[i], "ARK_ACCUMERROR_AVG") == 0)
+      else if (strcmp(argv[idx], "ARK_ACCUMERROR_AVG") == 0)
       {
         retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_AVG);
       }
@@ -272,14 +272,14 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       {
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s %s",
-                        argv[i - 1], argv[i]);
+                        argv[idx - 1], argv[idx]);
         return retval;
       }
       arg_used = SUNTRUE;
       continue;
     }
 
-    if (strcmp(argv[i] + offset, "write_parameters") == 0)
+    if (strcmp(argv[idx] + offset, "write_parameters") == 0)
     {
       write_parameters = SUNTRUE;
       arg_used         = SUNTRUE;
@@ -290,7 +290,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
        process this command-line argument */
     if (ark_mem->step_setfromcommandline)
     {
-      retval = ark_mem->step_setfromcommandline(ark_mem, &i, argv, offset,
+      retval = ark_mem->step_setfromcommandline(ark_mem, &idx, argv, offset,
                                                 &arg_used);
       if (retval != ARK_SUCCESS) { return retval; }
       if (arg_used) { continue; }
@@ -298,7 +298,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
 
     /* warn for uninterpreted arkid.X arguments */
     arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
-                    "WARNING: argument %s was not handled\n", argv[i]);
+                    "WARNING: argument %s was not handled\n", argv[idx]);
   }
 
   /* Call ARKodeWriteParameters (if requested) now that all

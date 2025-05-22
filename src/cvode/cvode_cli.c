@@ -102,8 +102,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   SUNErrCode sunretval;
-  int i, j, retval;
-  for (i = 1; i < argc; i++)
+  int idx, j, retval;
+  for (idx = 1; idx < argc; idx++)
   {
     sunbooleantype arg_used = SUNFALSE;
 
@@ -112,20 +112,20 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     size_t offset;
     if (cvid != NULL)
     {
-      if (strncmp(argv[i], cvid, strlen(cvid)) != 0) { continue; }
+      if (strncmp(argv[idx], cvid, strlen(cvid)) != 0) { continue; }
       offset = strlen(cvid) + 1;
     }
     else
     {
       static const char* prefix = "cvode.";
-      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }
 
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      sunretval = sunCheckAndSetIntArg(cvode_mem, &i, argv, offset, int_pairs[j].key,
+      sunretval = sunCheckAndSetIntArg(cvode_mem, &idx, argv, offset, int_pairs[j].key,
                                     int_pairs[j].set, &arg_used);
       if (sunretval != CV_SUCCESS)
       {
@@ -142,7 +142,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      sunretval = sunCheckAndSetLongArg(cvode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetLongArg(cvode_mem, &idx, argv, offset,
                                      long_pairs[j].key, long_pairs[j].set,
                                      &arg_used);
       if (sunretval != CV_SUCCESS)
@@ -160,7 +160,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      sunretval = sunCheckAndSetRealArg(cvode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetRealArg(cvode_mem, &idx, argv, offset,
                                      real_pairs[j].key, real_pairs[j].set,
                                      &arg_used);
       if (sunretval != CV_SUCCESS)
@@ -178,7 +178,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all pair-of-real command-line options */
     for (j = 0; j < num_tworeal_keys; j++)
     {
-      sunretval = sunCheckAndSetTwoRealArg(cvode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetTwoRealArg(cvode_mem, &idx, argv, offset,
                                         tworeal_pairs[j].key,
                                         tworeal_pairs[j].set, &arg_used);
       if (sunretval != CV_SUCCESS)
@@ -196,7 +196,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all action command-line options */
     for (j = 0; j < num_action_keys; j++)
     {
-      sunretval = sunCheckAndSetActionArg(cvode_mem, &i, argv, offset,
+      sunretval = sunCheckAndSetActionArg(cvode_mem, &idx, argv, offset,
                                        action_pairs[j].key, action_pairs[j].set,
                                        &arg_used);
       if (sunretval != CV_SUCCESS)
@@ -213,7 +213,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
 
     /* warn for uninterpreted cvid.X arguments */
     cvProcessError(cv_mem, CV_WARNING, __LINE__, __func__, __FILE__,
-                   "WARNING: argument %s was not handled\n", argv[i]);
+                   "WARNING: argument %s was not handled\n", argv[idx]);
   }
 
   return (CV_SUCCESS);

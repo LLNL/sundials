@@ -634,7 +634,7 @@ int ARKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
 
   Provides command-line control over ARKStep-specific "set" routines.
   ---------------------------------------------------------------*/
-int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
+int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
                                size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of command-line arguments, and the corresponding set routines */
@@ -654,7 +654,7 @@ int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   int j, retval;
   for (j = 0; j < num_twochar_keys; j++)
   {
-    retval = sunCheckAndSetTwoCharArg((void*)ark_mem, i, argv, offset,
+    retval = sunCheckAndSetTwoCharArg((void*)ark_mem, argidx, argv, offset,
                                       twochar_pairs[j].key,
                                       twochar_pairs[j].set, arg_used);
     if (retval != ARK_SUCCESS)
@@ -670,7 +670,7 @@ int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   /* check all action command-line options */
   for (j = 0; j < num_action_keys; j++)
   {
-    retval = sunCheckAndSetActionArg((void*)ark_mem, i, argv, offset,
+    retval = sunCheckAndSetActionArg((void*)ark_mem, argidx, argv, offset,
                                      action_pairs[j].key, action_pairs[j].set,
                                      arg_used);
     if (retval != ARK_SUCCESS)

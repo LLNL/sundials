@@ -170,50 +170,50 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPBCGS(SUNLinearSolver S, const char* LSi
 {
   SUNFunctionBegin(S->sunctx);
 
-  int i;
+  int idx;
   SUNErrCode retval;
-  for (i = 1; i < argc; i++)
+  for (idx = 1; idx < argc; idx++)
   {
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spbcgs." */
     size_t offset;
     if (LSid != NULL)
     {
-      if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
+      if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;
     }
     else
     {
       static const char* prefix = "spbcgs.";
-      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }
 
     /* control over PrecType function */
-    if (strcmp(argv[i] + offset, "prec_type") == 0)
+    if (strcmp(argv[idx] + offset, "prec_type") == 0)
     {
-      i += 1;
-      int iarg = atoi(argv[i]);
+      idx += 1;
+      int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_SPBCGSSetPrecType(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* control over Maxl function */
-    if (strcmp(argv[i] + offset, "maxl") == 0)
+    if (strcmp(argv[idx] + offset, "maxl") == 0)
     {
-      i += 1;
-      int iarg = atoi(argv[i]);
+      idx += 1;
+      int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_SPBCGSSetMaxl(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* control over ZeroGuess function */
-    if (strcmp(argv[i] + offset, "zero_guess") == 0)
+    if (strcmp(argv[idx] + offset, "zero_guess") == 0)
     {
-      i += 1;
-      int iarg = atoi(argv[i]);
+      idx += 1;
+      int iarg = atoi(argv[idx]);
       retval   = SUNLinSolSetZeroGuess_SPBCGS(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;

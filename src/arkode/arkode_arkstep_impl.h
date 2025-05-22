@@ -190,7 +190,7 @@ int arkStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
 int arkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
-int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
+int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
                                size_t offset, sunbooleantype* arg_used);
 int arkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int arkStep_SetDefaults(ARKodeMem ark_mem);

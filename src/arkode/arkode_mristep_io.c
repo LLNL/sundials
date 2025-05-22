@@ -254,7 +254,7 @@ int MRIStepGetNumInnerStepperFails(void* arkode_mem, long int* inner_fails)
 
   Provides command-line control over MRIStep-specific "set" routines.
   ---------------------------------------------------------------*/
-int mriStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
+int mriStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
                                size_t offset, sunbooleantype* arg_used)
 {
   /* The only MRIStep-specific "Set" routine takes a custom MRIStepCoupling
@@ -262,15 +262,15 @@ int mriStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
      a command-line argument to specify the MRIStepCoupling table name,
      create the table with that name, attach it to MRIStep (who copies its
      values), and then free the table. */
-  if (strcmp(argv[*i] + offset, "mristep_coupling_table") == 0)
+  if (strcmp(argv[*argidx] + offset, "mristep_coupling_table") == 0)
   {
-    (*i)++;
-    MRIStepCoupling Coupling = MRIStepCoupling_LoadTableByName(argv[*i]);
+    (*argidx)++;
+    MRIStepCoupling Coupling = MRIStepCoupling_LoadTableByName(argv[*argidx]);
     if (Coupling == NULL)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                       __FILE__, "error setting command-line argument %s %s (invalid table name)",
-                      argv[(*i) - 1], argv[*i]);
+                      argv[(*argidx) - 1], argv[*argidx]);
       return ARK_ILL_INPUT;
     }
     int retval = MRIStepSetCoupling(ark_mem, Coupling);
@@ -279,7 +279,7 @@ int mriStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__,
                       __FILE__, "error setting command-line argument %s %s (SetCoupling failed)",
-                      argv[(*i) - 1], argv[*i]);
+                      argv[(*argidx) - 1], argv[*argidx]);
       return retval;
     }
     *arg_used = SUNTRUE;

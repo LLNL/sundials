@@ -127,10 +127,10 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
 {
   SUNFunctionBegin(C->sunctx);
 
-  int i;
+  int idx;
   SUNErrCode retval;
   sunbooleantype write_parameters = SUNFALSE;
-  for (i = 1; i < argc; i++)
+  for (idx = 1; idx < argc; idx++)
   {
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
@@ -160,19 +160,19 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
     }
 
     /* control over SetParams_Soderlind function */
-    if ((strncmp(argv[i], SPrefix, strlen(SPrefix)) == 0) &&
-        (strcmp(argv[i] + SOffset, "params") == 0))
+    if ((strncmp(argv[idx], SPrefix, strlen(SPrefix)) == 0) &&
+        (strcmp(argv[idx] + SOffset, "params") == 0))
     {
-      i += 1;
-      sunrealtype rarg1 = atof(argv[i]);
-      i += 1;
-      sunrealtype rarg2 = atof(argv[i]);
-      i += 1;
-      sunrealtype rarg3 = atof(argv[i]);
-      i += 1;
-      sunrealtype rarg4 = atof(argv[i]);
-      i += 1;
-      sunrealtype rarg5 = atof(argv[i]);
+      idx += 1;
+      sunrealtype rarg1 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg2 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg3 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg4 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg5 = SUNStrToReal(argv[idx]);
       retval = SUNAdaptController_SetParams_Soderlind(C, rarg1, rarg2, rarg3,
                                                       rarg4, rarg5);
       if (retval != SUN_SUCCESS) { return retval; }
@@ -180,77 +180,77 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
     }
 
     /* control over SetParams_PID function */
-    if ((strncmp(argv[i], PIDPrefix, strlen(PIDPrefix)) == 0) &&
-        (strcmp(argv[i] + PIDOffset, "params") == 0))
+    if ((strncmp(argv[idx], PIDPrefix, strlen(PIDPrefix)) == 0) &&
+        (strcmp(argv[idx] + PIDOffset, "params") == 0))
     {
-      i += 1;
-      sunrealtype rarg1 = atof(argv[i]);
-      i += 1;
-      sunrealtype rarg2 = atof(argv[i]);
-      i += 1;
-      sunrealtype rarg3 = atof(argv[i]);
+      idx += 1;
+      sunrealtype rarg1 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg2 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg3 = SUNStrToReal(argv[idx]);
       retval = SUNAdaptController_SetParams_PID(C, rarg1, rarg2, rarg3);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* control over SetParams_PI function */
-    if ((strncmp(argv[i], PIPrefix, strlen(PIPrefix)) == 0) &&
-        (strcmp(argv[i] + PIOffset, "params") == 0))
+    if ((strncmp(argv[idx], PIPrefix, strlen(PIPrefix)) == 0) &&
+        (strcmp(argv[idx] + PIOffset, "params") == 0))
     {
-      i += 1;
-      sunrealtype rarg1 = atof(argv[i]);
-      i += 1;
-      sunrealtype rarg2 = atof(argv[i]);
+      idx += 1;
+      sunrealtype rarg1 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg2 = SUNStrToReal(argv[idx]);
       retval            = SUNAdaptController_SetParams_PI(C, rarg1, rarg2);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* control over SetParams_I function */
-    if ((strncmp(argv[i], IPrefix, strlen(IPrefix)) == 0) &&
-        (strcmp(argv[i] + IOffset, "params") == 0))
+    if ((strncmp(argv[idx], IPrefix, strlen(IPrefix)) == 0) &&
+        (strcmp(argv[idx] + IOffset, "params") == 0))
     {
-      i += 1;
-      sunrealtype rarg1 = atof(argv[i]);
+      idx += 1;
+      sunrealtype rarg1 = SUNStrToReal(argv[idx]);
       retval            = SUNAdaptController_SetParams_I(C, rarg1);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* control over SetParams_ExpGus function */
-    if ((strncmp(argv[i], ExpGusPrefix, strlen(ExpGusPrefix)) == 0) &&
-        (strcmp(argv[i] + ExpGusOffset, "params") == 0))
+    if ((strncmp(argv[idx], ExpGusPrefix, strlen(ExpGusPrefix)) == 0) &&
+        (strcmp(argv[idx] + ExpGusOffset, "params") == 0))
     {
-      i += 1;
-      sunrealtype rarg1 = atof(argv[i]);
-      i += 1;
-      sunrealtype rarg2 = atof(argv[i]);
+      idx += 1;
+      sunrealtype rarg1 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg2 = SUNStrToReal(argv[idx]);
       retval            = SUNAdaptController_SetParams_ExpGus(C, rarg1, rarg2);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* control over SetParams_ImpGus function */
-    if ((strncmp(argv[i], ImpGusPrefix, strlen(ImpGusPrefix)) == 0) &&
-        (strcmp(argv[i] + ImpGusOffset, "params") == 0))
+    if ((strncmp(argv[idx], ImpGusPrefix, strlen(ImpGusPrefix)) == 0) &&
+        (strcmp(argv[idx] + ImpGusOffset, "params") == 0))
     {
-      i += 1;
-      sunrealtype rarg1 = atof(argv[i]);
-      i += 1;
-      sunrealtype rarg2 = atof(argv[i]);
+      idx += 1;
+      sunrealtype rarg1 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg2 = SUNStrToReal(argv[idx]);
       retval            = SUNAdaptController_SetParams_ImpGus(C, rarg1, rarg2);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* control over SetDefaults_Soderlind function */
-    if ((strcmp(argv[i] + SOffset, "defaults") == 0) ||
-        (strcmp(argv[i] + PIDOffset, "defaults") == 0) ||
-        (strcmp(argv[i] + PIOffset, "defaults") == 0) ||
-        (strcmp(argv[i] + IOffset, "defaults") == 0) ||
-        (strcmp(argv[i] + ExpGusOffset, "defaults") == 0) ||
-        (strcmp(argv[i] + ImpGusOffset, "defaults") == 0))
+    if ((strcmp(argv[idx] + SOffset, "defaults") == 0) ||
+        (strcmp(argv[idx] + PIDOffset, "defaults") == 0) ||
+        (strcmp(argv[idx] + PIOffset, "defaults") == 0) ||
+        (strcmp(argv[idx] + IOffset, "defaults") == 0) ||
+        (strcmp(argv[idx] + ExpGusOffset, "defaults") == 0) ||
+        (strcmp(argv[idx] + ImpGusOffset, "defaults") == 0))
     {
       retval = SUNAdaptController_SetDefaults_Soderlind(C);
       if (retval != SUN_SUCCESS) { return retval; }
@@ -258,27 +258,27 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
     }
 
     /* control over SetErrorBias_Soderlind function */
-    if ((strcmp(argv[i] + SOffset, "error_bias") == 0) ||
-        (strcmp(argv[i] + PIDOffset, "error_bias") == 0) ||
-        (strcmp(argv[i] + PIOffset, "error_bias") == 0) ||
-        (strcmp(argv[i] + IOffset, "error_bias") == 0) ||
-        (strcmp(argv[i] + ExpGusOffset, "error_bias") == 0) ||
-        (strcmp(argv[i] + ImpGusOffset, "error_bias") == 0))
+    if ((strcmp(argv[idx] + SOffset, "error_bias") == 0) ||
+        (strcmp(argv[idx] + PIDOffset, "error_bias") == 0) ||
+        (strcmp(argv[idx] + PIOffset, "error_bias") == 0) ||
+        (strcmp(argv[idx] + IOffset, "error_bias") == 0) ||
+        (strcmp(argv[idx] + ExpGusOffset, "error_bias") == 0) ||
+        (strcmp(argv[idx] + ImpGusOffset, "error_bias") == 0))
     {
-      i += 1;
-      sunrealtype rarg = atof(argv[i]);
+      idx += 1;
+      sunrealtype rarg = SUNStrToReal(argv[idx]);
       retval           = SUNAdaptController_SetErrorBias_Soderlind(C, rarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
 
     /* check whether it was requested that all parameters be printed to screen */
-    if ((strcmp(argv[i] + SOffset, "write_parameters") == 0) ||
-        (strcmp(argv[i] + PIDOffset, "write_parameters") == 0) ||
-        (strcmp(argv[i] + PIOffset, "write_parameters") == 0) ||
-        (strcmp(argv[i] + IOffset, "write_parameters") == 0) ||
-        (strcmp(argv[i] + ExpGusOffset, "write_parameters") == 0) ||
-        (strcmp(argv[i] + ImpGusOffset, "write_parameters") == 0))
+    if ((strcmp(argv[idx] + SOffset, "write_parameters") == 0) ||
+        (strcmp(argv[idx] + PIDOffset, "write_parameters") == 0) ||
+        (strcmp(argv[idx] + PIOffset, "write_parameters") == 0) ||
+        (strcmp(argv[idx] + IOffset, "write_parameters") == 0) ||
+        (strcmp(argv[idx] + ExpGusOffset, "write_parameters") == 0) ||
+        (strcmp(argv[idx] + ImpGusOffset, "write_parameters") == 0))
     {
       write_parameters = SUNTRUE;
       continue;

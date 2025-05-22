@@ -214,7 +214,7 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 
   Provides command-line control over SPRKStep-specific "set" routines.
   ---------------------------------------------------------------*/
-int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
+int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
                                 size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of command-line arguments, and the corresponding set routines */
@@ -230,7 +230,7 @@ int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   int j, retval;
   for (j = 0; j < num_char_keys; j++)
   {
-    retval = sunCheckAndSetCharArg((void*)ark_mem, i, argv, offset,
+    retval = sunCheckAndSetCharArg((void*)ark_mem, argidx, argv, offset,
                                    char_pairs[j].key, char_pairs[j].set,
                                    arg_used);
     if (retval != ARK_SUCCESS)
@@ -246,7 +246,7 @@ int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   /* check all "int" command-line options */
   for (j = 0; j < num_int_keys; j++)
   {
-    retval = sunCheckAndSetIntArg((void*)ark_mem, i, argv, offset,
+    retval = sunCheckAndSetIntArg((void*)ark_mem, argidx, argv, offset,
                                   int_pairs[j].key, int_pairs[j].set, arg_used);
     if (retval != ARK_SUCCESS)
     {

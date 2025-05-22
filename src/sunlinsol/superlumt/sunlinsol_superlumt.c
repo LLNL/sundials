@@ -227,30 +227,30 @@ SUNErrCode SUNLinSolSetFromCommandLine_SuperLUMT(SUNLinearSolver S,
 {
   SUNFunctionBegin(S->sunctx);
 
-  int i;
+  int idx;
   SUNErrCode retval;
-  for (i = 1; i < argc; i++)
+  for (idx = 1; idx < argc; idx++)
   {
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spbcgs." */
     size_t offset;
     if (LSid != __DARWIN_NULL)
     {
-      if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
+      if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;
     }
     else
     {
       static const char* prefix = "superlumt.";
-      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }
 
     /* control over PrecType function */
-    if (strcmp(argv[i] + offset, "ordering") == 0)
+    if (strcmp(argv[idx] + offset, "ordering") == 0)
     {
-      i += 1;
-      int iarg = atoi(argv[i]);
+      idx += 1;
+      int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_SuperLUMTSetOrdering(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
