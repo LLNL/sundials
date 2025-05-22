@@ -43,7 +43,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
   cv_mem = (CVodeMem)cvode_mem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyIntPair int_pairs[] =
+  static const struct sunKeyIntPair int_pairs[] =
     {{"max_conv_fails", CVodeSetMaxConvFails},
      {"max_err_test_fails", CVodeSetMaxErrTestFails},
      {"max_hnil_warns", CVodeSetMaxHnilWarns},
@@ -58,7 +58,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
      {"max_num_proj_fails", CVodeSetMaxNumProjFails}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  static struct sunKeyLongPair long_pairs[] =
+  static const struct sunKeyLongPair long_pairs[] =
     {{"lsetup_frequency", CVodeSetLSetupFrequency},
      {"max_num_steps", CVodeSetMaxNumSteps},
      {"monitor_frequency", CVodeSetMonitorFrequency},
@@ -67,7 +67,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
      {"proj_frequency", CVodeSetProjFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct sunKeyRealPair real_pairs[] =
+  static const struct sunKeyRealPair real_pairs[] =
     {{"dgmax_lsetup", CVodeSetDeltaGammaMaxLSetup},
      {"init_step", CVodeSetInitStep},
      {"max_step", CVodeSetMaxStep},
@@ -88,14 +88,14 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
      {"proj_fail_eta", CVodeSetProjFailEta}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] = {{"eta_fixed_step_bounds",
+  static const struct sunKeyTwoRealPair tworeal_pairs[] = {{"eta_fixed_step_bounds",
                                                       CVodeSetEtaFixedStepBounds},
                                                      {"scalar_tolerances",
                                                       CVodeSStolerances}};
   static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
-  static struct sunKeyActionPair action_pairs[] = {{"clear_stop_time",
+  static const struct sunKeyActionPair action_pairs[] = {{"clear_stop_time",
                                                     CVodeClearStopTime},
                                                    {"no_inactive_root_warn",
                                                     CVodeSetNoInactiveRootWarn}};

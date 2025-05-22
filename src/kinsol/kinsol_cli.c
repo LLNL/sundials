@@ -41,7 +41,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
   kin_mem = (KINMem)kinmem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyIntPair int_pairs[] = {{"orth_aa", KINSetOrthAA},
+  static const struct sunKeyIntPair int_pairs[] = {{"orth_aa", KINSetOrthAA},
                                              {"return_newest", KINSetReturnNewest},
                                              {"no_init_setup", KINSetNoInitSetup},
                                              {"no_res_mon", KINSetNoResMon},
@@ -49,7 +49,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
                                              {"no_min_eps", KINSetNoMinEps}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  static struct sunKeyLongPair long_pairs[] =
+  static const struct sunKeyLongPair long_pairs[] =
     {{"m_aa", KINSetMAA},
      {"delay_aa", KINSetDelayAA},
      {"num_max_iters", KINSetNumMaxIters},
@@ -58,7 +58,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
      {"max_beta_fails", KINSetMaxBetaFails}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct sunKeyRealPair real_pairs[] =
+  static const struct sunKeyRealPair real_pairs[] =
     {{"damping", KINSetDamping},
      {"damping_aa", KINSetDampingAA},
      {"eta_const_value", KINSetEtaConstValue},
@@ -69,7 +69,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
      {"scaled_step_tol", KINSetScaledStepTol}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] =
+  static const struct sunKeyTwoRealPair tworeal_pairs[] =
     {{"eta_params", KINSetEtaParams}, {"res_mon_params", KINSetResMonParams}};
   static const int num_tworeal_keys = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);

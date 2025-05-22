@@ -218,11 +218,11 @@ int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
                                 const size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyCharPair char_pairs[] = {
+  static const struct sunKeyCharPair char_pairs[] = {
     {"method_name", SPRKStepSetMethodName}};
   static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
 
-  static struct sunKeyIntPair int_pairs[] = {
+  static const struct sunKeyIntPair int_pairs[] = {
     {"use_compensated_sums", SPRKStepSetUseCompensatedSums}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 

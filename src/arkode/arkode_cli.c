@@ -43,7 +43,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
   ark_mem = (ARKodeMem)arkode_mem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyIntPair int_pairs[] =
+  static const struct sunKeyIntPair int_pairs[] =
     {{"order", ARKodeSetOrder},
      {"interpolant_degree", ARKodeSetInterpolantDegree},
      {"linear", ARKodeSetLinear},
@@ -62,13 +62,13 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"linear_solution_scaling", ARKodeSetLinearSolutionScaling}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  static struct sunKeyLongPair long_pairs[] = {{"max_num_steps",
+  static const struct sunKeyLongPair long_pairs[] = {{"max_num_steps",
                                                 ARKodeSetMaxNumSteps},
                                                {"jac_eval_frequency",
                                                 ARKodeSetJacEvalFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct sunKeyRealPair real_pairs[] =
+  static const struct sunKeyRealPair real_pairs[] =
     {{"nonlin_crdown", ARKodeSetNonlinCRDown},
      {"nonlin_rdiv", ARKodeSetNonlinRDiv},
      {"delta_gamma_max", ARKodeSetDeltaGammaMax},
@@ -93,14 +93,14 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"mass_ls_norm_factor", ARKodeSetMassLSNormFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] = {{"scalar_tolerances",
+  static const struct sunKeyTwoRealPair tworeal_pairs[] = {{"scalar_tolerances",
                                                       ARKodeSStolerances},
                                                      {"fixed_step_bounds",
                                                       ARKodeSetFixedStepBounds}};
   static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
-  static struct sunKeyActionPair action_pairs[] =
+  static const struct sunKeyActionPair action_pairs[] =
     {{"nonlinear", ARKodeSetNonlinear},
      {"clear_stop_time", ARKodeClearStopTime},
      {"no_inactive_root_warn", ARKodeSetNoInactiveRootWarn},

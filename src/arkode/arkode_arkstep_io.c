@@ -638,12 +638,12 @@ int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
                                const size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyTwoCharPair twochar_pairs[] = {
+  static const struct sunKeyTwoCharPair twochar_pairs[] = {
     {"table_names", ARKStepSetTableName}};
   static const int num_twochar_keys = sizeof(twochar_pairs) /
                                       sizeof(*twochar_pairs);
 
-  static struct sunKeyActionPair action_pairs[] = {{"set_explicit",
+  static const struct sunKeyActionPair action_pairs[] = {{"set_explicit",
                                                     ARKStepSetExplicit},
                                                    {"set_implicit",
                                                     ARKStepSetImplicit},
