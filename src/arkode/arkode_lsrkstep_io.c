@@ -498,7 +498,7 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
   Provides command-line control over LSRKStep-specific "set" routines.
   ---------------------------------------------------------------*/
 int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
-                                const size_t offset, sunbooleantype* arg_used)
+                                size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of command-line arguments, and the corresponding set routines */
   static const struct sunKeyCharPair char_pairs[] = {{"sts_method",

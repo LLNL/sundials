@@ -225,7 +225,7 @@ typedef int (*ARKTimestepGetNumRhsEvals)(ARKodeMem ark_mem, int partition_index,
 typedef int (*ARKTimestepSetStepDirection)(ARKodeMem ark_mem,
                                            sunrealtype stepdir);
 typedef int (*ARKTimestepSetFromCommandLine)(ARKodeMem ark_mem, int* i,
-                                             char* argv[], const size_t offset,
+                                             char* argv[], size_t offset,
                                              sunbooleantype* arg_used);
 
 /* time stepper interface functions -- temporal adaptivity */

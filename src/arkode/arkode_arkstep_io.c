@@ -635,7 +635,7 @@ int ARKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   Provides command-line control over ARKStep-specific "set" routines.
   ---------------------------------------------------------------*/
 int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
-                               const size_t offset, sunbooleantype* arg_used)
+                               size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of command-line arguments, and the corresponding set routines */
   static const struct sunKeyTwoCharPair twochar_pairs[] = {

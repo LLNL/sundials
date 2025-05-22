@@ -215,7 +215,7 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
   Provides command-line control over SPRKStep-specific "set" routines.
   ---------------------------------------------------------------*/
 int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
-                                const size_t offset, sunbooleantype* arg_used)
+                                size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of command-line arguments, and the corresponding set routines */
   static const struct sunKeyCharPair char_pairs[] = {
