@@ -162,7 +162,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spgmr." */
     size_t offset;
-    if (strlen(LSid) > 0)
+    if (LSid != NULL)
     {
       if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;

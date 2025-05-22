@@ -135,16 +135,16 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
     size_t SOffset, PIDOffset, PIOffset, IOffset, ExpGusOffset, ImpGusOffset;
-    const char* SPrefix   = (strlen(Cid) > 0) ? Cid
-                                              : "sunadaptcontroller_soderlind.";
-    const char* PIDPrefix = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_pid.";
-    const char* PIPrefix  = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_pi.";
-    const char* IPrefix   = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_i.";
-    const char* ExpGusPrefix = (strlen(Cid) > 0) ? Cid
-                                                 : "sunadaptcontroller_expgus.";
-    const char* ImpGusPrefix = (strlen(Cid) > 0) ? Cid
-                                                 : "sunadaptcontroller_impgus.";
-    if (strlen(Cid) > 0)
+    const char* SPrefix   = (Cid != NULL) ? Cid
+                                          : "sunadaptcontroller_soderlind.";
+    const char* PIDPrefix = (Cid != NULL) ? Cid : "sunadaptcontroller_pid.";
+    const char* PIPrefix  = (Cid != NULL) ? Cid : "sunadaptcontroller_pi.";
+    const char* IPrefix   = (Cid != NULL) ? Cid : "sunadaptcontroller_i.";
+    const char* ExpGusPrefix = (Cid != NULL) ? Cid
+                                             : "sunadaptcontroller_expgus.";
+    const char* ImpGusPrefix = (Cid != NULL) ? Cid
+                                             : "sunadaptcontroller_impgus.";
+    if (Cid != NULL)
     {
       SOffset = PIDOffset = PIOffset = IOffset = ExpGusOffset = ImpGusOffset =
         strlen(Cid) + 1;

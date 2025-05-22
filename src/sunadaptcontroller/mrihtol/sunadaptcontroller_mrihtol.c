@@ -136,7 +136,7 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
     size_t offset;
-    if (strlen(Cid) > 0)
+    if (Cid != NULL)
     {
       if (strncmp(argv[i], Cid, strlen(Cid)) != 0) { continue; }
       offset = strlen(Cid) + 1;

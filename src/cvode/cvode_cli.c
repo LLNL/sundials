@@ -110,7 +110,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* if cvid is supplied, skip command-line arguments that do not begin with cvid;
        else, skip command-line arguments that do not begin with "cvode." */
     size_t offset;
-    if (strlen(cvid) > 0)
+    if (cvid != NULL)
     {
       if (strncmp(argv[i], cvid, strlen(cvid)) != 0) { continue; }
       offset = strlen(cvid) + 1;

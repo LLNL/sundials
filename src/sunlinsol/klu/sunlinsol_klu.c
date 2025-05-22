@@ -197,7 +197,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spbcgs." */
     size_t offset;
-    if (strlen(LSid) > 0)
+    if (LSid != NULL)
     {
       if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;

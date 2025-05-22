@@ -151,9 +151,9 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
   /* Override any current settings with command-line options */
-  flag = ARKodeSetFromCommandLine(arkode_mem, "", argc, argv);
+  flag = ARKodeSetFromCommandLine(arkode_mem, NULL, argc, argv);
   if (check_flag(&flag, "ARKodeSetFromCommandLine", 1)) { return 1; }
-  flag = SUNLinSolSetFromCommandLine(LS, "", argc, argv);
+  flag = SUNLinSolSetFromCommandLine(LS, NULL, argc, argv);
   if (check_flag(&flag, "ARKodeSetFromCommandLine", 1)) { return 1; }
 
   /* output mesh to disk */

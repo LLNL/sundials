@@ -101,7 +101,7 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     /* if idaid is supplied, skip command-line arguments that do not begin with idaid;
        else, skip command-line arguments that do not begin with "ida." */
     size_t offset;
-    if (strlen(idaid) > 0)
+    if (idaid != NULL)
     {
       if (strncmp(argv[i], idaid, strlen(idaid)) != 0) { continue; }
       offset = strlen(idaid) + 1;

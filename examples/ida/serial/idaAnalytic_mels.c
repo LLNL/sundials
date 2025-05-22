@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
 
   /* Override any current settings with command-line options */
-  retval = IDASetFromCommandLine(ida_mem, "", argc, argv);
+  retval = IDASetFromCommandLine(ida_mem, NULL, argc, argv);
   if (check_retval(&retval, "IDASetFromCommandLine", 1)) { return 1; }
 
   /* In loop, call IDASolve, print results, and test for error.

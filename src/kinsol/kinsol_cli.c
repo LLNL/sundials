@@ -83,7 +83,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     /* if kinid is supplied, skip command-line arguments that do not begin with kinid;
        else, skip command-line arguments that do not begin with "kinsol." */
     size_t offset;
-    if (strlen(kinid) > 0)
+    if (kinid != NULL)
     {
       if (strncmp(argv[i], kinid, strlen(kinid)) != 0) { continue; }
       offset = strlen(kinid) + 1;

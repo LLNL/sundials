@@ -117,7 +117,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* if arkid is supplied, skip command-line arguments that do not begin with arkid;
        else, skip command-line arguments that do not begin with "arkode." */
     size_t offset;
-    if (strlen(arkid) > 0)
+    if (arkid != NULL)
     {
       if (strncmp(argv[i], arkid, strlen(arkid)) != 0) { continue; }
       offset = strlen(arkid) + 1;
