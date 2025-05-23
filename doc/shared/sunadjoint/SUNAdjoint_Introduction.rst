@@ -76,7 +76,7 @@ The gradients with respect to the parameters can then be obtained as
    \frac{d g(t_f, y(t_n), p)}{dp} = \lambda^*(t_n) y_p(t_n) + g_p(t_f, y(t_n), p) + \int_{t_n}^{t_f} \lambda^*(t) f_p(t, y(t_n), p)~ dt,
    :label: SUNADJOINT_CONTINUOUS_PARAMETER_GRADIENT
 
-where `y_p(t) \equiv \partial y(t)/\partial p \in \mathbb{R}^{N \times N_s}`, and
+where :math:`y_p(t) \equiv \partial y(t)/\partial p \in \mathbb{R}^{N \times N_s}`, and
 :math:`g_p \equiv \partial g/\partial p \in \mathbb{R}^{N \times N_s}` and
 :math:`f_p \equiv \partial f/\partial p \in \mathbb{R}^{N \times N_s}` are the
 Jacobians with respect to the parameters.
