@@ -156,6 +156,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype spectral_radius_min; /* min spectral radius*/
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
+  void* arnoldi_mem;     /* Arnoldi memory */
   N_Vector Arnoldi_q; /* Arnoldi initial q vector*/
   int Arnoldi_maxl; /* Krylov subspace dimension */
 

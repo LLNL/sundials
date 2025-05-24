@@ -137,6 +137,7 @@ void* LSRKStepArnoldiCreate(void* arkode_mem)
   /* Allocate and fill Arnoldi_q vector TODO: use random vector instead */
   step_mem->Arnoldi_q = N_VClone(ark_mem->yn);
   N_VConst(SUN_RCONST(1.0), step_mem->Arnoldi_q);
+  step_mem->Arnoldi_maxl = ARNOLDI_MAXL_DEFAULT;
 
   Arnoldi_mem = ArnoldiCreate(lsrkStep_DQJtimes, arkode_mem, step_mem->Arnoldi_q, step_mem->Arnoldi_maxl, ark_mem->sunctx);
 
@@ -280,6 +281,9 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   /* Set NULL for dom_eig_fn */
   step_mem->dom_eig_fn = NULL;
 
+  /* Set NULL for arnoldi_mem */
+  step_mem->arnoldi_mem = NULL;
+
   /* Set NULL for Arnoldi_q */
   step_mem->Arnoldi_q = NULL;
 
@@ -413,10 +417,10 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   }
 
   /* Check if user has provided dom_eig_fn */
-  if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL)
+  if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL && step_mem->arnoldi_mem == NULL)
   {
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__,
-                    __FILE__, "STS methods require a user provided dominant eigenvalue function");
+                    __FILE__, "STS methods require either a user provided or an internal dominant eigenvalue estimation");
     return ARK_DOMEIG_FAIL;
   }
 
@@ -2283,16 +2287,35 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 {
   int retval = SUN_SUCCESS;
 
-  retval = step_mem->dom_eig_fn(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
-                                &step_mem->lambdaR, &step_mem->lambdaI,
-                                ark_mem->user_data, ark_mem->tempv1,
-                                ark_mem->tempv2, ark_mem->tempv3);
-  step_mem->dom_eig_num_evals++;
-  if (retval != ARK_SUCCESS)
+  suncomplextype dom_eig;
+
+  if(step_mem->dom_eig_fn == NULL)
   {
-    arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                    "Unable to estimate the dominant eigenvalue");
-    return ARK_DOMEIG_FAIL;
+    dom_eig = LSRKStepArnoldiEstimate(ark_mem, step_mem->arnoldi_mem);
+    if((dom_eig.real*dom_eig.real + dom_eig.imag*dom_eig.imag) < 0.000000001) // change the small number
+    {
+      arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    "Unable to estimate the dominant eigenvalue: Arnoldi estimation returned an error");
+      return ARK_DOMEIG_FAIL;
+    }
+    step_mem->dom_eig_num_evals++;
+
+    step_mem->lambdaR = dom_eig.real;
+    step_mem->lambdaI = dom_eig.imag;
+  }
+  else
+  {
+    retval = step_mem->dom_eig_fn(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
+                                  &step_mem->lambdaR, &step_mem->lambdaI,
+                                  ark_mem->user_data, ark_mem->tempv1,
+                                  ark_mem->tempv2, ark_mem->tempv3);
+    step_mem->dom_eig_num_evals++;
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to estimate the dominant eigenvalue");
+      return ARK_DOMEIG_FAIL;
+    }
   }
 
   if (step_mem->lambdaR * ark_mem->h > ZERO)

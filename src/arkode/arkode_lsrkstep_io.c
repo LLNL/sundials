@@ -200,6 +200,7 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
+
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
@@ -207,7 +208,7 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  /* set the dom_eig routine pointer, and update relevant flags */
+  /* set the dom_eig routine pointer, or create internal dom_eig memory */
   if (dom_eig != NULL)
   {
     step_mem->dom_eig_fn = dom_eig;
@@ -218,9 +219,9 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   {
     step_mem->dom_eig_fn = NULL;
 
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Internal dom_eig is not supported yet!");
-    return ARK_ILL_INPUT;
+    step_mem->arnoldi_mem = LSRKStepArnoldiCreate(arkode_mem);
+
+    return ARK_SUCCESS;
   }
 }
 
@@ -519,7 +520,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->spectral_radius_min = ZERO;
   step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
   step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
-  step_mem->Arnoldi_maxl        = ARNOLDI_MAXL_DEFAULT;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;
