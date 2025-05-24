@@ -191,12 +191,14 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
+  step_mem->arnoldi_rhs = rhs;
 
   /* Set NULL for dom_eig_fn */
   step_mem->dom_eig_fn = NULL;
 
   /* Initialize all the counters */
   step_mem->nfe               = 0;
+  step_mem->nfeDQ             = 0;
   step_mem->stage_max         = 0;
   step_mem->dom_eig_num_evals = 0;
   step_mem->stage_max_limit   = STAGE_MAX_LIMIT_DEFAULT;
@@ -2242,6 +2244,52 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   step_mem->dom_eig_update = SUNFALSE;
 
   return retval;
+}
+
+/*---------------------------------------------------------------
+  lsrkStep_DQJtimes:
+
+  This routine generates a difference quotient approximation to
+  the Jacobian-vector product f_y(t,y) * v. The approximation is
+  Jv = [f(y + v*sig) - f(y)]/sig, where sig = 1 / ||v||_WRMS,
+  i.e. the WRMS norm of v*sig is 1.
+  ---------------------------------------------------------------*/
+int lsrkStep_DQJtimes(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem, N_Vector v, N_Vector Jv)
+{
+  sunrealtype sig, siginv;
+  int iter, retval;
+
+  sunrealtype t = ark_mem->tn;
+  N_Vector y = ark_mem->yn;
+  N_Vector fy = ark_mem->fn; //make sure it is current!
+  N_Vector work = ark_mem->tempv3;
+
+  /* Initialize perturbation to 1/||v|| */
+  sig = ONE / N_VWrmsNorm(v, ark_mem->ewt);
+
+  for (iter = 0; iter < MAX_DQITERS; iter++)
+  {
+    /* Set work = y + sig*v */
+    N_VLinearSum(sig, v, ONE, y, work);
+
+    /* Set Jv = f(tn, y+sig*v) */
+    retval = step_mem->arnoldi_rhs(t, work, Jv, ark_mem->user_data);
+    step_mem->nfeDQ++;
+    if (retval == 0) { break; }
+    if (retval < 0) { return (-1); }
+
+    /* If f failed recoverably, shrink sig and retry */
+    sig *= SUN_RCONST(0.25);
+  }
+
+  /* If retval still isn't 0, return with a recoverable failure */
+  if (retval > 0) { return (+1); }
+
+  /* Replace Jv by (Jv - fy)/sig */
+  siginv = ONE / sig;
+  N_VLinearSum(siginv, Jv, -siginv, fy, Jv);
+
+  return (0);
 }
 
 /*===============================================================

@@ -78,6 +78,8 @@ extern "C" {
 #define MAXCONSTRFAILS 10
 /*   max number of t+h==h warnings */
 #define MXHNIL 10
+/*   max number of attempts to recover in DQ J*v */
+#define MAX_DQITERS 3
 
 /* Numeric constants */
 #define ZERO  SUN_RCONST(0.0)

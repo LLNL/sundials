@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 
   /* Create ARNOLDI memory structure */
   ARNOLDIMem Arnoldi_mem;
-  Arnoldi_mem = ArnoldiCreateATimes(ATimes, &ProbData, q, maxl,sunctx);
+  Arnoldi_mem = ArnoldiCreate(ATimes, &ProbData, q, maxl,sunctx);
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
   ArnoldiPreProcess(Arnoldi_mem);

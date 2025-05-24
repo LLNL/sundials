@@ -22,7 +22,6 @@
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
-#define PT25 SUN_RCONST(0.25)
 
 /*
  * -----------------------------------------------------------------
@@ -30,7 +29,7 @@
  * -----------------------------------------------------------------
  */
 
-void* ArnoldiCreateATimes(SUNATimesFn ATimes, void* AData,
+void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
                 N_Vector q, int maxl, SUNContext sunctx)
 {
   ARNOLDIMem arnoldi_mem;
@@ -43,35 +42,72 @@ void* ArnoldiCreateATimes(SUNATimesFn ATimes, void* AData,
     return NULL;
   }
 
-  /* Create shared ARNOLDI memory structure */
-  arnoldi_mem = arnoldi_Create_Common(AData, q, maxl, sunctx);
-
-  /* Copy ATimes into ARNOLDI memory */
-  arnoldi_mem->ATimes      = ATimes;
-
-  return (void*)arnoldi_mem;
-}
-
-void* ArnoldiCreateSUNRhs(SUNRhsFn SUNRhs, void* RhsData,
-                          sunrealtype t, N_Vector y, N_Vector fy,
-                          N_Vector q, N_Vector Jq,
-                          int maxl, SUNContext sunctx)
-{
-  ARNOLDIMem arnoldi_mem;
-
-  /* Test if Atimes is provided */
-  if (SUNRhs == NULL)
+  /* Test if q is provided */
+  if (q == NULL)
   {
-    printf(MSG_ARNOLDI_NULL_SUNRHSFN);
+    printf(MSG_ARNOLDI_NULL_q);
 
     return NULL;
   }
 
-  /* Create shared ARNOLDI memory structure */
-  arnoldi_mem = arnoldi_Create_Common(RhsData, q, maxl, sunctx);
+  /* Check if maxl > 2 */
+  if (maxl < 3)
+  {
+    printf(MSG_ARNOLDI_NOT_ENOUGH_ITER);
 
-  /* Copy SUNRhs into ARNOLDI memory */
-  arnoldi_mem->SUNRhs      = SUNRhs;
+    return NULL;
+  }
+
+  if (sunctx == NULL)
+  {
+    printf(MSG_ARNOLDI_NULL_SUNCTX);
+
+    return NULL;
+  }
+
+  /* Test if all required vector operations are implemented */
+  if (!arnoldi_CheckNVector(q))
+  {
+    printf(MSG_ARNOLDI_BAD_NVECTOR);
+
+    return NULL;
+  }
+
+  /* Allocate ARNOLDIMem structure, and initialize to zero */
+  arnoldi_mem = (ARNOLDIMem)calloc(1, sizeof(*arnoldi_mem));
+
+  /* Copy the inputs into ARNOLDI memory */
+  arnoldi_mem->ATimes      = ATimes;
+  arnoldi_mem->Adata       = Adata;
+  arnoldi_mem->q           = q;
+  arnoldi_mem->maxl        = maxl;
+
+  /* Set the default power of A to start with (# of warm-ups) */
+  arnoldi_mem->power_of_A  = DEFAULT_POWER_OF_A;
+
+  /* Hessenberg matrix Hes */
+  if (arnoldi_mem->Hes == NULL)
+  {
+    arnoldi_mem->Hes =
+      (sunrealtype**)malloc((maxl + 1) * sizeof(sunrealtype*));
+
+    for (int k = 0; k <= maxl; k++)
+    {
+      arnoldi_mem->Hes[k] = NULL;
+      arnoldi_mem->Hes[k] = (sunrealtype*)malloc(maxl * sizeof(sunrealtype));
+    }
+  }
+
+  /* Krylov subspace vectors */
+  if (arnoldi_mem->V == NULL)
+  {
+    arnoldi_mem->V = N_VCloneVectorArray(maxl + 1, q);
+  }
+
+  /* Unitize the initial vector V[0] */
+  sunrealtype normq = N_VDotProd(q, q);
+  normq = SUNRsqrt(normq);
+  N_VScale(SUN_RCONST(1.0)/normq, arnoldi_mem->q, arnoldi_mem->V[0]);
 
   return (void*)arnoldi_mem;
 }
@@ -101,7 +137,7 @@ int ArnoldiPreProcess(ARNOLDIMem arnoldi_mem)
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
   for(int i = 0; i < arnoldi_mem->power_of_A; i++) {
-    retval = arnoldi_mem->ATimes(arnoldi_mem->Data, arnoldi_mem->V[0], arnoldi_mem->q);
+    retval = arnoldi_mem->ATimes(arnoldi_mem->Adata, arnoldi_mem->V[0], arnoldi_mem->q);
     if (retval != 0)
     {
       (retval < 0) ?
@@ -140,7 +176,7 @@ int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem)
   for (int i = 0; i < arnoldi_mem->maxl; i++)
   {
     /* Compute the next Krylov vector */
-    retval = arnoldi_mem->ATimes(arnoldi_mem->Data, arnoldi_mem->V[i], arnoldi_mem->V[i+1]);
+    retval = arnoldi_mem->ATimes(arnoldi_mem->Adata, arnoldi_mem->V[i], arnoldi_mem->V[i+1]);
     if (retval != 0)
     {
       (retval < 0) ?
@@ -251,91 +287,6 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  arnoldi_Create_Common:
-
-  This routine creates common memory for both ATimes and SUNRhsFn.
-  ---------------------------------------------------------------*/
-
-void* arnoldi_Create_Common(void* Data, N_Vector q, int maxl, SUNContext sunctx)
-{
-  ARNOLDIMem arnoldi_mem;
-  sunbooleantype nvectorOK;
-
-  /* Test if q is provided */
-  if (q == NULL)
-  {
-    printf(MSG_ARNOLDI_NULL_q);
-
-    return NULL;
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = arnoldi_CheckNVector(q);
-  if (!nvectorOK)
-  {
-    printf(MSG_ARNOLDI_BAD_NVECTOR);
-
-    return NULL;
-  }
-
-  /* Check if maxl > 2 */
-  if (maxl < 3)
-  {
-    printf(MSG_ARNOLDI_NOT_ENOUGH_ITER);
-
-    return NULL;
-  }
-
-  if (sunctx == NULL)
-  {
-    printf(MSG_ARNOLDI_NULL_SUNCTX);
-
-    return NULL;
-  }
-
-  /* Allocate ARNOLDIMem structure, and initialize to zero */
-  arnoldi_mem = (ARNOLDIMem)calloc(1, sizeof(*arnoldi_mem));
-
-  /* Copy the inputs into ARNOLDI memory */
-  arnoldi_mem->ATimes      = NULL;
-  arnoldi_mem->SUNRhs      = NULL;
-  arnoldi_mem->Data        = Data;
-  arnoldi_mem->q           = q;
-  N_VConst(ONE, arnoldi_mem->w);
-  arnoldi_mem->maxl        = maxl;
-  arnoldi_mem->nfeDQ       = 0;
-
-  /* Set the default power of A to start with (# of warm-ups) */
-  arnoldi_mem->power_of_A  = DEFAULT_POWER_OF_A;
-
-  /* Krylov subspace vectors */
-  if (arnoldi_mem->V == NULL)
-  {
-    arnoldi_mem->V = N_VCloneVectorArray(maxl + 1, q);
-  }
-
-  /* Hessenberg matrix Hes */
-  if (arnoldi_mem->Hes == NULL)
-  {
-    arnoldi_mem->Hes =
-      (sunrealtype**)malloc((maxl + 1) * sizeof(sunrealtype*));
-
-    for (int k = 0; k <= maxl; k++)
-    {
-      arnoldi_mem->Hes[k] = NULL;
-      arnoldi_mem->Hes[k] = (sunrealtype*)malloc(maxl * sizeof(sunrealtype));
-    }
-  }
-
-  /* Unitize the initial vector V[0] */
-  sunrealtype normq = N_VDotProd(q, q);
-  normq = SUNRsqrt(normq);
-  N_VScale(SUN_RCONST(1.0)/normq, arnoldi_mem->q, arnoldi_mem->V[0]);
-
-  return (void*)arnoldi_mem;
-}
-
-/*---------------------------------------------------------------
   arnoldi_CheckNVector:
 
   This routine checks if all required vector operations are
@@ -365,46 +316,4 @@ int arnoldi_Compare(const void *a, const void *b) {
     sunrealtype mag1 = arnoldi_Magnitude(c1);
     sunrealtype mag2 = arnoldi_Magnitude(c2);
     return (mag2 > mag1) - (mag2 < mag1); // Descending order
-}
-
-/*---------------------------------------------------------------
-  arnoldi_DQJtimes:
-
-  This routine generates a difference quotient approximation to
-  the Jacobian-vector product f_y(t,y) * v. The approximation is
-  Jv = [f(y + v*sig) - f(y)]/sig, where sig = 1 / ||v||_WRMS,
-  i.e. the WRMS norm of v*sig is 1.
-  ---------------------------------------------------------------*/
-int arnoldi_DQJtimes(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
-                  N_Vector fy, ARNOLDIMem arnoldi_mem, N_Vector work)
-{
-  sunrealtype sig, siginv;
-  int iter, retval;
-
-  /* Initialize perturbation to 1/||v|| */
-  sig = ONE / N_VWrmsNorm(v, arnoldi_mem->w);
-
-  for (iter = 0; iter < MAX_DQITERS; iter++)
-  {
-    /* Set work = y + sig*v */
-    N_VLinearSum(sig, v, ONE, y, work);
-
-    /* Set Jv = f(tn, y+sig*v) */
-    retval = arnoldi_mem->SUNRhs(t, work, Jv, arnoldi_mem->Data);
-    arnoldi_mem->nfeDQ++;
-    if (retval == 0) { break; }
-    if (retval < 0) { return (-1); }
-
-    /* If SUNRhs failed recoverably, shrink sig and retry */
-    sig *= PT25;
-  }
-
-  /* If retval still isn't 0, return with a recoverable failure */
-  if (retval > 0) { return (+1); }
-
-  /* Replace Jv by (Jv - fy)/sig */
-  siginv = ONE / sig;
-  N_VLinearSum(siginv, Jv, -siginv, fy, Jv);
-
-  return (0);
 }

@@ -128,6 +128,7 @@ typedef struct ARKodeLSRKStepMemRec
 {
   /* LSRK problem specification */
   ARKRhsFn fe;
+  ARKRhsFn arnoldi_rhs;
   ARKDomEigFn dom_eig_fn;
 
   int q; /* method order               */
@@ -139,6 +140,7 @@ typedef struct ARKodeLSRKStepMemRec
 
   /* Counters and stats*/
   long int nfe;               /* num fe calls       */
+  long int nfeDQ;             /* num fe calls for difference quotient approximation */
   long int dom_eig_num_evals; /* num of dom_eig computations   */
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
@@ -203,6 +205,9 @@ int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
+
+int lsrkStep_DQJtimes(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem, N_Vector v,
+                      N_Vector Jv);
 
 /*===============================================================
   Reusable LSRKStep Error Messages
