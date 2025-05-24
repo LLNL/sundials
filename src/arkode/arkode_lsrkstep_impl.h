@@ -29,6 +29,7 @@ extern "C" {
 #define STAGE_MAX_LIMIT_DEFAULT 200
 #define DOM_EIG_SAFETY_DEFAULT  SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT    25
+#define ARNOLDI_MAXL_DEFAULT    3
 
 /*===============================================================
   LSRK time step module private math function macros
@@ -155,6 +156,8 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype spectral_radius_min; /* min spectral radius*/
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
+  N_Vector Arnoldi_q; /* Arnoldi initial q vector*/
+  int Arnoldi_maxl; /* Krylov subspace dimension */
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */
@@ -206,8 +209,7 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
 
-int lsrkStep_DQJtimes(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem, N_Vector v,
-                      N_Vector Jv);
+int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv);
 
 /*===============================================================
   Reusable LSRKStep Error Messages

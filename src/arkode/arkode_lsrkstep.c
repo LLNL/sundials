@@ -105,6 +105,90 @@ int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
   return retval;
 }
 
+/*---------------------------------------------------------------
+  LSRKStepArnoldiCreate:
+
+  This routine creates the Arnoldi memory and attaches all the relevent
+  function pointers from arkode_mem.
+  ---------------------------------------------------------------*/
+
+void* LSRKStepArnoldiCreate(void* arkode_mem)
+{
+  ARNOLDIMem Arnoldi_mem;
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return NULL; }
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
+  {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return NULL;
+  }
+
+  step_mem->arnoldi_rhs = step_mem->fe;
+
+  /* Allocate and fill Arnoldi_q vector TODO: use random vector instead */
+  step_mem->Arnoldi_q = N_VClone(ark_mem->yn);
+  N_VConst(SUN_RCONST(1.0), step_mem->Arnoldi_q);
+
+  Arnoldi_mem = ArnoldiCreate(lsrkStep_DQJtimes, arkode_mem, step_mem->Arnoldi_q, step_mem->Arnoldi_maxl, ark_mem->sunctx);
+
+}
+
+/*---------------------------------------------------------------
+  LSRKStepArnoldiEstimate:
+
+  This routine estimates the dominant eigenvalue.
+  ---------------------------------------------------------------*/
+suncomplextype LSRKStepArnoldiEstimate(void* arkode_mem, ARNOLDIMem Arnoldi_mem)
+{
+  ARKodeMem ark_mem;
+
+  suncomplextype dom_eig;
+  dom_eig.real = ZERO;
+  dom_eig.imag = ZERO;
+
+  int retval;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return dom_eig;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
+  retval = ArnoldiPreProcess(Arnoldi_mem);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_ARNOLDI_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARNOLDI_FAIL);
+
+    return dom_eig;
+  }
+
+  /* Compute the Hessenberg matrix Hes*/
+  retval = ArnoldiComputeHess(Arnoldi_mem);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_ARNOLDI_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARNOLDI_FAIL);
+
+    return dom_eig;
+  }
+
+  dom_eig = ArnoldiEstimate(Arnoldi_mem);
+
+  return dom_eig;
+}
+
 /*===============================================================
   Interface routines supplied to ARKODE
   ===============================================================*/
@@ -191,10 +275,13 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->arnoldi_rhs = rhs;
+  step_mem->arnoldi_rhs = NULL;
 
   /* Set NULL for dom_eig_fn */
   step_mem->dom_eig_fn = NULL;
+
+  /* Set NULL for Arnoldi_q */
+  step_mem->Arnoldi_q = NULL;
 
   /* Initialize all the counters */
   step_mem->nfe               = 0;
@@ -2254,10 +2341,26 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   Jv = [f(y + v*sig) - f(y)]/sig, where sig = 1 / ||v||_WRMS,
   i.e. the WRMS norm of v*sig is 1.
   ---------------------------------------------------------------*/
-int lsrkStep_DQJtimes(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem, N_Vector v, N_Vector Jv)
+int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv)
 {
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+
   sunrealtype sig, siginv;
   int iter, retval;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
+  {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return ARK_NO_MALLOC;
+  }
 
   sunrealtype t = ark_mem->tn;
   N_Vector y = ark_mem->yn;

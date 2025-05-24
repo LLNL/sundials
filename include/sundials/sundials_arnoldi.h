@@ -27,7 +27,6 @@ extern "C" {
 #endif
 
 /* Default ARNOLDI parameters */
-#define ARNOLDI_MAXL_DEFAULT 3
 #define DEFAULT_POWER_OF_A   0
 
 /* SUNRhsFn type definition */
@@ -79,6 +78,8 @@ SUNDIALS_EXPORT int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem);
 SUNDIALS_EXPORT int ArnoldiPreProcess(ARNOLDIMem arnoldi_mem);
 
 SUNDIALS_EXPORT suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem);
+
+SUNDIALS_EXPORT void ArnoldiFree(ARNOLDIMem* arnoldi_mem);
 
 #ifdef __cplusplus
 }

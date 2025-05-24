@@ -18,6 +18,7 @@
 #define _LSRKSTEP_H
 
 #include <arkode/arkode.h>
+#include <sundials/sundials_arnoldi.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -58,6 +59,11 @@ SUNDIALS_EXPORT int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs,
 
 SUNDIALS_EXPORT int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs,
                                       sunrealtype t0, N_Vector y0);
+
+SUNDIALS_EXPORT void* LSRKStepArnoldiCreate(void* arkode_mem);
+
+SUNDIALS_EXPORT suncomplextype LSRKStepArnoldiEstimate(void* arkode_mem,
+                                                       ARNOLDIMem Arnoldi_mem);
 
 /* Optional input functions -- must be called AFTER a creation routine above */
 

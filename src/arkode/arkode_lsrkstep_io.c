@@ -264,10 +264,10 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps)
 
 /*---------------------------------------------------------------
   LSRKStepSetMaxNumStages sets the maximum number of stages allowed.
-  If the combination of the maximum number of stages and the current 
-  time step size in the LSRKStep module does not allow for a stable 
-  step, the step routine returns to ARKODE for an updated (refined) 
-  step size. The number of such returns is tracked in a counter, 
+  If the combination of the maximum number of stages and the current
+  time step size in the LSRKStep module does not allow for a stable
+  step, the step routine returns to ARKODE for an updated (refined)
+  step size. The number of such returns is tracked in a counter,
   which can be accessed using ARKodeGetNumExpSteps.
   ---------------------------------------------------------------*/
 int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
@@ -385,8 +385,8 @@ int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages)
       break;
 
     case ARKODE_LSRK_SSP_S_3:
-      /* The SSP3 method differs significantly when s = 4. Therefore, the case 
-      where num_of_stages = 4 is considered separately to avoid unnecessary 
+      /* The SSP3 method differs significantly when s = 4. Therefore, the case
+      where num_of_stages = 4 is considered separately to avoid unnecessary
       boolean checks and improve computational efficiency. */
 
       /* We check that num_of_stages is a perfect square. Note the call to sqrt
@@ -519,6 +519,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->spectral_radius_min = ZERO;
   step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
   step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
+  step_mem->Arnoldi_maxl        = ARNOLDI_MAXL_DEFAULT;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;

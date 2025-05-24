@@ -129,6 +129,7 @@ int ArnoldiPreProcess(ARNOLDIMem arnoldi_mem)
   if(arnoldi_mem->ATimes == NULL)
   {
     printf(MSG_ARNOLDI_NULL_ATIMES);
+    ArnoldiFree(&arnoldi_mem);
 
     return -1;
   }
@@ -143,6 +144,7 @@ int ArnoldiPreProcess(ARNOLDIMem arnoldi_mem)
       (retval < 0) ?
       printf(MSG_ARNOLDI_ATIMES_FAIL_UNREC) :
       printf(MSG_ARNOLDI_ATIMES_FAIL_REC);
+      ArnoldiFree(&arnoldi_mem);
 
       return retval;
     }
@@ -182,6 +184,7 @@ int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem)
       (retval < 0) ?
       printf(MSG_ARNOLDI_ATIMES_FAIL_UNREC) :
       printf(MSG_ARNOLDI_ATIMES_FAIL_REC);
+      ArnoldiFree(&arnoldi_mem);
 
       return retval;
     }
@@ -189,6 +192,7 @@ int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem)
     if(SUNModifiedGS(arnoldi_mem->V, arnoldi_mem->Hes, i + 1, arnoldi_mem->maxl, &(arnoldi_mem->Hes[i + 1][i])) != SUN_SUCCESS)
     {
       printf(MSG_ARNOLDI_GS_FAIL);
+      ArnoldiFree(&arnoldi_mem);
 
       return -1;
     }
@@ -241,6 +245,8 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
 
   if (info != 0) {
       printf(MSG_ARNOLDI_LAPACK_FAIL, info);
+      ArnoldiFree(&arnoldi_mem);
+
       return dom_eig;
   }
 
@@ -266,15 +272,15 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
     free(arr);
   }
 
-  // Print eigenvalues
-  printf("\nEigenvalues:\n");
-  for (int i = 0; i < n; i++) {
-      if (wi[i] == 0.0) {
-          printf("%f\n", wr[i]); // sunrealtype eigenvalue
-      } else {
-          printf("%f + %fi\n", wr[i], wi[i]); // suncomplextype eigenvalue
-      }
-  }
+  // // Print eigenvalues
+  // printf("\nEigenvalues:\n");
+  // for (int i = 0; i < n; i++) {
+  //     if (wi[i] == 0.0) {
+  //         printf("%f\n", wr[i]); // sunrealtype eigenvalue
+  //     } else {
+  //         printf("%f + %fi\n", wr[i], wi[i]); // suncomplextype eigenvalue
+  //     }
+  // }
 
   dom_eig.real = wr[0];
   dom_eig.imag = wi[0];
@@ -316,4 +322,37 @@ int arnoldi_Compare(const void *a, const void *b) {
     sunrealtype mag1 = arnoldi_Magnitude(c1);
     sunrealtype mag2 = arnoldi_Magnitude(c2);
     return (mag2 > mag1) - (mag2 < mag1); // Descending order
+}
+
+/*---------------------------------------------------------------
+  ArnoldiFree frees all Arnoldi memory.
+  ---------------------------------------------------------------*/
+void ArnoldiFree(ARNOLDIMem* arnoldi_mem)
+{
+  ARNOLDIMem arn_mem;
+
+  /* nothing to do if arnoldi_mem is already NULL */
+  if (arnoldi_mem == NULL) { return; }
+
+  arn_mem = (ARNOLDIMem)(*arnoldi_mem);
+
+  if (arn_mem->q != NULL)
+  {
+    N_VDestroy(arn_mem->q);
+    arn_mem->q = NULL;
+  }
+  if (arn_mem->V != NULL)
+  {
+    N_VDestroyVectorArray(arn_mem->V, arn_mem->maxl + 1);
+    arn_mem->V = NULL;
+  }
+
+  if (arn_mem->Hes != NULL)
+  {
+    free(arn_mem->Hes);
+    arn_mem->Hes = NULL;
+  }
+
+  free(*arnoldi_mem);
+  *arnoldi_mem = NULL;
 }

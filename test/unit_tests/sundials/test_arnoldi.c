@@ -193,6 +193,7 @@ int main(int argc, char* argv[])
   N_VDestroy(q);
   N_VDestroy(ProbData.d);
   SUNContext_Free(&sunctx);
+  ArnoldiFree(&Arnoldi_mem);
 
   return (passfail);
 }
