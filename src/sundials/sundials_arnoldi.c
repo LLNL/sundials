@@ -81,9 +81,16 @@ void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
   arnoldi_mem->Adata       = Adata;
   arnoldi_mem->q           = q;
   arnoldi_mem->maxl        = maxl;
+  arnoldi_mem->length      = q->ops->nvgetlength(q);
 
   /* Set the default power of A to start with (# of warm-ups) */
   arnoldi_mem->power_of_A  = DEFAULT_POWER_OF_A;
+
+  /* Set the default tolerance of the power iteration */
+  arnoldi_mem->powiter_tol = DEFAULT_POWER_ITER_TOL;
+
+  /* Set the default max number of the power iteration */
+  arnoldi_mem->max_powiter = DEFAULT_MAX_POWER_ITER;
 
   /* Hessenberg matrix Hes */
   if (arnoldi_mem->Hes == NULL)
@@ -204,6 +211,69 @@ int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem)
   return 0;
 }
 
+suncomplextype ArnoldiPowerIteration(ARNOLDIMem arnoldi_mem)
+{
+  int retval;
+
+  suncomplextype dom_eig, dom_eig_old;
+  dom_eig.real = ZERO;
+  dom_eig.imag = ZERO;
+  dom_eig_old.real = ZERO;
+  dom_eig_old.imag = ZERO;
+
+  /* Check if Arnoldi memory is allocated */
+  if(arnoldi_mem == NULL)
+  {
+    printf(MSG_ARNOLDI_MEM_FAIL);
+
+    return dom_eig;
+  }
+
+  /* Check if ATimes is provided */
+  if(arnoldi_mem->ATimes == NULL)
+  {
+    printf(MSG_ARNOLDI_NULL_ATIMES);
+    ArnoldiFree(&arnoldi_mem);
+
+    return dom_eig;
+  }
+
+  int k = 0;
+  sunrealtype normq;
+
+  for (int k = 0; k < arnoldi_mem->max_powiter; k++)
+  {
+    retval = arnoldi_mem->ATimes(arnoldi_mem->Adata, arnoldi_mem->V[0], arnoldi_mem->q);
+    if (retval != 0)
+    {
+      (retval < 0) ?
+      printf(MSG_ARNOLDI_ATIMES_FAIL_UNREC) :
+      printf(MSG_ARNOLDI_ATIMES_FAIL_REC);
+      ArnoldiFree(&arnoldi_mem);
+
+      dom_eig.real = ZERO;
+      dom_eig.imag = ZERO;
+
+      return dom_eig;
+    }
+
+    dom_eig.real = N_VDotProd(arnoldi_mem->V[0], arnoldi_mem->q); //Rayleigh quotient
+
+    if(fabs(dom_eig.real - dom_eig_old.real) < arnoldi_mem->powiter_tol)
+    {
+      break;
+    }
+
+    normq = N_VDotProd(arnoldi_mem->q, arnoldi_mem->q);
+    normq = SUNRsqrt(normq);
+    N_VScale(SUN_RCONST(1.0)/normq, arnoldi_mem->q, arnoldi_mem->V[0]);
+
+    dom_eig_old.real = dom_eig.real;
+  }
+
+  return dom_eig;
+}
+
 /* Estimate the dominant eigvalues of the Hessenberg matrix */
 suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
   suncomplextype dom_eig;
@@ -214,6 +284,13 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
   if(arnoldi_mem == NULL)
   {
     printf(MSG_ARNOLDI_MEM_FAIL);
+
+    return dom_eig;
+  }
+
+  if(arnoldi_mem->length < 3)
+  {
+    dom_eig = ArnoldiPowerIteration(arnoldi_mem);
 
     return dom_eig;
   }

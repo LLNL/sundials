@@ -27,7 +27,9 @@ extern "C" {
 #endif
 
 /* Default ARNOLDI parameters */
-#define DEFAULT_POWER_OF_A   0
+#define DEFAULT_POWER_OF_A       0
+#define DEFAULT_POWER_ITER_TOL   SUN_RCONST(0.01)
+#define DEFAULT_MAX_POWER_ITER   100
 
 /* SUNRhsFn type definition */
 typedef int (*SUNRhsFn)(sunrealtype t, N_Vector y, N_Vector ydot,
@@ -53,7 +55,11 @@ typedef struct ARNOLDIMemRec
   N_Vector *V, q;       /* Krylov subspace vectors */
 
   int maxl;             /* Krylov subspace dimension */
+  int length;           /* Problem dimension */
   int power_of_A;       /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
+
+  sunrealtype powiter_tol;
+  int max_powiter;
 
   sunrealtype **Hes;    /* Hessenberg matrix Hes */
 }* ARNOLDIMem;
@@ -76,6 +82,8 @@ SUNDIALS_EXPORT void* ArnoldiCreate(SUNATimesFn ATimes, void* AData,
 SUNDIALS_EXPORT int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem);
 
 SUNDIALS_EXPORT int ArnoldiPreProcess(ARNOLDIMem arnoldi_mem);
+
+SUNDIALS_EXPORT suncomplextype ArnoldiPowerIteration(ARNOLDIMem arnoldi_mem);
 
 SUNDIALS_EXPORT suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem);
 
