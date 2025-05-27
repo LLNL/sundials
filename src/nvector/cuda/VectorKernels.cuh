@@ -122,7 +122,7 @@ __global__ void addConstKernel(T a, const T* X, T* Z, I n)
 template<typename T, typename I>
 __global__ void compareKernel(T c, const T* X, T* Z, I n)
 {
-  GRID_STRIDE_XLOOP(I, i, n) { Z[i] = (abs(X[i]) >= SUN_REAL(c)) ? 1.0 : 0.0; }
+  GRID_STRIDE_XLOOP(I, i, n) { Z[i] = (SUNabs(X[i]) >= SUN_REAL(c)) ? 1.0 : 0.0; }
 }
 
 /*
@@ -134,10 +134,10 @@ __global__ void dotProdKernel(const T* x, const T* y, T* out, I n,
                               unsigned int* device_count)
 {
   using op   = sundials::reductions::impl::plus<T>;
-  const T Id = op::identity();
+  const auto Id = op::identity();
 
-  T sum = Id;
-  GRID_STRIDE_XLOOP(I, i, n) { sum += x[i] * y[i]; }
+  auto sum = Id;
+  GRID_STRIDE_XLOOP(I, i, n) { sum += SUNCONJ(x[i]) * y[i]; }
   GridReducer<T, op, T>{}(sum, Id, out, device_count);
 }
 
@@ -146,16 +146,14 @@ __global__ void dotProdKernel(const T* x, const T* y, T* out, I n,
  *
  */
 template<typename T, typename I, template<typename, typename, typename> class GridReducer>
-__global__ void maxNormKernel(const T* x, T* out, I n, unsigned int* device_count)
+__global__ void maxNormKernel(const T* x, sunrealtype* out, I n, unsigned int* device_count)
 {
   using op   = sundials::reductions::impl::maximum<sunrealtype>;
-  const T Id = op::identity();
+  const auto Id = op::identity();
 
-  T maximum = Id;
-  GRID_STRIDE_XLOOP(I, i, n) { maximum = max(abs(SUN_REAL(x[i])), SUN_REAL(maximum)); }
-  sunrealtype out_real{0.0};
-  GridReducer<sunrealtype, op, sunrealtype>{}(SUN_REAL(maximum), SUN_REAL(Id), &out_real, device_count);
-  (*out).real(out_real);
+  auto maximum = Id;
+  GRID_STRIDE_XLOOP(I, i, n) { maximum = SUNMAX(SUNabs(x[i]), maximum); }
+  GridReducer<sunrealtype, op, sunrealtype>{}(maximum, Id, out, device_count);
 }
 
 /*
@@ -167,10 +165,10 @@ __global__ void wL2NormSquareKernel(const T* x, const T* w, T* out, I n,
                                     unsigned int* device_count)
 {
   using op   = sundials::reductions::impl::plus<T>;
-  const T Id = op::identity();
+  const auto Id = op::identity();
 
-  T sum = Id;
-  GRID_STRIDE_XLOOP(I, i, n) { sum += x[i] * w[i] * x[i] * w[i]; }
+  auto sum = Id;
+  GRID_STRIDE_XLOOP(I, i, n) { sum += SUNabs(x[i] * w[i]) * SUNabs(x[i] * w[i]); }
   GridReducer<T, op, T>{}(sum, Id, out, device_count);
 }
 
@@ -183,12 +181,12 @@ __global__ void wL2NormSquareMaskKernel(const T* x, const T* w, const T* id,
                                         T* out, I n, unsigned int* device_count)
 {
   using op   = sundials::reductions::impl::plus<T>;
-  const T Id = op::identity();
+  const auto Id = op::identity();
 
-  T sum = Id;
+  auto sum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
-    if (SUN_REAL(id[i]) > 0.0) sum += x[i] * w[i] * x[i] * w[i];
+    if (SUN_REAL(id[i]) > 0.0) sum += SUNabs(x[i] * w[i]) * SUNabs(x[i] * w[i]);
   }
   GridReducer<T, op, T>{}(sum, Id, out, device_count);
 }
@@ -198,17 +196,15 @@ __global__ void wL2NormSquareMaskKernel(const T* x, const T* w, const T* id,
  *
  */
 template<typename T, typename I, template<typename, typename, typename> class GridReducer>
-__global__ void findMinKernel(T MAX_VAL, const T* x, T* out, I n,
+__global__ void findMinKernel(T MAX_VAL, const T* x, sunrealtype* out, I n,
                               unsigned int* device_count)
 {
   using op   = sundials::reductions::impl::minimum<sunrealtype>;
-  const T Id = op::identity();
+  const auto Id = op::identity();
 
-  T minimum = Id;
-  GRID_STRIDE_XLOOP(I, i, n) { minimum = min(SUN_REAL(x[i]), SUN_REAL(minimum)); }
-  sunrealtype out_real{0.0};
-  GridReducer<sunrealtype, op, sunrealtype>{}(SUN_REAL(minimum), SUN_REAL(Id), &out_real, device_count);
-  (*out).real(out_real);
+  auto minimum = Id;
+  GRID_STRIDE_XLOOP(I, i, n) { minimum = min(SUN_REAL(x[i]), minimum); }
+  GridReducer<sunrealtype, op, sunrealtype>{}(minimum, Id, out, device_count);
 }
 
 /*
@@ -219,9 +215,9 @@ template<typename T, typename I, template<typename, typename, typename> class Gr
 __global__ void L1NormKernel(const T* x, T* out, I n, unsigned int* device_count)
 {
   using op   = sundials::reductions::impl::plus<T>;
-  const T Id = op::identity();
+  const auto Id = op::identity();
 
-  T sum = Id;
+  auto sum = Id;
   GRID_STRIDE_XLOOP(I, i, n) { sum += abs(x[i]); }
   GridReducer<T, op, T>{}(sum, Id, out, device_count);
 }
@@ -236,9 +232,9 @@ __global__ void invTestKernel(const T* x, T* z, T* out, I n,
                               unsigned int* device_count)
 {
   using op   = sundials::reductions::impl::plus<T>;
-  const T Id = op::identity();
+  const auto Id = op::identity();
 
-  T flag = Id;
+  auto flag = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     if (x[i] == static_cast<T>(0.0)) flag += 1.0;
@@ -259,9 +255,9 @@ __global__ void constrMaskKernel(const T* c, const T* x, T* m, T* out, I n,
                                  unsigned int* device_count)
 {
   using op   = sundials::reductions::impl::plus<T>;
-  const T Id = op::identity();
+  const auto Id = op::identity();
 
-  T sum = Id;
+  auto sum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     // test = true if constraints violated
@@ -279,23 +275,20 @@ __global__ void constrMaskKernel(const T* c, const T* x, T* m, T* out, I n,
  */
 template<typename T, typename I, template<typename, typename, typename> class GridReducer>
 __global__ void minQuotientKernel(const T MAX_VAL, const T* num, const T* den,
-                                  T* min_quotient, I n,
+                                  sunrealtype* min_quotient, I n,
                                   unsigned int* device_count)
 {
   using op   = sundials::reductions::impl::minimum<sunrealtype>;
-  const T Id = op::identity();
+  const auto Id = op::identity();
 
-  T minimum  = Id;
+  auto minimum  = Id;
   T quotient = 0.0;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     quotient = (SUN_REAL(den[i]) == static_cast<T>(0.0)) ? Id : num[i] / den[i];
-    minimum  = min(SUN_REAL(quotient), SUN_REAL(minimum));
+    minimum  = min(SUN_REAL(quotient), minimum);
   }
-
-  sunrealtype out_real{0.0};
-  GridReducer<sunrealtype, op, sunrealtype>{}(SUN_REAL(minimum), SUN_REAL(Id), &out_real, device_count);
-  (*min_quotient).real(out_real);
+  GridReducer<sunrealtype, op, sunrealtype>{}(minimum, Id, min_quotient, device_count);
 }
 
 } // namespace impl

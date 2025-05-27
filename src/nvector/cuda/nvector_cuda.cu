@@ -49,14 +49,15 @@ static int AllocateData(N_Vector v);
 // Reduction buffer functions
 static int InitializeDeviceCounter(N_Vector v);
 static int FreeDeviceCounter(N_Vector v);
-static int InitializeReductionBuffer(N_Vector v, sunscalartype value, size_t n = 1);
+static int InitializeReductionBuffer(N_Vector v, sunscalartype value,
+                                     size_t n = 1);
 static void FreeReductionBuffer(N_Vector v);
 static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
 
 // Fused operation buffer functions
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr);
-static int FusedBuffer_CopyRealArray(N_Vector v, sunscalartype* r_data, int nval,
-                                     sunscalartype** shortcut);
+static int FusedBuffer_CopyRealArray(N_Vector v, sunscalartype* r_data,
+                                     int nval, sunscalartype** shortcut);
 static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
                                       sunscalartype*** shortcut);
 static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
@@ -82,7 +83,8 @@ static void PostKernelLaunch();
 #define NVEC_CUDA_MEMSIZE(x) \
   (NVEC_CUDA_CONTENT(x)->length * sizeof(sunscalartype))
 #define NVEC_CUDA_MEMHELP(x) (NVEC_CUDA_CONTENT(x)->mem_helper)
-#define NVEC_CUDA_HDATAp(x)  ((sunscalartype*)NVEC_CUDA_CONTENT(x)->host_data->ptr)
+#define NVEC_CUDA_HDATAp(x) \
+  ((sunscalartype*)NVEC_CUDA_CONTENT(x)->host_data->ptr)
 #define NVEC_CUDA_DDATAp(x) \
   ((sunscalartype*)NVEC_CUDA_CONTENT(x)->device_data->ptr)
 #define NVEC_CUDA_STREAM(x) (NVEC_CUDA_CONTENT(x)->stream_exec_policy->stream())
@@ -149,25 +151,26 @@ N_Vector N_VNewEmpty_Cuda(SUNContext sunctx)
   v->ops->nvsetarraypointer       = N_VSetHostArrayPointer_Cuda;
 
   /* standard vector operations */
-  v->ops->nvlinearsum    = N_VLinearSum_Cuda;
-  v->ops->nvconst        = N_VConst_Cuda;
-  v->ops->nvprod         = N_VProd_Cuda;
-  v->ops->nvdiv          = N_VDiv_Cuda;
-  v->ops->nvscale        = N_VScale_Cuda;
-  v->ops->nvabs          = N_VAbs_Cuda;
-  v->ops->nvinv          = N_VInv_Cuda;
-  v->ops->nvaddconst     = N_VAddConst_Cuda;
-  v->ops->nvdotprod      = N_VDotProd_Cuda;
-  v->ops->nvmaxnorm      = N_VMaxNorm_Cuda;
-  v->ops->nvmin          = N_VMin_Cuda;
-  v->ops->nvl1norm       = N_VL1Norm_Cuda;
-  v->ops->nvinvtest      = N_VInvTest_Cuda;
-  v->ops->nvconstrmask   = N_VConstrMask_Cuda;
-  v->ops->nvminquotient  = N_VMinQuotient_Cuda;
-  v->ops->nvwrmsnormmask = N_VWrmsNormMask_Cuda;
-  v->ops->nvwrmsnorm     = N_VWrmsNorm_Cuda;
-  v->ops->nvwl2norm      = N_VWL2Norm_Cuda;
-  v->ops->nvcompare      = N_VCompare_Cuda;
+  v->ops->nvlinearsum      = N_VLinearSum_Cuda;
+  v->ops->nvconst          = N_VConst_Cuda;
+  v->ops->nvprod           = N_VProd_Cuda;
+  v->ops->nvdiv            = N_VDiv_Cuda;
+  v->ops->nvscale          = N_VScale_Cuda;
+  v->ops->nvabs            = N_VAbs_Cuda;
+  v->ops->nvinv            = N_VInv_Cuda;
+  v->ops->nvaddconst       = N_VAddConst_Cuda;
+  v->ops->nvdotprod        = N_VDotProd_Cuda;
+  v->ops->nvdotprodcomplex = N_VDotProdComplex_Cuda;
+  v->ops->nvmaxnorm        = N_VMaxNorm_Cuda;
+  v->ops->nvmin            = N_VMin_Cuda;
+  v->ops->nvl1norm         = N_VL1Norm_Cuda;
+  v->ops->nvinvtest        = N_VInvTest_Cuda;
+  v->ops->nvconstrmask     = N_VConstrMask_Cuda;
+  v->ops->nvminquotient    = N_VMinQuotient_Cuda;
+  v->ops->nvwrmsnormmask   = N_VWrmsNormMask_Cuda;
+  v->ops->nvwrmsnorm       = N_VWrmsNorm_Cuda;
+  v->ops->nvwl2norm        = N_VWL2Norm_Cuda;
+  v->ops->nvcompare        = N_VCompare_Cuda;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
@@ -891,6 +894,13 @@ void N_VAddConst_Cuda(N_Vector X, sunscalartype b, N_Vector Z)
 
 sunrealtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 {
+  sunscalartype result = SUN_COMPLEX(0.0, 0.0);
+  N_VDotProdComplex_Cuda(X, Y, &result);
+  return SUN_REAL(result);
+}
+
+SUNErrCode N_VDotProdComplex_Cuda(N_Vector X, N_Vector Y, sunscalartype* result)
+{
   bool atomic;
   size_t grid, block, shMemSize;
   cudaStream_t stream;
@@ -907,8 +917,7 @@ sunrealtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
   const size_t buffer_size = atomic ? 1 : grid;
   if (InitializeReductionBuffer(X, gpu_result, buffer_size))
   {
-    SUNDIALS_DEBUG_PRINT(
-      "ERROR in N_VDotProd_Cuda: InitializeReductionBuffer returned nonzero\n");
+    return SUN_ERR_MEM_FAIL;
   }
 
   if (atomic)
@@ -932,9 +941,9 @@ sunrealtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 
   // Get result from the GPU
   CopyReductionBufferFromDevice(X);
-  gpu_result = NVEC_CUDA_HBUFFERp(X)[0];
+  *result = NVEC_CUDA_HBUFFERp(X)[0];
 
-  return SUN_REAL(gpu_result);
+  return SUN_SUCCESS;
 }
 
 sunrealtype N_VMaxNorm_Cuda(N_Vector X)
@@ -963,14 +972,14 @@ sunrealtype N_VMaxNorm_Cuda(N_Vector X)
   {
     maxNormKernel<sunscalartype, sunindextype, GridReducerAtomic>
       <<<grid, block, shMemSize, stream>>>(NVEC_CUDA_DDATAp(X),
-                                           NVEC_CUDA_DBUFFERp(X),
+                                           (sunrealtype*)NVEC_CUDA_DBUFFERp(X),
                                            NVEC_CUDA_CONTENT(X)->length, nullptr);
   }
   else
   {
     maxNormKernel<sunscalartype, sunindextype, GridReducerLDS>
       <<<grid, block, shMemSize, stream>>>(NVEC_CUDA_DDATAp(X),
-                                           NVEC_CUDA_DBUFFERp(X),
+                                           (sunrealtype*)NVEC_CUDA_DBUFFERp(X),
                                            NVEC_CUDA_CONTENT(X)->length,
                                            NVEC_CUDA_DCOUNTERp(X));
   }
@@ -979,6 +988,8 @@ sunrealtype N_VMaxNorm_Cuda(N_Vector X)
 
   // Finish reduction on CPU if there are less than two blocks of data left.
   CopyReductionBufferFromDevice(X);
+  printf(">>>> result=%g+%gi\n", SUN_REAL(NVEC_CUDA_HBUFFERp(X)[0]),
+         SUN_IMAG(NVEC_CUDA_HBUFFERp(X)[0]));
   gpu_result = SUN_REAL(NVEC_CUDA_HBUFFERp(X)[0]);
 
   return gpu_result;
@@ -1119,14 +1130,14 @@ sunrealtype N_VMin_Cuda(N_Vector X)
   {
     findMinKernel<sunscalartype, sunindextype, GridReducerAtomic>
       <<<grid, block, shMemSize, stream>>>(gpu_result, NVEC_CUDA_DDATAp(X),
-                                           NVEC_CUDA_DBUFFERp(X),
+                                           (sunrealtype*)NVEC_CUDA_DBUFFERp(X),
                                            NVEC_CUDA_CONTENT(X)->length, nullptr);
   }
   else
   {
     findMinKernel<sunscalartype, sunindextype, GridReducerLDS>
       <<<grid, block, shMemSize, stream>>>(gpu_result, NVEC_CUDA_DDATAp(X),
-                                           NVEC_CUDA_DBUFFERp(X),
+                                           (sunrealtype*)NVEC_CUDA_DBUFFERp(X),
                                            NVEC_CUDA_CONTENT(X)->length,
                                            NVEC_CUDA_DCOUNTERp(X));
   }
@@ -1335,7 +1346,7 @@ sunrealtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
     minQuotientKernel<sunscalartype, sunindextype, GridReducerAtomic>
       <<<grid, block, shMemSize, stream>>>(gpu_result, NVEC_CUDA_DDATAp(num),
                                            NVEC_CUDA_DDATAp(denom),
-                                           NVEC_CUDA_DBUFFERp(num),
+                                           (sunrealtype*)NVEC_CUDA_DBUFFERp(num),
                                            NVEC_CUDA_CONTENT(num)->length,
                                            nullptr);
   }
@@ -1344,7 +1355,7 @@ sunrealtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
     minQuotientKernel<sunscalartype, sunindextype, GridReducerLDS>
       <<<grid, block, shMemSize, stream>>>(gpu_result, NVEC_CUDA_DDATAp(num),
                                            NVEC_CUDA_DDATAp(denom),
-                                           NVEC_CUDA_DBUFFERp(num),
+                                           (sunrealtype*)NVEC_CUDA_DBUFFERp(num),
                                            NVEC_CUDA_CONTENT(num)->length,
                                            NVEC_CUDA_DCOUNTERp(num));
   }
@@ -1792,8 +1803,8 @@ SUNErrCode N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   CopyReductionBufferFromDevice(W[0], nvec);
   for (int i = 0; i < nvec; ++i)
   {
-    norms[i] =
-      std::sqrt(SUN_REAL(NVEC_CUDA_HBUFFERp(W[0])[i]) / NVEC_CUDA_CONTENT(W[0])->length);
+    norms[i] = std::sqrt(SUN_REAL(NVEC_CUDA_HBUFFERp(W[0])[i]) /
+                         NVEC_CUDA_CONTENT(W[0])->length);
   }
 
   return SUN_SUCCESS;
@@ -1863,16 +1874,16 @@ SUNErrCode N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   CopyReductionBufferFromDevice(W[0], nvec);
   for (int i = 0; i < nvec; ++i)
   {
-    norms[i] =
-      std::sqrt(SUN_REAL(NVEC_CUDA_HBUFFERp(W[0])[i]) / NVEC_CUDA_CONTENT(W[0])->length);
+    norms[i] = std::sqrt(SUN_REAL(NVEC_CUDA_HBUFFERp(W[0])[i]) /
+                         NVEC_CUDA_CONTENT(W[0])->length);
   }
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, sunscalartype* c,
-                                            N_Vector* X, N_Vector** Y,
-                                            N_Vector** Z)
+SUNErrCode N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum,
+                                            sunscalartype* c, N_Vector* X,
+                                            N_Vector** Y, N_Vector** Z)
 {
   // Shortcuts to the fused op workspace
   sunscalartype* cdata  = NULL;
@@ -2496,13 +2507,13 @@ static int FusedBuffer_CopyRealArray(N_Vector v, sunscalartype* rdata, int nval,
   }
 
   sunscalartype* h_buffer = (sunscalartype*)((char*)(vcp->fused_buffer_host->ptr) +
-                                         vcp->fused_buffer_offset);
+                                             vcp->fused_buffer_offset);
 
   for (int j = 0; j < nval; j++) { h_buffer[j] = rdata[j]; }
 
   // Set shortcut to the device buffer and update offset
   *shortcut = (sunscalartype*)((char*)(vcp->fused_buffer_dev->ptr) +
-                             vcp->fused_buffer_offset);
+                               vcp->fused_buffer_offset);
 
   // accounting for buffer padding
 #if defined(SUNDIALS_SINGLE_PRECISION)
@@ -2530,14 +2541,15 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
     return SUN_ERR_GENERIC;
   }
 
-  sunscalartype** h_buffer = (sunscalartype**)((char*)(vcp->fused_buffer_host->ptr) +
-                                           vcp->fused_buffer_offset);
+  sunscalartype** h_buffer =
+    (sunscalartype**)((char*)(vcp->fused_buffer_host->ptr) +
+                      vcp->fused_buffer_offset);
 
   for (int j = 0; j < nvec; j++) { h_buffer[j] = NVEC_CUDA_DDATAp(X[j]); }
 
   // Set shortcut to the device buffer and update offset
   *shortcut = (sunscalartype**)((char*)(vcp->fused_buffer_dev->ptr) +
-                              vcp->fused_buffer_offset);
+                                vcp->fused_buffer_offset);
 
   vcp->fused_buffer_offset += nvec * sizeof(sunscalartype*);
 
@@ -2558,8 +2570,9 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
     return SUN_ERR_GENERIC;
   }
 
-  sunscalartype** h_buffer = (sunscalartype**)((char*)(vcp->fused_buffer_host->ptr) +
-                                           vcp->fused_buffer_offset);
+  sunscalartype** h_buffer =
+    (sunscalartype**)((char*)(vcp->fused_buffer_host->ptr) +
+                      vcp->fused_buffer_offset);
 
   for (int j = 0; j < nvec; j++)
   {
@@ -2571,7 +2584,7 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
 
   // Set shortcut to the device buffer and update offset
   *shortcut = (sunscalartype**)((char*)(vcp->fused_buffer_dev->ptr) +
-                              vcp->fused_buffer_offset);
+                                vcp->fused_buffer_offset);
 
   // Update the offset
   vcp->fused_buffer_offset += nvec * nsum * sizeof(sunscalartype*);

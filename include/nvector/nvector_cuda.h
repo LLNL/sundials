@@ -129,6 +129,7 @@ SUNDIALS_EXPORT void N_VAbs_Cuda(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VInv_Cuda(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VAddConst_Cuda(N_Vector x, sunscalartype b, N_Vector z);
 SUNDIALS_EXPORT sunrealtype N_VDotProd_Cuda(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNErrCode N_VDotProdComplex_Cuda(N_Vector x, N_Vector y, sunscalartype* result);
 SUNDIALS_EXPORT sunrealtype N_VMaxNorm_Cuda(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWrmsNorm_Cuda(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VWrmsNormMask_Cuda(N_Vector x, N_Vector w,

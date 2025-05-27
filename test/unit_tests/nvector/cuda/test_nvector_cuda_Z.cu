@@ -1,0 +1,470 @@
+/* -----------------------------------------------------------------
+ * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
+ * -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------
+ * This is the testing routine to check the NVECTOR CUDA module
+ * implementation.
+ * -----------------------------------------------------------------*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <nvector/nvector_cuda.h>
+#include <nvector/nvector_serial.h>
+#include <sundials/sundials_core.h>
+
+#include "custom_memory_helper_gpu.h"
+#include "test_nvector_complex.h"
+
+/* CUDA vector variants */
+enum mem_type
+{
+  UNMANAGED,
+  MANAGED,
+  SUNMEMORY
+};
+
+enum pol_type
+{
+  DEFAULT_POL,
+  DEFAULT_POL_W_STREAM,
+  GRID_STRIDE,
+  LDS_REDUCTIONS
+};
+
+/* ----------------------------------------------------------------------
+ * Main NVector Testing Routine
+ * --------------------------------------------------------------------*/
+int main(int argc, char* argv[])
+{
+  int fails = 0;          /* counter for test failures  */
+  int retval;             /* function return value      */
+  sunindextype length;    /* vector length              */
+  N_Vector U, V, X, Y, Z; /* test vectors               */
+  int threadsPerBlock;    /* cuda block size            */
+  cudaStream_t stream;    /* cuda stream                */
+  int memtype, policy;
+
+  Test_Init_Z(SUN_COMM_NULL);
+
+  /* check input and set vector length */
+  if (argc < 4)
+  {
+    printf("ERROR: THREE (3) Inputs required: vector length, CUDA threads per "
+           "block (0 for default), print timing \n");
+    Test_Abort_Z(1);
+  }
+
+  length = (sunindextype)atol(argv[1]);
+  if (length <= 0)
+  {
+    printf("ERROR: length of vector must be a positive integer\n");
+    Test_Abort_Z(1);
+  }
+
+  threadsPerBlock = (int)atoi(argv[2]);
+  if (threadsPerBlock < 0 || threadsPerBlock % 32)
+  {
+    printf("ERROR: CUDA threads per block must be 0 to use the default or a "
+           "multiple of 32\n");
+    Test_Abort_Z(1);
+  }
+
+  /* test with all policy variants */
+  for (policy = DEFAULT_POL; policy <= LDS_REDUCTIONS; ++policy)
+  {
+    int actualThreadsPerBlock = threadsPerBlock ? threadsPerBlock : 256;
+    SUNCudaExecPolicy* stream_exec_policy = NULL;
+    SUNCudaExecPolicy* reduce_exec_policy = NULL;
+    cudaStreamCreate(&stream);
+
+    if (policy == DEFAULT_POL_W_STREAM)
+    {
+      stream_exec_policy =
+        new SUNCudaThreadDirectExecPolicy(actualThreadsPerBlock, stream);
+      reduce_exec_policy =
+        new SUNCudaBlockReduceAtomicExecPolicy(actualThreadsPerBlock, 0, stream);
+    }
+    else if (policy == GRID_STRIDE)
+    {
+      stream_exec_policy =
+        new SUNCudaGridStrideExecPolicy(actualThreadsPerBlock, 1);
+      reduce_exec_policy =
+        new SUNCudaBlockReduceAtomicExecPolicy(actualThreadsPerBlock, 1);
+    }
+    else if (policy == LDS_REDUCTIONS)
+    {
+      stream_exec_policy =
+        new SUNCudaThreadDirectExecPolicy(actualThreadsPerBlock);
+      reduce_exec_policy = new SUNCudaBlockReduceExecPolicy(actualThreadsPerBlock);
+    }
+
+    /* test with all memory variants */
+    for (memtype = UNMANAGED; memtype <= SUNMEMORY; ++memtype)
+    {
+      SUNMemoryHelper mem_helper = NULL;
+
+      printf("=====> Beginning setup\n\n");
+
+      if (memtype == UNMANAGED)
+      {
+        printf("Testing CUDA N_Vector, policy %d\n", policy);
+      }
+      else if (memtype == MANAGED)
+      {
+        printf("Testing CUDA N_Vector with managed memory, policy %d\n", policy);
+      }
+      else if (memtype == SUNMEMORY)
+      {
+        printf("Testing CUDA N_Vector with SUNMemoryHelper, policy %d\n", policy);
+        mem_helper = MyMemoryHelper(sunctx);
+      }
+      printf("Vector length: %ld \n", (long int)length);
+
+      /* Create new vectors */
+      if (memtype == UNMANAGED) { X = N_VNew_Cuda(length, sunctx); }
+      else if (memtype == MANAGED) { X = N_VNewManaged_Cuda(length, sunctx); }
+      else if (memtype == SUNMEMORY)
+      {
+        X = N_VNewWithMemHelp_Cuda(length, SUNFALSE, mem_helper, sunctx);
+      }
+      if (X == NULL)
+      {
+        delete stream_exec_policy;
+        delete reduce_exec_policy;
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
+        printf("FAIL: Unable to create a new vector \n\n");
+        Test_Abort_Z(1);
+      }
+
+      if (stream_exec_policy != NULL && reduce_exec_policy != NULL)
+      {
+        if (N_VSetKernelExecPolicy_Cuda(X, stream_exec_policy, reduce_exec_policy))
+        {
+          N_VDestroy(X);
+          delete stream_exec_policy;
+          delete reduce_exec_policy;
+          if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
+          printf("FAIL: Unable to set kernel execution policy \n\n");
+          Test_Abort_Z(1);
+        }
+        printf("Using non-default kernel execution policy\n");
+        printf("Threads per block: %d\n\n", actualThreadsPerBlock);
+      }
+
+      /* Fill vector with uniform random data in [-1,1] */
+      sunscalartype* xdata = N_VGetHostArrayPointer_Cuda(X);
+      for (sunindextype j = 0; j < length; j++)
+      {
+        sunrealtype rand_real =
+          ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        sunrealtype rand_imag =
+          ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        xdata[j] = rand_real; // + rand_imag * SUN_I;
+      }
+      N_VCopyToDevice_Cuda(X);
+
+      /* Clone additional vectors for testing */
+      Y = N_VClone(X);
+      if (Y == NULL)
+      {
+        N_VDestroy(X);
+        printf("FAIL: Unable to create a new vector \n\n");
+        delete stream_exec_policy;
+        delete reduce_exec_policy;
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
+        Test_Abort_Z(1);
+      }
+
+      Z = N_VClone(X);
+      if (Z == NULL)
+      {
+        N_VDestroy(X);
+        N_VDestroy(Y);
+        delete stream_exec_policy;
+        delete reduce_exec_policy;
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
+        printf("FAIL: Unable to create a new vector \n\n");
+        Test_Abort_Z(1);
+      }
+
+      /* Fill vectors with uniform random data in [-1,1] */
+      sunscalartype* ydata = N_VGetHostArrayPointer_Cuda(Y);
+      sunscalartype* zdata = N_VGetHostArrayPointer_Cuda(Z);
+      for (sunindextype j = 0; j < length; j++)
+      {
+        ydata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        zdata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+      }
+      N_VCopyToDevice_Cuda(Y);
+      N_VCopyToDevice_Cuda(Z);
+
+      printf("=====> Setup complete\n");
+      printf("=====> Beginning tests\n\n");
+
+      /* Standard vector operation tests */
+      printf("\nTesting standard vector operations:\n\n");
+
+      // /* Check vector ID */
+      // fails += Test_N_VGetVectorID_Z(X, SUNDIALS_NVEC_CUDA, 0);
+
+      // /* Check vector length */
+      // fails += Test_N_VGetLength_Z(X, 0);
+
+      // /* Check vector communicator */
+      // fails += Test_N_VGetCommunicator_Z(X, SUN_COMM_NULL, 0);
+
+      // /* Test clone functions */
+      // fails += Test_N_VCloneEmpty_Z(X, 0);
+      // fails += Test_N_VClone_Z(X, length, 0);
+      // fails += Test_N_VCloneEmptyVectorArray_Z(5, X, 0);
+      // fails += Test_N_VCloneVectorArray_Z(5, X, length, 0);
+
+      // /* Test vector math kernels */
+      // fails += Test_N_VConst_Z(X, length, 0);
+      // fails += Test_N_VLinearSum_Z(X, Y, Z, length, 0);
+      // fails += Test_N_VProd_Z(X, Y, Z, length, 0);
+      // fails += Test_N_VDiv_Z(X, Y, Z, length, 0);
+      // fails += Test_N_VScale_Z(X, Z, length, 0);
+      // fails += Test_N_VAbs_Z(X, Z, length, 0);
+      // fails += Test_N_VInv_Z(X, Z, length, 0);
+      // fails += Test_N_VAddConst_Z(X, Z, length, 0);
+      // fails += Test_N_VDotProd_Z(X, Y, length, 0);
+      fails += Test_N_VMaxNorm_Z(X, length, 0);
+      fails += Test_N_VWrmsNorm_Z(X, Y, length, 0);
+      fails += Test_N_VWrmsNormMask_Z(X, Y, Z, length, 0);
+      fails += Test_N_VMin_Z(X, length, 0);
+      fails += Test_N_VWL2Norm_Z(X, Y, length, 0);
+      fails += Test_N_VL1Norm_Z(X, length, 0);
+      if (length >= 3) { fails += Test_N_VCompare_Z(X, Z, length, 0); }
+      fails += Test_N_VInvTest_Z(X, Z, length, 0);
+      if (length >= 7) { fails += Test_N_VConstrMask_Z(X, Y, Z, length, 0); }
+      fails += Test_N_VMinQuotient_Z(X, Y, length, 0);
+
+      /* Fused and vector array operations tests (disabled) */
+      printf("\nTesting fused and vector array operations (disabled):\n\n");
+
+      /* create vector and disable all fused and vector array operations */
+      U = N_VClone(X);
+      if (U == NULL)
+      {
+        N_VDestroy(X);
+        N_VDestroy(Y);
+        delete stream_exec_policy;
+        delete reduce_exec_policy;
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
+        printf("FAIL: Unable to create a new vector \n\n");
+        Test_Abort_Z(1);
+      }
+      retval = N_VEnableFusedOps_Cuda(U, SUNFALSE);
+      if (retval != 0)
+      {
+        N_VDestroy(X);
+        N_VDestroy(Y);
+        N_VDestroy(Z);
+        N_VDestroy(U);
+        delete stream_exec_policy;
+        delete reduce_exec_policy;
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
+        printf("FAIL: Unable to create a new vector \n\n");
+        Test_Abort_Z(1);
+      }
+
+      // /* fused operations */
+      // fails += Test_N_VLinearCombination_Z(U, length, 0);
+      // fails += Test_N_VScaleAddMulti_Z(U, length, 0);
+      // fails += Test_N_VDotProdMulti_Z(U, length, 0);
+
+      // /* vector array operations */
+      // fails += Test_N_VLinearSumVectorArray_Z(U, length, 0);
+      // fails += Test_N_VScaleVectorArray_Z(U, length, 0);
+      // fails += Test_N_VConstVectorArray_Z(U, length, 0);
+      // fails += Test_N_VWrmsNormVectorArray_Z(U, length, 0);
+      // fails += Test_N_VWrmsNormMaskVectorArray_Z(U, length, 0);
+      // fails += Test_N_VScaleAddMultiVectorArray_Z(U, length, 0);
+      // fails += Test_N_VLinearCombinationVectorArray_Z(U, length, 0);
+
+      /* Fused and vector array operations tests (enabled) */
+      printf("\nTesting fused and vector array operations (enabled):\n\n");
+
+      /* create vector and enable all fused and vector array operations */
+      V      = N_VClone(X);
+      retval = N_VEnableFusedOps_Cuda(V, SUNTRUE);
+      if (V == NULL)
+      {
+        N_VDestroy(X);
+        N_VDestroy(Y);
+        N_VDestroy(Z);
+        N_VDestroy(U);
+        delete stream_exec_policy;
+        delete reduce_exec_policy;
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
+        printf("FAIL: Unable to create a new vector \n\n");
+        Test_Abort_Z(1);
+      }
+      if (retval != 0)
+      {
+        N_VDestroy(X);
+        N_VDestroy(Y);
+        N_VDestroy(Z);
+        N_VDestroy(U);
+        N_VDestroy(V);
+        delete stream_exec_policy;
+        delete reduce_exec_policy;
+        if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
+        printf("FAIL: Unable to create a new vector \n\n");
+        Test_Abort_Z(1);
+      }
+
+      // /* fused operations */
+      // fails += Test_N_VLinearCombination_Z(V, length, 0);
+      // fails += Test_N_VScaleAddMulti_Z(V, length, 0);
+      // fails += Test_N_VDotProdMulti_Z(V, length, 0);
+
+      // /* vector array operations */
+      // fails += Test_N_VLinearSumVectorArray_Z(V, length, 0);
+      // fails += Test_N_VScaleVectorArray_Z(V, length, 0);
+      // fails += Test_N_VConstVectorArray_Z(V, length, 0);
+      // fails += Test_N_VWrmsNormVectorArray_Z(V, length, 0);
+      // fails += Test_N_VWrmsNormMaskVectorArray_Z(V, length, 0);
+      // fails += Test_N_VScaleAddMultiVectorArray_Z(V, length, 0);
+      // fails += Test_N_VLinearCombinationVectorArray_Z(V, length, 0);
+
+      /* local reduction operations */
+      printf("\nTesting local reduction operations:\n\n");
+
+      fails += Test_N_VDotProdLocal_Z(X, Y, length, 0);
+      fails += Test_N_VMaxNormLocal_Z(X, length, 0);
+      fails += Test_N_VMinLocal_Z(X, length, 0);
+      fails += Test_N_VL1NormLocal_Z(X, length, 0);
+      fails += Test_N_VWSqrSumLocal_Z(X, Y, length, 0);
+      fails += Test_N_VWSqrSumMaskLocal_Z(X, Y, Z, length, 0);
+      fails += Test_N_VInvTestLocal_Z(X, Z, length, 0);
+      if (length >= 7)
+      {
+        fails += Test_N_VConstrMaskLocal_Z(X, Y, Z, length, 0);
+      }
+      fails += Test_N_VMinQuotientLocal_Z(X, Y, length, 0);
+
+      /* local fused reduction operations */
+      printf("\nTesting local fused reduction operations:\n\n");
+      fails += Test_N_VDotProdMultiLocal_Z(V, length, 0);
+
+      /* XBraid interface operations */
+      printf("\nTesting XBraid interface operations:\n\n");
+
+      fails += Test_N_VBufSize_Z(X, length, 0);
+      fails += Test_N_VBufPack_Z(X, length, 0);
+      fails += Test_N_VBufUnpack_Z(X, length, 0);
+
+      printf("\n=====> Beginning teardown\n");
+
+      /* Free vectors */
+      N_VDestroy(X);
+      N_VDestroy(Y);
+      N_VDestroy(Z);
+      N_VDestroy(U);
+      N_VDestroy(V);
+
+      if (mem_helper) { SUNMemoryHelper_Destroy(mem_helper); }
+
+      /* Synchronize */
+      cudaDeviceSynchronize();
+
+      printf("=====> Teardown complete\n\n");
+    }
+
+    /* Print result */
+    if (fails)
+    {
+      printf("\n\nFAIL: NVector module failed %i tests \n\n", fails);
+    }
+    else { printf("\n\nSUCCESS: NVector module passed all tests \n\n"); }
+
+    cudaStreamDestroy(stream);
+    delete stream_exec_policy;
+    delete reduce_exec_policy;
+  }
+
+  cudaDeviceSynchronize();
+  cudaDeviceReset();
+  Test_Finalize_Z();
+  return (fails);
+}
+
+/* ----------------------------------------------------------------------
+ * Implementation specific utility functions for vector tests
+ * --------------------------------------------------------------------*/
+int check_ans_Z(sunscalartype ans, N_Vector X, sunindextype length)
+{
+  int failure = 0;
+  sunindextype i;
+  sunscalartype* Xdata;
+
+  N_VCopyFromDevice_Cuda(X);
+  Xdata = N_VGetHostArrayPointer_Cuda(X);
+
+  /* check vector data */
+  for (i = 0; i < length; i++) { failure += SUNCompare(Xdata[i], ans); }
+
+  return (failure > ZERO) ? (1) : (0);
+}
+
+sunbooleantype has_data_Z(N_Vector X)
+{
+  /* check if vector data is non-null */
+  if ((N_VGetHostArrayPointer_Cuda(X) == NULL) &&
+      (N_VGetDeviceArrayPointer_Cuda(X) == NULL))
+  {
+    return SUNFALSE;
+  }
+  return SUNTRUE;
+}
+
+void set_element_Z(N_Vector X, sunindextype i, sunscalartype val)
+{
+  /* set i-th element of data array */
+  set_element_range_Z(X, i, i, val);
+}
+
+void set_element_range_Z(N_Vector X, sunindextype is, sunindextype ie,
+                         sunscalartype val)
+{
+  sunindextype i;
+  sunscalartype* xd;
+
+  /* set elements [is,ie] of the data array */
+  N_VCopyFromDevice_Cuda(X);
+  xd = N_VGetHostArrayPointer_Cuda(X);
+  for (i = is; i <= ie; i++) { xd[i] = val; }
+  N_VCopyToDevice_Cuda(X);
+}
+
+sunscalartype get_element_Z(N_Vector X, sunindextype i)
+{
+  /* get i-th element of data array */
+  N_VCopyFromDevice_Cuda(X);
+  return N_VGetHostArrayPointer_Cuda(X)[i];
+}
+
+double max_time_Z(N_Vector X, double time)
+{
+  /* not running in parallel, just return input time */
+  return (time);
+}
+
+void sync_device_Z(N_Vector x)
+{
+  /* sync with GPU */
+  cudaDeviceSynchronize();
+  return;
+}

@@ -18,9 +18,17 @@
 # develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS cuda nvector
-set(nvector_cuda_examples
-    "test_nvector_cuda\;3 32 0\;\;\;" "test_nvector_cuda\;500 128 0\;\;\;"
-    "test_nvector_cuda\;1000 0 0\;\;\;")
+if(SUNDIALS_SCALAR_TYPE MATCHES "REAL")
+  set(nvector_cuda_examples
+      "test_nvector_cuda\;3 32 0\;\;\;" 
+      "test_nvector_cuda\;500 128 0\;\;\;"
+      "test_nvector_cuda\;1000 0 0\;\;\;")
+elseif(SUNDIALS_SCALAR_TYPE MATCHES "COMPLEX")
+  set(nvector_cuda_examples
+      "test_nvector_cuda_Z\;3 32 0\;\;\;" 
+      "test_nvector_cuda_Z\;500 128 0\;\;\;"
+      "test_nvector_cuda_Z\;1000 0 0\;\;\;")
+endif()
 
 # Dependencies for nvector examples
 set(nvector_examples_dependencies test_nvector)
