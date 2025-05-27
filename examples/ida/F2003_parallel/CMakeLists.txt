@@ -49,12 +49,8 @@ foreach(example_tuple ${FIDA_examples})
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-<<<<<<< HEAD
     sundials_add_executable(${example} ${example}.f90
       SCALAR_TYPE ${example_scalartype})
-=======
-    sundials_add_executable(${example} ${example}.f90)
->>>>>>> origin/develop
 
     if(TARGET ${example})
       # libraries to link against
