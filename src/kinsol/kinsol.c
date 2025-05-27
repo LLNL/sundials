@@ -3170,7 +3170,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   {
     /* second iteration */
     sunscalartype dot = ZERO;
-    SUNCheckCall(N_VDotProdComplex(kin_mem->kin_df_aa[0], kin_mem->kin_dg_aa[0],
+    SUNCheckCall(N_VDotProdComplex(kin_mem->kin_df_aa[0], kin_mem->kin_df_aa[0],
                                    &dot));
     R[0] = SUNRsqrt(SUN_REAL(dot));
     alfa = ONE / R[0];
