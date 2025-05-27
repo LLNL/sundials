@@ -20,4 +20,6 @@ to match the configuration of the :c:type:`sunscalartype` alias.
 
 **Bug Fixes**
 
+Fixed a CMake bug that would cause the Caliper compile test to fail at configure time.
+
 **Deprecation Notices**

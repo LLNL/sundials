@@ -2982,19 +2982,32 @@ static int KINFP(KINMem kin_mem)
  * ========================================================================
  */
 
-static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
+static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunscalartype* R,
                                int depth)
 {
   /* Delete left-most column vector from QR factorization */
-  sunrealtype a, b, temp, c, s;
+  sunscalartype a, b, temp, absTemp2, absTemp1, c, s;
 
   for (int i = 0; i < depth - 1; i++)
   {
-    a                          = R[(i + 1) * depth + i];
-    b                          = R[(i + 1) * depth + i + 1];
-    temp                       = SUNRsqrt(a * a + b * b);
-    c                          = a / temp;
-    s                          = b / temp;
+    a = R[(i + 1) * depth + i];
+    b = R[(i + 1) * depth + i + 1];
+    if (b==ZERO){
+      c = ONE;
+      s = ZERO;
+    }
+    else if (SUNabs(b) >= SUNabs(a)){
+      temp = (SUNSQR(a)) / (SUNSQR(b));
+      absTemp2 = SUNabs(b);
+      s = -ONE / ((b/absTemp2) * SUNRsqrt(ONE+SUN_REAL(temp)));
+      c = -s * (SUNCONJ(a)/SUNCONJ(b));
+    }
+    else {
+      temp = (SUNSQR(b)) / (SUNSQR(a));
+      absTemp1 = SUNabs(a);
+      c = ONE / ((a/absTemp1) * SUNRsqrt(ONE  + SUN_REAL(temp)));
+      s = -c * (SUNCONJ(b)/SUNCONJ(a));
+    }
     R[(i + 1) * depth + i]     = temp;
     R[(i + 1) * depth + i + 1] = ZERO;
     /* OK to reuse temp */
@@ -3004,8 +3017,8 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
       {
         a                    = R[j * depth + i];
         b                    = R[j * depth + i + 1];
-        temp                 = c * a + s * b;
-        R[j * depth + i + 1] = -s * a + c * b;
+        temp                 = c * a - s * b;
+        R[j * depth + i + 1] = SUNCONJ(s) * a + SUNCONJ(c) * b;
         R[j * depth + i]     = temp;
       }
     }

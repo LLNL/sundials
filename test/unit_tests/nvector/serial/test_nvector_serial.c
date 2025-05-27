@@ -264,7 +264,6 @@ int check_ans_Z(sunscalartype ans, N_Vector X, sunindextype local_length)
   for (i = 0; i < local_length; i++)
   {
     failure += SUNCompare(Xdata[i], ans);
-    // if (failure) fprintf(stderr, ">>>> Xdata[%d]=%g, ans=%g\n", i, SUN_REAL(Xdata[i]), ans);
   }
 
   return (failure > ZERO) ? (1) : (0);

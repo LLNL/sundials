@@ -51,7 +51,7 @@ is expected/desired. Changing output files requires careful verification that th
 - For the ``.out`` files in `sundials-codes/answers <https://github.com/sundials-codes/answers>`_:
 
   #. Navigate to `test/answers` in the sundials repository. If there is nothing in this directory,
-     you need to run `git submodule init && git submodule update`. Alternatively clone the answers
+     you need to run ``git submodule init && git submodule update``. Alternatively clone the answers
      repository outside of the SUNDIALS source tree.
 
   #. Checkout the main branch: ``git checkout main``.

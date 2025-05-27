@@ -80,12 +80,12 @@
 static int res(N_Vector uu, N_Vector fuu, void* user_data)
 {
   /* Get vector data arrays */
-  sunrealtype* udata = N_VGetArrayPointer(uu);
-  sunrealtype* fdata = N_VGetArrayPointer(fuu);
+  sunscalartype* udata = N_VGetArrayPointer(uu);
+  sunscalartype* fdata = N_VGetArrayPointer(fuu);
 
-  const sunrealtype x = udata[0];
-  const sunrealtype y = udata[1];
-  const sunrealtype z = udata[2];
+  const sunscalartype x = udata[0];
+  const sunscalartype y = udata[1];
+  const sunscalartype z = udata[2];
 
   fdata[0] = THREE * x - std::cos((y - ONE) * z) - HALF;
   fdata[1] = SQR(x) - EIGHTYONE * SQR((y - PTNINE)) + std::sin(z) + ONEPTZEROSIX;
@@ -105,12 +105,12 @@ static int res(N_Vector uu, N_Vector fuu, void* user_data)
 static int J(N_Vector uu, N_Vector fuu, SUNMatrix J, void* user_data,
              N_Vector tmp1, N_Vector tmp2)
 {
-  sunrealtype* udata = N_VGetArrayPointer(uu);
-  sunrealtype* Jdata = SUNDenseMatrix_Data(J);
+  sunscalartype* udata = N_VGetArrayPointer(uu);
+  sunscalartype* Jdata = SUNDenseMatrix_Data(J);
 
-  const sunrealtype x = udata[0];
-  const sunrealtype y = udata[1];
-  const sunrealtype z = udata[2];
+  const sunscalartype x = udata[0];
+  const sunscalartype y = udata[1];
+  const sunscalartype z = udata[2];
 
   // First column
   Jdata[0] = THREE;
@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
   N_Vector uu = N_VNew_Serial(3, sunctx);
   if (check_ptr(uu, "N_VNew_Serial")) { return 1; }
 
-  sunrealtype* udata = N_VGetArrayPointer(uu);
+  sunscalartype* udata = N_VGetArrayPointer(uu);
   if (check_ptr(uu, "N_VGetArrayPointer")) { return 1; }
 
   udata[0] = PTONE;
@@ -286,10 +286,10 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "J")) { return 1; }
 
   // Compare finite difference and true Jacobian
-  sunrealtype* Jdq_data = SUNDenseMatrix_Data(Jdq);
+  sunscalartype* Jdq_data = SUNDenseMatrix_Data(Jdq);
   if (check_ptr(Jdq_data, "SUNDenseMatrix_Data")) { return 1; }
 
-  sunrealtype* Jtrue_data = SUNDenseMatrix_Data(Jtrue);
+  sunscalartype* Jtrue_data = SUNDenseMatrix_Data(Jtrue);
   if (check_ptr(Jtrue_data, "SUNDenseMatrix_Data")) { return 1; }
 
   // Output Jacobian data
@@ -316,7 +316,8 @@ int main(int argc, char* argv[])
               << std::right
               << std::abs(Jdq_data[i] - Jtrue_data[i]) / Jtrue_data[i]
               << std::endl;
-    result += SUNRCompareTol(Jdq_data[i], Jtrue_data[i], tol);
+    result += SUNRCompareTol(SUN_REAL(Jdq_data[i]), SUN_REAL(Jtrue_data[i]), tol);
+    result += SUNRCompareTol(SUN_IMAG(Jdq_data[i]), SUN_IMAG(Jtrue_data[i]), tol);
   }
 
   // Clean up and return with successful completion

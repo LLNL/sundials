@@ -448,10 +448,10 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     {
       pow += prob_data.lambda_i;
     }
-    sunrealtype ytrue = exp(pow * t);
+    sunscalartype ytrue = exp(pow * t);
 
-    sunrealtype* ydata = N_VGetArrayPointer(y);
-    sunrealtype error  = ytrue - ydata[0];
+    sunscalartype* ydata = N_VGetArrayPointer(y);
+    sunscalartype error  = ytrue - ydata[0];
 
     std::cout << "\nMRIStep Statistics:\n";
     std::cout << "   Time        = " << t << "\n";
@@ -556,8 +556,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
 // Explicit ODE RHS function fe(t,y)
 static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype* y_data    = N_VGetArrayPointer(y);
-  sunrealtype* yd_data   = N_VGetArrayPointer(ydot);
+  sunscalartype* y_data    = N_VGetArrayPointer(y);
+  sunscalartype* yd_data   = N_VGetArrayPointer(ydot);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   yd_data[0] = prob_data->lambda_e * y_data[0];
@@ -568,8 +568,8 @@ static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // Implicit ODE RHS function fi(t,y)
 static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype* y_data    = N_VGetArrayPointer(y);
-  sunrealtype* yd_data   = N_VGetArrayPointer(ydot);
+  sunscalartype* y_data    = N_VGetArrayPointer(y);
+  sunscalartype* yd_data   = N_VGetArrayPointer(ydot);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   yd_data[0] = prob_data->lambda_i * y_data[0];
@@ -580,8 +580,8 @@ static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // Fast ODE RHS function ff(t,y)
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype* y_data    = N_VGetArrayPointer(y);
-  sunrealtype* yd_data   = N_VGetArrayPointer(ydot);
+  sunscalartype* y_data    = N_VGetArrayPointer(y);
+  sunscalartype* yd_data   = N_VGetArrayPointer(ydot);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   yd_data[0] = prob_data->lambda_f * y_data[0];
@@ -593,7 +593,7 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* J_data    = SUNDenseMatrix_Data(J);
+  sunscalartype* J_data    = SUNDenseMatrix_Data(J);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   J_data[0] = prob_data->lambda_i;
