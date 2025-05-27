@@ -356,16 +356,27 @@ SUNErrCode SUNQRAdd_MGS(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
 
   N_VScale(ONE, df, qrdata->vtemp);
   SUNCheckLastErr();
+  
   for (j = 0; j < m; j++)
   {
     SUNCheckCall(N_VDotProdComplex(Q[j], qrdata->vtemp, &(R[m * mMax + j])));
     N_VLinearSum(ONE, qrdata->vtemp, -R[m * mMax + j], Q[j], qrdata->vtemp);
     SUNCheckLastErr();
   }
+  
   SUNCheckCall(N_VDotProdComplex(qrdata->vtemp, qrdata->vtemp, &(R[m * mMax + m])));
   R[m * mMax + m] = SUNRsqrt(SUN_REAL(R[m * mMax + m]));
-  N_VScale((ONE / R[m * mMax + m]), qrdata->vtemp, Q[m]);
-  SUNCheckLastErr();
+
+  if (R[m * mMax + m] == ZERO)
+  {
+    N_VScale(ZERO, qrdata->vtemp, Q[m]);
+    SUNCheckLastErr();
+  }
+  else
+  {
+    N_VScale((ONE / R[m * mMax + m]), qrdata->vtemp, Q[m]);
+    SUNCheckLastErr();
+  }
 
   return SUN_SUCCESS;
 }
