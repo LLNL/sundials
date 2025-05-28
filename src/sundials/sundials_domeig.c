@@ -12,13 +12,13 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for the eigenvalue estimation of
- * the SUNARNOLDI package.
+ * the SUNDOMEIG package.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sundials/priv/sundials_arnoldi_impl.h>
+#include <sundials/priv/sundials_domeig_impl.h>
 
 #define ZERO SUN_RCONST(0.0)
 
@@ -28,15 +28,15 @@
  * -----------------------------------------------------------------
  */
 
-void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
+void* DomEigCreate(SUNATimesFn ATimes, void* Adata,
                 N_Vector q, int maxl, SUNContext sunctx)
 {
-  ARNOLDIMem arnoldi_mem;
+  DOMEIGMem domeig_mem;
 
   /* Test if Atimes is provided */
   if (ATimes == NULL)
   {
-    printf(MSG_ARNOLDI_NULL_ATIMES);
+    printf(MSG_DOMEIG_NULL_ATIMES);
 
     return NULL;
   }
@@ -44,7 +44,7 @@ void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
   /* Test if q is provided */
   if (q == NULL)
   {
-    printf(MSG_ARNOLDI_NULL_q);
+    printf(MSG_DOMEIG_NULL_q);
 
     return NULL;
   }
@@ -52,7 +52,7 @@ void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
   /* Check if maxl >= 2 */
   if (maxl < 2)
   {
-    printf(MSG_ARNOLDI_NOT_ENOUGH_ITER);
+    printf(MSG_DOMEIG_NOT_ENOUGH_ITER);
 
     return NULL;
   }
@@ -60,100 +60,100 @@ void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
   /* Test if sunctx is provided */
   if (sunctx == NULL)
   {
-    printf(MSG_ARNOLDI_NULL_SUNCTX);
+    printf(MSG_DOMEIG_NULL_SUNCTX);
 
     return NULL;
   }
 
   /* Test if all required vector operations are implemented */
-  if (!arnoldi_CheckNVector(q))
+  if (!domeig_CheckNVector(q))
   {
-    printf(MSG_ARNOLDI_BAD_NVECTOR);
+    printf(MSG_DOMEIG_BAD_NVECTOR);
 
     return NULL;
   }
 
-  /* Allocate ARNOLDIMem structure, and initialize to zero */
-  arnoldi_mem = (ARNOLDIMem)calloc(1, sizeof(*arnoldi_mem));
+  /* Allocate DOMEIGMem structure, and initialize to zero */
+  domeig_mem = (DOMEIGMem)calloc(1, sizeof(*domeig_mem));
 
-  /* Copy the inputs into ARNOLDI memory */
-  arnoldi_mem->ATimes      = ATimes;
-  arnoldi_mem->Adata       = Adata;
-  arnoldi_mem->q           = q;
-  arnoldi_mem->maxl        = maxl;
-  arnoldi_mem->length      = q->ops->nvgetlength(q);
+  /* Copy the inputs into DOMEIG memory */
+  domeig_mem->ATimes      = ATimes;
+  domeig_mem->Adata       = Adata;
+  domeig_mem->q           = q;
+  domeig_mem->maxl        = maxl;
+  domeig_mem->length      = q->ops->nvgetlength(q);
 
   /* Set the default power of A to start with (# of warm-ups) */
-  arnoldi_mem->power_of_A  = DEFAULT_POWER_OF_A;
+  domeig_mem->power_of_A  = DEFAULT_POWER_OF_A;
 
   /* Set the default tolerance of the power iteration */
-  arnoldi_mem->powiter_tol = DEFAULT_POWER_ITER_TOL;
+  domeig_mem->powiter_tol = DEFAULT_POWER_ITER_TOL;
 
   /* Set the default max number of the power iteration */
-  arnoldi_mem->max_powiter = DEFAULT_MAX_POWER_ITER;
+  domeig_mem->max_powiter = DEFAULT_MAX_POWER_ITER;
 
-  if (arnoldi_mem->length > 2)
+  if (domeig_mem->length > 2)
   {
-    arnoldi_mem->LAPACK_A = (sunrealtype*)malloc((maxl*maxl) * sizeof(sunrealtype));
-    arnoldi_mem->LAPACK_wr = malloc(maxl * sizeof(sunrealtype));
-    arnoldi_mem->LAPACK_wi = malloc(maxl * sizeof(sunrealtype));
-    arnoldi_mem->LAPACK_work = malloc((4 * maxl) * sizeof(sunrealtype));
-    arnoldi_mem->LAPACK_arr = (suncomplextype *)malloc(maxl * sizeof(suncomplextype));
+    domeig_mem->LAPACK_A = (sunrealtype*)malloc((maxl*maxl) * sizeof(sunrealtype));
+    domeig_mem->LAPACK_wr = malloc(maxl * sizeof(sunrealtype));
+    domeig_mem->LAPACK_wi = malloc(maxl * sizeof(sunrealtype));
+    domeig_mem->LAPACK_work = malloc((4 * maxl) * sizeof(sunrealtype));
+    domeig_mem->LAPACK_arr = (suncomplextype *)malloc(maxl * sizeof(suncomplextype));
   }
 
   /* Hessenberg matrix Hes */
-  if (arnoldi_mem->Hes == NULL && arnoldi_mem->length > 2)
+  if (domeig_mem->Hes == NULL && domeig_mem->length > 2)
   {
     int k;
-    arnoldi_mem->Hes =
+    domeig_mem->Hes =
       (sunrealtype**)malloc((maxl + 1) * sizeof(sunrealtype*));
 
     for (k = 0; k <= maxl; k++)
     {
-      arnoldi_mem->Hes[k] = NULL;
-      arnoldi_mem->Hes[k] = (sunrealtype*)malloc(maxl * sizeof(sunrealtype));
+      domeig_mem->Hes[k] = NULL;
+      domeig_mem->Hes[k] = (sunrealtype*)malloc(maxl * sizeof(sunrealtype));
     }
   }
 
   /* Krylov subspace vectors */
-  if (arnoldi_mem->V == NULL)
+  if (domeig_mem->V == NULL)
   {
-    if(arnoldi_mem->length > 2)
+    if(domeig_mem->length > 2)
     {
-      arnoldi_mem->V = N_VCloneVectorArray(maxl + 1, q);
+      domeig_mem->V = N_VCloneVectorArray(maxl + 1, q);
     }
     else
     {
-      arnoldi_mem->V = N_VCloneVectorArray(1, q);
+      domeig_mem->V = N_VCloneVectorArray(1, q);
     }
   }
 
   /* Unitize the initial vector V[0] */
   sunrealtype normq = N_VDotProd(q, q);
   normq = SUNRsqrt(normq);
-  N_VScale(SUN_RCONST(1.0)/normq, arnoldi_mem->q, arnoldi_mem->V[0]);
+  N_VScale(SUN_RCONST(1.0)/normq, domeig_mem->q, domeig_mem->V[0]);
 
-  return (void*)arnoldi_mem;
+  return (void*)domeig_mem;
 }
 
 /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-int ArnoldiPreProcess(ARNOLDIMem arnoldi_mem)
+int DomEigPreProcess(DOMEIGMem domeig_mem)
 {
   int retval;
 
-  /* Check if Arnoldi memory is allocated */
-  if(arnoldi_mem == NULL)
+  /* Check if DomEig memory is allocated */
+  if(domeig_mem == NULL)
   {
-    printf(MSG_ARNOLDI_MEM_FAIL);
+    printf(MSG_DOMEIG_MEM_FAIL);
 
     return -1;
   }
 
   /* Check if ATimes is provided */
-  if(arnoldi_mem->ATimes == NULL)
+  if(domeig_mem->ATimes == NULL)
   {
-    printf(MSG_ARNOLDI_NULL_ATIMES);
-    ArnoldiFree(&arnoldi_mem);
+    printf(MSG_DOMEIG_NULL_ATIMES);
+    DomEigFree(&domeig_mem);
 
     return -1;
   }
@@ -162,82 +162,82 @@ int ArnoldiPreProcess(ARNOLDIMem arnoldi_mem)
   int i;
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  for(i = 0; i < arnoldi_mem->power_of_A; i++) {
-    retval = arnoldi_mem->ATimes(arnoldi_mem->Adata, arnoldi_mem->V[0], arnoldi_mem->q);
+  for(i = 0; i < domeig_mem->power_of_A; i++) {
+    retval = domeig_mem->ATimes(domeig_mem->Adata, domeig_mem->V[0], domeig_mem->q);
     if (retval != 0)
     {
       (retval < 0) ?
-      printf(MSG_ARNOLDI_ATIMES_FAIL_UNREC) :
-      printf(MSG_ARNOLDI_ATIMES_FAIL_REC);
-      ArnoldiFree(&arnoldi_mem);
+      printf(MSG_DOMEIG_ATIMES_FAIL_UNREC) :
+      printf(MSG_DOMEIG_ATIMES_FAIL_REC);
+      DomEigFree(&domeig_mem);
 
       return retval;
     }
-    normq = N_VDotProd(arnoldi_mem->q, arnoldi_mem->q);
+    normq = N_VDotProd(domeig_mem->q, domeig_mem->q);
     normq = SUNRsqrt(normq);
-    N_VScale(SUN_RCONST(1.0)/normq, arnoldi_mem->q, arnoldi_mem->V[0]);
+    N_VScale(SUN_RCONST(1.0)/normq, domeig_mem->q, domeig_mem->V[0]);
   }
 
   return 0;
 }
 
-/* Compute the Hessenberg matrix Arnoldi_mem->Hes*/
-int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem)
+/* Compute the Hessenberg matrix DomEig_mem->Hes*/
+int DomEigComputeHess(DOMEIGMem domeig_mem)
 {
   int retval;
 
-  /* Check if Arnoldi memory is allocated */
-  if(arnoldi_mem == NULL)
+  /* Check if DomEig memory is allocated */
+  if(domeig_mem == NULL)
   {
-    printf(MSG_ARNOLDI_MEM_FAIL);
+    printf(MSG_DOMEIG_MEM_FAIL);
 
     return -1;
   }
 
   /* Check if the dim of the matrix is less than 3
      Return immediately if dim <= 2 */
-  if(arnoldi_mem->length < 3)
+  if(domeig_mem->length < 3)
   {
     return 0;
   }
 
   int i, j;
   /* Initialize the Hessenberg matrix Hes with zeros */
-  for (i = 0; i < arnoldi_mem->maxl; i++)
+  for (i = 0; i < domeig_mem->maxl; i++)
   {
-    for (j = 0; j < arnoldi_mem->maxl; j++) { arnoldi_mem->Hes[i][j] = ZERO; }
+    for (j = 0; j < domeig_mem->maxl; j++) { domeig_mem->Hes[i][j] = ZERO; }
   }
 
-  for (i = 0; i < arnoldi_mem->maxl; i++)
+  for (i = 0; i < domeig_mem->maxl; i++)
   {
     /* Compute the next Krylov vector */
-    retval = arnoldi_mem->ATimes(arnoldi_mem->Adata, arnoldi_mem->V[i], arnoldi_mem->V[i+1]);
+    retval = domeig_mem->ATimes(domeig_mem->Adata, domeig_mem->V[i], domeig_mem->V[i+1]);
     if (retval != 0)
     {
       (retval < 0) ?
-      printf(MSG_ARNOLDI_ATIMES_FAIL_UNREC) :
-      printf(MSG_ARNOLDI_ATIMES_FAIL_REC);
-      ArnoldiFree(&arnoldi_mem);
+      printf(MSG_DOMEIG_ATIMES_FAIL_UNREC) :
+      printf(MSG_DOMEIG_ATIMES_FAIL_REC);
+      DomEigFree(&domeig_mem);
 
       return retval;
     }
 
-    if(SUNModifiedGS(arnoldi_mem->V, arnoldi_mem->Hes, i + 1, arnoldi_mem->maxl, &(arnoldi_mem->Hes[i + 1][i])) != SUN_SUCCESS)
+    if(SUNModifiedGS(domeig_mem->V, domeig_mem->Hes, i + 1, domeig_mem->maxl, &(domeig_mem->Hes[i + 1][i])) != SUN_SUCCESS)
     {
-      printf(MSG_ARNOLDI_GS_FAIL);
-      ArnoldiFree(&arnoldi_mem);
+      printf(MSG_DOMEIG_GS_FAIL);
+      DomEigFree(&domeig_mem);
 
       return -1;
     }
 
     /* Unitize the computed orthogonal vector */
-    N_VScale(SUN_RCONST(1.0)/arnoldi_mem->Hes[i + 1][i], arnoldi_mem->V[i+1], arnoldi_mem->V[i+1]);
+    N_VScale(SUN_RCONST(1.0)/domeig_mem->Hes[i + 1][i], domeig_mem->V[i+1], domeig_mem->V[i+1]);
   }
 
   return 0;
 }
 
-suncomplextype ArnoldiPowerIteration(ARNOLDIMem arnoldi_mem)
+suncomplextype DomEigPowerIteration(DOMEIGMem domeig_mem)
 {
   int retval;
 
@@ -247,19 +247,19 @@ suncomplextype ArnoldiPowerIteration(ARNOLDIMem arnoldi_mem)
   dom_eig_old.real = ZERO;
   dom_eig_old.imag = ZERO;
 
-  /* Check if Arnoldi memory is allocated */
-  if(arnoldi_mem == NULL)
+  /* Check if DomEig memory is allocated */
+  if(domeig_mem == NULL)
   {
-    printf(MSG_ARNOLDI_MEM_FAIL);
+    printf(MSG_DOMEIG_MEM_FAIL);
 
     return dom_eig;
   }
 
   /* Check if ATimes is provided */
-  if(arnoldi_mem->ATimes == NULL)
+  if(domeig_mem->ATimes == NULL)
   {
-    printf(MSG_ARNOLDI_NULL_ATIMES);
-    ArnoldiFree(&arnoldi_mem);
+    printf(MSG_DOMEIG_NULL_ATIMES);
+    DomEigFree(&domeig_mem);
 
     return dom_eig;
   }
@@ -267,15 +267,15 @@ suncomplextype ArnoldiPowerIteration(ARNOLDIMem arnoldi_mem)
   int k;
   sunrealtype normq;
 
-  for (k = 0; k < arnoldi_mem->max_powiter; k++)
+  for (k = 0; k < domeig_mem->max_powiter; k++)
   {
-    retval = arnoldi_mem->ATimes(arnoldi_mem->Adata, arnoldi_mem->V[0], arnoldi_mem->q);
+    retval = domeig_mem->ATimes(domeig_mem->Adata, domeig_mem->V[0], domeig_mem->q);
     if (retval != 0)
     {
       (retval < 0) ?
-      printf(MSG_ARNOLDI_ATIMES_FAIL_UNREC) :
-      printf(MSG_ARNOLDI_ATIMES_FAIL_REC);
-      ArnoldiFree(&arnoldi_mem);
+      printf(MSG_DOMEIG_ATIMES_FAIL_UNREC) :
+      printf(MSG_DOMEIG_ATIMES_FAIL_REC);
+      DomEigFree(&domeig_mem);
 
       dom_eig.real = ZERO;
       dom_eig.imag = ZERO;
@@ -283,16 +283,16 @@ suncomplextype ArnoldiPowerIteration(ARNOLDIMem arnoldi_mem)
       return dom_eig;
     }
 
-    dom_eig.real = N_VDotProd(arnoldi_mem->V[0], arnoldi_mem->q); //Rayleigh quotient
+    dom_eig.real = N_VDotProd(domeig_mem->V[0], domeig_mem->q); //Rayleigh quotient
 
-    if(fabs(dom_eig.real - dom_eig_old.real) < arnoldi_mem->powiter_tol)
+    if(fabs(dom_eig.real - dom_eig_old.real) < domeig_mem->powiter_tol)
     {
       break;
     }
 
-    normq = N_VDotProd(arnoldi_mem->q, arnoldi_mem->q);
+    normq = N_VDotProd(domeig_mem->q, domeig_mem->q);
     normq = SUNRsqrt(normq);
-    N_VScale(SUN_RCONST(1.0)/normq, arnoldi_mem->q, arnoldi_mem->V[0]);
+    N_VScale(SUN_RCONST(1.0)/normq, domeig_mem->q, domeig_mem->V[0]);
 
     dom_eig_old.real = dom_eig.real;
   }
@@ -301,32 +301,32 @@ suncomplextype ArnoldiPowerIteration(ARNOLDIMem arnoldi_mem)
 }
 
 /* Estimate the dominant eigvalues of the Hessenberg matrix */
-suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
+suncomplextype DomEigEstimate(DOMEIGMem domeig_mem) {
   suncomplextype dom_eig;
   dom_eig.real = ZERO;
   dom_eig.imag = ZERO;
 
-  /* Check if Arnoldi memory is allocated */
-  if(arnoldi_mem == NULL)
+  /* Check if DomEig memory is allocated */
+  if(domeig_mem == NULL)
   {
-    printf(MSG_ARNOLDI_MEM_FAIL);
+    printf(MSG_DOMEIG_MEM_FAIL);
 
     return dom_eig;
   }
 
-  if(arnoldi_mem->length < 3)
+  if(domeig_mem->length < 3)
   {
-    dom_eig = ArnoldiPowerIteration(arnoldi_mem);
+    dom_eig = DomEigPowerIteration(domeig_mem);
 
     return dom_eig;
   }
 
-  int n = arnoldi_mem->maxl;
+  int n = domeig_mem->maxl;
 
   int i, j, k = 0;
   for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++) {
-        arnoldi_mem->LAPACK_A[k] = arnoldi_mem->Hes[i][j];
+        domeig_mem->LAPACK_A[k] = domeig_mem->Hes[i][j];
         k++;
     }
   }
@@ -338,32 +338,32 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
   char jobvr = 'N'; // Do not compute right eigenvectors
 
   // Call LAPACK's dgeev function
-  dgeev_(&jobvl, &jobvr, &n, arnoldi_mem->LAPACK_A, &lda, arnoldi_mem->LAPACK_wr, arnoldi_mem->LAPACK_wi, NULL, &ldvl, NULL, &ldvr, arnoldi_mem->LAPACK_work, &lwork, &info);
+  dgeev_(&jobvl, &jobvr, &n, domeig_mem->LAPACK_A, &lda, domeig_mem->LAPACK_wr, domeig_mem->LAPACK_wi, NULL, &ldvl, NULL, &ldvr, domeig_mem->LAPACK_work, &lwork, &info);
 
   if (info != 0) {
-      printf(MSG_ARNOLDI_LAPACK_FAIL, info);
-      ArnoldiFree(&arnoldi_mem);
+      printf(MSG_DOMEIG_LAPACK_FAIL, info);
+      DomEigFree(&domeig_mem);
 
       return dom_eig;
   }
 
   //Following part will order the eigenvalues by their magnitude
   for (i = 0; i < n; i++) {
-      arnoldi_mem->LAPACK_arr[i].real = arnoldi_mem->LAPACK_wr[i];
-      arnoldi_mem->LAPACK_arr[i].imag = arnoldi_mem->LAPACK_wi[i];
+      domeig_mem->LAPACK_arr[i].real = domeig_mem->LAPACK_wr[i];
+      domeig_mem->LAPACK_arr[i].imag = domeig_mem->LAPACK_wi[i];
   }
 
   // Sort the array using qsort
-  qsort(arnoldi_mem->LAPACK_arr, n, sizeof(suncomplextype), arnoldi_Compare);
+  qsort(domeig_mem->LAPACK_arr, n, sizeof(suncomplextype), domeig_Compare);
 
   // Update the original arrays
   for (i = 0; i < n; i++) {
-      arnoldi_mem->LAPACK_wr[i] = arnoldi_mem->LAPACK_arr[i].real;
-      arnoldi_mem->LAPACK_wi[i] = arnoldi_mem->LAPACK_arr[i].imag;
+      domeig_mem->LAPACK_wr[i] = domeig_mem->LAPACK_arr[i].real;
+      domeig_mem->LAPACK_wi[i] = domeig_mem->LAPACK_arr[i].imag;
   }
 
-  dom_eig.real = arnoldi_mem->LAPACK_wr[0];
-  dom_eig.imag = arnoldi_mem->LAPACK_wi[0];
+  dom_eig.real = domeig_mem->LAPACK_wr[0];
+  dom_eig.imag = domeig_mem->LAPACK_wi[0];
 
   return dom_eig;
 }
@@ -373,12 +373,12 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  arnoldi_CheckNVector:
+  domeig_CheckNVector:
 
   This routine checks if all required vector operations are
   present. If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-sunbooleantype arnoldi_CheckNVector(N_Vector tmpl)
+sunbooleantype domeig_CheckNVector(N_Vector tmpl)
 { // TO DO: check required vector operations
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
       (tmpl->ops->nvdotprod == NULL) || (tmpl->ops->nvscale == NULL) ||
@@ -390,30 +390,30 @@ sunbooleantype arnoldi_CheckNVector(N_Vector tmpl)
 }
 
 // Function to calculate the magnitude of a suncomplextype number
-sunrealtype arnoldi_Magnitude(const suncomplextype *c) {
+sunrealtype domeig_Magnitude(const suncomplextype *c) {
     return sqrt(c->real * c->real + c->imag * c->imag);
 }
 
 // Comparison function for qsort
-int arnoldi_Compare(const void *a, const void *b) {
+int domeig_Compare(const void *a, const void *b) {
     const suncomplextype *c1 = (const suncomplextype *)a;
     const suncomplextype *c2 = (const suncomplextype *)b;
-    sunrealtype mag1 = arnoldi_Magnitude(c1);
-    sunrealtype mag2 = arnoldi_Magnitude(c2);
+    sunrealtype mag1 = domeig_Magnitude(c1);
+    sunrealtype mag2 = domeig_Magnitude(c2);
     return (mag2 > mag1) - (mag2 < mag1); // Descending order
 }
 
 /*---------------------------------------------------------------
-  ArnoldiFree frees all Arnoldi memory.
+  DomEigFree frees all DomEig memory.
   ---------------------------------------------------------------*/
-void ArnoldiFree(ARNOLDIMem* arnoldi_mem)
+void DomEigFree(DOMEIGMem* domeig_mem)
 {
-  ARNOLDIMem arn_mem;
+  DOMEIGMem arn_mem;
 
-  /* nothing to do if arnoldi_mem is already NULL */
-  if (arnoldi_mem == NULL) { return; }
+  /* nothing to do if domeig_mem is already NULL */
+  if (domeig_mem == NULL) { return; }
 
-  arn_mem = (ARNOLDIMem)(*arnoldi_mem);
+  arn_mem = (DOMEIGMem)(*domeig_mem);
 
   if (arn_mem->q != NULL)
   {
@@ -456,6 +456,6 @@ void ArnoldiFree(ARNOLDIMem* arnoldi_mem)
     arn_mem->Hes = NULL;
   }
 
-  free(*arnoldi_mem);
-  *arnoldi_mem = NULL;
+  free(*domeig_mem);
+  *domeig_mem = NULL;
 }

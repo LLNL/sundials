@@ -12,13 +12,13 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation header file for the eigenvalue
- * estimation of the SUNARNOLDI package.
+ * estimation of the DOMEIG module.
  * -----------------------------------------------------------------*/
 
-#ifndef _ARNOLDI_IMPL_H
-#define _ARNOLDI_IMPL_H
+#ifndef _DOMEIG_IMPL_H
+#define _DOMEIG_IMPL_H
 
-#include <sundials/sundials_arnoldi.h>
+#include <sundials/sundials_domeig.h>
 #include <sundials/sundials_math.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -26,12 +26,12 @@ extern "C" {
 #endif
 
 /*===============================================================
-  ARNOLDI module private function prototypes
+  DOMEIG module private function prototypes
   ===============================================================*/
 
- sunbooleantype arnoldi_CheckNVector(N_Vector tmpl);
- sunrealtype arnoldi_Magnitude(const suncomplextype *c);
- int arnoldi_Compare(const void *a, const void *b);
+ sunbooleantype domeig_CheckNVector(N_Vector tmpl);
+ sunrealtype domeig_Magnitude(const suncomplextype *c);
+ int domeig_Compare(const void *a, const void *b);
 
  /*
   * -----------------------------------------------------------------
@@ -44,20 +44,20 @@ extern "C" {
                     int* ldvr, sunrealtype* work, int* lwork, int* info);
 
 /*===============================================================
-  Reusable ARNOLDI Error Messages
+  Reusable DOMEIG Error Messages
   ===============================================================*/
 
 /* Initialization and I/O error messages */
-#define MSG_ARNOLDI_NULL_q             "q is null."
-#define MSG_ARNOLDI_BAD_NVECTOR        "Bad NVector."
-#define MSG_ARNOLDI_NULL_ATIMES        "ATimes is null."
-#define MSG_ARNOLDI_ATIMES_FAIL_REC    "Atimes recoverable failure"
-#define MSG_ARNOLDI_ATIMES_FAIL_UNREC  "Atimes unrecoverable failure"
-#define MSG_ARNOLDI_NOT_ENOUGH_ITER    "Number of Krylov subspace is not enough (< 2)"
-#define MSG_ARNOLDI_NULL_SUNCTX        "sunctx is null."
-#define MSG_ARNOLDI_MEM_FAIL           "ARNOLDI memory fail."
-#define MSG_ARNOLDI_GS_FAIL            "ARNOLDI Modified GS fail."
-#define MSG_ARNOLDI_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
+#define MSG_DOMEIG_NULL_q             "q is null."
+#define MSG_DOMEIG_BAD_NVECTOR        "Bad NVector."
+#define MSG_DOMEIG_NULL_ATIMES        "ATimes is null."
+#define MSG_DOMEIG_ATIMES_FAIL_REC    "Atimes recoverable failure"
+#define MSG_DOMEIG_ATIMES_FAIL_UNREC  "Atimes unrecoverable failure"
+#define MSG_DOMEIG_NOT_ENOUGH_ITER    "Number of Krylov subspace is not enough (< 2)"
+#define MSG_DOMEIG_NULL_SUNCTX        "sunctx is null."
+#define MSG_DOMEIG_MEM_FAIL           "DOMEIG memory fail."
+#define MSG_DOMEIG_GS_FAIL            "DOMEIG Modified GS fail."
+#define MSG_DOMEIG_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
 
 #ifdef __cplusplus
 }

@@ -36,12 +36,12 @@ if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
 endif()
 
 
-# Tests for the arnoldi utility routine (estimates dominant eigenvalue; depends on LAPACK)
+# Tests for the domeig utility routine (estimates dominant eigenvalue; depends on LAPACK)
 if(ENABLE_LAPACK)
   set(unit_tests_lapack
-    "test_arnoldi\;100 10\;"
-    "test_arnoldi\;1000 20\;"
-    "test_arnoldi\;10000 50\;")
+    "test_domeig\;100 10\;"
+    "test_domeig\;1000 20\;"
+    "test_domeig\;10000 50\;")
 
   # Add the build and install targets for each test
   foreach(test_tuple ${unit_tests_lapack})
@@ -65,11 +65,11 @@ if(ENABLE_LAPACK)
                         ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
       # libraries to link against
-      set(_arnoldi_libs sundials_core sundials_nvecserial LAPACK::LAPACK)
+      set(_domeig_libs sundials_core sundials_nvecserial LAPACK::LAPACK)
       if(CMAKE_VERSION VERSION_LESS 3.20)
-        list(APPEND _arnoldi_libs BLAS::BLAS)
+        list(APPEND _domeig_libs BLAS::BLAS)
       endif()
-      target_link_libraries(${test} ${_arnoldi_libs}
+      target_link_libraries(${test} ${_domeig_libs}
         ${EXE_EXTRA_LINK_LIBS})
 
     endif()
@@ -87,5 +87,5 @@ if(ENABLE_LAPACK)
 
   endforeach()
 
-  message(STATUS "Added arnoldi units tests")
+  message(STATUS "Added domeig units tests")
 endif()

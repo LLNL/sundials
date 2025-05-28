@@ -19,7 +19,7 @@
 #define _ARKODE_LSRKSTEP_IMPL_H
 
 #include <arkode/arkode_lsrkstep.h>
-#include <sundials/sundials_arnoldi.h>
+#include <sundials/sundials_domeig.h>
 
 #include "arkode_impl.h"
 
@@ -30,7 +30,7 @@ extern "C" {
 #define STAGE_MAX_LIMIT_DEFAULT 200
 #define DOM_EIG_SAFETY_DEFAULT  SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT    25
-#define ARNOLDI_MAXL_DEFAULT    3
+#define DOMEIG_MAXL_DEFAULT     3
 
 /*===============================================================
   LSRK time step module private math function macros
@@ -130,7 +130,7 @@ typedef struct ARKodeLSRKStepMemRec
 {
   /* LSRK problem specification */
   ARKRhsFn fe;
-  ARKRhsFn arnoldi_rhs;
+  ARKRhsFn domeig_rhs;
   ARKDomEigFn dom_eig_fn;
 
   int q; /* method order               */
@@ -157,9 +157,9 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype spectral_radius_min; /* min spectral radius*/
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
-  void* arnoldi_mem;     /* Arnoldi memory */
-  N_Vector Arnoldi_q; /* Arnoldi initial q vector*/
-  int Arnoldi_maxl; /* Krylov subspace dimension */
+  void* domeig_mem;     /* DomEig memory */
+  N_Vector domeig_q; /* DomEig initial q vector*/
+  int domeig_maxl; /* Krylov subspace dimension */
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */
@@ -210,8 +210,8 @@ int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
-void* lsrkStep_ArnoldiCreate(void* arkode_mem);
-suncomplextype lsrkStep_ArnoldiEstimate(void* arkode_mem, ARNOLDIMem Arnoldi_mem);
+void* lsrkStep_DomEigCreate(void* arkode_mem);
+suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem DomEig_mem);
 int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv);
 
 /*===============================================================

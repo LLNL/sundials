@@ -191,16 +191,16 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->arnoldi_rhs = NULL;
+  step_mem->domeig_rhs = NULL;
 
   /* Set NULL for dom_eig_fn */
   step_mem->dom_eig_fn = NULL;
 
-  /* Set NULL for arnoldi_mem */
-  step_mem->arnoldi_mem = NULL;
+  /* Set NULL for domeig_mem */
+  step_mem->domeig_mem = NULL;
 
-  /* Set NULL for Arnoldi_q */
-  step_mem->Arnoldi_q = NULL;
+  /* Set NULL for domeig_q */
+  step_mem->domeig_q = NULL;
 
   /* Initialize all the counters */
   step_mem->nfe               = 0;
@@ -332,7 +332,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   }
 
   /* Check if user has provided dom_eig_fn */
-  if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL && step_mem->arnoldi_mem == NULL)
+  if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL && step_mem->domeig_mem == NULL)
   {
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__,
                     __FILE__, "STS methods require either a user provided or an internal dominant eigenvalue estimation");
@@ -2206,11 +2206,11 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if(step_mem->dom_eig_fn == NULL)
   {
-    dom_eig = lsrkStep_ArnoldiEstimate(ark_mem, step_mem->arnoldi_mem);
+    dom_eig = lsrkStep_DomEigEstimate(ark_mem, step_mem->domeig_mem);
     if((dom_eig.real*dom_eig.real + dom_eig.imag*dom_eig.imag) < SUN_SMALL_REAL)
     {
       arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                    "Unable to estimate the dominant eigenvalue: Arnoldi estimation returned an error");
+                    "Unable to estimate the dominant eigenvalue: DomEig estimation returned an error");
       return ARK_DOMEIG_FAIL;
     }
     step_mem->dom_eig_num_evals++;
@@ -2272,15 +2272,15 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 }
 
 /*---------------------------------------------------------------
-  lsrkStep_ArnoldiCreate:
+  lsrkStep_DomEigCreate:
 
-  This routine creates the Arnoldi memory and attaches all the relevent
+  This routine creates the DomEig memory and attaches all the relevent
   function pointers from arkode_mem.
   ---------------------------------------------------------------*/
 
-void* lsrkStep_ArnoldiCreate(void* arkode_mem)
+void* lsrkStep_DomEigCreate(void* arkode_mem)
 {
-  ARNOLDIMem Arnoldi_mem;
+  DOMEIGMem domeig_mem;
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
   int retval;
@@ -2298,24 +2298,24 @@ void* lsrkStep_ArnoldiCreate(void* arkode_mem)
     return NULL;
   }
 
-  step_mem->arnoldi_rhs = step_mem->fe;
+  step_mem->domeig_rhs = step_mem->fe;
 
-  /* Allocate and fill Arnoldi_q vector with random data */
-  step_mem->Arnoldi_q = N_VClone(ark_mem->yn);
-  N_VRandom(step_mem->Arnoldi_q);
-  step_mem->Arnoldi_maxl = ARNOLDI_MAXL_DEFAULT;
+  /* Allocate and fill domeig_q vector with random data */
+  step_mem->domeig_q = N_VClone(ark_mem->yn);
+  N_VRandom(step_mem->domeig_q);
+  step_mem->domeig_maxl = DOMEIG_MAXL_DEFAULT;
 
-  Arnoldi_mem = ArnoldiCreate(lsrkStep_DQJtimes, arkode_mem, step_mem->Arnoldi_q, step_mem->Arnoldi_maxl, ark_mem->sunctx);
+  domeig_mem = DomEigCreate(lsrkStep_DQJtimes, arkode_mem, step_mem->domeig_q, step_mem->domeig_maxl, ark_mem->sunctx);
 
-  return (void*)Arnoldi_mem;
+  return (void*)domeig_mem;
 }
 
 /*---------------------------------------------------------------
-  lsrkStep_ArnoldiEstimate:
+  lsrkStep_DomEigEstimate:
 
   This routine estimates the dominant eigenvalue.
   ---------------------------------------------------------------*/
-suncomplextype lsrkStep_ArnoldiEstimate(void* arkode_mem, ARNOLDIMem Arnoldi_mem)
+suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem domeig_mem)
 {
   ARKodeMem ark_mem;
 
@@ -2333,26 +2333,26 @@ suncomplextype lsrkStep_ArnoldiEstimate(void* arkode_mem, ARNOLDIMem Arnoldi_mem
   ark_mem = (ARKodeMem)arkode_mem;
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  retval = ArnoldiPreProcess(Arnoldi_mem);
+  retval = DomEigPreProcess(domeig_mem);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_ARNOLDI_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_ARNOLDI_FAIL);
+    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_INTERNAL_DOMEIG_FAIL);
 
     return dom_eig;
   }
 
   /* Compute the Hessenberg matrix Hes*/
-  retval = ArnoldiComputeHess(Arnoldi_mem);
+  retval = DomEigComputeHess(domeig_mem);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_ARNOLDI_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_ARNOLDI_FAIL);
+    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_INTERNAL_DOMEIG_FAIL);
 
     return dom_eig;
   }
 
-  dom_eig = ArnoldiEstimate(Arnoldi_mem);
+  dom_eig = DomEigEstimate(domeig_mem);
 
   return dom_eig;
 }
@@ -2400,7 +2400,7 @@ int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv)
     N_VLinearSum(sig, v, ONE, y, work);
 
     /* Set Jv = f(tn, y+sig*v) */
-    retval = step_mem->arnoldi_rhs(t, work, Jv, ark_mem->user_data);
+    retval = step_mem->domeig_rhs(t, work, Jv, ark_mem->user_data);
     step_mem->nfeDQ++;
     if (retval == 0) { break; }
     if (retval < 0) { return (-1); }

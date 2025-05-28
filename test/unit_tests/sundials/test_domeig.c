@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * These test functions check some components of an Arnoldi iteration
+ * These test functions check some components of an DomEig iteration
  * module implementation.
  * -----------------------------------------------------------------
  */
@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sundials/sundials_math.h> /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
-#include <sundials/sundials_arnoldi.h>
+#include <sundials/sundials_domeig.h>
 
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -62,7 +62,7 @@ sunindextype problem_size;
 
 
 /* ----------------------------------------------------------------------
- * Arnoldi Iteration Testing Routine
+ * DomEig Module Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  printf("\nArnoldi iteration test:\n");
+  printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
   printf("  Krylov subspace dimension = %i\n", maxl);
 
@@ -130,29 +130,29 @@ int main(int argc, char* argv[])
   ProbData.real_part = realpart;
   ProbData.imag_part = imagpart;
 
-  /* Create ARNOLDI memory structure */
-  ARNOLDIMem Arnoldi_mem;
-  Arnoldi_mem = ArnoldiCreate(ATimes, &ProbData, q, maxl,sunctx);
+  /* Create DOMEIG memory structure */
+  DOMEIGMem DomEig_mem;
+  DomEig_mem = DomEigCreate(ATimes, &ProbData, q, maxl,sunctx);
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  ArnoldiPreProcess(Arnoldi_mem);
+  DomEigPreProcess(DomEig_mem);
 
   /* Compute the Hessenberg matrix Hes*/
-  ArnoldiComputeHess(Arnoldi_mem);
+  DomEigComputeHess(DomEig_mem);
 
   /* Print the Hessenberg matrix Hes if N <= 10*/
   if(ProbData.N <= 10){
     printf("\n");
     printf("Hes:\n");
-    for (i = 0; i < Arnoldi_mem->maxl + 1; i++) {
-        for (j = 0; j < Arnoldi_mem->maxl; j++) {
-            printf("%20.2lf      ", Arnoldi_mem->Hes[i][j]);
+    for (i = 0; i < DomEig_mem->maxl + 1; i++) {
+        for (j = 0; j < DomEig_mem->maxl; j++) {
+            printf("%20.2lf      ", DomEig_mem->Hes[i][j]);
         }
         printf("\n");
     }
   }
 
-  suncomplextype dom_eig = ArnoldiEstimate(Arnoldi_mem);
+  suncomplextype dom_eig = DomEigEstimate(DomEig_mem);
   sunrealtype norm_of_dom_eig = SUNRsqrt(dom_eig.real * dom_eig.real + dom_eig.imag * dom_eig.imag);
   if(norm_of_dom_eig < SUN_SMALL_REAL) {
     printf("FAIL:   Dominant Eigenvalue Test Failed");
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
   N_VDestroy(q);
   N_VDestroy(ProbData.d);
   SUNContext_Free(&sunctx);
-  ArnoldiFree(&Arnoldi_mem);
+  DomEigFree(&DomEig_mem);
 
   return (passfail);
 }

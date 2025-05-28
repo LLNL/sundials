@@ -821,8 +821,8 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   "2. To perform ASA w.r.t. parameters, one subvector should be the state "  \
   "vector, and the other should be the parameter vector."
 
-#define MSG_ARK_ARNOLDI_FAIL \
-  "Arnoldi iteration for the dominant eigenvalue estimation failed. "
+#define MSG_ARK_INTERNAL_DOMEIG_FAIL \
+  "Internal domeig iteration for the dominant eigenvalue estimation failed. "
 
 /*===============================================================
 

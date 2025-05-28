@@ -219,7 +219,7 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   {
     step_mem->dom_eig_fn = NULL;
 
-    step_mem->arnoldi_mem = lsrkStep_ArnoldiCreate(arkode_mem);
+    step_mem->domeig_mem = lsrkStep_DomEigCreate(arkode_mem);
 
     return ARK_SUCCESS;
   }

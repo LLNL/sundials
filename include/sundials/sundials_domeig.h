@@ -12,11 +12,11 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the eigenvalue estimation of
- * the SUNARNOLDI package.
+ * the SUNDOMEIG package.
  * -----------------------------------------------------------------*/
 
-#ifndef _ARNOLDI_H
-#define _ARNOLDI_H
+#ifndef _DOMEIG_H
+#define _DOMEIG_H
 
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
 #include <sundials/sundials_math.h>
@@ -26,13 +26,13 @@
 extern "C" {
 #endif
 
-/* Default ARNOLDI parameters */
+/* Default DOMEIG parameters */
 #define DEFAULT_POWER_OF_A       0
 #define DEFAULT_POWER_ITER_TOL   SUN_RCONST(0.01)
 #define DEFAULT_MAX_POWER_ITER   100
 
 /*===============================================================
-  ARNOLDI module data structure
+  DOMEIG module data structure
   ===============================================================*/
 
 // Struct to hold the real and imaginary parts
@@ -42,15 +42,15 @@ typedef struct {
 } suncomplextype;
 
 /*---------------------------------------------------------------
-  Types : struct ARNOLDIMemRec, ARNOLDIMem
+  Types : struct DOMEIGMemRec, DOMEIGMem
   ---------------------------------------------------------------
-  The type ARNOLDIMem is type pointer to struct
-  ARNOLDIMemRec. This structure contains fields to
-  perform an ARNOLDI iteration.
+  The type DOMEIGMem is type pointer to struct
+  DOMEIGMemRec. This structure contains fields to
+  perform an DOMEIG iteration.
   ---------------------------------------------------------------*/
-typedef struct ARNOLDIMemRec
+typedef struct DOMEIGMemRec
 {
-  /* ARNOLDI MEMORY specification */
+  /* DOMEIG MEMORY specification */
   SUNATimesFn ATimes;   /* User provided ATimes function */
   void* Adata;          /* ATimes function data*/
 
@@ -70,26 +70,26 @@ typedef struct ARNOLDIMemRec
   suncomplextype* LAPACK_arr; /* an array to sort eigenvalues*/
 
   sunrealtype **Hes;    /* Hessenberg matrix Hes */
-}* ARNOLDIMem;
+}* DOMEIGMem;
 
 /* -------------------------------------
- * Exported Functions for ARNOLDI
+ * Exported Functions for DOMEIG
  * ------------------------------------- */
 
 /* Creation and Estimation functions */
 
-SUNDIALS_EXPORT void* ArnoldiCreate(SUNATimesFn ATimes, void* AData,
+SUNDIALS_EXPORT void* DomEigCreate(SUNATimesFn ATimes, void* AData,
                 N_Vector q, int maxl, SUNContext sunctx);
 
-SUNDIALS_EXPORT int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem);
+SUNDIALS_EXPORT int DomEigComputeHess(DOMEIGMem domeig_mem);
 
-SUNDIALS_EXPORT int ArnoldiPreProcess(ARNOLDIMem arnoldi_mem);
+SUNDIALS_EXPORT int DomEigPreProcess(DOMEIGMem domeig_mem);
 
-SUNDIALS_EXPORT suncomplextype ArnoldiPowerIteration(ARNOLDIMem arnoldi_mem);
+SUNDIALS_EXPORT suncomplextype DomEigPowerIteration(DOMEIGMem domeig_mem);
 
-SUNDIALS_EXPORT suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem);
+SUNDIALS_EXPORT suncomplextype DomEigEstimate(DOMEIGMem domeig_mem);
 
-SUNDIALS_EXPORT void ArnoldiFree(ARNOLDIMem* arnoldi_mem);
+SUNDIALS_EXPORT void DomEigFree(DOMEIGMem* domeig_mem);
 
 #ifdef __cplusplus
 }

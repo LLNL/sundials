@@ -18,7 +18,7 @@
 #define _LSRKSTEP_H
 
 #include <arkode/arkode.h>
-#include <sundials/sundials_arnoldi.h>
+#include <sundials/sundials_domeig.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
