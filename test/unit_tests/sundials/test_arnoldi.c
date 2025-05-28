@@ -121,7 +121,8 @@ int main(int argc, char* argv[])
   // suncomplextype diag is [ realpart   imagpart;
   //                         -imagpart   realpart]
   sunrealtype *v = N_VGetArrayPointer(ProbData.d);
-  for(int i=0; i < ProbData.N-2; i++)
+  int i, j;
+  for(i = 0; i < ProbData.N-2; i++)
   {
     v[i] = factor*(i + 3);
   }
@@ -143,8 +144,8 @@ int main(int argc, char* argv[])
   if(ProbData.N <= 10){
     printf("\n");
     printf("Hes:\n");
-    for (int i = 0; i < Arnoldi_mem->maxl + 1; i++) {
-        for (int j = 0; j < Arnoldi_mem->maxl; j++) {
+    for (i = 0; i < Arnoldi_mem->maxl + 1; i++) {
+        for (j = 0; j < Arnoldi_mem->maxl; j++) {
             printf("%20.2lf      ", Arnoldi_mem->Hes[i][j]);
         }
         printf("\n");

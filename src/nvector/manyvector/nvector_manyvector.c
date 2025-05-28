@@ -1504,7 +1504,6 @@ SUNErrCode MVAPPEND(N_VRandom)(N_Vector x)
 {
   SUNFunctionBegin(x->sunctx);
   sunindextype i;
-  SUNErrCode retval;
   for (i = 0; i < MANYVECTOR_NUM_SUBVECS(x); i++)
   {
     SUNCheckCall(N_VRandom(MANYVECTOR_SUBVEC(x, i)));
