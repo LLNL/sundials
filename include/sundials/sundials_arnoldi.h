@@ -35,6 +35,12 @@ extern "C" {
   ARNOLDI module data structure
   ===============================================================*/
 
+// Struct to hold the real and imaginary parts
+typedef struct {
+    sunrealtype real;
+    sunrealtype imag;
+} suncomplextype;
+
 /*---------------------------------------------------------------
   Types : struct ARNOLDIMemRec, ARNOLDIMem
   ---------------------------------------------------------------
@@ -57,14 +63,14 @@ typedef struct ARNOLDIMemRec
   sunrealtype powiter_tol; /* Convergence criteria for the power iteration */
   int max_powiter;         /* Maximum number of power iterations */
 
+  sunrealtype* LAPACK_A;      /* The vector which holds rows of the Hessenberg matrix in the given order */
+  sunrealtype* LAPACK_wr;     /* Real parts of eigenvalues */
+  sunrealtype* LAPACK_wi;     /* Imaginary parts of eigenvalues */
+  sunrealtype* LAPACK_work;   /* Workspace array */
+  suncomplextype* LAPACK_arr; /* an array to sort eigenvalues*/
+
   sunrealtype **Hes;    /* Hessenberg matrix Hes */
 }* ARNOLDIMem;
-
-// Struct to hold the real and imaginary parts
-typedef struct {
-    sunrealtype real;
-    sunrealtype imag;
-} suncomplextype;
 
 /* -------------------------------------
  * Exported Functions for ARNOLDI

@@ -92,6 +92,15 @@ void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
   /* Set the default max number of the power iteration */
   arnoldi_mem->max_powiter = DEFAULT_MAX_POWER_ITER;
 
+  if (arnoldi_mem->length > 2)
+  {
+    arnoldi_mem->LAPACK_A = (sunrealtype*)malloc((maxl*maxl) * sizeof(sunrealtype));
+    arnoldi_mem->LAPACK_wr = malloc(maxl * sizeof(sunrealtype));
+    arnoldi_mem->LAPACK_wi = malloc(maxl * sizeof(sunrealtype));
+    arnoldi_mem->LAPACK_work = malloc((4 * maxl) * sizeof(sunrealtype));
+    arnoldi_mem->LAPACK_arr = (suncomplextype *)malloc(maxl * sizeof(suncomplextype));
+  }
+
   /* Hessenberg matrix Hes */
   if (arnoldi_mem->Hes == NULL && arnoldi_mem->length > 2)
   {
@@ -314,31 +323,22 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
 
   int n = arnoldi_mem->maxl;
 
-  /* Create the vector A which holds rows of the Hessenberg matrix in the given order */
-  sunrealtype* A;
-  A = (sunrealtype*)malloc((n*n) * sizeof(sunrealtype));
   int i, j, k = 0;
   for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++) {
-        A[k] = arnoldi_mem->Hes[i][j];
+        arnoldi_mem->LAPACK_A[k] = arnoldi_mem->Hes[i][j];
         k++;
     }
   }
 
-  sunrealtype *wr = malloc(n * sizeof(sunrealtype)); // Real and imaginary parts of eigenvalues
-  sunrealtype *wi = malloc(n * sizeof(sunrealtype));
-
   int lda = n, ldvl = n, ldvr = n;
   int info, lwork = 4 * n;
-
-  sunrealtype *work = malloc(lwork * sizeof(sunrealtype)); // Workspace array
-
 
   char jobvl = 'N'; // Do not compute left eigenvectors
   char jobvr = 'N'; // Do not compute right eigenvectors
 
   // Call LAPACK's dgeev function
-  dgeev_(&jobvl, &jobvr, &n, A, &lda, wr, wi, NULL, &ldvl, NULL, &ldvr, work, &lwork, &info);
+  dgeev_(&jobvl, &jobvr, &n, arnoldi_mem->LAPACK_A, &lda, arnoldi_mem->LAPACK_wr, arnoldi_mem->LAPACK_wi, NULL, &ldvl, NULL, &ldvr, arnoldi_mem->LAPACK_work, &lwork, &info);
 
   if (info != 0) {
       printf(MSG_ARNOLDI_LAPACK_FAIL, info);
@@ -348,33 +348,22 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
   }
 
   //Following part will order the eigenvalues by their magnitude
-  {
-    // Create an array of suncomplextype structs
-    suncomplextype *arr = (suncomplextype *)malloc(n * sizeof(suncomplextype));
-    for (i = 0; i < n; i++) {
-        arr[i].real = wr[i];
-        arr[i].imag = wi[i];
-    }
-
-    // Sort the array using qsort
-    qsort(arr, n, sizeof(suncomplextype), arnoldi_Compare);
-
-    // Update the original arrays
-    for (i = 0; i < n; i++) {
-        wr[i] = arr[i].real;
-        wi[i] = arr[i].imag;
-    }
-
-    // Cleanup
-    free(A);
-    free(wr);
-    free(wi);
-    free(work);
-    free(arr);
+  for (i = 0; i < n; i++) {
+      arnoldi_mem->LAPACK_arr[i].real = arnoldi_mem->LAPACK_wr[i];
+      arnoldi_mem->LAPACK_arr[i].imag = arnoldi_mem->LAPACK_wi[i];
   }
 
-  dom_eig.real = wr[0];
-  dom_eig.imag = wi[0];
+  // Sort the array using qsort
+  qsort(arnoldi_mem->LAPACK_arr, n, sizeof(suncomplextype), arnoldi_Compare);
+
+  // Update the original arrays
+  for (i = 0; i < n; i++) {
+      arnoldi_mem->LAPACK_wr[i] = arnoldi_mem->LAPACK_arr[i].real;
+      arnoldi_mem->LAPACK_wi[i] = arnoldi_mem->LAPACK_arr[i].imag;
+  }
+
+  dom_eig.real = arnoldi_mem->LAPACK_wr[0];
+  dom_eig.imag = arnoldi_mem->LAPACK_wi[0];
 
   return dom_eig;
 }
@@ -435,6 +424,30 @@ void ArnoldiFree(ARNOLDIMem* arnoldi_mem)
   {
     N_VDestroyVectorArray(arn_mem->V, arn_mem->maxl + 1);
     arn_mem->V = NULL;
+  }
+
+  if (arn_mem->LAPACK_A != NULL)
+  {
+    free(arn_mem->LAPACK_A);
+    arn_mem->LAPACK_A = NULL;
+  }
+
+  if (arn_mem->LAPACK_wr != NULL)
+  {
+    free(arn_mem->LAPACK_wr);
+    arn_mem->LAPACK_wr = NULL;
+  }
+
+  if (arn_mem->LAPACK_wi != NULL)
+  {
+    free(arn_mem->LAPACK_wi);
+    arn_mem->LAPACK_wi = NULL;
+  }
+
+  if (arn_mem->LAPACK_arr != NULL)
+  {
+    free(arn_mem->LAPACK_arr);
+    arn_mem->LAPACK_arr = NULL;
   }
 
   if (arn_mem->Hes != NULL)

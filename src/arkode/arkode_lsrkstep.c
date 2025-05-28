@@ -2306,6 +2306,8 @@ void* lsrkStep_ArnoldiCreate(void* arkode_mem)
   step_mem->Arnoldi_maxl = ARNOLDI_MAXL_DEFAULT;
 
   Arnoldi_mem = ArnoldiCreate(lsrkStep_DQJtimes, arkode_mem, step_mem->Arnoldi_q, step_mem->Arnoldi_maxl, ark_mem->sunctx);
+
+  return (void*)Arnoldi_mem;
 }
 
 /*---------------------------------------------------------------
