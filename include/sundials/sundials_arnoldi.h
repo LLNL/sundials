@@ -2,7 +2,7 @@
  * Programmer(s): Mustafa Aggul @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -31,10 +31,6 @@ extern "C" {
 #define DEFAULT_POWER_ITER_TOL   SUN_RCONST(0.01)
 #define DEFAULT_MAX_POWER_ITER   100
 
-/* SUNRhsFn type definition */
-typedef int (*SUNRhsFn)(sunrealtype t, N_Vector y, N_Vector ydot,
-                        void* user_data);
-
 /*===============================================================
   ARNOLDI module data structure
   ===============================================================*/
@@ -43,7 +39,7 @@ typedef int (*SUNRhsFn)(sunrealtype t, N_Vector y, N_Vector ydot,
   Types : struct ARNOLDIMemRec, ARNOLDIMem
   ---------------------------------------------------------------
   The type ARNOLDIMem is type pointer to struct
-  ARNOLDIMemRec.  This structure contains fields to
+  ARNOLDIMemRec. This structure contains fields to
   perform an ARNOLDI iteration.
   ---------------------------------------------------------------*/
 typedef struct ARNOLDIMemRec
@@ -58,8 +54,8 @@ typedef struct ARNOLDIMemRec
   int length;           /* Problem dimension */
   int power_of_A;       /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
 
-  sunrealtype powiter_tol;
-  int max_powiter;
+  sunrealtype powiter_tol; /* Convergence criteria for the power iteration */
+  int max_powiter;         /* Maximum number of power iterations */
 
   sunrealtype **Hes;    /* Hessenberg matrix Hes */
 }* ARNOLDIMem;

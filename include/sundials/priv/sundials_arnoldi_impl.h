@@ -2,7 +2,7 @@
  * Programmer(s): Mustafa Aggul @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -51,10 +51,9 @@ extern "C" {
 #define MSG_ARNOLDI_NULL_q             "q is null."
 #define MSG_ARNOLDI_BAD_NVECTOR        "Bad NVector."
 #define MSG_ARNOLDI_NULL_ATIMES        "ATimes is null."
-#define MSG_ARNOLDI_NULL_SUNRHSFN      "SUNRhsFn is null."
 #define MSG_ARNOLDI_ATIMES_FAIL_REC    "Atimes recoverable failure"
 #define MSG_ARNOLDI_ATIMES_FAIL_UNREC  "Atimes unrecoverable failure"
-#define MSG_ARNOLDI_NOT_ENOUGH_ITER    "Number of Krylov subspace is not enough (< 3)"
+#define MSG_ARNOLDI_NOT_ENOUGH_ITER    "Number of Krylov subspace is not enough (< 2)"
 #define MSG_ARNOLDI_NULL_SUNCTX        "sunctx is null."
 #define MSG_ARNOLDI_MEM_FAIL           "ARNOLDI memory fail."
 #define MSG_ARNOLDI_GS_FAIL            "ARNOLDI Modified GS fail."

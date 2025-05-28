@@ -19,6 +19,7 @@
 #define _ARKODE_LSRKSTEP_IMPL_H
 
 #include <arkode/arkode_lsrkstep.h>
+#include <sundials/sundials_arnoldi.h>
 
 #include "arkode_impl.h"
 
@@ -209,7 +210,8 @@ int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
-
+void* lsrkStep_ArnoldiCreate(void* arkode_mem);
+suncomplextype lsrkStep_ArnoldiEstimate(void* arkode_mem, ARNOLDIMem Arnoldi_mem);
 int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv);
 
 /*===============================================================

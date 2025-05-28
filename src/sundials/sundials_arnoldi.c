@@ -2,7 +2,7 @@
  * Programmer(s): Mustafa Aggul @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -49,8 +49,8 @@ void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
     return NULL;
   }
 
-  /* Check if maxl > 2 */
-  if (maxl < 3)
+  /* Check if maxl >= 2 */
+  if (maxl < 2)
   {
     printf(MSG_ARNOLDI_NOT_ENOUGH_ITER);
 
@@ -300,8 +300,7 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
   int n = arnoldi_mem->maxl;
 
   /* Create the vector A which holds rows of the Hessenberg matrix in the given order */
-  sunrealtype* A;
-  A = (sunrealtype*)malloc((n*n) * sizeof(sunrealtype));
+  sunrealtype* A = (sunrealtype*)malloc((n*n) * sizeof(sunrealtype));
   int i, j, k = 0;
   for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
@@ -351,6 +350,10 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
     }
 
     // Cleanup
+    free(A);
+    free(wr);
+    free(wi);
+    free(work);
     free(arr);
   }
 
