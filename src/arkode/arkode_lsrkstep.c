@@ -2300,13 +2300,12 @@ void* lsrkStep_ArnoldiCreate(void* arkode_mem)
 
   step_mem->arnoldi_rhs = step_mem->fe;
 
-  /* Allocate and fill Arnoldi_q vector TODO: use random vector instead */
+  /* Allocate and fill Arnoldi_q vector with random data */
   step_mem->Arnoldi_q = N_VClone(ark_mem->yn);
-  N_VConst(SUN_RCONST(1.0), step_mem->Arnoldi_q);
+  N_VRandom(step_mem->Arnoldi_q);
   step_mem->Arnoldi_maxl = ARNOLDI_MAXL_DEFAULT;
 
   Arnoldi_mem = ArnoldiCreate(lsrkStep_DQJtimes, arkode_mem, step_mem->Arnoldi_q, step_mem->Arnoldi_maxl, ark_mem->sunctx);
-
 }
 
 /*---------------------------------------------------------------

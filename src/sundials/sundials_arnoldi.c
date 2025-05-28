@@ -57,6 +57,7 @@ void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
     return NULL;
   }
 
+  /* Test if sunctx is provided */
   if (sunctx == NULL)
   {
     printf(MSG_ARNOLDI_NULL_SUNCTX);
@@ -92,7 +93,7 @@ void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
   arnoldi_mem->max_powiter = DEFAULT_MAX_POWER_ITER;
 
   /* Hessenberg matrix Hes */
-  if (arnoldi_mem->Hes == NULL)
+  if (arnoldi_mem->Hes == NULL && arnoldi_mem->length > 2)
   {
     int k;
     arnoldi_mem->Hes =
@@ -108,7 +109,14 @@ void* ArnoldiCreate(SUNATimesFn ATimes, void* Adata,
   /* Krylov subspace vectors */
   if (arnoldi_mem->V == NULL)
   {
-    arnoldi_mem->V = N_VCloneVectorArray(maxl + 1, q);
+    if(arnoldi_mem->length > 2)
+    {
+      arnoldi_mem->V = N_VCloneVectorArray(maxl + 1, q);
+    }
+    else
+    {
+      arnoldi_mem->V = N_VCloneVectorArray(1, q);
+    }
   }
 
   /* Unitize the initial vector V[0] */
@@ -175,6 +183,13 @@ int ArnoldiComputeHess(ARNOLDIMem arnoldi_mem)
     printf(MSG_ARNOLDI_MEM_FAIL);
 
     return -1;
+  }
+
+  /* Check if the dim of the matrix is less than 3
+     Return immediately if dim <= 2 */
+  if(arnoldi_mem->length < 3)
+  {
+    return 0;
   }
 
   int i, j;
@@ -300,13 +315,14 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
   int n = arnoldi_mem->maxl;
 
   /* Create the vector A which holds rows of the Hessenberg matrix in the given order */
-  sunrealtype* A = (sunrealtype*)malloc((n*n) * sizeof(sunrealtype));
+  sunrealtype* A;
+  A = (sunrealtype*)malloc((n*n) * sizeof(sunrealtype));
   int i, j, k = 0;
   for (i = 0; i < n; i++) {
-      for (j = 0; j < n; j++) {
-          A[k] = arnoldi_mem->Hes[i][j];
-          k++;
-      }
+    for (j = 0; j < n; j++) {
+        A[k] = arnoldi_mem->Hes[i][j];
+        k++;
+    }
   }
 
   sunrealtype *wr = malloc(n * sizeof(sunrealtype)); // Real and imaginary parts of eigenvalues
@@ -376,9 +392,8 @@ suncomplextype ArnoldiEstimate(ARNOLDIMem arnoldi_mem) {
 sunbooleantype arnoldi_CheckNVector(N_Vector tmpl)
 { // TO DO: check required vector operations
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
-      (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
-      (tmpl->ops->nvscale == NULL) || (tmpl->ops->nvwrmsnorm == NULL) ||
-      (tmpl->ops->nvspace == NULL))
+      (tmpl->ops->nvdotprod == NULL) || (tmpl->ops->nvscale == NULL) ||
+      (tmpl->ops->nvgetlength == NULL) || (tmpl->ops->nvspace == NULL))
   {
     return SUNFALSE;
   }
