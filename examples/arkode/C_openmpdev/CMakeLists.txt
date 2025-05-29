@@ -19,7 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-    "ark_analytic_nonlin_ompdev\;4\;develop" "ark_heat1D_ompdev\;4\;develop"
+    "ark_analytic_nonlin_ompdev\;4\;develop"
+    "ark_heat1D_ompdev\;4\;develop"
     "ark_heat1D_adapt_ompdev\;4\;develop")
 
 # Specify libraries to link against
@@ -27,7 +28,7 @@ set(ARKODE_LIB sundials_arkode)
 set(NVECOMP_LIB sundials_nvecopenmpdev)
 
 # Set-up linker flags and link libraries
-set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMP_LIB} ${EXE_EXTRA_LINK_LIBS})
+set(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMPDEV_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
@@ -51,7 +52,8 @@ foreach(example_tuple ${ARKODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+  target_link_libraries(${example} sundials_arkode sundials_nvecopenmpdev
+          ${EXE_EXTRA_LINK_LIBS})
 
   # install example source and out files
   if(EXAMPLES_INSTALL)

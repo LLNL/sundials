@@ -62,7 +62,7 @@
 #define ctB         SUN_RCONST(3.4)
 #define ctEps       SUN_RCONST(2.0e-3)
 
-#define PI SUN_RCONST(3.1415926535898) /* pi */
+#define PI SUN_RCONST(3.141592653589793238462643383279502884197169) /* pi */
 
 #define MXSUB   21 /* Number of x mesh points per processor subgrid */
 #define MYSUB   21 /* Number of y mesh points per processor subgrid */
