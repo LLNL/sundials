@@ -21,7 +21,6 @@
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
     "idaAnalytic_mels\;\;exclude-single"
-    "idaFoodWeb_bnd\;\;develop"
     "idaFoodWeb_kry\;\;develop"
     "idaHeat2D_bnd\;\;develop"
     "idaHeat2D_kry\;\;develop"
@@ -32,7 +31,7 @@ set(IDA_examples
     "idaSlCrank_dns\;\;exclude-single")
 
 # Examples using LAPACK linear solvers
-set(IDA_examples_BL)
+set(IDA_examples_BL "idaFoodWeb_bnd\;\;develop")
 
 # Examples using KLU linear solver
 set(IDA_examples_KLU "idaHeat2D_klu\;\;develop" "idaRoberts_klu\;\;develop")

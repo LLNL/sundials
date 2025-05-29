@@ -25,7 +25,7 @@ module test_fsunnonlinsol_fixedpoint
   integer(c_int), parameter :: MAXIT = 20     ! max nonlinear iters.
   real(c_double), parameter :: TOL = 1.0e-4 ! nonlinear solver tolerance
 
-  real(c_double), parameter :: PI = 3.1415926535898
+  real(c_double), parameter :: PI = 3.141592653589793238462643383279502884197169d0
 
   ! approximate solution
   real(c_double) :: XTRUE = 0.5d0

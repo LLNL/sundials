@@ -758,7 +758,7 @@ SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y)
   NLS->content = content;
 
   /* Fill general content */
-  void* tmpcomm = N_VGetCommunicator(y);
+  void* tmpcomm = (void *)N_VGetCommunicator(y);
   if (tmpcomm == NULL)
   {
     SUNNonlinSolFree(NLS);

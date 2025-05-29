@@ -646,7 +646,7 @@ program driver
 
   ! Declarations
   ! general problem parameters
-  real(c_double), parameter :: pi = 3.1415926535897932d0
+  real(c_double), parameter :: pi = 3.141592653589793238462643383279502884197169d0
   integer, parameter :: Nt = 20           ! total number of output times
   integer, parameter :: nx_ = 60          ! spatial mesh size
   integer, parameter :: ny_ = 120

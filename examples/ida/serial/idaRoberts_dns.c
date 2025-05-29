@@ -90,9 +90,10 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
 int main(void)
 {
   void* mem;
-  N_Vector yy, yp, avtol;
-  sunrealtype rtol, *yval, *ypval, *atval;
+  N_Vector yy, yp, avtol, constraints;
+  sunrealtype rtol, *yval, *ypval, *atval, *constraintsval;
   sunrealtype t0, tout1, tout, tret;
+  suncountertype maxNumSteps;
   int iout, retval, retvalr;
   int rootsfound[2];
   SUNMatrix A;
@@ -102,11 +103,11 @@ int main(void)
   FILE* FID;
 
   mem = NULL;
-  yy = yp = avtol = NULL;
-  yval = ypval = atval = NULL;
-  A                    = NULL;
-  LS                   = NULL;
-  NLS                  = NULL;
+  yy = yp = avtol = constraints         = NULL;
+  yval = ypval = atval = constraintsval = NULL;
+  A                                     = NULL;
+  LS                                    = NULL;
+  NLS                                   = NULL;
 
   /* Create SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
@@ -116,10 +117,11 @@ int main(void)
   yy = N_VNew_Serial(NEQ, ctx);
   if (check_retval((void*)yy, "N_VNew_Serial", 0)) { return (1); }
   yp = N_VClone(yy);
-  if (check_retval((void*)yp, "N_VNew_Serial", 0)) { return (1); }
+  if (check_retval((void*)yp, "N_VClone", 0)) { return (1); }
   avtol = N_VClone(yy);
-  if (check_retval((void*)avtol, "N_VNew_Serial", 0)) { return (1); }
-
+  if (check_retval((void*)avtol, "N_VClone", 0)) { return (1); }
+  constraints = N_VClone(yy);
+  if (check_retval((void*)constraints, "N_VClone", 0)) { return (1); }
   /* Create and initialize  y, y', and absolute tolerance vectors. */
   yval    = N_VGetArrayPointer(yy);
   yval[0] = ONE;
@@ -137,6 +139,13 @@ int main(void)
   atval[0] = SUN_RCONST(1.0e-8);
   atval[1] = SUN_RCONST(1.0e-6);
   atval[2] = SUN_RCONST(1.0e-6);
+
+  constraintsval    = N_VGetArrayPointer(constraints);
+  constraintsval[0] = SUN_RCONST(1.0);
+  constraintsval[1] = SUN_RCONST(1.0);
+  constraintsval[2] = SUN_RCONST(1.0);
+
+  maxNumSteps = 100000L;
 
   /* Integration limits */
   t0    = ZERO;
@@ -184,6 +193,16 @@ int main(void)
   retval = IDASetNonlinearSolver(mem, NLS);
   if (check_retval(&retval, "IDASetNonlinearSolver", 1)) { return (1); }
 
+  /* specifies a vector defining inequality constraints
+   * for each component of the solution vector y*/
+  retval = IDASetConstraints(mem, constraints);
+  if (check_retval(&retval, "IDASetConstraints", 1)) { return (1); }
+
+  /* specifies the maximum number of steps to be taken by the solver
+   * in its attempt to reach the next output time*/
+  retval = IDASetMaxNumSteps(mem, maxNumSteps);
+  if (check_retval(&retval, "IDASetMaxNumSteps", 1)) { return (1); }
+
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
 
@@ -230,6 +249,7 @@ int main(void)
   SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
+  N_VDestroy(constraints);
   N_VDestroy(avtol);
   N_VDestroy(yy);
   N_VDestroy(yp);
@@ -347,7 +367,7 @@ static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y)
          atval[0], atval[1], atval[2]);
   printf("Initial conditions y0 = (%g %g %g)\n", yval[0], yval[1], yval[2]);
 #endif
-  printf("Constraints and id not used.\n\n");
+  printf("Constraints used and id not used.\n\n");
   printf("---------------------------------------------------------------------"
          "--\n");
   printf("  t             y1           y2           y3");
@@ -455,6 +475,11 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
   NV_Ith_S(ref, 0) = SUN_RCONST(5.2083474251394888e-08);
   NV_Ith_S(ref, 1) = SUN_RCONST(2.0833390772616859e-13);
   NV_Ith_S(ref, 2) = SUN_RCONST(9.9999994791631752e-01);
+  /* set the reference solution data, using float128 precision,
+   * rtol=atol=1e-31 */
+  NV_Ith_S(ref, 0) = SUN_RCONST(5.20834517679923919877889080688790329e-08);
+  NV_Ith_S(ref, 1) = SUN_RCONST(2.08333817792548903496396691950921252e-13);
+  NV_Ith_S(ref, 2) = SUN_RCONST(9.99999947916339898189815463307595615e-01);
 
   /* compute the error weight vector, loosen atol */
   N_VAbs(ref, ewt);
