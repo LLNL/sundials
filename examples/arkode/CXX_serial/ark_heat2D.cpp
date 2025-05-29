@@ -455,11 +455,9 @@ int main(int argc, char* argv[])
     sunrealtype maxerr = N_VMaxNorm(udata->e);
 
     cout << scientific;
-#if  defined(SUNDIALS_FLOAT128_PRECISION)
-    cout << setprecision(FLT128_DIG);
-#else
-    cout << setprecision(numeric_limits<sunrealtype>::digits10);
-#endif
+
+    cout << setprecision(SUN_DIGITS10);
+
     cout << "  Max error = " << maxerr << endl;
   }
 
