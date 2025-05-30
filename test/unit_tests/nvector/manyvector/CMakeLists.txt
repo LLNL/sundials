@@ -18,8 +18,13 @@
 # examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS manyvector nvector
-set(nvector_manyvector_examples "test_nvector_manyvector\;1000 100 0\;"
-                                "test_nvector_manyvector\;100 1000 0\;")
+if(SUNDIALS_SCALAR_TYPE MATCHES "REAL")
+  set(nvector_manyvector_examples "test_nvector_manyvector\;1000 100\;"
+                                  "test_nvector_manyvector\;100 1000\;")
+elseif(SUNDIALS_SCALAR_TYPE MATCHES "COMPLEX")
+  set(nvector_manyvector_examples "test_nvector_manyvector_Z\;1000 100\;"
+                                  "test_nvector_manyvector_Z\;100 1000\;")
+endif()
 
 # Dependencies for nvector examples
 set(nvector_examples_dependencies test_nvector)
@@ -81,7 +86,7 @@ foreach(example_tuple ${nvector_manyvector_examples})
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ../test_nvector.c ../test_nvector.h
+    install(FILES ${example}.c ../test_nvector.c ../test_nvector.h ../test_nvector_complex.c ../test_nvector_complex.h
             DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/manyvector)
   endif()
 
