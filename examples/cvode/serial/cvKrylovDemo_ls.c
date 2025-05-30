@@ -60,16 +60,6 @@
 #define SQR(A) ((A) * (A))
 #endif
 
-#ifndef SQRT
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SQRT(x) (sqrt((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SQRT(x) (sqrtf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SQRT(x) (sqrtl((x)))
-#endif
-#endif
-
 /* Problem Constants */
 
 #define ZERO SUN_RCONST(0.0)
@@ -532,7 +522,16 @@ static void PrintOutput(void* cvode_mem, N_Vector u, sunrealtype t)
   retval = CVodeGetLastStep(cvode_mem, &hu);
   check_retval(&retval, "CVodeGetLastStep", 1);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("t = %.2Qe   no. steps = %ld   order = %d   stepsize = %.2Qe\n", t,
+         nst, qu, hu);
+  printf("c1 (bot.left/middle/top rt.) = %12.3Qe  %12.3Qe  %12.3Qe\n",
+         IJKth(udata, 1, 0, 0), IJKth(udata, 1, mxh, myh),
+         IJKth(udata, 1, mx1, my1));
+  printf("c2 (bot.left/middle/top rt.) = %12.3Qe  %12.3Qe  %12.3Qe\n\n",
+         IJKth(udata, 2, 0, 0), IJKth(udata, 2, mxh, myh),
+         IJKth(udata, 2, mx1, my1));
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n", t,
          nst, qu, hu);
   printf("c1 (bot.left/middle/top rt.) = %12.3Le  %12.3Le  %12.3Le\n",
@@ -678,11 +677,11 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data)
 
   /* Set diurnal rate coefficients. */
 
-  s = sin(data->om * t);
+  s = SUNRsin(data->om * t);
   if (s > ZERO)
   {
-    q3       = exp(-A3 / s);
-    data->q4 = exp(-A4 / s);
+    q3       = SUNRexp(-A3 / s);
+    data->q4 = SUNRexp(-A4 / s);
   }
   else
   {
@@ -808,8 +807,8 @@ static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
     {
       ydn  = YMIN + (jy - SUN_RCONST(0.5)) * dely;
       yup  = ydn + dely;
-      cydn = verdco * exp(SUN_RCONST(0.2) * ydn);
-      cyup = verdco * exp(SUN_RCONST(0.2) * yup);
+      cydn = verdco * SUNRexp(SUN_RCONST(0.2) * ydn);
+      cyup = verdco * SUNRexp(SUN_RCONST(0.2) * yup);
       diag = -(cydn + cyup + TWO * hordco);
       for (jx = 0; jx < MX; jx++)
       {

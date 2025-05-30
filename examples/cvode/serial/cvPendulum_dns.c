@@ -66,7 +66,9 @@
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNmatrix       */
 
 /* Precision specific formatting macros */
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define ESYM "Qe"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define ESYM "Le"
 #elif defined(SUNDIALS_FLOAT128_PRECISION)
 #define ESYM "Qe"
@@ -678,13 +680,13 @@ static int ReadInputs(int* argc, char*** argv, sunrealtype* rtol,
     if (strcmp((*argv)[arg_idx], "--tol") == 0)
     {
       arg_idx++;
-      *rtol = atof((*argv)[arg_idx++]);
-      *atol = atof((*argv)[arg_idx++]);
+      *rtol = (sunrealtype)atof((*argv)[arg_idx++]);
+      *atol = (sunrealtype)atof((*argv)[arg_idx++]);
     }
     else if (strcmp((*argv)[arg_idx], "--tf") == 0)
     {
       arg_idx++;
-      *tf = atof((*argv)[arg_idx++]);
+      *tf = (sunrealtype)atof((*argv)[arg_idx++]);
     }
     else if (strcmp((*argv)[arg_idx], "--nout") == 0)
     {

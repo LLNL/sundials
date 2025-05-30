@@ -43,7 +43,10 @@
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix       */
 
 /* Precision specific formatting macros */
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
+#define ESYM "Qe"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"
 #else
@@ -378,7 +381,7 @@ static int InitUserData(int* argc, char*** argv, UserData udata)
     if (strcmp((*argv)[arg_idx], "--alpha") == 0)
     {
       arg_idx++;
-      udata->alpha  = atof((*argv)[arg_idx++]);
+      udata->alpha  = (sunrealtype)(atof((*argv)[arg_idx++]));
       udata->torbit = (TWO * PI) / udata->alpha;
     }
     else if (strcmp((*argv)[arg_idx], "--orbits") == 0)
@@ -389,12 +392,12 @@ static int InitUserData(int* argc, char*** argv, UserData udata)
     else if (strcmp((*argv)[arg_idx], "--rtol") == 0)
     {
       arg_idx++;
-      udata->rtol = atof((*argv)[arg_idx++]);
+      udata->rtol = (sunrealtype)(atof((*argv)[arg_idx++]));
     }
     else if (strcmp((*argv)[arg_idx], "--atol") == 0)
     {
       arg_idx++;
-      udata->atol = atof((*argv)[arg_idx++]);
+      udata->atol =  (sunrealtype)(atof((*argv)[arg_idx++]));
     }
     else if (strcmp((*argv)[arg_idx], "--proj") == 0)
     {
