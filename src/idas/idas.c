@@ -645,7 +645,8 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
 
   /* Allocate temporary work arrays for fused vector ops */
   IDA_mem->ida_cvals = NULL;
-  IDA_mem->ida_cvals = (sunscalartype*)malloc(MXORDP1 * sizeof(*IDA_mem->ida_cvals));
+  IDA_mem->ida_cvals =
+    (sunscalartype*)malloc(MXORDP1 * sizeof(*IDA_mem->ida_cvals));
 
   IDA_mem->ida_Xvecs = NULL;
   IDA_mem->ida_Xvecs = (N_Vector*)malloc(MXORDP1 * sizeof(*IDA_mem->ida_Xvecs));
@@ -1375,8 +1376,10 @@ int IDASensInit(void* ida_mem, int Ns, int ism, IDASensResFn fS, N_Vector* yS0,
 
     IDA_mem->ida_cvals =
       (sunscalartype*)malloc((Ns * MXORDP1) * sizeof(*IDA_mem->ida_cvals));
-    IDA_mem->ida_Xvecs = (N_Vector*)malloc((Ns * MXORDP1) * sizeof(*IDA_mem->ida_Xvecs));
-    IDA_mem->ida_Zvecs = (N_Vector*)malloc((Ns * MXORDP1) * sizeof(*IDA_mem->ida_Zvecs));
+    IDA_mem->ida_Xvecs =
+      (N_Vector*)malloc((Ns * MXORDP1) * sizeof(*IDA_mem->ida_Xvecs));
+    IDA_mem->ida_Zvecs =
+      (N_Vector*)malloc((Ns * MXORDP1) * sizeof(*IDA_mem->ida_Zvecs));
 
     if ((IDA_mem->ida_cvals == NULL) || (IDA_mem->ida_Xvecs == NULL) ||
         (IDA_mem->ida_Zvecs == NULL))
@@ -7800,17 +7803,14 @@ sunrealtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector* xS, N_Vector* wS,
 {
   int is;
   sunrealtype nrm;
-  sunrealtype* nrmvals = (sunrealtype*) IDA_mem->ida_cvals;
+  sunrealtype* nrmvals = (sunrealtype*)IDA_mem->ida_cvals;
 
   if (mask)
   {
     (void)N_VWrmsNormMaskVectorArray(IDA_mem->ida_Ns, xS, wS, IDA_mem->ida_id,
                                      nrmvals);
   }
-  else
-  {
-    (void)N_VWrmsNormVectorArray(IDA_mem->ida_Ns, xS, wS, nrmvals);
-  }
+  else { (void)N_VWrmsNormVectorArray(IDA_mem->ida_Ns, xS, wS, nrmvals); }
 
   nrm = nrmvals[0];
   for (is = 1; is < IDA_mem->ida_Ns; is++)
@@ -7835,7 +7835,7 @@ static sunrealtype IDAQuadSensWrmsNorm(IDAMem IDA_mem, N_Vector* xQS,
 {
   int is;
   sunrealtype nrm;
-  sunrealtype* nrmvals = (sunrealtype*) IDA_mem->ida_cvals;
+  sunrealtype* nrmvals = (sunrealtype*)IDA_mem->ida_cvals;
 
   (void)N_VWrmsNormVectorArray(IDA_mem->ida_Ns, xQS, wQS, nrmvals);
 

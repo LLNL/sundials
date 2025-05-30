@@ -59,10 +59,11 @@ N_Vector N_VGetSubvector_ManyVector(N_Vector v, sunindextype vec_num);
 
 SUNDIALS_EXPORT
 sunscalartype* N_VGetSubvectorArrayPointer_ManyVector(N_Vector v,
-                                                    sunindextype vec_num);
+                                                      sunindextype vec_num);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VSetSubvectorArrayPointer_ManyVector(sunscalartype* v_data, N_Vector v,
+SUNErrCode N_VSetSubvectorArrayPointer_ManyVector(sunscalartype* v_data,
+                                                  N_Vector v,
                                                   sunindextype vec_num);
 
 SUNDIALS_EXPORT
@@ -158,11 +159,12 @@ SUNErrCode N_VLinearSumVectorArray_ManyVector(int nvec, sunscalartype a,
                                               N_Vector* Y, N_Vector* Z);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VScaleVectorArray_ManyVector(int nvec, sunscalartype* c, N_Vector* X,
-                                          N_Vector* Z);
+SUNErrCode N_VScaleVectorArray_ManyVector(int nvec, sunscalartype* c,
+                                          N_Vector* X, N_Vector* Z);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VConstVectorArray_ManyVector(int nvecs, sunscalartype c, N_Vector* Z);
+SUNErrCode N_VConstVectorArray_ManyVector(int nvecs, sunscalartype c,
+                                          N_Vector* Z);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VWrmsNormVectorArray_ManyVector(int nvecs, N_Vector* X,

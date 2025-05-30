@@ -887,8 +887,8 @@ int check_rhs_evals(rk_type r_type, void* arkstep_mem, long int nfe_expected,
 // Explicit ODE RHS function fe(t,y)
 int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunscalartype* y_data    = N_VGetArrayPointer(y);
-  sunscalartype* yd_data   = N_VGetArrayPointer(ydot);
+  sunscalartype* y_data  = N_VGetArrayPointer(y);
+  sunscalartype* yd_data = N_VGetArrayPointer(ydot);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   yd_data[0] = prob_data->lambda_e * y_data[0];
@@ -905,8 +905,8 @@ int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // Implicit ODE RHS function fi(t,y)
 int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunscalartype* y_data    = N_VGetArrayPointer(y);
-  sunscalartype* yd_data   = N_VGetArrayPointer(ydot);
+  sunscalartype* y_data  = N_VGetArrayPointer(y);
+  sunscalartype* yd_data = N_VGetArrayPointer(ydot);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   yd_data[0] = prob_data->lambda_i * y_data[0];
@@ -924,7 +924,7 @@ int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
        N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunscalartype* J_data    = SUNDenseMatrix_Data(J);
+  sunscalartype* J_data  = SUNDenseMatrix_Data(J);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   J_data[0] = prob_data->lambda_i;
@@ -935,7 +935,7 @@ int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
 int MassMatrix(sunrealtype t, SUNMatrix M, void* user_data, N_Vector tmp1,
                N_Vector tmp2, N_Vector tmp3)
 {
-  sunscalartype* M_data    = SUNDenseMatrix_Data(M);
+  sunscalartype* M_data  = SUNDenseMatrix_Data(M);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   if (prob_data->m_type == mass_matrix_type::fixed) { M_data[0] = TWO; }

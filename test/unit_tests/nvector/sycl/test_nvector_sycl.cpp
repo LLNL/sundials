@@ -444,7 +444,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype length)
     if (failure += SUNRCompare(Xdata[i], ans))
     {
       printf("check_ans fail: Xdata[%ld] = %f, expected Xdata[%ld] = %f\n",
-             (long int)i, (double) Xdata[i], (long int)i, (double) ans);
+             (long int)i, (double)Xdata[i], (long int)i, (double)ans);
     }
   }
 

@@ -45,7 +45,7 @@
 #include <math.h>
 #include <nvector/nvector_serial.h> /* access to serial N_Vector */
 #include <stdio.h>
-#include <sundials/sundials_math.h> /* defs. of SUNRabs, SUNRexp, etc. */
+#include <sundials/sundials_math.h>  /* defs. of SUNRabs, SUNRexp, etc. */
 #include <sundials/sundials_types.h> /* defs. of sunscalartype, sunindextype */
 #include <sunlinsol/sunlinsol_spbcgs.h> /* access to spbcgs SUNLinearSolver */
 
@@ -71,7 +71,8 @@ static int SolutionDerivative(sunrealtype t, N_Vector up, void* user_data);
 
 /* Compute the numerical solution and derivative error */
 static int SolutionError(sunrealtype t, N_Vector u, N_Vector e, void* user_data);
-static int DerivativeError(sunrealtype t, N_Vector u_p, N_Vector e_p, void* user_data);
+static int DerivativeError(sunrealtype t, N_Vector u_p, N_Vector e_p,
+                           void* user_data);
 
 /* Private function to check function return values */
 static int check_retval(void* returnvalue, const char* funcname, int opt);
@@ -92,7 +93,7 @@ int main(void)
   int Nt             = (int)ceil(Tf / dTout); /* number of output times */
   sunrealtype reltol = 1.0e-6;                /* tolerances */
   sunrealtype abstol = 1.0e-10;
-  int maxl = 10;                               /* max linear solver iterations */
+  int maxl           = 10; /* max linear solver iterations */
 
   /* general problem variables */
   int retval;                 /* reusable error-checking flag */
@@ -116,11 +117,11 @@ int main(void)
   /* Create vectors */
   y = N_VNew_Serial(NEQ, ctx);
   if (check_retval((void*)y, "N_VNew_Serial", 0)) { return 1; }
-  y_p = N_VClone(y);
-  True_Sol = N_VClone(y);
-  True_Sol_p = N_VClone(y);
-  Error = N_VClone(y);
-  Error_p = N_VClone(y);
+  y_p                  = N_VClone(y);
+  True_Sol             = N_VClone(y);
+  True_Sol_p           = N_VClone(y);
+  Error                = N_VClone(y);
+  Error_p              = N_VClone(y);
   sunscalartype* yvals = N_VGetArrayPointer(y);
   if (check_retval(yvals, "N_VGetArrayPointer", 0)) { return 1; }
   sunscalartype* ypvals = N_VGetArrayPointer(y_p);
@@ -137,13 +138,15 @@ int main(void)
   retval = SolutionDerivative(0.0, y_p, (void*)rdata);
   if (check_retval(&retval, "SolutionDerivative", 1)) { return 1; }
 
-  N_VScale(1.0, True_Sol, y);     /* Set initial conditions */
+  N_VScale(1.0, True_Sol, y); /* Set initial conditions */
   N_VScale(1.0, True_Sol_p, y_p);
 
   /* Initial problem output */
   printf("\nAnalytic ODE test problem:\n");
-  printf("    problem parameters:  a = %" GSYM " + %" GSYM "i,  b = %" GSYM " + %" GSYM "i,  c = %" GSYM " + %" GSYM "i\n",
-         SUN_REAL(rdata[0]), SUN_IMAG(rdata[0]), SUN_REAL(rdata[1]), SUN_IMAG(rdata[2]), SUN_REAL(rdata[2]), SUN_IMAG(rdata[2]));
+  printf("    problem parameters:  a = %" GSYM " + %" GSYM "i,  b = %" GSYM
+         " + %" GSYM "i,  c = %" GSYM " + %" GSYM "i\n",
+         SUN_REAL(rdata[0]), SUN_IMAG(rdata[0]), SUN_REAL(rdata[1]),
+         SUN_IMAG(rdata[2]), SUN_REAL(rdata[2]), SUN_IMAG(rdata[2]));
   printf("    reltol = %.1" ESYM ",  abstol = %.1" ESYM "\n\n", reltol, abstol);
 
   /* Call IDACreate and IDAInit to initialize IDA memory */
@@ -170,27 +173,54 @@ int main(void)
      prints results.  Stops when the final time has been reached */
   t    = T0;
   tout = T0 + dTout;
-  printf("      t              u                        u'                       v"
-         "                        v'                       w                        w'\n");
-         printf("   ---------------------------------------------------------------------------"
-          "--------------------------------------------------------------------------------\n");
-   printf(" %8.3"FSYM" | " "%8.5"FSYM " + " "%8.5" FSYM "i  |  " "%8.5"FSYM " + " "%8.5" FSYM
-         "i  |  " "%8.5"FSYM " + " "%8.5" FSYM "i  |  " "%8.5"FSYM " + " "%8.5" FSYM
-         "i  |  " "%8.5"FSYM " + " "%8.5" FSYM "i  |  " "%8.5"FSYM " + " "%8.5" FSYM "i  \n", t,
-         SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]), SUN_REAL(ypvals[0]), SUN_IMAG(ypvals[0]),
-         SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]), SUN_REAL(ypvals[1]), SUN_IMAG(ypvals[1]),
-         SUN_REAL(yvals[2]), SUN_IMAG(yvals[2]), SUN_REAL(ypvals[2]), SUN_IMAG(ypvals[2]));
+  printf(
+    "      t              u                        u'                       v"
+    "                        v'                       w                        "
+    "w'\n");
+  printf("   "
+         "---------------------------------------------------------------------"
+         "------"
+         "---------------------------------------------------------------------"
+         "-----------\n");
+  printf(" %8.3" FSYM " | "
+         "%8.5" FSYM " + "
+         "%8.5" FSYM "i  |  "
+         "%8.5" FSYM " + "
+         "%8.5" FSYM "i  |  "
+         "%8.5" FSYM " + "
+         "%8.5" FSYM "i  |  "
+         "%8.5" FSYM " + "
+         "%8.5" FSYM "i  |  "
+         "%8.5" FSYM " + "
+         "%8.5" FSYM "i  |  "
+         "%8.5" FSYM " + "
+         "%8.5" FSYM "i  \n",
+         t, SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]), SUN_REAL(ypvals[0]),
+         SUN_IMAG(ypvals[0]), SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]),
+         SUN_REAL(ypvals[1]), SUN_IMAG(ypvals[1]), SUN_REAL(yvals[2]),
+         SUN_IMAG(yvals[2]), SUN_REAL(ypvals[2]), SUN_IMAG(ypvals[2]));
 
   for (iout = 0; iout < Nt; iout++)
   {
     retval = IDASolve(ida_mem, tout, &t, y, y_p, IDA_NORMAL); /* call integrator */
     if (check_retval(&retval, "IDASolve", 1)) { break; }
-    printf(" %8.3"FSYM" | " "%8.5"FSYM " + " "%8.5" FSYM "i  |  " "%8.5"FSYM " + " "%8.5" FSYM
-           "i  |  " "%8.5"FSYM " + " "%8.5" FSYM "i  |  " "%8.5"FSYM " + " "%8.5" FSYM
-           "i  |  " "%8.5"FSYM " + " "%8.5" FSYM "i  |  " "%8.5"FSYM " + " "%8.5" FSYM "i  \n", t,
-           SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]), SUN_REAL(ypvals[0]), SUN_IMAG(ypvals[0]),
-           SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]), SUN_REAL(ypvals[1]), SUN_IMAG(ypvals[1]),
-           SUN_REAL(yvals[2]), SUN_IMAG(yvals[2]), SUN_REAL(ypvals[2]), SUN_IMAG(ypvals[2]));
+    printf(" %8.3" FSYM " | "
+           "%8.5" FSYM " + "
+           "%8.5" FSYM "i  |  "
+           "%8.5" FSYM " + "
+           "%8.5" FSYM "i  |  "
+           "%8.5" FSYM " + "
+           "%8.5" FSYM "i  |  "
+           "%8.5" FSYM " + "
+           "%8.5" FSYM "i  |  "
+           "%8.5" FSYM " + "
+           "%8.5" FSYM "i  |  "
+           "%8.5" FSYM " + "
+           "%8.5" FSYM "i  \n",
+           t, SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]), SUN_REAL(ypvals[0]),
+           SUN_IMAG(ypvals[0]), SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]),
+           SUN_REAL(ypvals[1]), SUN_IMAG(ypvals[1]), SUN_REAL(yvals[2]),
+           SUN_IMAG(yvals[2]), SUN_REAL(ypvals[2]), SUN_IMAG(ypvals[2]));
 
     if (retval >= 0)
     { /* successful solve: update time */
@@ -203,8 +233,11 @@ int main(void)
       break;
     }
   }
-  printf("   ---------------------------------------------------------------------------"
-    "--------------------------------------------------------------------------------\n");
+  printf("   "
+         "---------------------------------------------------------------------"
+         "------"
+         "---------------------------------------------------------------------"
+         "-----------\n");
 
   SolutionError(Tf, y, Error, (void*)rdata);
   DerivativeError(Tf, y_p, Error_p, (void*)rdata);
@@ -215,15 +248,15 @@ int main(void)
   if (check_retval(&retval, "IDAPrintAllStats", 1)) { return 1; }
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free vectors */
+  N_VDestroy(y); /* Free vectors */
   N_VDestroy(y_p);
   N_VDestroy(True_Sol);
   N_VDestroy(True_Sol_p);
   N_VDestroy(Error);
   N_VDestroy(Error_p);
-  IDAFree(&ida_mem);      /* Free integrator memory */
-  SUNLinSolFree(LS);        /* Free linear solver */
-  SUNContext_Free(&ctx);    /* Free context */
+  IDAFree(&ida_mem);     /* Free integrator memory */
+  SUNLinSolFree(LS);     /* Free linear solver */
+  SUNContext_Free(&ctx); /* Free context */
 
   return (retval);
 }
@@ -240,23 +273,25 @@ int main(void)
 
 int res(sunrealtype t, N_Vector yy, N_Vector yp, N_Vector rr, void* user_data)
 {
-  sunscalartype* rdata   = (sunscalartype*)user_data; /* cast user_data to sunscalartype */
+  sunscalartype* rdata =
+    (sunscalartype*)user_data; /* cast user_data to sunscalartype */
   sunscalartype* yvals   = N_VGetArrayPointer(yy);
   sunscalartype* ypvals  = N_VGetArrayPointer(yp);
   sunscalartype* resvals = N_VGetArrayPointer(rr);
-  sunscalartype a = rdata[0]; /* access data entries (unused) */
-  sunscalartype b = rdata[1];
-  sunscalartype c = rdata[2];
-  sunscalartype u = yvals[0]; /* access solution values */
-  sunscalartype v = yvals[1];
-  sunscalartype w = yvals[2];
-  sunscalartype u_p = ypvals[0];
-  sunscalartype v_p = ypvals[1];
-  sunscalartype w_p = ypvals[2];
+  sunscalartype a        = rdata[0]; /* access data entries (unused) */
+  sunscalartype b        = rdata[1];
+  sunscalartype c        = rdata[2];
+  sunscalartype u        = yvals[0]; /* access solution values */
+  sunscalartype v        = yvals[1];
+  sunscalartype w        = yvals[2];
+  sunscalartype u_p      = ypvals[0];
+  sunscalartype v_p      = ypvals[1];
+  sunscalartype w_p      = ypvals[2];
 
-  resvals[0] = u_p - (t - 1.0)*(t - w)*SUN_I;
-  resvals[1] = v_p - SUN_RCONST(2.0)*u*SUN_I + v - SUN_RCONST(4.0);
-  resvals[2] = w_p - v - t*t*SUNRexp(-t)*SUN_I + SUNRexp(-t)*SUN_I - SUN_RCONST(1.0);
+  resvals[0] = u_p - (t - 1.0) * (t - w) * SUN_I;
+  resvals[1] = v_p - SUN_RCONST(2.0) * u * SUN_I + v - SUN_RCONST(4.0);
+  resvals[2] = w_p - v - t * t * SUNRexp(-t) * SUN_I + SUNRexp(-t) * SUN_I -
+               SUN_RCONST(1.0);
 
   return (0);
 }
@@ -312,16 +347,17 @@ static int check_retval(void* returnvalue, const char* funcname, int opt)
 /* Compute the exact solution */
 static int Solution(sunrealtype t, N_Vector u, void* user_data)
 {
-  sunscalartype* rdata = (sunscalartype*)user_data; /* cast user_data to sunscalartype */
-  sunscalartype a = rdata[0];                       /* access data entries */
-  sunscalartype b = rdata[1];
-  sunscalartype c = rdata[2];
+  sunscalartype* rdata =
+    (sunscalartype*)user_data;      /* cast user_data to sunscalartype */
+  sunscalartype a       = rdata[0]; /* access data entries */
+  sunscalartype b       = rdata[1];
+  sunscalartype c       = rdata[2];
   sunscalartype* uarray = N_VGetArrayPointer(u);
   if (check_retval((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
-  uarray[0] = -t*SUNRexp(-t) + SUN_RCONST(2.0)*SUN_I;
-  uarray[1] = -t*t*SUNRexp(-t)*SUN_I;
-  uarray[2] = SUNRexp(-t)*SUN_I + t;
+  uarray[0] = -t * SUNRexp(-t) + SUN_RCONST(2.0) * SUN_I;
+  uarray[1] = -t * t * SUNRexp(-t) * SUN_I;
+  uarray[2] = SUNRexp(-t) * SUN_I + t;
 
   return 0;
 }
@@ -329,16 +365,18 @@ static int Solution(sunrealtype t, N_Vector u, void* user_data)
 /* Compute the derivative of the exact solution */
 static int SolutionDerivative(sunrealtype t, N_Vector u_p, void* user_data)
 {
-  sunscalartype* rdata = (sunscalartype*)user_data; /* cast user_data to sunscalartype */
-  sunscalartype a = rdata[0];                       /* access data entries */
-  sunscalartype b = rdata[1];
-  sunscalartype c = rdata[2];
+  sunscalartype* rdata =
+    (sunscalartype*)user_data;       /* cast user_data to sunscalartype */
+  sunscalartype a        = rdata[0]; /* access data entries */
+  sunscalartype b        = rdata[1];
+  sunscalartype c        = rdata[2];
   sunscalartype* uparray = N_VGetArrayPointer(u_p);
   if (check_retval((void*)uparray, "N_VGetArrayPointer", 0)) { return -1; }
 
-  uparray[0] = t*SUNRexp(-t) - SUNRexp(-t);
-  uparray[1] = t*t*SUNRexp(-t)*SUN_I - SUN_RCONST(2.0)*t*SUNRexp(-t)*SUN_I;
-  uparray[2] = SUN_RCONST(1.0) - SUNRexp(-t)*SUN_I;
+  uparray[0] = t * SUNRexp(-t) - SUNRexp(-t);
+  uparray[1] = t * t * SUNRexp(-t) * SUN_I -
+               SUN_RCONST(2.0) * t * SUNRexp(-t) * SUN_I;
+  uparray[2] = SUN_RCONST(1.0) - SUNRexp(-t) * SUN_I;
 
   return 0;
 }
@@ -353,12 +391,13 @@ static int SolutionError(sunrealtype t, N_Vector u, N_Vector e, void* user_data)
   /* Compute max-norm of the error */
   N_VLinearSum(1.0, u, -1.0, e, e);
   sunrealtype error_norm = N_VMaxNorm(e);
-  printf("    Max-norm of the error is %.5"ESYM"\n", error_norm);
+  printf("    Max-norm of the error is %.5" ESYM "\n", error_norm);
   return 0;
 }
 
 /* Compute the solution derivative error */
-static int DerivativeError(sunrealtype t, N_Vector u_p, N_Vector e_p, void* user_data)
+static int DerivativeError(sunrealtype t, N_Vector u_p, N_Vector e_p,
+                           void* user_data)
 {
   /* Compute true solution */
   int flag = SolutionDerivative(t, e_p, (void*)user_data);
@@ -367,7 +406,7 @@ static int DerivativeError(sunrealtype t, N_Vector u_p, N_Vector e_p, void* user
   /* Compute max-norm of the error */
   N_VLinearSum(1.0, u_p, -1.0, e_p, e_p);
   sunrealtype error_norm = N_VMaxNorm(e_p);
-  printf("    Max-norm of the derivative error is %.5"ESYM"\n", error_norm);
+  printf("    Max-norm of the derivative error is %.5" ESYM "\n", error_norm);
   return 0;
 }
 

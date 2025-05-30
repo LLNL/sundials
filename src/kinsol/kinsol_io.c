@@ -877,8 +877,8 @@ int KINSetConstraints(void* kinmem, N_Vector constraints)
 
   /* Guard against use with complex-valued sunscalartype */
 #ifdef SUNDIALS_SCALAR_TYPE_COMPLEX
-  KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
-                  "constraints are incompatible with complex-valued sunscalartype");
+  KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__,
+                  __FILE__, "constraints are incompatible with complex-valued sunscalartype");
   return (KIN_ILL_INPUT);
 #endif
 

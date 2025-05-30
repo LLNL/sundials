@@ -335,8 +335,8 @@ int SUNDlsMat_denseGEQRF(sunscalartype** a, sunindextype m, sunindextype n,
  */
 
 int SUNDlsMat_denseORMQR(sunscalartype** a, sunindextype m, sunindextype n,
-                         sunscalartype* beta, sunscalartype* vn, sunscalartype* vm,
-                         sunscalartype* v)
+                         sunscalartype* beta, sunscalartype* vn,
+                         sunscalartype* vm, sunscalartype* v)
 {
   sunscalartype *col_j, s;
   sunindextype i, j;
@@ -399,8 +399,8 @@ void SUNDlsMat_denseAddIdentity(sunscalartype** a, sunindextype n)
   for (i = 0; i < n; i++) { a[i][i] += ONE; }
 }
 
-void SUNDlsMat_denseMatvec(sunscalartype** a, sunscalartype* x, sunscalartype* y,
-                           sunindextype m, sunindextype n)
+void SUNDlsMat_denseMatvec(sunscalartype** a, sunscalartype* x,
+                           sunscalartype* y, sunindextype m, sunindextype n)
 {
   sunindextype i, j;
   sunscalartype* col_j;

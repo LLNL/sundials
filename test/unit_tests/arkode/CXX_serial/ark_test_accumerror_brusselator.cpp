@@ -343,7 +343,7 @@ int main(int argc, char* argv[])
 
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  UserData* udata     = (UserData*)user_data;
+  UserData* udata       = (UserData*)user_data;
   sunscalartype* ydata  = N_VGetArrayPointer(y);
   sunscalartype* dydata = N_VGetArrayPointer(ydot);
   const sunscalartype u = ydata[0]; // access solution values
@@ -362,7 +362,7 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  UserData* udata     = (UserData*)user_data;
+  UserData* udata       = (UserData*)user_data;
   sunscalartype* ydata  = N_VGetArrayPointer(y);
   const sunscalartype u = ydata[0]; // access solution values
   const sunscalartype v = ydata[1];
@@ -450,9 +450,9 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
         if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
         // Compute/print solution error
-        sunscalartype* ydata     = N_VGetArrayPointer(y);
-        sunscalartype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
-        const sunrealtype udsm = abs(ydata[0] - yrefdata[0]) /
+        sunscalartype* ydata    = N_VGetArrayPointer(y);
+        sunscalartype* yrefdata = N_VGetArrayPointer(yref[ipart + 1]);
+        const sunrealtype udsm  = abs(ydata[0] - yrefdata[0]) /
                                  (abstol + rtols[irtol] * abs(yrefdata[0]));
         const sunrealtype vdsm = abs(ydata[1] - yrefdata[1]) /
                                  (abstol + rtols[irtol] * abs(yrefdata[1]));
@@ -547,9 +547,9 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
         if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
         // Compute/print solution error
-        sunscalartype* ydata     = N_VGetArrayPointer(y);
-        sunscalartype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
-        const sunrealtype udsm = abs(ydata[0] - yrefdata[0]) /
+        sunscalartype* ydata    = N_VGetArrayPointer(y);
+        sunscalartype* yrefdata = N_VGetArrayPointer(yref[ipart + 1]);
+        const sunrealtype udsm  = abs(ydata[0] - yrefdata[0]) /
                                  (abstol + reltol * abs(yrefdata[0]));
         const sunrealtype vdsm = abs(ydata[1] - yrefdata[1]) /
                                  (abstol + reltol * abs(yrefdata[1]));
@@ -630,9 +630,9 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
       dsm_est[ipart] = reltol * N_VWrmsNorm(y2, ewt);
       Nsteps[ipart] += nsteps2;
 
-      sunscalartype* ydata     = N_VGetArrayPointer(y);
-      sunscalartype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
-      const sunrealtype udsm = abs(ydata[0] - yrefdata[0]) /
+      sunscalartype* ydata    = N_VGetArrayPointer(y);
+      sunscalartype* yrefdata = N_VGetArrayPointer(yref[ipart + 1]);
+      const sunrealtype udsm  = abs(ydata[0] - yrefdata[0]) /
                                (abstol + reltol * abs(yrefdata[0]));
       const sunrealtype vdsm = abs(ydata[1] - yrefdata[1]) /
                                (abstol + reltol * abs(yrefdata[1]));

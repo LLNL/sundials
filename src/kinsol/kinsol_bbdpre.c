@@ -580,7 +580,8 @@ static int KBBDDQJac(KBBDPrecData pdata, N_Vector uu, N_Vector uscale,
     /* increment all u_j in group */
     for (j = group - 1; j < pdata->n_local; j += width)
     {
-      inc = pdata->rel_uu * SUNMAX(SUNabs(udata[j]), (ONE / SUN_REAL(uscdata[j])));
+      inc = pdata->rel_uu *
+            SUNMAX(SUNabs(udata[j]), (ONE / SUN_REAL(uscdata[j])));
       utempdata[j] += inc;
     }
 
@@ -594,7 +595,8 @@ static int KBBDDQJac(KBBDPrecData pdata, N_Vector uu, N_Vector uscale,
     {
       utempdata[j] = udata[j];
       col_j        = SUNBandMatrix_Column(pdata->PP, j);
-      inc     = pdata->rel_uu * SUNMAX(SUNabs(udata[j]), (ONE / SUN_REAL(uscdata[j])));
+      inc          = pdata->rel_uu *
+            SUNMAX(SUNabs(udata[j]), (ONE / SUN_REAL(uscdata[j])));
       inc_inv = ONE / inc;
       i1      = SUNMAX(0, (j - pdata->mukeep));
       i2      = SUNMIN((j + pdata->mlkeep), (pdata->n_local - 1));

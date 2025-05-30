@@ -264,10 +264,7 @@ int check_ans_Z(sunscalartype ans, N_Vector X, sunindextype local_length)
   Xdata = N_VGetArrayPointer(X);
 
   /* check vector data */
-  for (i = 0; i < local_length; i++)
-  {
-    failure += SUNCompare(Xdata[i], ans);
-  }
+  for (i = 0; i < local_length; i++) { failure += SUNCompare(Xdata[i], ans); }
 
   return (failure > ZERO) ? (1) : (0);
 }

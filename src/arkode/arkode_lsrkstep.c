@@ -386,7 +386,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   if (step_mem->cvals == NULL)
   {
     step_mem->cvals = (sunscalartype*)calloc(step_mem->nfusedopvecs,
-                                           sizeof(*step_mem->cvals));
+                                             sizeof(*step_mem->cvals));
     if (step_mem->cvals == NULL) { return ARK_MEM_FAIL; }
     ark_mem->lrw += step_mem->nfusedopvecs;
   }

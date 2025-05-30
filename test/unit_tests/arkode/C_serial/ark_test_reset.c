@@ -128,7 +128,7 @@ int main(void)
   {
     printf("  Initial ARKodeEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -146,7 +146,7 @@ int main(void)
   {
     printf("  Second ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -164,7 +164,7 @@ int main(void)
   {
     printf("  Third ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -182,7 +182,7 @@ int main(void)
   {
     printf("  Fourth ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -221,7 +221,7 @@ int main(void)
   {
     printf("  Initial ARKodeEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -239,7 +239,7 @@ int main(void)
   {
     printf("  Second ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -257,7 +257,7 @@ int main(void)
   {
     printf("  Third ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -275,7 +275,7 @@ int main(void)
   {
     printf("  Fourth ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -322,7 +322,7 @@ int main(void)
   {
     printf("  Initial ARKodeEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -340,7 +340,7 @@ int main(void)
   {
     printf("  Second ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -358,7 +358,7 @@ int main(void)
   {
     printf("  Third ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -376,7 +376,7 @@ int main(void)
   {
     printf("  Fourth ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
-    printf("    y = %" GSYM "\n", (sunrealtype) NV_Ith_S(y, 0));
+    printf("    y = %" GSYM "\n", (sunrealtype)NV_Ith_S(y, 0));
     printf("    ytrue = %" GSYM "\n", ytrue(t));
     printf("    |y-ytrue| = %" GSYM "\n", SUNabs(ytrue(t) - NV_Ith_S(y, 0)));
     return 1;
@@ -426,7 +426,7 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* rdata   = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
+  sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda   = rdata[0]; /* set shortcut for stiffness parameter */
   sunscalartype* Jdata = SUNDenseMatrix_Data(J);
 

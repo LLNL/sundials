@@ -859,7 +859,8 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
   N_Vector futemp, utemp;
   sunindextype group, i, j, width, ngroups, i1, i2;
   sunindextype N, mupper, mlower;
-  sunscalartype *col_j, *fu_data, *futemp_data, *u_data, *utemp_data, *uscale_data;
+  sunscalartype *col_j, *fu_data, *futemp_data, *u_data, *utemp_data,
+    *uscale_data;
   KINLsMem kinls_mem;
   int retval = 0;
 

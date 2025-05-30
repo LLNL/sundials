@@ -354,7 +354,8 @@ SUNErrCode SUNSparseMatrix_Realloc(SUNMatrix A)
                                              nzmax * sizeof(sunindextype));
   SUNAssert(SM_INDEXVALS_S(A), SUN_ERR_MALLOC_FAIL);
 
-  SM_DATA_S(A) = (sunscalartype*)realloc(SM_DATA_S(A), nzmax * sizeof(sunscalartype));
+  SM_DATA_S(A) = (sunscalartype*)realloc(SM_DATA_S(A),
+                                         nzmax * sizeof(sunscalartype));
   SUNAssert(SM_DATA_S(A), SUN_ERR_MALLOC_FAIL);
 
   SM_NNZ_S(A) = nzmax;
@@ -380,7 +381,8 @@ SUNErrCode SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ)
                                              NNZ * sizeof(sunindextype));
   SUNAssert(SM_INDEXVALS_S(A), SUN_ERR_MALLOC_FAIL);
 
-  SM_DATA_S(A) = (sunscalartype*)realloc(SM_DATA_S(A), NNZ * sizeof(sunscalartype));
+  SM_DATA_S(A) = (sunscalartype*)realloc(SM_DATA_S(A),
+                                         NNZ * sizeof(sunscalartype));
   SUNAssert(SM_DATA_S(A), SUN_ERR_MALLOC_FAIL);
 
   SM_NNZ_S(A) = NNZ;
@@ -593,7 +595,7 @@ SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
     SUNAssert(SM_INDEXVALS_S(B), SUN_ERR_MALLOC_FAIL);
 
     SM_DATA_S(B) = (sunscalartype*)realloc(SM_DATA_S(B),
-                                         A_nz * sizeof(sunscalartype));
+                                           A_nz * sizeof(sunscalartype));
     SUNAssert(SM_DATA_S(B), SUN_ERR_MALLOC_FAIL);
 
     SM_NNZ_S(B) = A_nz;

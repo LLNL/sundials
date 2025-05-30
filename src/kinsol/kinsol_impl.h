@@ -180,8 +180,8 @@ typedef struct KINMemRec
   N_Vector* kin_q_aa;      /* vector array needed for AA                      */
   sunrealtype kin_beta_aa; /* beta damping parameter for AA                   */
   sunscalartype* kin_gamma_aa; /* array of size maa used in AA                    */
-  sunscalartype* kin_R_aa;   /* array of size maa*maa used in AA                */
-  sunscalartype* kin_T_aa;   /* array of size maa*maa used in AA with ICWY MGS  */
+  sunscalartype* kin_R_aa; /* array of size maa*maa used in AA                */
+  sunscalartype* kin_T_aa; /* array of size maa*maa used in AA with ICWY MGS  */
   long int kin_m_aa;       /* parameter for AA, Broyden or NLEN               */
   long int kin_m_aa_alloc; /* depth (m) used for AA memory allocations */
   long int kin_delay_aa;   /* number of iterations to delay AA */
@@ -201,7 +201,7 @@ typedef struct KINMemRec
   sunbooleantype kin_damping_aa; /* flag to apply damping in AA                     */
   sunbooleantype kin_dot_prod_sb; /* use single buffer dot product */
   sunscalartype* kin_cv; /* scalar array for fused vector operations        */
-  N_Vector* kin_Xv;    /* vector array for fused vector operations        */
+  N_Vector* kin_Xv;      /* vector array for fused vector operations        */
 
   /* space requirements for vector storage */
 

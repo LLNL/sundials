@@ -54,8 +54,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "true_sol")) { return 1; }
 
   sunscalartype* ydata = N_VGetArrayPointer(y);
-  ydata[0]           = utrue;
-  ydata[1]           = vtrue;
+  ydata[0]             = utrue;
+  ydata[1]             = vtrue;
 
   // Create CVODE memory structure
   void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSetJacFn")) { return 1; }
 
   sunscalartype udata[4] = {-TWO, HALF, HALF, -ONE};
-  flag                 = CVodeSetUserData(cvode_mem, udata);
+  flag                   = CVodeSetUserData(cvode_mem, udata);
   if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
   flag = CVodeSetEtaFixedStepBounds(cvode_mem, opts.eta_min_fx, opts.eta_max_fx);
@@ -191,8 +191,8 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   const sunscalartype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
 
   sunscalartype* fdata = N_VGetArrayPointer(ydot);
-  fdata[0]           = a * tmp1 + b * tmp2 + rdot(t) / (TWO * u);
-  fdata[1]           = c * tmp1 + d * tmp2 + sdot(t) / (TWO * v);
+  fdata[0]             = a * tmp1 + b * tmp2 + rdot(t) / (TWO * u);
+  fdata[1]             = c * tmp1 + d * tmp2 + sdot(t) / (TWO * v);
 
   return 0;
 }

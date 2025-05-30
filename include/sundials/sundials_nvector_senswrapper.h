@@ -88,9 +88,8 @@ SUNDIALS_EXPORT void N_VInv_SensWrapper(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VAddConst_SensWrapper(N_Vector x, sunscalartype b,
                                              N_Vector z);
 SUNDIALS_EXPORT sunrealtype N_VDotProd_SensWrapper(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT SUNErrCode N_VDotProdComplex_SensWrapper(N_Vector x,
-                                                         N_Vector y,
-                                                        sunscalartype* result);
+SUNDIALS_EXPORT SUNErrCode N_VDotProdComplex_SensWrapper(N_Vector x, N_Vector y,
+                                                         sunscalartype* result);
 SUNDIALS_EXPORT sunrealtype N_VMaxNorm_SensWrapper(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWrmsNorm_SensWrapper(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VWrmsNormMask_SensWrapper(N_Vector x, N_Vector w,

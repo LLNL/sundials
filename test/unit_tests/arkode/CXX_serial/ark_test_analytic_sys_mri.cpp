@@ -397,9 +397,9 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; // cast user_data to sunrealtype
   sunrealtype lam    = rdata[0];       // set shortcut for stiffness parameter
-  sunscalartype y0     = NV_Ith_S(y, 0); // access current solution values
-  sunscalartype y1     = NV_Ith_S(y, 1);
-  sunscalartype y2     = NV_Ith_S(y, 2);
+  sunscalartype y0   = NV_Ith_S(y, 0); // access current solution values
+  sunscalartype y1   = NV_Ith_S(y, 1);
+  sunscalartype y2   = NV_Ith_S(y, 2);
   sunscalartype yd0, yd1, yd2;
 
   // fill in the RHS function: f(t,y) = V*D*Vi*y
@@ -512,9 +512,9 @@ static int dense_MM(SUNMatrix A, SUNMatrix B, SUNMatrix C)
   sunscalartype** adata = SUNDenseMatrix_Cols(A); // access data and extents
   sunscalartype** bdata = SUNDenseMatrix_Cols(B);
   sunscalartype** cdata = SUNDenseMatrix_Cols(C);
-  sunindextype m      = SUNDenseMatrix_Rows(C);
-  sunindextype n      = SUNDenseMatrix_Columns(C);
-  sunindextype l      = SUNDenseMatrix_Columns(A);
+  sunindextype m        = SUNDenseMatrix_Rows(C);
+  sunindextype n        = SUNDenseMatrix_Columns(C);
+  sunindextype l        = SUNDenseMatrix_Columns(A);
   sunindextype i, j, k;
   SUNMatZero(C); // initialize output
 

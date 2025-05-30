@@ -121,10 +121,10 @@ typedef struct IDAMemRec
 
   N_Vector ida_phi[MXORDP1]; /* phi = (maxord+1) arrays of divided differences */
 
-  sunrealtype   ida_psi[MXORDP1];   /* differences in t (sums of recent step sizes)   */
-  sunrealtype   ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values       */
-  sunscalartype ida_beta[MXORDP1];  /* ratios of current to previous product of psi's */
-  sunrealtype   ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
+  sunrealtype ida_psi[MXORDP1]; /* differences in t (sums of recent step sizes)   */
+  sunrealtype ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values       */
+  sunscalartype ida_beta[MXORDP1]; /* ratios of current to previous product of psi's */
+  sunrealtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
   sunscalartype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
 
   /*-------------------------

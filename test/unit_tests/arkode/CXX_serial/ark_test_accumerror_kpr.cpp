@@ -286,7 +286,7 @@ int main(int argc, char* argv[])
 
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  UserData* udata     = (UserData*)user_data;
+  UserData* udata       = (UserData*)user_data;
   sunscalartype* ydata  = N_VGetArrayPointer(y);
   sunscalartype* dydata = N_VGetArrayPointer(ydot);
   const sunscalartype u = ydata[0];
@@ -308,7 +308,7 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  UserData* udata     = (UserData*)user_data;
+  UserData* udata       = (UserData*)user_data;
   sunscalartype* ydata  = N_VGetArrayPointer(y);
   const sunscalartype u = ydata[0];
   const sunscalartype v = ydata[1];
@@ -658,8 +658,8 @@ static sunrealtype vtrue(sunrealtype t, UserData& udata)
 static int Ytrue(sunrealtype t, N_Vector y, UserData& udata)
 {
   sunscalartype* ydata = N_VGetArrayPointer(y);
-  ydata[0]           = utrue(t);
-  ydata[1]           = vtrue(t, udata);
+  ydata[0]             = utrue(t);
+  ydata[1]             = vtrue(t, udata);
   return (0);
 }
 
