@@ -464,8 +464,8 @@ int check_rhs_evals(void* erkstep_mem, long int nfe_expected)
 // Explicit ODE RHS function fe(t,y)
 int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunscalartype* y_data    = N_VGetArrayPointer(y);
-  sunscalartype* yd_data   = N_VGetArrayPointer(ydot);
+  sunscalartype* y_data  = N_VGetArrayPointer(y);
+  sunscalartype* yd_data = N_VGetArrayPointer(ydot);
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   yd_data[0] = prob_data->lambda_e * y_data[0];

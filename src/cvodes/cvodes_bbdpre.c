@@ -693,7 +693,8 @@ static int cvBBDDQJac(CVBBDPrecData pdata, sunrealtype t, N_Vector y,
     /* Increment all y_j in group */
     for (j = group - 1; j < pdata->n_local; j += width)
     {
-      inc = SUNMAX(pdata->dqrely * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
+      inc = SUNMAX(pdata->dqrely * SUNabs(y_data[j]),
+                   minInc / SUN_REAL(ewt_data[j]));
       yj  = y_data[j];
 
       /* Adjust sign(inc) again if yj has an inequality constraint. */
@@ -723,7 +724,8 @@ static int cvBBDDQJac(CVBBDPrecData pdata, sunrealtype t, N_Vector y,
     {
       yj = ytemp_data[j] = y_data[j];
       col_j              = SUNBandMatrix_Column(pdata->savedJ, j);
-      inc = SUNMAX(pdata->dqrely * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
+      inc                = SUNMAX(pdata->dqrely * SUNabs(y_data[j]),
+                                  minInc / SUN_REAL(ewt_data[j]));
 
       /* Adjust sign(inc) as before. */
       if (cv_mem->cv_constraintsSet)

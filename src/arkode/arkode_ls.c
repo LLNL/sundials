@@ -2805,7 +2805,7 @@ int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     {
       ytemp_data[j] = y_data[j];
       col_j         = SUNBandMatrix_Column(Jac, j);
-      inc           = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
+      inc = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
 
       /* Adjust sign(inc) as before. */
       if (ark_mem->constraintsSet)

@@ -230,9 +230,9 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   // fill in the RHS function and return with success
-  UserData* udata     = (UserData*)user_data;
+  UserData* udata       = (UserData*)user_data;
   sunscalartype* dydata = N_VGetArrayPointer(ydot);
-  dydata[0]           = udata->a * t * t + udata->b * t + udata->c;
+  dydata[0]             = udata->a * t * t + udata->b * t + udata->c;
   return 0;
 }
 
@@ -255,9 +255,9 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
   // Reused variables
   int retval;
   sunrealtype t;
-  N_Vector vtemp     = N_VClone(y);
-  N_Vector ele       = N_VClone(y);
-  N_Vector ewt       = N_VClone(y);
+  N_Vector vtemp       = N_VClone(y);
+  N_Vector ele         = N_VClone(y);
+  N_Vector ewt         = N_VClone(y);
   sunscalartype* ydata = N_VGetArrayPointer(y);
   sunscalartype* vdata = N_VGetArrayPointer(vtemp);
 
@@ -361,7 +361,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
 static int Ytrue(sunrealtype t, N_Vector y, UserData& udata)
 {
   sunscalartype* ydata = N_VGetArrayPointer(y);
-  ydata[0]           = udata.a / SUN_RCONST(3.0) * t * t * t +
+  ydata[0]             = udata.a / SUN_RCONST(3.0) * t * t * t +
              udata.b / SUN_RCONST(2.0) * t * t + udata.c * t + ONE;
   return (0);
 }

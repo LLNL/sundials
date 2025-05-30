@@ -29,7 +29,7 @@ namespace lotka_volterra {
 
 inline int ode_rhs(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
 {
-  sunrealtype* p    = (sunrealtype*)user_data;
+  sunrealtype* p      = (sunrealtype*)user_data;
   sunscalartype* u    = N_VGetArrayPointer(uvec);
   sunscalartype* udot = N_VGetArrayPointer(udotvec);
 
@@ -42,7 +42,7 @@ inline int ode_rhs(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_da
 inline int ode_jac(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
                    void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* p = (sunrealtype*)user_data;
+  sunrealtype* p   = (sunrealtype*)user_data;
   sunscalartype* u = N_VGetArrayPointer(uvec);
   sunscalartype* J = SUNDenseMatrix_Data(Jac);
 
@@ -57,7 +57,7 @@ inline int ode_jac(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac
 inline int ode_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
                    N_Vector udotvec, void* user_data, N_Vector tmp)
 {
-  sunrealtype* p  = (sunrealtype*)user_data;
+  sunrealtype* p    = (sunrealtype*)user_data;
   sunscalartype* u  = N_VGetArrayPointer(uvec);
   sunscalartype* v  = N_VGetArrayPointer(vvec);
   sunscalartype* Jv = N_VGetArrayPointer(Jvvec);

@@ -36,7 +36,7 @@
 static int ode_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunscalartype* ydot_data = N_VGetArrayPointer(ydot);
-  ydot_data[0]           = ONE;
+  ydot_data[0]             = ONE;
   return 0;
 }
 
@@ -45,7 +45,7 @@ static int ode_jac(sunrealtype t, N_Vector y, N_Vector f, SUNMatrix J,
                    N_Vector tempv3)
 {
   sunscalartype* J_data = SUNDenseMatrix_Data(J);
-  J_data[0]           = ZERO;
+  J_data[0]             = ZERO;
   return 0;
 }
 

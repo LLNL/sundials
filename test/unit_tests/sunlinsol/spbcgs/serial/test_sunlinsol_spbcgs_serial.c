@@ -17,12 +17,12 @@
  * -----------------------------------------------------------------
  */
 
- #include <stdio.h>
- #include <stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 
+#include <nvector/nvector_serial.h>
 #include <sundials/sundials_core.h>
 #include <sunlinsol/sunlinsol_spbcgs.h>
-#include <nvector/nvector_serial.h>
 
 #include "test_sunlinsol.h"
 
@@ -564,11 +564,14 @@ int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
     for (i = 0; i < problem_size; i++)
     {
       sunscalartype diff = Xdata[i] - Ydata[i];
-      maxerr_real = SUNMAX(SUNRabs(SUN_REAL(diff)) / SUNRabs(SUN_REAL(Xdata[i])), maxerr_real);
-      maxerr_imag = SUNMAX(SUNRabs(SUN_IMAG(diff)) / SUNRabs(SUN_IMAG(Xdata[i])), maxerr_real);
+      maxerr_real = SUNMAX(SUNRabs(SUN_REAL(diff)) / SUNRabs(SUN_REAL(Xdata[i])),
+                           maxerr_real);
+      maxerr_imag = SUNMAX(SUNRabs(SUN_IMAG(diff)) / SUNRabs(SUN_IMAG(Xdata[i])),
+                           maxerr_real);
     }
-    printf("check err failure: maxerr = %" GSYM " + %" GSYM "i (tol = %" GSYM ")\n", maxerr_real,
-          maxerr_imag, tol);
+    printf("check err failure: maxerr = %" GSYM " + %" GSYM "i (tol = %" GSYM
+           ")\n",
+           maxerr_real, maxerr_imag, tol);
     return (1);
   }
   else { return (0); }

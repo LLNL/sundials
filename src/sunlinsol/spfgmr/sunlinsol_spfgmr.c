@@ -581,7 +581,6 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       if (gstype == SUN_CLASSICAL_GS)
       {
         SUNCheckCall(SUNClassicalGS(V, Hes, l + 1, l_max, &nrm, cv, Xv));
-
       }
       else { SUNCheckCall(SUNModifiedGS(V, Hes, l + 1, l_max, &nrm)); }
       Hes[l + 1][l] = nrm;

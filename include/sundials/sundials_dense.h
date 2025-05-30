@@ -156,8 +156,8 @@ int SUNDlsMat_denseGEQRF(sunscalartype** a, sunindextype m, sunindextype n,
 
 SUNDIALS_EXPORT
 int SUNDlsMat_denseORMQR(sunscalartype** a, sunindextype m, sunindextype n,
-                         sunscalartype* beta, sunscalartype* v, sunscalartype* w,
-                         sunscalartype* wrk);
+                         sunscalartype* beta, sunscalartype* v,
+                         sunscalartype* w, sunscalartype* wrk);
 
 /*
  * ----------------------------------------------------------------------------
@@ -228,8 +228,8 @@ SUNDIALS_EXPORT
 void SUNDlsMat_DenseMatvec(SUNDlsMat A, sunscalartype* x, sunscalartype* y);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseMatvec(sunscalartype** a, sunscalartype* x, sunscalartype* y,
-                           sunindextype m, sunindextype n);
+void SUNDlsMat_denseMatvec(sunscalartype** a, sunscalartype* x,
+                           sunscalartype* y, sunindextype m, sunindextype n);
 
 #ifdef __cplusplus
 }

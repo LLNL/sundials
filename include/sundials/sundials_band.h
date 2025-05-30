@@ -162,7 +162,8 @@ void SUNDlsMat_bandScale(sunscalartype c, sunscalartype** a, sunindextype n,
  * -----------------------------------------------------------------
  */
 
-void SUNDlsMat_bandAddIdentity(sunscalartype** a, sunindextype n, sunindextype smu);
+void SUNDlsMat_bandAddIdentity(sunscalartype** a, sunindextype n,
+                               sunindextype smu);
 
 /*
  * -----------------------------------------------------------------

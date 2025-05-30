@@ -51,8 +51,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "true_sol")) { return 1; }
 
   sunscalartype* ydata = N_VGetArrayPointer(y);
-  ydata[0]           = utrue;
-  ydata[1]           = vtrue;
+  ydata[0]             = utrue;
+  ydata[1]             = vtrue;
 
   N_Vector yp = N_VNew_Serial(2, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
@@ -62,8 +62,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "true_sol")) { return 1; }
 
   sunscalartype* ypdata = N_VGetArrayPointer(yp);
-  ypdata[0]           = uptrue;
-  ypdata[1]           = vptrue;
+  ypdata[0]             = uptrue;
+  ypdata[1]             = vptrue;
 
   // Create IDA memory structure
   void* ida_mem = IDACreate(sunctx);
@@ -186,8 +186,8 @@ int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector rr, void* user_data)
   const sunscalartype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
 
   sunscalartype* rdata = N_VGetArrayPointer(rr);
-  rdata[0]           = (a * tmp1 + b * tmp2 + rdot(t) / (TWO * u)) - up;
-  rdata[1]           = (c * tmp1 + d * tmp2 + sdot(t) / (TWO * v)) - vp;
+  rdata[0]             = (a * tmp1 + b * tmp2 + rdot(t) / (TWO * u)) - up;
+  rdata[1]             = (c * tmp1 + d * tmp2 + sdot(t) / (TWO * v)) - vp;
 
   return 0;
 }

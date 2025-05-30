@@ -48,7 +48,7 @@ struct _SUNNonlinearSolverContent_FixedPoint
   sunscalartype* R;       /* array of length m*m                            */
   sunscalartype* gamma;   /* array of length m                              */
   sunscalartype* cvals;   /* array of length m+1 for fused vector op        */
-  SUNQRData qr_data;     /* data structure needed to call SUNQR functions  */
+  SUNQRData qr_data;      /* data structure needed to call SUNQR functions  */
   N_Vector* df;           /* vector array of length m                       */
   N_Vector* dg;           /* vector array of length m                       */
   N_Vector* q;            /* vector array of length m                       */
