@@ -87,7 +87,7 @@ the header file for CVODES in addition to the SUNDIALS core header file:
   #include <sundials/sundials_core.h> // Provides core SUNDIALS types
   #include <cvodes/cvodes.h>          // CVODES provides linear multistep methods with sensitivity analysis
 
-The calling program must also include an :c:type`N_Vector` implementation header file, of the form
+The calling program must also include an :c:type:`N_Vector` implementation header file, of the form
 ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
 
 If using a non-default nonlinear solver module, or when interacting with a

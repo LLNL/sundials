@@ -1,8 +1,8 @@
-/* -----------------------------------------------------------------------------
- * Programmer(s): David J. Gardner @ LLNL
- * -----------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------
+ * Programmer(s): Sylvia Amihere @ SMU
+ * --------------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -10,22 +10,24 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * -----------------------------------------------------------------------------
- * This example solves the nonlinear system
+ * ---------------------------------------------------------------------------------
+ * This example solves the complex-valued nonlinear system
  *
- * 3x - cos((y-1)z) - 1/2 = 0
- * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
- * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
+ * 4x        - sin(y) - zi     - 1  = 0; 
+ * -x^2      + 5y     - cos(z) - 2i = 0;
+ * - exp(-x) -y       +6z      - 3  = 0;
  *
  * using the accelerated fixed pointer solver in KINSOL. The nonlinear fixed
  * point function is
  *
- * g1(x,y,z) = 1/3 cos((y-1)yz) + 1/6
- * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9
- * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60
+ * g1(x,y,z) = (1/4) (sin(y)  + zi     + 1)
+ * g2(x,y,z) = (1/5) (x^2     + cos(z) + 2i)
+ * g3(x,y,z) = (1/6) (exp(-x) + y      + 3)
  *
- * This system has the analytic solution x = 1/2, y = 1, z = -pi/6.
- * ---------------------------------------------------------------------------*/
+ * This system has the analytic solution: x = 0.28443101049565 + 0.27031686078054i
+ *                                        y = 0.16117132843381 + 0.42622240595676i
+ *                                        z = 0.64771494226506 + 0.03754877135588i.
+ * ---------------------------------------------------------------------------------*/
 
 #include <math.h>
 #include <stdio.h>
@@ -38,8 +40,12 @@
 /* precision specific formatting macros */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
 #else
 #define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
 #endif
 
 /* precision specific math function macros */
@@ -66,50 +72,37 @@
 /* problem constants */
 #define NEQ 3 /* number of equations */
 
-#define ZERO         SUN_RCONST(0.0)             /* real 0.0  */
-#define PTONE        SUN_RCONST(0.1)             /* real 0.1  */
-#define HALF         SUN_RCONST(0.5)             /* real 0.5  */
-#define PTNINE       SUN_RCONST(0.9)             /* real 0.9  */
-#define ONE          SUN_RCONST(1.0)             /* real 1.0  */
-#define ONEPTZEROSIX SUN_RCONST(1.06)            /* real 1.06 */
-#define THREE        SUN_RCONST(3.0)             /* real 3.0  */
-#define SIX          SUN_RCONST(6.0)             /* real 6.0  */
-#define NINE         SUN_RCONST(9.0)             /* real 9.0  */
-#define TEN          SUN_RCONST(10.0)            /* real 10.0 */
-#define TWENTY       SUN_RCONST(20.0)            /* real 20.0 */
-#define SIXTY        SUN_RCONST(60.0)            /* real 60.0 */
-#define PI           SUN_RCONST(3.1415926535898) /* real pi   */
+#define ZERO     SUN_RCONST(0.0)  /* real 0.0  */
+#define PTONE    SUN_RCONST(0.1)  /* real 0.1  */
+#define HALF     SUN_RCONST(0.5)  /* real 0.5  */
+#define PTNINE   SUN_RCONST(0.9)  /* real 0.9  */
+#define ONE      SUN_RCONST(1.0)  /* real 1.0  */
+#define TWO      SUN_RCONST(2.0)  /* real 2.0  */
+#define ONEPTONE SUN_RCONST(1.1)  /* real 1.1  */
+#define THREE    SUN_RCONST(3.0)  /* real 3.0  */
+#define FOUR     SUN_RCONST(4.0)  /* real 4.0  */
+#define FIVE     SUN_RCONST(5.0)  /* real 5.0  */
+#define TEN      SUN_RCONST(10.0) /* real 10.0 */
 
 /* analytic solution */
-#define XTRUE HALF
-#define YTRUE ONE
-#define ZTRUE -PI / SIX
+#define XTRUE SUN_CCONST(0.28443101049565, 0.27031686078054)
+#define YTRUE SUN_CCONST(0.16117132843381, 0.42622240595676)
+#define ZTRUE SUN_CCONST(0.64771494226506, 0.03754877135588)
 
 /* problem options */
 typedef struct
 {
-  sunrealtype tol;               /* solve tolerance                  */
-  long int maxiter;              /* max number of iterations         */
-  long int m_aa;                 /* number of acceleration vectors   */
-  long int delay_aa;             /* number of iterations to delay AA */
-  int orth_aa;                   /* orthogonalization method         */
-  sunrealtype damping_fp;        /* damping parameter for FP         */
-  sunrealtype damping_aa;        /* damping parameter for AA         */
-  sunbooleantype use_damping_fn; /* damping function                 */
-  sunbooleantype use_depth_fn;   /* depth function                   */
+  sunrealtype tol;        /* solve tolerance                  */
+  long int maxiter;       /* max number of iterations         */
+  long int m_aa;          /* number of acceleration vectors   */
+  long int delay_aa;      /* number of iterations to delay AA */
+  int orth_aa;            /* orthogonalization method         */
+  sunrealtype damping_fp; /* damping parameter for FP         */
+  sunrealtype damping_aa; /* damping parameter for AA         */
 }* UserOpt;
 
 /* Nonlinear fixed point function */
 static int FPFunction(N_Vector u, N_Vector f, void* user_data);
-
-static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
-                     sunrealtype* qt_fn, long int depth, void* user_data,
-                     sunrealtype* damping_factor);
-
-static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
-                   N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
-                   long int depth, void* user_data, long int* new_depth,
-                   sunbooleantype* remove_index);
 
 /* Check the system solution */
 static int check_ans(N_Vector u, sunrealtype tol);
@@ -138,7 +131,7 @@ int main(int argc, char* argv[])
   N_Vector scale = NULL; /* scaling vector      */
   FILE* infofp   = NULL; /* KINSOL log file     */
   long int nni, nfe;     /* solver outputs      */
-  sunrealtype* data;     /* vector data array   */
+  sunscalartype* data;   /* vector data array   */
   void* kmem;            /* KINSOL memory       */
 
   /* Set default options */
@@ -157,13 +150,13 @@ int main(int argc, char* argv[])
     * ------------------------- */
 
   printf("Solve the nonlinear system:\n");
-  printf("    3x - cos((y-1)z) - 1/2 = 0\n");
-  printf("    x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0\n");
-  printf("    exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0\n");
+  printf("    4x - sin(y) - zi - 1  = 0\n");
+  printf("    -x^2 + 5y - cos(z) - 2i = 0\n");
+  printf("    - exp(-x) -y +6z - 3 = 0\n");
   printf("Analytic solution:\n");
-  printf("    x = %" GSYM "\n", XTRUE);
-  printf("    y = %" GSYM "\n", YTRUE);
-  printf("    z = %" GSYM "\n", ZTRUE);
+  printf("    x = %f + %fI\n", creal(XTRUE), cimag(XTRUE));
+  printf("    y = %f + %fI\n", creal(YTRUE), cimag(YTRUE));
+  printf("    z = %f + %fI\n", creal(ZTRUE), cimag(ZTRUE));
   printf("Solution method: Anderson accelerated fixed point iteration.\n");
   printf("    tolerance    = %" GSYM "\n", uopt->tol);
   printf("    max iters    = %ld\n", uopt->maxiter);
@@ -171,10 +164,6 @@ int main(int argc, char* argv[])
   printf("    delay_aa     = %ld\n", uopt->delay_aa);
   printf("    damping_aa   = %" GSYM "\n", uopt->damping_aa);
   printf("    damping_fp   = %" GSYM "\n", uopt->damping_fp);
-  if (uopt->use_damping_fn) { printf("    damping_fn   = ON\n"); }
-  else { printf("    damping_fn   = OFF\n"); }
-  if (uopt->use_depth_fn) { printf("    depth_fn     = ON\n"); }
-  else { printf("    depth_fn     = OFF\n"); }
   printf("    orth routine = %d\n", uopt->orth_aa);
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
@@ -235,20 +224,6 @@ int main(int argc, char* argv[])
     if (check_retval(&retval, "KINSetDelayAA", 1)) { return (1); }
   }
 
-  if (uopt->use_damping_fn)
-  {
-    /* Attach user defined damping function */
-    retval = KINSetDampingFn(kmem, DampingFn);
-    if (check_retval(&retval, "KINSetDampingFn", 1)) { return (1); }
-  }
-
-  if (uopt->use_depth_fn)
-  {
-    /* Attach user defined depth function */
-    retval = KINSetDepthFn(kmem, DepthFn);
-    if (check_retval(&retval, "KINSetDepthFn", 1)) { return (1); }
-  }
-
   /* Set info log file and print level */
   infofp = fopen("kinsol.log", "w");
   if (check_retval((void*)infofp, "fopen", 0)) { return (1); }
@@ -261,9 +236,9 @@ int main(int argc, char* argv[])
   data = N_VGetArrayPointer(u);
   if (check_retval((void*)data, "N_VGetArrayPointer", 0)) { return (1); }
 
-  data[0] = PTONE;
-  data[1] = PTONE;
-  data[2] = -PTONE;
+  data[0] = SUN_CCONST(0.0, 0.0);
+  data[1] = SUN_CCONST(0.0, 0.0);
+  data[2] = SUN_CCONST(0.0, 0.0);
 
   /* ----------------------------
     * Call KINSol to solve problem
@@ -317,24 +292,24 @@ int main(int argc, char* argv[])
 }
 
 /* -----------------------------------------------------------------------------
-  * Nonlinear system
+  * Complex-valued Nonlinear system
   *
-  * 3x - cos((y-1)z) - 1/2 = 0
-  * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
-  * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
+  * 4x       - sin(y) - zi     - 1  = 0; 
+ * -x^2      + 5y     - cos(z) - 2i = 0;
+ * -exp(-x)  -y       + 6z     - 3  = 0;
   *
   * Nonlinear fixed point function
   *
-  * g1(x,y,z) = 1/3 cos((y-1)z) + 1/6
-  * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9
-  * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60
+  * g1(x,y,z) = (1/4) (sin(y)  + zi     + 1)
+  * g2(x,y,z) = (1/5) (x^2     + cos(z) + 2i)
+  * g3(x,y,z) = (1/6) (exp(-x) + y      + 3)
   *
   * ---------------------------------------------------------------------------*/
 int FPFunction(N_Vector u, N_Vector g, void* user_data)
 {
-  sunrealtype* udata = NULL;
-  sunrealtype* gdata = NULL;
-  sunrealtype x, y, z;
+  sunscalartype* udata = NULL;
+  sunscalartype* gdata = NULL;
+  sunscalartype x, y, z;
 
   /* Get vector data arrays */
   udata = N_VGetArrayPointer(u);
@@ -347,53 +322,11 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
   y = udata[1];
   z = udata[2];
 
-  gdata[0] = (ONE / THREE) * COS((y - ONE) * z) + (ONE / SIX);
-  gdata[1] = (ONE / NINE) * SQRT(x * x + SIN(z) + ONEPTZEROSIX) + PTNINE;
-  gdata[2] = -(ONE / TWENTY) * EXP(-x * (y - ONE)) - (TEN * PI - THREE) / SIXTY;
+  gdata[0] = (1.0 / 4.0) * (SIN(y) + SUN_CCONST(0.0, 1.0) * z + 1.0);
+  gdata[1] = (1.0 / 5.0) * (x * x + COS(z) + SUN_CCONST(0.0, 2.0));
+  gdata[2] = (1.0 / 6.0) * (EXP(-x) + y + 3.0);
 
   return (0);
-}
-
-static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
-                     sunrealtype* qt_fn, long int depth, void* user_data,
-                     sunrealtype* damping_factor)
-{
-  if (depth == 0) { *damping_factor = 0.5; }
-  else
-  {
-    /* Compute ||Q^T fn||^2 */
-    sunrealtype qt_fn_norm_sqr = ZERO;
-    for (long int i = 0; i < depth; i++)
-    {
-      qt_fn_norm_sqr += qt_fn[i] * qt_fn[i];
-    }
-
-    /* Compute ||fn||^2 = ||G(u_n) - u_n||^2 */
-    sunrealtype* g_data = N_VGetArrayPointer(g_val);
-    sunrealtype* u_data = N_VGetArrayPointer(u_val);
-    sunrealtype fn[3];
-    for (int i = 0; i < 3; i++) { fn[i] = g_data[i] - u_data[i]; }
-    sunrealtype fn_norm_sqr = ZERO;
-    for (int i = 0; i < 3; i++) { fn_norm_sqr += fn[i] * fn[i]; }
-
-    /* Compute the gain = sqrt(1 - ||Q^T fn||^2 / ||fn||^2) */
-    sunrealtype gain = SUNRsqrt(ONE - qt_fn_norm_sqr / fn_norm_sqr);
-
-    *damping_factor = 0.9 - 0.5 * gain;
-  }
-
-  return 0;
-}
-
-static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
-                   N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
-                   long int depth, void* user_data, long int* new_depth,
-                   sunbooleantype* remove_index)
-{
-  if (iter < 2) { *new_depth = 1; }
-  else { *new_depth = depth; };
-
-  return 0;
 }
 
 /* -----------------------------------------------------------------------------
@@ -401,8 +334,10 @@ static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
   * ---------------------------------------------------------------------------*/
 static int check_ans(N_Vector u, sunrealtype tol)
 {
-  sunrealtype* data = NULL;
-  sunrealtype ex, ey, ez;
+  sunscalartype* data = NULL;
+  // sunrealtype ex, ey, ez;
+  sunrealtype exR, eyR, ezR;
+  sunrealtype exI, eyI, ezI;
 
   /* Get vector data array */
   data = N_VGetArrayPointer(u);
@@ -410,23 +345,27 @@ static int check_ans(N_Vector u, sunrealtype tol)
 
   /* print the solution */
   printf("Computed solution:\n");
-  printf("    x = %" GSYM "\n", data[0]);
-  printf("    y = %" GSYM "\n", data[1]);
-  printf("    z = %" GSYM "\n", data[2]);
+  printf("    x = %f + %fI\n", creal(data[0]), cimag(data[0]));
+  printf("    y = %f + %fI\n", creal(data[1]), cimag(data[1]));
+  printf("    z = %f + %fI\n", creal(data[2]), cimag(data[2]));
 
   /* solution error */
-  ex = ABS(data[0] - XTRUE);
-  ey = ABS(data[1] - YTRUE);
-  ez = ABS(data[2] - ZTRUE);
+  exR = ABS(creal(data[0]) - creal(XTRUE));
+  eyR = ABS(creal(data[1]) - creal(YTRUE));
+  ezR = ABS(creal(data[2]) - creal(ZTRUE));
 
-  /* print the solution error */
+  exI = ABS(cimag(data[0]) - cimag(XTRUE));
+  eyI = ABS(cimag(data[1]) - cimag(YTRUE));
+  ezI = ABS(cimag(data[2]) - cimag(ZTRUE));
+
+  // /* print the solution error */
   printf("Solution error:\n");
-  printf("    ex = %" GSYM "\n", ex);
-  printf("    ey = %" GSYM "\n", ey);
-  printf("    ez = %" GSYM "\n", ez);
+  printf("    ex = %f + %fI\n", exR, exI);
+  printf("    ey = %f + %fI\n", eyR, eyI);
+  printf("    ez = %f + %fI\n", ezR, ezI);
 
   tol *= TEN;
-  if (ex > tol || ey > tol || ez > tol)
+  if (exR > tol && exI > tol || eyR > tol && eyI > tol || ezR > tol && ezI > tol)
   {
     printf("FAIL\n");
     return (1);
@@ -447,15 +386,13 @@ static int SetDefaults(UserOpt* uopt)
   if (*uopt == NULL) { return (-1); }
 
   /* Set default options values */
-  (*uopt)->tol            = 100 * SQRT(SUN_UNIT_ROUNDOFF);
-  (*uopt)->maxiter        = 30;
-  (*uopt)->m_aa           = 0;               /* no acceleration */
-  (*uopt)->delay_aa       = 0;               /* no delay        */
-  (*uopt)->orth_aa        = 0;               /* MGS             */
-  (*uopt)->damping_fp     = SUN_RCONST(1.0); /* no FP dampig    */
-  (*uopt)->damping_aa     = SUN_RCONST(1.0); /* no AA damping   */
-  (*uopt)->use_damping_fn = SUNFALSE;        /* no damping fn   */
-  (*uopt)->use_depth_fn   = SUNFALSE;        /* no depth fn     */
+  (*uopt)->tol        = 100 * SQRT(SUN_UNIT_ROUNDOFF);
+  (*uopt)->maxiter    = 30;
+  (*uopt)->m_aa       = 0;               /* no acceleration */
+  (*uopt)->delay_aa   = 0;               /* no delay        */
+  (*uopt)->orth_aa    = 0;               /* MGS             */
+  (*uopt)->damping_fp = SUN_RCONST(1.0); /* no FP dampig    */
+  (*uopt)->damping_aa = SUN_RCONST(1.0); /* no AA damping   */
 
   return (0);
 }
@@ -499,16 +436,6 @@ static int ReadInputs(int* argc, char*** argv, UserOpt uopt)
       arg_index++;
       uopt->damping_aa = atof((*argv)[arg_index++]);
     }
-    else if (strcmp((*argv)[arg_index], "--damping_fn") == 0)
-    {
-      arg_index++;
-      uopt->use_damping_fn = SUNTRUE;
-    }
-    else if (strcmp((*argv)[arg_index], "--depth_fn") == 0)
-    {
-      arg_index++;
-      uopt->use_depth_fn = SUNTRUE;
-    }
     else if (strcmp((*argv)[arg_index], "--orth_aa") == 0)
     {
       arg_index++;
@@ -544,8 +471,6 @@ static void InputHelp(void)
   printf("   --damping_fp : fixed point damping parameter\n");
   printf("   --damping_aa : Anderson acceleration damping parameter\n");
   printf("   --orth_aa    : Anderson acceleration orthogonalization method\n");
-  printf("   --damping_fn : user defined damping function\n");
-  printf("   --depth_fn   : user defined depth function\n");
 
   return;
 }

@@ -52,7 +52,7 @@ inline int true_solution(sunrealtype t, N_Vector y_vec)
 {
   if (y_vec == nullptr) { return -1; }
 
-  sunrealtype* y_data = N_VGetArrayPointer(y_vec);
+  sunscalartype* y_data = N_VGetArrayPointer(y_vec);
   if (y_data == nullptr) { return -1; }
 
   const sunrealtype phi_t   = phi(t);
@@ -80,8 +80,8 @@ inline int ode_rhs(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_dat
   const sunrealtype phi_prime_t = phi_prime(t);
   const sunindextype length     = N_VGetLength(y_vec);
 
-  sunrealtype* y_data = N_VGetArrayPointer(y_vec);
-  sunrealtype* f_data = N_VGetArrayPointer(f_vec);
+  sunscalartype* y_data = N_VGetArrayPointer(y_vec);
+  sunscalartype* f_data = N_VGetArrayPointer(f_vec);
   if (y_data == nullptr || f_data == nullptr) { return -1; }
 
   for (sunindextype i = 0; i < length; i++)
@@ -105,7 +105,7 @@ inline int ode_rhs_jac(sunrealtype t, N_Vector y_vec, N_Vector fy_vec,
   const sunrealtype lambda  = *static_cast<sunrealtype*>(user_data);
   const sunindextype length = N_VGetLength(y_vec);
 
-  sunrealtype* J_data = SUNBandMatrix_Data(J_mat);
+  sunscalartype* J_data = SUNBandMatrix_Data(J_mat);
   if (J_data == nullptr) { return -1; }
 
   for (sunindextype i = 0; i < length; i++) { J_data[i] = lambda; }

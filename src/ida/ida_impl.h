@@ -539,19 +539,19 @@ int idaNlsInit(IDAMem IDA_mem);
   ". tout too far back in direction of integration."
 
 #define MSG_ERR_FAILS \
-  "At " MSG_TIME_H "the error test failed repeatedly or with |h| = hmin."
+  "At " MSG_TIME_H ", the error test failed repeatedly or with |h| = hmin."
 #define MSG_CONV_FAILS \
   "At " MSG_TIME_H     \
-  "the corrector convergence failed repeatedly or with |h| = hmin."
+  ", the corrector convergence failed repeatedly or with |h| = hmin."
 #define MSG_SETUP_FAILED \
-  "At " MSG_TIME "the linear solver setup failed unrecoverably."
+  "At " MSG_TIME ", the linear solver setup failed unrecoverably."
 #define MSG_SOLVE_FAILED \
-  "At " MSG_TIME "the linear solver solve failed unrecoverably."
-#define MSG_REP_RES_ERR "At " MSG_TIME "repeated recoverable residual errors."
+  "At " MSG_TIME ", the linear solver solve failed unrecoverably."
+#define MSG_REP_RES_ERR "At " MSG_TIME " repeated recoverable residual errors."
 #define MSG_RES_NONRECOV \
-  "At " MSG_TIME "the residual function failed unrecoverably."
+  "At " MSG_TIME ", the residual function failed unrecoverably."
 #define MSG_FAILED_CONSTR \
-  "At " MSG_TIME "unable to satisfy inequality constraints."
+  "At " MSG_TIME ", unable to satisfy inequality constraints."
 #define MSG_RTFUNC_FAILED                                                \
   "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable " \
   "manner."

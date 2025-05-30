@@ -70,9 +70,9 @@ static int resize_history(sunrealtype* t_hist, N_Vector* y_hist, N_Vector* f_his
 
   for (int i = 0; i < hist_size; i++)
   {
-    N_Vector new_vec      = N_VNew_Serial(new_size, sunctx);
-    sunrealtype* old_data = N_VGetArrayPointer(y_hist[i]);
-    sunrealtype* new_data = N_VGetArrayPointer(new_vec);
+    N_Vector new_vec        = N_VNew_Serial(new_size, sunctx);
+    sunscalartype* old_data = N_VGetArrayPointer(y_hist[i]);
+    sunscalartype* new_data = N_VGetArrayPointer(new_vec);
     for (int j = 0; j < new_size; j++) { new_data[j] = old_data[0]; }
     N_VDestroy(y_hist[i]);
     y_hist[i] = new_vec;
@@ -95,7 +95,7 @@ static int PrintNordsieckArray(void* cvode_mem, bool print_all)
   CVodeMem cv_mem = (CVodeMem)cvode_mem;
 
   const sunindextype N = N_VGetLength(cv_mem->cv_zn[0]);
-  sunrealtype* vdata   = nullptr;
+  sunscalartype* vdata = nullptr;
 
   cout << setw(4) << "idx" << setw(25) << "zn" << endl;
 
