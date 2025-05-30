@@ -971,8 +971,8 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 
     if (kin_mem->kin_cv == NULL)
     {
-      kin_mem->kin_cv =
-        (sunscalartype*)malloc(2 * (kin_mem->kin_m_aa + 1) * sizeof(*kin_mem->kin_cv));
+      kin_mem->kin_cv = (sunscalartype*)malloc(2 * (kin_mem->kin_m_aa + 1) *
+                                               sizeof(*kin_mem->kin_cv));
       if (kin_mem->kin_cv == NULL)
       {
         KINProcessError(kin_mem, 0, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
@@ -3157,8 +3157,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   {
     /* second iteration */
     sunscalartype dot = ZERO;
-    SUNCheckCall(N_VDotProdComplex(kin_mem->kin_df_aa[0], kin_mem->kin_dg_aa[0],
-                                   &dot));
+    SUNCheckCall(
+      N_VDotProdComplex(kin_mem->kin_df_aa[0], kin_mem->kin_dg_aa[0], &dot));
     R[0] = SUNRsqrt(SUN_REAL(dot));
     alfa = ONE / R[0];
     N_VScale(alfa, kin_mem->kin_df_aa[0], kin_mem->kin_q_aa[0]);

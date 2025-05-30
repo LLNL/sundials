@@ -226,7 +226,8 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   }
   ark_mem->lrw += step_mem->nfusedopvecs;
   step_mem->Xvecs = NULL;
-  step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs, sizeof(*step_mem->Xvecs));
+  step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
+                                      sizeof(*step_mem->Xvecs));
   if (step_mem->Xvecs == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -4939,7 +4940,8 @@ int mriStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
         step_mem->nfusedopvecs = 2 * step_mem->MRIC->stages + 2 + nvecs;
 
         step_mem->cvals = NULL;
-        step_mem->cvals = calloc(step_mem->nfusedopvecs, sizeof(*step_mem->cvals));
+        step_mem->cvals = calloc(step_mem->nfusedopvecs,
+                                 sizeof(*step_mem->cvals));
         if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
         ark_mem->lrw += step_mem->nfusedopvecs;
 

@@ -47,7 +47,8 @@ __forceinline__ __device__ float shfl_xor_sync<float>(float var, int laneMask)
 }
 
 template<>
-__forceinline__ __device__ suncomplexfloat shfl_xor_sync(suncomplexfloat val, int laneMask)
+__forceinline__ __device__ suncomplexfloat shfl_xor_sync(suncomplexfloat val,
+                                                         int laneMask)
 {
   float real_part = ::__shfl_sync(0xFFFFFFFF, val.real(), laneMask);
   float imag_part = ::__shfl_sync(0xFFFFFFFF, val.imag(), laneMask);
@@ -61,7 +62,8 @@ __forceinline__ __device__ double shfl_xor_sync<double>(double var, int laneMask
 }
 
 template<>
-__forceinline__ __device__ suncomplexdouble shfl_xor_sync(suncomplexdouble val, int laneMask)
+__forceinline__ __device__ suncomplexdouble shfl_xor_sync(suncomplexdouble val,
+                                                          int laneMask)
 {
   double real_part = ::__shfl_sync(0xFFFFFFFF, val.real(), laneMask);
   double imag_part = ::__shfl_sync(0xFFFFFFFF, val.imag(), laneMask);
@@ -75,7 +77,8 @@ __forceinline__ __device__ float shfl_sync<float>(float var, int srcLane)
 }
 
 template<>
-__forceinline__ __device__ suncomplexfloat shfl_sync(suncomplexfloat val, int srcLane)
+__forceinline__ __device__ suncomplexfloat shfl_sync(suncomplexfloat val,
+                                                     int srcLane)
 {
   float real_part = ::__shfl_sync(0xFFFFFFFF, val.real(), srcLane);
   float imag_part = ::__shfl_sync(0xFFFFFFFF, val.imag(), srcLane);
@@ -89,7 +92,8 @@ __forceinline__ __device__ double shfl_sync<double>(double var, int srcLane)
 }
 
 template<>
-__forceinline__ __device__ suncomplexdouble shfl_sync(suncomplexdouble val, int srcLane)
+__forceinline__ __device__ suncomplexdouble shfl_sync(suncomplexdouble val,
+                                                      int srcLane)
 {
   double real_part = ::__shfl_sync(0xFFFFFFFF, val.real(), srcLane);
   double imag_part = ::__shfl_sync(0xFFFFFFFF, val.imag(), srcLane);
@@ -103,7 +107,8 @@ __forceinline__ __device__ float shfl_down_sync(float val, int srcLane)
 }
 
 template<>
-__forceinline__ __device__ suncomplexfloat shfl_down_sync(suncomplexfloat val, int srcLane)
+__forceinline__ __device__ suncomplexfloat shfl_down_sync(suncomplexfloat val,
+                                                          int srcLane)
 {
   float real_part = ::__shfl_down_sync(0xFFFFFFFF, val.real(), srcLane);
   float imag_part = ::__shfl_down_sync(0xFFFFFFFF, val.imag(), srcLane);
@@ -117,13 +122,13 @@ __forceinline__ __device__ double shfl_down_sync(double val, int srcLane)
 }
 
 template<>
-__forceinline__ __device__ suncomplexdouble shfl_down_sync(suncomplexdouble val, int srcLane)
+__forceinline__ __device__ suncomplexdouble shfl_down_sync(suncomplexdouble val,
+                                                           int srcLane)
 {
   double real_part = ::__shfl_down_sync(0xFFFFFFFF, val.real(), srcLane);
   double imag_part = ::__shfl_down_sync(0xFFFFFFFF, val.imag(), srcLane);
   return suncomplexdouble{real_part, imag_part};
 }
-
 
 /* The atomic functions below are implemented using the atomic compare and swap
    function atomicCAS which performs an atomic version of
@@ -151,10 +156,13 @@ __forceinline__ __device__ double atomicAdd(double* address, double val)
 #endif
 }
 
-__forceinline__ __device__ suncomplexdouble atomicAdd(suncomplexdouble* address, suncomplexdouble val)
+__forceinline__ __device__ suncomplexdouble atomicAdd(suncomplexdouble* address,
+                                                      suncomplexdouble val)
 {
-  double real_result = atomicAdd(&reinterpret_cast<double(&)[2]>(*address)[0], reinterpret_cast<double(&)[2]>(val)[0]);
-  double imag_result = atomicAdd(&reinterpret_cast<double(&)[2]>(*address)[1], reinterpret_cast<double(&)[2]>(val)[1]);
+  double real_result = atomicAdd(&reinterpret_cast<double(&)[2]>(*address)[0],
+                                 reinterpret_cast<double(&)[2]>(val)[0]);
+  double imag_result = atomicAdd(&reinterpret_cast<double(&)[2]>(*address)[1],
+                                 reinterpret_cast<double(&)[2]>(val)[1]);
   return suncomplexdouble{real_result, imag_result};
 }
 
@@ -178,10 +186,13 @@ __forceinline__ __device__ float atomicAdd(float* address, float val)
 #endif
 }
 
-__forceinline__ __device__ suncomplexfloat atomicAdd(suncomplexfloat* address, suncomplexfloat val)
+__forceinline__ __device__ suncomplexfloat atomicAdd(suncomplexfloat* address,
+                                                     suncomplexfloat val)
 {
-  float real_result = atomicAdd(&reinterpret_cast<float(&)[2]>(*address)[0], reinterpret_cast<float(&)[2]>(val)[0]);
-  float imag_result = atomicAdd(&reinterpret_cast<float(&)[2]>(*address)[1], reinterpret_cast<float(&)[2]>(val)[1]);
+  float real_result = atomicAdd(&reinterpret_cast<float(&)[2]>(*address)[0],
+                                reinterpret_cast<float(&)[2]>(val)[0]);
+  float imag_result = atomicAdd(&reinterpret_cast<float(&)[2]>(*address)[1],
+                                reinterpret_cast<float(&)[2]>(val)[1]);
   return suncomplexfloat{real_result, imag_result};
 }
 
@@ -206,10 +217,13 @@ __forceinline__ __device__ void atomicMax(double* const address,
   while (assumed != old);
 }
 
-__forceinline__ __device__ void atomicMax(suncomplexdouble* address, suncomplexdouble val)
+__forceinline__ __device__ void atomicMax(suncomplexdouble* address,
+                                          suncomplexdouble val)
 {
-  atomicMax(&reinterpret_cast<double(&)[2]>(*address)[0], reinterpret_cast<double(&)[2]>(val)[0]);
-  atomicMax(&reinterpret_cast<double(&)[2]>(*address)[1], reinterpret_cast<double(&)[2]>(val)[1]);
+  atomicMax(&reinterpret_cast<double(&)[2]>(*address)[0],
+            reinterpret_cast<double(&)[2]>(val)[0]);
+  atomicMax(&reinterpret_cast<double(&)[2]>(*address)[1],
+            reinterpret_cast<double(&)[2]>(val)[1]);
 }
 
 /*
@@ -232,10 +246,13 @@ __forceinline__ __device__ void atomicMax(float* const address, const float valu
   while (assumed != old);
 }
 
-__forceinline__ __device__ void atomicMax(suncomplexfloat* address, suncomplexfloat val)
+__forceinline__ __device__ void atomicMax(suncomplexfloat* address,
+                                          suncomplexfloat val)
 {
-  atomicMax(&reinterpret_cast<float(&)[2]>(*address)[0], reinterpret_cast<float(&)[2]>(val)[0]);
-  atomicMax(&reinterpret_cast<float(&)[2]>(*address)[1], reinterpret_cast<float(&)[2]>(val)[1]);
+  atomicMax(&reinterpret_cast<float(&)[2]>(*address)[0],
+            reinterpret_cast<float(&)[2]>(val)[0]);
+  atomicMax(&reinterpret_cast<float(&)[2]>(*address)[1],
+            reinterpret_cast<float(&)[2]>(val)[1]);
 }
 
 /*
@@ -259,10 +276,13 @@ __forceinline__ __device__ void atomicMin(double* const address,
   while (assumed != old);
 }
 
-__forceinline__ __device__ void atomicMin(suncomplexdouble* address, suncomplexdouble val)
+__forceinline__ __device__ void atomicMin(suncomplexdouble* address,
+                                          suncomplexdouble val)
 {
-  atomicMin(&reinterpret_cast<double(&)[2]>(*address)[0], reinterpret_cast<double(&)[2]>(val)[0]);
-  atomicMin(&reinterpret_cast<double(&)[2]>(*address)[1], reinterpret_cast<double(&)[2]>(val)[1]);
+  atomicMin(&reinterpret_cast<double(&)[2]>(*address)[0],
+            reinterpret_cast<double(&)[2]>(val)[0]);
+  atomicMin(&reinterpret_cast<double(&)[2]>(*address)[1],
+            reinterpret_cast<double(&)[2]>(val)[1]);
 }
 
 /*
@@ -285,10 +305,13 @@ __forceinline__ __device__ void atomicMin(float* const address, const float valu
   while (assumed != old);
 }
 
-__forceinline__ __device__ void atomicMin(suncomplexfloat* address, suncomplexfloat val)
+__forceinline__ __device__ void atomicMin(suncomplexfloat* address,
+                                          suncomplexfloat val)
 {
-  atomicMin(&reinterpret_cast<float(&)[2]>(*address)[0], reinterpret_cast<float(&)[2]>(val)[0]);
-  atomicMin(&reinterpret_cast<float(&)[2]>(*address)[1], reinterpret_cast<float(&)[2]>(val)[1]);
+  atomicMin(&reinterpret_cast<float(&)[2]>(*address)[0],
+            reinterpret_cast<float(&)[2]>(val)[0]);
+  atomicMin(&reinterpret_cast<float(&)[2]>(*address)[1],
+            reinterpret_cast<float(&)[2]>(val)[1]);
 }
 
 //
@@ -498,7 +521,8 @@ __device__ __forceinline__ void gridReduce(T val, T identity, Tout* device_mem,
 }
 
 template<typename T, typename BinaryReductionOp, typename Tout = T>
-__device__ __forceinline__ void gridReduceAtomic(T val, T identity, Tout* device_mem)
+__device__ __forceinline__ void gridReduceAtomic(T val, T identity,
+                                                 Tout* device_mem)
 {
   int threadId = threadIdx.x + blockDim.x * threadIdx.y +
                  (blockDim.x * blockDim.y) * threadIdx.z;
@@ -524,7 +548,8 @@ struct GridReducerAtomic
   __device__ __forceinline__ void operator()(T val, T identity, Tout* device_mem,
                                              unsigned int* device_count)
   {
-    return gridReduceAtomic<T, BinaryReductionOp, Tout>(val, identity, device_mem);
+    return gridReduceAtomic<T, BinaryReductionOp, Tout>(val, identity,
+                                                        device_mem);
   }
 };
 

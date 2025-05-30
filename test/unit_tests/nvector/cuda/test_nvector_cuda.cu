@@ -169,9 +169,11 @@ int main(int argc, char* argv[])
       sunscalartype* xdata = N_VGetHostArrayPointer_Cuda(X);
       for (sunindextype j = 0; j < length; j++)
       {
-        sunrealtype rand_real = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
-        sunrealtype rand_imag = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
-        xdata[j] = rand_real;// + rand_imag * SUN_I;
+        sunrealtype rand_real =
+          ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        sunrealtype rand_imag =
+          ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        xdata[j] = rand_real; // + rand_imag * SUN_I;
       }
       N_VCopyToDevice_Cuda(X);
 

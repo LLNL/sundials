@@ -56,8 +56,7 @@ __global__ void cvEwtSetSS_kernel(const sunindextype length,
                                   const sunrealtype reltol,
                                   const sunrealtype Sabstol,
                                   const sunscalartype* ycur,
-                                  sunscalartype* tempv,
-                                  sunscalartype* weight)
+                                  sunscalartype* tempv, sunscalartype* weight)
 {
   const sunrealtype one = 1.0;
   GRID_STRIDE_XLOOP(sunindextype, i, length)
@@ -107,8 +106,7 @@ __global__ void cvEwtSetSV_kernel(const sunindextype length,
                                   const sunrealtype reltol,
                                   const sunscalartype* Vabstol,
                                   const sunscalartype* ycur,
-                                  sunscalartype* tempv,
-                                  sunscalartype* weight)
+                                  sunscalartype* tempv, sunscalartype* weight)
 {
   const sunrealtype one = 1.0;
   GRID_STRIDE_XLOOP(sunindextype, i, length)
@@ -157,9 +155,8 @@ extern "C" int cvEwtSetSV_fused(const sunbooleantype atolMin0,
  */
 
 __global__ void cvCheckConstraints_kernel(
-  const sunindextype length, const sunscalartype* c,
-  const sunscalartype* ewt, const sunscalartype* y,
-  const sunscalartype* mm, sunscalartype* tempv)
+  const sunindextype length, const sunscalartype* c, const sunscalartype* ewt,
+  const sunscalartype* y, const sunscalartype* mm, sunscalartype* tempv)
 {
   static const sunrealtype zero   = 0.0;
   static const sunrealtype pt1    = 0.1;

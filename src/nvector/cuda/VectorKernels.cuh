@@ -122,7 +122,10 @@ __global__ void addConstKernel(T a, const T* X, T* Z, I n)
 template<typename T, typename I>
 __global__ void compareKernel(T c, const T* X, T* Z, I n)
 {
-  GRID_STRIDE_XLOOP(I, i, n) { Z[i] = (SUNabs(X[i]) >= SUN_REAL(c)) ? 1.0 : 0.0; }
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    Z[i] = (SUNabs(X[i]) >= SUN_REAL(c)) ? 1.0 : 0.0;
+  }
 }
 
 /*
@@ -133,7 +136,7 @@ template<typename T, typename I, template<typename, typename, typename> class Gr
 __global__ void dotProdKernel(const T* x, const T* y, T* out, I n,
                               unsigned int* device_count)
 {
-  using op   = sundials::reductions::impl::plus<T>;
+  using op      = sundials::reductions::impl::plus<T>;
   const auto Id = op::identity();
 
   auto sum = Id;
@@ -146,9 +149,10 @@ __global__ void dotProdKernel(const T* x, const T* y, T* out, I n,
  *
  */
 template<typename T, typename I, template<typename, typename, typename> class GridReducer>
-__global__ void maxNormKernel(const T* x, sunrealtype* out, I n, unsigned int* device_count)
+__global__ void maxNormKernel(const T* x, sunrealtype* out, I n,
+                              unsigned int* device_count)
 {
-  using op   = sundials::reductions::impl::maximum<sunrealtype>;
+  using op      = sundials::reductions::impl::maximum<sunrealtype>;
   const auto Id = op::identity();
 
   auto maximum = Id;
@@ -164,11 +168,14 @@ template<typename T, typename I, template<typename, typename, typename> class Gr
 __global__ void wL2NormSquareKernel(const T* x, const T* w, T* out, I n,
                                     unsigned int* device_count)
 {
-  using op   = sundials::reductions::impl::plus<T>;
+  using op      = sundials::reductions::impl::plus<T>;
   const auto Id = op::identity();
 
   auto sum = Id;
-  GRID_STRIDE_XLOOP(I, i, n) { sum += SUNabs(x[i] * w[i]) * SUNabs(x[i] * w[i]); }
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    sum += SUNabs(x[i] * w[i]) * SUNabs(x[i] * w[i]);
+  }
   GridReducer<T, op, T>{}(sum, Id, out, device_count);
 }
 
@@ -180,7 +187,7 @@ template<typename T, typename I, template<typename, typename, typename> class Gr
 __global__ void wL2NormSquareMaskKernel(const T* x, const T* w, const T* id,
                                         T* out, I n, unsigned int* device_count)
 {
-  using op   = sundials::reductions::impl::plus<T>;
+  using op      = sundials::reductions::impl::plus<T>;
   const auto Id = op::identity();
 
   auto sum = Id;
@@ -199,7 +206,7 @@ template<typename T, typename I, template<typename, typename, typename> class Gr
 __global__ void findMinKernel(T MAX_VAL, const T* x, sunrealtype* out, I n,
                               unsigned int* device_count)
 {
-  using op   = sundials::reductions::impl::minimum<sunrealtype>;
+  using op      = sundials::reductions::impl::minimum<sunrealtype>;
   const auto Id = op::identity();
 
   auto minimum = Id;
@@ -214,7 +221,7 @@ __global__ void findMinKernel(T MAX_VAL, const T* x, sunrealtype* out, I n,
 template<typename T, typename I, template<typename, typename, typename> class GridReducer>
 __global__ void L1NormKernel(const T* x, T* out, I n, unsigned int* device_count)
 {
-  using op   = sundials::reductions::impl::plus<T>;
+  using op      = sundials::reductions::impl::plus<T>;
   const auto Id = op::identity();
 
   auto sum = Id;
@@ -231,7 +238,7 @@ template<typename T, typename I, template<typename, typename, typename> class Gr
 __global__ void invTestKernel(const T* x, T* z, T* out, I n,
                               unsigned int* device_count)
 {
-  using op   = sundials::reductions::impl::plus<T>;
+  using op      = sundials::reductions::impl::plus<T>;
   const auto Id = op::identity();
 
   auto flag = Id;
@@ -254,15 +261,16 @@ template<typename T, typename I, template<typename, typename, typename> class Gr
 __global__ void constrMaskKernel(const T* c, const T* x, T* m, T* out, I n,
                                  unsigned int* device_count)
 {
-  using op   = sundials::reductions::impl::plus<T>;
+  using op      = sundials::reductions::impl::plus<T>;
   const auto Id = op::identity();
 
   auto sum = Id;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     // test = true if constraints violated
-    bool test = (std::abs(SUN_REAL(c[i])) > 1.5 && SUN_REAL(c[i]) * SUN_REAL(x[i]) <= 0.0) ||
-                (std::abs(SUN_REAL(c[i])) > 0.5 && SUN_REAL(c[i]) * SUN_REAL(x[i]) < 0.0);
+    bool test =
+      (std::abs(SUN_REAL(c[i])) > 1.5 && SUN_REAL(c[i]) * SUN_REAL(x[i]) <= 0.0) ||
+      (std::abs(SUN_REAL(c[i])) > 0.5 && SUN_REAL(c[i]) * SUN_REAL(x[i]) < 0.0);
     m[i] = test ? 1.0 : 0.0;
     sum  = m[i];
   }
@@ -278,17 +286,18 @@ __global__ void minQuotientKernel(const T MAX_VAL, const T* num, const T* den,
                                   sunrealtype* min_quotient, I n,
                                   unsigned int* device_count)
 {
-  using op   = sundials::reductions::impl::minimum<sunrealtype>;
+  using op      = sundials::reductions::impl::minimum<sunrealtype>;
   const auto Id = op::identity();
 
-  auto minimum  = Id;
-  T quotient = 0.0;
+  auto minimum = Id;
+  T quotient   = 0.0;
   GRID_STRIDE_XLOOP(I, i, n)
   {
     quotient = (SUN_REAL(den[i]) == static_cast<T>(0.0)) ? Id : num[i] / den[i];
     minimum  = min(SUN_REAL(quotient), minimum);
   }
-  GridReducer<sunrealtype, op, sunrealtype>{}(minimum, Id, min_quotient, device_count);
+  GridReducer<sunrealtype, op, sunrealtype>{}(minimum, Id, min_quotient,
+                                              device_count);
 }
 
 } // namespace impl

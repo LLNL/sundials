@@ -2144,7 +2144,8 @@ int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM,
   if (failure)
   {
     printf(">>> FAILED test -- N_VMinQuotient Case 1, Proc %d \n", myid);
-    printf("    min = %" FSYM ", expected %" FSYM "\n", SUN_REAL(ans), HALF * HALF);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", SUN_REAL(ans),
+           HALF * HALF);
     fails++;
   }
   else if (myid == 0) { printf("PASSED test -- N_VMinQuotient Case 1 \n"); }
@@ -2175,7 +2176,8 @@ int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM,
   if (failure)
   {
     printf(">>> FAILED test -- N_VMinQuotient Case 2, Proc %d \n", myid);
-    printf("    min = %" FSYM ", expected %" FSYM "\n", SUN_REAL(ans), SUN_BIG_REAL);
+    printf("    min = %" FSYM ", expected %" FSYM "\n", SUN_REAL(ans),
+           SUN_BIG_REAL);
     fails++;
   }
   else if (myid == 0) { printf("PASSED test -- N_VMinQuotient Case 2 \n"); }
@@ -5054,7 +5056,8 @@ int Test_N_VDotProdLocal_Z(N_Vector X, N_Vector Y, sunindextype local_length,
   if (failure)
   {
     printf(">>> FAILED test -- N_VDotProdLocal, Proc %d\n", myid);
-    printf("ans = %" FSYM " expected = %" FSYM "+ " FSYM "i\n", SUN_REAL(ans), SUN_IMAG(ans), rmyid);
+    printf("ans = %" FSYM " expected = %" FSYM "+ " FSYM "i\n", SUN_REAL(ans),
+           SUN_IMAG(ans), rmyid);
     fails++;
   }
   else if (myid == 0) { printf("PASSED test -- N_VDotProdLocal\n"); }

@@ -585,8 +585,8 @@ int IDASetConstraints(void* ida_mem, N_Vector constraints)
 
   /* Guard against use with complex-valued sunscalartype */
 #ifdef SUNDIALS_SCALAR_TYPE_COMPLEX
-  IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
-                  "constraints are incompatible with complex-valued sunscalartype");
+  IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__,
+                  __FILE__, "constraints are incompatible with complex-valued sunscalartype");
   return (IDA_ILL_INPUT);
 #endif
 

@@ -65,9 +65,9 @@ template<typename T, typename I, template<typename, typename, typename> class Gr
 __global__ void dotProdMultiKernel(int nv, const T* xd, T** yd, T* out, I n)
 {
   // REQUIRES nv blocks (i.e. gridDim.x == nv)
-  using op       = sundials::reductions::impl::plus<T>;
+  using op   = sundials::reductions::impl::plus<T>;
   const T Id = op::identity();
-  const I k      = blockIdx.x;
+  const I k  = blockIdx.x;
 
   // Initialize to zero.
   T sum = Id;
@@ -129,9 +129,9 @@ template<typename T, typename I, template<typename, typename, typename> class Gr
 __global__ void wL2NormSquareVectorArrayKernel(int nv, T** xd, T** wd, T* out, I n)
 {
   // REQUIRES nv blocks (i.e. gridDim.x == nv)
-  using op       = sundials::reductions::impl::plus<T>;
+  using op   = sundials::reductions::impl::plus<T>;
   const T Id = op::identity();
-  const I k      = blockIdx.x;
+  const I k  = blockIdx.x;
 
   // Initialize to zero.
   T sum = 0.0;
@@ -151,9 +151,9 @@ __global__ void wL2NormSquareMaskVectorArrayKernel(int nv, T** xd, T** wd,
                                                    T* id, T* out, I n)
 {
   // REQUIRES nv blocks (i.e. gridDim.x == nv)
-  using op       = sundials::reductions::impl::plus<T>;
+  using op   = sundials::reductions::impl::plus<T>;
   const T Id = op::identity();
-  const I k      = blockIdx.x;
+  const I k  = blockIdx.x;
 
   // Initialize to zero.
   T sum = 0.0;

@@ -418,7 +418,8 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   /* local variables */
   int nvec, i_pt, i, j, lAA, maa, *ipt_map;
   sunrealtype a, b, rtemp, c, s, beta, onembeta, *R;
-  sunscalartype *cvals, *gamma; // TODO(CJB): unclear if these should actually be sunscalartype
+  sunscalartype *cvals,
+    *gamma; // TODO(CJB): unclear if these should actually be sunscalartype
   N_Vector fv, vtemp, gold, fold, *df, *dg, *Q, *Xvecs;
   sunbooleantype damping;
 

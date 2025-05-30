@@ -46,8 +46,8 @@ struct _SUNNonlinearSolverContent_FixedPoint
   sunbooleantype damping; /* flag to apply dampling in acceleration         */
   sunrealtype beta;       /* damping parameter                               */
   sunrealtype* R;         /* array of length m*m                            */
-  sunscalartype* gamma;     /* array of length m                              */
-  sunscalartype* cvals;     /* array of length m+1 for fused vector op        */
+  sunscalartype* gamma;   /* array of length m                              */
+  sunscalartype* cvals;   /* array of length m+1 for fused vector op        */
   N_Vector* df;           /* vector array of length m                       */
   N_Vector* dg;           /* vector array of length m                       */
   N_Vector* q;            /* vector array of length m                       */

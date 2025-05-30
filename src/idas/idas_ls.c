@@ -1044,7 +1044,8 @@ int idaLsDenseDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
     adjustments using yp_j and ewt_j if this is small, and a further
     adjustment to give it the same sign as hh*yp_j. */
 
-    inc = SUNMAX(srur * SUNMAX(SUNabs(yj), SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj))),
+    inc = SUNMAX(srur *
+                   SUNMAX(SUNabs(yj), SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj))),
                  ONE / SUN_REAL(ewt_data[j]));
 
     if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
@@ -1163,7 +1164,8 @@ int idaLsBandDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
       /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
         adjustments using ypj and ewtj if this is small, and a further
         adjustment to give it the same sign as hh*ypj. */
-      inc = SUNMAX(srur * SUNMAX(SUNabs(yj), SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj))),
+      inc = SUNMAX(srur * SUNMAX(SUNabs(yj),
+                                 SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj))),
                    ONE / ewtj);
       if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
       inc = (SUN_REAL(yj) + inc) - SUN_REAL(yj);
@@ -1202,7 +1204,8 @@ int idaLsBandDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
       ewtj                 = SUN_REAL(ewt_data[j]);
 
       /* Set increment inc exactly as above. */
-      inc = SUNMAX(srur * SUNMAX(SUNabs(yj), SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj))),
+      inc = SUNMAX(srur * SUNMAX(SUNabs(yj),
+                                 SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj))),
                    ONE / ewtj);
       if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
       inc = (SUN_REAL(yj) + inc) - SUN_REAL(yj);

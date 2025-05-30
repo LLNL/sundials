@@ -21,9 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sundials/sundials_math.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_errors.h>
+#include <sundials/sundials_math.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
 #include "sundials_macros.h"

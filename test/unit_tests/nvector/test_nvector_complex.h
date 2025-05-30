@@ -60,7 +60,7 @@ int Test_N_VMake_Z(N_Vector X, sunindextype local_length, int myid);
 
 /* Vector clone tests */
 int Test_N_VCloneVectorArray_Z(int count, N_Vector W, sunindextype local_length,
-                             int myid);
+                               int myid);
 int Test_N_VCloneEmptyVectorArray_Z(int count, N_Vector W, int myid);
 int Test_N_VCloneEmpty_Z(N_Vector W, int myid);
 int Test_N_VClone_Z(N_Vector W, sunindextype local_length, int myid);
@@ -74,30 +74,36 @@ int Test_N_VGetCommunicatorMPI_Z(N_Vector W, SUNComm comm, int myid);
 
 /* Standard vector operation tests */
 int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
-                      sunindextype local_length, int myid);
+                        sunindextype local_length, int myid);
 int Test_N_VConst_Z(N_Vector X, sunindextype local_length, int myid);
-int Test_N_VProd_Z(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length,
-                 int myid);
+int Test_N_VProd_Z(N_Vector X, N_Vector Y, N_Vector Z,
+                   sunindextype local_length, int myid);
 int Test_N_VDiv_Z(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length,
-                int myid);
+                  int myid);
 int Test_N_VScale_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
 int Test_N_VAbs_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
 int Test_N_VInv_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
-int Test_N_VAddConst_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
-int Test_N_VDotProd_Z(N_Vector X, N_Vector Y, sunindextype local_length, int myid);
+int Test_N_VAddConst_Z(N_Vector X, N_Vector Z, sunindextype local_length,
+                       int myid);
+int Test_N_VDotProd_Z(N_Vector X, N_Vector Y, sunindextype local_length,
+                      int myid);
 int Test_N_VMaxNorm_Z(N_Vector X, sunindextype local_length, int myid);
-int Test_N_VWrmsNorm_Z(N_Vector X, N_Vector W, sunindextype local_length, int myid);
+int Test_N_VWrmsNorm_Z(N_Vector X, N_Vector W, sunindextype local_length,
+                       int myid);
 int Test_N_VWrmsNormMask_Z(N_Vector X, N_Vector W, N_Vector ID,
-                         sunindextype local_length, int myid);
+                           sunindextype local_length, int myid);
 int Test_N_VMin_Z(N_Vector X, sunindextype local_length, int myid);
-int Test_N_VWL2Norm_Z(N_Vector X, N_Vector W, sunindextype local_length, int myid);
+int Test_N_VWL2Norm_Z(N_Vector X, N_Vector W, sunindextype local_length,
+                      int myid);
 int Test_N_VL1Norm_Z(N_Vector X, sunindextype local_length, int myid);
-int Test_N_VCompare_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
-int Test_N_VInvTest_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myid);
+int Test_N_VCompare_Z(N_Vector X, N_Vector Z, sunindextype local_length,
+                      int myid);
+int Test_N_VInvTest_Z(N_Vector X, N_Vector Z, sunindextype local_length,
+                      int myid);
 int Test_N_VConstrMask_Z(N_Vector C, N_Vector X, N_Vector M,
-                       sunindextype local_length, int myid);
-int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM, sunindextype local_length,
-                        int myid);
+                         sunindextype local_length, int myid);
+int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM,
+                          sunindextype local_length, int myid);
 
 /* Fused vector operation tests */
 int Test_N_VLinearCombination_Z(N_Vector X, sunindextype local_length, int myid);
@@ -105,44 +111,45 @@ int Test_N_VScaleAddMulti_Z(N_Vector X, sunindextype local_length, int myid);
 int Test_N_VDotProdMulti_Z(N_Vector X, sunindextype local_length, int myid);
 
 /* Vector array operation tests */
-int Test_N_VLinearSumVectorArray_Z(N_Vector X, sunindextype local_length, int myid);
+int Test_N_VLinearSumVectorArray_Z(N_Vector X, sunindextype local_length,
+                                   int myid);
 int Test_N_VScaleVectorArray_Z(N_Vector X, sunindextype local_length, int myid);
 int Test_N_VConstVectorArray_Z(N_Vector X, sunindextype local_length, int myid);
-int Test_N_VWrmsNormVectorArray_Z(N_Vector X, sunindextype local_length, int myid);
+int Test_N_VWrmsNormVectorArray_Z(N_Vector X, sunindextype local_length,
+                                  int myid);
 int Test_N_VWrmsNormMaskVectorArray_Z(N_Vector X, sunindextype local_length,
-                                    int myid);
+                                      int myid);
 int Test_N_VScaleAddMultiVectorArray_Z(N_Vector X, sunindextype local_length,
-                                     int myid);
-int Test_N_VLinearCombinationVectorArray_Z(N_Vector X, sunindextype local_length,
-                                         int myid);
+                                       int myid);
+int Test_N_VLinearCombinationVectorArray_Z(N_Vector X,
+                                           sunindextype local_length, int myid);
 
 /* Local reduction operation tests */
 int Test_N_VDotProdLocal_Z(N_Vector X, N_Vector Y, sunindextype local_length,
-                         int myid);
+                           int myid);
 int Test_N_VMaxNormLocal_Z(N_Vector X, sunindextype local_length, int myid);
 int Test_N_VMinLocal_Z(N_Vector X, sunindextype local_length, int myid);
 int Test_N_VL1NormLocal_Z(N_Vector X, sunindextype local_length, int myid);
 int Test_N_VWSqrSumLocal_Z(N_Vector X, N_Vector W, sunindextype local_length,
-                         int myid);
+                           int myid);
 int Test_N_VWSqrSumMaskLocal_Z(N_Vector X, N_Vector W, N_Vector ID,
-                             sunindextype local_length, int myid);
+                               sunindextype local_length, int myid);
 int Test_N_VInvTestLocal_Z(N_Vector X, N_Vector Z, sunindextype local_length,
-                         int myid);
+                           int myid);
 int Test_N_VConstrMaskLocal_Z(N_Vector C, N_Vector X, N_Vector M,
-                            sunindextype local_length, int myid);
+                              sunindextype local_length, int myid);
 int Test_N_VMinQuotientLocal_Z(N_Vector NUM, N_Vector DENOM,
-                             sunindextype local_length, int myid);
+                               sunindextype local_length, int myid);
 
 /* Single buffer reduction tests */
 int Test_N_VDotProdMultiLocal_Z(N_Vector X, sunindextype local_length, int myid);
 int Test_N_VDotProdMultiAllReduce_Z(N_Vector X, sunindextype local_length,
-                                  int myid);
+                                    int myid);
 
 /* XBraid interface operations */
 int Test_N_VBufSize_Z(N_Vector x, sunindextype local_length, int myid);
 int Test_N_VBufPack_Z(N_Vector x, sunindextype local_length, int myid);
 int Test_N_VBufUnpack_Z(N_Vector x, sunindextype local_length, int myid);
-
 
 #ifdef __cplusplus
 }
