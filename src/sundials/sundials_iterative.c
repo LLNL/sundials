@@ -358,10 +358,6 @@ SUNErrCode SUNQRAdd_MGS(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
     N_VLinearSum(ONE, qrdata->vtemp, -R[m * mMax + j], Q[j], qrdata->vtemp);
     SUNCheckLastErr();
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> feature/suncomplextype
   SUNCheckCall(
     N_VDotProdComplex(qrdata->vtemp, qrdata->vtemp, &(R[m * mMax + m])));
   R[m * mMax + m] = SUNRsqrt(SUN_REAL(R[m * mMax + m]));
