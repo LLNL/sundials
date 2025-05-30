@@ -416,32 +416,32 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
 {
   SUNFunctionBegin(NLS->sunctx);
   /* local variables */
-  int nvec, i_pt, i, j, lAA, m ,maa, *ipt_map;
+  int nvec, i_pt, i, j, lAA, m, maa, *ipt_map;
   sunrealtype beta, onembeta;
-  sunscalartype a, b, c, s, temp, temp2;
+  sunscalartype a, b, c, s, temp, temp2, temp3;
   sunscalartype *R, *cvals, *gamma;
   N_Vector fv, vtemp, gold, fold, *df, *dg, *Q, *Xvecs;
   sunbooleantype damping;
   SUNQRData qr_data;
 
   /* local shortcut variables */
-  qr_data = FP_CONTENT(NLS)->qr_data;
+  qr_data        = FP_CONTENT(NLS)->qr_data;
   qr_data->vtemp = vtemp = x; /* use result as temporary vector */
-  ipt_map = FP_CONTENT(NLS)->imap;
-  maa     = FP_CONTENT(NLS)->m;
-  m       = iter - 1;
-  gold    = FP_CONTENT(NLS)->gold;
-  fold    = FP_CONTENT(NLS)->fold;
-  df      = FP_CONTENT(NLS)->df;
-  dg      = FP_CONTENT(NLS)->dg;
-  Q       = FP_CONTENT(NLS)->q;
-  cvals   = FP_CONTENT(NLS)->cvals;
-  Xvecs   = FP_CONTENT(NLS)->Xvecs;
-  R       = FP_CONTENT(NLS)->R;
-  gamma   = FP_CONTENT(NLS)->gamma;
-  fv      = FP_CONTENT(NLS)->delta;
-  damping = FP_CONTENT(NLS)->damping;
-  beta    = FP_CONTENT(NLS)->beta;
+  ipt_map                = FP_CONTENT(NLS)->imap;
+  maa                    = FP_CONTENT(NLS)->m;
+  m                      = iter - 1;
+  gold                   = FP_CONTENT(NLS)->gold;
+  fold                   = FP_CONTENT(NLS)->fold;
+  df                     = FP_CONTENT(NLS)->df;
+  dg                     = FP_CONTENT(NLS)->dg;
+  Q                      = FP_CONTENT(NLS)->q;
+  cvals                  = FP_CONTENT(NLS)->cvals;
+  Xvecs                  = FP_CONTENT(NLS)->Xvecs;
+  R                      = FP_CONTENT(NLS)->R;
+  gamma                  = FP_CONTENT(NLS)->gamma;
+  fv                     = FP_CONTENT(NLS)->delta;
+  damping                = FP_CONTENT(NLS)->damping;
+  beta                   = FP_CONTENT(NLS)->beta;
 
   /* reset ipt_map, i_pt */
   for (i = 0; i < maa; i++) { ipt_map[i] = 0; }
@@ -453,9 +453,9 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   if (iter > 0)
   {
     N_VLinearSum(ONE, gval, -ONE, gold, dg[i_pt]); /* dg_new = gval - gold */
-    SUNCheckLastErr(); 
+    SUNCheckLastErr();
     N_VLinearSum(ONE, fv, -ONE, fold, df[i_pt]); /* df_new = fv - fold */
-    SUNCheckLastErr(); 
+    SUNCheckLastErr();
   }
   N_VScale(ONE, gval, gold);
   SUNCheckLastErr();
@@ -492,8 +492,10 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
     /* delete left-most column vector from QR factorization */
     for (i = 0; i < maa - 1; i++)
     {
-      a                        = R[(i + 1) * maa + i];
-      b                        = R[(i + 1) * maa + i + 1];
+      a    = R[(i + 1) * maa + i];
+      b    = R[(i + 1) * maa + i + 1];
+      temp = SUNsqrt(a * a + b * b);
+
       if (b == ZERO)
       {
         c = ONE;
@@ -501,19 +503,19 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
       }
       else if (SUNabs(b) >= SUNabs(a))
       {
-        temp = (SUNSQR(a)) / (SUNSQR(b));
+        temp3 = (SUNSQR(a)) / (SUNSQR(b));
         temp2 = SUNabs(b);
-        s = -ONE / ((b/temp2) * SUNRsqrt(ONE+SUN_REAL(temp)));
-        c = -s * (SUNCONJ(a)/SUNCONJ(b));
+        s     = -ONE / ((b / temp2) * SUNRsqrt(ONE + SUN_REAL(temp3)));
+        c     = -s * (SUNCONJ(a) / SUNCONJ(b));
       }
       else
       {
-        temp = (SUNSQR(b)) / (SUNSQR(a));
+        temp3 = (SUNSQR(b)) / (SUNSQR(a));
         temp2 = SUNabs(a);
-        c = ONE / ((a/temp2) * SUNRsqrt(ONE  + SUN_REAL(temp)));
-        s = -c * (SUNCONJ(b)/SUNCONJ(a));
+        c     = ONE / ((a / temp2) * SUNRsqrt(ONE + SUN_REAL(temp3)));
+        s     = -c * (SUNCONJ(b) / SUNCONJ(a));
       }
-   
+
       R[(i + 1) * maa + i]     = temp;
       R[(i + 1) * maa + i + 1] = ZERO;
       if (i < maa - 1)
@@ -522,14 +524,14 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
         {
           a                  = R[j * maa + i];
           b                  = R[j * maa + i + 1];
-          temp               = c * a + s * b;
+          temp               = c * a - s * b;
           R[j * maa + i + 1] = SUNCONJ(s) * a + SUNCONJ(c) * b;
           R[j * maa + i]     = temp;
         }
       }
-      N_VLinearSum(c, Q[i], s, Q[i + 1], vtemp);
+      N_VLinearSum(c, Q[i], -s, Q[i + 1], vtemp);
       SUNCheckLastErr();
-      N_VLinearSum(-s, Q[i], c, Q[i + 1], Q[i + 1]);
+      N_VLinearSum(SUNCONJ(s), Q[i], SUNCONJ(c), Q[i + 1], Q[i + 1]);
       SUNCheckLastErr();
       N_VScale(ONE, vtemp, Q[i]);
       SUNCheckLastErr();

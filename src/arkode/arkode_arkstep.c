@@ -1090,7 +1090,7 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
     if (step_mem->cvals == NULL)
     {
       step_mem->cvals = (sunscalartype*)calloc(step_mem->nfusedopvecs,
-                                             sizeof(*step_mem->cvals));
+                                               sizeof(*step_mem->cvals));
       if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
       ark_mem->lrw += step_mem->nfusedopvecs;
     }
@@ -4058,13 +4058,12 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
 
     /* Update estimate of relaxation function change */
     sunscalartype dot = ZERO;
-    if (J_relax->ops->nvdotprodlocalcomplex && J_relax->ops->nvdotprodmultiallreduce)
+    if (J_relax->ops->nvdotprodlocalcomplex &&
+        J_relax->ops->nvdotprodmultiallreduce)
     {
       SUNCheckCall(N_VDotProdLocalComplex(J_relax, rhs_tmp, &dot));
     }
-    else {
-      SUNCheckCall(N_VDotProdComplex(J_relax, rhs_tmp, &dot));
-    }
+    else { SUNCheckCall(N_VDotProdComplex(J_relax, rhs_tmp, &dot)); }
     // TODO DRR: verify what to do with complex-valued contributions to delta_e_out
     *delta_e_out += bi * SUN_REAL(dot);
   }

@@ -90,7 +90,7 @@ foreach(example_tuple ${nvector_serial_examples})
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ../test_nvector.c ../test_nvector.h
+    install(FILES ${example}.c ../test_nvector.c ../test_nvector.h ../test_nvector_complex.c ../test_nvector_complex.h
             DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
   endif()
 

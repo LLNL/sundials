@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): David J. Gardner @ LLNL
+ * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security
@@ -11,17 +11,17 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the NVECTOR Serial module
- * implementation.
+ * This is the testing routine to check the NVECTOR ManyVector
+ * (serial) module implementation.
  * -----------------------------------------------------------------*/
 
+#include <nvector/nvector_manyvector.h>
 #include <nvector/nvector_serial.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#include "test_nvector.h"
 #include "test_nvector_complex.h"
 
 /* ----------------------------------------------------------------------
@@ -31,54 +31,62 @@ int main(int argc, char* argv[])
 {
   int fails = 0;             /* counter for test failures */
   int retval;                /* function return value     */
-  sunindextype length;       /* vector length             */
+  sunindextype len1, len2;   /* vector lengths            */
+  sunindextype length;       /* overall vector length     */
+  N_Vector Xsub[2];          /* subvector pointer array   */
   N_Vector U, V, W, X, Y, Z; /* test vectors              */
   int print_timing;          /* turn timing on/off        */
 
-  Test_Init(SUN_COMM_NULL);
+  Test_Init_Z(SUN_COMM_NULL);
 
   /* check input and set vector length */
   if (argc < 3)
   {
-    printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    Test_Finalize();
-    return (-1);
+    printf("ERROR: TWO (2) Inputs required: subvector 1 length, subvector 2 "
+           "length\n");
+    Test_Abort_Z(1);
   }
 
-  length = (sunindextype)atol(argv[1]);
-  if (length <= 0)
+  len1 = (sunindextype)atol(argv[1]);
+  if (len1 <= 0)
   {
-    printf("ERROR: length of vector must be a positive integer \n");
-    Test_Finalize();
-    return (-1);
+    printf("ERROR: length of subvector 1 must be a positive integer \n");
+    Test_Abort_Z(1);
   }
 
-  print_timing = atoi(argv[2]);
-  SetTiming(print_timing, 0);
-
-  printf("Testing serial N_Vector \n");
-  printf("Vector length %ld \n", (long int)length);
-
-  /* Create new vectors */
-  W = N_VNewEmpty_Serial(length, sunctx);
-  if (W == NULL)
+  len2 = (sunindextype)atol(argv[2]);
+  if (len2 <= 0)
   {
-    printf("FAIL: Unable to create a new empty vector \n\n");
-    Test_Finalize();
-    return (1);
+    printf("ERROR: length of subvector 2 must be a positive integer \n");
+    Test_Abort_Z(1);
   }
 
-  X = N_VNew_Serial(length, sunctx);
-  if (X == NULL)
+  /* overall length */
+  length = len1 + len2;
+
+  printf("Testing ManyVector (serial) N_Vector \n");
+  printf("Vector lengths: %ld %ld \n", (long int)len1, (long int)len2);
+
+  /* Create subvectors */
+  Xsub[0] = N_VNew_Serial(len1, sunctx);
+  if (Xsub[0] == NULL)
   {
-    N_VDestroy(W);
-    printf("FAIL: Unable to create a new vector \n\n");
-    Test_Finalize();
-    return (1);
+    printf("FAIL: Unable to create a new serial subvector \n\n");
+    Test_Abort_Z(1);
   }
+  Xsub[1] = N_VNew_Serial(len2, sunctx);
+  if (Xsub[1] == NULL)
+  {
+    N_VDestroy(Xsub[0]);
+    printf("FAIL: Unable to create a new serial subvector \n\n");
+    Test_Abort_Z(1);
+  }
+
+  /* Create a new ManyVector */
+  X = N_VNew_ManyVector(2, Xsub, sunctx);
 
   /* Check vector ID */
-  fails += Test_N_VGetVectorID_Z(X, SUNDIALS_NVEC_SERIAL, 0);
+  fails += Test_N_VGetVectorID_Z(X, SUNDIALS_NVEC_MANYVECTOR, 0);
 
   /* Check vector length */
   fails += Test_N_VGetLength_Z(X, 0);
@@ -86,25 +94,41 @@ int main(int argc, char* argv[])
   /* Check vector communicator */
   fails += Test_N_VGetCommunicator_Z(X, SUN_COMM_NULL, 0);
 
-  /* Test clone functions */
-  fails += Test_N_VCloneEmpty_Z(X, 0);
-  fails += Test_N_VClone_Z(X, length, 0);
-  fails += Test_N_VCloneEmptyVectorArray_Z(5, X, 0);
-  fails += Test_N_VCloneVectorArray_Z(5, X, length, 0);
-
-  /* Test setting/getting array data */
-  fails += Test_N_VSetArrayPointer_Z(W, length, 0);
-  fails += Test_N_VGetArrayPointer_Z(X, length, 0);
+  /* Test subvector accessors */
+  if (N_VGetNumSubvectors_ManyVector(X) != 2)
+  {
+    printf(">>> FAILED test -- N_VGetNumSubvectors_ManyVector\n");
+    fails += 1;
+  }
+  U = N_VGetSubvector_ManyVector(X, 0);
+  if (N_VGetLength(U) != len1)
+  {
+    printf(">>> FAILED test -- N_VGetSubvector_ManyVector\n");
+    fails += 1;
+  }
+  U = N_VGetSubvector_ManyVector(X, 1);
+  if (N_VGetLength(U) != len2)
+  {
+    printf(">>> FAILED test -- N_VGetSubvector_ManyVector\n");
+    fails += 1;
+  }
 
   /* Clone additional vectors for testing */
+  W = N_VClone(X);
+  if (W == NULL)
+  {
+    N_VDestroy(X);
+    printf("FAIL: Unable to create a new vector\n\n");
+    Test_Abort_Z(1);
+  }
+
   Y = N_VClone(X);
   if (Y == NULL)
   {
     N_VDestroy(W);
     N_VDestroy(X);
-    printf("FAIL: Unable to create a new vector \n\n");
-    Test_Finalize();
-    return (1);
+    printf("FAIL: Unable to create a new vector\n\n");
+    Test_Abort_Z(1);
   }
 
   Z = N_VClone(X);
@@ -113,9 +137,8 @@ int main(int argc, char* argv[])
     N_VDestroy(W);
     N_VDestroy(X);
     N_VDestroy(Y);
-    printf("FAIL: Unable to create a new vector \n\n");
-    Test_Finalize();
-    return (1);
+    printf("FAIL: Unable to create a new vector\n\n");
+    Test_Abort_Z(1);
   }
 
   /* Standard vector operation tests */
@@ -145,8 +168,8 @@ int main(int argc, char* argv[])
   printf("\nTesting fused and vector array operations (disabled):\n\n");
 
   /* create vector and disable all fused and vector array operations */
-  U      = N_VNew_Serial(length, sunctx);
-  retval = N_VEnableFusedOps_Serial(U, SUNFALSE);
+  U      = N_VClone(X);
+  retval = N_VEnableFusedOps_ManyVector(U, SUNFALSE);
   if (U == NULL || retval != 0)
   {
     N_VDestroy(W);
@@ -154,8 +177,7 @@ int main(int argc, char* argv[])
     N_VDestroy(Y);
     N_VDestroy(Z);
     printf("FAIL: Unable to create a new vector \n\n");
-    Test_Finalize();
-    return (1);
+    Test_Abort_Z(1);
   }
 
   /* fused operations */
@@ -176,8 +198,8 @@ int main(int argc, char* argv[])
   printf("\nTesting fused and vector array operations (enabled):\n\n");
 
   /* create vector and enable all fused and vector array operations */
-  V      = N_VNew_Serial(length, sunctx);
-  retval = N_VEnableFusedOps_Serial(V, SUNTRUE);
+  V      = N_VClone(X);
+  retval = N_VEnableFusedOps_ManyVector(V, SUNTRUE);
   if (V == NULL || retval != 0)
   {
     N_VDestroy(W);
@@ -186,8 +208,7 @@ int main(int argc, char* argv[])
     N_VDestroy(Z);
     N_VDestroy(U);
     printf("FAIL: Unable to create a new vector \n\n");
-    Test_Finalize();
-    return (1);
+    Test_Abort_Z(1);
   }
 
   /* fused operations */
@@ -235,12 +256,14 @@ int main(int argc, char* argv[])
   N_VDestroy(Z);
   N_VDestroy(U);
   N_VDestroy(V);
+  N_VDestroy(Xsub[0]);
+  N_VDestroy(Xsub[1]);
 
   /* Print result */
   if (fails) { printf("FAIL: NVector module failed %i tests \n\n", fails); }
   else { printf("SUCCESS: NVector module passed all tests \n\n"); }
 
-  Test_Finalize();
+  Test_Finalize_Z();
   return (fails);
 }
 
@@ -256,63 +279,83 @@ int check_ans_Z(sunscalartype ans, N_Vector X, sunindextype local_length)
 {
   int failure = 0;
   sunindextype i;
-  sunscalartype* Xdata;
+  N_Vector Xsub[2];
+  sunscalartype *x0, *x1;
+  sunindextype x0len, x1len;
 
-  Xdata = N_VGetArrayPointer(X);
+  Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
+  Xsub[1] = N_VGetSubvector_ManyVector(X, 1);
+  x0len   = N_VGetLength(Xsub[0]);
+  x1len   = N_VGetLength(Xsub[1]);
+  x0      = N_VGetSubvectorArrayPointer_ManyVector(X, 0);
+  x1      = N_VGetSubvectorArrayPointer_ManyVector(X, 1);
+
+  /* ensure that local_length = x0len + x1len */
+  if (local_length != x0len + x1len) { return (1); }
 
   /* check vector data */
-  for (i = 0; i < local_length; i++) { failure += SUNCompare(Xdata[i], ans); }
+  for (i = 0; i < x0len; i++) { failure += SUNCompare(x0[i], ans); }
+  for (i = 0; i < x1len; i++) { failure += SUNCompare(x1[i], ans); }
 
   return (failure > ZERO) ? (1) : (0);
 }
 
-sunbooleantype has_data(N_Vector X)
+sunbooleantype has_data_Z(N_Vector X)
 {
-  /* check if data array is non-null */
-  return (N_VGetArrayPointer(X) == NULL) ? SUNFALSE : SUNTRUE;
-}
-
-void set_element(N_Vector X, sunindextype i, sunrealtype val)
-{
-  /* set i-th element of data array */
-  set_element_range(X, i, i, val);
+  /* should not be called in these tests */
+  return SUNTRUE;
 }
 
 void set_element_Z(N_Vector X, sunindextype i, sunscalartype val)
 {
-  /* set i-th element of data array */
-  set_element_range_Z(X, i, i, val);
-}
+  N_Vector Xsub[2];
+  sunindextype x0len;
 
-void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-                       sunrealtype val)
-{
-  return set_element_range_Z(X, is, ie, val);
+  Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
+  Xsub[1] = N_VGetSubvector_ManyVector(X, 1);
+  x0len   = N_VGetLength(Xsub[0]);
+
+  /* set i-th element of data array (in appropriate subvector) */
+  if (i < x0len) { NV_Ith_S(Xsub[0], i) = val; }
+  else { NV_Ith_S(Xsub[1], i - x0len) = val; }
 }
 
 void set_element_range_Z(N_Vector X, sunindextype is, sunindextype ie,
                          sunscalartype val)
 {
-  sunindextype i;
+  N_Vector Xsub[2];
+  sunindextype x0len, i;
 
-  /* set elements [is,ie] of the data array */
-  sunscalartype* xd = N_VGetArrayPointer(X);
-  for (i = is; i <= ie; i++) { xd[i] = val; }
+  Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
+  Xsub[1] = N_VGetSubvector_ManyVector(X, 1);
+  x0len   = N_VGetLength(Xsub[0]);
+
+  /* set i-th element of data array (in appropriate subvector) */
+  for (i = is; i < x0len; i++) { NV_Ith_S(Xsub[0], i) = val; }
+  for (i = x0len; i <= ie; i++) { NV_Ith_S(Xsub[1], i - x0len) = val; }
 }
 
-sunrealtype get_element(N_Vector X, sunindextype i)
+sunscalartype get_element_Z(N_Vector X, sunindextype i)
 {
-  /* get i-th element of data array */
-  return NV_Ith_S(X, i);
+  N_Vector Xsub[2];
+  sunindextype x0len;
+
+  Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
+  Xsub[1] = N_VGetSubvector_ManyVector(X, 1);
+  x0len   = N_VGetLength(Xsub[0]);
+
+  /* get i-th element of data array (from appropriate subvector) */
+  if (i < x0len) { return NV_Ith_S(Xsub[0], i); }
+  else { return NV_Ith_S(Xsub[1], i - x0len); }
 }
 
-double max_time(N_Vector X, double time)
+double max_time_Z(N_Vector X, double time)
 {
   /* not running in parallel, just return input time */
   return (time);
 }
 
-void sync_device(N_Vector x)
+void sync_device_Z(N_Vector x)
 {
   /* not running on GPU, just return */
   return;

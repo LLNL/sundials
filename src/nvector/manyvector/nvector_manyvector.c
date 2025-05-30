@@ -434,7 +434,7 @@ N_Vector MVAPPEND(N_VGetSubvector)(N_Vector v, sunindextype vec_num)
    the subvector does not support the N_VGetArrayPointer routine, then
    NULL is returned. */
 sunscalartype* MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v,
-                                                   sunindextype vec_num)
+                                                     sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
   SUNAssertNull(vec_num >= 0, SUN_ERR_ARG_OUTOFRANGE);
@@ -452,8 +452,8 @@ sunscalartype* MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v,
    the N_Vector array.  If vec_num is outside of applicable bounds, or if
    the subvector does not support the N_VSetArrayPointer routine, then
    -1 is returned; otherwise this routine returns 0. */
-SUNErrCode MVAPPEND(N_VSetSubvectorArrayPointer)(sunscalartype* v_data, N_Vector v,
-                                                 sunindextype vec_num)
+SUNErrCode MVAPPEND(N_VSetSubvectorArrayPointer)(sunscalartype* v_data,
+                                                 N_Vector v, sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
   SUNAssert(vec_num >= 0, SUN_ERR_ARG_OUTOFRANGE);
@@ -1475,8 +1475,8 @@ SUNErrCode N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x,
    array-of-arrays of N_Vectors that comprise X.  This routine will be
    passed an array of ManyVectors, so to call the subvector-specific routines
    we must unravel the subvectors while retaining an array of outer vectors. */
-SUNErrCode MVAPPEND(N_VLinearCombination)(int nvec, sunscalartype* c, N_Vector* X,
-                                          N_Vector z)
+SUNErrCode MVAPPEND(N_VLinearCombination)(int nvec, sunscalartype* c,
+                                          N_Vector* X, N_Vector z)
 {
   SUNFunctionBegin(z->sunctx);
   sunindextype i, j;
@@ -1644,8 +1644,8 @@ SUNErrCode MVAPPEND(N_VLinearSumVectorArray)(int nvec, sunscalartype a,
    N_Vectors that comprise X and Z.  This routine will be passed arrays of
    ManyVectors, so to call the subvector-specific routines we must unravel
    the subvectors while retaining arrays of outer vectors. */
-SUNErrCode MVAPPEND(N_VScaleVectorArray)(int nvec, sunscalartype* c, N_Vector* X,
-                                         N_Vector* Z)
+SUNErrCode MVAPPEND(N_VScaleVectorArray)(int nvec, sunscalartype* c,
+                                         N_Vector* X, N_Vector* Z)
 {
   SUNFunctionBegin(X[0]->sunctx);
   sunindextype i, j;

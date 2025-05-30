@@ -971,8 +971,8 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 
     if (kin_mem->kin_cv == NULL)
     {
-      kin_mem->kin_cv =
-        (sunscalartype*)malloc(2 * (kin_mem->kin_m_aa + 1) * sizeof(*kin_mem->kin_cv));
+      kin_mem->kin_cv = (sunscalartype*)malloc(2 * (kin_mem->kin_m_aa + 1) *
+                                               sizeof(*kin_mem->kin_cv));
       if (kin_mem->kin_cv == NULL)
       {
         KINProcessError(kin_mem, 0, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
@@ -2986,27 +2986,32 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunscalartype* R,
                                int depth)
 {
   /* Delete left-most column vector from QR factorization */
-  sunscalartype a, b, temp, absTemp2, absTemp1, c, s;
+  sunscalartype a, b, temp, temp3, absTemp2, absTemp1, c, s;
 
   for (int i = 0; i < depth - 1; i++)
   {
-    a = R[(i + 1) * depth + i];
-    b = R[(i + 1) * depth + i + 1];
-    if (b==ZERO){
+    a    = R[(i + 1) * depth + i];
+    b    = R[(i + 1) * depth + i + 1];
+    temp = SUNsqrt(a * a + b * b);
+
+    if (b == ZERO)
+    {
       c = ONE;
       s = ZERO;
     }
-    else if (SUNabs(b) >= SUNabs(a)){
-      temp = (SUNSQR(a)) / (SUNSQR(b));
+    else if (SUNabs(b) >= SUNabs(a))
+    {
+      temp3    = (SUNSQR(a)) / (SUNSQR(b));
       absTemp2 = SUNabs(b);
-      s = -ONE / ((b/absTemp2) * SUNRsqrt(ONE+SUN_REAL(temp)));
-      c = -s * (SUNCONJ(a)/SUNCONJ(b));
+      s        = -ONE / ((b / absTemp2) * SUNRsqrt(ONE + SUN_REAL(temp3)));
+      c        = -s * (SUNCONJ(a) / SUNCONJ(b));
     }
-    else {
-      temp = (SUNSQR(b)) / (SUNSQR(a));
+    else
+    {
+      temp3    = (SUNSQR(b)) / (SUNSQR(a));
       absTemp1 = SUNabs(a);
-      c = ONE / ((a/absTemp1) * SUNRsqrt(ONE  + SUN_REAL(temp)));
-      s = -c * (SUNCONJ(b)/SUNCONJ(a));
+      c        = ONE / ((a / absTemp1) * SUNRsqrt(ONE + SUN_REAL(temp3)));
+      s        = -c * (SUNCONJ(b) / SUNCONJ(a));
     }
     R[(i + 1) * depth + i]     = temp;
     R[(i + 1) * depth + i + 1] = ZERO;
@@ -3022,8 +3027,8 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunscalartype* R,
         R[j * depth + i]     = temp;
       }
     }
-    N_VLinearSum(c, Q[i], s, Q[i + 1], kin_mem->kin_vtemp2);
-    N_VLinearSum(-s, Q[i], c, Q[i + 1], Q[i + 1]);
+    N_VLinearSum(c, Q[i], -s, Q[i + 1], kin_mem->kin_vtemp2);
+    N_VLinearSum(SUNCONJ(s), Q[i], SUNCONJ(c), Q[i + 1], Q[i + 1]);
     N_VScale(ONE, kin_mem->kin_vtemp2, Q[i]);
   }
 
@@ -3170,8 +3175,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   {
     /* second iteration */
     sunscalartype dot = ZERO;
-    SUNCheckCall(N_VDotProdComplex(kin_mem->kin_df_aa[0], kin_mem->kin_df_aa[0],
-                                   &dot));
+    SUNCheckCall(
+      N_VDotProdComplex(kin_mem->kin_df_aa[0], kin_mem->kin_df_aa[0], &dot));
     R[0] = SUNRsqrt(SUN_REAL(dot));
     alfa = ONE / R[0];
     N_VScale(alfa, kin_mem->kin_df_aa[0], kin_mem->kin_q_aa[0]);

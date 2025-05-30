@@ -38,7 +38,7 @@ static int dae_res(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector res,
 {
   sunscalartype* ydot_data = N_VGetArrayPointer(ydot);
   sunscalartype* res_data  = N_VGetArrayPointer(res);
-  res_data[0]            = ydot_data[0] - ONE;
+  res_data[0]              = ydot_data[0] - ONE;
   return 0;
 }
 
@@ -47,7 +47,7 @@ static int dae_jac(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp,
                    N_Vector tempv2, N_Vector tempv3)
 {
   sunscalartype* J_data = SUNDenseMatrix_Data(J);
-  J_data[0]           = ONE;
+  J_data[0]             = ONE;
   return 0;
 }
 

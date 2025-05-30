@@ -513,10 +513,10 @@ int main(int argc, char* argv[])
         /*   d2y */
         NV_Ith_S(d2yerr,
                  0) = SUNabs(-SUN_RCONST(4.0) * SIN(SUN_RCONST(2.0) * t_test) -
-                              NV_Ith_S(d2ytest, 0));
+                             NV_Ith_S(d2ytest, 0));
         NV_Ith_S(d2yerr,
                  1) = SUNabs(-SUN_RCONST(9.0) * COS(SUN_RCONST(3.0) * t_test) -
-                              NV_Ith_S(d2ytest, 1));
+                             NV_Ith_S(d2ytest, 1));
 
         /* compute error norms (2-norm per test, max-norm over interval) */
         yerrs[ih]   = SUNMAX(yerrs[ih], SQRT(N_VDotProd(yerr, yerr)));

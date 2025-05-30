@@ -279,9 +279,9 @@ int main(int argc, char* argv[])
   // Set initial conditions
   sunscalartype* ydata    = N_VGetArrayPointer(y);
   sunscalartype* yrefdata = N_VGetArrayPointer(yref);
-  ydata[0]              = SUN_RCONST(1.2);
-  ydata[1]              = SUN_RCONST(3.1);
-  ydata[2]              = SUN_RCONST(3.0);
+  ydata[0]                = SUN_RCONST(1.2);
+  ydata[1]                = SUN_RCONST(3.1);
+  ydata[2]                = SUN_RCONST(3.0);
   N_VScale(ONE, y, yref);
 
   // Create and configure reference solver object
@@ -791,7 +791,8 @@ int main(int argc, char* argv[])
          "----\n");
   printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.1" ESYM
          "   %.1" ESYM "   %.1" ESYM "\n",
-         t, SUN_REAL(ydata[0]), SUN_REAL(ydata[1]), SUN_REAL(ydata[2]), uerr, verr, werr);
+         t, SUN_REAL(ydata[0]), SUN_REAL(ydata[1]), SUN_REAL(ydata[2]), uerr,
+         verr, werr);
   while (Tf - t > SUN_RCONST(1.0e-8))
   {
     // reset reference solver so that it begins with identical state
@@ -933,7 +934,7 @@ int main(int argc, char* argv[])
 // ff routine to compute the fast portion of the ODE RHS.
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts         = (Options*)user_data;
   sunscalartype* ydata  = N_VGetArrayPointer(y);
   sunscalartype* dydata = N_VGetArrayPointer(ydot);
   const sunscalartype w = ydata[2];
@@ -950,7 +951,7 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fs routine to compute the slow portion of the ODE RHS.
 static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts         = (Options*)user_data;
   sunscalartype* ydata  = N_VGetArrayPointer(y);
   sunscalartype* dydata = N_VGetArrayPointer(ydot);
   const sunscalartype u = ydata[0];
@@ -969,7 +970,7 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fse routine to compute the slow portion of the ODE RHS.
 static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts         = (Options*)user_data;
   sunscalartype* ydata  = N_VGetArrayPointer(y);
   sunscalartype* dydata = N_VGetArrayPointer(ydot);
   const sunscalartype u = ydata[0];
@@ -1003,7 +1004,7 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts         = (Options*)user_data;
   sunscalartype* ydata  = N_VGetArrayPointer(y);
   sunscalartype* dydata = N_VGetArrayPointer(ydot);
   const sunscalartype u = ydata[0];
@@ -1077,7 +1078,7 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts         = (Options*)user_data;
   sunscalartype* ydata  = N_VGetArrayPointer(y);
   const sunscalartype u = ydata[0];
   const sunscalartype v = ydata[1];
