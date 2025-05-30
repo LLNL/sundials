@@ -421,7 +421,7 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   /* local variables */
   int nvec, i_pt, i, j, lAA, m ,maa, *ipt_map;
   sunrealtype beta, onembeta;
-  sunscalartype a, b, c, s, temp, temp2;
+  sunscalartype a, b, c, s, temp, temp2, temp3;
   sunscalartype *R, *cvals, *gamma;
   N_Vector fv, vtemp, gold, fold, *df, *dg, *Q, *Xvecs;
   sunbooleantype damping;
@@ -497,6 +497,8 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
     {
       a                        = R[(i + 1) * maa + i];
       b                        = R[(i + 1) * maa + i + 1];
+      temp  = SUNsqrt(a * a + b * b);
+
       if (b == ZERO)
       {
         c = ONE;
@@ -504,16 +506,16 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
       }
       else if (SUNabs(b) >= SUNabs(a))
       {
-        temp = (SUNSQR(a)) / (SUNSQR(b));
+        temp3 = (SUNSQR(a)) / (SUNSQR(b));
         temp2 = SUNabs(b);
-        s = -ONE / ((b/temp2) * SUNRsqrt(ONE+SUN_REAL(temp)));
+        s = -ONE / ((b/temp2) * SUNRsqrt(ONE+SUN_REAL(temp3)));
         c = -s * (SUNCONJ(a)/SUNCONJ(b));
       }
       else
       {
-        temp = (SUNSQR(b)) / (SUNSQR(a));
+        temp3 = (SUNSQR(b)) / (SUNSQR(a));
         temp2 = SUNabs(a);
-        c = ONE / ((a/temp2) * SUNRsqrt(ONE  + SUN_REAL(temp)));
+        c = ONE / ((a/temp2) * SUNRsqrt(ONE  + SUN_REAL(temp3)));
         s = -c * (SUNCONJ(b)/SUNCONJ(a));
       }
    
@@ -525,14 +527,14 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
         {
           a                  = R[j * maa + i];
           b                  = R[j * maa + i + 1];
-          temp               = c * a + s * b;
+          temp               = c * a - s * b;
           R[j * maa + i + 1] = SUNCONJ(s) * a + SUNCONJ(c) * b;
           R[j * maa + i]     = temp;
         }
       }
-      N_VLinearSum(c, Q[i], s, Q[i + 1], vtemp);
+      N_VLinearSum(c, Q[i], -s, Q[i + 1], vtemp);
       SUNCheckLastErr();
-      N_VLinearSum(-s, Q[i], c, Q[i + 1], Q[i + 1]);
+      N_VLinearSum(SUNCONJ(s), Q[i], SUNCONJ(c), Q[i + 1], Q[i + 1]);
       SUNCheckLastErr();
       N_VScale(ONE, vtemp, Q[i]);
       SUNCheckLastErr();
