@@ -145,7 +145,7 @@ SUNErrCode DomEigPreProcess(DOMEIGMem domeig_mem)
     retval = domeig_mem->ATimes(domeig_mem->Adata, domeig_mem->V[0], domeig_mem->q);
     if (retval != 0)
     {
-      DomEigDestroy(&domeig_mem);
+      DomEigDestroy((void**)&domeig_mem);
 
       if(retval < 0)
       {
@@ -206,7 +206,7 @@ SUNErrCode DomEigComputeHess(DOMEIGMem domeig_mem)
     retval = domeig_mem->ATimes(domeig_mem->Adata, domeig_mem->V[i], domeig_mem->V[i+1]);
     if (retval != 0)
     {
-      DomEigDestroy(&domeig_mem);
+      DomEigDestroy((void**)&domeig_mem);
 
       if(retval < 0)
       {
@@ -254,7 +254,7 @@ SUNErrCode DomEigPowerIteration(DOMEIGMem domeig_mem, suncomplextype* dom_eig)
     retval = domeig_mem->ATimes(domeig_mem->Adata, domeig_mem->V[0], domeig_mem->q);
     if (retval != 0)
     {
-      DomEigDestroy(&domeig_mem);
+      DomEigDestroy((void**)&domeig_mem);
 
       if(retval < 0)
       {
@@ -337,7 +337,7 @@ SUNErrCode DomEigEstimate(DOMEIGMem domeig_mem, suncomplextype* dom_eig)
 
   if (info != 0) {
       printf(MSG_DOMEIG_LAPACK_FAIL, info);
-      DomEigDestroy(&domeig_mem);
+      DomEigDestroy((void**)&domeig_mem);
 
       return SUN_ERR_DOMEIG_LAPACK_FAIL;
   }

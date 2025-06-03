@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
   N_VDestroy(q);
   N_VDestroy(ProbData.d);
   SUNContext_Free(&sunctx);
-  DomEigDestroy(&DomEig_mem);
+  DomEigDestroy((void**)&DomEig_mem);
 
   return (passfail);
 }
