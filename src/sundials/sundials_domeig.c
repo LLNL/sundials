@@ -19,6 +19,8 @@
 #include <stdlib.h>
 
 #include <sundials/priv/sundials_domeig_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
 
 #define ZERO SUN_RCONST(0.0)
 
@@ -28,55 +30,39 @@
  * -----------------------------------------------------------------
  */
 
-void* DomEigCreate(SUNATimesFn ATimes, void* Adata,
-                N_Vector q, int maxl, SUNContext sunctx)
+SUNErrCode DomEigCreate(SUNATimesFn ATimes, void* Adata,
+                N_Vector q, int maxl, SUNContext sunctx, void** domeig_mem_out)
 {
+  SUNFunctionBegin(sunctx); // is this correct?
   DOMEIGMem domeig_mem;
 
-  /* Test if Atimes is provided */
-  if (ATimes == NULL)
+  /* Test if Atimes and q are provided */
+  if (ATimes == NULL || q == NULL)
   {
-    printf(MSG_DOMEIG_NULL_ATIMES);
-
-    return NULL;
-  }
-
-  /* Test if q is provided */
-  if (q == NULL)
-  {
-    printf(MSG_DOMEIG_NULL_q);
-
-    return NULL;
+    return SUN_ERR_DOMEIG_NULL_ATIMES;
   }
 
   /* Check if maxl >= 2 */
   if (maxl < 2)
   {
-    printf(MSG_DOMEIG_NOT_ENOUGH_ITER);
-
-    return NULL;
+    return SUN_ERR_DOMEIG_NOT_ENOUGH_ITER;
   }
 
   /* Test if sunctx is provided */
   if (sunctx == NULL)
   {
-    printf(MSG_DOMEIG_NULL_SUNCTX);
-
-    return NULL;
+    return SUN_ERR_SUNCTX_CORRUPT;
   }
 
   /* Test if all required vector operations are implemented */
-  if (!domeig_CheckNVector(q))
-  {
-    printf(MSG_DOMEIG_BAD_NVECTOR);
-
-    return NULL;
-  }
+  SUNCheckCall(domeig_CheckNVector(q));
 
   /* Allocate DOMEIGMem structure, and initialize to zero */
   domeig_mem = (DOMEIGMem)calloc(1, sizeof(*domeig_mem));
+  SUNAssert(domeig_mem, SUN_ERR_MALLOC_FAIL);
 
   /* Copy the inputs into DOMEIG memory */
+  domeig_mem->sunctx      = q->sunctx;
   domeig_mem->ATimes      = ATimes;
   domeig_mem->Adata       = Adata;
   domeig_mem->q           = q;
@@ -133,29 +119,28 @@ void* DomEigCreate(SUNATimesFn ATimes, void* Adata,
   normq = SUNRsqrt(normq);
   N_VScale(SUN_RCONST(1.0)/normq, domeig_mem->q, domeig_mem->V[0]);
 
-  return (void*)domeig_mem;
+  *domeig_mem_out = (void*)domeig_mem;
+
+  return SUN_SUCCESS;
 }
 
 /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-int DomEigPreProcess(DOMEIGMem domeig_mem)
+SUNErrCode DomEigPreProcess(DOMEIGMem domeig_mem, SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx); // is this correct?
+
   int retval;
 
   /* Check if DomEig memory is allocated */
   if(domeig_mem == NULL)
   {
-    printf(MSG_DOMEIG_MEM_FAIL);
-
-    return -1;
+    return SUN_ERR_DOMEIG_MEM_FAIL;
   }
 
   /* Check if ATimes is provided */
   if(domeig_mem->ATimes == NULL)
   {
-    printf(MSG_DOMEIG_NULL_ATIMES);
-    DomEigFree(&domeig_mem);
-
-    return -1;
+    return SUN_ERR_DOMEIG_NULL_ATIMES;
   }
 
   sunrealtype normq;
@@ -166,42 +151,61 @@ int DomEigPreProcess(DOMEIGMem domeig_mem)
     retval = domeig_mem->ATimes(domeig_mem->Adata, domeig_mem->V[0], domeig_mem->q);
     if (retval != 0)
     {
-      (retval < 0) ?
-      printf(MSG_DOMEIG_ATIMES_FAIL_UNREC) :
-      printf(MSG_DOMEIG_ATIMES_FAIL_REC);
-      DomEigFree(&domeig_mem);
+      DomEigDestroy(&domeig_mem);
 
-      return retval;
+      if(retval < 0)
+      {
+        return SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC;
+      }
+      else
+      {
+        return SUN_ERR_DOMEIG_ATIMES_FAIL_REC;
+      }
     }
     normq = N_VDotProd(domeig_mem->q, domeig_mem->q);
+    SUNCheckLastErr();
+
     normq = SUNRsqrt(normq);
     N_VScale(SUN_RCONST(1.0)/normq, domeig_mem->q, domeig_mem->V[0]);
+    SUNCheckLastErr();
   }
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
 /* Compute the Hessenberg matrix DomEig_mem->Hes*/
-int DomEigComputeHess(DOMEIGMem domeig_mem)
+SUNErrCode DomEigComputeHess(DOMEIGMem domeig_mem, SUNContext sunctx)
 {
-  int retval;
+  SUNFunctionBegin(sunctx); // is this correct?
 
   /* Check if DomEig memory is allocated */
   if(domeig_mem == NULL)
   {
-    printf(MSG_DOMEIG_MEM_FAIL);
-
-    return -1;
+    return SUN_ERR_DOMEIG_MEM_FAIL;
   }
 
-  /* Check if the dim of the matrix is less than 3
-     Return immediately if dim <= 2 */
+  /* Check if the dim of the matrix is less than 3.
+     Return immediately if dim <= 2;
+     no need to compute Hessenberg matrix
+     since the default is power iteration for dim <= 2 */
   if(domeig_mem->length < 3)
   {
-    return 0;
+    return SUN_SUCCESS;
   }
 
-  int i, j;
+  /* Check if ATimes is provided */
+  if(domeig_mem->ATimes == NULL)
+  {
+    return SUN_ERR_DOMEIG_NULL_ATIMES;
+  }
+
+  /* Check if Hes is allocated */
+  if(domeig_mem->Hes == NULL)
+  {
+    return SUN_ERR_DOMEIG_NULL_HES;
+  }
+
+  int retval, i, j;
   /* Initialize the Hessenberg matrix Hes with zeros */
   for (i = 0; i < domeig_mem->maxl; i++)
   {
@@ -214,57 +218,53 @@ int DomEigComputeHess(DOMEIGMem domeig_mem)
     retval = domeig_mem->ATimes(domeig_mem->Adata, domeig_mem->V[i], domeig_mem->V[i+1]);
     if (retval != 0)
     {
-      (retval < 0) ?
-      printf(MSG_DOMEIG_ATIMES_FAIL_UNREC) :
-      printf(MSG_DOMEIG_ATIMES_FAIL_REC);
-      DomEigFree(&domeig_mem);
+      DomEigDestroy(&domeig_mem);
 
-      return retval;
+      if(retval < 0)
+      {
+        return SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC;
+      }
+      else
+      {
+        return SUN_ERR_DOMEIG_ATIMES_FAIL_REC;
+      }
     }
 
-    if(SUNModifiedGS(domeig_mem->V, domeig_mem->Hes, i + 1, domeig_mem->maxl, &(domeig_mem->Hes[i + 1][i])) != SUN_SUCCESS)
-    {
-      printf(MSG_DOMEIG_GS_FAIL);
-      DomEigFree(&domeig_mem);
-
-      return -1;
-    }
+    SUNCheckCall(SUNModifiedGS(domeig_mem->V, domeig_mem->Hes, i + 1, domeig_mem->maxl, &(domeig_mem->Hes[i + 1][i])));
 
     /* Unitize the computed orthogonal vector */
     N_VScale(SUN_RCONST(1.0)/domeig_mem->Hes[i + 1][i], domeig_mem->V[i+1], domeig_mem->V[i+1]);
+    SUNCheckLastErr();
   }
 
-  return 0;
+  return SUN_SUCCESS;
 }
 
-suncomplextype DomEigPowerIteration(DOMEIGMem domeig_mem)
+SUNErrCode DomEigPowerIteration(DOMEIGMem domeig_mem, suncomplextype* dom_eig, SUNContext sunctx)
 {
-  int retval;
-
-  suncomplextype dom_eig, dom_eig_old;
-  dom_eig.real = ZERO;
-  dom_eig.imag = ZERO;
-  dom_eig_old.real = ZERO;
-  dom_eig_old.imag = ZERO;
+  SUNFunctionBegin(sunctx); // is this correct?
 
   /* Check if DomEig memory is allocated */
   if(domeig_mem == NULL)
   {
-    printf(MSG_DOMEIG_MEM_FAIL);
-
-    return dom_eig;
+    return SUN_ERR_DOMEIG_MEM_FAIL;
   }
 
   /* Check if ATimes is provided */
   if(domeig_mem->ATimes == NULL)
   {
-    printf(MSG_DOMEIG_NULL_ATIMES);
-    DomEigFree(&domeig_mem);
-
-    return dom_eig;
+    return SUN_ERR_DOMEIG_NULL_ATIMES;
   }
 
-  int k;
+  suncomplextype dom_eig_new = *dom_eig;
+  suncomplextype dom_eig_old;
+
+  dom_eig_new.real = ZERO;
+  dom_eig_new.imag = ZERO;
+  dom_eig_old.real = ZERO;
+  dom_eig_old.imag = ZERO;
+
+  int retval, k;
   sunrealtype normq;
 
   for (k = 0; k < domeig_mem->max_powiter; k++)
@@ -272,57 +272,76 @@ suncomplextype DomEigPowerIteration(DOMEIGMem domeig_mem)
     retval = domeig_mem->ATimes(domeig_mem->Adata, domeig_mem->V[0], domeig_mem->q);
     if (retval != 0)
     {
-      (retval < 0) ?
-      printf(MSG_DOMEIG_ATIMES_FAIL_UNREC) :
-      printf(MSG_DOMEIG_ATIMES_FAIL_REC);
-      DomEigFree(&domeig_mem);
+      DomEigDestroy(&domeig_mem);
 
-      dom_eig.real = ZERO;
-      dom_eig.imag = ZERO;
-
-      return dom_eig;
+      if(retval < 0)
+      {
+        return SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC;
+      }
+      else
+      {
+        return SUN_ERR_DOMEIG_ATIMES_FAIL_REC;
+      }
     }
 
-    dom_eig.real = N_VDotProd(domeig_mem->V[0], domeig_mem->q); //Rayleigh quotient
+    dom_eig_new.real = N_VDotProd(domeig_mem->V[0], domeig_mem->q); //Rayleigh quotient
+    SUNCheckLastErr();
 
-    if(fabs(dom_eig.real - dom_eig_old.real) < domeig_mem->powiter_tol)
+    if(fabs(dom_eig_new.real - dom_eig_old.real) < domeig_mem->powiter_tol)
     {
       break;
     }
 
     normq = N_VDotProd(domeig_mem->q, domeig_mem->q);
+    SUNCheckLastErr();
+
     normq = SUNRsqrt(normq);
     N_VScale(SUN_RCONST(1.0)/normq, domeig_mem->q, domeig_mem->V[0]);
+    SUNCheckLastErr();
 
-    dom_eig_old.real = dom_eig.real;
+    dom_eig_old.real = dom_eig_new.real;
   }
 
-  return dom_eig;
+  *dom_eig = dom_eig_new;
+
+  return SUN_SUCCESS;
 }
 
-/* Estimate the dominant eigvalues of the Hessenberg matrix */
-suncomplextype DomEigEstimate(DOMEIGMem domeig_mem) {
-  suncomplextype dom_eig;
-  dom_eig.real = ZERO;
-  dom_eig.imag = ZERO;
+/* Estimate the dominant eigvalues of the Hessenberg matrix or
+   run power iterations for problem size less than 3 */
+SUNErrCode DomEigEstimate(DOMEIGMem domeig_mem, suncomplextype* dom_eig, SUNContext sunctx)
+{
+  SUNFunctionBegin(sunctx); // is this correct?
 
   /* Check if DomEig memory is allocated */
   if(domeig_mem == NULL)
   {
-    printf(MSG_DOMEIG_MEM_FAIL);
-
-    return dom_eig;
+    return SUN_ERR_DOMEIG_MEM_FAIL;
   }
 
+  suncomplextype dom_eig_new;
+  dom_eig_new.real = ZERO;
+  dom_eig_new.imag = ZERO;
+
+  /* run power iterations for problem size less than 3 */
   if(domeig_mem->length < 3)
   {
-    dom_eig = DomEigPowerIteration(domeig_mem);
+    SUNCheckCall(DomEigPowerIteration(domeig_mem, &dom_eig_new, domeig_mem->sunctx));
 
-    return dom_eig;
+    *dom_eig = dom_eig_new;
+
+    return SUN_SUCCESS;
+  }
+
+  /* Check if Hes is allocated */
+  if(domeig_mem->Hes == NULL)
+  {
+    return SUN_ERR_DOMEIG_NULL_HES;
   }
 
   int n = domeig_mem->maxl;
 
+  /* Reshape the Hessenberg matrix as an input vector for the LAPACK dgeev_ function */
   int i, j, k = 0;
   for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++) {
@@ -337,35 +356,41 @@ suncomplextype DomEigEstimate(DOMEIGMem domeig_mem) {
   char jobvl = 'N'; // Do not compute left eigenvectors
   char jobvr = 'N'; // Do not compute right eigenvectors
 
-  // Call LAPACK's dgeev function
+  /* Call LAPACK's dgeev function */
   dgeev_(&jobvl, &jobvr, &n, domeig_mem->LAPACK_A, &lda, domeig_mem->LAPACK_wr, domeig_mem->LAPACK_wi, NULL, &ldvl, NULL, &ldvr, domeig_mem->LAPACK_work, &lwork, &info);
 
   if (info != 0) {
       printf(MSG_DOMEIG_LAPACK_FAIL, info);
-      DomEigFree(&domeig_mem);
+      DomEigDestroy(&domeig_mem);
 
-      return dom_eig;
+      return SUN_ERR_DOMEIG_LAPACK_FAIL;
   }
 
-  //Following part will order the eigenvalues by their magnitude
+  /* order the eigenvalues by their magnitude */
   for (i = 0; i < n; i++) {
       domeig_mem->LAPACK_arr[i].real = domeig_mem->LAPACK_wr[i];
       domeig_mem->LAPACK_arr[i].imag = domeig_mem->LAPACK_wi[i];
   }
 
-  // Sort the array using qsort
+  /* Sort the array using qsort */
   qsort(domeig_mem->LAPACK_arr, n, sizeof(suncomplextype), domeig_Compare);
 
-  // Update the original arrays
+  /* Update the original arrays */
   for (i = 0; i < n; i++) {
       domeig_mem->LAPACK_wr[i] = domeig_mem->LAPACK_arr[i].real;
       domeig_mem->LAPACK_wi[i] = domeig_mem->LAPACK_arr[i].imag;
   }
 
-  dom_eig.real = domeig_mem->LAPACK_wr[0];
-  dom_eig.imag = domeig_mem->LAPACK_wi[0];
+  // alternatively we can return a vector of all computed dom_eigs (up to maxl)
+  // TODO: Get opinions
 
-  return dom_eig;
+  /* Copy the dominant eigenvalue */
+  dom_eig_new.real = domeig_mem->LAPACK_wr[0];
+  dom_eig_new.imag = domeig_mem->LAPACK_wi[0];
+
+  *dom_eig = dom_eig_new;
+
+  return SUN_SUCCESS;
 }
 
 /*===============================================================
@@ -376,17 +401,18 @@ suncomplextype DomEigEstimate(DOMEIGMem domeig_mem) {
   domeig_CheckNVector:
 
   This routine checks if all required vector operations are
-  present. If any of them is missing it returns SUNFALSE.
+  present. If any of them is missing it returns the corresponding
+  SUNErrCode.
   ---------------------------------------------------------------*/
-sunbooleantype domeig_CheckNVector(N_Vector tmpl)
+SUNErrCode domeig_CheckNVector(N_Vector tmpl)
 { // TO DO: check required vector operations
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
       (tmpl->ops->nvdotprod == NULL) || (tmpl->ops->nvscale == NULL) ||
       (tmpl->ops->nvgetlength == NULL) || (tmpl->ops->nvspace == NULL))
   {
-    return SUNFALSE;
+    return SUN_ERR_DOMEIG_BAD_NVECTOR;
   }
-  return SUNTRUE;
+  return SUN_SUCCESS;
 }
 
 // Function to calculate the magnitude of a suncomplextype number
@@ -404,56 +430,56 @@ int domeig_Compare(const void *a, const void *b) {
 }
 
 /*---------------------------------------------------------------
-  DomEigFree frees all DomEig memory.
+  DomEigDestroy frees all DomEig memory.
   ---------------------------------------------------------------*/
-void DomEigFree(DOMEIGMem* domeig_mem)
+void DomEigDestroy(void** domeig_mem)
 {
-  DOMEIGMem arn_mem;
+  DOMEIGMem dom_eig_mem;
 
   /* nothing to do if domeig_mem is already NULL */
-  if (domeig_mem == NULL) { return; }
+  if (*domeig_mem == NULL) { return; }
 
-  arn_mem = (DOMEIGMem)(*domeig_mem);
+  dom_eig_mem = (DOMEIGMem)(*domeig_mem);
 
-  if (arn_mem->q != NULL)
+  if (dom_eig_mem->q != NULL)
   {
-    N_VDestroy(arn_mem->q);
-    arn_mem->q = NULL;
+    N_VDestroy(dom_eig_mem->q);
+    dom_eig_mem->q = NULL;
   }
-  if (arn_mem->V != NULL)
+  if (dom_eig_mem->V != NULL)
   {
-    N_VDestroyVectorArray(arn_mem->V, arn_mem->maxl + 1);
-    arn_mem->V = NULL;
-  }
-
-  if (arn_mem->LAPACK_A != NULL)
-  {
-    free(arn_mem->LAPACK_A);
-    arn_mem->LAPACK_A = NULL;
+    N_VDestroyVectorArray(dom_eig_mem->V, dom_eig_mem->maxl + 1);
+    dom_eig_mem->V = NULL;
   }
 
-  if (arn_mem->LAPACK_wr != NULL)
+  if (dom_eig_mem->LAPACK_A != NULL)
   {
-    free(arn_mem->LAPACK_wr);
-    arn_mem->LAPACK_wr = NULL;
+    free(dom_eig_mem->LAPACK_A);
+    dom_eig_mem->LAPACK_A = NULL;
   }
 
-  if (arn_mem->LAPACK_wi != NULL)
+  if (dom_eig_mem->LAPACK_wr != NULL)
   {
-    free(arn_mem->LAPACK_wi);
-    arn_mem->LAPACK_wi = NULL;
+    free(dom_eig_mem->LAPACK_wr);
+    dom_eig_mem->LAPACK_wr = NULL;
   }
 
-  if (arn_mem->LAPACK_arr != NULL)
+  if (dom_eig_mem->LAPACK_wi != NULL)
   {
-    free(arn_mem->LAPACK_arr);
-    arn_mem->LAPACK_arr = NULL;
+    free(dom_eig_mem->LAPACK_wi);
+    dom_eig_mem->LAPACK_wi = NULL;
   }
 
-  if (arn_mem->Hes != NULL)
+  if (dom_eig_mem->LAPACK_arr != NULL)
   {
-    free(arn_mem->Hes);
-    arn_mem->Hes = NULL;
+    free(dom_eig_mem->LAPACK_arr);
+    dom_eig_mem->LAPACK_arr = NULL;
+  }
+
+  if (dom_eig_mem->Hes != NULL)
+  {
+    free(dom_eig_mem->Hes);
+    dom_eig_mem->Hes = NULL;
   }
 
   free(*domeig_mem);

@@ -29,7 +29,7 @@ extern "C" {
   DOMEIG module private function prototypes
   ===============================================================*/
 
- sunbooleantype domeig_CheckNVector(N_Vector tmpl);
+ SUNErrCode domeig_CheckNVector(N_Vector tmpl);
  sunrealtype domeig_Magnitude(const suncomplextype *c);
  int domeig_Compare(const void *a, const void *b);
 
@@ -48,15 +48,6 @@ extern "C" {
   ===============================================================*/
 
 /* Initialization and I/O error messages */
-#define MSG_DOMEIG_NULL_q             "q is null."
-#define MSG_DOMEIG_BAD_NVECTOR        "Bad NVector."
-#define MSG_DOMEIG_NULL_ATIMES        "ATimes is null."
-#define MSG_DOMEIG_ATIMES_FAIL_REC    "Atimes recoverable failure"
-#define MSG_DOMEIG_ATIMES_FAIL_UNREC  "Atimes unrecoverable failure"
-#define MSG_DOMEIG_NOT_ENOUGH_ITER    "Number of Krylov subspace is not enough (< 2)"
-#define MSG_DOMEIG_NULL_SUNCTX        "sunctx is null."
-#define MSG_DOMEIG_MEM_FAIL           "DOMEIG memory fail."
-#define MSG_DOMEIG_GS_FAIL            "DOMEIG Modified GS fail."
 #define MSG_DOMEIG_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
 
 #ifdef __cplusplus

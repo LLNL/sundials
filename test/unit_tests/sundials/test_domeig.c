@@ -131,28 +131,22 @@ int main(int argc, char* argv[])
   ProbData.imag_part = imagpart;
 
   /* Create DOMEIG memory structure */
-  DOMEIGMem DomEig_mem;
-  DomEig_mem = DomEigCreate(ATimes, &ProbData, q, maxl,sunctx);
+  void* DomEig_mem = NULL;
+  passfail = DomEigCreate(ATimes, &ProbData, q, maxl, sunctx, &DomEig_mem);
+  if (check_flag(&passfail, "DomEigCreate", 1)) { return 1; }
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  DomEigPreProcess(DomEig_mem);
+  passfail = DomEigPreProcess(DomEig_mem, sunctx);
+  if (check_flag(&passfail, "DomEigPreProcess", 1)) { return 1; }
 
   /* Compute the Hessenberg matrix Hes*/
-  DomEigComputeHess(DomEig_mem);
+  passfail = DomEigComputeHess(DomEig_mem, sunctx);
+  if (check_flag(&passfail, "DomEigComputeHess", 1)) { return 1; }
 
-  /* Print the Hessenberg matrix Hes if N <= 10*/
-  if(ProbData.N <= 10){
-    printf("\n");
-    printf("Hes:\n");
-    for (i = 0; i < DomEig_mem->maxl + 1; i++) {
-        for (j = 0; j < DomEig_mem->maxl; j++) {
-            printf("%20.2lf      ", DomEig_mem->Hes[i][j]);
-        }
-        printf("\n");
-    }
-  }
+  suncomplextype dom_eig;
+  passfail = DomEigEstimate(DomEig_mem, &dom_eig, sunctx);
+  if (check_flag(&passfail, "DomEigEstimate", 1)) { return 1; }
 
-  suncomplextype dom_eig = DomEigEstimate(DomEig_mem);
   sunrealtype norm_of_dom_eig = SUNRsqrt(dom_eig.real * dom_eig.real + dom_eig.imag * dom_eig.imag);
   if(norm_of_dom_eig < SUN_SMALL_REAL) {
     printf("FAIL:   Dominant Eigenvalue Test Failed");
@@ -194,7 +188,7 @@ int main(int argc, char* argv[])
   N_VDestroy(q);
   N_VDestroy(ProbData.d);
   SUNContext_Free(&sunctx);
-  DomEigFree(&DomEig_mem);
+  DomEigDestroy(&DomEig_mem);
 
   return (passfail);
 }

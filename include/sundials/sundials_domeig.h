@@ -19,7 +19,9 @@
 #define _DOMEIG_H
 
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
+#include "sundials/sundials_errors.h"
 #include <sundials/sundials_iterative.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -50,6 +52,8 @@ typedef struct {
   ---------------------------------------------------------------*/
 typedef struct DOMEIGMemRec
 {
+  SUNContext sunctx;
+
   /* DOMEIG MEMORY specification */
   SUNATimesFn ATimes;   /* User provided ATimes function */
   void* Adata;          /* ATimes function data*/
@@ -78,18 +82,18 @@ typedef struct DOMEIGMemRec
 
 /* Creation and Estimation functions */
 
-SUNDIALS_EXPORT void* DomEigCreate(SUNATimesFn ATimes, void* AData,
-                N_Vector q, int maxl, SUNContext sunctx);
+SUNDIALS_EXPORT SUNErrCode DomEigCreate(SUNATimesFn ATimes, void* Adata,
+                N_Vector q, int maxl, SUNContext sunctx, void** domeig_mem_out);
 
-SUNDIALS_EXPORT int DomEigComputeHess(DOMEIGMem domeig_mem);
+SUNDIALS_EXPORT SUNErrCode DomEigPreProcess(DOMEIGMem domeig_mem, SUNContext sunctx);
 
-SUNDIALS_EXPORT int DomEigPreProcess(DOMEIGMem domeig_mem);
+SUNDIALS_EXPORT SUNErrCode DomEigComputeHess(DOMEIGMem domeig_mem, SUNContext sunctx);
 
-SUNDIALS_EXPORT suncomplextype DomEigPowerIteration(DOMEIGMem domeig_mem);
+SUNDIALS_EXPORT SUNErrCode DomEigPowerIteration(DOMEIGMem domeig_mem, suncomplextype* dom_eig, SUNContext sunctx);
 
-SUNDIALS_EXPORT suncomplextype DomEigEstimate(DOMEIGMem domeig_mem);
+SUNDIALS_EXPORT SUNErrCode DomEigEstimate(DOMEIGMem domeig_mem, suncomplextype* dom_eig, SUNContext sunctx);
 
-SUNDIALS_EXPORT void DomEigFree(DOMEIGMem* domeig_mem);
+SUNDIALS_EXPORT void DomEigDestroy(void** domeig_mem);
 
 #ifdef __cplusplus
 }
