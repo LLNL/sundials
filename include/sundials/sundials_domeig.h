@@ -85,13 +85,13 @@ typedef struct DOMEIGMemRec
 SUNDIALS_EXPORT SUNErrCode DomEigCreate(SUNATimesFn ATimes, void* Adata,
                 N_Vector q, int maxl, SUNContext sunctx, void** domeig_mem_out);
 
-SUNDIALS_EXPORT SUNErrCode DomEigPreProcess(DOMEIGMem domeig_mem, SUNContext sunctx);
+SUNDIALS_EXPORT SUNErrCode DomEigPreProcess(DOMEIGMem domeig_mem);
 
-SUNDIALS_EXPORT SUNErrCode DomEigComputeHess(DOMEIGMem domeig_mem, SUNContext sunctx);
+SUNDIALS_EXPORT SUNErrCode DomEigComputeHess(DOMEIGMem domeig_mem);
 
-SUNDIALS_EXPORT SUNErrCode DomEigPowerIteration(DOMEIGMem domeig_mem, suncomplextype* dom_eig, SUNContext sunctx);
+SUNDIALS_EXPORT SUNErrCode DomEigPowerIteration(DOMEIGMem domeig_mem, suncomplextype* dom_eig);
 
-SUNDIALS_EXPORT SUNErrCode DomEigEstimate(DOMEIGMem domeig_mem, suncomplextype* dom_eig, SUNContext sunctx);
+SUNDIALS_EXPORT SUNErrCode DomEigEstimate(DOMEIGMem domeig_mem, suncomplextype* dom_eig);
 
 SUNDIALS_EXPORT void DomEigDestroy(void** domeig_mem);
 

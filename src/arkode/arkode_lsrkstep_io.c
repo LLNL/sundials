@@ -220,6 +220,12 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
     step_mem->dom_eig_fn = NULL;
 
     step_mem->domeig_mem = lsrkStep_DomEigCreate(arkode_mem);
+    if (step_mem->domeig_mem == NULL)
+    {
+      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                      "Internal domeig_mem is NULL");
+      return ARK_INTERNAL_DOMEIG_FAIL;
+    }
 
     return ARK_SUCCESS;
   }

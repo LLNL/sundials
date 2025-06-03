@@ -2341,7 +2341,7 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem domeig_mem)
   }
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  retval = DomEigPreProcess(domeig_mem, ark_mem->sunctx);
+  retval = DomEigPreProcess(domeig_mem);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
@@ -2351,7 +2351,7 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem domeig_mem)
   }
 
   /* Compute the Hessenberg matrix Hes*/
-  retval = DomEigComputeHess(domeig_mem, ark_mem->sunctx);
+  retval = DomEigComputeHess(domeig_mem);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
@@ -2360,7 +2360,7 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem domeig_mem)
     return dom_eig;
   }
 
-  retval = DomEigEstimate(domeig_mem, &dom_eig, ark_mem->sunctx);
+  retval = DomEigEstimate(domeig_mem, &dom_eig);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,

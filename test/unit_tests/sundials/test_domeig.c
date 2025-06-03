@@ -136,15 +136,15 @@ int main(int argc, char* argv[])
   if (check_flag(&passfail, "DomEigCreate", 1)) { return 1; }
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  passfail = DomEigPreProcess(DomEig_mem, sunctx);
+  passfail = DomEigPreProcess(DomEig_mem);
   if (check_flag(&passfail, "DomEigPreProcess", 1)) { return 1; }
 
   /* Compute the Hessenberg matrix Hes*/
-  passfail = DomEigComputeHess(DomEig_mem, sunctx);
+  passfail = DomEigComputeHess(DomEig_mem);
   if (check_flag(&passfail, "DomEigComputeHess", 1)) { return 1; }
 
   suncomplextype dom_eig;
-  passfail = DomEigEstimate(DomEig_mem, &dom_eig, sunctx);
+  passfail = DomEigEstimate(DomEig_mem, &dom_eig);
   if (check_flag(&passfail, "DomEigEstimate", 1)) { return 1; }
 
   sunrealtype norm_of_dom_eig = SUNRsqrt(dom_eig.real * dom_eig.real + dom_eig.imag * dom_eig.imag);

@@ -33,7 +33,7 @@
 SUNErrCode DomEigCreate(SUNATimesFn ATimes, void* Adata,
                 N_Vector q, int maxl, SUNContext sunctx, void** domeig_mem_out)
 {
-  SUNFunctionBegin(sunctx); // is this correct?
+  SUNFunctionBegin(sunctx);
   DOMEIGMem domeig_mem;
 
   /* Test if Atimes and q are provided */
@@ -125,17 +125,11 @@ SUNErrCode DomEigCreate(SUNATimesFn ATimes, void* Adata,
 }
 
 /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-SUNErrCode DomEigPreProcess(DOMEIGMem domeig_mem, SUNContext sunctx)
+SUNErrCode DomEigPreProcess(DOMEIGMem domeig_mem)
 {
-  SUNFunctionBegin(sunctx); // is this correct?
+  SUNFunctionBegin(domeig_mem->sunctx);
 
   int retval;
-
-  /* Check if DomEig memory is allocated */
-  if(domeig_mem == NULL)
-  {
-    return SUN_ERR_DOMEIG_MEM_FAIL;
-  }
 
   /* Check if ATimes is provided */
   if(domeig_mem->ATimes == NULL)
@@ -174,15 +168,9 @@ SUNErrCode DomEigPreProcess(DOMEIGMem domeig_mem, SUNContext sunctx)
 }
 
 /* Compute the Hessenberg matrix DomEig_mem->Hes*/
-SUNErrCode DomEigComputeHess(DOMEIGMem domeig_mem, SUNContext sunctx)
+SUNErrCode DomEigComputeHess(DOMEIGMem domeig_mem)
 {
-  SUNFunctionBegin(sunctx); // is this correct?
-
-  /* Check if DomEig memory is allocated */
-  if(domeig_mem == NULL)
-  {
-    return SUN_ERR_DOMEIG_MEM_FAIL;
-  }
+  SUNFunctionBegin(domeig_mem->sunctx);
 
   /* Check if the dim of the matrix is less than 3.
      Return immediately if dim <= 2;
@@ -240,15 +228,9 @@ SUNErrCode DomEigComputeHess(DOMEIGMem domeig_mem, SUNContext sunctx)
   return SUN_SUCCESS;
 }
 
-SUNErrCode DomEigPowerIteration(DOMEIGMem domeig_mem, suncomplextype* dom_eig, SUNContext sunctx)
+SUNErrCode DomEigPowerIteration(DOMEIGMem domeig_mem, suncomplextype* dom_eig)
 {
-  SUNFunctionBegin(sunctx); // is this correct?
-
-  /* Check if DomEig memory is allocated */
-  if(domeig_mem == NULL)
-  {
-    return SUN_ERR_DOMEIG_MEM_FAIL;
-  }
+  SUNFunctionBegin(domeig_mem->sunctx);
 
   /* Check if ATimes is provided */
   if(domeig_mem->ATimes == NULL)
@@ -309,15 +291,9 @@ SUNErrCode DomEigPowerIteration(DOMEIGMem domeig_mem, suncomplextype* dom_eig, S
 
 /* Estimate the dominant eigvalues of the Hessenberg matrix or
    run power iterations for problem size less than 3 */
-SUNErrCode DomEigEstimate(DOMEIGMem domeig_mem, suncomplextype* dom_eig, SUNContext sunctx)
+SUNErrCode DomEigEstimate(DOMEIGMem domeig_mem, suncomplextype* dom_eig)
 {
-  SUNFunctionBegin(sunctx); // is this correct?
-
-  /* Check if DomEig memory is allocated */
-  if(domeig_mem == NULL)
-  {
-    return SUN_ERR_DOMEIG_MEM_FAIL;
-  }
+  SUNFunctionBegin(domeig_mem->sunctx);
 
   suncomplextype dom_eig_new;
   dom_eig_new.real = ZERO;
@@ -326,7 +302,7 @@ SUNErrCode DomEigEstimate(DOMEIGMem domeig_mem, suncomplextype* dom_eig, SUNCont
   /* run power iterations for problem size less than 3 */
   if(domeig_mem->length < 3)
   {
-    SUNCheckCall(DomEigPowerIteration(domeig_mem, &dom_eig_new, domeig_mem->sunctx));
+    SUNCheckCall(DomEigPowerIteration(domeig_mem, &dom_eig_new));
 
     *dom_eig = dom_eig_new;
 

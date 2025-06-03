@@ -73,7 +73,6 @@
   ENTRY(SUN_ERR_DOMEIG_BAD_NVECTOR, "Bad NVector")                             \
   ENTRY(SUN_ERR_DOMEIG_NULL_ATIMES, "ATimes is null")                          \
   ENTRY(SUN_ERR_DOMEIG_NULL_HES, "Hessenberg matrix is null")                  \
-  ENTRY(SUN_ERR_DOMEIG_MEM_FAIL, "DOMEIG memory fail")                         \
   ENTRY(SUN_ERR_DOMEIG_NOT_ENOUGH_ITER, "Number of Krylov subspace is not "    \
                                         "enough (< 2)")                        \
   ENTRY(SUN_ERR_DOMEIG_ATIMES_FAIL_REC, "Atimes recoverable failure")          \
