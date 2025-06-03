@@ -56,8 +56,8 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n = 1);
 
 // Fused operation buffer functions
 static int FusedBuffer_Init(N_Vector v, int nreal, int nptr);
-static int FusedBuffer_CopyRealArray(N_Vector v, sunscalartype* r_data,
-                                     int nval, sunscalartype** shortcut);
+static int FusedBuffer_CopyScalarArray(N_Vector v, sunscalartype* r_data,
+                                       int nval, sunscalartype** shortcut);
 static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
                                       sunscalartype*** shortcut);
 static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
@@ -988,8 +988,6 @@ sunrealtype N_VMaxNorm_Cuda(N_Vector X)
 
   // Finish reduction on CPU if there are less than two blocks of data left.
   CopyReductionBufferFromDevice(X);
-  printf(">>>> result=%g+%gi\n", SUN_REAL(NVEC_CUDA_HBUFFERp(X)[0]),
-         SUN_IMAG(NVEC_CUDA_HBUFFERp(X)[0]));
   gpu_result = SUN_REAL(NVEC_CUDA_HBUFFERp(X)[0]);
 
   return gpu_result;
@@ -1390,10 +1388,10 @@ SUNErrCode N_VLinearCombination_Cuda(int nvec, sunscalartype* c, N_Vector* X,
     return SUN_ERR_GENERIC;
   }
 
-  if (FusedBuffer_CopyRealArray(z, c, nvec, &cdata))
+  if (FusedBuffer_CopyScalarArray(z, c, nvec, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombination_Cuda: "
-                         "FusedBuffer_CopyRealArray returned nonzero\n");
+                         "FusedBuffer_CopyScalarArray returned nonzero\n");
     return SUN_ERR_GENERIC;
   }
 
@@ -1447,10 +1445,10 @@ SUNErrCode N_VScaleAddMulti_Cuda(int nvec, sunscalartype* c, N_Vector x,
     return SUN_ERR_GENERIC;
   }
 
-  if (FusedBuffer_CopyRealArray(x, c, nvec, &cdata))
+  if (FusedBuffer_CopyScalarArray(x, c, nvec, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMulti_Cuda: "
-                         "FusedBuffer_CopyRealArray returned nonzero\n");
+                         "FusedBuffer_CopyScalarArray returned nonzero\n");
     return SUN_ERR_GENERIC;
   }
 
@@ -1643,10 +1641,10 @@ SUNErrCode N_VScaleVectorArray_Cuda(int nvec, sunscalartype* c, N_Vector* X,
     return SUN_ERR_GENERIC;
   }
 
-  if (FusedBuffer_CopyRealArray(Z[0], c, nvec, &cdata))
+  if (FusedBuffer_CopyScalarArray(Z[0], c, nvec, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleVectorArray_Cuda: "
-                         "FusedBuffer_CopyRealArray returned nonzero\n");
+                         "FusedBuffer_CopyScalarArray returned nonzero\n");
     return SUN_ERR_GENERIC;
   }
 
@@ -1899,10 +1897,10 @@ SUNErrCode N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum,
     return SUN_ERR_GENERIC;
   }
 
-  if (FusedBuffer_CopyRealArray(X[0], c, nsum, &cdata))
+  if (FusedBuffer_CopyScalarArray(X[0], c, nsum, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VScaleAddMultiArray_Cuda: "
-                         "FusedBuffer_CopyRealArray returned nonzero\n");
+                         "FusedBuffer_CopyScalarArray returned nonzero\n");
     return SUN_ERR_GENERIC;
   }
 
@@ -1973,10 +1971,10 @@ SUNErrCode N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum,
     return SUN_ERR_GENERIC;
   }
 
-  if (FusedBuffer_CopyRealArray(Z[0], c, nsum, &cdata))
+  if (FusedBuffer_CopyScalarArray(Z[0], c, nsum, &cdata))
   {
     SUNDIALS_DEBUG_PRINT("ERROR in N_VLinearCombinationVectorArray_Cuda: "
-                         "FusedBuffer_CopyRealArray returned nonzero\n");
+                         "FusedBuffer_CopyScalarArray returned nonzero\n");
     return SUN_ERR_GENERIC;
   }
 
@@ -2405,7 +2403,7 @@ static int CopyReductionBufferFromDevice(N_Vector v, size_t n)
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_CUDA_MEMHELP(v),
                                         NVEC_CUDA_PRIVATE(v)->reduce_buffer_host,
                                         NVEC_CUDA_PRIVATE(v)->reduce_buffer_dev,
-                                        n * sizeof(sunrealtype),
+                                        n * sizeof(sunscalartype),
                                         (void*)NVEC_CUDA_STREAM(v));
 
   if (copy_fail)
@@ -2427,9 +2425,10 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
 
   // pad buffer with single precision data
 #if defined(SUNDIALS_SINGLE_PRECISION)
-  size_t bytes = nreal * 2 * sizeof(sunrealtype) + nptr * sizeof(sunrealtype*);
+  size_t bytes = nreal * 2 * sizeof(sunscalartype) +
+                 nptr * sizeof(sunscalartype*);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  size_t bytes = nreal * sizeof(sunrealtype) + nptr * sizeof(sunrealtype*);
+  size_t bytes = nreal * sizeof(sunscalartype) + nptr * sizeof(sunscalartype*);
 #else
 #error Incompatible precision for CUDA
 #endif
@@ -2492,8 +2491,8 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
   return SUN_SUCCESS;
 }
 
-static int FusedBuffer_CopyRealArray(N_Vector v, sunscalartype* rdata, int nval,
-                                     sunscalartype** shortcut)
+static int FusedBuffer_CopyScalarArray(N_Vector v, sunscalartype* rdata,
+                                       int nval, sunscalartype** shortcut)
 {
   // Get the vector private memory structure
   N_PrivateVectorContent_Cuda vcp = NVEC_CUDA_PRIVATE(v);
@@ -2501,8 +2500,9 @@ static int FusedBuffer_CopyRealArray(N_Vector v, sunscalartype* rdata, int nval,
   // Check buffer space and fill the host buffer
   if (vcp->fused_buffer_offset >= vcp->fused_buffer_bytes)
   {
-    SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_CopyRealArray: Buffer offset is "
-                         "exceedes the buffer size\n");
+    SUNDIALS_DEBUG_PRINT(
+      "ERROR in FusedBuffer_CopyScalarArray: Buffer offset is "
+      "exceedes the buffer size\n");
     return SUN_ERR_GENERIC;
   }
 
