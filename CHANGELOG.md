@@ -129,6 +129,9 @@ variables. It is currently an alias for `long int`.
 
 #### ARKODE
 
+Fixed a bug in the declaration of `arkCheckConstraints` by reordering parameters
+to match its definition.
+
 Fixed bug in `ARKodeResize` which caused it return an error for MRI methods.
 
 Removed error floors from the `SUNAdaptController` implementations which could

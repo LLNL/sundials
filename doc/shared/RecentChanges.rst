@@ -157,6 +157,9 @@ counter variables. It is currently an alias for ``long int``.
 
 *ARKODE*
 
+Fixed a bug in the declaration of :c:func:`arkCheckConstraints` by reordering
+parameters to match its definition.
+
 Fixed bug in :c:func:`ARKodeResize` which caused it return an error for MRI
 methods.
 
