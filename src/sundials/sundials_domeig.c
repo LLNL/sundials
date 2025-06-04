@@ -48,12 +48,6 @@ SUNErrCode DomEigCreate(SUNATimesFn ATimes, void* Adata,
     return SUN_ERR_DOMEIG_NOT_ENOUGH_ITER;
   }
 
-  /* Test if sunctx is provided */
-  if (sunctx == NULL)
-  {
-    return SUN_ERR_SUNCTX_CORRUPT;
-  }
-
   /* Test if all required vector operations are implemented */
   SUNCheckCall(domeig_CheckNVector(q));
 
