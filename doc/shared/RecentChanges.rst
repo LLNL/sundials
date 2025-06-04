@@ -5,6 +5,9 @@
 
 **New Features and Enhancements**
 
+:c:func:`ARKodeSetCFLFraction` now allows ``cfl_frac`` to be greater than or
+equal to one.
+
 **Bug Fixes**
 
 Fixed segfaults in :c:func:`CVodeAdjInit` and :c:func:`IDAAdjInit` when called

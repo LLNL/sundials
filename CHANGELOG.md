@@ -27,6 +27,8 @@ A new example demonstrating this capability can be found in
 
 ### New Features and Enhancements
 
+`ARKodeSetCFLFraction` now allows `cfl_frac` to be greater than or equal to one.
+
 #### ARKODE
 
 The following changes have been made to the default ERK, DIRK, and ARK methods
