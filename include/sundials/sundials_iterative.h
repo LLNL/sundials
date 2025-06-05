@@ -53,7 +53,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-enum
+enum SUN_PREC_ID
 {
   SUN_PREC_NONE,
   SUN_PREC_LEFT,
@@ -75,7 +75,7 @@ enum
  * -----------------------------------------------------------------
  */
 
-enum
+enum SUN_GRAMSCHMIDT_ID
 {
   SUN_MODIFIED_GS  = 1,
   SUN_CLASSICAL_GS = 2

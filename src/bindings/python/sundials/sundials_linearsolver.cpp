@@ -26,6 +26,7 @@ namespace nb = nanobind;
 
 void bind_linearsolver(nb::module_& m)
 {
+#include "sundials_iterative_generated.hpp"
 #include "sundials_linearsolver_generated.hpp"
 
   nb::class_<sundials::experimental::SUNLinearSolverView>(m,

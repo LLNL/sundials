@@ -35,3 +35,7 @@ modules:
     - "VectorArray"
     - "Multi"
     - "LinearCombination"
+  sundials_iterative:
+    path: sundials/sundials_iterative_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_iterative.h
