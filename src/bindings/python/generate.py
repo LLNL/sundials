@@ -1,3 +1,8 @@
+# TODO(CJB): Since litgen is GPLv3, this script might have to be GPLv3.
+# Will need to determine if this is the case or not.
+# The outputs of the script, i.e. the generated code, are definitely 
+# not subject to GPLv3 though, and can use our standard license.
+
 import argparse
 import litgen
 from codemanip import code_utils

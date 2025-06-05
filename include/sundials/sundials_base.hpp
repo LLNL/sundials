@@ -144,6 +144,12 @@ private:
   std::unique_ptr<T> object_;
 };
 
+template<typename T, typename Deleter, typename Func, typename... Args>
+T make_view(Args&&... args)
+{
+  return ClassView<T, Deleter>(Func(std::forward<Args>(args)...));
+}
+
 } // namespace experimental
 } // namespace sundials
 

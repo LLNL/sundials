@@ -11,40 +11,41 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * C++ view of SUNDIALS SUNAdjointStepper
+ * C++ view of SUNDIALS SUNStepper
  * ---------------------------------------------------------------------------*/
 
-#ifndef _SUNDIALS_ADJOINTSTEPPER_HPP
-#define _SUNDIALS_ADJOINTSTEPPER_HPP
+#ifndef _SUNDIALS_STEPPER_HPP
+#define _SUNDIALS_STEPPER_HPP
 
+#include <memory>
 #include <sundials/sundials_base.hpp>
-#include <sundials/sundials_adjointstepper.h>
+#include <sundials/sundials_stepper.h>
 
 namespace sundials {
-namespace experimental {
 
-struct SUNAdjointStepperDeleter
+namespace experimental {
+struct SUNStepperDeleter
 {
-  void operator()(SUNAdjointStepper self)
+  void operator()(SUNStepper self)
   {
-    if (self) { SUNAdjointStepper_Destroy(&self); }
+    if (self) { SUNStepper_Destroy(&self); }
   }
 };
 
-class SUNAdjointStepperView : public ClassView<SUNAdjointStepper, SUNAdjointStepperDeleter>
+class SUNStepperView : public ClassView<SUNStepper, SUNStepperDeleter>
 { 
 public:
-  using ClassView<SUNAdjointStepper, SUNAdjointStepperDeleter>::ClassView;
+  using ClassView<SUNStepper, SUNStepperDeleter>::ClassView;
   template<typename... Args>
-  static SUNAdjointStepperView make_view(Args&&... args);
+  static SUNStepperView make_view(Args&&... args);
 };
 
 template<typename... Args>
-SUNAdjointStepperView SUNAdjointStepperView::make_view(Args&&... args)
+SUNStepperView SUNStepperView::make_view(Args&&... args)
 {
-  SUNAdjointStepper stepper;
-  SUNAdjointStepper_Create(std::forward<Args>(args)..., &stepper);
-  return SUNAdjointStepperView(stepper);
+  SUNStepper stepper;
+  SUNStepper_Create(std::forward<Args>(args)..., &stepper);
+  return SUNStepperView(stepper);
 }
 
 } // namespace experimental

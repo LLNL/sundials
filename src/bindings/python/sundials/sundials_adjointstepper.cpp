@@ -21,18 +21,23 @@
 
 #include <sundials/sundials_adjointstepper.hpp>
 
+#include "sundials_adjointstepper_impl.h"
+#include "sundials_adjointcheckpointscheme_impl.h"
+#include "sundials_stepper_impl.h"
+
 namespace nb = nanobind;
+
+using SUNAdjointStepperView = sundials::experimental::SUNAdjointStepperView;
 
 void bind_sunadjointstepper(nb::module_& m)
 {
 #include "sundials_adjointstepper_generated.hpp"
 
-  nb::class_<sundials::experimental::SUNAdjointStepperView>(m,
-                                                          "SUNAdjointstepperView");
+  nb::class_<SUNAdjointStepperView>(m, "SUNAdjointStepperView")
     .def(nb::init<>())
     .def(nb::init<SUNAdjointStepper_*>())
     .def("get",
-         nb::overload_cast<>(&sundials::experimental::SUNAdjointStepperView::get,
-                             nb::const_),
-         nb::rv_policy::reference);
+         nb::overload_cast<>(&SUNAdjointStepperView::get, nb::const_),
+         nb::rv_policy::reference)
+    .def_static("make_view", &SUNAdjointStepperView::make_view<SUNStepper, sunbooleantype, SUNStepper, sunbooleantype, suncountertype, sunrealtype, N_Vector, SUNAdjointCheckpointScheme, SUNContext>);
 }

@@ -16,20 +16,19 @@ modules:
     path: sundials/sundials_adjointstepper_generated.hpp
     headers:
     - ../../../include/sundials/sundials_adjointstepper.h
+    fn_exclude_by_name__regex:
+    - "Create" # nanobind cannot bind to functions which take a **
   sundials_errors:
     path: sundials/sundials_errors_generated.hpp
     headers:
     - ../../../include/sundials/sundials_errors.h
-  sundials_iterative:
-    path: sundials/sundials_iterative_generated.hpp
-    headers:
-    - ../../../include/sundials/sundials_iterative.h
-    fn_exclude_by_name__regex:
-    - "SUNQRAdd"
   sundials_linearsolver:
     path: sundials/sundials_linearsolver_generated.hpp
     headers:
+    - ../../../include/sundials/sundials_iterative.h
     - ../../../include/sundials/sundials_linearsolver.h
+    fn_exclude_by_name__regex:
+    - "SUNQRAdd"
   sundials_nvector:
     path: sundials/sundials_nvector_generated.hpp
     headers:
@@ -45,3 +44,21 @@ modules:
     path: sundials/sundials_matrix_generated.hpp
     headers:
     - ../../../include/sundials/sundials_matrix.h
+  # sundials_memory:
+  #   path: sundials/sundials_memory_generated.hpp
+  #   headers:
+  #   - ../../../include/sundials/sundials_memory.h
+  sundials_nonlinearsolver:
+    path: sundials/sundials_nonlinearsolver_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_nonlinearsolver.h
+  sundials_stepper:
+    path: sundials/sundials_stepper_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_stepper.h
+    fn_exclude_by_name__regex:
+    - "Create" # nanobind cannot bind to functions which take a **
+    - "Set.*Fn"
+    - "SetForcing" 
+    - "SetContent"
+    - "GetContent"

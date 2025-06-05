@@ -5,9 +5,6 @@
 // #endif
 // 
 
-m.def("SUNAdjointStepper_Create",
-    SUNAdjointStepper_Create, nb::arg("fwd_sunstepper"), nb::arg("own_fwd"), nb::arg("adj_sunstepper"), nb::arg("own_adj"), nb::arg("final_step_idx"), nb::arg("tf"), nb::arg("sf"), nb::arg("checkpoint_scheme"), nb::arg("sunctx"), nb::arg("adj_stepper"));
-
 m.def("SUNAdjointStepper_ReInit",
     SUNAdjointStepper_ReInit, nb::arg("adj"), nb::arg("t0"), nb::arg("y0"), nb::arg("tf"), nb::arg("sf"));
 
