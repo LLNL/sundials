@@ -28,6 +28,7 @@ set(sundials_SOURCES
     sundials/sundials_adaptcontroller.cpp
     # sundials/sundials_adjointcheckpointscheme.cpp
     # sundials/sundials_adjointstepper.cpp
+    sundials/sundials_matrix.cpp
     sundials/sundials_nvector.cpp
     sundials/sundials_linearsolver.cpp
     arkode/arkode.cpp

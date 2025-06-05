@@ -20,6 +20,12 @@ modules:
     path: sundials/sundials_errors_generated.hpp
     headers:
     - ../../../include/sundials/sundials_errors.h
+  sundials_iterative:
+    path: sundials/sundials_iterative_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_iterative.h
+    fn_exclude_by_name__regex:
+    - "SUNQRAdd"
   sundials_linearsolver:
     path: sundials/sundials_linearsolver_generated.hpp
     headers:
@@ -35,7 +41,7 @@ modules:
     - "VectorArray"
     - "Multi"
     - "LinearCombination"
-  sundials_iterative:
-    path: sundials/sundials_iterative_generated.hpp
+  sundials_matrix:
+    path: sundials/sundials_matrix_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_iterative.h
+    - ../../../include/sundials/sundials_matrix.h

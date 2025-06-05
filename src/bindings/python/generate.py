@@ -54,7 +54,6 @@ def main():
         #   "N_VNewEmpty",
         #   "N_VMake"
         # ])
-        # options.enum_make_arithmetic__regex = "^N_Vector_ID_Enum$"
         
         source_code = ""
         for file_path in module["headers"]:

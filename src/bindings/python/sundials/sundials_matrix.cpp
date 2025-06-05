@@ -12,7 +12,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS N_Vector class. It contains hand-written code for functions
+ * SUNDIALS SUNMatrix class. It contains hand-written code for functions
  * that require special treatment, and includes the generated code
  * produced with the generate.py script.
  * -----------------------------------------------------------------*/
@@ -20,21 +20,19 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 
-#include <sundials/sundials_linearsolver.hpp>
+#include <sundials/sundials_matrix.hpp>
 
 namespace nb = nanobind;
 
-void bind_sunlinearsolver(nb::module_& m)
+void bind_sunmatrix(nb::module_& m)
 {
-#include "sundials_iterative_generated.hpp"
-#include "sundials_linearsolver_generated.hpp"
+#include "sundials_matrix_generated.hpp"
 
-  nb::class_<sundials::experimental::SUNLinearSolverView>(m,
-                                                          "SUNLinearSolverView")
+  nb::class_<sundials::experimental::SUNMatrixView>(m, "SUNMatrixView")
     .def(nb::init<>())
-    .def(nb::init<_generic_SUNLinearSolver*>())
+    .def(nb::init<_generic_SUNMatrix*>())
     .def("get",
-         nb::overload_cast<>(&sundials::experimental::SUNLinearSolverView::get,
+         nb::overload_cast<>(&sundials::experimental::SUNMatrixView::get,
                              nb::const_),
          nb::rv_policy::reference);
 }
