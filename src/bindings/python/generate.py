@@ -1,6 +1,6 @@
 # TODO(CJB): Since litgen is GPLv3, this script might have to be GPLv3.
 # Will need to determine if this is the case or not.
-# The outputs of the script, i.e. the generated code, are definitely 
+# The outputs of the script, i.e. the generated code, are definitely
 # not subject to GPLv3 though, and can use our standard license.
 
 import argparse
@@ -25,6 +25,15 @@ def load_exclusions_from_yaml(config_object, module):
     return exclusions
 
 
+def strip_sundials_export(code):
+    return code.replace("SUNDIALS_EXPORT", "")
+
+
+def preprocess_header(code):
+    code = strip_sundials_export(code)
+    return code
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate Python bindings for SUNDIALS using litgen and nanobind."
@@ -36,6 +45,11 @@ def main():
     options.bind_library = litgen.BindLibraryType.nanobind
     options.python_run_black_formatter = True
     options.python_convert_to_snake_case = False
+    options.srcmlcpp_options.code_preprocess_function = preprocess_header
+    options.srcmlcpp_options.ignored_warning_parts.append(
+        # "ops" functions pointers cause this warning, but we dont care cause we dont need to bind those.
+        "A cpp element of type \"function_decl\" was stored as CppUnprocessed"
+    )
 
     config_yaml_path = args.config_yaml_path
     with open(config_yaml_path, "r") as yaml_file:
@@ -59,7 +73,7 @@ def main():
         #   "N_VNewEmpty",
         #   "N_VMake"
         # ])
-        
+
         source_code = ""
         for file_path in module["headers"]:
             with open(file_path, "r") as file:

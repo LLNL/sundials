@@ -24,15 +24,18 @@ find_package(nanobind CONFIG REQUIRED)
 # Add the source file
 set(sundials_SOURCES
     pysundials.cpp
-    sundials/sundials_core.cpp
-    sundials/sundials_adaptcontroller.cpp
     # sundials/sundials_adjointcheckpointscheme.cpp
-    sundials/sundials_adjointstepper.cpp
-    sundials/sundials_matrix.cpp
     # sundials/sundials_memory.cpp
-    sundials/sundials_nonlinearsolver.cpp
+    sundials/sundials_adaptcontroller.cpp
+    sundials/sundials_adjointstepper.cpp
+    sundials/sundials_context.cpp
+    sundials/sundials_core.cpp
     sundials/sundials_linearsolver.cpp
+    sundials/sundials_logger.cpp
+    sundials/sundials_matrix.cpp
+    sundials/sundials_nonlinearsolver.cpp
     sundials/sundials_nvector.cpp
+    sundials/sundials_profiler.cpp
     sundials/sundials_stepper.cpp
     arkode/arkode.cpp
     arkode/arkode_arkstep.cpp

@@ -31,14 +31,10 @@ auto pyClass_generic_SUNNonlinearSolver =
 
 
 m.def("SUNNonlinSolNewEmpty",
-    SUNNonlinSolNewEmpty, 
-    nb::arg("sunctx"), 
-    "empty constructor/destructor");
+    SUNNonlinSolNewEmpty, nb::arg("sunctx"));
 
 m.def("SUNNonlinSolGetType",
-    SUNNonlinSolGetType, 
-    nb::arg("NLS"), 
-    "core functions");
+    SUNNonlinSolGetType, nb::arg("NLS"));
 
 m.def("SUNNonlinSolInitialize",
     SUNNonlinSolInitialize, nb::arg("NLS"));
@@ -50,9 +46,7 @@ m.def("SUNNonlinSolSolve",
     SUNNonlinSolSolve, nb::arg("NLS"), nb::arg("y0"), nb::arg("y"), nb::arg("w"), nb::arg("tol"), nb::arg("callLSetup"), nb::arg("mem"));
 
 m.def("SUNNonlinSolSetSysFn",
-    SUNNonlinSolSetSysFn, 
-    nb::arg("NLS"), nb::arg("SysFn"), 
-    "set functions");
+    SUNNonlinSolSetSysFn, nb::arg("NLS"), nb::arg("SysFn"));
 
 m.def("SUNNonlinSolSetLSetupFn",
     SUNNonlinSolSetLSetupFn, nb::arg("NLS"), nb::arg("SetupFn"));
@@ -67,9 +61,7 @@ m.def("SUNNonlinSolSetMaxIters",
     SUNNonlinSolSetMaxIters, nb::arg("NLS"), nb::arg("maxiters"));
 
 m.def("SUNNonlinSolGetNumIters",
-    SUNNonlinSolGetNumIters, 
-    nb::arg("NLS"), nb::arg("niters"), 
-    "get functions");
+    SUNNonlinSolGetNumIters, nb::arg("NLS"), nb::arg("niters"));
 
 m.def("SUNNonlinSolGetCurIter",
     SUNNonlinSolGetCurIter, nb::arg("NLS"), nb::arg("iter"));

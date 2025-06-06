@@ -39,5 +39,5 @@ void bind_sunadjointstepper(nb::module_& m)
     .def("get",
          nb::overload_cast<>(&SUNAdjointStepperView::get, nb::const_),
          nb::rv_policy::reference)
-    .def_static("make_view", &SUNAdjointStepperView::make_view<SUNStepper, sunbooleantype, SUNStepper, sunbooleantype, suncountertype, sunrealtype, N_Vector, SUNAdjointCheckpointScheme, SUNContext>);
+    .def_static("Create", &SUNAdjointStepperView::Create<SUNStepper, sunbooleantype, SUNStepper, sunbooleantype, suncountertype, sunrealtype, N_Vector, SUNAdjointCheckpointScheme, SUNContext>);
 }

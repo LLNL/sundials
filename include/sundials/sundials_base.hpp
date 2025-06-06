@@ -145,7 +145,7 @@ private:
 };
 
 template<typename T, typename Deleter, typename Func, typename... Args>
-T make_view(Args&&... args)
+T Create(Args&&... args)
 {
   return ClassView<T, Deleter>(Func(std::forward<Args>(args)...));
 }

@@ -86,9 +86,7 @@ m.def("SUNLinSolSolve",
     SUNLinSolSolve, nb::arg("S"), nb::arg("A"), nb::arg("x"), nb::arg("b"), nb::arg("tol"));
 
 m.def("SUNLinSolNumIters",
-    SUNLinSolNumIters, 
-    nb::arg("S"), 
-    " TODO(CJB): We should consider changing the return type to long int since\n batched solvers could in theory return a very large number here.");
+    SUNLinSolNumIters, nb::arg("S"));
 
 m.def("SUNLinSolResNorm",
     SUNLinSolResNorm, nb::arg("S"));
@@ -97,9 +95,7 @@ m.def("SUNLinSolResid",
     SUNLinSolResid, nb::arg("S"));
 
 m.def("SUNLinSolLastFlag",
-    SUNLinSolLastFlag, 
-    nb::arg("S"), 
-    " TODO(CJB): sunindextype being the return type here could cause a problem if\n              sunindextype happened to be smaller than an int.");
+    SUNLinSolLastFlag, nb::arg("S"));
 // #ifdef __cplusplus
 // 
 // #endif

@@ -9,7 +9,7 @@ def test_splittingstep():
   print('  testing implicit')
 
   sunctx = SUNContextView()
-  stepper = SUNStepperView.make_view(sunctx.get())
+  stepper = SUNStepperView.Create(sunctx.get())
 
 if __name__ == "__main__":
   test_splittingstep()

@@ -36,11 +36,11 @@ class SUNAdjointStepperView : public ClassView<SUNAdjointStepper, SUNAdjointStep
 public:
   using ClassView<SUNAdjointStepper, SUNAdjointStepperDeleter>::ClassView;
   template<typename... Args>
-  static SUNAdjointStepperView make_view(Args&&... args);
+  static SUNAdjointStepperView Create(Args&&... args);
 };
 
 template<typename... Args>
-SUNAdjointStepperView SUNAdjointStepperView::make_view(Args&&... args)
+SUNAdjointStepperView SUNAdjointStepperView::Create(Args&&... args)
 {
   SUNAdjointStepper stepper;
   SUNAdjointStepper_Create(std::forward<Args>(args)..., &stepper);

@@ -4,6 +4,26 @@ modules:
     - "Free"
     - "Destroy"
     - "Space"
+  sundials_context:
+    path: sundials/sundials_context_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_context.h
+    fn_exclude_by_name__regex:
+    - "Create"
+    - "GetProfiler"
+    - "GetLogger"
+  sundials_profiler:
+    path: sundials/sundials_profiler_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_profiler.h
+    fn_exclude_by_name__regex:
+    - "Create"
+  sundials_logger:
+    path: sundials/sundials_logger_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_logger.h
+    fn_exclude_by_name__regex:
+    - "Create"
   sundials_adaptcontroller:
     path: sundials/sundials_adaptcontroller_generated.hpp
     headers:
