@@ -202,3 +202,22 @@ if(ENABLE_XBRAID)
   include(SundialsXBRAID)
   list(APPEND SUNDIALS_TPL_LIST "XBRAID")
 endif()
+
+
+if(SUNDIALS_ENABLE_PYTHON)
+  # nanobind must already be installed as a Python module (e.g., with pip)
+  
+  # nanobind needs the Python Interpreter and Development components
+  find_package(
+    Python 3.8
+    COMPONENTS Interpreter Development.Module
+    REQUIRED)
+  
+  # determine location of nanobind cmake config file
+  execute_process(
+    COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    OUTPUT_VARIABLE nanobind_ROOT)
+
+  find_package(nanobind CONFIG REQUIRED)
+endif()

@@ -111,10 +111,6 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory("fmod_int${SUNDIALS_INDEX_SIZE}")
 endif()
 
-# if(SUNDIALS_ENABLE_PYTHON)
-#   add_subdirectory("python")
-# endif()
-
 # Add ARKODE XBraid interface
 if(ENABLE_XBRAID)
   add_subdirectory(xbraid)
