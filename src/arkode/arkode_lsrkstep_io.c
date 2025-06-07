@@ -219,8 +219,8 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   {
     step_mem->dom_eig_fn = NULL;
 
-    step_mem->domeig_mem = lsrkStep_DomEigCreate(arkode_mem);
-    if (step_mem->domeig_mem == NULL)
+    step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
+    if (step_mem->DEE == NULL)
     {
       arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                       "Internal domeig_mem is NULL");
@@ -526,6 +526,8 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->spectral_radius_min = ZERO;
   step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
   step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
+  step_mem->domeig_maxl         = DOMEIG_MAXL_DEFAULT;
+  step_mem->domeig_power_of_A          = DOMEIG_POWER_OF_A_DEFAULT;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;

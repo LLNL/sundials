@@ -48,6 +48,8 @@ foreach(test_tuple ${unit_tests})
 
     # libraries to link against
     target_link_libraries(${test_target} MPI::MPI_CXX sundials_arkode
+                          sundials_sundomeigestpi_obj
+                          sundials_sundomeigestarni_obj
                           sundials_nvecparallel ${EXE_EXTRA_LINK_LIBS})
 
   endif()

@@ -18,7 +18,7 @@
 #define _LSRKSTEP_H
 
 #include <arkode/arkode.h>
-#include <sundials/sundials_domeig.h>
+#include <sundials/sundials_domeigestimator.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

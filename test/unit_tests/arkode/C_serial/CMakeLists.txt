@@ -73,6 +73,8 @@ foreach(test_tuple ${ARKODE_unit_tests})
       sundials_sunadaptcontrollerimexgus_obj
       sundials_sunadaptcontrollersoderlind_obj
       sundials_adjointcheckpointscheme_fixed_obj
+      sundials_sundomeigestpi_obj
+      sundials_sundomeigestarni_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

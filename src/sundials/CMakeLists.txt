@@ -73,7 +73,7 @@ if(ENABLE_SYCL)
 endif()
 
 if(ENABLE_LAPACK)
-  list(APPEND sundials_HEADERS sundials_domeig.h)
+  list(APPEND sundials_HEADERS sundials_domeigestimator.h)
 endif()
 
 # If enabled, add the XBraid interface header
@@ -115,7 +115,7 @@ if(ENABLE_MPI)
 endif()
 
 if(ENABLE_LAPACK)
-  list(APPEND sundials_SOURCES sundials_domeig.c)
+  list(APPEND sundials_SOURCES sundials_domeigestimator.c)
   set(_link_lapack_if_needed PUBLIC LAPACK::LAPACK)
   if(CMAKE_VERSION VERSION_LESS 3.20)
     list(APPEND _link_lapack_if_needed BLAS::BLAS)

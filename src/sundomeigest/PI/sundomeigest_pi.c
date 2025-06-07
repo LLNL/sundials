@@ -21,12 +21,14 @@
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
-#include <sundomeigest_pi.h>
+#include <sundomeigest/sundomeigest_pi.h>
+#include <sundials/priv/sundials_domeigestimator_impl.h>
 
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
 
 #define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
@@ -68,15 +70,16 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_powiter, SUNContext sunct
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->gettype          = SUNDomEigEst_PIGetType;
-  DEE->ops->setatimes        = SUNDomEigEstSetATimes_PI;
-  DEE->ops->setmaxpoweriter  = SUNDomEigEst_PISetMaxPowerIter;
-  DEE->ops->initialize       = SUNDomEigEstInitialize_PI;
-  DEE->ops->preprocess       = SUNDomEigEstPreProcess_PI;
-  DEE->ops->computehess      = NULL;
-  DEE->ops->estimate         = SUNDomEigEstimate_PI;
-  DEE->ops->getnumofiters    = SUNDomEigEstNumIters_PI;
-  DEE->ops->free             = SUNDomEigEstFree_PI;
+  DEE->ops->gettype            = SUNDomEigEst_PIGetType;
+  DEE->ops->setatimes          = SUNDomEigEstSetATimes_PI;
+  DEE->ops->setmaxpoweriter    = SUNDomEigEst_PISetMaxPowerIter;
+  DEE->ops->setnumofperprocess = NULL;
+  DEE->ops->initialize         = SUNDomEigEstInitialize_PI;
+  DEE->ops->preprocess         = SUNDomEigEstPreProcess_PI;
+  DEE->ops->computehess        = NULL;
+  DEE->ops->estimate           = SUNDomEigEstimate_PI;
+  DEE->ops->getnumofiters      = SUNDomEigEstNumIters_PI;
+  DEE->ops->free               = SUNDomEigEstFree_PI;
 
   /* Create content */
   content = NULL;
@@ -91,7 +94,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_powiter, SUNContext sunct
   content->ATdata       = NULL;
   content->V            = NULL;
   content->q            = NULL;
-  content->power_of_A   = NULL;
+  content->power_of_A   = 0;
   content->powiter_tol  = ZERO;
   content->resnorm      = ZERO;
   content->max_powiter  = max_powiter;
@@ -101,7 +104,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_powiter, SUNContext sunct
   content->q = N_VClone(q);
   SUNCheckLastErrNull();
 
-  content->V = N_VCloneVectorArray(1, q);
+  content->V = N_VClone(q);
   SUNCheckLastErrNull();
 
   return (DEE);

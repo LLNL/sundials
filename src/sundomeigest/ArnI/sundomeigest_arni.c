@@ -21,7 +21,8 @@
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
-#include <sundomeigest_arnoldi.h>
+#include <sundomeigest/sundomeigest_arni.h>
+#include <sundials/priv/sundials_domeigestimator_impl.h>
 
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
@@ -39,15 +40,6 @@
 
 /*
  * -----------------------------------------------------------------
- * internally used functions
- * -----------------------------------------------------------------
- */
-
-sunrealtype domeig_Magnitude(const suncomplextype *c);
-int domeig_Compare(const void *a, const void *b);
-
-/*
- * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -62,15 +54,15 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int maxl, SUNContext sunctx)
   SUNDomEigEstimator DEE;
   SUNDomEigEstimatorContent_ArnI content;
 
+  /* Check if maxl >= 2 */
+  SUNAssert(maxl >= 2, SUN_ERR_DOMEIG_NOT_ENOUGH_ITER);
+
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations
-  SUNAssert((
+  SUNAssert(!(
     (q->ops->nvclone == NULL)     || (q->ops->nvdestroy == NULL) ||
     (q->ops->nvdotprod == NULL)   || (q->ops->nvscale == NULL) ||
     (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)), SUN_ERR_DOMEIG_BAD_NVECTOR);
-
-  /* Check if maxl >= 2 */
-  SUNAssert(maxl < 2, SUN_ERR_DOMEIG_NOT_ENOUGH_ITER);
 
   /* Create dominant eigenvalue estimator */
   DEE = NULL;
@@ -78,15 +70,16 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int maxl, SUNContext sunctx)
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->gettype          = SUNDomEigEst_ArnIGetType;
-  DEE->ops->setatimes        = SUNDomEigEstSetATimes_ArnI;
-  DEE->ops->setmaxpoweriter  = NULL;
-  DEE->ops->initialize       = SUNDomEigEstInitialize_ArnI;
-  DEE->ops->preprocess       = SUNDomEigEstPreProcess_ArnI;
-  DEE->ops->computehess      = SUNDomEigEstComputeHess_ArnI;
-  DEE->ops->estimate         = SUNDomEigEstimate_ArnI;
-  DEE->ops->getnumofiters    = NULL;
-  DEE->ops->free             = SUNDomEigEstFree_ArnI;
+  DEE->ops->gettype            = SUNDomEigEst_ArnIGetType;
+  DEE->ops->setatimes          = SUNDomEigEstSetATimes_ArnI;
+  DEE->ops->setmaxpoweriter    = NULL;
+  DEE->ops->setnumofperprocess = SUNDomEigEstSetNumofPreProcess_ArnI;
+  DEE->ops->initialize         = SUNDomEigEstInitialize_ArnI;
+  DEE->ops->preprocess         = SUNDomEigEstPreProcess_ArnI;
+  DEE->ops->computehess        = SUNDomEigEstComputeHess_ArnI;
+  DEE->ops->estimate           = SUNDomEigEstimate_ArnI;
+  DEE->ops->getnumofiters      = NULL;
+  DEE->ops->free               = SUNDomEigEstFree_ArnI;
 
   /* Create content */
   content = NULL;
@@ -102,7 +95,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int maxl, SUNContext sunctx)
   content->V            = NULL;
   content->q            = NULL;
   content->maxl         = maxl;
-  content->power_of_A   = NULL;
+  content->power_of_A   = 0;
   content->LAPACK_A     = NULL;
   content->LAPACK_wr    = NULL;
   content->LAPACK_wi    = NULL;
@@ -151,15 +144,6 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   N_VRandom(ArnI_CONTENT(DEE)->q);
   SUNCheckLastErrNull();
 
-  /* Initialize the vector V */
-  sunrealtype normq = N_VDotProd(ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->q);
-  SUNCheckLastErrNull();
-
-  normq = SUNRsqrt(normq);
-
-  N_VScale(ONE/normq, ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->V);
-  SUNCheckLastErrNull();
-
   /* Hessenberg matrix Hes */
   if (ArnI_CONTENT(DEE)->Hes == NULL)
   {
@@ -197,6 +181,16 @@ SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data, SUNA
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE, int numofperprocess)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  /* set function pointers to integrator-supplied ATimes routine
+     and data, and return with success */
+  ArnI_CONTENT(DEE)->power_of_A = numofperprocess;
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
@@ -211,7 +205,7 @@ SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE)
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
   for(i = 0; i < ArnI_CONTENT(DEE)->power_of_A; i++)
   {
-    retval = ArnI_CONTENT(DEE)->ATimes(ArnI_CONTENT(DEE)->ATdata, ArnI_CONTENT(DEE)->V, ArnI_CONTENT(DEE)->q);
+    retval = ArnI_CONTENT(DEE)->ATimes(ArnI_CONTENT(DEE)->ATdata, ArnI_CONTENT(DEE)->V[0], ArnI_CONTENT(DEE)->q);
     if (retval != 0)
     {
       if(retval < 0)
@@ -227,7 +221,7 @@ SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE)
     SUNCheckLastErr();
 
     normq = SUNRsqrt(normq);
-    N_VScale(ONE/normq, ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->V);
+    N_VScale(ONE/normq, ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->V[0]);
     SUNCheckLastErr();
   }
 

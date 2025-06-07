@@ -19,7 +19,9 @@
 #define _ARKODE_LSRKSTEP_IMPL_H
 
 #include <arkode/arkode_lsrkstep.h>
-#include <sundials/sundials_domeig.h>
+#include <sundials/sundials_domeigestimator.h>
+#include <sundomeigest/sundomeigest_pi.h>
+#include <sundomeigest/sundomeigest_arni.h>
 
 #include "arkode_impl.h"
 
@@ -27,10 +29,12 @@
 extern "C" {
 #endif
 
-#define STAGE_MAX_LIMIT_DEFAULT 200
-#define DOM_EIG_SAFETY_DEFAULT  SUN_RCONST(1.01)
-#define DOM_EIG_FREQ_DEFAULT    25
-#define DOMEIG_MAXL_DEFAULT     3
+#define STAGE_MAX_LIMIT_DEFAULT                  200
+#define DOM_EIG_SAFETY_DEFAULT                   SUN_RCONST(1.01)
+#define DOM_EIG_FREQ_DEFAULT                     25
+#define DOMEIG_MAXL_DEFAULT                      3
+#define DOMEIG_POWER_OF_A_DEFAULT                0
+#define DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT 100
 
 /*===============================================================
   LSRK time step module private math function macros
@@ -157,9 +161,12 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype spectral_radius_min; /* min spectral radius*/
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
-  void* domeig_mem;     /* DomEig memory */
+
+  SUNDomEigEstimator DEE; /* DomEig estimator*/
   N_Vector domeig_q; /* DomEig initial q vector*/
   int domeig_maxl; /* Krylov subspace dimension */
+  int domeig_power_of_A;  /* Power of A for the warm-up */
+  int domeig_maxiters;  /* Max number of Power Iterations */
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */
@@ -210,8 +217,8 @@ int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
-void* lsrkStep_DomEigCreate(void* arkode_mem);
-suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem DomEig_mem);
+SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem);
+suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE);
 int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv);
 
 /*===============================================================

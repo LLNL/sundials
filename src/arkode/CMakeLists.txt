@@ -99,6 +99,8 @@ sundials_add_library(
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
     sundials_adjointcheckpointscheme_fixed_obj
+    sundials_sundomeigestpi_obj
+    sundials_sundomeigestarni_obj
   OUTPUT_NAME sundials_arkode
   VERSION ${arkodelib_VERSION}
   SOVERSION ${arkodelib_SOVERSION})

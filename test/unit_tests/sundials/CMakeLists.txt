@@ -39,9 +39,9 @@ endif()
 # Tests for the domeig utility routine (estimates dominant eigenvalue; depends on LAPACK)
 if(ENABLE_LAPACK)
   set(unit_tests_lapack
-    "test_domeig\;100 10\;"
-    "test_domeig\;1000 20\;"
-    "test_domeig\;10000 50\;")
+    "test_domeig\;100 10 10\;"
+    "test_domeig\;1000 20 10\;"
+    "test_domeig\;10000 50 10\;")
 
   # Add the build and install targets for each test
   foreach(test_tuple ${unit_tests_lapack})
@@ -65,7 +65,7 @@ if(ENABLE_LAPACK)
                         ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
       # libraries to link against
-      set(_domeig_libs sundials_core sundials_nvecserial LAPACK::LAPACK)
+      set(_domeig_libs sundials_core sundials_nvecserial sundials_sundomeigestpi_obj sundials_sundomeigestarni_obj LAPACK::LAPACK)
       if(CMAKE_VERSION VERSION_LESS 3.20)
         list(APPEND _domeig_libs BLAS::BLAS)
       endif()

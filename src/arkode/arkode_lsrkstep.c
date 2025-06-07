@@ -196,8 +196,8 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   /* Set NULL for dom_eig_fn */
   step_mem->dom_eig_fn = NULL;
 
-  /* Set NULL for domeig_mem */
-  step_mem->domeig_mem = NULL;
+  /* Set NULL for DEE */
+  step_mem->DEE = NULL;
 
   /* Set NULL for domeig_q */
   step_mem->domeig_q = NULL;
@@ -332,7 +332,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   }
 
   /* Check if user has provided dom_eig_fn */
-  if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL && step_mem->domeig_mem == NULL)
+  if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL && step_mem->DEE == NULL)
   {
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__,
                     __FILE__, "STS methods require either a user provided or an internal dominant eigenvalue estimation");
@@ -2206,7 +2206,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if(step_mem->dom_eig_fn == NULL)
   {
-    dom_eig = lsrkStep_DomEigEstimate(ark_mem, step_mem->domeig_mem);
+    dom_eig = lsrkStep_DomEigEstimate(ark_mem, step_mem->DEE);
     if((dom_eig.real*dom_eig.real + dom_eig.imag*dom_eig.imag) < SUN_SMALL_REAL)
     {
       arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
@@ -2278,9 +2278,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   function pointers from arkode_mem.
   ---------------------------------------------------------------*/
 
-void* lsrkStep_DomEigCreate(void* arkode_mem)
+SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
 {
-  DOMEIGMem domeig_mem;
+  SUNDomEigEstimator DEE;
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
   int retval;
@@ -2301,14 +2301,70 @@ void* lsrkStep_DomEigCreate(void* arkode_mem)
   step_mem->domeig_rhs = step_mem->fe;
 
   /* Allocate and fill domeig_q vector with random data */
+  /* TODO: check if we have to clone or just passing yn is ok! */
   step_mem->domeig_q = N_VClone(ark_mem->yn);
-  N_VRandom(step_mem->domeig_q);
   step_mem->domeig_maxl = DOMEIG_MAXL_DEFAULT;
+  step_mem->domeig_power_of_A = DOMEIG_POWER_OF_A_DEFAULT;
+  step_mem->domeig_maxiters = DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT;
 
-  retval = DomEigCreate(lsrkStep_DQJtimes, arkode_mem, step_mem->domeig_q, step_mem->domeig_maxl, ark_mem->sunctx, (void**)&domeig_mem);
-  if (retval != ARK_SUCCESS) { return NULL; }
+  /* Default estimator for the problems sized < 2 is Power Iteration;
+  Arnoldi iterations, otherwise*/
+  /* TODO: Also check if LAPACK enabled */
+  if(ark_mem->yn->ops->nvgetlength(ark_mem->yn) > 2)
+  {
+    DEE = SUNDomEigEst_ArnI(step_mem->domeig_q, step_mem->domeig_maxl, ark_mem->sunctx);
+    if (DEE == NULL)
+    {
+      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      return NULL;
+    }
+  }
+  else
+  {
+    DEE = SUNDomEigEst_PI(step_mem->domeig_q, step_mem->domeig_maxiters, ark_mem->sunctx);
+    if (DEE == NULL)
+    {
+      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      return NULL;
+    }
+  }
 
-  return (void*)domeig_mem;
+  /* Set Atimes*/
+  retval = DEE->ops->setatimes(DEE, arkode_mem, lsrkStep_DQJtimes);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_INTERNAL_DOMEIG_FAIL);
+    return NULL;
+  }
+
+  /* Set Max Power Itetations*/
+  if(DEE->ops->setmaxpoweriter != NULL)
+  {
+    retval = DEE->ops->setmaxpoweriter(DEE, step_mem->domeig_maxiters);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      return NULL;
+    }
+  }
+
+  /* Set the number of preprocessings */
+  if(DEE->ops->setnumofperprocess != NULL)
+  {
+    retval = DEE->ops->setnumofperprocess(DEE, step_mem->domeig_power_of_A);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      return NULL;
+    }
+  }
+
+  return DEE;
 }
 
 /*---------------------------------------------------------------
@@ -2316,7 +2372,7 @@ void* lsrkStep_DomEigCreate(void* arkode_mem)
 
   This routine estimates the dominant eigenvalue.
   ---------------------------------------------------------------*/
-suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem domeig_mem)
+suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE)
 {
   ARKodeMem ark_mem;
 
@@ -2341,7 +2397,7 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem domeig_mem)
   }
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  retval = DomEigPreProcess(domeig_mem);
+  retval = DEE->ops->preprocess(DEE);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
@@ -2351,7 +2407,7 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem domeig_mem)
   }
 
   /* Compute the Hessenberg matrix Hes*/
-  retval = DomEigComputeHess(domeig_mem);
+  retval = DEE->ops->computehess(DEE);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
@@ -2360,7 +2416,7 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, DOMEIGMem domeig_mem)
     return dom_eig;
   }
 
-  retval = DomEigEstimate(domeig_mem, &dom_eig);
+  retval = DEE->ops->estimate(DEE, &dom_eig);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,

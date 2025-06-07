@@ -20,7 +20,9 @@
 #include <stdio.h>
 #include <sundials/sundials_math.h> /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
-#include <sundials/sundials_domeig.h>
+#include <sundials/sundials_domeigestimator.h>
+#include <sundomeigest/sundomeigest_pi.h>
+#include <sundomeigest/sundomeigest_arni.h>
 
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -70,7 +72,7 @@ int main(int argc, char* argv[])
   int passfail = 0;    /* overall pass/fail flag    */
   N_Vector q;          /* test vectors              */
   UserData ProbData;   /* problem data structure    */
-  int maxl, failure;
+  int maxl, failure, power_of_A;
   SUNContext sunctx;
   sunrealtype tolerans = 1.0e-2;
 
@@ -81,11 +83,12 @@ int main(int argc, char* argv[])
   }
 
   /* check inputs: local problem size */
-  if (argc < 3)
+  if (argc < 4)
   {
     printf("ERROR: TWO (2) Inputs required:\n");
     printf("  Problem size should be >0\n");
     printf("  Krylov subspace dimension should be >0\n");
+    printf("  Number of preprocessing should be >= 0\n");
     return 1;
   }
   ProbData.N   = (sunindextype)atol(argv[1]);
@@ -102,10 +105,17 @@ int main(int argc, char* argv[])
       "ERROR: Krylov subspace dimension must be a positive integer\n");
     return 1;
   }
-
+  power_of_A = atoi(argv[3]);
+  if (power_of_A < 0)
+  {
+    printf(
+      "ERROR: Number of preprocessing must be a nonnegative integer\n");
+    return 1;
+  }
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
   printf("  Krylov subspace dimension = %i\n", maxl);
+  printf("  Number of preprocessing = %i\n", power_of_A);
 
   /* Create vectors */
   q = N_VNew_Serial(ProbData.N, sunctx);
@@ -130,22 +140,35 @@ int main(int argc, char* argv[])
   ProbData.real_part = realpart;
   ProbData.imag_part = imagpart;
 
-  /* Create DOMEIG memory structure */
-  void* DomEig_mem = NULL;
-  passfail = DomEigCreate(ATimes, &ProbData, q, maxl, sunctx, &DomEig_mem);
-  if (check_flag(&passfail, "DomEigCreate", 1)) { return 1; }
+  /* Create DomEig estimator*/
+  SUNDomEigEstimator DEE = NULL;
+
+  DEE = SUNDomEigEst_ArnI(q, maxl, sunctx);
+  if (check_flag(DEE, "SUNDomEigEst_ArnI", 0)) { return 1; }
+
+  /* Set Atimes*/
+  passfail = DEE->ops->setatimes(DEE, &ProbData, ATimes);
+  if (check_flag(&passfail, "setatimes", 1)) { return 1; }
+
+  /* Set the number of preprocessings */
+  if(DEE->ops->setnumofperprocess != NULL)
+  {
+    passfail = DEE->ops->setnumofperprocess(DEE, power_of_A);
+    if (check_flag(&passfail, "setnumofperprocess", 1)) { return 1; }
+  }
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  passfail = DomEigPreProcess(DomEig_mem);
-  if (check_flag(&passfail, "DomEigPreProcess", 1)) { return 1; }
+  passfail = DEE->ops->preprocess(DEE);
+  if (check_flag(&passfail, "preprocess", 1)) { return 1; }
 
-  /* Compute the Hessenberg matrix Hes*/
-  passfail = DomEigComputeHess(DomEig_mem);
-  if (check_flag(&passfail, "DomEigComputeHess", 1)) { return 1; }
+  /* Compute the Hessenberg matrix Hes */
+  passfail = DEE->ops->computehess(DEE);
+  if (check_flag(&passfail, "computehess", 1)) { return 1; }
 
+  /* Estimate the dominant eigenvalue */
   suncomplextype dom_eig;
-  passfail = DomEigEstimate(DomEig_mem, &dom_eig);
-  if (check_flag(&passfail, "DomEigEstimate", 1)) { return 1; }
+  passfail = DEE->ops->estimate(DEE, &dom_eig);
+  if (check_flag(&passfail, "estimate", 1)) { return 1; }
 
   sunrealtype norm_of_dom_eig = SUNRsqrt(dom_eig.real * dom_eig.real + dom_eig.imag * dom_eig.imag);
   if(norm_of_dom_eig < SUN_SMALL_REAL) {
@@ -188,7 +211,7 @@ int main(int argc, char* argv[])
   N_VDestroy(q);
   N_VDestroy(ProbData.d);
   SUNContext_Free(&sunctx);
-  DomEigDestroy((void**)&DomEig_mem);
+  DEE->ops->free(DEE);
 
   return (passfail);
 }

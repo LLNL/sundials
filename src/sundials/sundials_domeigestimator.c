@@ -16,14 +16,12 @@
  * operations listed in sundials_domeigestimator.h
  * -----------------------------------------------------------------*/
 
-#include <stdio.h>
 #include <stdlib.h>
-
-#include <sundials/priv/sundials_domeig_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_core.h>
 #include <sundials/sundials_errors.h>
 
-#include <sundials/sundials_domeigestimator.h>
+#include <sundials/priv/sundials_domeigestimator_impl.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNDomEigEstimator D)
@@ -56,14 +54,15 @@ SUNDomEigEstimator SUNDomEigEstNewEmpty(SUNContext sunctx)
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
-  ops->gettype      = NULL;
-  ops->setatimes    = NULL;
-  ops->initialize   = NULL;
-  ops->preprocess   = NULL;
-  ops->computehess  = NULL;
-  ops->initialize   = NULL;
-  ops->estimate     = NULL;
-  ops->free         = NULL;
+  ops->gettype            = NULL;
+  ops->setatimes          = NULL;
+  ops->setnumofperprocess = NULL;
+  ops->initialize         = NULL;
+  ops->preprocess         = NULL;
+  ops->computehess        = NULL;
+  ops->initialize         = NULL;
+  ops->estimate           = NULL;
+  ops->free               = NULL;
 
   /* attach ops and initialize content and context to NULL */
   DEE->ops     = ops;
@@ -94,7 +93,7 @@ void SUNDomEigEstFreeEmpty(SUNDomEigEstimator DEE)
  * Functions in the 'ops' structure
  * -----------------------------------------------------------------*/
 
-SUNDomEigEstimator_Type SUNLinSolGetType(SUNDomEigEstimator DEE)
+SUNDomEigEstimator_Type SUNDomEigEstGetType(SUNDomEigEstimator DEE)
 {
   return (DEE->ops->gettype(DEE));
 }

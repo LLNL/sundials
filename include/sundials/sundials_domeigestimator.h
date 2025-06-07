@@ -59,6 +59,7 @@ struct _generic_SUNDomEigEstimator_Ops
   SUNDomEigEstimator_Type (*gettype)(SUNDomEigEstimator);
   SUNErrCode (*setatimes)(SUNDomEigEstimator, void*, SUNATimesFn);
   SUNErrCode (*setmaxpoweriter)(SUNDomEigEstimator, int);
+  SUNErrCode (*setnumofperprocess)(SUNDomEigEstimator, int);
   SUNErrCode (*initialize)(SUNDomEigEstimator);
   SUNErrCode (*preprocess)(SUNDomEigEstimator);
   SUNErrCode (*computehess)(SUNDomEigEstimator);
