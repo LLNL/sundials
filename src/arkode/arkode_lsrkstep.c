@@ -2352,6 +2352,15 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
     }
   }
 
+  /* Initialize the estimator */
+  retval = DEE->ops->initialize(DEE);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_INTERNAL_DOMEIG_FAIL);
+    return NULL;
+  }
+
   /* Set the number of preprocessings */
   if(DEE->ops->setnumofperprocess != NULL)
   {
@@ -2406,14 +2415,17 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE)
     return dom_eig;
   }
 
-  /* Compute the Hessenberg matrix Hes*/
-  retval = DEE->ops->computehess(DEE);
-  if (retval != ARK_SUCCESS)
+  /* Compute the Hessenberg matrix Hes if Arnoldi */
+  if(DEE->ops->computehess != NULL)
   {
-    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_INTERNAL_DOMEIG_FAIL);
+    retval = DEE->ops->computehess(DEE);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_INTERNAL_DOMEIG_FAIL);
 
-    return dom_eig;
+      return dom_eig;
+    }
   }
 
   retval = DEE->ops->estimate(DEE, &dom_eig);

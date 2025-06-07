@@ -157,6 +157,10 @@ int main(int argc, char* argv[])
     if (check_flag(&passfail, "setnumofperprocess", 1)) { return 1; }
   }
 
+  /* Initialize the estimator */
+  passfail = DEE->ops->initialize(DEE);
+  if (check_flag(&passfail, "initialize", 1)) { return 1; }
+
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
   passfail = DEE->ops->preprocess(DEE);
   if (check_flag(&passfail, "preprocess", 1)) { return 1; }

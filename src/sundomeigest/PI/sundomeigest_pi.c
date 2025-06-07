@@ -56,7 +56,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_powiter, SUNContext sunct
 
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations
-  SUNAssert((
+  SUNAssert(!(
     (q->ops->nvclone == NULL)     || (q->ops->nvdestroy == NULL) ||
     (q->ops->nvdotprod == NULL)   || (q->ops->nvscale == NULL) ||
     (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)), SUN_ERR_DOMEIG_BAD_NVECTOR);
@@ -216,7 +216,7 @@ SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
   SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
-  SUNAssert((PI_CONTENT(DEE)->max_powiter < 0), SUN_ERR_ARG_CORRUPT);
+  SUNAssert((PI_CONTENT(DEE)->max_powiter >= 0), SUN_ERR_ARG_CORRUPT);
 
   suncomplextype dom_eig_new, dom_eig_old;
 
