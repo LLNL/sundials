@@ -32,8 +32,9 @@ void bind_sunstepper(nb::module_& m)
 {
 #include "sundials_stepper_generated.hpp"
 
+  nb::class_<SUNStepper_>(m, "SUNStepper_");
+
   nb::class_<SUNStepperView>(m, "SUNStepperView")
-    .def(nb::init<>())
     .def(nb::init<SUNStepper>())
     .def("get",
          nb::overload_cast<>(&SUNStepperView::get,

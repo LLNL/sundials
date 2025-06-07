@@ -33,6 +33,8 @@ void bind_suncontext(nb::module_& m)
 {
 #include "sundials_context_generated.hpp"
 
+  nb::class_<SUNContext_>(m, "SUNContext_");
+
   nb::class_<SUNContextView>(m, "SUNContextView")
     .def("get",
          nb::overload_cast<>(&SUNContextView::get, nb::const_),

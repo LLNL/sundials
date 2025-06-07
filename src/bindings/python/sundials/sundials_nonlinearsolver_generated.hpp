@@ -68,6 +68,8 @@ m.def("SUNNonlinSolGetCurIter",
 
 m.def("SUNNonlinSolGetNumConvFails",
     SUNNonlinSolGetNumConvFails, nb::arg("NLS"), nb::arg("nconvfails"));
+m.attr("SUN_NLS_CONTINUE") = +901;
+m.attr("SUN_NLS_CONV_RECVR") = +902;
 // #ifdef __cplusplus
 // 
 // #endif

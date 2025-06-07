@@ -4,6 +4,13 @@ modules:
     - "Free"
     - "Destroy"
     - "Space"
+    macro_define_include_by_name__regex:
+    - "^SUN_"
+    - "^SUNDATAIOMODE_"
+  sundials_types:
+    path: sundials/sundials_types_generated.h
+    headers:
+    - ../../../include/sundials/sundials_types.h
   sundials_context:
     path: sundials/sundials_context_generated.hpp
     headers:

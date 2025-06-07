@@ -30,7 +30,7 @@ void bind_sunadjointcheckpointscheme(nb::module_& m)
   nb::class_<sundials::experimental::SUNAdjointCheckpointSchemeView>(m,
                                                           "SUNAdjointCheckpointSchemeView")
     .def(nb::init<>())
-    .def(nb::init<SUNAdjointCheckpointScheme_*>())
+    .def(nb::init<SUNAdjointCheckpointScheme>())
     .def("get",
          nb::overload_cast<>(&sundials::experimental::SUNAdjointCheckpointSchemeView::get,
                              nb::const_),

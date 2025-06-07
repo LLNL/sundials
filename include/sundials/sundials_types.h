@@ -184,11 +184,13 @@ typedef SUNDIALS_COUNTER_TYPE suncountertype;
  *------------------------------------------------------------------
  */
 
-typedef enum
+enum SUNOutputFormat_
 {
   SUN_OUTPUTFORMAT_TABLE,
   SUN_OUTPUTFORMAT_CSV
-} SUNOutputFormat;
+};
+
+typedef enum SUNOutputFormat_ SUNOutputFormat;
 
 /*
  *------------------------------------------------------------------
@@ -263,9 +265,14 @@ typedef int SUNComm;
  *------------------------------------------------------------------
  */
 
-typedef enum
+enum SUNDataIOMode_
 {
-  SUNDATAIOMODE_INMEM,
-} SUNDataIOMode;
+  SUN_DATAIOMODE_INMEM,
+};
+
+/* For backwards compatibility with the typo'ed name */
+static const int SUNDATAIOMODE_INMEM = SUN_DATAIOMODE_INMEM;
+
+typedef enum SUNDataIOMode_ SUNDataIOMode;
 
 #endif /* _SUNDIALS_TYPES_H */

@@ -32,6 +32,8 @@ void bind_sunprofiler(nb::module_& m)
 {
 #include "sundials_profiler_generated.hpp"
 
+  nb::class_<SUNProfiler_>(m, "SUNProfiler_");
+
   nb::class_<SUNProfilerView>(m, "SUNProfilerView")
     .def("get",
          nb::overload_cast<>(&SUNProfilerView::get, nb::const_),

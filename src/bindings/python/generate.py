@@ -14,15 +14,23 @@ def generate_code(options, source_code):
     return generated_code
 
 
-def load_exclusions_from_yaml(config_object, module):
-    exclusions = []
+def load_opt_from_yaml(config_object, module, opt):
+    opt_list = []
     all_section = config_object.get("all", [])
     if all_section:
-        exclusions.extend(all_section.get("fn_exclude_by_name__regex", []))
+        opt_list.extend(all_section.get(opt, []))
     module_section = config_object.get(module, [])
     if module_section:
-        exclusions.extend(module_section.get("fn_exclude_by_name__regex", []))
-    return exclusions
+        opt_list.extend(module_section.get(opt, []))
+    return opt_list
+
+
+def load_exclusions_from_yaml(config_object, module):
+    return load_opt_from_yaml(config_object, module, "fn_exclude_by_name__regex")
+
+
+def load_macro_defines_from_yaml(config_object, module):
+    return load_opt_from_yaml(config_object, module, "macro_define_include_by_name__regex")
 
 
 def strip_sundials_export(code):
@@ -48,8 +56,9 @@ def main():
     options.srcmlcpp_options.code_preprocess_function = preprocess_header
     options.srcmlcpp_options.ignored_warning_parts.append(
         # "ops" functions pointers cause this warning, but we dont care cause we dont need to bind those.
-        "A cpp element of type \"function_decl\" was stored as CppUnprocessed"
+        'A cpp element of type "function_decl" was stored as CppUnprocessed'
     )
+    # options.srcmlcpp_options.header_filter_acceptable__regex = ""
 
     config_yaml_path = args.config_yaml_path
     with open(config_yaml_path, "r") as yaml_file:
@@ -66,6 +75,10 @@ def main():
 
         options.fn_exclude_by_name__regex = code_utils.join_string_by_pipe_char(
             load_exclusions_from_yaml(config_object, module_name)
+        )
+
+        options.macro_define_include_by_name__regex = code_utils.join_string_by_pipe_char(
+            load_macro_defines_from_yaml(config_object, module_name)
         )
 
         # TODO(CJB): this does not seem to work
