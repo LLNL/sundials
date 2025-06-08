@@ -107,12 +107,6 @@ SUNErrCode SUNDomEigEstComputeHess(SUNDomEigEstimator DEE);
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig);
 
-/* -----------------------------------------------------------------
- * SUNDomEigEstimator return values
- * ----------------------------------------------------------------- */
-
-#define SUNDEE_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
-
 #ifdef __cplusplus
 }
 #endif

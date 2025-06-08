@@ -48,7 +48,7 @@
  * Function to create a new ArnI estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int maxl, SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -147,7 +147,7 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   /* Hessenberg matrix Hes */
   if (ArnI_CONTENT(DEE)->Hes == NULL)
   {
-    int k;
+    sunindextype k;
     ArnI_CONTENT(DEE)->Hes =
       (sunrealtype**)malloc((ArnI_CONTENT(DEE)->maxl + 1) * sizeof(sunrealtype*));
 
@@ -181,7 +181,7 @@ SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data, SUNA
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE, int numofperprocess)
+SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE, sunindextype numofperprocess)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -200,7 +200,7 @@ SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE)
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
   sunrealtype normq;
-  int i, retval;
+  sunindextype i, retval;
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
   for(i = 0; i < ArnI_CONTENT(DEE)->power_of_A; i++)
@@ -237,7 +237,7 @@ SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE)
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_ARG_CORRUPT);
 
-  int retval, i, j;
+  sunindextype retval, i, j;
   /* Initialize the Hessenberg matrix Hes with zeros */
   for (i = 0; i < ArnI_CONTENT(DEE)->maxl; i++)
   {
@@ -287,7 +287,7 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, suncomplextype* dom_ei
   int n = ArnI_CONTENT(DEE)->maxl;
 
   /* Reshape the Hessenberg matrix as an input vector for the LAPACK dgeev_ function */
-  int i, j, k = 0;
+  sunindextype i, j, k = 0;
   for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++) {
         ArnI_CONTENT(DEE)->LAPACK_A[k] = ArnI_CONTENT(DEE)->Hes[i][j];
@@ -401,7 +401,7 @@ sunrealtype domeig_Magnitude(const suncomplextype *c) {
 }
 
 // Comparison function for qsort
-int domeig_Compare(const void *a, const void *b) {
+sunindextype domeig_Compare(const void *a, const void *b) {
     const suncomplextype *c1 = (const suncomplextype *)a;
     const suncomplextype *c2 = (const suncomplextype *)b;
     sunrealtype mag1 = domeig_Magnitude(c1);

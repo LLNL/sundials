@@ -45,8 +45,8 @@ struct _SUNDomEigEstimatorContent_ArnI
 
   N_Vector *V, q;       /* Krylov subspace vectors */
 
-  int maxl;             /* Krylov subspace dimension */
-  int power_of_A;       /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
+  sunindextype maxl;             /* Krylov subspace dimension */
+  sunindextype power_of_A;       /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
 
   sunrealtype* LAPACK_A;      /* The vector which holds rows of the Hessenberg matrix in the given order */
   sunrealtype* LAPACK_wr;     /* Real parts of eigenvalues */
@@ -64,7 +64,7 @@ typedef struct _SUNDomEigEstimatorContent_ArnI* SUNDomEigEstimatorContent_ArnI;
  * --------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int maxl, SUNContext sunctx);
+SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl, SUNContext sunctx);
 
 SUNDIALS_EXPORT
 SUNDomEigEstimator_Type SUNDomEigEst_ArnIGetType(SUNDomEigEstimator DEE);
@@ -77,7 +77,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE, int numofperprocess);
+SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE, sunindextype numofperprocess);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE);
@@ -92,7 +92,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-int SUNDomEigEstNumIters_ArnI(SUNDomEigEstimator DEE);
+sunindextype SUNDomEigEstNumIters_ArnI(SUNDomEigEstimator DEE);
 
 #ifdef __cplusplus
 }

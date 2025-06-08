@@ -31,7 +31,7 @@ extern "C" {
 
  SUNErrCode domeig_CheckNVector(N_Vector tmpl);
  sunrealtype domeig_Magnitude(const suncomplextype *c);
- int domeig_Compare(const void *a, const void *b);
+ sunindextype domeig_Compare(const void *a, const void *b);
 
  /*
   * -----------------------------------------------------------------
@@ -42,13 +42,6 @@ extern "C" {
  extern void dgeev_(char* jobvl, char* jobvr, int* n, sunrealtype* a, int* lda,
                     sunrealtype* wr, sunrealtype* wi, sunrealtype* vl, int* ldvl, sunrealtype* vr,
                     int* ldvr, sunrealtype* work, int* lwork, int* info);
-
-/*===============================================================
-  Reusable DOMEIG Error Messages
-  ===============================================================*/
-
-/* Initialization and I/O error messages */
-#define MSG_DOMEIG_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
 
 #ifdef __cplusplus
 }

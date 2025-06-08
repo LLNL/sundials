@@ -48,7 +48,7 @@
  * Function to create a new PI estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_powiter, SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -159,7 +159,7 @@ SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data, SUNATi
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_PISetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter)
+SUNErrCode SUNDomEigEst_PISetMaxPowerIter(SUNDomEigEstimator DEE, sunindextype max_powiter)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -180,7 +180,7 @@ SUNErrCode SUNDomEigEstPreProcess_PI(SUNDomEigEstimator DEE)
   SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
   sunrealtype normq;
-  int i, retval;
+  sunindextype i, retval;
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
   for(i = 0; i < PI_CONTENT(DEE)->power_of_A; i++)
@@ -225,7 +225,7 @@ SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
   dom_eig_old.real = ZERO;
   dom_eig_old.imag = ZERO;
 
-  int retval, k;
+  sunindextype retval, k;
   sunrealtype normq;
 
   for (k = 0; k < PI_CONTENT(DEE)->max_powiter; k++)
@@ -269,7 +269,7 @@ SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
   return SUN_SUCCESS;
 }
 
-int SUNDomEigEstNumIters_PI(SUNDomEigEstimator DEE)
+sunindextype SUNDomEigEstNumIters_PI(SUNDomEigEstimator DEE)
 {
   return PI_CONTENT(DEE)->numiters;
 }
@@ -290,7 +290,7 @@ SUNErrCode SUNDomEigEstFree_PI(SUNDomEigEstimator DEE)
     }
     if (PI_CONTENT(DEE)->V)
     {
-      N_VDestroyVectorArray(PI_CONTENT(DEE)->V, 1);
+      N_VDestroy(PI_CONTENT(DEE)->V);
       PI_CONTENT(DEE)->V = NULL;
     }
 
