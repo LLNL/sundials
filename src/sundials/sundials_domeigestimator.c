@@ -24,9 +24,9 @@
 #include <sundials/priv/sundials_domeigestimator_impl.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
-static SUNProfiler getSUNProfiler(SUNDomEigEstimator D)
+static SUNProfiler getSUNProfiler(SUNDomEigEstimator DEE)
 {
-  return (D->sunctx->profiler);
+  return (DEE->sunctx->profiler);
 }
 #endif
 
@@ -108,8 +108,7 @@ SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimes
   return (ier);
 }
 
-SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE, void* A_data,
-                              SUNATimesFn ATimes) //maybe drop Atimes from here
+SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));

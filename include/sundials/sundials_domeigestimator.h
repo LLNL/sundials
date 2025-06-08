@@ -86,27 +86,26 @@ SUNDIALS_EXPORT
 SUNDomEigEstimator SUNDomEigEstNewEmpty(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-void SUNDomEigEstFreeEmpty(SUNDomEigEstimator D);
+void SUNDomEigEstFreeEmpty(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator_Type SUNDomEigEstGetType(SUNDomEigEstimator D);
+SUNDomEigEstimator_Type SUNDomEigEstGetType(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator D, void* A_data,
+SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
                               SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator D, void* A_data,
-                              SUNATimesFn ATimes);
+SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstPreProcess(SUNDomEigEstimator D);
+SUNErrCode SUNDomEigEstPreProcess(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstComputeHess(SUNDomEigEstimator D);
+SUNErrCode SUNDomEigEstComputeHess(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator D, suncomplextype* dom_eig);
+SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig);
 
 /* -----------------------------------------------------------------
  * SUNDomEigEstimator return values

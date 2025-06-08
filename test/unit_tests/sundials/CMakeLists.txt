@@ -65,7 +65,7 @@ if(ENABLE_LAPACK)
                         ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
       # libraries to link against
-      set(_domeig_libs sundials_core sundials_nvecserial sundials_sundomeigestpi_obj sundials_sundomeigestarni_obj LAPACK::LAPACK)
+      set(_domeig_libs sundials_core sundials_nvecserial sundials_sundomeigestpi sundials_sundomeigestarni LAPACK::LAPACK)
       if(CMAKE_VERSION VERSION_LESS 3.20)
         list(APPEND _domeig_libs BLAS::BLAS)
       endif()
