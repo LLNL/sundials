@@ -20,7 +20,7 @@
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
-#include "sundials/sundials_errors.h"
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_iterative.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

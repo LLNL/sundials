@@ -22,7 +22,6 @@
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
 #include <sundials/sundials_domeigestimator.h>
 #include <sundomeigest/sundomeigest_pi.h>
-#include <sundomeigest/sundomeigest_arni.h>
 
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -39,8 +38,8 @@
 #define ZERO     SUN_RCONST(0.0)
 
 #define factor    (-100.0)
-#define realpart    (-30000.0)
-#define imagpart    (+40000.0)
+#define realpart  (-30000.0)
+#define imagpart  (0.0)
 
 /* user data structure */
 typedef struct
@@ -143,8 +142,8 @@ int main(int argc, char* argv[])
   /* Create DomEig estimator*/
   SUNDomEigEstimator DEE = NULL;
 
-  DEE = SUNDomEigEst_ArnI(q, maxl, sunctx);
-  if (check_flag(DEE, "SUNDomEigEst_ArnI", 0)) { return 1; }
+  DEE = SUNDomEigEst_PI(q, maxl, sunctx);
+  if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
 
   /* Set Atimes*/
   passfail = DEE->ops->setatimes(DEE, &ProbData, ATimes);
@@ -164,10 +163,6 @@ int main(int argc, char* argv[])
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
   passfail = DEE->ops->preprocess(DEE);
   if (check_flag(&passfail, "preprocess", 1)) { return 1; }
-
-  /* Compute the Hessenberg matrix Hes */
-  passfail = DEE->ops->computehess(DEE);
-  if (check_flag(&passfail, "computehess", 1)) { return 1; }
 
   /* Estimate the dominant eigenvalue */
   suncomplextype dom_eig;

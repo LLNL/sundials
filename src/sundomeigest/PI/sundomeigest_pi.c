@@ -73,7 +73,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter, SUNCont
   DEE->ops->gettype            = SUNDomEigEst_PIGetType;
   DEE->ops->setatimes          = SUNDomEigEstSetATimes_PI;
   DEE->ops->setmaxpoweriter    = SUNDomEigEst_PISetMaxPowerIter;
-  DEE->ops->setnumofperprocess = NULL;
+  DEE->ops->setnumofperprocess = SUNDomEigEstSetNumofPreProcess_PI;
   DEE->ops->initialize         = SUNDomEigEstInitialize_PI;
   DEE->ops->preprocess         = SUNDomEigEstPreProcess_PI;
   DEE->ops->computehess        = NULL;
@@ -145,6 +145,15 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
   N_VScale(ONE/normq, PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->V);
   SUNCheckLastErrNull();
 
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNDomEigEstSetNumofPreProcess_PI(SUNDomEigEstimator DEE, sunindextype numofperprocess)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  /* set the number of warmups */
+  PI_CONTENT(DEE)->power_of_A = numofperprocess;
   return SUN_SUCCESS;
 }
 

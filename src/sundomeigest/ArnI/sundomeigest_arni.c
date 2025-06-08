@@ -185,8 +185,7 @@ SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE, sunindext
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  /* set function pointers to integrator-supplied ATimes routine
-     and data, and return with success */
+  /* set the number of warmups */
   ArnI_CONTENT(DEE)->power_of_A = numofperprocess;
   return SUN_SUCCESS;
 }

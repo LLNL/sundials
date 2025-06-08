@@ -33,6 +33,7 @@
 #include <sundials/sundials_stepper.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_version.h>
+#include <sundials/sundials_domeigestimator.h>
 
 #if SUNDIALS_MPI_ENABLED
 #include <sundials/sundials_mpi_errors.h>

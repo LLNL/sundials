@@ -69,6 +69,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstSetNumofPreProcess_PI(SUNDomEigEstimator DEE, sunindextype numofperprocess);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data,
                                     SUNATimesFn ATimes);
 
