@@ -2325,7 +2325,7 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   if (step_mem->internal_domeigest_type == ARKODE_LSRK_ARNOLDI_ITERATION &&
       ark_mem->yn->ops->nvgetlength(ark_mem->yn) < 3)
   {
-    step_mem->internal_domeigest_type == ARKODE_LSRK_POWER_ITERATION;
+    step_mem->internal_domeigest_type = ARKODE_LSRK_POWER_ITERATION;
   }
 
   /* Create the internal DomEigEst */
