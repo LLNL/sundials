@@ -220,7 +220,7 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
     /* Set the default internal dominant eigenvalue estimator type */
     if (step_mem->internal_domeigest_type != ARKODE_LSRK_ARNOLDI_ITERATION)
     {
-      step_mem->internal_domeigest_type == ARKODE_LSRK_POWER_ITERATION;
+      step_mem->internal_domeigest_type = ARKODE_LSRK_POWER_ITERATION;
     }
 
     /* Create an internal dominant eigenvalue estimator */
