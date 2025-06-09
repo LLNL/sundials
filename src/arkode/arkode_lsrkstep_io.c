@@ -217,18 +217,71 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   }
   else
   {
-    step_mem->dom_eig_fn = NULL;
+    /* Set the default internal dominant eigenvalue estimator type */
+    if(step_mem->internal_domeigest_type != ARKODE_LSRK_ARNOLDI_ITERATION)
+    {
+      step_mem->internal_domeigest_type == ARKODE_LSRK_POWER_ITERATION;
+    }
 
+    /* Create an internal dominant eigenvalue estimator */
     step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
     if (step_mem->DEE == NULL)
     {
       arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                      "Internal domeig_mem is NULL");
+                      "Internal DomEigEstimator is NULL");
       return ARK_INTERNAL_DOMEIG_FAIL;
     }
 
     return ARK_SUCCESS;
   }
+}
+
+/*---------------------------------------------------------------
+  LSRKStepSetInternalDomEigEstType sets internal DomEigEst type.
+  ---------------------------------------------------------------*/
+SUNDIALS_EXPORT int LSRKStepSetInternalDomEigEstType(void* arkode_mem,
+                    ARKODE_LSRKInternal_DomEigEst_Type dom_eig_type)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (dom_eig_type == ARKODE_LSRK_POWER_ITERATION)
+  {
+    step_mem->internal_domeigest_type = ARKODE_LSRK_POWER_ITERATION;
+    /* Create internal dominant eigenvalue estimator -- PI */
+    if(step_mem->DEE == NULL)
+    {
+      step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
+    }
+  }
+  else if (dom_eig_type == ARKODE_LSRK_ARNOLDI_ITERATION)
+  {
+#ifdef SUNDIALS_BLAS_LAPACK_ENABLED
+    step_mem->internal_domeigest_type = ARKODE_LSRK_ARNOLDI_ITERATION;
+    /* Create an internal dominant eigenvalue estimator -- ArnI*/
+    if(step_mem->DEE == NULL)
+    {
+      step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
+    }
+#else
+    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    "Internal Arnoldi iteration requires LAPACK package");
+    return ARK_INTERNAL_DOMEIG_FAIL;
+#endif
+  }
+  else
+  {
+    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    "Attempted to set an internal domeig estimator with an unknown type");
+    return ARK_INTERNAL_DOMEIG_FAIL;
+  }
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------

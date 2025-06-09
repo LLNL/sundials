@@ -21,7 +21,10 @@
 #include <arkode/arkode_lsrkstep.h>
 #include <sundials/sundials_domeigestimator.h>
 #include <sundomeigest/sundomeigest_pi.h>
-#include <sundomeigest/sundomeigest_arni.h>
+
+#ifdef SUNDIALS_BLAS_LAPACK_ENABLED
+  #include <sundomeigest/sundomeigest_arni.h>
+#endif
 
 #include "arkode_impl.h"
 
@@ -162,6 +165,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
+  ARKODE_LSRKInternal_DomEigEst_Type internal_domeigest_type; /* Internal DomEig estimator type*/
   SUNDomEigEstimator DEE; /* DomEig estimator*/
   N_Vector domeig_q; /* DomEig initial q vector*/
   int domeig_maxl; /* Krylov subspace dimension */

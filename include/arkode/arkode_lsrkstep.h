@@ -42,6 +42,12 @@ typedef enum
   ARKODE_LSRK_SSP_10_4
 } ARKODE_LSRKMethodType;
 
+typedef enum
+{
+  ARKODE_LSRK_POWER_ITERATION,
+  ARKODE_LSRK_ARNOLDI_ITERATION
+} ARKODE_LSRKInternal_DomEigEst_Type;
+
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -75,6 +81,8 @@ SUNDIALS_EXPORT int LSRKStepSetSSPMethodByName(void* arkode_mem,
                                                const char* emethod);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
+
+SUNDIALS_EXPORT int LSRKStepSetInternalDomEigEstType(void* arkode_mem, ARKODE_LSRKInternal_DomEigEst_Type dom_eig_type);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps);
 

@@ -69,17 +69,8 @@ set(arkode_HEADERS
     arkode_sprk.h
     arkode_sprkstep.h)
 
-# Add prefix with complete path to the ARKODE header files
-add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
-
-# Create the sundials_arkode library
-sundials_add_library(
-  sundials_arkode
-  SOURCES ${arkode_SOURCES}
-  HEADERS ${arkode_HEADERS}
-  INCLUDE_SUBDIR arkode
-  LINK_LIBRARIES PUBLIC sundials_core
-  OBJECT_LIBRARIES
+# Add variable arkode_OBJECT_LIBRARIES
+set(arkode_OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
     sundials_nvecmanyvector_obj
@@ -99,8 +90,23 @@ sundials_add_library(
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
     sundials_adjointcheckpointscheme_fixed_obj
-    sundials_sundomeigestpi_obj
-    sundials_sundomeigestarni_obj
+    sundials_sundomeigestpi_obj)
+
+if(ENABLE_LAPACK)
+  list(APPEND arkode_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
+endif()
+
+# Add prefix with complete path to the ARKODE header files
+add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
+
+# Create the sundials_arkode library
+sundials_add_library(
+  sundials_arkode
+  SOURCES ${arkode_SOURCES}
+  HEADERS ${arkode_HEADERS}
+  INCLUDE_SUBDIR arkode
+  LINK_LIBRARIES PUBLIC sundials_core
+  OBJECT_LIBRARIES ${arkode_OBJECT_LIBRARIES}
   OUTPUT_NAME sundials_arkode
   VERSION ${arkodelib_VERSION}
   SOVERSION ${arkodelib_SOVERSION})
