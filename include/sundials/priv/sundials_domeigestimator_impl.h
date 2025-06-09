@@ -31,7 +31,7 @@ extern "C" {
 
 SUNErrCode domeig_CheckNVector(N_Vector tmpl);
 sunrealtype domeig_Magnitude(const suncomplextype* c);
-sunindextype domeig_Compare(const void* a, const void* b);
+int domeig_Compare(const void* a, const void* b);
 
 /*
   * -----------------------------------------------------------------

@@ -28,16 +28,6 @@
 
 #include "../test_sundomeigest.h"
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
 /* constants */
 #define ZERO SUN_RCONST(0.0)
 
@@ -70,11 +60,10 @@ sunindextype problem_size;
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails    = 0;  /* counter for test failures */
   int passfail = 0;  /* overall pass/fail flag    */
   N_Vector q;        /* test vectors              */
   UserData ProbData; /* problem data structure    */
-  int maxl, failure, power_of_A;
+  int maxl, power_of_A;
   SUNContext sunctx;
   sunrealtype tolerans = 1.0e-2;
 

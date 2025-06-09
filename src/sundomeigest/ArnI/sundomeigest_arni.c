@@ -336,7 +336,7 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, suncomplextype* dom_ei
   }
 
   /* Sort the array using qsort */
-  qsort(ArnI_CONTENT(DEE)->LAPACK_arr, n, sizeof(suncomplextype), (int)domeig_Compare);
+  qsort(ArnI_CONTENT(DEE)->LAPACK_arr, n, sizeof(suncomplextype), domeig_Compare);
 
   /* Update the original arrays */
   for (i = 0; i < n; i++)
@@ -422,7 +422,7 @@ sunrealtype domeig_Magnitude(const suncomplextype* c)
 }
 
 // Comparison function for qsort
-sunindextype domeig_Compare(const void* a, const void* b)
+int domeig_Compare(const void* a, const void* b)
 {
   const suncomplextype* c1 = (const suncomplextype*)a;
   const suncomplextype* c2 = (const suncomplextype*)b;
