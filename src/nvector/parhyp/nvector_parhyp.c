@@ -24,6 +24,7 @@
 #include <nvector/nvector_parhyp.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/priv/sundials_mpi_errors_impl.h>
+#include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector.h>
 

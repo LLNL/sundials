@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
   // suncomplextype diag is [ realpart   imagpart;
   //                         -imagpart   realpart]
   sunrealtype* v = N_VGetArrayPointer(ProbData.d);
-  int i, j;
+  int i;
   for (i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
 
   ProbData.real_part = realpart;

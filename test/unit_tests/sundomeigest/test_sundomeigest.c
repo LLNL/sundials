@@ -43,17 +43,17 @@ int print_time = 0;
  * SUNDomEigEstGetType Test
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEstGetType(SUNDomEigEstimator DEE,
-                             SUNLinearSolver_Type suntype, int myid)
+                             SUNDomEigEstimator_Type suntype, int myid)
 {
   double start_time, stop_time;
-  SUNLinearSolver_Type mysuntype;
+  SUNDomEigEstimator_Type myesttype;
 
   start_time = get_time();
-  mysuntype  = SUNDomEigEstGetType(DEE);
+  myesttype  = SUNDomEigEstGetType(DEE);
   // sync_device();
   stop_time = get_time();
 
-  if (suntype != mysuntype)
+  if (suntype != myesttype)
   {
     printf(">>> FAILED test -- SUNDomEigEstGetType, Proc %d \n", myid);
     PRINT_TIME("    SUNDomEigEstGetType Time: %22.15e \n \n",
