@@ -102,7 +102,7 @@ set(sunlinsollib_SOVERSION "5")
 set(sunnonlinsollib_VERSION "4.3.0")
 set(sunnonlinsollib_SOVERSION "4")
 
-set(sundomeigestlib_VERSION "1.0.0")
+set(sundomeigestlib_VERSION "1.3.0")
 set(sundomeigestlib_SOVERSION "1")
 
 set(sundialslib_VERSION

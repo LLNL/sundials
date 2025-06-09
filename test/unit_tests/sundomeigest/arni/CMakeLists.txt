@@ -27,7 +27,15 @@ set(sundomeigest_arni_examples
 set(sundomeigest_arni_dependencies test_sundomeigest)
 
 # Add source directory to include directories
-include_directories(. ../..)
+include_directories(. ..)
+
+# Specify libraries to link against
+set(DOMEIG_LIB sundials_sundomeigestarni LAPACK::LAPACK)
+if(CMAKE_VERSION VERSION_LESS 3.20)
+  list(APPEND DOMEIG_LIB BLAS::BLAS)
+endif()
+# Set-up linker flags and link libraries
+set(SUNDIALS_LIBS sundials_nvecserial ${DOMEIG_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sundomeigest_arni_examples})
@@ -41,14 +49,16 @@ foreach(example_tuple ${sundomeigest_arni_examples})
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.c ../test_sundomeigest.c)
+    sundials_add_executable(${example} ${example}.c)
+
+    # link domeigest test utilities
+    target_link_libraries(${example} PRIVATE test_sundomeigest_obj)
+
+    # libraries to link against
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # libraries to link against
-    target_link_libraries(${example} sundials_nvecserial sundials_sundomeigestarni
-                          ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -82,6 +92,7 @@ if(EXAMPLES_INSTALL)
   set(SOLVER_LIB "sundials_sundomeigestarni")
 
   examples2string(sundomeigest_arni_examples EXAMPLES)
+  set(sundomeigest_arni_dependencies test_sundomeigest.c)
   examples2string(sundomeigest_arni_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
@@ -91,29 +102,28 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/CMakeLists.txt
-    @ONLY)
+    ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sundomeigest/arni)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template for the
   # user's own programs.
+  set(EXAMPLES_DEPENDENCIES)
+  set(sundomeigest_arni_dependencies test_sundomeigest)
+  examples2string(sundomeigest_arni_dependencies EXAMPLES_DEPENDENCIES)
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/Makefile_ex
-      @ONLY)
+      ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sundomeigest/arni
       RENAME Makefile)
   endif()

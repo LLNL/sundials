@@ -24,6 +24,7 @@
 #define _DOMEIGEST_ARNI_H
 
 #include <sundials/sundials_domeigestimator.h>
+#include <sundials/priv/sundials_domeigestimator_impl.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

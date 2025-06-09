@@ -19,21 +19,32 @@ if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} caliper)
 endif()
 
+set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestpi)
+
+if(ENABLE_LAPACK)
+  set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestarni)
+endif()
 
 # Always add the power iteration examples
 add_subdirectory(pi)
 
-# Add the Arnoldi iteration examples if LAPACK is enabled
-if(ENABLE_LAPACK)
-  add_subdirectory(arni)
-endif()
-
 # Build the sundials_sundomeigest test utilities
-add_library(sundials_sundomeigest_obj OBJECT test_sundomeigest.c test_sundomeigest.h)
+add_library(test_sundomeigest_obj OBJECT test_sundomeigest.c)
 if(BUILD_SHARED_LIBS)
   # need PIC when shared libs are used since the example executables will link
   # to the shared lib
-  set_property(TARGET sundials_sundomeigest_obj PROPERTY POSITION_INDEPENDENT_CODE
+  set_property(TARGET test_sundomeigest_obj PROPERTY POSITION_INDEPENDENT_CODE
                                                   TRUE)
 endif()
-target_link_libraries(sundials_sundomeigest_obj sundials_sundomeigestarni sundials_sundomeigestpi)
+target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpi)
+
+# Add the Arnoldi iteration examples if LAPACK is enabled
+if(ENABLE_LAPACK)
+  add_subdirectory(arni)
+
+  if(BUILD_SHARED_LIBS)
+    set_property(TARGET test_sundomeigest_obj PROPERTY POSITION_INDEPENDENT_CODE
+                                                     TRUE)
+  endif()
+  target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpi sundials_sundomeigestarni)
+endif()

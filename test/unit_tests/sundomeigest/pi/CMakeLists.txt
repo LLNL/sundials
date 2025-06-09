@@ -27,7 +27,13 @@ set(sundomeigest_pi_examples
 set(sundomeigest_pi_dependencies test_sundomeigest)
 
 # Add source directory to include directories
-include_directories(. ../..)
+include_directories(. ..)
+
+# Specify libraries to link against
+set(DOMEIG_LIB sundials_sundomeigestpi)
+
+# Set-up linker flags and link libraries
+set(SUNDIALS_LIBS sundials_nvecserial ${DOMEIG_LIB} ${EXE_EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
 foreach(example_tuple ${sundomeigest_pi_examples})
@@ -41,14 +47,16 @@ foreach(example_tuple ${sundomeigest_pi_examples})
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.c ../test_sundomeigest.c)
+    sundials_add_executable(${example} ${example}.c)
+
+    # link domeigest test utilities
+    target_link_libraries(${example} PRIVATE test_sundomeigest_obj)
+
+    # libraries to link against
+    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # libraries to link against
-    target_link_libraries(${example} sundials_nvecserial sundials_sundomeigestpi
-                          ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -82,6 +90,7 @@ if(EXAMPLES_INSTALL)
   set(SOLVER_LIB "sundials_sundomeigestpi")
 
   examples2string(sundomeigest_pi_examples EXAMPLES)
+  set(sundomeigest_pi_dependencies test_sundomeigest.c)
   examples2string(sundomeigest_pi_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
@@ -91,29 +100,28 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/pi/CMakeLists.txt
-    @ONLY)
+    ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/pi/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
   install(
-    FILES
-      ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/pi/CMakeLists.txt
+    FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/pi/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sundomeigest/pi)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template for the
   # user's own programs.
+  set(EXAMPLES_DEPENDENCIES)
+  set(sundomeigest_pi_dependencies test_sundomeigest)
+  examples2string(sundomeigest_pi_dependencies EXAMPLES_DEPENDENCIES)
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/pi/Makefile_ex
-      @ONLY)
+      ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/pi/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
-      FILES
-        ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/pi/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/pi/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sundomeigest/pi
       RENAME Makefile)
   endif()

@@ -20,6 +20,18 @@ if(NOT SUNDIALS_PRECISION MATCHES "SINGLE")
                  "ark_test_heat2D_mri.cpp\;4\;1")
 endif()
 
+# Add variable DOMEIG_OBJECT_LIBRARIES
+set(DOMEIG_OBJECT_LIBRARIES
+    sundials_sundomeigestpi_obj)
+
+if(ENABLE_LAPACK)
+  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
+  set(LAPACK_LIBRARY LAPACK::LAPACK)
+  if(CMAKE_VERSION VERSION_LESS 3.20)
+    list(APPEND LAPACK_LIBRARY BLAS::BLAS)
+  endif()
+endif()
+
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
 
@@ -48,9 +60,10 @@ foreach(test_tuple ${unit_tests})
 
     # libraries to link against
     target_link_libraries(${test_target} MPI::MPI_CXX sundials_arkode
-                          sundials_sundomeigestpi
-                          sundials_sundomeigestarni
-                          sundials_nvecparallel ${EXE_EXTRA_LINK_LIBS})
+                          sundials_nvecparallel
+                          ${DOMEIG_OBJECT_LIBRARIES}
+                          ${EXE_EXTRA_LINK_LIBS}
+                          PRIVATE ${LAPACK_LIBRARY})
 
   endif()
 
