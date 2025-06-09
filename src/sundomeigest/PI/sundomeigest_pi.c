@@ -58,9 +58,9 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter,
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations
   SUNAssertNull(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
-              (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL) ||
-              (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)),
-            SUN_ERR_DOMEIG_BAD_NVECTOR);
+                  (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL) ||
+                  (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)),
+                SUN_ERR_DOMEIG_BAD_NVECTOR);
 
   /* check for max_powiter values; if illegal use defaults */
   if (max_powiter <= 0) { max_powiter = SUNDOMEIGEST_MAX_PI_DEFAULT; }

@@ -24,9 +24,9 @@
 #include <nvector/nvector_parhyp.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/priv/sundials_mpi_errors_impl.h>
-#include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_types.h>
 
 #include "sundials_macros.h"
 
@@ -238,6 +238,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
 
   /* Seed random number generator with MPI rank ID to ensure distinct streams */
   // SUNCheckMPICallNull(MPI_Comm_rank(comm, &myid));
+  MPI_Comm_rank(comm, &myid);
   // For some reason CI testing fails: complaining "sunctx_local_scope_" is not found
   // TODO: Resolve this issue in the revision
   srand(myid + 1);

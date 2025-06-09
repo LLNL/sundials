@@ -61,9 +61,9 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations
   SUNAssertNull(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
-              (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL) ||
-              (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)),
-            SUN_ERR_DOMEIG_BAD_NVECTOR);
+                  (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL) ||
+                  (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)),
+                SUN_ERR_DOMEIG_BAD_NVECTOR);
 
   /* Create dominant eigenvalue estimator */
   DEE = NULL;

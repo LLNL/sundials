@@ -59,8 +59,12 @@ foreach(test_tuple ${unit_tests})
 
     # libraries to link against
     target_link_libraries(
-      ${test_target} MPI::MPI_CXX sundials_arkode sundials_nvecparallel
-      ${DOMEIG_OBJECT_LIBRARIES} ${EXE_EXTRA_LINK_LIBS}
+      ${test_target}
+      MPI::MPI_CXX
+      sundials_arkode
+      sundials_nvecparallel
+      ${DOMEIG_OBJECT_LIBRARIES}
+      ${EXE_EXTRA_LINK_LIBS}
       ${LAPACK_LIBRARY})
 
   endif()
