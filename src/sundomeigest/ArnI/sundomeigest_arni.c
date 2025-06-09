@@ -155,7 +155,7 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
     (suncomplextype*)malloc(ArnI_CONTENT(DEE)->maxl * sizeof(suncomplextype));
 
   N_VRandom(ArnI_CONTENT(DEE)->q);
-  SUNCheckLastErrNull();
+  SUNCheckLastErr();
 
   /* Hessenberg matrix Hes */
   if (ArnI_CONTENT(DEE)->Hes == NULL)
@@ -174,12 +174,12 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
 
   /* Initialize the vector V[0] */
   sunrealtype normq = N_VDotProd(ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->q);
-  SUNCheckLastErrNull();
+  SUNCheckLastErr();
 
   normq = SUNRsqrt(normq);
 
   N_VScale(ONE / normq, ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->V[0]);
-  SUNCheckLastErrNull();
+  SUNCheckLastErr();
 
   return SUN_SUCCESS;
 }
