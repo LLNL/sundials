@@ -57,7 +57,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter,
 
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations
-  SUNAssert(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
+  SUNAssertNull(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
               (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL) ||
               (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)),
             SUN_ERR_DOMEIG_BAD_NVECTOR);
@@ -145,16 +145,16 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
   SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
   N_VRandom(PI_CONTENT(DEE)->q);
-  SUNCheckLastErrNull();
+  SUNCheckLastErr();
 
   /* Initialize the vector V */
   sunrealtype normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);
-  SUNCheckLastErrNull();
+  SUNCheckLastErr();
 
   normq = SUNRsqrt(normq);
 
   N_VScale(ONE / normq, PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->V);
-  SUNCheckLastErrNull();
+  SUNCheckLastErr();
 
   return SUN_SUCCESS;
 }

@@ -56,11 +56,11 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
   SUNDomEigEstimatorContent_ArnI content;
 
   /* Check if maxl >= 2 */
-  SUNAssert(maxl >= 2, SUN_ERR_DOMEIG_NOT_ENOUGH_ITER);
+  SUNAssertNull(maxl >= 2, SUN_ERR_DOMEIG_NOT_ENOUGH_ITER);
 
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations
-  SUNAssert(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
+  SUNAssertNull(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
               (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL) ||
               (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)),
             SUN_ERR_DOMEIG_BAD_NVECTOR);

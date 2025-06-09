@@ -61,7 +61,7 @@ foreach(test_tuple ${unit_tests})
     target_link_libraries(
       ${test_target} MPI::MPI_CXX sundials_arkode sundials_nvecparallel
       ${DOMEIG_OBJECT_LIBRARIES} ${EXE_EXTRA_LINK_LIBS}
-      PRIVATE ${LAPACK_LIBRARY})
+      ${LAPACK_LIBRARY})
 
   endif()
 
