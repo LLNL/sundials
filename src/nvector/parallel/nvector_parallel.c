@@ -184,7 +184,7 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, sunindextype local_length,
 
   /* Seed random number generator with MPI rank ID to ensure distinct streams */
   SUNCheckMPICallNull(MPI_Comm_rank(comm, &myid));
-  srand(myid+1);
+  srand(myid + 1);
 
   return (v);
 }
@@ -668,7 +668,7 @@ sunrealtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
   sunrealtype lsum, gsum;
   lsum = N_VDotProdLocal_Parallel(x, y);
   SUNCheckLastErrNoRet();
-   SUNCheckMPICallNoRet(
+  SUNCheckMPICallNoRet(
     MPI_Allreduce(&lsum, &gsum, 1, MPI_SUNREALTYPE, MPI_SUM, NV_COMM_P(x)));
   return (gsum);
 }
@@ -980,8 +980,8 @@ sunrealtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
 SUNErrCode N_VRandom_Parallel(N_Vector x)
 {
   SUNFunctionBegin(x->sunctx);
-  sunrealtype *xd = NULL;
-  xd = NV_DATA_P(x);
+  sunrealtype* xd = NULL;
+  xd              = NV_DATA_P(x);
   for (int i = 0; i < NV_LOCLENGTH_P(x); i++)
   {
     xd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;

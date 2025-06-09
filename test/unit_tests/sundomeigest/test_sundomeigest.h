@@ -32,10 +32,10 @@ int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol);
 // void sync_device(void);
 
 /* Test function declarations */
-int Test_SUNDomEigEstGetType(SUNDomEigEstimator DEE, SUNLinearSolver_Type suntype,
-                          int myid);
-int Test_SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* ATdata, SUNATimesFn ATimes,
-                            int myid);
+int Test_SUNDomEigEstGetType(SUNDomEigEstimator DEE,
+                             SUNLinearSolver_Type suntype, int myid);
+int Test_SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* ATdata,
+                               SUNATimesFn ATimes, int myid);
 int Test_SUNDomEigEstInitialize(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEstPreProcess(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEstComputeHess(SUNDomEigEstimator DEE, int myid);

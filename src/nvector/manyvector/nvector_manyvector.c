@@ -247,7 +247,7 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
   if (v->ops->nvrandom)
   {
     rank = SubvectorMPIRank(vec_array[0]);
-    srand(rank+1);
+    srand(rank + 1);
   }
 
   return (v);
@@ -447,10 +447,7 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors, N_Vector* vec_array,
   }
 
   /* Seed random number generator to ensure reproducibility between runs */
-  if (v->ops->nvrandom)
-  {
-    srand(1);
-  }
+  if (v->ops->nvrandom) { srand(1); }
 
   return (v);
 }
@@ -1499,7 +1496,6 @@ SUNErrCode N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x,
 }
 #endif
 
-
 SUNErrCode MVAPPEND(N_VRandom)(N_Vector x)
 {
   SUNFunctionBegin(x->sunctx);
@@ -1510,7 +1506,6 @@ SUNErrCode MVAPPEND(N_VRandom)(N_Vector x)
   }
   return SUN_SUCCESS;
 }
-
 
 /* -----------------------------------------------------------------
    Fused vector operations

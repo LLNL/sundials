@@ -372,6 +372,20 @@ SWIGEXPORT int _wrap_FLSRKStepSetDomEigFn(void *farg1, ARKDomEigFn farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FLSRKStepSetInternalDomEigEstType(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKODE_LSRKInternal_DomEigEst_Type arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKODE_LSRKInternal_DomEigEst_Type)(*farg2);
+  result = (int)LSRKStepSetInternalDomEigEstType(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FLSRKStepSetDomEigFrequency(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

@@ -21,8 +21,7 @@ if(NOT SUNDIALS_PRECISION MATCHES "SINGLE")
 endif()
 
 # Add variable DOMEIG_OBJECT_LIBRARIES
-set(DOMEIG_OBJECT_LIBRARIES
-    sundials_sundomeigestpi_obj)
+set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
 
 if(ENABLE_LAPACK)
   list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
@@ -59,11 +58,10 @@ foreach(test_tuple ${unit_tests})
               ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
-    target_link_libraries(${test_target} MPI::MPI_CXX sundials_arkode
-                          sundials_nvecparallel
-                          ${DOMEIG_OBJECT_LIBRARIES}
-                          ${EXE_EXTRA_LINK_LIBS}
-                          PRIVATE ${LAPACK_LIBRARY})
+    target_link_libraries(
+      ${test_target} MPI::MPI_CXX sundials_arkode sundials_nvecparallel
+      ${DOMEIG_OBJECT_LIBRARIES} ${EXE_EXTRA_LINK_LIBS}
+      PRIVATE ${LAPACK_LIBRARY})
 
   endif()
 

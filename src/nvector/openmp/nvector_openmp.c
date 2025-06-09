@@ -1003,8 +1003,8 @@ sunrealtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom)
 SUNErrCode N_VRandom_OpenMP(N_Vector x)
 {
   SUNFunctionBegin(x->sunctx);
-  sunrealtype *xd = NULL;
-  xd = NV_DATA_OMP(x);
+  sunrealtype* xd = NULL;
+  xd              = NV_DATA_OMP(x);
   for (int i = 0; i < NV_LENGTH_OMP(x); i++)
   {
     xd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;

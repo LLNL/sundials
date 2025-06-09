@@ -90,6 +90,13 @@ module fsundials_core_mod
   enumerator :: SUN_ERR_ADJOINT_STEPPERINVALIDSTOP
   enumerator :: SUN_ERR_CHECKPOINT_NOT_FOUND
   enumerator :: SUN_ERR_CHECKPOINT_MISMATCH
+  enumerator :: SUN_ERR_DOMEIG_BAD_NVECTOR
+  enumerator :: SUN_ERR_DOMEIG_NULL_ATIMES
+  enumerator :: SUN_ERR_DOMEIG_NULL_HES
+  enumerator :: SUN_ERR_DOMEIG_NOT_ENOUGH_ITER
+  enumerator :: SUN_ERR_DOMEIG_ATIMES_FAIL_REC
+  enumerator :: SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC
+  enumerator :: SUN_ERR_DOMEIG_LAPACK_FAIL
   enumerator :: SUN_ERR_SUNCTX_CORRUPT
   enumerator :: SUN_ERR_MPI_FAIL
   enumerator :: SUN_ERR_UNREACHABLE
@@ -102,8 +109,10 @@ module fsundials_core_mod
     SUN_ERR_MEM_FAIL, SUN_ERR_MALLOC_FAIL, SUN_ERR_EXT_FAIL, SUN_ERR_DESTROY_FAIL, SUN_ERR_NOT_IMPLEMENTED, &
     SUN_ERR_USER_FCN_FAIL, SUN_ERR_DATANODE_NODENOTFOUND, SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, &
     SUN_ERR_PROFILER_MAPINSERT, SUN_ERR_PROFILER_MAPKEYNOTFOUND, SUN_ERR_PROFILER_MAPSORT, SUN_ERR_ADJOINT_STEPPERFAILED, &
-    SUN_ERR_ADJOINT_STEPPERINVALIDSTOP, SUN_ERR_CHECKPOINT_NOT_FOUND, SUN_ERR_CHECKPOINT_MISMATCH, SUN_ERR_SUNCTX_CORRUPT, &
-    SUN_ERR_MPI_FAIL, SUN_ERR_UNREACHABLE, SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
+    SUN_ERR_ADJOINT_STEPPERINVALIDSTOP, SUN_ERR_CHECKPOINT_NOT_FOUND, SUN_ERR_CHECKPOINT_MISMATCH, SUN_ERR_DOMEIG_BAD_NVECTOR, &
+    SUN_ERR_DOMEIG_NULL_ATIMES, SUN_ERR_DOMEIG_NULL_HES, SUN_ERR_DOMEIG_NOT_ENOUGH_ITER, SUN_ERR_DOMEIG_ATIMES_FAIL_REC, &
+    SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC, SUN_ERR_DOMEIG_LAPACK_FAIL, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, SUN_ERR_UNREACHABLE, &
+    SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -221,6 +230,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: nvwrmsnormmaskvectorarray
   type(C_FUNPTR), public :: nvscaleaddmultivectorarray
   type(C_FUNPTR), public :: nvlinearcombinationvectorarray
+  type(C_FUNPTR), public :: nvrandom
   type(C_FUNPTR), public :: nvdotprodlocal
   type(C_FUNPTR), public :: nvmaxnormlocal
   type(C_FUNPTR), public :: nvminlocal
@@ -283,6 +293,7 @@ module fsundials_core_mod
  public :: FN_VConstVectorArray
  public :: FN_VWrmsNormVectorArray
  public :: FN_VWrmsNormMaskVectorArray
+ public :: FN_VRandom
  public :: FN_VDotProdLocal
  public :: FN_VMaxNormLocal
  public :: FN_VMinLocal
@@ -1333,6 +1344,14 @@ type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
+integer(C_INT) :: fresult
+end function
+
+function swigc_FN_VRandom(farg1) &
+bind(C, name="_wrap_FN_VRandom") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -4074,6 +4093,19 @@ farg3 = w
 farg4 = c_loc(id)
 farg5 = c_loc(nrm(1))
 fresult = swigc_FN_VWrmsNormMaskVectorArray(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FN_VRandom(x) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(N_Vector), target, intent(inout) :: x
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(x)
+fresult = swigc_FN_VRandom(farg1)
 swig_result = fresult
 end function
 

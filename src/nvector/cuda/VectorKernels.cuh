@@ -299,13 +299,14 @@ __global__ void minQuotientKernel(const T MAX_VAL, const T* num, const T* den,
 template<typename T, typename I>
 __global__ void randomKernel(T* X, I n)
 {
-    GRID_STRIDE_XLOOP(I, i, n) {
-        // Initialize random state
-        curandState state;
-        curand_init(clock64(), i, 0, &state);
-        // Generate random number between 0 and 1
-        X[i] = (sunrealtype) curand_uniform(&state) / (sunrealtype) UINT_MAX;
-    }
+  GRID_STRIDE_XLOOP(I, i, n)
+  {
+    // Initialize random state
+    curandState state;
+    curand_init(clock64(), i, 0, &state);
+    // Generate random number between 0 and 1
+    X[i] = (sunrealtype)curand_uniform(&state) / (sunrealtype)UINT_MAX;
+  }
 }
 
 } // namespace impl

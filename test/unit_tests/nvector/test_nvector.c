@@ -5568,7 +5568,7 @@ int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
 int Test_N_VRandom(N_Vector X, int myid)
 {
   SUNErrCode ierr = SUN_SUCCESS;
-  int failure = 0;
+  int failure     = 0;
   sunrealtype ymin, ymax;
 
   /* create vector for testing */
@@ -5589,35 +5589,38 @@ int Test_N_VRandom(N_Vector X, int myid)
     ymax = N_VMaxNorm(Y);
     if (ymin == ymax)
     {
-      printf(">>> FAILED test -- N_VRandom, Proc %d (ymin == ymax = %" FSYM ") \n", myid, ymin);
+      printf(">>> FAILED test -- N_VRandom, Proc %d (ymin == ymax = %" FSYM
+             ") \n",
+             myid, ymin);
       failure = 1;
     }
     if (ymin < ZERO)
     {
-      printf(">>> FAILED test -- N_VRandom, Proc %d (ymin = %" FSYM " < 0) \n", myid, ymin);
+      printf(">>> FAILED test -- N_VRandom, Proc %d (ymin = %" FSYM " < 0) \n",
+             myid, ymin);
       failure = 1;
     }
     if (ymin > ONE)
     {
-      printf(">>> FAILED test -- N_VRandom, Proc %d (ymin = %" FSYM " > 1) \n", myid, ymin);
+      printf(">>> FAILED test -- N_VRandom, Proc %d (ymin = %" FSYM " > 1) \n",
+             myid, ymin);
       failure = 1;
     }
     if (ymax < ZERO)
     {
-      printf(">>> FAILED test -- N_VRandom, Proc %d (ymax = %" FSYM " < 0) \n", myid, ymax);
+      printf(">>> FAILED test -- N_VRandom, Proc %d (ymax = %" FSYM " < 0) \n",
+             myid, ymax);
       failure = 1;
     }
     if (ymax > ONE)
     {
-      printf(">>> FAILED test -- N_VRandom, Proc %d (ymax = %" FSYM " > 1) \n", myid, ymax);
+      printf(">>> FAILED test -- N_VRandom, Proc %d (ymax = %" FSYM " > 1) \n",
+             myid, ymax);
       failure = 1;
     }
   }
 
-  if ((failure == 0) && (myid == 0))
-  {
-    printf("PASSED test -- N_VRandom \n");
-  }
+  if ((failure == 0) && (myid == 0)) { printf("PASSED test -- N_VRandom \n"); }
 
   N_VDestroy(Y);
   return (failure);

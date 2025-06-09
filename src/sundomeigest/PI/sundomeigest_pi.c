@@ -16,13 +16,13 @@
  * -----------------------------------------------------------------
  */
 
- #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 
+#include <sundials/priv/sundials_domeigestimator_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
 #include <sundomeigest/sundomeigest_pi.h>
-#include <sundials/priv/sundials_domeigestimator_impl.h>
 
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
@@ -36,7 +36,7 @@
  * -----------------------------------------------------------------
  */
 
-#define PI_CONTENT(DEE)  ((SUNDomEigEstimatorContent_PI)(DEE->content))
+#define PI_CONTENT(DEE) ((SUNDomEigEstimatorContent_PI)(DEE->content))
 
 /*
  * -----------------------------------------------------------------
@@ -48,7 +48,8 @@
  * Function to create a new PI estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter, SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter,
+                                   SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -56,17 +57,17 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter, SUNCont
 
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations
-  SUNAssert(!(
-    (q->ops->nvclone == NULL)     || (q->ops->nvdestroy == NULL) ||
-    (q->ops->nvdotprod == NULL)   || (q->ops->nvscale == NULL) ||
-    (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)), SUN_ERR_DOMEIG_BAD_NVECTOR);
+  SUNAssert(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
+              (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL) ||
+              (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)),
+            SUN_ERR_DOMEIG_BAD_NVECTOR);
 
   /* check for max_powiter values; if illegal use defaults */
   if (max_powiter <= 0) { max_powiter = SUNDOMEIGEST_MAX_PI_DEFAULT; }
 
   /* Create dominant eigenvalue estimator */
   DEE = NULL;
-  DEE = SUNDomEigEstNewEmpty (sunctx);
+  DEE = SUNDomEigEstNewEmpty(sunctx);
   SUNCheckLastErrNull();
 
   /* Attach operations */
@@ -90,15 +91,15 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter, SUNCont
   DEE->content = content;
 
   /* Fill content */
-  content->ATimes       = NULL;
-  content->ATdata       = NULL;
-  content->V            = NULL;
-  content->q            = NULL;
-  content->power_of_A   = 0;
-  content->powiter_tol  = ZERO;
-  content->resnorm      = ZERO;
-  content->max_powiter  = max_powiter;
-  content->numiters     = 0;
+  content->ATimes      = NULL;
+  content->ATdata      = NULL;
+  content->V           = NULL;
+  content->q           = NULL;
+  content->power_of_A  = 0;
+  content->powiter_tol = ZERO;
+  content->resnorm     = ZERO;
+  content->max_powiter = max_powiter;
+  content->numiters    = 0;
 
   /* Allocate content */
   content->q = N_VClone(q);
@@ -116,7 +117,8 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter, SUNCont
  * -----------------------------------------------------------------
  */
 
-SUNDomEigEstimator_Type SUNDomEigEst_PIGetType(SUNDIALS_MAYBE_UNUSED SUNDomEigEstimator DEE)
+SUNDomEigEstimator_Type SUNDomEigEst_PIGetType(
+  SUNDIALS_MAYBE_UNUSED SUNDomEigEstimator DEE)
 {
   return (SUNDOMEIG_POWER);
 }
@@ -125,9 +127,18 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  if (PI_CONTENT(DEE)->powiter_tol <= 0) { PI_CONTENT(DEE)->powiter_tol = SUNDOMEIGEST_PI_TOL_DEFAULT; }
-  if (PI_CONTENT(DEE)->power_of_A <= 0)  { PI_CONTENT(DEE)->power_of_A  = SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT; }
-  if (PI_CONTENT(DEE)->max_powiter <= 0) { PI_CONTENT(DEE)->max_powiter = SUNDOMEIGEST_MAX_PI_DEFAULT; }
+  if (PI_CONTENT(DEE)->powiter_tol <= 0)
+  {
+    PI_CONTENT(DEE)->powiter_tol = SUNDOMEIGEST_PI_TOL_DEFAULT;
+  }
+  if (PI_CONTENT(DEE)->power_of_A <= 0)
+  {
+    PI_CONTENT(DEE)->power_of_A = SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT;
+  }
+  if (PI_CONTENT(DEE)->max_powiter <= 0)
+  {
+    PI_CONTENT(DEE)->max_powiter = SUNDOMEIGEST_MAX_PI_DEFAULT;
+  }
 
   SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
@@ -142,13 +153,14 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
 
   normq = SUNRsqrt(normq);
 
-  N_VScale(ONE/normq, PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->V);
+  N_VScale(ONE / normq, PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->V);
   SUNCheckLastErrNull();
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstSetNumofPreProcess_PI(SUNDomEigEstimator DEE, sunindextype numofperprocess)
+SUNErrCode SUNDomEigEstSetNumofPreProcess_PI(SUNDomEigEstimator DEE,
+                                             sunindextype numofperprocess)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -157,7 +169,8 @@ SUNErrCode SUNDomEigEstSetNumofPreProcess_PI(SUNDomEigEstimator DEE, sunindextyp
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
+SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data,
+                                    SUNATimesFn ATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -168,7 +181,8 @@ SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data, SUNATi
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_PISetMaxPowerIter(SUNDomEigEstimator DEE, sunindextype max_powiter)
+SUNErrCode SUNDomEigEst_PISetMaxPowerIter(SUNDomEigEstimator DEE,
+                                          sunindextype max_powiter)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -192,25 +206,20 @@ SUNErrCode SUNDomEigEstPreProcess_PI(SUNDomEigEstimator DEE)
   sunindextype i, retval;
 
   /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  for(i = 0; i < PI_CONTENT(DEE)->power_of_A; i++)
+  for (i = 0; i < PI_CONTENT(DEE)->power_of_A; i++)
   {
-    retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata, PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
+    retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
+                                     PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
     if (retval != 0)
     {
-      if(retval < 0)
-      {
-        return SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC;
-      }
-      else
-      {
-        return SUN_ERR_DOMEIG_ATIMES_FAIL_REC;
-      }
+      if (retval < 0) { return SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC; }
+      else { return SUN_ERR_DOMEIG_ATIMES_FAIL_REC; }
     }
     normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);
     SUNCheckLastErr();
 
     normq = SUNRsqrt(normq);
-    N_VScale(ONE/normq, PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->V);
+    N_VScale(ONE / normq, PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->V);
     SUNCheckLastErr();
   }
 
@@ -239,40 +248,33 @@ SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
 
   for (k = 0; k < PI_CONTENT(DEE)->max_powiter; k++)
   {
-    retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata, PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
+    retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
+                                     PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
     if (retval != 0)
     {
-      if(retval < 0)
-      {
-        return SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC;
-      }
-      else
-      {
-        return SUN_ERR_DOMEIG_ATIMES_FAIL_REC;
-      }
+      if (retval < 0) { return SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC; }
+      else { return SUN_ERR_DOMEIG_ATIMES_FAIL_REC; }
     }
 
-    dom_eig_new.real = N_VDotProd(PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q); //Rayleigh quotient
+    dom_eig_new.real = N_VDotProd(PI_CONTENT(DEE)->V,
+                                  PI_CONTENT(DEE)->q); //Rayleigh quotient
     SUNCheckLastErr();
 
     PI_CONTENT(DEE)->resnorm = fabs(dom_eig_new.real - dom_eig_old.real);
 
-    if(PI_CONTENT(DEE)->resnorm < PI_CONTENT(DEE)->powiter_tol)
-    {
-      break;
-    }
+    if (PI_CONTENT(DEE)->resnorm < PI_CONTENT(DEE)->powiter_tol) { break; }
 
     normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);
     SUNCheckLastErr();
 
     normq = SUNRsqrt(normq);
-    N_VScale(ONE/normq, PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->V);
+    N_VScale(ONE / normq, PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->V);
     SUNCheckLastErr();
 
     dom_eig_old.real = dom_eig_new.real;
   }
 
-  *dom_eig = dom_eig_new;
+  *dom_eig                  = dom_eig_new;
   PI_CONTENT(DEE)->numiters = k;
 
   return SUN_SUCCESS;

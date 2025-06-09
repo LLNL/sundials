@@ -20,6 +20,7 @@
 #include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
+#include <sundials/sundials_domeigestimator.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_iterative.h>
 #include <sundials/sundials_linearsolver.h>
@@ -33,7 +34,6 @@
 #include <sundials/sundials_stepper.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_version.h>
-#include <sundials/sundials_domeigestimator.h>
 
 #if SUNDIALS_MPI_ENABLED
 #include <sundials/sundials_mpi_errors.h>

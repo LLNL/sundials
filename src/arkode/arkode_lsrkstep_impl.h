@@ -23,7 +23,7 @@
 #include <sundomeigest/sundomeigest_pi.h>
 
 #ifdef SUNDIALS_BLAS_LAPACK_ENABLED
-  #include <sundomeigest/sundomeigest_arni.h>
+#include <sundomeigest/sundomeigest_arni.h>
 #endif
 
 #include "arkode_impl.h"
@@ -148,8 +148,8 @@ typedef struct ARKodeLSRKStepMemRec
   ARKODE_LSRKMethodType LSRKmethod;
 
   /* Counters and stats*/
-  long int nfe;               /* num fe calls       */
-  long int nfeDQ;             /* num fe calls for difference quotient approximation */
+  long int nfe;   /* num fe calls       */
+  long int nfeDQ; /* num fe calls for difference quotient approximation */
   long int dom_eig_num_evals; /* num of dom_eig computations   */
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
@@ -167,10 +167,10 @@ typedef struct ARKodeLSRKStepMemRec
 
   ARKODE_LSRKInternal_DomEigEst_Type internal_domeigest_type; /* Internal DomEig estimator type*/
   SUNDomEigEstimator DEE; /* DomEig estimator*/
-  N_Vector domeig_q; /* DomEig initial q vector*/
-  int domeig_maxl; /* Krylov subspace dimension */
+  N_Vector domeig_q;      /* DomEig initial q vector*/
+  int domeig_maxl;        /* Krylov subspace dimension */
   int domeig_power_of_A;  /* Power of A for the warm-up */
-  int domeig_maxiters;  /* Max number of Power Iterations */
+  int domeig_maxiters;    /* Max number of Power Iterations */
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */

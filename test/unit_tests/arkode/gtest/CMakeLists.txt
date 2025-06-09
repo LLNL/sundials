@@ -30,7 +30,6 @@ if(ENABLE_LAPACK)
   endif()
 endif()
 
-
 # We explicitly choose which object libraries to link to and link in the ARKODE
 # objects so that we have access to private functions w/o changing their
 # visibility in the installed libraries.

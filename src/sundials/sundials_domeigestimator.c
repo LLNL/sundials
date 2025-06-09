@@ -20,8 +20,8 @@
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 
-#include <sundials/sundials_domeigestimator.h>
 #include <sundials/priv/sundials_domeigestimator_impl.h>
+#include <sundials/sundials_domeigestimator.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNDomEigEstimator DEE)
@@ -98,7 +98,8 @@ SUNDomEigEstimator_Type SUNDomEigEstGetType(SUNDomEigEstimator DEE)
   return (DEE->ops->gettype(DEE));
 }
 
-SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
+SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
+                                 SUNATimesFn ATimes)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));

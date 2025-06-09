@@ -873,8 +873,8 @@ sunrealtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
 SUNErrCode N_VRandom_Petsc(N_Vector x)
 {
   SUNFunctionBegin(x->sunctx);
-  Vec xv = NV_PVEC_PTC(x);
-  PetscErrorCode ierr = VecSetRandom(xv,NULL);
+  Vec xv              = NV_PVEC_PTC(x);
+  PetscErrorCode ierr = VecSetRandom(xv, NULL);
   CHKERRABORT(NV_COMM_PTC(x), ierr);
   return SUN_SUCCESS;
 }

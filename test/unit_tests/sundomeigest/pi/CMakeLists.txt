@@ -19,9 +19,8 @@
 
 # Examples using SUNDIALS PI dominant eigenvalue estimator
 set(sundomeigest_pi_examples
-  "test_sundomeigest_pi\;100 10 10\;"
-  "test_sundomeigest_pi\;1000 10 10\;"
-  "test_sundomeigest_pi\;10000 10 10\;")
+    "test_sundomeigest_pi\;100 10 10\;" "test_sundomeigest_pi\;1000 10 10\;"
+    "test_sundomeigest_pi\;10000 10 10\;")
 
 # Dependencies for dominant eigenvalue examples
 set(sundomeigest_pi_dependencies test_sundomeigest)

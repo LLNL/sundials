@@ -124,7 +124,7 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
    */
 
   ops->nvgetlocallength = NULL;
-  ops->nvrandom = NULL;
+  ops->nvrandom         = NULL;
 
   /* local reduction operations (optional) */
   ops->nvdotprodlocal     = NULL;
@@ -839,10 +839,7 @@ SUNErrCode N_VRandom(N_Vector x)
 {
   SUNErrCode ier = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  if (x->ops->nvrandom != NULL)
-  {
-    ier = (x->ops->nvrandom(x));
-  }
+  if (x->ops->nvrandom != NULL) { ier = (x->ops->nvrandom(x)); }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return (ier);
 }

@@ -39,19 +39,19 @@
 #endif
 
 /* constants */
-#define ZERO     SUN_RCONST(0.0)
+#define ZERO SUN_RCONST(0.0)
 
-#define factor    (-100.0)
-#define realpart  (-30000.0)
-#define imagpart  (0.0)
+#define factor   (-100.0)
+#define realpart (-30000.0)
+#define imagpart (0.0)
 
 /* user data structure */
 typedef struct
 {
-  sunindextype N;         /* problem size */
-  N_Vector d;             /* matrix diagonal */
-  sunrealtype real_part;  /* nondiagonal entries of the matrix */
-  sunrealtype imag_part;  /* nondiagonal entries of the matrix */
+  sunindextype N;        /* problem size */
+  N_Vector d;            /* matrix diagonal */
+  sunrealtype real_part; /* nondiagonal entries of the matrix */
+  sunrealtype imag_part; /* nondiagonal entries of the matrix */
 } UserData;
 
 /* private functions */
@@ -65,16 +65,15 @@ int check_vector(N_Vector X, N_Vector Y, sunrealtype tol);
 /* global copy of the problem size (for check_vector routine) */
 sunindextype problem_size;
 
-
 /* ----------------------------------------------------------------------
  * DomEig Module Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails    = 0;    /* counter for test failures */
-  int passfail = 0;    /* overall pass/fail flag    */
-  N_Vector q;          /* test vectors              */
-  UserData ProbData;   /* problem data structure    */
+  int fails    = 0;  /* counter for test failures */
+  int passfail = 0;  /* overall pass/fail flag    */
+  N_Vector q;        /* test vectors              */
+  UserData ProbData; /* problem data structure    */
   int maxl, failure, power_of_A;
   SUNContext sunctx;
   sunrealtype tolerans = 1.0e-2;
@@ -104,15 +103,13 @@ int main(int argc, char* argv[])
   maxl = atoi(argv[2]);
   if (maxl <= 0)
   {
-    printf(
-      "ERROR: Krylov subspace dimension must be a positive integer\n");
+    printf("ERROR: Krylov subspace dimension must be a positive integer\n");
     return 1;
   }
   power_of_A = atoi(argv[3]);
   if (power_of_A < 0)
   {
-    printf(
-      "ERROR: Number of preprocessing must be a nonnegative integer\n");
+    printf("ERROR: Number of preprocessing must be a nonnegative integer\n");
     return 1;
   }
   printf("\nDomEig module test:\n");
@@ -133,12 +130,9 @@ int main(int argc, char* argv[])
   // real diag is factor*[3 4 5 ... N 0 0]
   // suncomplextype diag is [ realpart   imagpart;
   //                         -imagpart   realpart]
-  sunrealtype *v = N_VGetArrayPointer(ProbData.d);
+  sunrealtype* v = N_VGetArrayPointer(ProbData.d);
   int i, j;
-  for(i = 0; i < ProbData.N-2; i++)
-  {
-    v[i] = factor*(i + 3);
-  }
+  for (i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
 
   ProbData.real_part = realpart;
   ProbData.imag_part = imagpart;
@@ -154,7 +148,7 @@ int main(int argc, char* argv[])
   if (check_flag(&passfail, "setatimes", 1)) { return 1; }
 
   /* Set the number of preprocessings */
-  if(DEE->ops->setnumofperprocess != NULL)
+  if (DEE->ops->setnumofperprocess != NULL)
   {
     passfail = DEE->ops->setnumofperprocess(DEE, power_of_A);
     if (check_flag(&passfail, "setnumofperprocess", 1)) { return 1; }
@@ -173,39 +167,47 @@ int main(int argc, char* argv[])
   passfail = DEE->ops->estimate(DEE, &dom_eig);
   if (check_flag(&passfail, "estimate", 1)) { return 1; }
 
-  sunrealtype norm_of_dom_eig = SUNRsqrt(dom_eig.real * dom_eig.real + dom_eig.imag * dom_eig.imag);
-  if(norm_of_dom_eig < SUN_SMALL_REAL) {
+  sunrealtype norm_of_dom_eig =
+    SUNRsqrt(dom_eig.real * dom_eig.real + dom_eig.imag * dom_eig.imag);
+  if (norm_of_dom_eig < SUN_SMALL_REAL)
+  {
     printf("FAIL:   Dominant Eigenvalue Test Failed");
     return 1;
   }
 
   suncomplextype true_dom_eig;
   /* Identify true_dom_eig based on given parameters*/
-  if(SUNRsqrt(realpart * realpart + imagpart * imagpart) > -1.0 * factor * ProbData.N)
+  if (SUNRsqrt(realpart * realpart + imagpart * imagpart) >
+      -1.0 * factor * ProbData.N)
   {
     true_dom_eig.real = realpart;
     true_dom_eig.imag = imagpart;
   }
   else
   {
-    true_dom_eig.real = factor*ProbData.N;
+    true_dom_eig.real = factor * ProbData.N;
     true_dom_eig.imag = ZERO;
   }
 
-  printf("\ncomputed dominant eigenvalue = %20.4lf + %20.4lfi\n", dom_eig.real, dom_eig.imag);
-  printf("    true dominant eigenvalue = %20.4lf + %20.4lfi\n", true_dom_eig.real, true_dom_eig.imag);
+  printf("\ncomputed dominant eigenvalue = %20.4lf + %20.4lfi\n", dom_eig.real,
+         dom_eig.imag);
+  printf("    true dominant eigenvalue = %20.4lf + %20.4lfi\n",
+         true_dom_eig.real, true_dom_eig.imag);
 
   /* Compare the estimated dom_eig with true_dom_eig*/
-  sunrealtype error = SUNRsqrt((dom_eig.real - true_dom_eig.real) * (dom_eig.real - true_dom_eig.real)
-                             + (dom_eig.imag - true_dom_eig.imag) * (dom_eig.imag - true_dom_eig.imag));
+  sunrealtype error = SUNRsqrt(
+    (dom_eig.real - true_dom_eig.real) * (dom_eig.real - true_dom_eig.real) +
+    (dom_eig.imag - true_dom_eig.imag) * (dom_eig.imag - true_dom_eig.imag));
 
   error /= norm_of_dom_eig;
 
-  if(error < tolerans) {
+  if (error < tolerans)
+  {
     printf("\n\nPASS:   relative error = %lf\n", error);
     return 0;
   }
-  else {
+  else
+  {
     printf("\n\nFAIL:   relative error = %lf\n", error);
     return 0;
   }
@@ -237,17 +239,14 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   if (check_flag(v, "N_VGetArrayPointer", 0)) { return 1; }
   z = N_VGetArrayPointer(z_vec);
   if (check_flag(z, "N_VGetArrayPointer", 0)) { return 1; }
-  N = ProbData->N;
+  N         = ProbData->N;
   real_part = ProbData->real_part;
   imag_part = ProbData->imag_part;
-  diag = N_VGetArrayPointer(ProbData->d);
+  diag      = N_VGetArrayPointer(ProbData->d);
   if (check_flag(diag, "N_VGetArrayPointer", 0)) { return 1; }
 
   /* perform product on the diagonal part of the matrix */
-  for (i = 0; i < N - 2; i++)
-  {
-    z[i] = diag[i] * v[i];
-  }
+  for (i = 0; i < N - 2; i++) { z[i] = diag[i] * v[i]; }
 
   /* perform product at the non-diagonal last two rows */
   z[N - 2] = v[N - 2] * real_part + v[N - 1] * imag_part;

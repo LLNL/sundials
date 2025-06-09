@@ -82,7 +82,8 @@ SUNDIALS_EXPORT int LSRKStepSetSSPMethodByName(void* arkode_mem,
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
-SUNDIALS_EXPORT int LSRKStepSetInternalDomEigEstType(void* arkode_mem, ARKODE_LSRKInternal_DomEigEst_Type dom_eig_type);
+SUNDIALS_EXPORT int LSRKStepSetInternalDomEigEstType(
+  void* arkode_mem, ARKODE_LSRKInternal_DomEigEst_Type dom_eig_type);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps);
 

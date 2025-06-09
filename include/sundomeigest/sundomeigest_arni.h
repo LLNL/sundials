@@ -23,17 +23,17 @@
 #ifndef _DOMEIGEST_ARNI_H
 #define _DOMEIGEST_ARNI_H
 
-#include <sundials/sundials_domeigestimator.h>
 #include <sundials/priv/sundials_domeigestimator_impl.h>
+#include <sundials/sundials_domeigestimator.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 /* Default Arnoldi Iteration parameters */
-#define SUNDOMEIGEST_ARN_MAXL_DEFAULT        3
-#define SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT  10
-#define SUNDOMEIGEST_LAPACK_FAIL "Error: LAPACK dgeev failed with info = %d\n"
+#define SUNDOMEIGEST_ARN_MAXL_DEFAULT      3
+#define SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT 10
+#define SUNDOMEIGEST_LAPACK_FAIL           "Error: LAPACK dgeev failed with info = %d\n"
 
 /* -----------------------------------------------------
  * Arnoldi Iteration Implementation of SUNDomEigEstimator
@@ -41,21 +41,21 @@ extern "C" {
 
 struct _SUNDomEigEstimatorContent_ArnI
 {
-  SUNATimesFn ATimes;   /* User provided ATimes function */
-  void* ATdata;         /* ATimes function data*/
+  SUNATimesFn ATimes; /* User provided ATimes function */
+  void* ATdata;       /* ATimes function data*/
 
-  N_Vector *V, q;       /* Krylov subspace vectors */
+  N_Vector *V, q; /* Krylov subspace vectors */
 
-  sunindextype maxl;             /* Krylov subspace dimension */
-  sunindextype power_of_A;       /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
+  sunindextype maxl;       /* Krylov subspace dimension */
+  sunindextype power_of_A; /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
 
-  sunrealtype* LAPACK_A;      /* The vector which holds rows of the Hessenberg matrix in the given order */
+  sunrealtype* LAPACK_A; /* The vector which holds rows of the Hessenberg matrix in the given order */
   sunrealtype* LAPACK_wr;     /* Real parts of eigenvalues */
   sunrealtype* LAPACK_wi;     /* Imaginary parts of eigenvalues */
   sunrealtype* LAPACK_work;   /* Workspace array */
   suncomplextype* LAPACK_arr; /* an array to sort eigenvalues*/
 
-  sunrealtype **Hes;    /* Hessenberg matrix Hes */
+  sunrealtype** Hes; /* Hessenberg matrix Hes */
 };
 
 typedef struct _SUNDomEigEstimatorContent_ArnI* SUNDomEigEstimatorContent_ArnI;
@@ -65,20 +65,22 @@ typedef struct _SUNDomEigEstimatorContent_ArnI* SUNDomEigEstimatorContent_ArnI;
  * --------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl, SUNContext sunctx);
+SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
+                                     SUNContext sunctx);
 
 SUNDIALS_EXPORT
 SUNDomEigEstimator_Type SUNDomEigEst_ArnIGetType(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
-                                    SUNATimesFn ATimes);
+                                      SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE, sunindextype numofperprocess);
+SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE,
+                                               sunindextype numofperprocess);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE);
@@ -87,7 +89,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, suncomplextype* dom_eig);
+SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE,
+                                  suncomplextype* dom_eig);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE);

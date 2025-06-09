@@ -622,7 +622,7 @@ private:
     this->object_->ops->nvwl2norm     = impl::N_VWL2Norm_Kokkos<this_type>;
     this->object_->ops->nvwrmsnorm    = impl::N_VWrmsNorm_Kokkos<this_type>;
     this->object_->ops->nvwrmsnormmask = impl::N_VWrmsNormMask_Kokkos<this_type>;
-    this->object_->ops->nvrandom       = impl::N_VRandom_Kokkos<this_type>;
+    this->object_->ops->nvrandom = impl::N_VRandom_Kokkos<this_type>;
 
     /* local reduction operations */
     this->object_->ops->nvconstrmasklocal = impl::N_VConstrMask_Kokkos<this_type>;

@@ -42,8 +42,8 @@ int print_time = 0;
 /* ----------------------------------------------------------------------
  * SUNDomEigEstGetType Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstGetType(SUNDomEigEstimator DEE, SUNLinearSolver_Type suntype,
-                          int myid)
+int Test_SUNDomEigEstGetType(SUNDomEigEstimator DEE,
+                             SUNLinearSolver_Type suntype, int myid)
 {
   double start_time, stop_time;
   SUNLinearSolver_Type mysuntype;
@@ -73,8 +73,8 @@ int Test_SUNDomEigEstGetType(SUNDomEigEstimator DEE, SUNLinearSolver_Type suntyp
 /* ----------------------------------------------------------------------
  * SUNDomEigEstSetATimes Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* ATdata, SUNATimesFn ATimes,
-                            int myid)
+int Test_SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* ATdata,
+                               SUNATimesFn ATimes, int myid)
 {
   int failure;
   double start_time, stop_time;
@@ -150,11 +150,7 @@ int Test_SUNDomEigEstComputeHess(SUNDomEigEstimator DEE, int myid)
 /* ----------------------------------------------------------------------
  * SUNDomEigEstimate Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, int myid)
-{
-  return (0);
-}
-
+int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, int myid) { return (0); }
 
 /* ======================================================================
  * Private functions

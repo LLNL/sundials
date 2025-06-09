@@ -19,9 +19,9 @@
 
 # Examples using SUNDIALS ArnI dominant eigenvalue estimator
 set(sundomeigest_arni_examples
-  "test_sundomeigest_arni\;100 10 10\;"
-  "test_sundomeigest_arni\;1000 10 10\;"
-  "test_sundomeigest_arni\;10000 10 10\;")
+    "test_sundomeigest_arni\;100 10 10\;"
+    "test_sundomeigest_arni\;1000 10 10\;"
+    "test_sundomeigest_arni\;10000 10 10\;")
 
 # Dependencies for dominant eigenvalue examples
 set(sundomeigest_arni_dependencies test_sundomeigest)
@@ -102,7 +102,8 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/CMakeLists.txt @ONLY)
+    ${PROJECT_BINARY_DIR}/test/unit_tests/sundomeigest/arni/CMakeLists.txt
+    @ONLY)
 
   # install CMakelists.txt
   install(

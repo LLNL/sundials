@@ -1372,7 +1372,7 @@ SUNErrCode N_VRandom_Cuda(N_Vector X)
   }
 
   randomKernel<<<grid, block, shMemSize, stream>>>(NVEC_CUDA_DDATAp(X),
-                                                  NVEC_CUDA_CONTENT(X)->length);
+                                                   NVEC_CUDA_CONTENT(X)->length);
   PostKernelLaunch();
   return SUN_SUCCESS;
 }

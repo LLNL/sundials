@@ -36,6 +36,13 @@ module farkode_lsrkstep_mod
  end enum
  integer, parameter, public :: ARKODE_LSRKMethodType = kind(ARKODE_LSRK_RKC_2)
  public :: ARKODE_LSRK_RKC_2, ARKODE_LSRK_RKL_2, ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, ARKODE_LSRK_SSP_10_4
+ ! typedef enum ARKODE_LSRKInternal_DomEigEst_Type
+ enum, bind(c)
+  enumerator :: ARKODE_LSRK_POWER_ITERATION
+  enumerator :: ARKODE_LSRK_ARNOLDI_ITERATION
+ end enum
+ integer, parameter, public :: ARKODE_LSRKInternal_DomEigEst_Type = kind(ARKODE_LSRK_POWER_ITERATION)
+ public :: ARKODE_LSRK_POWER_ITERATION, ARKODE_LSRK_ARNOLDI_ITERATION
  public :: FLSRKStepCreateSTS
  public :: FLSRKStepCreateSSP
  public :: FLSRKStepReInitSTS
@@ -49,6 +56,7 @@ module farkode_lsrkstep_mod
  public :: FLSRKStepSetSTSMethodByName
  public :: FLSRKStepSetSSPMethodByName
  public :: FLSRKStepSetDomEigFn
+ public :: FLSRKStepSetInternalDomEigEstType
  public :: FLSRKStepSetDomEigFrequency
  public :: FLSRKStepSetMaxNumStages
  public :: FLSRKStepSetDomEigSafetyFactor
@@ -146,6 +154,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepSetInternalDomEigEstType(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetInternalDomEigEstType") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -393,6 +410,22 @@ type(C_FUNPTR) :: farg2
 farg1 = arkode_mem
 farg2 = dom_eig
 fresult = swigc_FLSRKStepSetDomEigFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepSetInternalDomEigEstType(arkode_mem, dom_eig_type) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(ARKODE_LSRKInternal_DomEigEst_Type), intent(in) :: dom_eig_type
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = dom_eig_type
+fresult = swigc_FLSRKStepSetInternalDomEigEstType(farg1, farg2)
 swig_result = fresult
 end function
 

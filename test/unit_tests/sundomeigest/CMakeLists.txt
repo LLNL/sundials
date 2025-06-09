@@ -34,7 +34,7 @@ if(BUILD_SHARED_LIBS)
   # need PIC when shared libs are used since the example executables will link
   # to the shared lib
   set_property(TARGET test_sundomeigest_obj PROPERTY POSITION_INDEPENDENT_CODE
-                                                  TRUE)
+                                                     TRUE)
 endif()
 target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpi)
 
@@ -44,7 +44,8 @@ if(ENABLE_LAPACK)
 
   if(BUILD_SHARED_LIBS)
     set_property(TARGET test_sundomeigest_obj PROPERTY POSITION_INDEPENDENT_CODE
-                                                     TRUE)
+                                                       TRUE)
   endif()
-  target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpi sundials_sundomeigestarni)
+  target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpi
+                                                      sundials_sundomeigestarni)
 endif()

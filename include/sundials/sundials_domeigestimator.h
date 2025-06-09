@@ -18,22 +18,23 @@
 #define _DOMEIGEST_H
 
 /* TODO: Check to see if they are all required */
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
-#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_iterative.h>
+#include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 // Struct to hold the real and imaginary parts
-typedef struct {
-    sunrealtype real;
-    sunrealtype imag;
+typedef struct
+{
+  sunrealtype real;
+  sunrealtype imag;
 } suncomplextype;
 
 /* -----------------------------------------------------------------
@@ -96,7 +97,7 @@ SUNDomEigEstimator_Type SUNDomEigEstGetType(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
-                              SUNATimesFn ATimes);
+                                 SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE);

@@ -29,19 +29,20 @@ extern "C" {
   DOMEIG module private function prototypes
   ===============================================================*/
 
- SUNErrCode domeig_CheckNVector(N_Vector tmpl);
- sunrealtype domeig_Magnitude(const suncomplextype *c);
- sunindextype domeig_Compare(const void *a, const void *b);
+SUNErrCode domeig_CheckNVector(N_Vector tmpl);
+sunrealtype domeig_Magnitude(const suncomplextype* c);
+sunindextype domeig_Compare(const void* a, const void* b);
 
- /*
+/*
   * -----------------------------------------------------------------
   * LAPACK function
   * -----------------------------------------------------------------
   */
 
- extern void dgeev_(char* jobvl, char* jobvr, int* n, sunrealtype* a, int* lda,
-                    sunrealtype* wr, sunrealtype* wi, sunrealtype* vl, int* ldvl, sunrealtype* vr,
-                    int* ldvr, sunrealtype* work, int* lwork, int* info);
+extern void dgeev_(char* jobvl, char* jobvr, int* n, sunrealtype* a, int* lda,
+                   sunrealtype* wr, sunrealtype* wi, sunrealtype* vl, int* ldvl,
+                   sunrealtype* vr, int* ldvr, sunrealtype* work, int* lwork,
+                   int* info);
 
 #ifdef __cplusplus
 }
