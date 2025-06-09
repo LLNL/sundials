@@ -16,13 +16,17 @@
  * -----------------------------------------------------------------
  */
 
-#include <math.h>
+#include <nvector/nvector_serial.h>
 #include <stdio.h>
-#include <sundials/sundials_math.h> /* def. of SUNRsqrt, etc. */
-#include <sundials/sundials_types.h> /* definition of type sunrealtype          */
+#include <stdlib.h>
+#include <sundials/sundials_iterative.h>
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
+
 #include <sundials/sundials_domeigestimator.h>
 #include <sundomeigest/sundomeigest_pi.h>
 
+#include "../test_sundomeigest.h"
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -54,9 +58,9 @@ typedef struct
 /*    matrix-vector product  */
 int ATimes(void* ProbData, N_Vector v, N_Vector z);
 /*    checks function return values  */
-static int check_flag(void* flagvalue, const char* funcname, int opt);
+int check_flag(void* flagvalue, const char* funcname, int opt);
 /*    uniform random number generator in [0,1] */
-static int check_vector(N_Vector X, N_Vector Y, sunrealtype tol);
+int check_vector(N_Vector X, N_Vector Y, sunrealtype tol);
 
 /* global copy of the problem size (for check_vector routine) */
 sunindextype problem_size;
@@ -255,7 +259,7 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 /* Check function return value based on "opt" input:
      0:  function allocates memory so check for NULL pointer
      1:  function returns a flag so check for flag != 0 */
-static int check_flag(void* flagvalue, const char* funcname, int opt)
+int check_flag(void* flagvalue, const char* funcname, int opt)
 {
   int* errflag;
 

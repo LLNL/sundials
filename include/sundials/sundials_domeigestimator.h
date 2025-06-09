@@ -17,11 +17,14 @@
 #ifndef _DOMEIGEST_H
 #define _DOMEIGEST_H
 
-#include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
+/* TODO: Check to see if they are all required */
+#include <sundials/sundials_config.h>
+#include <sundials/sundials_context.h>
 #include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_errors.h>
 #include <sundials/sundials_iterative.h>
+#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_types.h>
+#include <sundials/sundials_math.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

@@ -19,8 +19,8 @@
 #include <stdlib.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
-#include <sundials/sundials_errors.h>
 
+#include <sundials/sundials_domeigestimator.h>
 #include <sundials/priv/sundials_domeigestimator_impl.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
