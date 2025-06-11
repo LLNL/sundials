@@ -28,7 +28,6 @@
 extern "C" {
 #endif
 /* Forward declarations for implementation specific utility functions */
-int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol);
 // void sync_device(void);
 
 /* Test function declarations */
@@ -36,10 +35,11 @@ int Test_SUNDomEigEstGetType(SUNDomEigEstimator DEE,
                              SUNDomEigEstimator_Type suntype, int myid);
 int Test_SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* ATdata,
                                SUNATimesFn ATimes, int myid);
+int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int power_of_A, int myid);
 int Test_SUNDomEigEstInitialize(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEstPreProcess(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEstComputeHess(SUNDomEigEstimator DEE, int myid);
-int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, int myid);
+int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig, int myid);
 
 /* Timing function */
 void SetTiming(int onoff);

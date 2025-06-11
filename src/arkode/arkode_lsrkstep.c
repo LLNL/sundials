@@ -2317,7 +2317,7 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   /* Allocate and fill domeig_q vector with random data */
   /* TODO: check if we have to clone or just passing yn is ok! */
   step_mem->domeig_q          = N_VClone(ark_mem->yn);
-  step_mem->domeig_maxl       = DOMEIG_MAXL_DEFAULT;
+  step_mem->domeig_krydim     = DOMEIG_KRYLOV_DIM_DEFAULT;
   step_mem->domeig_power_of_A = DOMEIG_POWER_OF_A_DEFAULT;
   step_mem->domeig_maxiters   = DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT;
 
@@ -2343,7 +2343,7 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   else if (step_mem->internal_domeigest_type == ARKODE_LSRK_ARNOLDI_ITERATION)
   {
 #ifdef SUNDIALS_BLAS_LAPACK_ENABLED
-    DEE = SUNDomEigEst_ArnI(step_mem->domeig_q, step_mem->domeig_maxl,
+    DEE = SUNDomEigEst_ArnI(step_mem->domeig_q, step_mem->domeig_krydim,
                             ark_mem->sunctx);
     if (DEE == NULL)
     {

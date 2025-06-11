@@ -89,12 +89,42 @@ int Test_SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* ATdata,
   {
     printf(">>> FAILED test -- SUNDomEigEstSetATimes returned %d on Proc %d \n",
            failure, myid);
+    PRINT_TIME("    SUNDomEigEstSetATimes Time: %22.15e \n \n",
+               stop_time - start_time);
     return (1);
   }
   else if (myid == 0)
   {
     printf("    PASSED test -- SUNDomEigEstSetATimes \n");
     PRINT_TIME("    SUNDomEigEstSetATimes Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
+  return (0);
+}
+
+int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int power_of_A, int myid)
+{
+  int failure;
+  double start_time, stop_time;
+
+  /* try calling SUNDomEigEstSetNumPreProcess routine: should pass/fail based on expected input */
+  start_time = get_time();
+  failure    = SUNDomEigEstSetNumPreProcess(DEE, power_of_A);
+  // sync_device();
+  stop_time = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEstSetNumPreProcess check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEstSetNumPreProcess Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEstSetNumPreProcess \n");
+    PRINT_TIME("    SUNDomEigEstSetNumPreProcess Time: %22.15e \n \n",
                stop_time - start_time);
   }
 
@@ -136,6 +166,28 @@ int Test_SUNDomEigEstInitialize(SUNDomEigEstimator DEE, int myid)
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEstPreProcess(SUNDomEigEstimator DEE, int myid)
 {
+  int failure;
+  double start_time, stop_time;
+
+  start_time = get_time();
+  failure    = SUNDomEigEstPreProcess(DEE);
+  // sync_device();
+  stop_time = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEstPreProcess check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEstPreProcess Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEstPreProcess \n");
+    PRINT_TIME("    SUNDomEigEstPreProcess Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
   return (0);
 }
 
@@ -144,13 +196,62 @@ int Test_SUNDomEigEstPreProcess(SUNDomEigEstimator DEE, int myid)
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEstComputeHess(SUNDomEigEstimator DEE, int myid)
 {
+  int failure;
+  double start_time, stop_time;
+
+  start_time = get_time();
+  failure    = SUNDomEigEstComputeHess(DEE);
+  // sync_device();
+  stop_time = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEstComputeHess check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEstComputeHess Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEstComputeHess \n");
+    PRINT_TIME("    SUNDomEigEstComputeHess Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
   return (0);
 }
 
 /* ----------------------------------------------------------------------
  * SUNDomEigEstimate Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, int myid) { return (0); }
+int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig, int myid)
+{
+  int failure;
+  suncomplextype estimated_dom_eig;
+  double start_time, stop_time;
+
+  start_time = get_time();
+  failure    = SUNDomEigEstimate(DEE, &estimated_dom_eig);
+  *dom_eig = estimated_dom_eig;
+  // sync_device();
+  stop_time = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEstimate check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEstimate Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEstimate \n");
+    PRINT_TIME("    SUNDomEigEstimate Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
+  return (0);
+}
 
 /* ======================================================================
  * Private functions

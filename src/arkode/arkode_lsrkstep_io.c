@@ -580,7 +580,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->spectral_radius_min = ZERO;
   step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
   step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
-  step_mem->domeig_maxl         = DOMEIG_MAXL_DEFAULT;
+  step_mem->domeig_krydim       = DOMEIG_KRYLOV_DIM_DEFAULT;
   step_mem->domeig_power_of_A   = DOMEIG_POWER_OF_A_DEFAULT;
 
   /* Flags */

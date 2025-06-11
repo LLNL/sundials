@@ -74,7 +74,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
   DEE->ops->gettype            = SUNDomEigEst_ArnIGetType;
   DEE->ops->setatimes          = SUNDomEigEstSetATimes_ArnI;
   DEE->ops->setmaxpoweriter    = NULL;
-  DEE->ops->setnumofperprocess = SUNDomEigEstSetNumofPreProcess_ArnI;
+  DEE->ops->setnumofperprocess = SUNDomEigEstSetNumPreProcess_ArnI;
   DEE->ops->initialize         = SUNDomEigEstInitialize_ArnI;
   DEE->ops->preprocess         = SUNDomEigEstPreProcess_ArnI;
   DEE->ops->computehess        = SUNDomEigEstComputeHess_ArnI;
@@ -196,7 +196,7 @@ SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEstSetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
                                                sunindextype numofperprocess)
 {
   SUNFunctionBegin(DEE->sunctx);

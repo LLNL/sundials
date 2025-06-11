@@ -35,7 +35,7 @@ extern "C" {
 #define STAGE_MAX_LIMIT_DEFAULT                  200
 #define DOM_EIG_SAFETY_DEFAULT                   SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT                     25
-#define DOMEIG_MAXL_DEFAULT                      3
+#define DOMEIG_KRYLOV_DIM_DEFAULT                3
 #define DOMEIG_POWER_OF_A_DEFAULT                0
 #define DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT 100
 
@@ -168,7 +168,7 @@ typedef struct ARKodeLSRKStepMemRec
   ARKODE_LSRKInternal_DomEigEst_Type internal_domeigest_type; /* Internal DomEig estimator type*/
   SUNDomEigEstimator DEE; /* DomEig estimator*/
   N_Vector domeig_q;      /* DomEig initial q vector*/
-  int domeig_maxl;        /* Krylov subspace dimension */
+  int domeig_krydim;      /* Krylov subspace dimension */
   int domeig_power_of_A;  /* Power of A for the warm-up */
   int domeig_maxiters;    /* Max number of Power Iterations */
 

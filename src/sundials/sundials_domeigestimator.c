@@ -109,6 +109,16 @@ SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
   return (ier);
 }
 
+SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, sunindextype numofperprocess)
+{
+  SUNErrCode ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
+  if (DEE->ops->setnumofperprocess) { ier = DEE->ops->setnumofperprocess(DEE, numofperprocess); }
+  else { ier = SUN_SUCCESS; }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
+  return (ier);
+}
+
 SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE)
 {
   SUNErrCode ier;

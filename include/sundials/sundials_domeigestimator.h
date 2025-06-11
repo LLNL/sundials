@@ -100,6 +100,10 @@ SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
                                  SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE,
+                                          sunindextype numofperprocess);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT

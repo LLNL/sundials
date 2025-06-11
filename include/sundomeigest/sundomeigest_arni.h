@@ -79,7 +79,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetNumofPreProcess_ArnI(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEstSetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
                                                sunindextype numofperprocess);
 
 SUNDIALS_EXPORT

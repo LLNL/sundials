@@ -70,7 +70,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetNumofPreProcess_PI(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEstSetNumPreProcess_PI(SUNDomEigEstimator DEE,
                                              sunindextype numofperprocess);
 
 SUNDIALS_EXPORT

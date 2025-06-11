@@ -74,7 +74,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter,
   DEE->ops->gettype            = SUNDomEigEst_PIGetType;
   DEE->ops->setatimes          = SUNDomEigEstSetATimes_PI;
   DEE->ops->setmaxpoweriter    = SUNDomEigEst_PISetMaxPowerIter;
-  DEE->ops->setnumofperprocess = SUNDomEigEstSetNumofPreProcess_PI;
+  DEE->ops->setnumofperprocess = SUNDomEigEstSetNumPreProcess_PI;
   DEE->ops->initialize         = SUNDomEigEstInitialize_PI;
   DEE->ops->preprocess         = SUNDomEigEstPreProcess_PI;
   DEE->ops->computehess        = NULL;
@@ -159,7 +159,7 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstSetNumofPreProcess_PI(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEstSetNumPreProcess_PI(SUNDomEigEstimator DEE,
                                              sunindextype numofperprocess)
 {
   SUNFunctionBegin(DEE->sunctx);

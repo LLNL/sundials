@@ -11,19 +11,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * These test functions check some components of an DomEig iteration
+ * These test functions check some components of Power Iteration
  * module implementation.
  * -----------------------------------------------------------------
  */
 
 #include <nvector/nvector_serial.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <sundials/sundials_iterative.h>
 #include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
 
-#include <sundials/sundials_domeigestimator.h>
 #include <sundomeigest/sundomeigest_pi.h>
 
 #include "../test_sundomeigest.h"
