@@ -767,6 +767,10 @@ Main solver optional output functions
    :returns: The return value is a string containing the name of the
              corresponding constant.
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
+
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetReturnFlagName` instead.

@@ -245,7 +245,7 @@ provide his own error handler function (see :numref:`KINSOL.Usage.CC.optional_in
 KINSOL initialization and deallocation functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. c:function:: void KINCreate(SUNContext sunctx)
+.. c:function:: void * KINCreate(SUNContext sunctx)
 
    The function :c:func:`KINCreate` instantiates a KINSOL solver object.
 
@@ -253,7 +253,7 @@ KINSOL initialization and deallocation functions
      - ``sunctx`` -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
-     * ``void``
+     * ``void *``
 
 
 .. c:function:: int KINInit(void * kin_mem, KINSysFn func, N_Vector tmpl)
@@ -1212,6 +1212,8 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
    :retval KIN_SUCCESS: The damping function has been successfully set.
    :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
 
+   .. versionadded:: 7.3.0
+
    .. note::
 
       The function provided to :c:func:`KINSetDampingFn` will override any
@@ -1229,6 +1231,8 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
    :retval KIN_SUCCESS: The depth function has been successfully set.
    :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 7.3.0
 
 .. _KINSOL.Usage.CC.optional_inputs.optin_ls:
 
@@ -1479,7 +1483,7 @@ functions are described next.
       workspace (without distinction between ``int``  and ``long int``) is
       :math:`22 + 5 N` (increased by :math:`N` if constraint checking is enabled).
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -1624,6 +1628,10 @@ functions are described next.
    **Return value:**
      * A string containing the name of the corresponding constant
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
+
 
 .. _KINSOL.Usage.CC.optional_output.optout_ls:
 
@@ -1693,7 +1701,7 @@ The following optional outputs are available from the KINLS modules:
       Replaces the deprecated function ``KINDlsGetWorkspace`` and
       ``KINSpilsGetWorkspace``.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -1894,6 +1902,10 @@ The following optional outputs are available from the KINLS modules:
       * ``char*`` -- the flag name string or if
         :math:`1 \leq \mathtt{lsflag} \leq N` (LU factorization failed), this
         function returns "NONE".
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
    .. versionadded:: 4.0.0
 
@@ -2246,6 +2258,7 @@ from :numref:`KINSOL.Mathematics.FixedPoint` and
      A :c:type:`KINDampingFn` function should return :math:`0` if successful or
      a non-zero value if an error occurred.
 
+   .. versionadded:: 7.3.0
 
 .. _KINSOL.Usage.CC.user_fct_sim.depthFn:
 
@@ -2298,6 +2311,8 @@ of type :c:type:`KINDepthFn` to modify the Anderson acceleration depth,
 
      A :c:type:`KINDepthFn` function should return :math:`0` if successful or
      a non-zero value if an error occurred.
+
+   .. versionadded:: 7.3.0
 
 
 .. _KINSOL.Usage.CC.kin_bbdpre:
@@ -2531,7 +2546,7 @@ KINBBDPRE module:
       The workspaces referred to here exist in addition
       to those given by the corresponding :c:func:`KINGetLinWorkSpace` function.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 

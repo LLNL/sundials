@@ -2,7 +2,7 @@
 
 [![track SUNDIALS downloads](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml/badge.svg)](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml)
 
-### Version 7.2.1 (Dec 2024) ###
+### Version 7.3.0 (Apr 2025) ###
 
 **Center for Applied Scientific Computing, Lawrence Livermore National Laboratory**
 

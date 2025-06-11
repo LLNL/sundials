@@ -16,15 +16,15 @@
    1.00000E+01  1.47113E+00
   
   General Solver Stats:
-    Total internal steps taken    =       65
-    Total internal steps attempts =       69
-    Total rhs function calls      =     1106
-    Num lin solver setup calls    =       25
+    Total internal steps taken    =       56
+    Total internal steps attempts =       60
+    Total rhs function calls      =     1042
+    Num lin solver setup calls    =       55
     Num error test failures       =        4
     First internal step size      = 6.10352E-12
-    Last internal step size       = 7.33027E-01
-    Next internal step size       = 1.15914E+00
-    Current internal time         = 1.02732E+01
-    Num nonlinear solver iters    =      758
-    Num nonlinear solver fails    =        1
+    Last internal step size       = 1.16925E+00
+    Next internal step size       = 1.36310E+00
+    Current internal time         = 1.10299E+01
+    Num nonlinear solver iters    =      739
+    Num nonlinear solver fails    =       36
   

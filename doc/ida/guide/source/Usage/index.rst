@@ -2419,7 +2419,7 @@ described next.
       :c:func:`IDASVtolerances`, these lengths are given roughly by
       :math:`\mathtt{lenrw} = 55 + 11 * N` and :math:`\mathtt{leniw} = 49`.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -2758,6 +2758,10 @@ described next.
    **Return value:**
       * ``char*`` -- the flag name string
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
+
 
 .. _IDA.Usage.CC.optional_output.optout_iccalc:
 
@@ -2945,7 +2949,7 @@ The following optional outputs are available from the IDALS modules:
       Replaces the deprecated functions ``IDADlsGetWorkspace`` and
       ``IDASpilsGetWorkspace``.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 
@@ -3153,6 +3157,10 @@ The following optional outputs are available from the IDALS modules:
       * ``char*`` -- the flag name string or if
         :math:`1 \leq \mathtt{lsflag} \leq N` (LU factorization failed), this
         function returns "NONE".
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
    .. versionadded:: 4.0.0
 
@@ -4051,7 +4059,7 @@ IDABBDPRE module:
       are local to each process.  The workspaces referred to here exist in addition
       to those given by the corresponding function :c:func:`IDAGetLinWorkSpace`.
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 

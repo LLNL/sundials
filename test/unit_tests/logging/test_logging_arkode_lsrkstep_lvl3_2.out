@@ -88,7 +88,7 @@ NLS step fails                = 0
 Inequality constraint fails   = 0
 Initial step size             = 6.103515625e-12
 Last step size                = 1.220703125e-06
-Current step size             = 1.220703125e-07
+Current step size             = 2.44140625e-05
 RHS fn evals                  = 32
 Number of stages used         = 10
 End LSRKStep Logging test

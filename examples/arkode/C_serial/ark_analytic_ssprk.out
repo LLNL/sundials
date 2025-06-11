@@ -19,18 +19,18 @@ Analytical ODE test problem:
    ---------------------
 
 Final Statistics:
-Current time                  = 10.0035967163675
-Steps                         = 1047
-Step attempts                 = 1049
+Current time                  = 10.0099819208271
+Steps                         = 719
+Step attempts                 = 721
 Stability limited steps       = 0
-Accuracy limited steps        = 1049
+Accuracy limited steps        = 721
 Error test fails              = 2
 NLS step fails                = 0
 Inequality constraint fails   = 0
 Initial step size             = 1.93010111094261e-10
-Last step size                = 0.0230739390449668
-Current step size             = 0.0230739390449668
-RHS fn evals                  = 9441
+Last step size                = 0.040487363965298
+Current step size             = 0.04065435916964
+RHS fn evals                  = 6489
 Number of stages used         = 9
 
-ACCURACY at the final time = 1.7019e-09
+ACCURACY at the final time = 9.01746e-09

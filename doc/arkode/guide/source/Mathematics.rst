@@ -1203,7 +1203,8 @@ expensive, and where convergence can be seriously hindered through use
 of an inaccurate matrix.  To accommodate these scenarios, the step is
 left unchanged when :math:`\eta \in [\eta_L, \eta_U]`.  The default
 values for this interval are :math:`\eta_L = 1` and :math:`\eta_U =
-1.5`, and may be modified by the user.
+1.0` (so small step size adjustments are possible), and may be
+modified by the user.
 
 We note that any choices for :math:`\eta` (or equivalently,
 :math:`h'`) are subsequently constrained by the optional user-supplied
@@ -2690,3 +2691,86 @@ by :math:`\eta_\text{rf}`.
 
 For more information on utilizing relaxation Runge--Kutta methods, see
 :numref:`ARKODE.Usage.Relaxation`.
+
+
+.. _ARKODE.Mathematics.ASA:
+
+Adjoint Sensitivity Analysis
+============================
+
+Consider :eq:`ARKODE_IVP_simple_explicit`, but where the ODE also depends on some
+parameters, :math:`p`, leading to the system
+
+.. math::
+   \dot{y} = f(t,y,p), \qquad y(t_0) = y_0(p).
+   :label: ARKODE_IVP_simple_explicit_with_parameters
+
+Now, suppose we have a functional :math:`g(t_f, y(t_f), p)` for which we would like to compute the
+gradients
+
+.. math::
+   \frac{dg(t_f,y(t_n),p)}{dy}, \quad \text{and optionally}, \quad \frac{dg(t_f,y(t_n),p)}{dp}.
+
+This most often arises in the form of an optimization problem such as
+
+.. math::
+   \min_{y(t_0), p} g(t_f, y(t_n), p).
+   :label: ARKODE_OPTIMIZATION_PROBLEM
+
+The adjoint method is one approach to obtaining the gradients that is particularly efficient when
+there are relatively few functionals and a large number of parameters. While :ref:`CVODES
+<CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` provide *continuous* adjoint
+methods (differentiate-then-discretize), ARKODE provides *discrete* adjoint methods
+(discretize-then-differentiate). For the discrete adjoint approach, we first numerically discretize
+the original ODE :eq:`ARKODE_IVP_simple_explicit_with_parameters`. In the context of ARKODE, this is
+done with a one-step time integration scheme :math:`\varphi` so that
+
+.. math::
+   y_0 = y(t_0),\quad y_n = \varphi(y_{n-1}).
+   :label: ARKODE_DISCRETE_ODE
+
+Reformulating the optimization problem for the discrete case, we have
+
+.. math::
+   \min_{y_0, p} g(t_f, y_n, p).
+   :label: ARKODE_DISCRETE_OPTIMIZATION_PROBLEM
+
+The gradients of :eq:`ARKODE_DISCRETE_OPTIMIZATION_PROBLEM` can be computed using the transposed chain
+rule backwards in time to obtain the discete adjoint variables :math:`\lambda_n, \lambda_{n-1}, \cdots, \lambda_0`
+and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`, where
+
+.. math::
+   \lambda_n &= g_y^*(t_f, y_n, p), \quad \lambda_k = \left(\frac{\partial \varphi}{\partial y_k}(y_k, p)\right)^* \lambda_{k+1} \\
+   \mu_n     &= g_p^*(t_f, y_n, p), \quad \mu_k     = \left(\frac{\partial \varphi}{\partial p}(y_k, p)\right)^* \lambda_{k+1},
+    \quad k = n - 1, \cdots, 0.
+   :label: ARKODE_DISCRETE_ADJOINT
+
+.. warning::
+   The CVODES and IDAS documentation uses :math:`\lambda` to represent the adjoint variables needed
+   to obtain the gradient :math:`dG/dp` where :math:`G` is an integral of :math:`g`.
+   Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES and
+   IDAS docs.
+
+The discrete adjoint variables represent the gradients of the discrete cost function
+
+.. math::
+   \frac{dg}{dy_n} = \lambda_n , \quad \frac{dg}{dp} = \mu_n + \lambda_n^* \left(\frac{\partial y_0}{\partial p} \right).
+   :label: ARKODE_DISCRETE_ADJOINT_GRADIENTS
+
+
+Given an s-stage explicit Runge--Kutta method (as in :eq:`ARKODE_ERK`, but without the embedding), the discrete adjoint
+to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1}` and
+:math:`\mu_{n+1}` is given by
+
+.. math::
+   \Lambda_i &= h_n f_y^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i+1}^s a_{j,i} \Lambda_j \right), \quad \quad i = s, \dots, 1,\\
+   \lambda_n &= \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j, \\
+   \nu_i     &= h_n f_p^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{j,i} \Lambda_j \right), \\
+   \mu_n     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
+   :label: ARKODE_ERK_ADJOINT
+
+For more information on performing discrete adjoint sensitivity analysis using ARKODE see,
+:numref:`ARKODE.Usage.ASA`. For a detailed derivation of the discrete adjoint methods see
+:cite:p:`hager2000runge,sanduDiscrete2006`. See :numref:`SUNAdjoint.DiscreteContinuous` for a brief
+discussion about the differences between the contninuous and discrete adjoint methods, and why one
+would choose one over the other.

@@ -455,7 +455,7 @@ linear solve.  *All routines are optional.*
 
          retval = SUNLinSolSpace(LS, &lrw, &liw);
 
-   .. deprecated:: X.Y.Z
+   .. deprecated:: 7.3.0
 
       Work space functions will be removed in version 8.0.0.
 

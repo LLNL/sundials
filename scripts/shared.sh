@@ -70,6 +70,7 @@ $tar $tarfile $distrobase/include/sunmatrix
 $tar $tarfile $distrobase/include/sunmemory
 $tar $tarfile $distrobase/include/sunnonlinsol
 $tar $tarfile $distrobase/include/sunadaptcontroller
+$tar $tarfile $distrobase/include/sunadjointcheckpointscheme
 
 echo "   --- Add shared source files to $tarfile"
 $tar $tarfile $distrobase/src/CMakeLists.txt
@@ -80,6 +81,7 @@ $tar $tarfile $distrobase/src/sunmatrix
 $tar $tarfile $distrobase/src/sunmemory
 $tar $tarfile $distrobase/src/sunnonlinsol
 $tar $tarfile $distrobase/src/sunadaptcontroller
+$tar $tarfile $distrobase/src/sunadjointcheckpointscheme
 
 echo "   --- Add examples to $tarfile"
 $tar $tarfile $distrobase/examples/CMakeLists.txt

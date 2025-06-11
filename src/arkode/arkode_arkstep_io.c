@@ -741,7 +741,6 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeARKStepMem step_mem;
   sunindextype Blrw, Bliw;
-  long int lenrw, leniw;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -792,40 +791,10 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   if (step_mem->NLS && step_mem->ownNLS) { SUNNonlinSolFree(step_mem->NLS); }
   step_mem->NLS = NULL;
 
-  /* Remove pre-existing SUNAdaptController object, and replace with "PID" */
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
-    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                      &leniw);
-    if (retval == SUN_SUCCESS)
-    {
-      ark_mem->liw -= leniw;
-      ark_mem->lrw -= lenrw;
-    }
-    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
-    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUN_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptController_Destroy failure");
-      return (ARK_MEM_FAIL);
-    }
-  }
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
-  if (ark_mem->hadapt_mem->hcontroller == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptController_PID allocation failure");
-    return (ARK_MEM_FAIL);
-  }
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
-  {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
-  }
+  /* Load the default SUNAdaptController */
+  retval = arkReplaceAdaptController(ark_mem, NULL, SUNTRUE);
+  if (retval) { return retval; }
+
   return (ARK_SUCCESS);
 }
 
@@ -1537,6 +1506,8 @@ int ARKStepSetDefaults(void* arkode_mem)
 
 int ARKStepSetOptimalParams(void* arkode_mem)
 {
+  /* TODO: do we need to do something here? This is deprecated with no
+   * ARKodeSetOptimalParams to replace it */
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;

@@ -24,11 +24,15 @@
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
 #include <arkode/arkode_mristep.h>
+
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
+#include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
+#include <sundials/sundials_types.h>
 
 #include "arkode_adapt_impl.h"
 #include "arkode_relaxation_impl.h"
@@ -568,6 +572,16 @@ struct ARKodeMemRec
 
   sunbooleantype use_compensated_sums;
 
+  /* Adjoint solver data */
+  sunbooleantype load_checkpoint_fail;
+  sunbooleantype do_adjoint;
+  suncountertype adj_stage_idx; /* current stage index (only valid in adjoint context)*/
+  suncountertype adj_step_idx; /* current step index (only valid in adjoint context)*/
+
+  /* Checkpointing data */
+  SUNAdjointCheckpointScheme checkpoint_scheme;
+  suncountertype checkpoint_step_idx; /* the step number for checkpointing */
+
   /* XBraid interface variables */
   sunbooleantype force_pass; /* when true the step attempt loop will ignore the
                               return value (kflag) from arkCheckTemporalError
@@ -676,6 +690,9 @@ int ark_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
                                         sunrealtype* accum_error);
 int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
 int ark_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
+
+/* utility functions for wrapping ARKODE as a SUNStepper */
+SUNErrCode arkSUNStepperSelfDestruct(SUNStepper stepper);
 
 /* XBraid interface functions */
 int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass);
@@ -801,6 +818,10 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   "solver configuration)."
 #define MSG_ARK_INTERPOLATION_FAIL \
   "At " MSG_TIME ", interpolating the solution failed."
+#define MSG_ARK_ADJOINT_BAD_VECTOR                                           \
+  "JacPFn or JPvpFn was provided, but the number of subvectors in y is not " \
+  "2. To perform ASA w.r.t. parameters, one subvector should be the state "  \
+  "vector, and the other should be the parameter vector."
 
 /*===============================================================
 

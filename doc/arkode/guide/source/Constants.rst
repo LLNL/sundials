@@ -403,9 +403,15 @@ contains the ARKODE output constants.
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_STEP_DIRECTION_ERR`     | -52  | An error occurred changing the step direction.             |
    +-------------------------------------+------+------------------------------------------------------------+
-   | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
+   | :index:`ARK_ADJ_CHECKPOINT_FAIL`    | -53  | An occurred when checkpointing a state during the adjoint  |
+   |                                     |      | integration.                                               |
    +-------------------------------------+------+------------------------------------------------------------+
-   |                                                                                                         |
+   | :index:`ARK_ADJ_RECOMPUTE_FAIL`     | -54  | An occurred recomputing steps during the adjoint           |
+   |                                     |      | integration.                                               |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_SUNADJSTEPPER_ERR`      | -55  | An error occurred in the SUNAdjStepper module.             |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    | **ARKLS linear solver module output constants**                                                         |
    +-------------------------------------+------+------------------------------------------------------------+

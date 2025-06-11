@@ -351,7 +351,6 @@ int mriStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeMRIStepMem step_mem;
   sunindextype Clenrw, Cleniw;
-  long int lenrw, leniw;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
@@ -391,40 +390,10 @@ int mriStep_SetDefaults(ARKodeMem ark_mem)
   }
   step_mem->MRIC = NULL;
 
-  /* Remove pre-existing SUNAdaptController object, and replace with "I" */
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
-    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                      &leniw);
-    if (retval == SUN_SUCCESS)
-    {
-      ark_mem->liw -= leniw;
-      ark_mem->lrw -= lenrw;
-    }
-    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
-    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUN_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptController_Destroy failure");
-      return (ARK_MEM_FAIL);
-    }
-  }
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_I(ark_mem->sunctx);
-  if (ark_mem->hadapt_mem->hcontroller == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptController_I allocation failure");
-    return (ARK_MEM_FAIL);
-  }
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
-  {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
-  }
+  /* Load the default SUNAdaptController */
+  retval = arkReplaceAdaptController(ark_mem, NULL, SUNTRUE);
+  if (retval) { return retval; }
+
   return (ARK_SUCCESS);
 }
 
