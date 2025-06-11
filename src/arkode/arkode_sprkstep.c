@@ -108,17 +108,18 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
     N_VConst(ZERO, step_mem->yerr);
   }
   else { step_mem->yerr = NULL; }
-  ark_mem->step_init            = sprkStep_Init;
-  ark_mem->step_fullrhs         = sprkStep_FullRHS;
-  ark_mem->step                 = sprkStep_TakeStep;
-  ark_mem->step_printallstats   = sprkStep_PrintAllStats;
-  ark_mem->step_writeparameters = sprkStep_WriteParameters;
-  ark_mem->step_resize          = sprkStep_Resize;
-  ark_mem->step_free            = sprkStep_Free;
-  ark_mem->step_setdefaults     = sprkStep_SetDefaults;
-  ark_mem->step_setorder        = sprkStep_SetOrder;
-  ark_mem->step_getnumrhsevals  = sprkStep_GetNumRhsEvals;
-  ark_mem->step_mem             = (void*)step_mem;
+  ark_mem->step_init               = sprkStep_Init;
+  ark_mem->step_fullrhs            = sprkStep_FullRHS;
+  ark_mem->step                    = sprkStep_TakeStep;
+  ark_mem->step_printallstats      = sprkStep_PrintAllStats;
+  ark_mem->step_writeparameters    = sprkStep_WriteParameters;
+  ark_mem->step_resize             = sprkStep_Resize;
+  ark_mem->step_free               = sprkStep_Free;
+  ark_mem->step_setfromcommandline = sprkStep_SetFromCommandLine;
+  ark_mem->step_setdefaults        = sprkStep_SetDefaults;
+  ark_mem->step_setorder           = sprkStep_SetOrder;
+  ark_mem->step_getnumrhsevals     = sprkStep_GetNumRhsEvals;
+  ark_mem->step_mem                = (void*)step_mem;
 
   /* Set default values for optional inputs */
   retval = sprkStep_SetDefaults((void*)ark_mem);

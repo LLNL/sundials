@@ -61,6 +61,7 @@
 #include "nvector/nvector_serial.h" // access to the serial N_Vector
 #include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
+#include "sundials/sundials_adaptcontroller.h"
 
 // Macros for problem constants
 #define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
@@ -639,13 +640,6 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
     // Help
     else if (arg == "--help")
     {
-      InputHelp();
-      return -1;
-    }
-    // Unknown input
-    else
-    {
-      cerr << "ERROR: Invalid input " << arg << endl;
       InputHelp();
       return -1;
     }

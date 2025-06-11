@@ -28,4 +28,3 @@
 %define %sunlinsol_impl(TYPE)
   %ignore _SUNLinearSolverContent_## TYPE ##;
 %enddef
-

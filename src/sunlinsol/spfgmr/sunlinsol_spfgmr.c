@@ -19,11 +19,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_spfgmr.h>
 
+#include "sundials_cli.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
 
@@ -38,6 +40,15 @@
 
 #define SPFGMR_CONTENT(S) ((SUNLinearSolverContent_SPFGMR)(S->content))
 #define LASTFLAG(S)       (SPFGMR_CONTENT(S)->last_flag)
+
+/*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_SPFGMR(SUNLinearSolver S, const char* LSid,
+                                              int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -78,21 +89,22 @@ SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  S->ops->gettype           = SUNLinSolGetType_SPFGMR;
-  S->ops->getid             = SUNLinSolGetID_SPFGMR;
-  S->ops->setatimes         = SUNLinSolSetATimes_SPFGMR;
-  S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPFGMR;
-  S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPFGMR;
-  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_SPFGMR;
-  S->ops->initialize        = SUNLinSolInitialize_SPFGMR;
-  S->ops->setup             = SUNLinSolSetup_SPFGMR;
-  S->ops->solve             = SUNLinSolSolve_SPFGMR;
-  S->ops->numiters          = SUNLinSolNumIters_SPFGMR;
-  S->ops->resnorm           = SUNLinSolResNorm_SPFGMR;
-  S->ops->resid             = SUNLinSolResid_SPFGMR;
-  S->ops->lastflag          = SUNLinSolLastFlag_SPFGMR;
-  S->ops->space             = SUNLinSolSpace_SPFGMR;
-  S->ops->free              = SUNLinSolFree_SPFGMR;
+  S->ops->gettype            = SUNLinSolGetType_SPFGMR;
+  S->ops->getid              = SUNLinSolGetID_SPFGMR;
+  S->ops->setatimes          = SUNLinSolSetATimes_SPFGMR;
+  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_SPFGMR;
+  S->ops->setpreconditioner  = SUNLinSolSetPreconditioner_SPFGMR;
+  S->ops->setscalingvectors  = SUNLinSolSetScalingVectors_SPFGMR;
+  S->ops->setzeroguess       = SUNLinSolSetZeroGuess_SPFGMR;
+  S->ops->initialize         = SUNLinSolInitialize_SPFGMR;
+  S->ops->setup              = SUNLinSolSetup_SPFGMR;
+  S->ops->solve              = SUNLinSolSolve_SPFGMR;
+  S->ops->numiters           = SUNLinSolNumIters_SPFGMR;
+  S->ops->resnorm            = SUNLinSolResNorm_SPFGMR;
+  S->ops->resid              = SUNLinSolResid_SPFGMR;
+  S->ops->lastflag           = SUNLinSolLastFlag_SPFGMR;
+  S->ops->space              = SUNLinSolSpace_SPFGMR;
+  S->ops->free               = SUNLinSolFree_SPFGMR;
 
   /* Create content */
   content = NULL;
@@ -135,6 +147,77 @@ SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl,
   SUNCheckLastErrNull();
 
   return (S);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_SPFGMR(SUNLinearSolver S, const char* LSid,
+                                              int argc, char* argv[])
+{
+  SUNFunctionBegin(S->sunctx);
+
+  int idx;
+  SUNErrCode retval;
+  for (idx = 1; idx < argc; idx++)
+  {
+    /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
+       else, skip command-line arguments that do not begin with "spfgmr." */
+    size_t offset;
+    if (LSid != NULL)
+    {
+      if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
+      offset = strlen(LSid) + 1;
+    }
+    else
+    {
+      static const char* prefix = "spfgmr.";
+      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
+      offset = strlen(prefix);
+    }
+
+    /* control over PrecType function */
+    if (strcmp(argv[idx] + offset, "prec_type") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNLinSol_SPFGMRSetPrecType(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      continue;
+    }
+
+    /* control over GSType function */
+    if (strcmp(argv[idx] + offset, "gs_type") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNLinSol_SPFGMRSetGSType(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      continue;
+    }
+
+    /* control over MaxRestarts function */
+    if (strcmp(argv[idx] + offset, "max_restarts") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNLinSol_SPFGMRSetMaxRestarts(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      continue;
+    }
+
+    /* control over ZeroGuess function */
+    if (strcmp(argv[idx] + offset, "zero_guess") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNLinSolSetZeroGuess_SPFGMR(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      continue;
+    }
+  }
+  return SUN_SUCCESS;
 }
 
 /* ----------------------------------------------------------------------------

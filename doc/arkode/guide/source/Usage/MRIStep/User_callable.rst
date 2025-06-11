@@ -800,6 +800,11 @@ Optional inputs for IVP method selection
       For a description of the :c:type:`MRIStepCoupling` type and related
       functions for creating Butcher tables see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling`.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.coupling_table", where *C*
+      is itself constructed by passing the command-line option to
+      :c:func:`MRIStepCoupling_LoadTableByName`.
+
    .. warning::
 
       This should not be used with :c:func:`ARKodeSetOrder`.

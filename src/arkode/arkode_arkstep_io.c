@@ -25,6 +25,7 @@
 #include <sundials/sundials_types.h>
 
 #include "arkode_arkstep_impl.h"
+#include "sundials_cli.h"
 
 /*===============================================================
   Exported optional input functions.
@@ -627,6 +628,62 @@ int ARKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  arkStep_SetFromCommandLine:
+
+  Provides command-line control over ARKStep-specific "set" routines.
+  ---------------------------------------------------------------*/
+int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
+                               size_t offset, sunbooleantype* arg_used)
+{
+  /* Set lists of command-line arguments, and the corresponding set routines */
+  static const struct sunKeyTwoCharPair twochar_pairs[] = {
+    {"table_names", ARKStepSetTableName}};
+  static const int num_twochar_keys = sizeof(twochar_pairs) /
+                                      sizeof(*twochar_pairs);
+
+  static const struct sunKeyActionPair action_pairs[] =
+    {{"set_explicit", ARKStepSetExplicit},
+     {"set_implicit", ARKStepSetImplicit},
+     {"set_imex", ARKStepSetImEx}};
+  static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
+
+  /* check all "twochar" command-line options */
+  int j, retval;
+  for (j = 0; j < num_twochar_keys; j++)
+  {
+    retval = sunCheckAndSetTwoCharArg((void*)ark_mem, argidx, argv, offset,
+                                      twochar_pairs[j].key,
+                                      twochar_pairs[j].set, arg_used);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      twochar_pairs[j].key);
+      return retval;
+    }
+    if (*arg_used) { return ARK_SUCCESS; }
+  }
+
+  /* check all action command-line options */
+  for (j = 0; j < num_action_keys; j++)
+  {
+    retval = sunCheckAndSetActionArg((void*)ark_mem, argidx, argv, offset,
+                                     action_pairs[j].key, action_pairs[j].set,
+                                     arg_used);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      action_pairs[j].key);
+      return retval;
+    }
+    if (*arg_used) { return ARK_SUCCESS; }
+  }
+
+  return (ARK_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   arkStep_SetRelaxFn:

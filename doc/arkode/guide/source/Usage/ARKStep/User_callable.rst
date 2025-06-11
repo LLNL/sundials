@@ -1255,6 +1255,8 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       pointers *fe* or *fi* passed to :c:func:`ARKStepCreate` are
       ``NULL``, but may be set directly by the user if desired.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.set_imex".
 
 
 .. c:function:: int ARKStepSetExplicit(void* arkode_mem)
@@ -1279,6 +1281,8 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       f(t,y)`, then we recommend that the ERKStep time-stepper module be
       used instead.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.set_explicit".
 
 .. c:function:: int ARKStepSetImplicit(void* arkode_mem)
 
@@ -1297,6 +1301,9 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       This is automatically deduced when the function pointer `fe`
       passed to :c:func:`ARKStepCreate` is ``NULL``, but may be set
       directly by the user if desired.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.set_implicit".
 
 
 
@@ -1436,6 +1443,10 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
 
       In all cases, error-checking is performed to ensure that the tables
       exist.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.table_names".
+
 
    **Warning:**
       This should not be used with :c:func:`ARKodeSetOrder`.

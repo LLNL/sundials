@@ -21,6 +21,7 @@ install(CODE "MESSAGE(\"\nInstall IDAS\n\")")
 set(idas_SOURCES
     idas.c
     idaa.c
+    idas_cli.c
     idas_io.c
     idas_ic.c
     idaa_io.c
