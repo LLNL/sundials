@@ -48,8 +48,8 @@ struct sunKeyTwoIntPair
   sunTwoIntSetFn set;
 };
 
-SUNDIALS_EXPORT int sunCheckAndSetTwoIntArg(void* mem, int* argidx, char* argv[],
-                                            const size_t offset,
+SUNDIALS_EXPORT int sunCheckAndSetTwoIntArg(void* mem, int* argidx,
+                                            char* argv[], const size_t offset,
                                             const char* argtest,
                                             sunTwoIntSetFn fname,
                                             sunbooleantype* arg_used);
@@ -77,8 +77,8 @@ struct sunKeyIntRealPair
   sunIntRealSetFn set;
 };
 
-SUNDIALS_EXPORT int sunCheckAndSetIntRealArg(void* mem, int* argidx, char* argv[],
-                                             const size_t offset,
+SUNDIALS_EXPORT int sunCheckAndSetIntRealArg(void* mem, int* argidx,
+                                             char* argv[], const size_t offset,
                                              const char* argtest,
                                              sunIntRealSetFn fname,
                                              sunbooleantype* arg_used);
@@ -92,11 +92,9 @@ struct sunKeyIntRealRealPair
   sunIntRealRealSetFn set;
 };
 
-SUNDIALS_EXPORT int sunCheckAndSetIntRealRealArg(void* mem, int* argidx, char* argv[],
-                                                 const size_t offset,
-                                                 const char* argtest,
-                                                 sunIntRealRealSetFn fname,
-                                                 sunbooleantype* arg_used);
+SUNDIALS_EXPORT int sunCheckAndSetIntRealRealArg(
+  void* mem, int* argidx, char* argv[], const size_t offset,
+  const char* argtest, sunIntRealRealSetFn fname, sunbooleantype* arg_used);
 
 /* utilities for pair int/long int "set" routines */
 typedef int (*sunIntLongSetFn)(void*, int, long int);
@@ -107,8 +105,8 @@ struct sunKeyIntLongPair
   sunIntLongSetFn set;
 };
 
-SUNDIALS_EXPORT int sunCheckAndSetIntLongArg(void* mem, int* argidx, char* argv[],
-                                             const size_t offset,
+SUNDIALS_EXPORT int sunCheckAndSetIntLongArg(void* mem, int* argidx,
+                                             char* argv[], const size_t offset,
                                              const char* argtest,
                                              sunIntLongSetFn fname,
                                              sunbooleantype* arg_used);
@@ -136,8 +134,8 @@ struct sunKeyTwoRealPair
   sunTwoRealSetFn set;
 };
 
-SUNDIALS_EXPORT int sunCheckAndSetTwoRealArg(void* mem, int* argidx, char* argv[],
-                                             const size_t offset,
+SUNDIALS_EXPORT int sunCheckAndSetTwoRealArg(void* mem, int* argidx,
+                                             char* argv[], const size_t offset,
                                              const char* argtest,
                                              sunTwoRealSetFn fname,
                                              sunbooleantype* arg_used);
@@ -165,8 +163,8 @@ struct sunKeyTwoCharPair
   sunTwoCharSetFn set;
 };
 
-SUNDIALS_EXPORT int sunCheckAndSetTwoCharArg(void* mem, int* argidx, char* argv[],
-                                             const size_t offset,
+SUNDIALS_EXPORT int sunCheckAndSetTwoCharArg(void* mem, int* argidx,
+                                             char* argv[], const size_t offset,
                                              const char* argtest,
                                              sunTwoCharSetFn fname,
                                              sunbooleantype* arg_used);
@@ -180,8 +178,8 @@ struct sunKeyActionPair
   sunActionSetFn set;
 };
 
-SUNDIALS_EXPORT int sunCheckAndSetActionArg(void* mem, int* argidx, char* argv[],
-                                            const size_t offset,
+SUNDIALS_EXPORT int sunCheckAndSetActionArg(void* mem, int* argidx,
+                                            char* argv[], const size_t offset,
                                             const char* argtest,
                                             sunActionSetFn fname,
                                             sunbooleantype* arg_used);

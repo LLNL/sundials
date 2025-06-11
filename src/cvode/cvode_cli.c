@@ -88,17 +88,15 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
      {"proj_fail_eta", CVodeSetProjFailEta}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static const struct sunKeyTwoRealPair tworeal_pairs[] = {{"eta_fixed_step_bounds",
-                                                      CVodeSetEtaFixedStepBounds},
-                                                     {"scalar_tolerances",
-                                                      CVodeSStolerances}};
-  static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
+  static const struct sunKeyTwoRealPair tworeal_pairs[] =
+    {{"eta_fixed_step_bounds", CVodeSetEtaFixedStepBounds},
+     {"scalar_tolerances", CVodeSStolerances}};
+  static const int num_tworeal_keys = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
-  static const struct sunKeyActionPair action_pairs[] = {{"clear_stop_time",
-                                                    CVodeClearStopTime},
-                                                   {"no_inactive_root_warn",
-                                                    CVodeSetNoInactiveRootWarn}};
+  static const struct sunKeyActionPair action_pairs[] =
+    {{"clear_stop_time", CVodeClearStopTime},
+     {"no_inactive_root_warn", CVodeSetNoInactiveRootWarn}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   SUNErrCode sunretval;
@@ -125,8 +123,9 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      sunretval = sunCheckAndSetIntArg(cvode_mem, &idx, argv, offset, int_pairs[j].key,
-                                    int_pairs[j].set, &arg_used);
+      sunretval = sunCheckAndSetIntArg(cvode_mem, &idx, argv, offset,
+                                       int_pairs[j].key, int_pairs[j].set,
+                                       &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -143,8 +142,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_long_keys; j++)
     {
       sunretval = sunCheckAndSetLongArg(cvode_mem, &idx, argv, offset,
-                                     long_pairs[j].key, long_pairs[j].set,
-                                     &arg_used);
+                                        long_pairs[j].key, long_pairs[j].set,
+                                        &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -161,8 +160,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_real_keys; j++)
     {
       sunretval = sunCheckAndSetRealArg(cvode_mem, &idx, argv, offset,
-                                     real_pairs[j].key, real_pairs[j].set,
-                                     &arg_used);
+                                        real_pairs[j].key, real_pairs[j].set,
+                                        &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -179,8 +178,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_tworeal_keys; j++)
     {
       sunretval = sunCheckAndSetTwoRealArg(cvode_mem, &idx, argv, offset,
-                                        tworeal_pairs[j].key,
-                                        tworeal_pairs[j].set, &arg_used);
+                                           tworeal_pairs[j].key,
+                                           tworeal_pairs[j].set, &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -197,8 +196,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_action_keys; j++)
     {
       sunretval = sunCheckAndSetActionArg(cvode_mem, &idx, argv, offset,
-                                       action_pairs[j].key, action_pairs[j].set,
-                                       &arg_used);
+                                          action_pairs[j].key,
+                                          action_pairs[j].set, &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;

@@ -79,17 +79,15 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
      {"increment_factor", IDASetIncrementFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static const struct sunKeyTwoRealPair tworeal_pairs[] = {{"eta_fixed_step_bounds",
-                                                      IDASetEtaFixedStepBounds},
-                                                     {"scalar_tolerances",
-                                                      IDASStolerances}};
-  static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
+  static const struct sunKeyTwoRealPair tworeal_pairs[] =
+    {{"eta_fixed_step_bounds", IDASetEtaFixedStepBounds},
+     {"scalar_tolerances", IDASStolerances}};
+  static const int num_tworeal_keys = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
-  static const struct sunKeyActionPair action_pairs[] = {{"clear_stop_time",
-                                                    IDAClearStopTime},
-                                                   {"no_inactive_root_warn",
-                                                    IDASetNoInactiveRootWarn}};
+  static const struct sunKeyActionPair action_pairs[] =
+    {{"clear_stop_time", IDAClearStopTime},
+     {"no_inactive_root_warn", IDASetNoInactiveRootWarn}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   SUNErrCode sunretval;
@@ -116,8 +114,9 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      sunretval = sunCheckAndSetIntArg(ida_mem, &idx, argv, offset, int_pairs[j].key,
-                                    int_pairs[j].set, &arg_used);
+      sunretval = sunCheckAndSetIntArg(ida_mem, &idx, argv, offset,
+                                       int_pairs[j].key, int_pairs[j].set,
+                                       &arg_used);
       if (sunretval != IDA_SUCCESS)
       {
         retval = IDA_ILL_INPUT;
@@ -133,8 +132,9 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      sunretval = sunCheckAndSetLongArg(ida_mem, &idx, argv, offset, long_pairs[j].key,
-                                     long_pairs[j].set, &arg_used);
+      sunretval = sunCheckAndSetLongArg(ida_mem, &idx, argv, offset,
+                                        long_pairs[j].key, long_pairs[j].set,
+                                        &arg_used);
       if (sunretval != IDA_SUCCESS)
       {
         retval = IDA_ILL_INPUT;
@@ -150,8 +150,9 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      sunretval = sunCheckAndSetRealArg(ida_mem, &idx, argv, offset, real_pairs[j].key,
-                                     real_pairs[j].set, &arg_used);
+      sunretval = sunCheckAndSetRealArg(ida_mem, &idx, argv, offset,
+                                        real_pairs[j].key, real_pairs[j].set,
+                                        &arg_used);
       if (sunretval != IDA_SUCCESS)
       {
         retval = IDA_ILL_INPUT;
@@ -168,8 +169,8 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     for (j = 0; j < num_tworeal_keys; j++)
     {
       sunretval = sunCheckAndSetTwoRealArg(ida_mem, &idx, argv, offset,
-                                        tworeal_pairs[j].key,
-                                        tworeal_pairs[j].set, &arg_used);
+                                           tworeal_pairs[j].key,
+                                           tworeal_pairs[j].set, &arg_used);
       if (sunretval != IDA_SUCCESS)
       {
         retval = IDA_ILL_INPUT;
@@ -186,8 +187,8 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     for (j = 0; j < num_action_keys; j++)
     {
       sunretval = sunCheckAndSetActionArg(ida_mem, &idx, argv, offset,
-                                       action_pairs[j].key, action_pairs[j].set,
-                                       &arg_used);
+                                          action_pairs[j].key,
+                                          action_pairs[j].set, &arg_used);
       if (sunretval != IDA_SUCCESS)
       {
         retval = IDA_ILL_INPUT;

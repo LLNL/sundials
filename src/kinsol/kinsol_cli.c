@@ -41,12 +41,13 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
   kin_mem = (KINMem)kinmem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static const struct sunKeyIntPair int_pairs[] = {{"orth_aa", KINSetOrthAA},
-                                             {"return_newest", KINSetReturnNewest},
-                                             {"no_init_setup", KINSetNoInitSetup},
-                                             {"no_res_mon", KINSetNoResMon},
-                                             {"eta_form", KINSetEtaForm},
-                                             {"no_min_eps", KINSetNoMinEps}};
+  static const struct sunKeyIntPair int_pairs[] =
+    {{"orth_aa", KINSetOrthAA},
+     {"return_newest", KINSetReturnNewest},
+     {"no_init_setup", KINSetNoInitSetup},
+     {"no_res_mon", KINSetNoResMon},
+     {"eta_form", KINSetEtaForm},
+     {"no_min_eps", KINSetNoMinEps}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static const struct sunKeyLongPair long_pairs[] =
@@ -98,8 +99,9 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      sunretval = sunCheckAndSetIntArg(kinmem, &idx, argv, offset, int_pairs[j].key,
-                                    int_pairs[j].set, &arg_used);
+      sunretval = sunCheckAndSetIntArg(kinmem, &idx, argv, offset,
+                                       int_pairs[j].key, int_pairs[j].set,
+                                       &arg_used);
       if (sunretval != KIN_SUCCESS)
       {
         retval = KIN_ILL_INPUT;
@@ -115,8 +117,9 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      sunretval = sunCheckAndSetLongArg(kinmem, &idx, argv, offset, long_pairs[j].key,
-                                     long_pairs[j].set, &arg_used);
+      sunretval = sunCheckAndSetLongArg(kinmem, &idx, argv, offset,
+                                        long_pairs[j].key, long_pairs[j].set,
+                                        &arg_used);
       if (sunretval != KIN_SUCCESS)
       {
         retval = KIN_ILL_INPUT;
@@ -132,8 +135,9 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      sunretval = sunCheckAndSetRealArg(kinmem, &idx, argv, offset, real_pairs[j].key,
-                                     real_pairs[j].set, &arg_used);
+      sunretval = sunCheckAndSetRealArg(kinmem, &idx, argv, offset,
+                                        real_pairs[j].key, real_pairs[j].set,
+                                        &arg_used);
       if (sunretval != KIN_SUCCESS)
       {
         retval = KIN_ILL_INPUT;
@@ -150,8 +154,8 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     for (j = 0; j < num_tworeal_keys; j++)
     {
       sunretval = sunCheckAndSetTwoRealArg(kinmem, &idx, argv, offset,
-                                        tworeal_pairs[j].key,
-                                        tworeal_pairs[j].set, &arg_used);
+                                           tworeal_pairs[j].key,
+                                           tworeal_pairs[j].set, &arg_used);
       if (sunretval != KIN_SUCCESS)
       {
         retval = KIN_ILL_INPUT;

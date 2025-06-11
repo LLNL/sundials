@@ -155,8 +155,9 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      sunretval = sunCheckAndSetIntArg(cvode_mem, &idx, argv, offset, int_pairs[j].key,
-                                    int_pairs[j].set, &arg_used);
+      sunretval = sunCheckAndSetIntArg(cvode_mem, &idx, argv, offset,
+                                       int_pairs[j].key, int_pairs[j].set,
+                                       &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -173,8 +174,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_long_keys; j++)
     {
       sunretval = sunCheckAndSetLongArg(cvode_mem, &idx, argv, offset,
-                                     long_pairs[j].key, long_pairs[j].set,
-                                     &arg_used);
+                                        long_pairs[j].key, long_pairs[j].set,
+                                        &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -191,8 +192,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_real_keys; j++)
     {
       sunretval = sunCheckAndSetRealArg(cvode_mem, &idx, argv, offset,
-                                     real_pairs[j].key, real_pairs[j].set,
-                                     &arg_used);
+                                        real_pairs[j].key, real_pairs[j].set,
+                                        &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -209,8 +210,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_twoint_keys; j++)
     {
       sunretval = sunCheckAndSetTwoIntArg(cvode_mem, &idx, argv, offset,
-                                       twoint_pairs[j].key, twoint_pairs[j].set,
-                                       &arg_used);
+                                          twoint_pairs[j].key,
+                                          twoint_pairs[j].set, &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -227,8 +228,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_tworeal_keys; j++)
     {
       sunretval = sunCheckAndSetTwoRealArg(cvode_mem, &idx, argv, offset,
-                                        tworeal_pairs[j].key,
-                                        tworeal_pairs[j].set, &arg_used);
+                                           tworeal_pairs[j].key,
+                                           tworeal_pairs[j].set, &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -245,8 +246,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_action_keys; j++)
     {
       sunretval = sunCheckAndSetActionArg(cvode_mem, &idx, argv, offset,
-                                       action_pairs[j].key, action_pairs[j].set,
-                                       &arg_used);
+                                          action_pairs[j].key,
+                                          action_pairs[j].set, &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -263,8 +264,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_int_real_keys; j++)
     {
       sunretval = sunCheckAndSetIntRealArg(cvode_mem, &idx, argv, offset,
-                                        int_real_pairs[j].key,
-                                        int_real_pairs[j].set, &arg_used);
+                                           int_real_pairs[j].key,
+                                           int_real_pairs[j].set, &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -281,8 +282,8 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_int_long_keys; j++)
     {
       sunretval = sunCheckAndSetIntLongArg(cvode_mem, &idx, argv, offset,
-                                        int_long_pairs[j].key,
-                                        int_long_pairs[j].set, &arg_used);
+                                           int_long_pairs[j].key,
+                                           int_long_pairs[j].set, &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;
@@ -299,9 +300,9 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     for (j = 0; j < num_int_real_real_keys; j++)
     {
       sunretval = sunCheckAndSetIntRealRealArg(cvode_mem, &idx, argv, offset,
-                                            int_real_real_pairs[j].key,
-                                            int_real_real_pairs[j].set,
-                                            &arg_used);
+                                               int_real_real_pairs[j].key,
+                                               int_real_real_pairs[j].set,
+                                               &arg_used);
       if (sunretval != CV_SUCCESS)
       {
         retval = CV_ILL_INPUT;

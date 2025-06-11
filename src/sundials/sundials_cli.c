@@ -19,16 +19,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
 
 /*===============================================================
   Command-line input utility routines
   ===============================================================*/
 
-SUNErrCode sunCheckAndSetIntArg(void* mem, int* argidx, char* argv[], const size_t offset,
-                         const char* argtest, sunIntSetFn fname,
-                         sunbooleantype* arg_used)
+SUNErrCode sunCheckAndSetIntArg(void* mem, int* argidx, char* argv[],
+                                const size_t offset, const char* argtest,
+                                sunIntSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -43,8 +43,8 @@ SUNErrCode sunCheckAndSetIntArg(void* mem, int* argidx, char* argv[], const size
 }
 
 SUNErrCode sunCheckAndSetTwoIntArg(void* mem, int* argidx, char* argv[],
-                            const size_t offset, const char* argtest,
-                            sunTwoIntSetFn fname, sunbooleantype* arg_used)
+                                   const size_t offset, const char* argtest,
+                                   sunTwoIntSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -60,9 +60,9 @@ SUNErrCode sunCheckAndSetTwoIntArg(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetLongArg(void* mem, int* argidx, char* argv[], const size_t offset,
-                          const char* argtest, sunLongSetFn fname,
-                          sunbooleantype* arg_used)
+SUNErrCode sunCheckAndSetLongArg(void* mem, int* argidx, char* argv[],
+                                 const size_t offset, const char* argtest,
+                                 sunLongSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -77,8 +77,9 @@ SUNErrCode sunCheckAndSetLongArg(void* mem, int* argidx, char* argv[], const siz
 }
 
 SUNErrCode sunCheckAndSetIntRealArg(void* mem, int* argidx, char* argv[],
-                             const size_t offset, const char* argtest,
-                             sunIntRealSetFn fname, sunbooleantype* arg_used)
+                                    const size_t offset, const char* argtest,
+                                    sunIntRealSetFn fname,
+                                    sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -95,9 +96,9 @@ SUNErrCode sunCheckAndSetIntRealArg(void* mem, int* argidx, char* argv[],
 }
 
 SUNErrCode sunCheckAndSetIntRealRealArg(void* mem, int* argidx, char* argv[],
-                                 const size_t offset, const char* argtest,
-                                 sunIntRealRealSetFn fname,
-                                 sunbooleantype* arg_used)
+                                        const size_t offset, const char* argtest,
+                                        sunIntRealRealSetFn fname,
+                                        sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -116,8 +117,9 @@ SUNErrCode sunCheckAndSetIntRealRealArg(void* mem, int* argidx, char* argv[],
 }
 
 SUNErrCode sunCheckAndSetIntLongArg(void* mem, int* argidx, char* argv[],
-                             const size_t offset, const char* argtest,
-                             sunIntLongSetFn fname, sunbooleantype* arg_used)
+                                    const size_t offset, const char* argtest,
+                                    sunIntLongSetFn fname,
+                                    sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -133,9 +135,9 @@ SUNErrCode sunCheckAndSetIntLongArg(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetRealArg(void* mem, int* argidx, char* argv[], const size_t offset,
-                          const char* argtest, sunRealSetFn fname,
-                          sunbooleantype* arg_used)
+SUNErrCode sunCheckAndSetRealArg(void* mem, int* argidx, char* argv[],
+                                 const size_t offset, const char* argtest,
+                                 sunRealSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -150,8 +152,9 @@ SUNErrCode sunCheckAndSetRealArg(void* mem, int* argidx, char* argv[], const siz
 }
 
 SUNErrCode sunCheckAndSetTwoRealArg(void* mem, int* argidx, char* argv[],
-                             const size_t offset, const char* argtest,
-                             sunTwoRealSetFn fname, sunbooleantype* arg_used)
+                                    const size_t offset, const char* argtest,
+                                    sunTwoRealSetFn fname,
+                                    sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -167,9 +170,9 @@ SUNErrCode sunCheckAndSetTwoRealArg(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetCharArg(void* mem, int* argidx, char* argv[], const size_t offset,
-                          const char* argtest, sunCharSetFn fname,
-                          sunbooleantype* arg_used)
+SUNErrCode sunCheckAndSetCharArg(void* mem, int* argidx, char* argv[],
+                                 const size_t offset, const char* argtest,
+                                 sunCharSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -183,8 +186,9 @@ SUNErrCode sunCheckAndSetCharArg(void* mem, int* argidx, char* argv[], const siz
 }
 
 SUNErrCode sunCheckAndSetTwoCharArg(void* mem, int* argidx, char* argv[],
-                             const size_t offset, const char* argtest,
-                             sunTwoCharSetFn fname, sunbooleantype* arg_used)
+                                    const size_t offset, const char* argtest,
+                                    sunTwoCharSetFn fname,
+                                    sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)
@@ -198,8 +202,8 @@ SUNErrCode sunCheckAndSetTwoCharArg(void* mem, int* argidx, char* argv[],
 }
 
 SUNErrCode sunCheckAndSetActionArg(void* mem, int* argidx, char* argv[],
-                            const size_t offset, const char* argtest,
-                            sunActionSetFn fname, sunbooleantype* arg_used)
+                                   const size_t offset, const char* argtest,
+                                   sunActionSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*argidx] + offset, argtest) == 0)

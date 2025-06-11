@@ -135,15 +135,12 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
     size_t SOffset, PIDOffset, PIOffset, IOffset, ExpGusOffset, ImpGusOffset;
-    const char* SPrefix   = (Cid != NULL) ? Cid
-                                          : "sunadaptcontroller_soderlind.";
+    const char* SPrefix = (Cid != NULL) ? Cid : "sunadaptcontroller_soderlind.";
     const char* PIDPrefix = (Cid != NULL) ? Cid : "sunadaptcontroller_pid.";
     const char* PIPrefix  = (Cid != NULL) ? Cid : "sunadaptcontroller_pi.";
     const char* IPrefix   = (Cid != NULL) ? Cid : "sunadaptcontroller_i.";
-    const char* ExpGusPrefix = (Cid != NULL) ? Cid
-                                             : "sunadaptcontroller_expgus.";
-    const char* ImpGusPrefix = (Cid != NULL) ? Cid
-                                             : "sunadaptcontroller_impgus.";
+    const char* ExpGusPrefix = (Cid != NULL) ? Cid : "sunadaptcontroller_expgus.";
+    const char* ImpGusPrefix = (Cid != NULL) ? Cid : "sunadaptcontroller_impgus.";
     if (Cid != NULL)
     {
       SOffset = PIDOffset = PIOffset = IOffset = ExpGusOffset = ImpGusOffset =

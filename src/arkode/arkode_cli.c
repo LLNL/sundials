@@ -63,9 +63,9 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static const struct sunKeyLongPair long_pairs[] = {{"max_num_steps",
-                                                ARKodeSetMaxNumSteps},
-                                               {"jac_eval_frequency",
-                                                ARKodeSetJacEvalFrequency}};
+                                                      ARKodeSetMaxNumSteps},
+                                                     {"jac_eval_frequency",
+                                                      ARKodeSetJacEvalFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
   static const struct sunKeyRealPair real_pairs[] =
@@ -93,11 +93,10 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"mass_ls_norm_factor", ARKodeSetMassLSNormFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static const struct sunKeyTwoRealPair tworeal_pairs[] = {{"scalar_tolerances",
-                                                      ARKodeSStolerances},
-                                                     {"fixed_step_bounds",
-                                                      ARKodeSetFixedStepBounds}};
-  static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
+  static const struct sunKeyTwoRealPair tworeal_pairs[] =
+    {{"scalar_tolerances", ARKodeSStolerances},
+     {"fixed_step_bounds", ARKodeSetFixedStepBounds}};
+  static const int num_tworeal_keys = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
   static const struct sunKeyActionPair action_pairs[] =
@@ -133,8 +132,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     for (j = 0; j < num_int_keys; j++)
     {
       sunretval = sunCheckAndSetIntArg(arkode_mem, &idx, argv, offset,
-                                    int_pairs[j].key, int_pairs[j].set,
-                                    &arg_used);
+                                       int_pairs[j].key, int_pairs[j].set,
+                                       &arg_used);
       if (sunretval != SUN_SUCCESS)
       {
         retval = ARK_ILL_INPUT;
@@ -151,8 +150,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     for (j = 0; j < num_long_keys; j++)
     {
       sunretval = sunCheckAndSetLongArg(arkode_mem, &idx, argv, offset,
-                                     long_pairs[j].key, long_pairs[j].set,
-                                     &arg_used);
+                                        long_pairs[j].key, long_pairs[j].set,
+                                        &arg_used);
       if (sunretval != SUN_SUCCESS)
       {
         retval = ARK_ILL_INPUT;
@@ -169,8 +168,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     for (j = 0; j < num_real_keys; j++)
     {
       sunretval = sunCheckAndSetRealArg(arkode_mem, &idx, argv, offset,
-                                     real_pairs[j].key, real_pairs[j].set,
-                                     &arg_used);
+                                        real_pairs[j].key, real_pairs[j].set,
+                                        &arg_used);
       if (sunretval != SUN_SUCCESS)
       {
         retval = ARK_ILL_INPUT;
@@ -187,8 +186,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     for (j = 0; j < num_tworeal_keys; j++)
     {
       sunretval = sunCheckAndSetTwoRealArg(arkode_mem, &idx, argv, offset,
-                                        tworeal_pairs[j].key,
-                                        tworeal_pairs[j].set, &arg_used);
+                                           tworeal_pairs[j].key,
+                                           tworeal_pairs[j].set, &arg_used);
       if (sunretval != SUN_SUCCESS)
       {
         retval = ARK_ILL_INPUT;
@@ -205,8 +204,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     for (j = 0; j < num_action_keys; j++)
     {
       sunretval = sunCheckAndSetActionArg(arkode_mem, &idx, argv, offset,
-                                       action_pairs[j].key, action_pairs[j].set,
-                                       &arg_used);
+                                          action_pairs[j].key,
+                                          action_pairs[j].set, &arg_used);
       if (sunretval != SUN_SUCCESS)
       {
         retval = ARK_ILL_INPUT;
