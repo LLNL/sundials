@@ -234,7 +234,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_SuperLUMT(SUNLinearSolver S,
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spbcgs." */
     size_t offset;
-    if (LSid != __DARWIN_NULL)
+    if (LSid != NULL)
     {
       if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;
