@@ -2219,7 +2219,7 @@ int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   ark_mem->use_compensated_sums = onoff;
 
   /* Call stepper routine (if provided) */
-  if (ark_mem->step_getnumrhsevals)
+  if (ark_mem->step_setusecompensatedsums)
   {
     return ark_mem->step_setusecompensatedsums(arkode_mem, onoff);
   }
