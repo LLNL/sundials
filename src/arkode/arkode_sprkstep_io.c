@@ -27,6 +27,7 @@
 #include "arkode/arkode.h"
 #include "arkode/arkode_sprk.h"
 #include "arkode_sprkstep_impl.h"
+#include "arkode_types_impl.h"
 
 /*===============================================================
   Exported optional input functions.
@@ -51,22 +52,13 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   if (onoff)
   {
     ark_mem->use_compensated_sums = SUNTRUE;
-    ark_mem->step                 = sprkStep_TakeStep_Compensated;
-    if (!step_mem->yerr)
-    {
-      if (!arkAllocVec(ark_mem, ark_mem->yn, &(step_mem->yerr)))
-      {
-        return ARK_MEM_FAIL;
-      }
-      /* Zero yerr for compensated summation */
-      N_VConst(ZERO, step_mem->yerr);
-    }
   }
   else
   {
     ark_mem->use_compensated_sums = SUNFALSE;
-    ark_mem->step                 = sprkStep_TakeStep;
   }
+
+  sprkStep_SetUseCompensatedSums(arkode_mem, onoff);
 
   return (retval);
 }
@@ -293,6 +285,33 @@ int sprkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   fprintf(fp, "  Method stages %i\n", step_mem->method->stages);
 
   return (ARK_SUCCESS);
+}
+
+int sprkStep_SetUseCompensatedSums(ARKodeMem ark_mem, sunbooleantype onoff)
+{
+  ARKodeSPRKStepMem step_mem = NULL;
+  int retval                 = 0;
+
+  /* access ARKodeSPRKStepMem structure */
+  retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if (onoff)
+  {
+    ark_mem->step = sprkStep_TakeStep_Compensated;
+    if (!step_mem->yerr)
+    {
+      if (!arkAllocVec(ark_mem, ark_mem->yn, &(step_mem->yerr)))
+      {
+        return ARK_MEM_FAIL;
+      }
+      /* Zero yerr for compensated summation */
+      N_VConst(ZERO, step_mem->yerr);
+    }
+  }
+  else { ark_mem->step = sprkStep_TakeStep; }
+
+  return (retval);
 }
 
 /*===============================================================
