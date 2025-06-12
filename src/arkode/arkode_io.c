@@ -2223,13 +2223,6 @@ int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
   {
     return ark_mem->step_setusecompensatedsums(arkode_mem, onoff);
   }
-  else
-  {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
-                    __FILE__,
-                    "time-stepping module does not support this function");
-    return ARK_STEPPER_UNSUPPORTED;
-  }
 
   return (ARK_SUCCESS);
 }
