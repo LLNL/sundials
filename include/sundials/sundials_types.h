@@ -270,7 +270,7 @@ enum SUNDataIOMode_
   SUN_DATAIOMODE_INMEM,
 };
 
-/* For backwards compatibility with the typo'ed name */
+/* For backwards compatibility with the old name */
 static const int SUNDATAIOMODE_INMEM = SUN_DATAIOMODE_INMEM;
 
 typedef enum SUNDataIOMode_ SUNDataIOMode;

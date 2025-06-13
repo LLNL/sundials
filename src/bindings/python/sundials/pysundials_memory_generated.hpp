@@ -5,6 +5,14 @@
 // 
 
 
+auto pyEnumSUNMemoryType_ =
+    nb::enum_<SUNMemoryType_>(m, "SUNMemoryType_", nb::is_arithmetic(), "")
+        .value("SUN_MEMTYPE_HOST", SUN_MEMTYPE_HOST, "pageable memory accessible on the host")
+        .value("SUN_MEMTYPE_PINNED", SUN_MEMTYPE_PINNED, "page-locked memory accessible on the host")
+        .value("SUN_MEMTYPE_DEVICE", SUN_MEMTYPE_DEVICE, "memory accessible from the device")
+        .value("SUN_MEMTYPE_UVM", SUN_MEMTYPE_UVM, "memory accessible from the host or device");
+
+
 auto pyClassSUNMemoryHelper_ =
     nb::class_<SUNMemoryHelper_>
         (m, "SUNMemoryHelper_", "")

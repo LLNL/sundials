@@ -20,6 +20,9 @@ void bind_sunstepper(nb::module_& m);
 
 void bind_core(nb::module_& m)
 {
+#include "pysundials_types_generated.hpp"
+#include "pysundials_errors_generated.hpp"
+
   bind_nvector(m);
   bind_sunadaptcontroller(m);
   bind_sunadjointcheckpointscheme(m);

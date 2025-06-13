@@ -2,8 +2,8 @@
 // 
 
 
-auto pyEnum =
-    nb::enum_<>(m, "", nb::is_arithmetic(), "clang-format off")
+auto pyEnumSUNErrCode_ =
+    nb::enum_<SUNErrCode_>(m, "SUNErrCode_", nb::is_arithmetic(), "clang-format off")
         .value("SUN_ERR_MINIMUM", SUN_ERR_MINIMUM, "")
         .value("SUN_ERR_MAXIMUM", SUN_ERR_MAXIMUM, "")
         .value("SUN_SUCCESS", SUN_SUCCESS, "");

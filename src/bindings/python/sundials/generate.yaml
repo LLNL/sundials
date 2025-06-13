@@ -120,6 +120,6 @@ modules:
     - "SetContent" # no need to set content from Python
     - "GetContent" # nanobind cannot bind to functions which take a **
   sundials_types:
-    path: sundials/pysundials_types_generated.h
+    path: sundials/pysundials_types_generated.hpp
     headers:
     - ../../../include/sundials/sundials_types.h
