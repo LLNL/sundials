@@ -19,12 +19,11 @@
 modules:
   all:
     fn_exclude_by_name__regex:
-    - "Free"
+    - "Free" # Free and destroy functions should not need to be called as all objects on the Python side are RAII ClassView objects
     - "Destroy"
-    - "Space"
+    - "Space" # Space functions are deprecated, so dont expose them in Python
     macro_define_include_by_name__regex:
     - "^SUN_"
-    - "^SUNDATAIOMODE_"
   sundials_adaptcontroller:
     path: sundials/sundials_adaptcontroller_generated.hpp
     headers:
@@ -99,10 +98,10 @@ modules:
     - ../../../include/sundials/sundials_stepper.h
     fn_exclude_by_name__regex:
     - "Create" # nanobind cannot bind to functions which take a **
-    - "Set.*Fn"
-    - "SetForcing" 
-    - "SetContent"
-    - "GetContent"
+    - "Set.*Fn" # nanobind cannot bind to functions which take a **
+    - "SetForcing" # nanobind cannot bind to functions which take a **
+    - "SetContent" # nanobind cannot bind to functions which take a **
+    - "GetContent" # nanobind cannot bind to functions which take a **
   sundials_types:
     path: sundials/sundials_types_generated.h
     headers:
