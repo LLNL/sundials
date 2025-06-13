@@ -126,7 +126,7 @@ The :c:type:`SUNAdjointStepper` class has the following methods:
 
 .. c:function:: SUNErrCode SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper adj_stepper, suncountertype* num_recompute)
 
-   Retrieves the number of recomputations performed by the adjoint stepper.
+   Retrieves the number of recomputation (in the forward direction) steps performed by the adjoint stepper.
 
    :param adj_stepper: The SUNAdjointStepper object.
    :param num_recompute: Pointer to store the number of recomputations.
