@@ -12,25 +12,32 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS SUNAdaptController class. It contains hand-written code for
+ * SUNDIALS SUNAdjointStepper class. It contains hand-written code for
  * functions that require special treatment, and includes the generated
  * code produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
 
-#include <sundials/sundials_adaptcontroller.hpp>
+#include <sundials/sundials_adjointstepper.hpp>
+
+#include "sundials_adjointcheckpointscheme_impl.h"
+#include "sundials_adjointstepper_impl.h"
+#include "sundials_stepper_impl.h"
 
 namespace nb = nanobind;
 
-using namespace sundials::experimental;
+using SUNAdjointStepperView = sundials::experimental::SUNAdjointStepperView;
 
-void bind_sunadaptcontroller(nb::module_& m)
+void bind_sunadjointstepper(nb::module_& m)
 {
-#include "sundials_adaptcontroller_generated.hpp"
+#include "pysundials_adjointstepper_generated.hpp"
 
-  nb::class_<SUNAdaptControllerView>(m, "SUNAdaptControllerView")
-    .def_static("Create", &SUNAdaptControllerView::Create<SUNAdaptController>)
-    .def("get", nb::overload_cast<>(&SUNAdaptControllerView::get, nb::const_),
-         nb::rv_policy::reference);
+  nb::class_<SUNAdjointStepperView>(m, "SUNAdjointStepperView")
+    .def("get", nb::overload_cast<>(&SUNAdjointStepperView::get, nb::const_),
+         nb::rv_policy::reference)
+    .def_static("Create",
+                &SUNAdjointStepperView::Create<
+                  SUNStepper, sunbooleantype, SUNStepper, sunbooleantype, suncountertype,
+                  sunrealtype, N_Vector, SUNAdjointCheckpointScheme, SUNContext>);
 }

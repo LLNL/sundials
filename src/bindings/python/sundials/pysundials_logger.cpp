@@ -30,7 +30,7 @@ using SUNLoggerView = sundials::experimental::SUNLoggerView;
 
 void bind_sunlogger(nb::module_& m)
 {
-#include "sundials_logger_generated.hpp"
+#include "pysundials_logger_generated.hpp"
   nb::class_<SUNLogger_>(m, "SUNLogger_");
 
   nb::class_<SUNLoggerView>(m, "SUNLoggerView")

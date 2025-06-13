@@ -12,26 +12,25 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS SUNNonlinearSolver class. It contains hand-written code 
- * for functions that require special treatment, and includes the
- * generated code produced with the generate.py script.
+ * SUNDIALS SUNAdaptController class. It contains hand-written code for
+ * functions that require special treatment, and includes the generated
+ * code produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
-#include <nanobind/ndarray.h>
 
-#include <sundials/sundials_nonlinearsolver.hpp>
+#include <sundials/sundials_adaptcontroller.hpp>
 
 namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
-void bind_sunnonlinearsolver(nb::module_& m)
+void bind_sunadaptcontroller(nb::module_& m)
 {
-#include "sundials_nonlinearsolver_generated.hpp"
+#include "pysundials_adaptcontroller_generated.hpp"
 
-  nb::class_<SUNNonlinearSolverView>(m, "SUNNonlinearSolverView")
-    .def_static("Create", &SUNNonlinearSolverView::Create<SUNNonlinearSolver>)
-    .def("get", nb::overload_cast<>(&SUNNonlinearSolverView::get, nb::const_),
+  nb::class_<SUNAdaptControllerView>(m, "SUNAdaptControllerView")
+    .def_static("Create", &SUNAdaptControllerView::Create<SUNAdaptController>)
+    .def("get", nb::overload_cast<>(&SUNAdaptControllerView::get, nb::const_),
          nb::rv_policy::reference);
 }

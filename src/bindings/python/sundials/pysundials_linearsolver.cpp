@@ -12,27 +12,26 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS SUNAdjointCheckpointScheme class. It contains hand-written
- * code for functions that require special treatment, and includes the
- * generated code produced with the generate.py script.
+ * SUNDIALS N_Vector class. It contains hand-written code for functions
+ * that require special treatment, and includes the generated code
+ * produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
 
-#include <sundials/sundials_adjointcheckpointscheme.hpp>
-
-#include "sundials_adjointcheckpointscheme_impl.h"
+#include <sundials/sundials_linearsolver.hpp>
 
 namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
-void bind_sunadjointcheckpointscheme(nb::module_& m)
+void bind_sunlinearsolver(nb::module_& m)
 {
-#include "sundials_adjointcheckpointscheme_generated.hpp"
+#include "pysundials_linearsolver_generated.hpp"
 
-  nb::class_<SUNAdjointCheckpointSchemeView>(m, "SUNAdjointCheckpointSchemeView")
-    .def_static("Create", &SUNAdjointCheckpointSchemeView::Create<SUNAdjointCheckpointScheme>)
-    .def("get", nb::overload_cast<>(&SUNAdjointCheckpointSchemeView::get, nb::const_),
+  nb::class_<SUNLinearSolverView>(m, "SUNLinearSolverView")
+    .def_static("Create", &SUNLinearSolverView::Create<SUNLinearSolver>)
+    .def("get", nb::overload_cast<>(&SUNLinearSolverView::get, nb::const_),
          nb::rv_policy::reference);
 }
