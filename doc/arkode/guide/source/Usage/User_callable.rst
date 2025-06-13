@@ -1480,11 +1480,11 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
    5 per time step. It also requires one extra vector to be stored. However, it
    is significantly more robust to roundoff error accumulation.
 
-   :param arkode_mem: pointer to the SPRKStep memory block.
+   :param arkode_mem: pointer to the ARKODE memory block.
    :param onoff: should compensated summation be used (1) or not (0)
 
    :retval ARK_SUCCESS: if successful
-   :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
+   :retval ARK_MEM_NULL: if the ARKODE memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument had an illegal value
 
 
