@@ -1,3 +1,21 @@
+# -----------------------------------------------------------------
+# Programmer(s): Cody J. Balos @ LLNL
+# -----------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------
+# This YAML file is used to instruct the generate.py script on
+# how to generate some of the nanobind code needed for the
+# core module of pysundials.
+# -----------------------------------------------------------------
+
 modules:
   all:
     fn_exclude_by_name__regex:
@@ -7,30 +25,6 @@ modules:
     macro_define_include_by_name__regex:
     - "^SUN_"
     - "^SUNDATAIOMODE_"
-  sundials_types:
-    path: sundials/sundials_types_generated.h
-    headers:
-    - ../../../include/sundials/sundials_types.h
-  sundials_context:
-    path: sundials/sundials_context_generated.hpp
-    headers:
-    - ../../../include/sundials/sundials_context.h
-    fn_exclude_by_name__regex:
-    - "Create"
-    - "GetProfiler"
-    - "GetLogger"
-  sundials_profiler:
-    path: sundials/sundials_profiler_generated.hpp
-    headers:
-    - ../../../include/sundials/sundials_profiler.h
-    fn_exclude_by_name__regex:
-    - "Create"
-  sundials_logger:
-    path: sundials/sundials_logger_generated.hpp
-    headers:
-    - ../../../include/sundials/sundials_logger.h
-    fn_exclude_by_name__regex:
-    - "Create"
   sundials_adaptcontroller:
     path: sundials/sundials_adaptcontroller_generated.hpp
     headers:
@@ -45,6 +39,14 @@ modules:
     - ../../../include/sundials/sundials_adjointstepper.h
     fn_exclude_by_name__regex:
     - "Create" # nanobind cannot bind to functions which take a **
+  sundials_context:
+    path: sundials/sundials_context_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_context.h
+    fn_exclude_by_name__regex:
+    - "Create" # nanobind cannot bind to functions which take a **
+    - "GetProfiler" # nanobind cannot bind to functions which take a **
+    - "GetLogger" # nanobind cannot bind to functions which take a **
   sundials_errors:
     path: sundials/sundials_errors_generated.hpp
     headers:
@@ -55,18 +57,13 @@ modules:
     - ../../../include/sundials/sundials_iterative.h
     - ../../../include/sundials/sundials_linearsolver.h
     fn_exclude_by_name__regex:
-    - "SUNQRAdd"
-  sundials_nvector:
-    path: sundials/sundials_nvector_generated.hpp
+    - "SUNQRAdd" # nanobind cannot bind to functions which take a **
+  sundials_logger:
+    path: sundials/sundials_logger_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_nvector.h
+    - ../../../include/sundials/sundials_logger.h
     fn_exclude_by_name__regex:
-    - "ArrayPointer"
-    - "BufPack"
-    - "BufUnpack"
-    - "VectorArray"
-    - "Multi"
-    - "LinearCombination"
+    - "Create" # nanobind cannot bind to functions which take a **
   sundials_matrix:
     path: sundials/sundials_matrix_generated.hpp
     headers:
@@ -79,6 +76,23 @@ modules:
     path: sundials/sundials_nonlinearsolver_generated.hpp
     headers:
     - ../../../include/sundials/sundials_nonlinearsolver.h
+  sundials_nvector:
+    path: sundials/sundials_nvector_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_nvector.h
+    fn_exclude_by_name__regex:
+    - "ArrayPointer"
+    - "BufPack"
+    - "BufUnpack"
+    - "VectorArray"
+    - "Multi"
+    - "LinearCombination"
+  sundials_profiler:
+    path: sundials/sundials_profiler_generated.hpp
+    headers:
+    - ../../../include/sundials/sundials_profiler.h
+    fn_exclude_by_name__regex:
+    - "Create"
   sundials_stepper:
     path: sundials/sundials_stepper_generated.hpp
     headers:
@@ -89,3 +103,7 @@ modules:
     - "SetForcing" 
     - "SetContent"
     - "GetContent"
+  sundials_types:
+    path: sundials/sundials_types_generated.h
+    headers:
+    - ../../../include/sundials/sundials_types.h
