@@ -25,7 +25,11 @@ def load_opt_from_yaml(config_object, module, opt):
     return opt_list
 
 
-def load_exclusions_from_yaml(config_object, module):
+def load_class_exclusions_from_yaml(config_object, module):
+    return load_opt_from_yaml(config_object, module, "class_exclude_by_name__regex")
+
+
+def load_fn_exclusions_from_yaml(config_object, module):
     return load_opt_from_yaml(config_object, module, "fn_exclude_by_name__regex")
 
 
@@ -73,8 +77,12 @@ def main():
 
         module = config_object.get(module_name)
 
+        options.class_exclude_by_name__regex = code_utils.join_string_by_pipe_char(
+            load_class_exclusions_from_yaml(config_object, module_name)
+        )
+
         options.fn_exclude_by_name__regex = code_utils.join_string_by_pipe_char(
-            load_exclusions_from_yaml(config_object, module_name)
+            load_fn_exclusions_from_yaml(config_object, module_name)
         )
 
         options.macro_define_include_by_name__regex = code_utils.join_string_by_pipe_char(

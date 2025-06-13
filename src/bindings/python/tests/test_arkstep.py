@@ -10,9 +10,9 @@ from analytic_ode_problem import AnalyticIMEXODEProblem
 
 def test_implicit():
   print('  testing implicit')
-  sunctx = SUNContextView()
-  nv = NVectorView(N_VNew_Serial(1, sunctx.get()))
-  ls = SUNLinearSolverView(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
+  sunctx = SUNContextView.Create()
+  nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+  ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
 
   # Get the array and change a value in it
   arr = N_VGetArrayPointer(nv.get())
@@ -35,8 +35,8 @@ def test_implicit():
 
 def test_explicit():
   print('  testing explicit')
-  sunctx = SUNContextView()
-  nv = NVectorView(N_VNew_Serial(1, sunctx.get()))
+  sunctx = SUNContextView.Create()
+  nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
 
   # Get the array and change a value in it
   arr = N_VGetArrayPointer(nv.get())
@@ -57,9 +57,9 @@ def test_explicit():
 
 def test_imex():
   print('  testing imex')
-  sunctx = SUNContextView()
-  nv = NVectorView(N_VNew_Serial(1, sunctx.get()))
-  ls = SUNLinearSolverView(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
+  sunctx = SUNContextView.Create()
+  nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+  ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
 
   # Get the array and change a value in it
   arr = N_VGetArrayPointer(nv.get())

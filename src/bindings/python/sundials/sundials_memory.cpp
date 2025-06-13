@@ -12,27 +12,26 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS SUNAdjointCheckpointScheme class. It contains hand-written
- * code for functions that require special treatment, and includes the
+ * SUNDIALS SUNMemoryHelper class. It contains hand-written code for 
+ * functions that require special treatment, and includes the 
  * generated code produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
 
-#include <sundials/sundials_adjointcheckpointscheme.hpp>
-
-#include "sundials_adjointcheckpointscheme_impl.h"
+#include <sundials/sundials_memory.hpp>
 
 namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
-void bind_sunadjointcheckpointscheme(nb::module_& m)
+void bind_sunmemory(nb::module_& m)
 {
-#include "sundials_adjointcheckpointscheme_generated.hpp"
+#include "sundials_memory_generated.hpp"
 
-  nb::class_<SUNAdjointCheckpointSchemeView>(m, "SUNAdjointCheckpointSchemeView")
-    .def_static("Create", &SUNAdjointCheckpointSchemeView::Create<SUNAdjointCheckpointScheme>)
-    .def("get", nb::overload_cast<>(&SUNAdjointCheckpointSchemeView::get, nb::const_),
+  nb::class_<SUNMemoryHelperView>(m, "SUNMemoryHelperView")
+    .def_static("Create", &SUNMemoryHelperView::Create<SUNMemoryHelper>)
+    .def("get", nb::overload_cast<>(&SUNMemoryHelperView::get, nb::const_),
          nb::rv_policy::reference);
 }
