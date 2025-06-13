@@ -231,7 +231,6 @@ typedef int (*ARKTimestepSetStepDirection)(ARKodeMem ark_mem,
 typedef int (*ARKTimestepSetUseCompensatedSums)(ARKodeMem ark_mem,
                                                 sunbooleantype onoff);
 
-
 /* time stepper interface functions -- temporal adaptivity */
 typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
 typedef int (*ARKSetAdaptControllerFn)(ARKodeMem ark_mem, SUNAdaptController C);

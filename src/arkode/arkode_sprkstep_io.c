@@ -49,14 +49,8 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (onoff)
-  {
-    ark_mem->use_compensated_sums = SUNTRUE;
-  }
-  else
-  {
-    ark_mem->use_compensated_sums = SUNFALSE;
-  }
+  if (onoff) { ark_mem->use_compensated_sums = SUNTRUE; }
+  else { ark_mem->use_compensated_sums = SUNFALSE; }
 
   retval = sprkStep_SetUseCompensatedSums(arkode_mem, onoff);
 
