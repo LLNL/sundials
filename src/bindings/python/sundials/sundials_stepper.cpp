@@ -36,9 +36,7 @@ void bind_sunstepper(nb::module_& m)
 
   nb::class_<SUNStepperView>(m, "SUNStepperView")
     .def(nb::init<SUNStepper>())
-    .def("get",
-         nb::overload_cast<>(&SUNStepperView::get,
-                             nb::const_),
+    .def("get", nb::overload_cast<>(&SUNStepperView::get, nb::const_),
          nb::rv_policy::reference)
     .def_static("Create", SUNStepperView::Create<SUNContext>);
 }

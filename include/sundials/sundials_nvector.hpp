@@ -36,7 +36,20 @@ struct NVectorDeleter
   }
 };
 
-using NVectorView = ClassView<N_Vector, NVectorDeleter>;
+class NVectorView : public ClassView<N_Vector, NVectorDeleter>
+{ 
+public:
+  using ClassView<N_Vector, NVectorDeleter>::ClassView;
+  template<typename... Args>
+  static NVectorView Create(Args&&... args);
+};
+
+template<typename... Args>
+NVectorView NVectorView::Create(Args&&... args)
+{
+  return NVectorView(std::forward<Args>(args)...);
+}
+
 
 } // namespace experimental
 } // namespace sundials

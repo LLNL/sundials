@@ -36,8 +36,20 @@ struct SUNNonlinearSolverDeleter
   }
 };
 
-using SUNNonlinearSolverView =
-  ClassView<SUNNonlinearSolver, SUNNonlinearSolverDeleter>;
+class SUNNonlinearSolverView : public ClassView<SUNNonlinearSolver, SUNNonlinearSolverDeleter>
+{ 
+public:
+  using ClassView<SUNNonlinearSolver, SUNNonlinearSolverDeleter>::ClassView;
+  template<typename... Args>
+  static SUNNonlinearSolverView Create(Args&&... args);
+};
+
+template<typename... Args>
+SUNNonlinearSolverView SUNNonlinearSolverView::Create(Args&&... args)
+{
+  return SUNNonlinearSolverView(std::forward<Args>(args)...);
+}
+
 } // namespace experimental
 } // namespace sundials
 

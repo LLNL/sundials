@@ -36,8 +36,7 @@ void bind_suncontext(nb::module_& m)
   nb::class_<SUNContext_>(m, "SUNContext_");
 
   nb::class_<SUNContextView>(m, "SUNContextView")
-    .def("get",
-         nb::overload_cast<>(&SUNContextView::get, nb::const_),
+    .def("get", nb::overload_cast<>(&SUNContextView::get, nb::const_),
          nb::rv_policy::reference)
     .def_static("Create", &SUNContextView::Create<>)
     .def_static("Create", &SUNContextView::Create<SUNContext>)

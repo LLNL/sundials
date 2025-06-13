@@ -27,8 +27,9 @@ void bind_sunadjointcheckpointscheme(nb::module_& m)
 {
 #include "sundials_adjointcheckpointscheme_generated.hpp"
 
-  nb::class_<sundials::experimental::SUNAdjointCheckpointSchemeView>(m,
-                                                          "SUNAdjointCheckpointSchemeView")
+  nb::class_<sundials::experimental::
+               SUNAdjointCheckpointSchemeView>(m,
+                                               "SUNAdjointCheckpointSchemeView")
     .def(nb::init<>())
     .def(nb::init<SUNAdjointCheckpointScheme>())
     .def("get",

@@ -9,8 +9,8 @@ from pysundials.arkode import *
 from analytic_ode_problem import *
 
 def main():
-  sunctx = SUNContextView()
-  nv = NVectorView(N_VNew_Serial(1, sunctx.get()))
+  sunctx = SUNContextView.Create()
+  nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
 
   # Get the array and change a value in it
   arr = N_VGetArrayPointer(nv.get()) # Option 1: have to call get when passing the NVectorView

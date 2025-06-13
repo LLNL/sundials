@@ -24,15 +24,14 @@
 
 namespace nb = nanobind;
 
+using namespace sundials::experimental;
+
 void bind_sunmatrix(nb::module_& m)
 {
 #include "sundials_matrix_generated.hpp"
 
-  nb::class_<sundials::experimental::SUNMatrixView>(m, "SUNMatrixView")
-    .def(nb::init<>())
-    .def(nb::init<_generic_SUNMatrix*>())
-    .def("get",
-         nb::overload_cast<>(&sundials::experimental::SUNMatrixView::get,
-                             nb::const_),
+  nb::class_<SUNMatrixView>(m, "SUNMatrixView")
+    .def_static("Create", &SUNMatrixView::Create<SUNMatrix>)
+    .def("get", nb::overload_cast<>(&SUNMatrixView::get, nb::const_),
          nb::rv_policy::reference);
 }

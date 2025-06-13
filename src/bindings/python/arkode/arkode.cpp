@@ -252,8 +252,8 @@ void bind_arkode(nb::module_& m)
   // arkode_ls.h definitions
   //
 
-  m.def("ARKodeSetLinearSolver", &ARKodeSetLinearSolver,
-    nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("A").none());
+  m.def("ARKodeSetLinearSolver", &ARKodeSetLinearSolver, nb::arg("arkode_mem"),
+        nb::arg("LS"), nb::arg("A").none());
   m.def("ARKodeSetJacFn", &ARKodeSetJacFn);
   m.def("ARKodeSetJacEvalFrequency", &ARKodeSetJacEvalFrequency);
   m.def("ARKodeSetLinSysFn", &ARKodeSetLinSysFn);

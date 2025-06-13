@@ -34,8 +34,7 @@ void bind_sunlogger(nb::module_& m)
   nb::class_<SUNLogger_>(m, "SUNLogger_");
 
   nb::class_<SUNLoggerView>(m, "SUNLoggerView")
-    .def("get",
-         nb::overload_cast<>(&SUNLoggerView::get, nb::const_),
+    .def("get", nb::overload_cast<>(&SUNLoggerView::get, nb::const_),
          nb::rv_policy::reference)
     .def_static("Create", &SUNLoggerView::Create<SUNComm>)
     .def_static("Create", &SUNLoggerView::Create<SUNComm, int>);

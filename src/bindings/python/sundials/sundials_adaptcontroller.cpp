@@ -23,16 +23,14 @@
 
 namespace nb = nanobind;
 
+using namespace sundials::experimental;
+
 void bind_sunadaptcontroller(nb::module_& m)
 {
 #include "sundials_adaptcontroller_generated.hpp"
 
-  nb::class_<sundials::experimental::SUNAdaptControllerView>(m,
-                                                          "SUNAdaptControllerView")
-    .def(nb::init<>())
-    .def(nb::init<_generic_SUNAdaptController*>())
-    .def("get",
-         nb::overload_cast<>(&sundials::experimental::SUNAdaptControllerView::get,
-                             nb::const_),
+  nb::class_<SUNAdaptControllerView>(m, "SUNAdaptControllerView")
+    .def_static("Create", &SUNAdaptControllerView::Create<SUNAdaptController>)
+    .def("get", nb::overload_cast<>(&SUNAdaptControllerView::get, nb::const_),
          nb::rv_policy::reference);
 }

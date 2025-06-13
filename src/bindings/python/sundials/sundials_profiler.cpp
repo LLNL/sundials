@@ -35,8 +35,7 @@ void bind_sunprofiler(nb::module_& m)
   nb::class_<SUNProfiler_>(m, "SUNProfiler_");
 
   nb::class_<SUNProfilerView>(m, "SUNProfilerView")
-    .def("get",
-         nb::overload_cast<>(&SUNProfilerView::get, nb::const_),
+    .def("get", nb::overload_cast<>(&SUNProfilerView::get, nb::const_),
          nb::rv_policy::reference)
     .def_static("Create", &SUNProfilerView::Create<SUNComm, const char*>);
 }

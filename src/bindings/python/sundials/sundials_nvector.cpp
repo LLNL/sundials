@@ -25,16 +25,15 @@
 
 namespace nb = nanobind;
 
+using namespace sundials::experimental;
+
 void bind_nvector(nb::module_& m)
 {
 #include "sundials_nvector_generated.hpp"
 
-  nb::class_<sundials::experimental::NVectorView>(m, "NVectorView")
-    .def(nb::init<>())
-    .def(nb::init<_generic_N_Vector*>())
-    .def("get",
-         nb::overload_cast<>(&sundials::experimental::NVectorView::get,
-                             nb::const_),
+  nb::class_<NVectorView>(m, "NVectorView")
+    .def_static("Create", &NVectorView::Create<N_Vector>)
+    .def("get", nb::overload_cast<>(&NVectorView::get, nb::const_),
          nb::rv_policy::reference);
 
   m.def("N_VGetArrayPointer",

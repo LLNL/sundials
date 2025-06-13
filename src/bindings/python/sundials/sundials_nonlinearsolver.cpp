@@ -24,16 +24,14 @@
 
 namespace nb = nanobind;
 
+using namespace sundials::experimental;
+
 void bind_sunnonlinearsolver(nb::module_& m)
 {
 #include "sundials_nonlinearsolver_generated.hpp"
 
-  nb::class_<sundials::experimental::SUNNonlinearSolverView>(m,
-                                                             "SUNNonlinearSolverView")
-    .def(nb::init<>())
-    .def(nb::init<_generic_SUNNonlinearSolver*>())
-    .def("get",
-         nb::overload_cast<>(&sundials::experimental::SUNNonlinearSolverView::get,
-                             nb::const_),
+  nb::class_<SUNNonlinearSolverView>(m, "SUNNonlinearSolverView")
+    .def_static("Create", &SUNNonlinearSolverView::Create<SUNNonlinearSolver>)
+    .def("get", nb::overload_cast<>(&SUNNonlinearSolverView::get, nb::const_),
          nb::rv_policy::reference);
 }
