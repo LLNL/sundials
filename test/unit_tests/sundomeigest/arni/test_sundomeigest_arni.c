@@ -138,7 +138,6 @@ int main(int argc, char* argv[])
 
   fails += Test_SUNDomEigEstGetType(DEE, SUNDOMEIG_ARNOLDI, 0);
   fails += Test_SUNDomEigEstSetATimes(DEE, &ProbData, ATimes, 0);
-  fails += Test_SUNDomEigEstSetATimes(DEE, &ProbData, ATimes, 0);
   fails += Test_SUNDomEigEstSetNumPreProcess(DEE, power_of_A, 0);
   fails += Test_SUNDomEigEstInitialize(DEE, 0);
   fails += Test_SUNDomEigEstPreProcess(DEE, 0);
