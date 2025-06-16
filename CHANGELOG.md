@@ -20,6 +20,9 @@ memory has been freed.
 Fixed a CMake bug that would cause the Caliper compile test to fail at configure
 time.
 
+Fixed a bug in the CVODE/CVODES `CVodeSetEtaFixedStepBounds` function which
+disallowed setting `eta_min_fx` or `eta_max_fx` to 1.
+
 `SUNAdjointStepper_PrintAllStats` was reporting the wrong quantity for the
 number of "recompute passes" and has been fixed.
 
