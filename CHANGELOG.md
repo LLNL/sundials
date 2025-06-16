@@ -2,8 +2,6 @@
 
 ## Changes to SUNDIALS in release 7.4.0
 
-### Major Features
-
 ### New Features and Enhancements
 
 `ARKodeSetCFLFraction` now allows `cfl_frac` to be greater than or equal to one.
