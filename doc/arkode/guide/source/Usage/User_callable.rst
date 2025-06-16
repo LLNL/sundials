@@ -1472,7 +1472,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
 .. c:function:: int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
 
    Specifies if compensated summations should be used within ARKODE where supported.
-   Currently, all ARKODE modules support compensated summation of time accumulator.
+   Currently, all ARKODE modules support compensated summation for accumulating time.
 
    SPRKStep also supports an alternative stepping algorithm based on compensated
    summation which will be enabled/disabled by this function. This increases the 
