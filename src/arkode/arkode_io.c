@@ -2197,6 +2197,28 @@ int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
   return (ARK_SUCCESS);
 }
 
+int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  ark_mem->use_compensated_sums = onoff;
+
+  /* Call stepper routine (if provided) */
+  if (ark_mem->step_setusecompensatedsums)
+  {
+    return ark_mem->step_setusecompensatedsums(arkode_mem, onoff);
+  }
+
+  return (ARK_SUCCESS);
+}
+
 /*===============================================================
   ARKODE optional output utility functions
   ===============================================================*/
