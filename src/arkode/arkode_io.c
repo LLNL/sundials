@@ -1672,14 +1672,6 @@ int ARKodeSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
-  /* check for allowable parameters */
-  if (cfl_frac >= ONE)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Illegal CFL fraction");
-    return (ARK_ILL_INPUT);
-  }
-
   /* set positive-valued parameters, otherwise set default */
   if (cfl_frac <= ZERO) { hadapt_mem->cfl = CFLFAC; }
   else { hadapt_mem->cfl = cfl_frac; }
