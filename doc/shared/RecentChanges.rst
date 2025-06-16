@@ -5,6 +5,9 @@
 
 **New Features and Enhancements**
 
+:c:func:`ARKodeSetCFLFraction` now allows ``cfl_frac`` to be greater than or
+equal to one.
+
 Added an option to enable compensated summation of the time accumulator for all of ARKODE. This
 was previously only an option for the SPRKStep module. The new function to call to enable this
 is :c:func:`ARKodeSetUseCompensatedSums`. 

@@ -1638,6 +1638,10 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. versionadded:: 6.1.0
 
+   .. versionchanged:: X.Y.Z
+
+      The restriction that ``cfl_frac`` is less than one has been removed.
+
 
 .. c:function:: int ARKodeSetErrorBias(void* arkode_mem, sunrealtype bias)
 
