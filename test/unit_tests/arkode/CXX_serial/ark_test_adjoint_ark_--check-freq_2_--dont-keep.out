@@ -46,7 +46,7 @@ Adjoint Solution:
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
-Num recompute passes          = 5000
+Num recompute steps           = 5000
 
 
 -- Redo adjoint problem using VJP --
@@ -86,7 +86,7 @@ Adjoint Solution:
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
-Num recompute passes          = 5000
+Num recompute steps           = 5000
 
 
 -- Redo adjoint problem with change of variables tau = -t  --
@@ -133,5 +133,5 @@ Adjoint Solution:
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
-Num recompute passes          = 5000
+Num recompute steps           = 5000
 

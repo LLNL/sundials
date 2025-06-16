@@ -40,5 +40,5 @@ Adjoint Solution:
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
-Num recompute passes          = 0
+Num recompute steps           = 0
 
