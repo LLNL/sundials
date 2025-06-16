@@ -1788,7 +1788,7 @@ step size adaptivity.
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
      * ``eta_min_fx`` -- value of the lower bound of the fixed step interval. If
-       ``eta_min_fx`` is :math:`< 0` or :math:`\geq 1`, the default value is
+       ``eta_min_fx`` is :math:`< 0` or :math:`> 1`, the default value is
        used.
      * ``eta_max_fx`` -- value of the upper bound of the fixed step interval. If
        ``eta_max_fx`` is :math:`< 1`, the default value is used.
