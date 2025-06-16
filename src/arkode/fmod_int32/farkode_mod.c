@@ -1209,6 +1209,20 @@ SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointIndex(void *farg1, long const *f
 }
 
 
+SWIGEXPORT int _wrap_FARKodeSetUseCompensatedSums(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)ARKodeSetUseCompensatedSums(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeSetAccumulatedErrorType(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
