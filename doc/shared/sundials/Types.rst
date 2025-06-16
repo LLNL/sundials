@@ -54,8 +54,7 @@ Within SUNDIALS, real constants are set by way of a macro called ``SUN_RCONST``.
 is this macro that needs the ability to branch on the definition of
 ``sunrealtype``. In ANSI C, a floating-point constant with no suffix is stored as a
 ``double``. Placing the suffix "``F``" at the end of a floating point constant
-makes it a ``float``, and using the suffix "``L``" makes it a ``long
-double``, whereas using the suffix "``Q``" makes it a ``__float128``. For example,
+makes it a ``float``, and using the suffix "``L``" makes it a ``long double``, whereas using the suffix "``Q``" makes it a ``__float128``. For example,
 
 .. code-block:: c
 

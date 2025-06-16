@@ -117,6 +117,18 @@ extern "C" {
  * SUNRpowerR calls the appropriate version pow
  *
  * SUNRround calls the appropriate version of round
+ *
+ * SUNRsin calls the appropriate version of sin
+ *
+ * SUNRcos calls the appropriate version of cos
+ *
+ * SUNRasin calls the appropriate version of asin
+ *
+ * SUNRacos calls the appropriate version of acos
+ *
+ * SUNRatan calls the appropriate version of atan
+ *
+ * SUNRpower calls the appropriate version of power
  * -----------------------------------------------------------------
  */
 
