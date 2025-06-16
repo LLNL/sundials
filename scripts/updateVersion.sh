@@ -328,15 +328,15 @@ done
 # ------------------------------------------------------------------------------
 
 fn="../doc/shared/sundials_vars.py"
-sedi "s/arkode_version =.*/arkode_version = \'v${ark_ver}\'/" $fn
-sedi "s/cvode_version =.*/cvode_version = \'v${cv_ver}\'/" $fn
-sedi "s/cvodes_version =.*/cvodes_version = \'v${cvs_ver}\'/" $fn
-sedi "s/ida_version =.*/ida_version = \'v${ida_ver}\'/" $fn
-sedi "s/idas_version =.*/idas_version = \'v${idas_ver}\'/" $fn
-sedi "s/kinsol_version =.*/kinsol_version = \'v${kin_ver}\'/" $fn
-sedi "s/sundials_version =.*/sundials_version = \'v${sun_ver}\'/" $fn
-sedi "s/doc_version =.*/doc_version = \'v${sun_ver}\'/" $fn
-sedi "s/year =.*/year = \'${year}\'/" $fn
+sedi "s/arkode_version =.*/arkode_version = \"v${ark_ver}\"/" $fn
+sedi "s/cvode_version =.*/cvode_version = \"v${cv_ver}\"/" $fn
+sedi "s/cvodes_version =.*/cvodes_version = \"v${cvs_ver}\"/" $fn
+sedi "s/ida_version =.*/ida_version = \"v${ida_ver}\"/" $fn
+sedi "s/idas_version =.*/idas_version = \"v${idas_ver}\"/" $fn
+sedi "s/kinsol_version =.*/kinsol_version = \"v${kin_ver}\"/" $fn
+sedi "s/sundials_version =.*/sundials_version = \"v${sun_ver}\"/" $fn
+sedi "s/doc_version =.*/doc_version = \"v${sun_ver}\"/" $fn
+sedi "s/year =.*/year = \"${year}\"/" $fn
 
 # release history table
 fn="../doc/shared/History.rst"
