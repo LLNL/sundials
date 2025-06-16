@@ -84,7 +84,8 @@ web pages.
    in doc directory.
 
 #. Open a pull request from the release branch to ``develop`` with the title
-   "Release: vX.Y.Z" and description "SUNDIALS Release vX.Y.Z".
+   "Release: vX.Y.Z" and description "SUNDIALS Release vX.Y.Z". Add the pull
+   request to the "SUNDIALS Next" milestone.
 
 Release Procedure
 =================
