@@ -6,9 +6,11 @@
 
 ### New Features and Enhancements
 
-Added an option to enable compensated summation of the time accumulator for all of ARKODE. This
-was previously only an option for the SPRKStep module. The new function to call to enable this
-is `ARKodeSetUseCompensatedSums`. 
+`ARKodeSetCFLFraction` now allows `cfl_frac` to be greater than or equal to one.
+
+Added an option to enable compensated summation of the time accumulator for all
+of ARKODE. This was previously only an option for the SPRKStep module. The new
+function to call to enable this is `ARKodeSetUseCompensatedSums`.
 
 ### Bug Fixes
 
@@ -21,8 +23,8 @@ time.
 Fixed a bug in the CVODE/CVODES `CVodeSetEtaFixedStepBounds` function which
 disallowed setting `eta_min_fx` or `eta_max_fx` to 1.
 
-`SUNAdjointStepper_PrintAllStats` was reporting the wrong quantity for the number of "recompute passes"
-and has been fixed.
+`SUNAdjointStepper_PrintAllStats` was reporting the wrong quantity for the
+number of "recompute passes" and has been fixed.
 
 ### Deprecation Notices
 
