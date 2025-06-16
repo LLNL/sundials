@@ -1797,6 +1797,10 @@ step size adaptivity.
 
    .. versionadded:: 6.2.0
 
+   .. versionchanged:: x.y.z
+
+      Updated the allowable values for ``eta_min_fx`` in include 1.
+
 .. c:function:: int CVodeSetEtaMaxFirstStep(void* cvode_mem, sunrealtype eta_max_fs)
 
    The function ``CVodeSetEtaMaxFirstStep`` specifies the maximum step size
