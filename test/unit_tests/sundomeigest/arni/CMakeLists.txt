@@ -19,9 +19,10 @@
 
 # Examples using SUNDIALS ArnI dominant eigenvalue estimator
 set(sundomeigest_arni_examples
-    "test_sundomeigest_arni\;100 10 10 0\;"
-    "test_sundomeigest_arni\;1000 10 10 0\;"
-    "test_sundomeigest_arni\;10000 10 10 0\;")
+    "test_sundomeigest_arni\;100 3 20 0\;"
+    "test_sundomeigest_arni\;1000 3 20 0\;"
+    "test_sundomeigest_arni\;10000 3 20 0\;"
+    "test_sundomeigest_arni\;100000 3 20 0\;")
 
 # Dependencies for dominant eigenvalue examples
 set(sundomeigest_arni_dependencies test_sundomeigest)

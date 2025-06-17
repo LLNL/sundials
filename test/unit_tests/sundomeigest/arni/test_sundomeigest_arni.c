@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 
   /* Fill matrix diagonal and problem data */
   // real diag is [3 4 5 ... N 0 0]*factor
-  // 2x2 block marix attached to the last two diagonals is
+  // 2x2 block matrix attached to the last two diagonals is
   // [ realpart   imagpart;
   // [-imagpart   realpart]
   // This setup allows two types of dominant eigenvalues (real and complex)
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
   {
     v[i] = factor * (i + 3);
   }
-  // Set the probem data corresponding to 2x2 block marix
+  // Set the problem data corresponding to 2x2 block matrix
   ProbData.real_part = realpart;
   ProbData.imag_part = imagpart;
 
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
   /* Identify the true_dom_eig based on given parameters*/
   if (SUNRsqrt(realpart * realpart + imagpart * imagpart) > -factor * ProbData.N)
   {
-    /* Dominant eigenvalue corresponds to the 2x2 block marix */
+    /* Dominant eigenvalue corresponds to the 2x2 block matrix */
     true_dom_eig.real = realpart;
     true_dom_eig.imag = imagpart;
   }

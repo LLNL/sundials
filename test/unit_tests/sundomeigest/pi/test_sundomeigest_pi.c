@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 
   /* Fill matrix diagonal and problem data */
   // real diag is [3 4 5 ... N 0 0]*factor
-  // 2x2 block marix attached to the last two diagonals is
+  // 2x2 block matrix attached to the last two diagonals is
   // [ A11   A12 ]
   // [ A12   A11 ]
   // This setup allows two different dominant eigenvalues
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
     v[i] = factor * (i + 3);
   }
 
-  // Set the probem data corresponding to 2x2 block marix
+  // Set the problem data corresponding to 2x2 block matrix
   ProbData.A11 = diagonal;
   ProbData.A12 = nondiagonal;
 

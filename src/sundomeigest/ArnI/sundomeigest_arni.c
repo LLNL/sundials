@@ -48,7 +48,7 @@
  * Function to create a new ArnI estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype krydim,
+SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim,
                                      SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
@@ -165,7 +165,7 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   /* Hessenberg matrix Hes */
   if (ArnI_CONTENT(DEE)->Hes == NULL)
   {
-    sunindextype k;
+    int k;
     ArnI_CONTENT(DEE)->Hes = (sunrealtype**)malloc(
       (ArnI_CONTENT(DEE)->krydim + 1) * sizeof(sunrealtype*));
 
@@ -202,7 +202,7 @@ SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
 }
 
 SUNErrCode SUNDomEigEstSetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
-                                               sunindextype numofperprocess)
+                                             int numofperprocess)
 {
   SUNFunctionBegin(DEE->sunctx);
 

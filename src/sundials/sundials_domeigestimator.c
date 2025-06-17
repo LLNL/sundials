@@ -109,7 +109,7 @@ SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
   return (ier);
 }
 
-SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, sunindextype max_powiter)
+SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -119,21 +119,11 @@ SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, sunindextype max_
   return (ier);
 }
 
-SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, sunindextype numofperprocess)
+SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int numofperprocess)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->setnumofperprocess) { ier = DEE->ops->setnumofperprocess(DEE, numofperprocess); }
-  else { ier = SUN_SUCCESS; }
-  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
-  return (ier);
-}
-
-SUNErrCode SUNDomEigEstSetTol_ArnI(SUNDomEigEstimator DEE, sunrealtype tol)
-{
-  SUNErrCode ier;
-  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->settol) { ier = DEE->ops->settol(DEE, tol); }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
@@ -179,10 +169,10 @@ SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, sunindextype* niter)
+SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, int* niter)
 {
   SUNErrCode ier;
-  sunindextype num_iters;
+  int num_iters;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->getnumofiters)
   {

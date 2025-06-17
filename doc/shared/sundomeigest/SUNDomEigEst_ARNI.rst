@@ -40,7 +40,7 @@ SUNDomEigEst_ARNI Usage
 The header file to be included when using this module is
 ``sundomeigest/sundomeigest_arni.h``.  The SUNDomEigEst_ARNI module is accessible from all SUNDIALS solvers
 *without* linking to the ``libsundials_sundomeigestarni`` module library after enabling LAPACK package.
-This LAPACK dependence is limitted to the ``dgeev_`` function after computing Hessenberg matrix internally.
+This LAPACK dependence is limited to the ``dgeev_`` function after computing Hessenberg matrix internally.
 
 The module SUNDomEigEst_ARNI provides the following user-callable routines:
 
