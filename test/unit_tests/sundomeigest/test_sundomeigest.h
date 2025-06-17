@@ -37,11 +37,13 @@ int Test_SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* ATdata,
                                SUNATimesFn ATimes, int myid);
 int Test_SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE,
                                      sunindextype max_powiter, int myid);
-int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups, int myid);
+int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
+                                      int myid);
 int Test_SUNDomEigEstInitialize(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEstPreProcess(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEstComputeHess(SUNDomEigEstimator DEE, int myid);
-int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig, int myid);
+int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig,
+                           int myid);
 int Test_SUNDomEigEstNumIters(SUNDomEigEstimator DEE, int* niter, int myid);
 int Test_SUNDomEigEstRes(SUNDomEigEstimator DEE, sunrealtype* res, int myid);
 

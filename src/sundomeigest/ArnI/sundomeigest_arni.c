@@ -48,18 +48,14 @@
  * Function to create a new ArnI estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim,
-                                     SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
   SUNDomEigEstimatorContent_ArnI content;
 
   /* Check if krydim >= 2 */
-  if(krydim < 3)
-  {
-    krydim = SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT;
-  }
+  if (krydim < 3) { krydim = SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT; }
 
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations

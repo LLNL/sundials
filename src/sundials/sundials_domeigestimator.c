@@ -113,17 +113,24 @@ SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->setmaxpoweriter) { ier = DEE->ops->setmaxpoweriter(DEE, max_powiter); }
+  if (DEE->ops->setmaxpoweriter)
+  {
+    ier = DEE->ops->setmaxpoweriter(DEE, max_powiter);
+  }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
 }
 
-SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int numofperprocess)
+SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE,
+                                        int numofperprocess)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->setnumofperprocess) { ier = DEE->ops->setnumofperprocess(DEE, numofperprocess); }
+  if (DEE->ops->setnumofperprocess)
+  {
+    ier = DEE->ops->setnumofperprocess(DEE, numofperprocess);
+  }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
@@ -176,13 +183,13 @@ SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, int* niter)
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->getnumofiters)
   {
-    ier = DEE->ops->getnumofiters(DEE, &num_iters);
+    ier    = DEE->ops->getnumofiters(DEE, &num_iters);
     *niter = num_iters;
   }
   else
   {
     *niter = 0;
-    ier = SUN_SUCCESS;
+    ier    = SUN_SUCCESS;
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
@@ -195,13 +202,13 @@ SUNErrCode SUNDomEigEstRes(SUNDomEigEstimator DEE, sunrealtype* res)
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->getres)
   {
-    ier = DEE->ops->getres(DEE, &residual);
+    ier  = DEE->ops->getres(DEE, &residual);
     *res = residual;
   }
   else
   {
     *res = SUN_RCONST(0.0);
-    ier = SUN_SUCCESS;
+    ier  = SUN_SUCCESS;
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);

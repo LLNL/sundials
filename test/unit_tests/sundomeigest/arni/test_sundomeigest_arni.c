@@ -34,8 +34,8 @@
 /* user data structure */
 typedef struct
 {
-  sunindextype N;        /* problem size */
-  N_Vector diag;         /* matrix diagonal */
+  sunindextype N; /* problem size */
+  N_Vector diag;  /* matrix diagonal */
 
   /* nondiagonal entries of the matrix that lead to the complex conjugate eigenvalues */
   sunrealtype real_part;
@@ -53,8 +53,8 @@ int check_flag(void* flagvalue, const char* funcname, int opt);
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails    = 0;              /* counter for test failures */
-  int passfail = 0;              /* overall pass/fail flag     */
+  int fails              = 0;    /* counter for test failures */
+  int passfail           = 0;    /* overall pass/fail flag     */
   SUNDomEigEstimator DEE = NULL; /* domeig estimator object    */
   N_Vector q;                    /* test vectors               */
   UserData ProbData;             /* problem data structure     */
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   suncomplextype dom_eig;        /* computed domeig value      */
   suncomplextype true_dom_eig;   /* true domeig value          */
   SUNContext sunctx;
-  sunrealtype rel_tol = 1.0e-2;  /* relative tol for pass/fail */
+  sunrealtype rel_tol = 1.0e-2; /* relative tol for pass/fail */
   sunrealtype rel_error;
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     printf("  Number of preprocessing should be >= 0\n");
     return 1;
   }
-  ProbData.N   = (sunindextype)atol(argv[1]);
+  ProbData.N = (sunindextype)atol(argv[1]);
   if (ProbData.N <= 0)
   {
     printf("ERROR: Problem size must be a positive integer\n");
@@ -100,7 +100,8 @@ int main(int argc, char* argv[])
   numwarmups = atoi(argv[3]);
   if (numwarmups < 0)
   {
-    printf("ERROR: Number of preprocessing warmups must be a nonnegative integer\n");
+    printf(
+      "ERROR: Number of preprocessing warmups must be a nonnegative integer\n");
     return 1;
   }
   print_timing = atoi(argv[4]);
@@ -127,10 +128,7 @@ int main(int argc, char* argv[])
   // based on the "factor" and the problem dimension N.
   sunrealtype* v = N_VGetArrayPointer(ProbData.diag);
   int i;
-  for (i = 0; i < ProbData.N - 2; i++)
-  {
-    v[i] = factor * (i + 3);
-  }
+  for (i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
   // Set the problem data corresponding to 2x2 block matrix
   ProbData.real_part = realpart;
   ProbData.imag_part = imagpart;
@@ -153,13 +151,13 @@ int main(int argc, char* argv[])
   // SUNDomEigEstNumIters and SUNDomEigEstRes are not options for
   // Arnoldi iteration. They should return with 0
   fails += Test_SUNDomEigEstNumIters(DEE, &niter, 0);
-  if(niter != 0)
+  if (niter != 0)
   {
     printf("    >>> FAILED test -- SUNDomEigEstNumIters return value\n");
     fails++;
   }
   fails += Test_SUNDomEigEstRes(DEE, &res, 0);
-  if(res > SUN_SMALL_REAL)
+  if (res > SUN_SMALL_REAL)
   {
     printf("    >>> FAILED test -- Test_SUNDomEigEstRes return value\n");
     fails++;
@@ -173,7 +171,8 @@ int main(int argc, char* argv[])
   }
   else
   {
-    printf("SUCCESS: SUNDomEigEst_ArnI module passed all initialization tests\n\n");
+    printf(
+      "SUCCESS: SUNDomEigEst_ArnI module passed all initialization tests\n\n");
   }
 
   /* First check if the computed eigenvalue has a nonzero magnitute */

@@ -168,8 +168,8 @@ typedef struct ARKodeLSRKStepMemRec
   SUNDomEigEstimator DEE; /* DomEig estimator*/
   N_Vector domeig_q;      /* DomEig initial q vector*/
   int domeig_krydim;      /* Krylov subspace dimension */
-  int numwarmups;         /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
-  int domeig_maxiters;    /* Max number of Power Iterations */
+  int numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
+  int domeig_maxiters; /* Max number of Power Iterations */
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */

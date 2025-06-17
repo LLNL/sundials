@@ -237,7 +237,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
 
   /* Seed random number generator with MPI rank ID to ensure distinct streams */
   SUNCheckMPICallNull(MPI_Comm_rank(comm, &myid));
-  srand(myid+1);
+  srand(myid + 1);
 
   return (v);
 }

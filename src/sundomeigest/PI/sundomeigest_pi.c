@@ -48,8 +48,7 @@
  * Function to create a new PI estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_powiter,
-                                   SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_powiter, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -171,8 +170,7 @@ SUNErrCode SUNDomEigEstSetNumPreProcess_PI(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstSetTol_PI(SUNDomEigEstimator DEE,
-                                 sunrealtype tol)
+SUNErrCode SUNDomEigEstSetTol_PI(SUNDomEigEstimator DEE, sunrealtype tol)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -193,8 +191,7 @@ SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_PISetMaxPowerIter(SUNDomEigEstimator DEE,
-                                          int max_powiter)
+SUNErrCode SUNDomEigEst_PISetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -274,10 +271,7 @@ SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
 
     PI_CONTENT(DEE)->res = fabs(dom_eig_new.real - dom_eig_old.real);
 
-    if (PI_CONTENT(DEE)->res < PI_CONTENT(DEE)->powiter_tol)
-    {
-      break;
-    }
+    if (PI_CONTENT(DEE)->res < PI_CONTENT(DEE)->powiter_tol) { break; }
 
     normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);
     SUNCheckLastErr();

@@ -31,8 +31,8 @@ extern "C" {
 #endif
 
 /* Default Arnoldi Iteration parameters */
-#define SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT   3
-#define SUNDOMEIGEST_LAPACK_FAIL           "Error: LAPACK dgeev failed with info = %d\n"
+#define SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT 3
+#define SUNDOMEIGEST_LAPACK_FAIL         "Error: LAPACK dgeev failed with info = %d\n"
 
 /* -----------------------------------------------------
  * Arnoldi Iteration Implementation of SUNDomEigEstimator
@@ -64,8 +64,7 @@ typedef struct _SUNDomEigEstimatorContent_ArnI* SUNDomEigEstimatorContent_ArnI;
  * --------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim,
-                                     SUNContext sunctx);
+SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx);
 
 SUNDIALS_EXPORT
 SUNDomEigEstimator_ID SUNDomEigEst_ArnIGetID(SUNDomEigEstimator DEE);

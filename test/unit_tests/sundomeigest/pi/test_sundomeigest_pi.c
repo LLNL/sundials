@@ -34,10 +34,10 @@
 /* user data structure */
 typedef struct
 {
-  sunindextype N;        /* problem size */
-  N_Vector diag;         /* matrix diagonal */
-  sunrealtype A11;       /* diagonal entries of the matrix */
-  sunrealtype A12;       /* nondiagonal entries of the matrix */
+  sunindextype N;  /* problem size */
+  N_Vector diag;   /* matrix diagonal */
+  sunrealtype A11; /* diagonal entries of the matrix */
+  sunrealtype A12; /* nondiagonal entries of the matrix */
 } UserData;
 
 /* private functions */
@@ -51,8 +51,8 @@ int check_flag(void* flagvalue, const char* funcname, int opt);
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails    = 0;              /* counter for test failures */
-  int passfail = 0;              /* overall pass/fail flag     */
+  int fails              = 0;    /* counter for test failures */
+  int passfail           = 0;    /* overall pass/fail flag     */
   SUNDomEigEstimator DEE = NULL; /* domeig estimator object    */
   N_Vector q;                    /* test vectors               */
   UserData ProbData;             /* problem data structure     */
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
   suncomplextype dom_eig;        /* computed domeig value      */
   suncomplextype true_dom_eig;   /* true domeig value          */
   SUNContext sunctx;
-  sunrealtype rel_tol = 1.0e-2;  /* relative tol for pass/fail */
+  sunrealtype rel_tol = 1.0e-2; /* relative tol for pass/fail */
   sunrealtype rel_error;
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
     printf("  Number of preprocessing should be >= 0\n");
     return 1;
   }
-  ProbData.N   = (sunindextype)atol(argv[1]);
+  ProbData.N = (sunindextype)atol(argv[1]);
   if (ProbData.N <= 0)
   {
     printf("ERROR: Problem size must be a positive integer\n");
@@ -91,7 +91,8 @@ int main(int argc, char* argv[])
   max_powiter = atoi(argv[2]);
   if (max_powiter <= 0)
   {
-    printf("ERROR: Maximum number of power iterations must be a positive integer\n");
+    printf(
+      "ERROR: Maximum number of power iterations must be a positive integer\n");
     return 1;
   }
   numwarmups = atoi(argv[3]);
@@ -125,10 +126,7 @@ int main(int argc, char* argv[])
   // 2x2 block has eigenvalues A11 + A12 and A11 - A12
   sunrealtype* v = N_VGetArrayPointer(ProbData.diag);
   int i;
-  for (i = 0; i < ProbData.N - 2; i++)
-  {
-    v[i] = factor * (i + 3);
-  }
+  for (i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
 
   // Set the problem data corresponding to 2x2 block matrix
   ProbData.A11 = diagonal;
@@ -149,13 +147,13 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEstComputeHess(DEE, 0);
   fails += Test_SUNDomEigEstimate(DEE, &dom_eig, 0);
   fails += Test_SUNDomEigEstNumIters(DEE, &niter, 0);
-  if(niter == 0)
+  if (niter == 0)
   {
     printf("    >>> FAILED test -- SUNDomEigEstNumIters return value\n");
     fails++;
   }
   fails += Test_SUNDomEigEstRes(DEE, &res, 0);
-  if(res < SUN_SMALL_REAL)
+  if (res < SUN_SMALL_REAL)
   {
     printf("    >>> FAILED test -- Test_SUNDomEigEstRes return value\n");
     fails++;
@@ -169,7 +167,8 @@ int main(int argc, char* argv[])
   }
   else
   {
-    printf("SUCCESS: SUNDomEigEst_PI module passed all initialization tests\n\n");
+    printf(
+      "SUCCESS: SUNDomEigEst_PI module passed all initialization tests\n\n");
   }
 
   /* First check if the computed eigenvalue has a nonzero magnitute */

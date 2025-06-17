@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 /* Default estimator parameters */
-#define SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT  0
+#define SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT 0
 
 // Struct to hold the real and imaginary parts
 typedef struct
@@ -105,8 +105,7 @@ SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
                                  SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE,
-                                       int max_powiter);
+SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE,

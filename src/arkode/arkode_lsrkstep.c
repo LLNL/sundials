@@ -2316,10 +2316,10 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
 
   /* Allocate and fill domeig_q vector with random data */
   /* TODO: check if we have to clone or just passing yn is ok! */
-  step_mem->domeig_q          = N_VClone(ark_mem->yn);
-  step_mem->domeig_krydim     = DOMEIG_KRYLOV_DIM_DEFAULT;
-  step_mem->numwarmups        = SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT;
-  step_mem->domeig_maxiters   = DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT;
+  step_mem->domeig_q        = N_VClone(ark_mem->yn);
+  step_mem->domeig_krydim   = DOMEIG_KRYLOV_DIM_DEFAULT;
+  step_mem->numwarmups      = SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT;
+  step_mem->domeig_maxiters = DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT;
 
   /* Enforce the power iteration if the problem size < 3 */
   if (step_mem->internal_domeigest_type == ARKODE_LSRK_ARNOLDI_ITERATION &&
