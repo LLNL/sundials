@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 /* Default Arnoldi Iteration parameters */
-#define SUNDOMEIGEST_ARN_MAXL_DEFAULT      3
+#define SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT   3
 #define SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT 10
 #define SUNDOMEIGEST_LAPACK_FAIL           "Error: LAPACK dgeev failed with info = %d\n"
 
@@ -46,7 +46,7 @@ struct _SUNDomEigEstimatorContent_ArnI
 
   N_Vector *V, q; /* Krylov subspace vectors */
 
-  sunindextype maxl;       /* Krylov subspace dimension */
+  sunindextype krydim;     /* Krylov subspace dimension */
   sunindextype power_of_A; /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
 
   sunrealtype* LAPACK_A; /* The vector which holds rows of the Hessenberg matrix in the given order */
@@ -65,11 +65,11 @@ typedef struct _SUNDomEigEstimatorContent_ArnI* SUNDomEigEstimatorContent_ArnI;
  * --------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
+SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype krydim,
                                      SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator_Type SUNDomEigEst_ArnIGetType(SUNDomEigEstimator DEE);
+SUNDomEigEstimator_ID SUNDomEigEst_ArnIGetID(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
@@ -80,7 +80,7 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
-                                               sunindextype numofperprocess);
+                                             sunindextype numofperprocess);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE);
@@ -94,9 +94,6 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE);
-
-SUNDIALS_EXPORT
-sunindextype SUNDomEigEstNumIters_ArnI(SUNDomEigEstimator DEE);
 
 #ifdef __cplusplus
 }

@@ -32,7 +32,7 @@ extern "C" {
 /* Default Power Iteration parameters */
 #define SUNDOMEIGEST_PI_TOL_DEFAULT        SUN_RCONST(0.01)
 #define SUNDOMEIGEST_MAX_PI_DEFAULT        100
-#define SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT 10
+#define SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT 0
 
 /* -----------------------------------------------------
  * Power Iteration Implementation of SUNDomEigEstimator
@@ -48,9 +48,9 @@ struct _SUNDomEigEstimatorContent_PI
   sunindextype power_of_A; /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
 
   sunrealtype powiter_tol;  /* Convergence criteria for the power iteration */
-  sunrealtype resnorm;      /* Current residual of power iterations */
+  sunrealtype res;          /* Current residual of power iterations */
   sunindextype max_powiter; /* Maximum number of power iterations */
-  sunindextype numiters;    /* Number of power iterations */
+  sunindextype numiters;    /* Current number of power iterations */
 };
 
 typedef struct _SUNDomEigEstimatorContent_PI* SUNDomEigEstimatorContent_PI;
@@ -64,18 +64,21 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter,
                                    SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator_Type SUNDomEigEst_PIGetType(SUNDomEigEstimator DEE);
+SUNDomEigEstimator_ID SUNDomEigEst_PIGetID(SUNDomEigEstimator DEE);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data,
+                                    SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetNumPreProcess_PI(SUNDomEigEstimator DEE,
-                                             sunindextype numofperprocess);
+                                           sunindextype numofperprocess);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data,
-                                    SUNATimesFn ATimes);
+SUNErrCode SUNDomEigEstSetTol_PI(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PISetMaxPowerIter(SUNDomEigEstimator DEE,
@@ -88,7 +91,10 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, suncomplextype* dom_eig);
 
 SUNDIALS_EXPORT
-sunindextype SUNDomEigEstNumIters_PI(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEstNumIters_PI(SUNDomEigEstimator DEE, sunindextype* niter);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstRes_PI(SUNDomEigEstimator DEE, sunrealtype* res);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstFree_PI(SUNDomEigEstimator DEE);

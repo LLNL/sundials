@@ -48,22 +48,25 @@
  * Function to create a new ArnI estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
+SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype krydim,
                                      SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
   SUNDomEigEstimatorContent_ArnI content;
 
-  /* Check if maxl >= 2 */
-  SUNAssertNull(maxl >= 2, SUN_ERR_DOMEIG_NOT_ENOUGH_ITER);
+  /* Check if krydim >= 2 */
+  if(krydim < 3)
+  {
+    krydim = SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT;
+  }
 
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations
   SUNAssertNull(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
                   (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL) ||
                   (q->ops->nvgetlength == NULL) || (q->ops->nvspace == NULL)),
-                SUN_ERR_DOMEIG_BAD_NVECTOR);
+                SUN_ERR_DEE_BAD_NVECTOR);
 
   /* Create dominant eigenvalue estimator */
   DEE = NULL;
@@ -71,15 +74,17 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->gettype            = SUNDomEigEst_ArnIGetType;
+  DEE->ops->getid              = SUNDomEigEst_ArnIGetID;
   DEE->ops->setatimes          = SUNDomEigEstSetATimes_ArnI;
   DEE->ops->setmaxpoweriter    = NULL;
+  DEE->ops->settol             = NULL;
   DEE->ops->setnumofperprocess = SUNDomEigEstSetNumPreProcess_ArnI;
   DEE->ops->initialize         = SUNDomEigEstInitialize_ArnI;
   DEE->ops->preprocess         = SUNDomEigEstPreProcess_ArnI;
   DEE->ops->computehess        = SUNDomEigEstComputeHess_ArnI;
   DEE->ops->estimate           = SUNDomEigEstimate_ArnI;
   DEE->ops->getnumofiters      = NULL;
+  DEE->ops->getres             = NULL;
   DEE->ops->free               = SUNDomEigEstFree_ArnI;
 
   /* Create content */
@@ -95,7 +100,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
   content->ATdata      = NULL;
   content->V           = NULL;
   content->q           = NULL;
-  content->maxl        = maxl;
+  content->krydim      = krydim;
   content->power_of_A  = 0;
   content->LAPACK_A    = NULL;
   content->LAPACK_wr   = NULL;
@@ -108,7 +113,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
   content->q = N_VClone(q);
   SUNCheckLastErrNull();
 
-  content->V = N_VCloneVectorArray(maxl + 1, q);
+  content->V = N_VCloneVectorArray(krydim + 1, q);
   SUNCheckLastErrNull();
 
   return (DEE);
@@ -120,39 +125,39 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype maxl,
  * -----------------------------------------------------------------
  */
 
-SUNDomEigEstimator_Type SUNDomEigEst_ArnIGetType(
+SUNDomEigEstimator_ID SUNDomEigEst_ArnIGetID(
   SUNDIALS_MAYBE_UNUSED SUNDomEigEstimator DEE)
 {
-  return (SUNDOMEIG_ARNOLDI);
+  return (SUNDSOMEIGESTIMATOR_ARNOLDI);
 }
 
 SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  if (ArnI_CONTENT(DEE)->maxl < 2)
+  if (ArnI_CONTENT(DEE)->krydim < 2)
   {
-    ArnI_CONTENT(DEE)->maxl = SUNDOMEIGEST_ARN_MAXL_DEFAULT;
+    ArnI_CONTENT(DEE)->krydim = SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT;
   }
   if (ArnI_CONTENT(DEE)->power_of_A < 0)
   {
     ArnI_CONTENT(DEE)->power_of_A = SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT;
   }
 
-  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
   SUNAssert(ArnI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
   ArnI_CONTENT(DEE)->LAPACK_A = (sunrealtype*)malloc(
-    (ArnI_CONTENT(DEE)->maxl * ArnI_CONTENT(DEE)->maxl) * sizeof(sunrealtype));
+    (ArnI_CONTENT(DEE)->krydim * ArnI_CONTENT(DEE)->krydim) * sizeof(sunrealtype));
   ArnI_CONTENT(DEE)->LAPACK_wr =
-    malloc(ArnI_CONTENT(DEE)->maxl * sizeof(sunrealtype));
+    malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype));
   ArnI_CONTENT(DEE)->LAPACK_wi =
-    malloc(ArnI_CONTENT(DEE)->maxl * sizeof(sunrealtype));
+    malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype));
   ArnI_CONTENT(DEE)->LAPACK_work =
-    malloc((4 * ArnI_CONTENT(DEE)->maxl) * sizeof(sunrealtype));
+    malloc((4 * ArnI_CONTENT(DEE)->krydim) * sizeof(sunrealtype));
   ArnI_CONTENT(DEE)->LAPACK_arr =
-    (suncomplextype*)malloc(ArnI_CONTENT(DEE)->maxl * sizeof(suncomplextype));
+    (suncomplextype*)malloc(ArnI_CONTENT(DEE)->krydim * sizeof(suncomplextype));
 
   N_VRandom(ArnI_CONTENT(DEE)->q);
   SUNCheckLastErr();
@@ -162,13 +167,13 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   {
     sunindextype k;
     ArnI_CONTENT(DEE)->Hes = (sunrealtype**)malloc(
-      (ArnI_CONTENT(DEE)->maxl + 1) * sizeof(sunrealtype*));
+      (ArnI_CONTENT(DEE)->krydim + 1) * sizeof(sunrealtype*));
 
-    for (k = 0; k <= ArnI_CONTENT(DEE)->maxl; k++)
+    for (k = 0; k <= ArnI_CONTENT(DEE)->krydim; k++)
     {
       ArnI_CONTENT(DEE)->Hes[k] = NULL;
       ArnI_CONTENT(DEE)->Hes[k] =
-        (sunrealtype*)malloc(ArnI_CONTENT(DEE)->maxl * sizeof(sunrealtype));
+        (sunrealtype*)malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype));
     }
   }
 
@@ -210,7 +215,7 @@ SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
   SUNAssert(ArnI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
@@ -225,8 +230,8 @@ SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE)
                                        ArnI_CONTENT(DEE)->q);
     if (retval != 0)
     {
-      if (retval < 0) { return SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC; }
-      else { return SUN_ERR_DOMEIG_ATIMES_FAIL_REC; }
+      if (retval < 0) { return SUN_ERR_DEE_ATIMES_FAIL_UNREC; }
+      else { return SUN_ERR_DEE_ATIMES_FAIL_REC; }
     }
     normq = N_VDotProd(ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->q);
     SUNCheckLastErr();
@@ -243,22 +248,22 @@ SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
   SUNAssert(ArnI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
 
   sunindextype retval, i, j;
   /* Initialize the Hessenberg matrix Hes with zeros */
-  for (i = 0; i < ArnI_CONTENT(DEE)->maxl; i++)
+  for (i = 0; i < ArnI_CONTENT(DEE)->krydim; i++)
   {
-    for (j = 0; j < ArnI_CONTENT(DEE)->maxl; j++)
+    for (j = 0; j < ArnI_CONTENT(DEE)->krydim; j++)
     {
       ArnI_CONTENT(DEE)->Hes[i][j] = ZERO;
     }
   }
 
-  for (i = 0; i < ArnI_CONTENT(DEE)->maxl; i++)
+  for (i = 0; i < ArnI_CONTENT(DEE)->krydim; i++)
   {
     /* Compute the next Krylov vector */
     retval = ArnI_CONTENT(DEE)->ATimes(ArnI_CONTENT(DEE)->ATdata,
@@ -266,12 +271,12 @@ SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE)
                                        ArnI_CONTENT(DEE)->V[i + 1]);
     if (retval != 0)
     {
-      if (retval < 0) { return SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC; }
-      else { return SUN_ERR_DOMEIG_ATIMES_FAIL_REC; }
+      if (retval < 0) { return SUN_ERR_DEE_ATIMES_FAIL_UNREC; }
+      else { return SUN_ERR_DEE_ATIMES_FAIL_REC; }
     }
 
     SUNCheckCall(SUNModifiedGS(ArnI_CONTENT(DEE)->V, ArnI_CONTENT(DEE)->Hes,
-                               i + 1, ArnI_CONTENT(DEE)->maxl,
+                               i + 1, ArnI_CONTENT(DEE)->krydim,
                                &(ArnI_CONTENT(DEE)->Hes[i + 1][i])));
 
     /* Unitize the computed orthogonal vector */
@@ -288,16 +293,16 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, suncomplextype* dom_ei
   SUNFunctionBegin(DEE->sunctx);
 
   SUNAssert(dom_eig, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
   SUNAssert(ArnI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
 
   suncomplextype dom_eig_new;
   dom_eig_new.real = ZERO;
   dom_eig_new.imag = ZERO;
 
-  int n = ArnI_CONTENT(DEE)->maxl;
+  int n = ArnI_CONTENT(DEE)->krydim;
 
   /* Reshape the Hessenberg matrix as an input vector for the LAPACK dgeev_ function */
   sunindextype i, j, k = 0;
@@ -325,7 +330,7 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, suncomplextype* dom_ei
   {
     printf(SUNDOMEIGEST_LAPACK_FAIL, info);
 
-    return SUN_ERR_DOMEIG_LAPACK_FAIL;
+    return SUN_ERR_DEE_LAPACK_FAIL;
   }
 
   /* order the eigenvalues by their magnitude */
@@ -345,7 +350,7 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, suncomplextype* dom_ei
     ArnI_CONTENT(DEE)->LAPACK_wi[i] = ArnI_CONTENT(DEE)->LAPACK_arr[i].imag;
   }
 
-  // alternatively we can return a vector of all computed dom_eigs (up to maxl)
+  // alternatively we can return a vector of all computed dom_eigs (up to krydim)
   // TODO: Get opinions
 
   /* Copy the dominant eigenvalue */

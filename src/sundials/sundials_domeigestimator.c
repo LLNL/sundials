@@ -54,7 +54,7 @@ SUNDomEigEstimator SUNDomEigEstNewEmpty(SUNContext sunctx)
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
-  ops->gettype            = NULL;
+  ops->getid              = NULL;
   ops->setatimes          = NULL;
   ops->setnumofperprocess = NULL;
   ops->initialize         = NULL;
@@ -93,9 +93,9 @@ void SUNDomEigEstFreeEmpty(SUNDomEigEstimator DEE)
  * Functions in the 'ops' structure
  * -----------------------------------------------------------------*/
 
-SUNDomEigEstimator_Type SUNDomEigEstGetType(SUNDomEigEstimator DEE)
+SUNDomEigEstimator_ID SUNDomEigEstGetID(SUNDomEigEstimator DEE)
 {
-  return (DEE->ops->gettype(DEE));
+  return (DEE->ops->getid(DEE));
 }
 
 SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
@@ -109,11 +109,31 @@ SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
   return (ier);
 }
 
+SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, sunindextype max_powiter)
+{
+  SUNErrCode ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
+  if (DEE->ops->setmaxpoweriter) { ier = DEE->ops->setmaxpoweriter(DEE, max_powiter); }
+  else { ier = SUN_SUCCESS; }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
+  return (ier);
+}
+
 SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, sunindextype numofperprocess)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->setnumofperprocess) { ier = DEE->ops->setnumofperprocess(DEE, numofperprocess); }
+  else { ier = SUN_SUCCESS; }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
+  return (ier);
+}
+
+SUNErrCode SUNDomEigEstSetTol_ArnI(SUNDomEigEstimator DEE, sunrealtype tol)
+{
+  SUNErrCode ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
+  if (DEE->ops->settol) { ier = DEE->ops->settol(DEE, tol); }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
@@ -155,6 +175,44 @@ SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->estimate) { ier = DEE->ops->estimate(DEE, dom_eig); }
   else { ier = SUN_SUCCESS; }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
+  return (ier);
+}
+
+SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, sunindextype* niter)
+{
+  SUNErrCode ier;
+  int num_iters;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
+  if (DEE->ops->getnumofiters)
+  {
+    ier = DEE->ops->getnumofiters(DEE, &num_iters);
+    *niter = num_iters;
+  }
+  else
+  {
+    *niter = 0;
+    ier = SUN_SUCCESS;
+  }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
+  return (ier);
+}
+
+SUNErrCode SUNDomEigEstRes(SUNDomEigEstimator DEE, sunrealtype* res)
+{
+  SUNErrCode ier;
+  sunrealtype residual;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
+  if (DEE->ops->getres)
+  {
+    ier = DEE->ops->getres(DEE, &residual);
+    *res = residual;
+  }
+  else
+  {
+    *res = SUN_RCONST(0.0);
+    ier = SUN_SUCCESS;
+  }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
 }

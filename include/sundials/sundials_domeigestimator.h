@@ -43,9 +43,9 @@ typedef struct
 
 typedef enum
 {
-  SUNDOMEIG_POWER,
-  SUNDOMEIG_ARNOLDI
-} SUNDomEigEstimator_Type;
+  SUNDSOMEIGESTIMATOR_POWER,
+  SUNDSOMEIGESTIMATOR_ARNOLDI
+} SUNDomEigEstimator_ID;
 
 /* -----------------------------------------------------------------
  * Generic definition of SUNDomEigEstimator
@@ -60,15 +60,17 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNDomEigEstimator* SUNDomEigEstimator;
 /* Structure containing function pointers to estimator operations */
 struct _generic_SUNDomEigEstimator_Ops
 {
-  SUNDomEigEstimator_Type (*gettype)(SUNDomEigEstimator);
+  SUNDomEigEstimator_ID (*getid)(SUNDomEigEstimator);
   SUNErrCode (*setatimes)(SUNDomEigEstimator, void*, SUNATimesFn);
   SUNErrCode (*setmaxpoweriter)(SUNDomEigEstimator, sunindextype);
   SUNErrCode (*setnumofperprocess)(SUNDomEigEstimator, sunindextype);
+  SUNErrCode (*settol)(SUNDomEigEstimator, sunrealtype);
   SUNErrCode (*initialize)(SUNDomEigEstimator);
   SUNErrCode (*preprocess)(SUNDomEigEstimator);
   SUNErrCode (*computehess)(SUNDomEigEstimator);
   SUNErrCode (*estimate)(SUNDomEigEstimator, suncomplextype*);
-  sunindextype (*getnumofiters)(SUNDomEigEstimator);
+  SUNErrCode (*getnumofiters)(SUNDomEigEstimator, sunindextype*);
+  SUNErrCode (*getres)(SUNDomEigEstimator, sunrealtype*);
   SUNErrCode (*free)(SUNDomEigEstimator);
 };
 
@@ -93,15 +95,22 @@ SUNDIALS_EXPORT
 void SUNDomEigEstFreeEmpty(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator_Type SUNDomEigEstGetType(SUNDomEigEstimator DEE);
+SUNDomEigEstimator_ID SUNDomEigEstGetID(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
                                  SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE,
+                                       sunindextype max_powiter);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE,
-                                          sunindextype numofperprocess);
+                                        sunindextype numofperprocess);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstSetTol(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE);
@@ -114,6 +123,12 @@ SUNErrCode SUNDomEigEstComputeHess(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, sunindextype* niter);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstRes(SUNDomEigEstimator DEE, sunrealtype* res);
 
 #ifdef __cplusplus
 }

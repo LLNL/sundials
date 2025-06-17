@@ -70,14 +70,14 @@
   ENTRY(SUN_ERR_CHECKPOINT_MISMATCH, "the expected time for the checkpoint "   \
                                      "and the stored time do not match")       \
                                                                                \
-  ENTRY(SUN_ERR_DOMEIG_BAD_NVECTOR, "Bad NVector")                             \
-  ENTRY(SUN_ERR_DOMEIG_NULL_ATIMES, "ATimes is null")                          \
-  ENTRY(SUN_ERR_DOMEIG_NULL_HES, "Hessenberg matrix is null")                  \
-  ENTRY(SUN_ERR_DOMEIG_NOT_ENOUGH_ITER, "Number of Krylov subspace is not "    \
-                                        "enough (< 2)")                        \
-  ENTRY(SUN_ERR_DOMEIG_ATIMES_FAIL_REC, "Atimes recoverable failure")          \
-  ENTRY(SUN_ERR_DOMEIG_ATIMES_FAIL_UNREC, "Atimes unrecoverable failure")      \
-  ENTRY(SUN_ERR_DOMEIG_LAPACK_FAIL, "LAPACK dgeev function failure")           \
+  ENTRY(SUN_ERR_DEE_BAD_NVECTOR, "Bad NVector")                                \
+  ENTRY(SUN_ERR_DEE_NULL_ATIMES, "ATimes is null")                             \
+  ENTRY(SUN_ERR_DEE_ATIMES_FAIL_REC, "Atimes recoverable failure")             \
+  ENTRY(SUN_ERR_DEE_ATIMES_FAIL_UNREC, "Atimes unrecoverable failure")         \
+  ENTRY(SUN_ERR_DEE_NULL_HES, "Hessenberg matrix is null")                     \
+  ENTRY(SUN_ERR_DEE_NULL_MEM, "Domimant eigenvalue estimator memory is null")  \
+  ENTRY(SUN_ERR_DEE_NULL_CONTENT, "DDE content is null")                       \
+  ENTRY(SUN_ERR_DEE_LAPACK_FAIL, "LAPACK _dgeev function failure")             \
                                                                                \
   ENTRY(SUN_ERR_SUNCTX_CORRUPT, "SUNContext is NULL or corrupt")               \
                                                                                \

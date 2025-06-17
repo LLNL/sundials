@@ -40,30 +40,30 @@ int print_time = 0;
   if (print_time) printf(format, time)
 
 /* ----------------------------------------------------------------------
- * SUNDomEigEstGetType Test
+ * SUNDomEigEstGetID Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstGetType(SUNDomEigEstimator DEE,
-                             SUNDomEigEstimator_Type suntype, int myid)
+int Test_SUNDomEigEstGetID(SUNDomEigEstimator DEE,
+                             SUNDomEigEstimator_ID suntype, int myid)
 {
   double start_time, stop_time;
-  SUNDomEigEstimator_Type myesttype;
+  SUNDomEigEstimator_ID myestid;
 
   start_time = get_time();
-  myesttype  = SUNDomEigEstGetType(DEE);
+  myestid  = SUNDomEigEstGetID(DEE);
   // sync_device();
   stop_time = get_time();
 
-  if (suntype != myesttype)
+  if (suntype != myestid)
   {
-    printf(">>> FAILED test -- SUNDomEigEstGetType, Proc %d \n", myid);
-    PRINT_TIME("    SUNDomEigEstGetType Time: %22.15e \n \n",
+    printf(">>> FAILED test -- SUNDomEigEstGetID, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEstGetID Time: %22.15e \n \n",
                stop_time - start_time);
     return (1);
   }
   else if (myid == 0)
   {
-    printf("    PASSED test -- SUNDomEigEstGetType \n");
-    PRINT_TIME("    SUNDomEigEstGetType Time: %22.15e \n \n",
+    printf("    PASSED test -- SUNDomEigEstGetID \n");
+    PRINT_TIME("    SUNDomEigEstGetID Time: %22.15e \n \n",
                stop_time - start_time);
   }
 
@@ -97,6 +97,39 @@ int Test_SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* ATdata,
   {
     printf("    PASSED test -- SUNDomEigEstSetATimes \n");
     PRINT_TIME("    SUNDomEigEstSetATimes Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
+  return (0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * SUNDomEigEstSetMaxPowerIter Test
+ * --------------------------------------------------------------------*/
+int Test_SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, sunindextype max_powiter, int myid)
+{
+  int failure;
+  double start_time, stop_time;
+
+  /* try calling SetMaxPowerIter routine: should pass/fail based on expected input */
+  start_time = get_time();
+  failure    = SUNDomEigEstSetMaxPowerIter(DEE, max_powiter);
+  // sync_device();
+  stop_time = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEstSetMaxPowerIter returned %d on Proc %d \n",
+           failure, myid);
+    PRINT_TIME("    SUNDomEigEstSetMaxPowerIter Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEstSetMaxPowerIter \n");
+    PRINT_TIME("    SUNDomEigEstSetMaxPowerIter Time: %22.15e \n \n",
                stop_time - start_time);
   }
 
@@ -247,6 +280,70 @@ int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig, int 
   {
     printf("    PASSED test -- SUNDomEigEstimate \n");
     PRINT_TIME("    SUNDomEigEstimate Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
+ * SUNDomEigEstNumIters Test
+ * --------------------------------------------------------------------*/
+int Test_SUNDomEigEstNumIters(SUNDomEigEstimator DEE, int* niter, int myid)
+{
+  int failure;
+  int num_iters;
+  double start_time, stop_time;
+
+  start_time = get_time();
+  failure    = SUNDomEigEstNumIters(DEE, &num_iters);
+  *niter     = num_iters;
+  // sync_device();
+  stop_time = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEstNumIters check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEstNumIters Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEstNumIters \n");
+    PRINT_TIME("    SUNDomEigEstNumIters Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
+ * SUNDomEigEstRes Test
+ * --------------------------------------------------------------------*/
+int Test_SUNDomEigEstRes(SUNDomEigEstimator DEE, sunrealtype* res, int myid)
+{
+  int failure;
+  sunrealtype residual;
+  double start_time, stop_time;
+
+  start_time = get_time();
+  failure    = SUNDomEigEstRes(DEE, &residual);
+  *res       = residual;
+  // sync_device();
+  stop_time = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEstRes check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEstRes Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEstRes \n");
+    PRINT_TIME("    SUNDomEigEstRes Time: %22.15e \n \n",
                stop_time - start_time);
   }
 

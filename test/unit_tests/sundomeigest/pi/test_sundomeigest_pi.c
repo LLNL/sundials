@@ -57,8 +57,10 @@ int main(int argc, char* argv[])
   N_Vector q;                    /* test vectors               */
   UserData ProbData;             /* problem data structure     */
   int power_of_A;                /* Power of A for the warm-up */
-  int maxl;                      /* max power iteration        */
+  int max_powiter;               /* max power iteration        */
+  int niter;                     /* number of iterations       */
   int print_timing;              /* timing output flag         */
+  sunrealtype res;               /* current residual           */
   suncomplextype dom_eig;        /* computed domeig value      */
   suncomplextype true_dom_eig;   /* true domeig value          */
   SUNContext sunctx;
@@ -86,8 +88,8 @@ int main(int argc, char* argv[])
     printf("ERROR: Problem size must be a positive integer\n");
     return 1;
   }
-  maxl = atoi(argv[2]);
-  if (maxl <= 0)
+  max_powiter = atoi(argv[2]);
+  if (max_powiter <= 0)
   {
     printf("ERROR: Maximum number of power iterations must be a positive integer\n");
     return 1;
@@ -103,7 +105,7 @@ int main(int argc, char* argv[])
 
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
-  printf("  Number of power iterations = %i\n", maxl);
+  printf("  Number of power iterations = %i\n", max_powiter);
   printf("  Number of preprocessing = %i\n", power_of_A);
   printf("  Timing output flag = %i\n\n", print_timing);
 
@@ -133,16 +135,31 @@ int main(int argc, char* argv[])
   ProbData.A12 = nondiagonal;
 
   /* Create Arnoldi DomEig estimator*/
-  DEE = SUNDomEigEst_PI(q, maxl, sunctx);
+  DEE = SUNDomEigEst_PI(q, max_powiter, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
 
-  fails += Test_SUNDomEigEstGetType(DEE, SUNDOMEIG_POWER, 0);
+  fails += Test_SUNDomEigEstGetID(DEE, SUNDSOMEIGESTIMATOR_POWER, 0);
   fails += Test_SUNDomEigEstSetATimes(DEE, &ProbData, ATimes, 0);
   fails += Test_SUNDomEigEstSetNumPreProcess(DEE, power_of_A, 0);
+  fails += Test_SUNDomEigEstSetMaxPowerIter(DEE, max_powiter, 0);
   fails += Test_SUNDomEigEstInitialize(DEE, 0);
   fails += Test_SUNDomEigEstPreProcess(DEE, 0);
+  // Test_SUNDomEigEstComputeHess is not an option for power iteration.
+  // It should return with SUN_SUCCESS
   fails += Test_SUNDomEigEstComputeHess(DEE, 0);
   fails += Test_SUNDomEigEstimate(DEE, &dom_eig, 0);
+  fails += Test_SUNDomEigEstNumIters(DEE, &niter, 0);
+  if(niter == 0)
+  {
+    printf("    >>> FAILED test -- SUNDomEigEstNumIters return value\n");
+    fails++;
+  }
+  fails += Test_SUNDomEigEstRes(DEE, &res, 0);
+  if(res < SUN_SMALL_REAL)
+  {
+    printf("    >>> FAILED test -- Test_SUNDomEigEstRes return value\n");
+    fails++;
+  }
 
   if (fails)
   {
