@@ -101,7 +101,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype krydim,
   content->V           = NULL;
   content->q           = NULL;
   content->krydim      = krydim;
-  content->power_of_A  = 0;
+  content->numwarmups  = 0;
   content->LAPACK_A    = NULL;
   content->LAPACK_wr   = NULL;
   content->LAPACK_wi   = NULL;
@@ -139,9 +139,9 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   {
     ArnI_CONTENT(DEE)->krydim = SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT;
   }
-  if (ArnI_CONTENT(DEE)->power_of_A < 0)
+  if (ArnI_CONTENT(DEE)->numwarmups < 0)
   {
-    ArnI_CONTENT(DEE)->power_of_A = SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT;
+    ArnI_CONTENT(DEE)->numwarmups = SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT;
   }
 
   SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
@@ -207,7 +207,7 @@ SUNErrCode SUNDomEigEstSetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
   SUNFunctionBegin(DEE->sunctx);
 
   /* set the number of warmups */
-  ArnI_CONTENT(DEE)->power_of_A = numofperprocess;
+  ArnI_CONTENT(DEE)->numwarmups = numofperprocess;
   return SUN_SUCCESS;
 }
 
@@ -222,8 +222,8 @@ SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE)
   sunrealtype normq;
   sunindextype i, retval;
 
-  /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  for (i = 0; i < ArnI_CONTENT(DEE)->power_of_A; i++)
+  /* Set the initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
+  for (i = 0; i < ArnI_CONTENT(DEE)->numwarmups; i++)
   {
     retval = ArnI_CONTENT(DEE)->ATimes(ArnI_CONTENT(DEE)->ATdata,
                                        ArnI_CONTENT(DEE)->V[0],

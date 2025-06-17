@@ -30,6 +30,9 @@
 extern "C" {
 #endif
 
+/* Default estimator parameters */
+#define SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT  0
+
 // Struct to hold the real and imaginary parts
 typedef struct
 {

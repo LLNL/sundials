@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   SUNDomEigEstimator DEE = NULL; /* domeig estimator object    */
   N_Vector q;                    /* test vectors               */
   UserData ProbData;             /* problem data structure     */
-  int power_of_A;                /* Power of A for the warm-up */
+  int numwarmups;                /* Number of the preprocessing warmups */
   int max_powiter;               /* max power iteration        */
   int krydim;                    /* Krylov subspace dimension  */
   int niter;                     /* number of iterations       */
@@ -97,10 +97,10 @@ int main(int argc, char* argv[])
     printf("ERROR: Krylov subspace dimension must be a positive integer\n");
     return 1;
   }
-  power_of_A = atoi(argv[3]);
-  if (power_of_A < 0)
+  numwarmups = atoi(argv[3]);
+  if (numwarmups < 0)
   {
-    printf("ERROR: Number of preprocessing must be a nonnegative integer\n");
+    printf("ERROR: Number of preprocessing warmups must be a nonnegative integer\n");
     return 1;
   }
   print_timing = atoi(argv[4]);
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
   printf("  Krylov subspace dimension = %i\n", krydim);
-  printf("  Number of preprocessing = %i\n", power_of_A);
+  printf("  Number of preprocessing = %i\n", numwarmups);
   printf("  Timing output flag = %i\n\n", print_timing);
 
   /* Create vectors */
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 
   fails += Test_SUNDomEigEstGetID(DEE, SUNDSOMEIGESTIMATOR_ARNOLDI, 0);
   fails += Test_SUNDomEigEstSetATimes(DEE, &ProbData, ATimes, 0);
-  fails += Test_SUNDomEigEstSetNumPreProcess(DEE, power_of_A, 0);
+  fails += Test_SUNDomEigEstSetNumPreProcess(DEE, numwarmups, 0);
   // SUNDomEigEstSetMaxPowerIter is not an option for Arnoldi iteration.
   // It should return with SUN_SUCCESS
   max_powiter = krydim;

@@ -182,7 +182,7 @@ SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
 SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, sunindextype* niter)
 {
   SUNErrCode ier;
-  int num_iters;
+  sunindextype num_iters;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->getnumofiters)
   {

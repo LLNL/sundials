@@ -32,7 +32,6 @@ extern "C" {
 
 /* Default Arnoldi Iteration parameters */
 #define SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT   3
-#define SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT 10
 #define SUNDOMEIGEST_LAPACK_FAIL           "Error: LAPACK dgeev failed with info = %d\n"
 
 /* -----------------------------------------------------
@@ -47,7 +46,7 @@ struct _SUNDomEigEstimatorContent_ArnI
   N_Vector *V, q; /* Krylov subspace vectors */
 
   sunindextype krydim;     /* Krylov subspace dimension */
-  sunindextype power_of_A; /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
+  sunindextype numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
 
   sunrealtype* LAPACK_A; /* The vector which holds rows of the Hessenberg matrix in the given order */
   sunrealtype* LAPACK_wr;     /* Real parts of eigenvalues */

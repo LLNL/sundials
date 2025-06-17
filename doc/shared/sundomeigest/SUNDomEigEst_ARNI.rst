@@ -35,7 +35,7 @@ that provide :math:`A` as operator is required.
 .. _SUNDomEigEst.ARNI.Usage:
 
 SUNDomEigEst_ARNI Usage
----------------------
+-----------------------
 
 The header file to be included when using this module is
 ``sundomeigest/sundomeigest_arni.h``.  The SUNDomEigEst_ARNI module is accessible from all SUNDIALS solvers
@@ -86,7 +86,7 @@ The module SUNDomEigEst_ARNI provides the following user-callable routines:
 .. _SUNDomEigEst.ARNI.Description:
 
 SUNDomEigEst_ARNI Description
----------------------------
+-----------------------------
 
 
 The SUNDomEigEst_ARNI module defines the *content* field of a
@@ -100,7 +100,7 @@ The SUNDomEigEst_ARNI module defines the *content* field of a
      N_Vector* V;
      N_Vector q;
      sunindextype krydim;
-     sunindextype power_of_A;
+     sunindextype numwarmups;
      sunrealtype* LAPACK_A;
      sunrealtype* LAPACK_wr;
      sunrealtype* LAPACK_wi;
@@ -121,7 +121,7 @@ information:
 
 * ``krydim`` - dimension of Krylov subspaces (default is 3),
 
-* ``power_of_A`` - number of preprocessing (default is 0),
+* ``numwarmups`` - number of preprocessing warmups (default is 0),
 
 * ``LAPACK_A, LAPACK_wr, LAPACK_wi, LAPACK_work`` - ``sunrealtype`` used for workspace by LAPACK,
 
@@ -147,7 +147,7 @@ This estimator is constructed to perform the following operations:
   for validity and ARNI estimator memory is allocated.
 
 * In the "preprocess" call, the initial random vector :math:`q_0` is warmed up
-  :math:`k=` ``power_of_A`` times as :math:`q_1 = \frac{Aq_0}{||Aq_0||} \cdots q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}`.
+  :math:`k=` ``numwarmups`` times as :math:`q_1 = \frac{Aq_0}{||Aq_0||} \cdots q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}`.
 
 * In the "estimate" call the ARNI estimator is performed.
 

@@ -2318,7 +2318,7 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   /* TODO: check if we have to clone or just passing yn is ok! */
   step_mem->domeig_q          = N_VClone(ark_mem->yn);
   step_mem->domeig_krydim     = DOMEIG_KRYLOV_DIM_DEFAULT;
-  step_mem->domeig_power_of_A = DOMEIG_POWER_OF_A_DEFAULT;
+  step_mem->numwarmups        = SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT;
   step_mem->domeig_maxiters   = DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT;
 
   /* Enforce the power iteration if the problem size < 3 */
@@ -2398,7 +2398,7 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   /* Set the number of preprocessings */
   if (DEE->ops->setnumofperprocess != NULL)
   {
-    retval = DEE->ops->setnumofperprocess(DEE, step_mem->domeig_power_of_A);
+    retval = DEE->ops->setnumofperprocess(DEE, step_mem->numwarmups);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
@@ -2439,7 +2439,7 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE)
     return dom_eig;
   }
 
-  /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
+  /* Set the initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
   if (DEE->ops->preprocess != NULL)
   {
     retval = DEE->ops->preprocess(DEE);

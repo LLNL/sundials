@@ -32,7 +32,6 @@ extern "C" {
 /* Default Power Iteration parameters */
 #define SUNDOMEIGEST_PI_TOL_DEFAULT        SUN_RCONST(0.01)
 #define SUNDOMEIGEST_MAX_PI_DEFAULT        100
-#define SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT 0
 
 /* -----------------------------------------------------
  * Power Iteration Implementation of SUNDomEigEstimator
@@ -45,7 +44,7 @@ struct _SUNDomEigEstimatorContent_PI
 
   N_Vector V, q; /* workspace vectors */
 
-  sunindextype power_of_A; /* Power of A in the preprocessing; initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
+  sunindextype numwarmups;  /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
 
   sunrealtype powiter_tol;  /* Convergence criteria for the power iteration */
   sunrealtype res;          /* Current residual of power iterations */

@@ -97,7 +97,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter,
   content->ATdata      = NULL;
   content->V           = NULL;
   content->q           = NULL;
-  content->power_of_A  = 0;
+  content->numwarmups  = 0;
   content->powiter_tol = ZERO;
   content->res         = ZERO;
   content->max_powiter = max_powiter;
@@ -133,9 +133,9 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
   {
     PI_CONTENT(DEE)->powiter_tol = SUNDOMEIGEST_PI_TOL_DEFAULT;
   }
-  if (PI_CONTENT(DEE)->power_of_A <= 0)
+  if (PI_CONTENT(DEE)->numwarmups <= 0)
   {
-    PI_CONTENT(DEE)->power_of_A = SUNDOMEIGEST_PI_POWER_OF_A_DEFAULT;
+    PI_CONTENT(DEE)->numwarmups = SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT;
   }
   if (PI_CONTENT(DEE)->max_powiter <= 0)
   {
@@ -167,7 +167,7 @@ SUNErrCode SUNDomEigEstSetNumPreProcess_PI(SUNDomEigEstimator DEE,
   SUNFunctionBegin(DEE->sunctx);
 
   /* set the number of warmups */
-  PI_CONTENT(DEE)->power_of_A = numofperprocess;
+  PI_CONTENT(DEE)->numwarmups = numofperprocess;
   return SUN_SUCCESS;
 }
 
@@ -217,8 +217,8 @@ SUNErrCode SUNDomEigEstPreProcess_PI(SUNDomEigEstimator DEE)
   sunrealtype normq;
   sunindextype i, retval;
 
-  /* Set the initial q = A^{power_of_A}q/||A^{power_of_A}q|| */
-  for (i = 0; i < PI_CONTENT(DEE)->power_of_A; i++)
+  /* Set the initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
+  for (i = 0; i < PI_CONTENT(DEE)->numwarmups; i++)
   {
     retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
                                      PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);

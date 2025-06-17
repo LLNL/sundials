@@ -36,7 +36,6 @@ extern "C" {
 #define DOM_EIG_SAFETY_DEFAULT                   SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT                     25
 #define DOMEIG_KRYLOV_DIM_DEFAULT                3
-#define DOMEIG_POWER_OF_A_DEFAULT                0
 #define DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT 100
 
 /*===============================================================
@@ -169,7 +168,7 @@ typedef struct ARKodeLSRKStepMemRec
   SUNDomEigEstimator DEE; /* DomEig estimator*/
   N_Vector domeig_q;      /* DomEig initial q vector*/
   int domeig_krydim;      /* Krylov subspace dimension */
-  int domeig_power_of_A;  /* Power of A for the warm-up */
+  int numwarmups;         /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
   int domeig_maxiters;    /* Max number of Power Iterations */
 
   /* Flags */

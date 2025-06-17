@@ -84,7 +84,7 @@ The SUNDomEigEst_PI module defines the *content* field of a
      N_Vector* V;
      N_Vector q;
      sunindextype max_powiter;
-     sunindextype power_of_A;
+     sunindextype numwarmups;
      sunrealtype powiter_tol;
      sunrealtype res;
      sunindextype numiters;
@@ -102,7 +102,7 @@ information:
 
 * ``max_powiter`` - maximum number of power iterations (default is 100),
 
-* ``power_of_A`` - number of preprocessing (default is 0),
+* ``numwarmups`` - number of preprocessing warmups (default is 0),
 
 * ``powiter_tol`` - convergence criteria for the power iteration (default is 0.01),
 
@@ -128,7 +128,7 @@ This estimator is constructed to perform the following operations:
   for validity and PI estimator memory is allocated.
 
 * In the "preprocess" call, the initial random vector :math:`q_0` is warmed up
-  :math:`k=` ``power_of_A`` times as :math:`q_1 = \frac{Aq_0}{||Aq_0||} \cdots q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}`.
+  :math:`k=` ``numwarmups`` times as :math:`q_1 = \frac{Aq_0}{||Aq_0||} \cdots q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}`.
 
 * In the "estimate" call the PI estimator is performed.
 

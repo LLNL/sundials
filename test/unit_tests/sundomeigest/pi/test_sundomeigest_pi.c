@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
   SUNDomEigEstimator DEE = NULL; /* domeig estimator object    */
   N_Vector q;                    /* test vectors               */
   UserData ProbData;             /* problem data structure     */
-  int power_of_A;                /* Power of A for the warm-up */
+  int numwarmups;                /* Number of the preprocessing warmups */
   int max_powiter;               /* max power iteration        */
   int niter;                     /* number of iterations       */
   int print_timing;              /* timing output flag         */
@@ -94,8 +94,8 @@ int main(int argc, char* argv[])
     printf("ERROR: Maximum number of power iterations must be a positive integer\n");
     return 1;
   }
-  power_of_A = atoi(argv[3]);
-  if (power_of_A < 0)
+  numwarmups = atoi(argv[3]);
+  if (numwarmups < 0)
   {
     printf("ERROR: Number of preprocessing must be a nonnegative integer\n");
     return 1;
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
   printf("  Number of power iterations = %i\n", max_powiter);
-  printf("  Number of preprocessing = %i\n", power_of_A);
+  printf("  Number of preprocessing = %i\n", numwarmups);
   printf("  Timing output flag = %i\n\n", print_timing);
 
   /* Create vectors */
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 
   fails += Test_SUNDomEigEstGetID(DEE, SUNDSOMEIGESTIMATOR_POWER, 0);
   fails += Test_SUNDomEigEstSetATimes(DEE, &ProbData, ATimes, 0);
-  fails += Test_SUNDomEigEstSetNumPreProcess(DEE, power_of_A, 0);
+  fails += Test_SUNDomEigEstSetNumPreProcess(DEE, numwarmups, 0);
   fails += Test_SUNDomEigEstSetMaxPowerIter(DEE, max_powiter, 0);
   fails += Test_SUNDomEigEstInitialize(DEE, 0);
   fails += Test_SUNDomEigEstPreProcess(DEE, 0);

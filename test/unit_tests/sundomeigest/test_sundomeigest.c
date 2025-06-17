@@ -136,14 +136,14 @@ int Test_SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, sunindextype max_po
   return (0);
 }
 
-int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int power_of_A, int myid)
+int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups, int myid)
 {
   int failure;
   double start_time, stop_time;
 
   /* try calling SUNDomEigEstSetNumPreProcess routine: should pass/fail based on expected input */
   start_time = get_time();
-  failure    = SUNDomEigEstSetNumPreProcess(DEE, power_of_A);
+  failure    = SUNDomEigEstSetNumPreProcess(DEE, numwarmups);
   // sync_device();
   stop_time = get_time();
 
