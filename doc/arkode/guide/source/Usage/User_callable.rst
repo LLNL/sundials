@@ -1452,6 +1452,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
 
    .. versionadded:: 6.3.0
 
+
 .. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
 
    Specifies the step index (that is step number) to insert the next checkpoint at.
@@ -1466,6 +1467,25 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
    .. versionadded:: 6.3.0
+
+
+.. c:function:: int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
+
+   Specifies if compensated summations should be used within ARKODE where supported.
+   Currently, all ARKODE modules support compensated summation for accumulating time.
+
+   SPRKStep also supports an alternative stepping algorithm based on compensated
+   summation which will be enabled/disabled by this function. This increases the 
+   computational cost by 2 extra vector operations per stage and an additional 
+   5 per time step. It also requires one extra vector to be stored. However, it
+   is significantly more robust to roundoff error accumulation.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param onoff: should compensated summation be used (1) or not (0)
+
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the ARKODE memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
 
 .. _ARKODE.Usage.ARKodeAdaptivityInputTable:
@@ -1617,6 +1637,10 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       value.
 
    .. versionadded:: 6.1.0
+
+   .. versionchanged:: X.Y.Z
+
+      The restriction that ``cfl_frac`` is less than one has been removed.
 
 
 .. c:function:: int ARKodeSetErrorBias(void* arkode_mem, sunrealtype bias)
