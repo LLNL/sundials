@@ -57,3 +57,8 @@ add_custom_target(
           ${CMAKE_CURRENT_BINARY_DIR})
 
 add_dependencies(pysundials copy-python-tests)
+
+add_test(NAME python-tests
+  COMMAND ${Python_EXECUTABLE} -m pytest
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)

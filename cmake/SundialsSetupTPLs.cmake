@@ -203,6 +203,9 @@ if(ENABLE_XBRAID)
   list(APPEND SUNDIALS_TPL_LIST "XBRAID")
 endif()
 
+# -------------------------------------------------------------
+# Find (and test) nanobind
+# -------------------------------------------------------------
 
 if(SUNDIALS_ENABLE_PYTHON)
   # nanobind must already be installed as a Python module (e.g., with pip)
@@ -220,4 +223,6 @@ if(SUNDIALS_ENABLE_PYTHON)
     OUTPUT_VARIABLE nanobind_ROOT)
 
   find_package(nanobind CONFIG REQUIRED)
+
+  find_program(PYTEST_EXECUTABLE pytest)
 endif()
