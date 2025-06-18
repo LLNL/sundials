@@ -83,3 +83,7 @@ uberenv_libs
 
 # tools
 /tools/suntools/__pycache__
+
+# python interfaces
+bindings/python/build
+.pytest_cache

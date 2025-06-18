@@ -59,7 +59,3 @@ endif()
 if(BUILD_CPODES)
   add_subdirectory(cpodes)
 endif()
-
-if(SUNDIALS_ENABLE_PYTHON)
-  add_subdirectory(bindings/python)
-endif()
