@@ -56,7 +56,7 @@ addopts = [
     "--import-mode=importlib"
 ]
 pythonpath = [
-  ".", "bindings/python/test"
+  ".", "bindings/pysundials/test"
 ]
 
 [tool.black]
