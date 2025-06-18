@@ -27,7 +27,8 @@ dependencies = [
 dev = [
     "pytest",
     "black",
-    "isort"
+    "isort",
+    "litgen"
 ]
 
 [project.urls]
