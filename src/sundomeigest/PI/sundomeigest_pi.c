@@ -235,22 +235,19 @@ SUNErrCode SUNDomEigEstPreProcess_PI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
+SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  SUNAssert(dom_eig, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(lambdaR, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(lambdaI, SUN_ERR_ARG_CORRUPT); // Maybe NULL, should we allow?
   SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
   SUNAssert((PI_CONTENT(DEE)->max_powiter >= 0), SUN_ERR_ARG_CORRUPT);
 
-  suncomplextype dom_eig_new, dom_eig_old;
-
-  dom_eig_new.real = ZERO;
-  dom_eig_new.imag = ZERO;
-  dom_eig_old.real = ZERO;
-  dom_eig_old.imag = ZERO;
+  sunrealtype newlambdaR = ZERO;
+  sunrealtype oldlambdaR = ZERO;
 
   sunindextype retval, k;
   sunrealtype normq;
@@ -265,11 +262,11 @@ SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
       else { return SUN_ERR_DEE_ATIMES_FAIL_REC; }
     }
 
-    dom_eig_new.real = N_VDotProd(PI_CONTENT(DEE)->V,
-                                  PI_CONTENT(DEE)->q); //Rayleigh quotient
+    newlambdaR = N_VDotProd(PI_CONTENT(DEE)->V,
+                            PI_CONTENT(DEE)->q); //Rayleigh quotient
     SUNCheckLastErr();
 
-    PI_CONTENT(DEE)->res = fabs(dom_eig_new.real - dom_eig_old.real);
+    PI_CONTENT(DEE)->res = fabs(newlambdaR - oldlambdaR);
 
     if (PI_CONTENT(DEE)->res < PI_CONTENT(DEE)->powiter_tol) { break; }
 
@@ -280,10 +277,11 @@ SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
     N_VScale(ONE / normq, PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->V);
     SUNCheckLastErr();
 
-    dom_eig_old.real = dom_eig_new.real;
+    oldlambdaR = newlambdaR;
   }
 
-  *dom_eig                  = dom_eig_new;
+  *lambdaI                  = ZERO;
+  *lambdaR                  = newlambdaR;
   PI_CONTENT(DEE)->numiters = k;
 
   return SUN_SUCCESS;

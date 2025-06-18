@@ -33,13 +33,6 @@ extern "C" {
 /* Default estimator parameters */
 #define SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT 0
 
-// Struct to hold the real and imaginary parts
-typedef struct
-{
-  sunrealtype real;
-  sunrealtype imag;
-} suncomplextype;
-
 /* -----------------------------------------------------------------
  * Implemented SUNDomEigEstimator types
  * ----------------------------------------------------------------- */
@@ -71,7 +64,7 @@ struct _generic_SUNDomEigEstimator_Ops
   SUNErrCode (*initialize)(SUNDomEigEstimator);
   SUNErrCode (*preprocess)(SUNDomEigEstimator);
   SUNErrCode (*computehess)(SUNDomEigEstimator);
-  SUNErrCode (*estimate)(SUNDomEigEstimator, suncomplextype*);
+  SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*);
   SUNErrCode (*getnumofiters)(SUNDomEigEstimator, int*);
   SUNErrCode (*getres)(SUNDomEigEstimator, sunrealtype*);
   SUNErrCode (*free)(SUNDomEigEstimator);
@@ -124,7 +117,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstComputeHess(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig);
+SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                             sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, int* niter);

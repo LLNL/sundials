@@ -52,7 +52,7 @@ struct _SUNDomEigEstimatorContent_ArnI
   sunrealtype* LAPACK_wr;     /* Real parts of eigenvalues */
   sunrealtype* LAPACK_wi;     /* Imaginary parts of eigenvalues */
   sunrealtype* LAPACK_work;   /* Workspace array */
-  suncomplextype* LAPACK_arr; /* an array to sort eigenvalues*/
+  sunrealtype** LAPACK_arr;   /* an array to sort eigenvalues*/
 
   sunrealtype** Hes; /* Hessenberg matrix Hes */
 };
@@ -87,8 +87,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE,
-                                  suncomplextype* dom_eig);
+SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE);

@@ -166,11 +166,11 @@ SUNErrCode SUNDomEigEstComputeHess(SUNDomEigEstimator DEE)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
+SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->estimate) { ier = DEE->ops->estimate(DEE, dom_eig); }
+  if (DEE->ops->estimate) { ier = DEE->ops->estimate(DEE, lambdaR, lambdaI); }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);

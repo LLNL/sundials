@@ -260,16 +260,13 @@ int Test_SUNDomEigEstComputeHess(SUNDomEigEstimator DEE, int myid)
 /* ----------------------------------------------------------------------
  * SUNDomEigEstimate Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig,
-                           int myid)
+int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI, int myid)
 {
   int failure;
-  suncomplextype estimated_dom_eig;
   double start_time, stop_time;
 
   start_time = get_time();
-  failure    = SUNDomEigEstimate(DEE, &estimated_dom_eig);
-  *dom_eig   = estimated_dom_eig;
+  failure    = SUNDomEigEstimate(DEE, lambdaR, lambdaI);
   // sync_device();
   stop_time = get_time();
 

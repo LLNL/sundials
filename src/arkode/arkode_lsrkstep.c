@@ -2206,8 +2206,6 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 {
   int retval = SUN_SUCCESS;
 
-  suncomplextype dom_eig;
-
   if (step_mem->dom_eig_fn != NULL)
   {
     retval = step_mem->dom_eig_fn(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
@@ -2224,19 +2222,14 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   }
   else if (step_mem->DEE != NULL)
   {
-    dom_eig = lsrkStep_DomEigEstimate(ark_mem, step_mem->DEE);
-    if ((dom_eig.real * dom_eig.real + dom_eig.imag * dom_eig.imag) <
-        SUN_SMALL_REAL)
-    {
-      arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to estimate the dominant eigenvalue: DomEig "
-                      "estimation returned an error");
-      return ARK_DOMEIG_FAIL;
-    }
+    retval = lsrkStep_DomEigEstimate(ark_mem, step_mem->DEE, &step_mem->lambdaR, &step_mem->lambdaI);
     step_mem->dom_eig_num_evals++;
-
-    step_mem->lambdaR = dom_eig.real;
-    step_mem->lambdaI = dom_eig.imag;
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      return ARK_INTERNAL_DOMEIG_FAIL;
+    }
   }
   else
   {
@@ -2415,20 +2408,16 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
 
   This routine estimates the dominant eigenvalue.
   ---------------------------------------------------------------*/
-suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE)
+int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
 {
   ARKodeMem ark_mem;
-
-  suncomplextype dom_eig;
-  dom_eig.real = ZERO;
-  dom_eig.imag = ZERO;
 
   int retval;
   if (arkode_mem == NULL)
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
-    return dom_eig;
+    return ARK_MEM_NULL;
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
@@ -2436,7 +2425,7 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_SUNCTX);
-    return dom_eig;
+    return ARK_ILL_INPUT;
   }
 
   /* Set the initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
@@ -2448,7 +2437,7 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE)
       arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
                       __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
 
-      return dom_eig;
+      return ARK_INTERNAL_DOMEIG_FAIL;
     }
   }
 
@@ -2461,23 +2450,20 @@ suncomplextype lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE)
       arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
                       __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
 
-      return dom_eig;
+      return ARK_INTERNAL_DOMEIG_FAIL;
     }
   }
 
-  retval = DEE->ops->estimate(DEE, &dom_eig);
+  retval = DEE->ops->estimate(DEE, lambdaR, lambdaI);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
                     __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
 
-    dom_eig.real = ZERO;
-    dom_eig.imag = ZERO;
-
-    return dom_eig;
+    return ARK_INTERNAL_DOMEIG_FAIL;
   }
 
-  return dom_eig;
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------

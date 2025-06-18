@@ -61,8 +61,8 @@ int main(int argc, char* argv[])
   int niter;                     /* number of iterations       */
   int print_timing;              /* timing output flag         */
   sunrealtype res;               /* current residual           */
-  suncomplextype dom_eig;        /* computed domeig value      */
-  suncomplextype true_dom_eig;   /* true domeig value          */
+  sunrealtype lambdaR, lambdaI;  /* computed domeig parts      */
+  sunrealtype tlambdaR, tlambdaI;/* true domeig parts          */
   SUNContext sunctx;
   sunrealtype rel_tol = 1.0e-2; /* relative tol for pass/fail */
   sunrealtype rel_error;
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
   // Test_SUNDomEigEstComputeHess is not an option for power iteration.
   // It should return with SUN_SUCCESS
   fails += Test_SUNDomEigEstComputeHess(DEE, 0);
-  fails += Test_SUNDomEigEstimate(DEE, &dom_eig, 0);
+  fails += Test_SUNDomEigEstimate(DEE, &lambdaR, &lambdaI, 0);
   fails += Test_SUNDomEigEstNumIters(DEE, &niter, 0);
   if (niter == 0)
   {
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 
   /* First check if the computed eigenvalue has a nonzero magnitute */
   sunrealtype norm_of_dom_eig =
-    SUNRsqrt(dom_eig.real * dom_eig.real + dom_eig.imag * dom_eig.imag);
+    SUNRsqrt(lambdaR * lambdaR + lambdaI * lambdaI);
   if (norm_of_dom_eig < SUN_SMALL_REAL)
   {
     printf("FAIL: Dominant Eigenvalue Test Failed\n\n");
@@ -188,24 +188,22 @@ int main(int argc, char* argv[])
   /* Identify true_dom_eig based on given parameters*/
   if (fabs(diagonal + nondiagonal) < fabs(factor * ProbData.N))
   {
-    true_dom_eig.real = factor * ProbData.N;
-    true_dom_eig.imag = ZERO;
+    tlambdaR = factor * ProbData.N;
+    tlambdaI = ZERO;
   }
   else
   {
-    true_dom_eig.real = diagonal + nondiagonal;
-    true_dom_eig.imag = ZERO;
+    tlambdaR = diagonal + nondiagonal;
+    tlambdaI = ZERO;
   }
 
-  printf("\ncomputed dominant eigenvalue = %20.4lf + %20.4lfi\n", dom_eig.real,
-         dom_eig.imag);
-  printf("    true dominant eigenvalue = %20.4lf + %20.4lfi\n",
-         true_dom_eig.real, true_dom_eig.imag);
+  printf("\ncomputed dominant eigenvalue = %20.4lf + %20.4lfi\n", lambdaR, lambdaI);
+  printf("    true dominant eigenvalue = %20.4lf + %20.4lfi\n", tlambdaR, tlambdaI);
 
   /* Compare the estimated dom_eig with the true_dom_eig*/
   rel_error = SUNRsqrt(
-    (dom_eig.real - true_dom_eig.real) * (dom_eig.real - true_dom_eig.real) +
-    (dom_eig.imag - true_dom_eig.imag) * (dom_eig.imag - true_dom_eig.imag));
+    (lambdaR - tlambdaR) * (lambdaR - tlambdaR) +
+    (lambdaI - tlambdaI) * (lambdaI - tlambdaI));
 
   rel_error /= norm_of_dom_eig;
 

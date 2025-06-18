@@ -30,7 +30,6 @@ extern "C" {
   ===============================================================*/
 
 SUNErrCode domeig_CheckNVector(N_Vector tmpl);
-sunrealtype domeig_Magnitude(const suncomplextype* c);
 int domeig_Compare(const void* a, const void* b);
 
 /*

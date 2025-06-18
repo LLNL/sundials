@@ -152,28 +152,37 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
     malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype));
   ArnI_CONTENT(DEE)->LAPACK_work =
     malloc((4 * ArnI_CONTENT(DEE)->krydim) * sizeof(sunrealtype));
-  ArnI_CONTENT(DEE)->LAPACK_arr =
-    (suncomplextype*)malloc(ArnI_CONTENT(DEE)->krydim * sizeof(suncomplextype));
 
-  N_VRandom(ArnI_CONTENT(DEE)->q);
-  SUNCheckLastErr();
+
+  int k;
+
+  /* LAPACK array */
+  if (ArnI_CONTENT(DEE)->LAPACK_arr == NULL)
+  {
+    ArnI_CONTENT(DEE)->LAPACK_arr = (sunrealtype**)malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype*));
+
+    for (k = 0; k < ArnI_CONTENT(DEE)->krydim; k++)
+    {
+      ArnI_CONTENT(DEE)->LAPACK_arr[k] = (sunrealtype*)malloc(2 * sizeof(sunrealtype));
+    }
+  }
 
   /* Hessenberg matrix Hes */
   if (ArnI_CONTENT(DEE)->Hes == NULL)
   {
-    int k;
     ArnI_CONTENT(DEE)->Hes = (sunrealtype**)malloc(
       (ArnI_CONTENT(DEE)->krydim + 1) * sizeof(sunrealtype*));
 
     for (k = 0; k <= ArnI_CONTENT(DEE)->krydim; k++)
     {
-      ArnI_CONTENT(DEE)->Hes[k] = NULL;
       ArnI_CONTENT(DEE)->Hes[k] =
         (sunrealtype*)malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype));
     }
   }
 
   /* Initialize the vector V[0] */
+  N_VRandom(ArnI_CONTENT(DEE)->q);
+  SUNCheckLastErr();
   sunrealtype normq = N_VDotProd(ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->q);
   SUNCheckLastErr();
 
@@ -284,19 +293,16 @@ SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
+SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  SUNAssert(dom_eig, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(lambdaR, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(lambdaI, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
   SUNAssert(ArnI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
-
-  suncomplextype dom_eig_new;
-  dom_eig_new.real = ZERO;
-  dom_eig_new.imag = ZERO;
 
   int n = ArnI_CONTENT(DEE)->krydim;
 
@@ -332,28 +338,19 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, suncomplextype* dom_ei
   /* order the eigenvalues by their magnitude */
   for (i = 0; i < n; i++)
   {
-    ArnI_CONTENT(DEE)->LAPACK_arr[i].real = ArnI_CONTENT(DEE)->LAPACK_wr[i];
-    ArnI_CONTENT(DEE)->LAPACK_arr[i].imag = ArnI_CONTENT(DEE)->LAPACK_wi[i];
+    ArnI_CONTENT(DEE)->LAPACK_arr[i][0] = ArnI_CONTENT(DEE)->LAPACK_wr[i];
+    ArnI_CONTENT(DEE)->LAPACK_arr[i][1] = ArnI_CONTENT(DEE)->LAPACK_wi[i];
   }
 
   /* Sort the array using qsort */
-  qsort(ArnI_CONTENT(DEE)->LAPACK_arr, n, sizeof(suncomplextype), domeig_Compare);
-
-  /* Update the original arrays */
-  for (i = 0; i < n; i++)
-  {
-    ArnI_CONTENT(DEE)->LAPACK_wr[i] = ArnI_CONTENT(DEE)->LAPACK_arr[i].real;
-    ArnI_CONTENT(DEE)->LAPACK_wi[i] = ArnI_CONTENT(DEE)->LAPACK_arr[i].imag;
-  }
+  qsort(ArnI_CONTENT(DEE)->LAPACK_arr, n, sizeof(ArnI_CONTENT(DEE)->LAPACK_arr[0]), domeig_Compare);
 
   // alternatively we can return a vector of all computed dom_eigs (up to krydim)
   // TODO: Get opinions
 
   /* Copy the dominant eigenvalue */
-  dom_eig_new.real = ArnI_CONTENT(DEE)->LAPACK_wr[0];
-  dom_eig_new.imag = ArnI_CONTENT(DEE)->LAPACK_wi[0];
-
-  *dom_eig = dom_eig_new;
+  *lambdaR = ArnI_CONTENT(DEE)->LAPACK_arr[0][0];
+  *lambdaI = ArnI_CONTENT(DEE)->LAPACK_arr[0][1];
 
   return SUN_SUCCESS;
 }
@@ -392,13 +389,25 @@ SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
       free(ArnI_CONTENT(DEE)->LAPACK_wi);
       ArnI_CONTENT(DEE)->LAPACK_wi = NULL;
     }
+
+    int k;
+    /* free LAPACK_arr */
     if (ArnI_CONTENT(DEE)->LAPACK_arr != NULL)
     {
+      for (k = 0; k < ArnI_CONTENT(DEE)->krydim; k++)
+      {
+        free(ArnI_CONTENT(DEE)->LAPACK_arr[k]);
+      }
       free(ArnI_CONTENT(DEE)->LAPACK_arr);
       ArnI_CONTENT(DEE)->LAPACK_arr = NULL;
     }
+    /* free Hes */
     if (ArnI_CONTENT(DEE)->Hes != NULL)
     {
+      for (k = 0; k <= ArnI_CONTENT(DEE)->krydim; k++)
+      {
+        free(ArnI_CONTENT(DEE)->Hes[k]);
+      }
       free(ArnI_CONTENT(DEE)->Hes);
       ArnI_CONTENT(DEE)->Hes = NULL;
     }
@@ -416,18 +425,12 @@ SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-// Function to calculate the magnitude of a suncomplextype number
-sunrealtype domeig_Magnitude(const suncomplextype* c)
-{
-  return sqrt(c->real * c->real + c->imag * c->imag);
-}
-
 // Comparison function for qsort
 int domeig_Compare(const void* a, const void* b)
 {
-  const suncomplextype* c1 = (const suncomplextype*)a;
-  const suncomplextype* c2 = (const suncomplextype*)b;
-  sunrealtype mag1         = domeig_Magnitude(c1);
-  sunrealtype mag2         = domeig_Magnitude(c2);
+  sunrealtype* c1 = *(sunrealtype**)a;
+  sunrealtype* c2 = *(sunrealtype**)b;
+  sunrealtype mag1      = SUNRsqrt(c1[0] * c1[0] + c1[1] * c1[1]);
+  sunrealtype mag2      = SUNRsqrt(c2[0] * c2[0] + c2[1] * c2[1]);
   return (mag2 > mag1) - (mag2 < mag1); // Descending order
 }
