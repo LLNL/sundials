@@ -7,14 +7,14 @@
 
 auto pyClass_generic_SUNAdaptController_Ops =
     nb::class_<_generic_SUNAdaptController_Ops>
-        (m, "_generic_SUNAdaptController_Ops", "Structure containing function pointers to controller operations")
+        (m, "_generic_SUNAdaptController_Ops", "")
     .def(nb::init<>()) // implicit default constructor 
     ;
 
 
 auto pyClass_generic_SUNAdaptController =
     nb::class_<_generic_SUNAdaptController>
-        (m, "_generic_SUNAdaptController", " A SUNAdaptController is a structure with an implementation-dependent\n   'content' field, and a pointer to a structure of\n   operations corresponding to that implementation.")
+        (m, "_generic_SUNAdaptController", "")
     .def("__init__", [](_generic_SUNAdaptController * self, SUNAdaptController_Ops ops = SUNAdaptController_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) _generic_SUNAdaptController();  // placement new

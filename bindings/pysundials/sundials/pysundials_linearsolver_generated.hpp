@@ -32,14 +32,14 @@ auto pyEnumSUN_GRAMSCHMIDT_ID =
 
 auto pyClass_generic_SUNLinearSolver_Ops =
     nb::class_<_generic_SUNLinearSolver_Ops>
-        (m, "_generic_SUNLinearSolver_Ops", "Structure containing function pointers to linear solver operations")
+        (m, "_generic_SUNLinearSolver_Ops", "")
     .def(nb::init<>()) // implicit default constructor 
     ;
 
 
 auto pyClass_generic_SUNLinearSolver =
     nb::class_<_generic_SUNLinearSolver>
-        (m, "_generic_SUNLinearSolver", " A linear solver is a structure with an implementation-dependent\n   'content' field, and a pointer to a structure of linear solver\n   operations corresponding to that implementation.")
+        (m, "_generic_SUNLinearSolver", "")
     .def("__init__", [](_generic_SUNLinearSolver * self, SUNLinearSolver_Ops ops = SUNLinearSolver_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) _generic_SUNLinearSolver();  // placement new

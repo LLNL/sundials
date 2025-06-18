@@ -57,6 +57,7 @@ def main():
     options.bind_library = litgen.BindLibraryType.nanobind
     options.python_run_black_formatter = True
     options.python_convert_to_snake_case = False
+    options.comments_exclude = True
     options.srcmlcpp_options.code_preprocess_function = preprocess_header
     options.srcmlcpp_options.ignored_warning_parts.append(
         # "ops" functions pointers cause this warning, but we dont care cause we dont need to bind those.

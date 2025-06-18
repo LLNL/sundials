@@ -7,14 +7,14 @@
 
 auto pyClass_generic_SUNMatrix_Ops =
     nb::class_<_generic_SUNMatrix_Ops>
-        (m, "_generic_SUNMatrix_Ops", "Structure containing function pointers to matrix operations")
+        (m, "_generic_SUNMatrix_Ops", "")
     .def(nb::init<>()) // implicit default constructor 
     ;
 
 
 auto pyClass_generic_SUNMatrix =
     nb::class_<_generic_SUNMatrix>
-        (m, "_generic_SUNMatrix", " A matrix is a structure with an implementation-dependent\n   'content' field, and a pointer to a structure of matrix\n   operations corresponding to that implementation.")
+        (m, "_generic_SUNMatrix", "")
     .def("__init__", [](_generic_SUNMatrix * self, SUNMatrix_Ops ops = SUNMatrix_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) _generic_SUNMatrix();  // placement new

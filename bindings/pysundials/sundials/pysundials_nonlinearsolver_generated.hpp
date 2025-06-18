@@ -7,14 +7,14 @@
 
 auto pyClass_generic_SUNNonlinearSolver_Ops =
     nb::class_<_generic_SUNNonlinearSolver_Ops>
-        (m, "_generic_SUNNonlinearSolver_Ops", "Structure containing function pointers to nonlinear solver operations")
+        (m, "_generic_SUNNonlinearSolver_Ops", "")
     .def(nb::init<>()) // implicit default constructor 
     ;
 
 
 auto pyClass_generic_SUNNonlinearSolver =
     nb::class_<_generic_SUNNonlinearSolver>
-        (m, "_generic_SUNNonlinearSolver", " A nonlinear solver is a structure with an implementation-dependent 'content'\n   field, and a pointer to a structure of solver nonlinear solver operations\n   corresponding to that implementation.")
+        (m, "_generic_SUNNonlinearSolver", "")
     .def("__init__", [](_generic_SUNNonlinearSolver * self, SUNNonlinearSolver_Ops ops = SUNNonlinearSolver_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) _generic_SUNNonlinearSolver();  // placement new
