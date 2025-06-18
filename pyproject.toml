@@ -19,7 +19,16 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Mathematics"
 ]
-dependencies = []
+dependencies = [
+    "numpy"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "isort"
+]
 
 [project.urls]
 Homepage = "https://computing.llnl.gov/projects/sundials"
