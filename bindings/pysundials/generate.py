@@ -109,7 +109,7 @@ def main():
             srcmlcpp_options = options.srcmlcpp_options
             cpp_unit = srcmlcpp.code_to_cpp_unit(srcmlcpp_options, source_code)
             with open(f'{module["path"]}.xml', "w") as file:
-                file.write(str(cpp_unit))
+                file.write(cpp_unit.str_code())
             continue
 
         generated_code = litgen.generate_code(options, source_code)
