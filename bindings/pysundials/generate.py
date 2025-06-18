@@ -4,6 +4,7 @@
 # not subject to GPLv3 though, and can use our standard license.
 
 import argparse
+import srcmlcpp
 import litgen
 from codemanip import code_utils
 import yaml
@@ -51,6 +52,7 @@ def main():
         description="Generate Python bindings for SUNDIALS using litgen and nanobind."
     )
     parser.add_argument("config_yaml_path", type=str, help="Path to the generate.yaml config file")
+    parser.add_argument("--dump-srcml", action="store_true", help="Dump the srcML XML for the parsed headers and exit")
     args = parser.parse_args()
 
     options = litgen.LitgenOptions()
@@ -102,6 +104,13 @@ def main():
             with open(file_path, "r") as file:
                 source_code = source_code + file.read()
             source_code = source_code + "\n"
+
+        if args.dump_srcml:
+            srcmlcpp_options = options.srcmlcpp_options
+            cpp_unit = srcmlcpp.code_to_cpp_unit(srcmlcpp_options, source_code)
+            with open(f'{module["path"]}.xml', "w") as file:
+                file.write(str(cpp_unit))
+            continue
 
         generated_code = litgen.generate_code(options, source_code)
 
