@@ -82,8 +82,8 @@ uberenv_libs
 /swig/swig
 
 # tools
-/tools/suntools/__pycache__
+/tools/suntools
 
-# python interfaces
-bindings/python/build
+# python
 .pytest_cache
+__pycache__

@@ -41,6 +41,11 @@ cmake.args = [
     "-DSUNDIALS_ENABLE_PYTHON=ON"
 ]
 
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
 [tool.black]
 line-length = 99
 skip_magic_trailing_comma = true
