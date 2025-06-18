@@ -18,9 +18,9 @@ auto pyClass_generic_SUNNonlinearSolver =
     .def("__init__", [](_generic_SUNNonlinearSolver * self, SUNNonlinearSolver_Ops ops = SUNNonlinearSolver_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) _generic_SUNNonlinearSolver();  // placement new
-        auto r = self;
-        r->ops = ops;
-        r->sunctx = sunctx;
+        auto r_ctor_ = self;
+        r_ctor_->ops = ops;
+        r_ctor_->sunctx = sunctx;
     },
     nb::arg("ops") = SUNNonlinearSolver_Ops(), nb::arg("sunctx") = SUNContext()
     )

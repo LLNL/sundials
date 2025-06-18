@@ -39,9 +39,9 @@ auto pyClass_generic_N_Vector =
     .def("__init__", [](_generic_N_Vector * self, N_Vector_Ops ops = N_Vector_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) _generic_N_Vector();  // placement new
-        auto r = self;
-        r->ops = ops;
-        r->sunctx = sunctx;
+        auto r_ctor_ = self;
+        r_ctor_->ops = ops;
+        r_ctor_->sunctx = sunctx;
     },
     nb::arg("ops") = N_Vector_Ops(), nb::arg("sunctx") = SUNContext()
     )

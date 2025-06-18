@@ -18,9 +18,9 @@ auto pyClass_generic_SUNAdaptController =
     .def("__init__", [](_generic_SUNAdaptController * self, SUNAdaptController_Ops ops = SUNAdaptController_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) _generic_SUNAdaptController();  // placement new
-        auto r = self;
-        r->ops = ops;
-        r->sunctx = sunctx;
+        auto r_ctor_ = self;
+        r_ctor_->ops = ops;
+        r_ctor_->sunctx = sunctx;
     },
     nb::arg("ops") = SUNAdaptController_Ops(), nb::arg("sunctx") = SUNContext()
     )

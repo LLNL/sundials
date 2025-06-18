@@ -19,9 +19,9 @@ auto pyClassSUNMemoryHelper_ =
     .def("__init__", [](SUNMemoryHelper_ * self, SUNMemoryHelper_Ops ops = SUNMemoryHelper_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) SUNMemoryHelper_();  // placement new
-        auto r = self;
-        r->ops = ops;
-        r->sunctx = sunctx;
+        auto r_ctor_ = self;
+        r_ctor_->ops = ops;
+        r_ctor_->sunctx = sunctx;
     },
     nb::arg("ops") = SUNMemoryHelper_Ops(), nb::arg("sunctx") = SUNContext()
     )

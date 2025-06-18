@@ -18,9 +18,9 @@ auto pyClass_generic_SUNMatrix =
     .def("__init__", [](_generic_SUNMatrix * self, SUNMatrix_Ops ops = SUNMatrix_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) _generic_SUNMatrix();  // placement new
-        auto r = self;
-        r->ops = ops;
-        r->sunctx = sunctx;
+        auto r_ctor_ = self;
+        r_ctor_->ops = ops;
+        r_ctor_->sunctx = sunctx;
     },
     nb::arg("ops") = SUNMatrix_Ops(), nb::arg("sunctx") = SUNContext()
     )

@@ -43,9 +43,9 @@ auto pyClass_generic_SUNLinearSolver =
     .def("__init__", [](_generic_SUNLinearSolver * self, SUNLinearSolver_Ops ops = SUNLinearSolver_Ops(), SUNContext sunctx = SUNContext())
     {
         new (self) _generic_SUNLinearSolver();  // placement new
-        auto r = self;
-        r->ops = ops;
-        r->sunctx = sunctx;
+        auto r_ctor_ = self;
+        r_ctor_->ops = ops;
+        r_ctor_->sunctx = sunctx;
     },
     nb::arg("ops") = SUNLinearSolver_Ops(), nb::arg("sunctx") = SUNContext()
     )
