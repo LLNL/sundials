@@ -1,0 +1,79 @@
+name: pysundials-official wheels
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/python-nanobind # TODO(CJB): remove once PR is open
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+  # release:
+  #   types:
+  #     - published
+
+jobs:
+  build_sdist:
+    name: Build SDist
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Build SDist
+      run: pipx run build --sdist
+
+    - name: Check metadata
+      run: pipx run twine check dist/*
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: dist-sdist
+        path: dist/*.tar.gz
+
+
+  build_wheels:
+    name: Wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - uses: pypa/cibuildwheel@v2.22
+
+    - name: Verify clean directory
+      run: git diff --exit-code
+      shell: bash
+
+    - name: Upload wheels
+      uses: actions/upload-artifact@v4
+      with:
+        path: wheelhouse/*.whl
+        name: dist-${{ matrix.os }}
+
+  # upload_all:
+  #   name: Upload if release
+  #   needs: [build_wheels, build_sdist]
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'release' && github.event.action == 'published'
+
+  #   steps:
+  #   - uses: actions/setup-python@v5
+  #   - uses: actions/download-artifact@v4
+  #     with:
+  #       path: dist
+  #       pattern: dist-*
+  #       merge-multiple: true
+
+  #   - uses: pypa/gh-action-pypi-publish@release/v1
+  #     with:
+  #       user: __token__
+  #       password: ${{ secrets.pypi_password }}

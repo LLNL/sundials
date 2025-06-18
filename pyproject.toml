@@ -59,6 +59,18 @@ pythonpath = [
   ".", "bindings/pysundials/test"
 ]
 
+[tool.cibuildwheel]
+# Necessary to see build output from the actual compilation
+build-verbosity = 1
+
+# Optional: run pytest to ensure that the package was correctly built
+test-command = "pytest bindings/pysundials/test"
+test-requires = "pytest"
+
+# Needed for full C++17 support on macOS
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "10.14"
+
 [tool.black]
 line-length = 99
 skip_magic_trailing_comma = true
