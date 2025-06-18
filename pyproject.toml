@@ -52,7 +52,10 @@ cmake.args = [
 
 [tool.pytest.ini_options]
 addopts = [
-    "--import-mode=importlib",
+    "--import-mode=importlib"
+]
+pythonpath = [
+  ".", "bindings/python/test"
 ]
 
 [tool.black]
