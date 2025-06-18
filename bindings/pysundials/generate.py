@@ -62,7 +62,8 @@ def main():
         # "ops" functions pointers cause this warning, but we dont care cause we dont need to bind those.
         'A cpp element of type "function_decl" was stored as CppUnprocessed'
     )
-    # options.srcmlcpp_options.header_filter_acceptable__regex = ""
+    options.srcmlcpp_options.header_filter_preprocess_regions = True
+    options.srcmlcpp_options.header_filter_acceptable__regex = "__cplusplus|_h_$|_h$|_H$|_H_$|hpp$|HPP$|hxx$|HXX$|SWIG$"
 
     config_yaml_path = args.config_yaml_path
     with open(config_yaml_path, "r") as yaml_file:

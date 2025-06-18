@@ -240,15 +240,17 @@ typedef void (*SUNErrHandlerFn)(int line, const char* func, const char* file,
     because we manually insert the wrapper code for SUN_COMM_NULL
     (and %ignoring it in the SWIG code doesn't seem to work). */
 
+#ifndef SWIG
+#define SUN_COMM_NULL 0
+#endif
+
 #if SUNDIALS_MPI_ENABLED
 #ifndef SWIG
+#undef SUN_COMM_NULL
 #define SUN_COMM_NULL MPI_COMM_NULL
 #endif
 typedef MPI_Comm SUNComm;
 #else
-#ifndef SWIG
-#define SUN_COMM_NULL 0
-#endif
 typedef int SUNComm;
 #endif
 
