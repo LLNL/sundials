@@ -29,11 +29,11 @@ modules:
   sundials_adaptcontroller:
     path: sundials/pysundials_adaptcontroller_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_adaptcontroller.h
+    - ../../include/sundials/sundials_adaptcontroller.h
   sundials_adjointcheckpointscheme:
     path: sundials/pysundials_adjointcheckpointscheme_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_adjointcheckpointscheme.h
+    - ../../include/sundials/sundials_adjointcheckpointscheme.h
     fn_exclude_by_name__regex:
     - "Create" # nanobind cannot bind to functions which take a **
     - "Set.*Fn" # nanobind cannot bind to functions which take a function pointer
@@ -44,13 +44,13 @@ modules:
   sundials_adjointstepper:
     path: sundials/pysundials_adjointstepper_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_adjointstepper.h
+    - ../../include/sundials/sundials_adjointstepper.h
     fn_exclude_by_name__regex:
     - "Create" # nanobind cannot bind to functions which take a **
   sundials_context:
     path: sundials/pysundials_context_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_context.h
+    - ../../include/sundials/sundials_context.h
     fn_exclude_by_name__regex:
     - "Create" # nanobind cannot bind to functions which take a **
     - "GetProfiler" # nanobind cannot bind to functions which take a **
@@ -58,28 +58,28 @@ modules:
   sundials_errors:
     path: sundials/pysundials_errors_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_errors.h
+    - ../../include/sundials/sundials_errors.h
   sundials_linearsolver:
     path: sundials/pysundials_linearsolver_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_iterative.h
-    - ../../../include/sundials/sundials_linearsolver.h
+    - ../../include/sundials/sundials_iterative.h
+    - ../../include/sundials/sundials_linearsolver.h
     fn_exclude_by_name__regex:
     - "SUNQRAdd" # nanobind cannot bind to functions which take a **
   sundials_logger:
     path: sundials/pysundials_logger_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_logger.h
+    - ../../include/sundials/sundials_logger.h
     fn_exclude_by_name__regex:
     - "Create" # nanobind cannot bind to functions which take a **
   sundials_matrix:
     path: sundials/pysundials_matrix_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_matrix.h
+    - ../../include/sundials/sundials_matrix.h
   sundials_memory:
     path: sundials/pysundials_memory_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_memory.h
+    - ../../include/sundials/sundials_memory.h
     fn_exclude_by_name__regex:
     - "Alias" # not needed in Python
     - "Wrap" # not needed in Python
@@ -91,11 +91,11 @@ modules:
   sundials_nonlinearsolver:
     path: sundials/pysundials_nonlinearsolver_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_nonlinearsolver.h
+    - ../../include/sundials/sundials_nonlinearsolver.h
   sundials_nvector:
     path: sundials/pysundials_nvector_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_nvector.h
+    - ../../include/sundials/sundials_nvector.h
     fn_exclude_by_name__regex:
     - "ArrayPointer"
     - "BufPack"
@@ -106,13 +106,13 @@ modules:
   sundials_profiler:
     path: sundials/pysundials_profiler_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_profiler.h
+    - ../../include/sundials/sundials_profiler.h
     fn_exclude_by_name__regex:
     - "Create"
   sundials_stepper:
     path: sundials/pysundials_stepper_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_stepper.h
+    - ../../include/sundials/sundials_stepper.h
     fn_exclude_by_name__regex:
     - "Create" # nanobind cannot bind to functions which take a **
     - "Set.*Fn" # nanobind cannot bind to functions which take a function pointer
@@ -122,4 +122,4 @@ modules:
   sundials_types:
     path: sundials/pysundials_types_generated.hpp
     headers:
-    - ../../../include/sundials/sundials_types.h
+    - ../../include/sundials/sundials_types.h
