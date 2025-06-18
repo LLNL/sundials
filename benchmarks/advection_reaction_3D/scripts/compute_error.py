@@ -80,9 +80,7 @@ for component in ["u", "v", "w"]:
     x = np.array([np.prod(h_over_4["h"]), np.prod(h_over_1["h"])])
     plt.plot(x, x, "k-")
     plt.plot(x, x**2, "k-")
-    plt.plot(
-        x, [np.linalg.norm(Eh_over_4, np.Inf), np.linalg.norm(Eh_over_1, np.Inf)], "r-"
-    )
+    plt.plot(x, [np.linalg.norm(Eh_over_4, np.Inf), np.linalg.norm(Eh_over_1, np.Inf)], "r-")
     plt.legend(["1st order", "2nd order", "actual"])
     plt.ylabel("|| ||E(hx,hy,hz)|| ||_inf")
     plt.xlabel("hx * hy * hz")

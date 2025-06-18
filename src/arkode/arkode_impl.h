@@ -230,6 +230,8 @@ typedef int (*ARKTimestepGetNumRhsEvals)(ARKodeMem ark_mem, int partition_index,
                                          long int* num_rhs_evals);
 typedef int (*ARKTimestepSetStepDirection)(ARKodeMem ark_mem,
                                            sunrealtype stepdir);
+typedef int (*ARKTimestepSetUseCompensatedSums)(ARKodeMem ark_mem,
+                                                sunbooleantype onoff);
 
 /* time stepper interface functions -- temporal adaptivity */
 typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
@@ -420,6 +422,7 @@ struct ARKodeMemRec
   ARKTimestepSetOrder step_setorder;
   ARKTimestepGetNumRhsEvals step_getnumrhsevals;
   ARKTimestepSetStepDirection step_setstepdirection;
+  ARKTimestepSetUseCompensatedSums step_setusecompensatedsums;
 
   /* Time stepper module -- temporal adaptivity */
   sunbooleantype step_supports_adaptive;
@@ -662,7 +665,7 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, sunrealtype hj, sunrealtype tau,
                          int nvec, sunrealtype* cvals, N_Vector* Xvecs,
                          N_Vector yguess);
 int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr);
-int arkCheckConstraints(ARKodeMem ark_mem, int* nflag, int* constrfails);
+int arkCheckConstraints(ARKodeMem ark_mem, int* constrfails, int* nflag);
 int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
                           sunrealtype dsm);
 int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,

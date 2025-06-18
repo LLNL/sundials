@@ -501,6 +501,10 @@ Optional inputs for IVP method selection
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument had an illegal value
 
+   .. deprecated:: 6.4.0
+
+      Use :c:func:`ARKodeSetUseCompensatedSums` instead.
+
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepRootfindingInput:
@@ -756,6 +760,10 @@ Main solver optional output functions
 
    :returns: The return value is a string containing the name of the
              corresponding constant.
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
    .. deprecated:: 6.1.0
 

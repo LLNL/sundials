@@ -54,29 +54,17 @@ for idx in range(0, len(ufiles)):
     sys.stdout.flush()
     udata.append(
         pd.read_csv(
-            ufiles[idx],
-            header=None,
-            delimiter=" ",
-            skipinitialspace=True,
-            dtype=np.double,
+            ufiles[idx], header=None, delimiter=" ", skipinitialspace=True, dtype=np.double
         )
     )
     vdata.append(
         pd.read_csv(
-            vfiles[idx],
-            header=None,
-            delimiter=" ",
-            skipinitialspace=True,
-            dtype=np.double,
+            vfiles[idx], header=None, delimiter=" ", skipinitialspace=True, dtype=np.double
         )
     )
     wdata.append(
         pd.read_csv(
-            wfiles[idx],
-            header=None,
-            delimiter=" ",
-            skipinitialspace=True,
-            dtype=np.double,
+            wfiles[idx], header=None, delimiter=" ", skipinitialspace=True, dtype=np.double
         )
     )
 sys.stdout.write("\n")
@@ -96,6 +84,4 @@ wdata = np.reshape(wdata, (nt, nx, ny, nz))
 
 # save data to pickle
 print("saving...")
-np.savez_compressed(
-    "output-with-h-%.2e.npz" % hx, t=times, u=udata, v=vdata, w=wdata, mesh=mesh
-)
+np.savez_compressed("output-with-h-%.2e.npz" % hx, t=times, u=udata, v=vdata, w=wdata, mesh=mesh)
