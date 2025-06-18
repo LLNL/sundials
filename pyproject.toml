@@ -3,7 +3,7 @@ requires = ["scikit-build-core", "nanobind"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "pysundials"
+name = "pysundials-official"
 version = "0.1.0"
 description = "Official Python bindings for the SUNDIALS suite of nonlinear and differential/algebraic equation solvers."
 authors = [
