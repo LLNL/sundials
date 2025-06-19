@@ -251,7 +251,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       NEWTON_CONTENT(NLS)->curiter++;
 
       SUNLogInfo(NLS->sunctx->logger, "nonlinear-iterate",
-                 "cur-iter = %i, total-iters = %li, update-norm = %.16g",
+                 "cur-iter = %i, total-iters = %li, update-norm = " SUN_FORMAT_G ,
                  NEWTON_CONTENT(NLS)->curiter, NEWTON_CONTENT(NLS)->niters,
                  N_VWrmsNorm(delta, w));
 
