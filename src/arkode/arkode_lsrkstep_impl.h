@@ -166,7 +166,6 @@ typedef struct ARKodeLSRKStepMemRec
 
   ARKODE_LSRKInternal_DomEigEst_Type internal_domeigest_type; /* Internal DomEig estimator type*/
   SUNDomEigEstimator DEE; /* DomEig estimator*/
-  N_Vector domeig_q;      /* DomEig initial q vector*/
   int domeig_krydim;      /* Krylov subspace dimension */
   int numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
   int domeig_maxiters; /* Max number of Power Iterations */
