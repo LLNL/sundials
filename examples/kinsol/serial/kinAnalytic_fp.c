@@ -64,7 +64,7 @@
 /* analytic solution */
 #define XTRUE HALF
 #define YTRUE ONE
-#define ZTRUE -PI / SIX
+#define ZTRUE (-PI / SIX)
 
 /* problem options */
 typedef struct
@@ -429,7 +429,7 @@ static int SetDefaults(UserOpt* uopt)
 
   /* Set default options values */
   (*uopt)->tol            = SUN_RCONST(100.0) * SUNRsqrt(SUN_UNIT_ROUNDOFF);
-  (*uopt)->maxiter        = 60;
+  (*uopt)->maxiter        = 30;
   (*uopt)->m_aa           = 0;               /* no acceleration */
   (*uopt)->delay_aa       = 0;               /* no delay        */
   (*uopt)->orth_aa        = 0;               /* MGS             */
