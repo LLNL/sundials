@@ -325,10 +325,24 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   char jobvl = 'N'; // Do not compute left eigenvectors
   char jobvr = 'N'; // Do not compute right eigenvectors
 
-  /* Call LAPACK's dgeev function */
+  /* Call LAPACK's dgeev function
+      return info values refer to
+    = 0:  successful exit
+    < 0:  if INFO = -i, the i-th argument had an illegal value.
+    > 0:  if INFO = i, the QR algorithm failed to compute all the
+          eigenvalues, and no eigenvectors have been computed;
+          elements i+1:N of LAPACK_wr and LAPACK_wi contain
+          eigenvalues which have converged.
+  */
+#if defined(SUNDIALS_DOUBLE_PRECISION) || defined(SUNDIALS_EXTENDED_PRECISION)
   dgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
          ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
          &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+  sgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
+         ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
+         &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
+#endif
 
   if (info != 0)
   {
@@ -431,9 +445,9 @@ SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
 // Comparison function for qsort
 int domeig_Compare(const void* a, const void* b)
 {
-  const sunrealtype* c1  = *(const sunrealtype* const*)a;
-  const sunrealtype* c2  = *(const sunrealtype* const*)b;
-  sunrealtype mag1 = SUNRsqrt(c1[0] * c1[0] + c1[1] * c1[1]);
-  sunrealtype mag2 = SUNRsqrt(c2[0] * c2[0] + c2[1] * c2[1]);
+  const sunrealtype* c1 = *(sunrealtype**)a;
+  const sunrealtype* c2 = *(sunrealtype**)b;
+  sunrealtype mag1      = SUNRsqrt(c1[0] * c1[0] + c1[1] * c1[1]);
+  sunrealtype mag2      = SUNRsqrt(c2[0] * c2[0] + c2[1] * c2[1]);
   return (mag2 > mag1) - (mag2 < mag1); // Descending order
 }

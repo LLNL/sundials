@@ -37,11 +37,17 @@ int domeig_Compare(const void* a, const void* b);
   * LAPACK function
   * -----------------------------------------------------------------
   */
-
+#if defined(SUNDIALS_DOUBLE_PRECISION) || defined(SUNDIALS_EXTENDED_PRECISION)
 extern void dgeev_(char* jobvl, char* jobvr, int* n, sunrealtype* a, int* lda,
                    sunrealtype* wr, sunrealtype* wi, sunrealtype* vl, int* ldvl,
                    sunrealtype* vr, int* ldvr, sunrealtype* work, int* lwork,
                    int* info);
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+extern void sgeev_(char* jobvl, char* jobvr, int* n, sunrealtype* a, int* lda,
+                   sunrealtype* wr, sunrealtype* wi, sunrealtype* vl, int* ldvl,
+                   sunrealtype* vr, int* ldvr, sunrealtype* work, int* lwork,
+                   int* info);
+#endif
 
 #ifdef __cplusplus
 }
