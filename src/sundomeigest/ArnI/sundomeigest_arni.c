@@ -153,17 +153,18 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   ArnI_CONTENT(DEE)->LAPACK_work =
     malloc((4 * ArnI_CONTENT(DEE)->krydim) * sizeof(sunrealtype));
 
-
   int k;
 
   /* LAPACK array */
   if (ArnI_CONTENT(DEE)->LAPACK_arr == NULL)
   {
-    ArnI_CONTENT(DEE)->LAPACK_arr = (sunrealtype**)malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype*));
+    ArnI_CONTENT(DEE)->LAPACK_arr =
+      (sunrealtype**)malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype*));
 
     for (k = 0; k < ArnI_CONTENT(DEE)->krydim; k++)
     {
-      ArnI_CONTENT(DEE)->LAPACK_arr[k] = (sunrealtype*)malloc(2 * sizeof(sunrealtype));
+      ArnI_CONTENT(DEE)->LAPACK_arr[k] =
+        (sunrealtype*)malloc(2 * sizeof(sunrealtype));
     }
   }
 
@@ -293,7 +294,8 @@ SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
+SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                                  sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -343,7 +345,8 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR, 
   }
 
   /* Sort the array using qsort */
-  qsort(ArnI_CONTENT(DEE)->LAPACK_arr, n, sizeof(ArnI_CONTENT(DEE)->LAPACK_arr[0]), domeig_Compare);
+  qsort(ArnI_CONTENT(DEE)->LAPACK_arr, n,
+        sizeof(ArnI_CONTENT(DEE)->LAPACK_arr[0]), domeig_Compare);
 
   // alternatively we can return a vector of all computed dom_eigs (up to krydim)
   // TODO: Get opinions
@@ -428,9 +431,9 @@ SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
 // Comparison function for qsort
 int domeig_Compare(const void* a, const void* b)
 {
-  sunrealtype* c1 = *(sunrealtype**)a;
-  sunrealtype* c2 = *(sunrealtype**)b;
-  sunrealtype mag1      = SUNRsqrt(c1[0] * c1[0] + c1[1] * c1[1]);
-  sunrealtype mag2      = SUNRsqrt(c2[0] * c2[0] + c2[1] * c2[1]);
+  const sunrealtype* c1  = *(const sunrealtype* const*)a;
+  const sunrealtype* c2  = *(const sunrealtype* const*)b;
+  sunrealtype mag1 = SUNRsqrt(c1[0] * c1[0] + c1[1] * c1[1]);
+  sunrealtype mag2 = SUNRsqrt(c2[0] * c2[0] + c2[1] * c2[1]);
   return (mag2 > mag1) - (mag2 < mag1); // Descending order
 }

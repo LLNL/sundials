@@ -51,18 +51,18 @@ int check_flag(void* flagvalue, const char* funcname, int opt);
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails              = 0;    /* counter for test failures */
-  int passfail           = 0;    /* overall pass/fail flag     */
-  SUNDomEigEstimator DEE = NULL; /* domeig estimator object    */
-  N_Vector q;                    /* test vectors               */
-  UserData ProbData;             /* problem data structure     */
-  int numwarmups;                /* Number of the preprocessing warmups */
-  int max_powiter;               /* max power iteration        */
-  int niter;                     /* number of iterations       */
-  int print_timing;              /* timing output flag         */
-  sunrealtype res;               /* current residual           */
-  sunrealtype lambdaR, lambdaI;  /* computed domeig parts      */
-  sunrealtype tlambdaR, tlambdaI;/* true domeig parts          */
+  int fails              = 0;     /* counter for test failures */
+  int passfail           = 0;     /* overall pass/fail flag     */
+  SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
+  N_Vector q;                     /* test vectors               */
+  UserData ProbData;              /* problem data structure     */
+  int numwarmups;                 /* Number of the preprocessing warmups */
+  int max_powiter;                /* max power iteration        */
+  int niter;                      /* number of iterations       */
+  int print_timing;               /* timing output flag         */
+  sunrealtype res;                /* current residual           */
+  sunrealtype lambdaR, lambdaI;   /* computed domeig parts      */
+  sunrealtype tlambdaR, tlambdaI; /* true domeig parts          */
   SUNContext sunctx;
   sunrealtype rel_tol = 1.0e-2; /* relative tol for pass/fail */
   sunrealtype rel_error;
@@ -172,8 +172,7 @@ int main(int argc, char* argv[])
   }
 
   /* First check if the computed eigenvalue has a nonzero magnitute */
-  sunrealtype norm_of_dom_eig =
-    SUNRsqrt(lambdaR * lambdaR + lambdaI * lambdaI);
+  sunrealtype norm_of_dom_eig = SUNRsqrt(lambdaR * lambdaR + lambdaI * lambdaI);
   if (norm_of_dom_eig < SUN_SMALL_REAL)
   {
     printf("FAIL: Dominant Eigenvalue Test Failed\n\n");
@@ -197,13 +196,14 @@ int main(int argc, char* argv[])
     tlambdaI = ZERO;
   }
 
-  printf("\ncomputed dominant eigenvalue = %20.4lf + %20.4lfi\n", lambdaR, lambdaI);
-  printf("    true dominant eigenvalue = %20.4lf + %20.4lfi\n", tlambdaR, tlambdaI);
+  printf("\ncomputed dominant eigenvalue = %20.4lf + %20.4lfi\n", lambdaR,
+         lambdaI);
+  printf("    true dominant eigenvalue = %20.4lf + %20.4lfi\n", tlambdaR,
+         tlambdaI);
 
   /* Compare the estimated dom_eig with the true_dom_eig*/
-  rel_error = SUNRsqrt(
-    (lambdaR - tlambdaR) * (lambdaR - tlambdaR) +
-    (lambdaI - tlambdaI) * (lambdaI - tlambdaI));
+  rel_error = SUNRsqrt((lambdaR - tlambdaR) * (lambdaR - tlambdaR) +
+                       (lambdaI - tlambdaI) * (lambdaI - tlambdaI));
 
   rel_error /= norm_of_dom_eig;
 

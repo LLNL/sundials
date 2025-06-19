@@ -260,7 +260,8 @@ int Test_SUNDomEigEstComputeHess(SUNDomEigEstimator DEE, int myid)
 /* ----------------------------------------------------------------------
  * SUNDomEigEstimate Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI, int myid)
+int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                           sunrealtype* lambdaI, int myid)
 {
   int failure;
   double start_time, stop_time;

@@ -235,7 +235,8 @@ SUNErrCode SUNDomEigEstPreProcess_PI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
+SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                                sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 

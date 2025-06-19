@@ -2222,12 +2222,13 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   }
   else if (step_mem->DEE != NULL)
   {
-    retval = lsrkStep_DomEigEstimate(ark_mem, step_mem->DEE, &step_mem->lambdaR, &step_mem->lambdaI);
+    retval = lsrkStep_DomEigEstimate(ark_mem, step_mem->DEE, &step_mem->lambdaR,
+                                     &step_mem->lambdaI);
     step_mem->dom_eig_num_evals++;
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
+                      __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
       return ARK_INTERNAL_DOMEIG_FAIL;
     }
   }
@@ -2408,7 +2409,8 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
 
   This routine estimates the dominant eigenvalue.
   ---------------------------------------------------------------*/
-int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
+int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
+                            sunrealtype* lambdaR, sunrealtype* lambdaI)
 {
   ARKodeMem ark_mem;
 

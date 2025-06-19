@@ -221,7 +221,8 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
 SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem);
-int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI);
+int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
+                            sunrealtype* lambdaR, sunrealtype* lambdaI);
 int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv);
 
 /*===============================================================

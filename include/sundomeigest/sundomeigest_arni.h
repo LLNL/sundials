@@ -49,10 +49,10 @@ struct _SUNDomEigEstimatorContent_ArnI
   int numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
 
   sunrealtype* LAPACK_A; /* The vector which holds rows of the Hessenberg matrix in the given order */
-  sunrealtype* LAPACK_wr;     /* Real parts of eigenvalues */
-  sunrealtype* LAPACK_wi;     /* Imaginary parts of eigenvalues */
-  sunrealtype* LAPACK_work;   /* Workspace array */
-  sunrealtype** LAPACK_arr;   /* an array to sort eigenvalues*/
+  sunrealtype* LAPACK_wr;   /* Real parts of eigenvalues */
+  sunrealtype* LAPACK_wi;   /* Imaginary parts of eigenvalues */
+  sunrealtype* LAPACK_work; /* Workspace array */
+  sunrealtype** LAPACK_arr; /* an array to sort eigenvalues*/
 
   sunrealtype** Hes; /* Hessenberg matrix Hes */
 };
@@ -87,7 +87,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI);
+SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                                  sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE);
