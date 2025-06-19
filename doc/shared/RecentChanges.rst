@@ -5,6 +5,8 @@
 
 **New Features and Enhancements**
 
+Add `__float128` support with quadmath dependency and ostream integration.
+
 :c:func:`ARKodeSetCFLFraction` now allows ``cfl_frac`` to be greater than or
 equal to one.
 
