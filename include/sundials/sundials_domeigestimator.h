@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 /* Default estimator parameters */
-#define SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT 0
+#define DEE_NUM_OF_WARMUPS_DEFAULT 0
 
 /* -----------------------------------------------------------------
  * Implemented SUNDomEigEstimator types
@@ -44,7 +44,7 @@ typedef enum
 } SUNDomEigEstimator_ID;
 
 /* -----------------------------------------------------------------
- * Generic definition of SUNDomEigEstimator
+ * Generic definition of SUNDomEigEstimator (DEE)
  * ----------------------------------------------------------------- */
 
 /* Forward reference for pointer to SUNDomEigEstimator_Ops object */
@@ -70,7 +70,7 @@ struct _generic_SUNDomEigEstimator_Ops
   SUNErrCode (*free)(SUNDomEigEstimator);
 };
 
-/* A estimator is a structure with an implementation-dependent
+/* An estimator is a structure with an implementation-dependent
    'content' field, and a pointer to a structure of estimator
    operations corresponding to that implementation. */
 struct _generic_SUNDomEigEstimator
@@ -125,6 +125,9 @@ SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, int* niter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstRes(SUNDomEigEstimator DEE, sunrealtype* res);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstFree(SUNDomEigEstimator DEE);
 
 #ifdef __cplusplus
 }

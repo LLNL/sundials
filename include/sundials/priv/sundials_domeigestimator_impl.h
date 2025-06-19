@@ -18,7 +18,6 @@
 #ifndef _DOMEIG_IMPL_H
 #define _DOMEIG_IMPL_H
 
-#include <sundials/sundials_domeigestimator.h>
 #include <sundials/sundials_math.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -29,8 +28,7 @@ extern "C" {
   DOMEIG module private function prototypes
   ===============================================================*/
 
-SUNErrCode domeig_CheckNVector(N_Vector tmpl);
-int domeig_Compare(const void* a, const void* b);
+int sundomeigest_Compare(const void* a, const void* b);
 
 /*
   * -----------------------------------------------------------------

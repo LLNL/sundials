@@ -18,7 +18,6 @@
 #define _LSRKSTEP_H
 
 #include <arkode/arkode.h>
-#include <sundials/sundials_domeigestimator.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -41,12 +40,6 @@ typedef enum
   ARKODE_LSRK_SSP_S_3,
   ARKODE_LSRK_SSP_10_4
 } ARKODE_LSRKMethodType;
-
-typedef enum
-{
-  ARKODE_LSRK_POWER_ITERATION,
-  ARKODE_LSRK_ARNOLDI_ITERATION
-} ARKODE_LSRKInternal_DomEigEst_Type;
 
 /* -------------------
  * Exported Functions
@@ -82,8 +75,8 @@ SUNDIALS_EXPORT int LSRKStepSetSSPMethodByName(void* arkode_mem,
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
-SUNDIALS_EXPORT int LSRKStepSetInternalDomEigEstType(
-  void* arkode_mem, ARKODE_LSRKInternal_DomEigEst_Type dom_eig_type);
+SUNDIALS_EXPORT int LSRKStepSetDEECreateWithID(
+  void* arkode_mem, SUNDomEigEstimator_ID DEE_id);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps);
 
@@ -101,6 +94,8 @@ SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
                                                 long int* dom_eig_num_evals);
 
 SUNDIALS_EXPORT int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
+
+SUNDIALS_EXPORT int LSRKStepGetNumRHSinDQ(void* arkode_mem, int* nfeDQ);
 
 #ifdef __cplusplus
 }

@@ -218,18 +218,18 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   else
   {
     /* Set the default internal dominant eigenvalue estimator type */
-    if (step_mem->internal_domeigest_type != ARKODE_LSRK_ARNOLDI_ITERATION)
+    if (step_mem->DDE_ID != SUNDSOMEIGESTIMATOR_ARNOLDI)
     {
-      step_mem->internal_domeigest_type = ARKODE_LSRK_POWER_ITERATION;
+      step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_POWER;
     }
 
     /* Create an internal dominant eigenvalue estimator */
     step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
     if (step_mem->DEE == NULL)
     {
-      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                      __FILE__, "Internal DomEigEstimator is NULL");
-      return ARK_INTERNAL_DOMEIG_FAIL;
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                      __FILE__, "ARKODE failed to create a DDE: Creation routine returned NULL DDE");
+      return ARK_DEE_FAIL;
     }
 
     return ARK_SUCCESS;
@@ -237,10 +237,10 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetInternalDomEigEstType sets internal DomEigEst type.
+  LSRKStepSetDEECreateWithID creates DomEigEst with ID.
   ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int LSRKStepSetInternalDomEigEstType(
-  void* arkode_mem, ARKODE_LSRKInternal_DomEigEst_Type dom_eig_type)
+SUNDIALS_EXPORT int LSRKStepSetDEECreateWithID(
+  void* arkode_mem, SUNDomEigEstimator_ID DEE_id)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -251,36 +251,36 @@ SUNDIALS_EXPORT int LSRKStepSetInternalDomEigEstType(
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  if (dom_eig_type == ARKODE_LSRK_POWER_ITERATION)
+  if (DEE_id == SUNDSOMEIGESTIMATOR_POWER)
   {
-    step_mem->internal_domeigest_type = ARKODE_LSRK_POWER_ITERATION;
+    step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_POWER;
     /* Create internal dominant eigenvalue estimator -- PI */
     if (step_mem->DEE == NULL)
     {
       step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
     }
   }
-  else if (dom_eig_type == ARKODE_LSRK_ARNOLDI_ITERATION)
+  else if (DEE_id == SUNDSOMEIGESTIMATOR_ARNOLDI)
   {
 #ifdef SUNDIALS_BLAS_LAPACK_ENABLED
-    step_mem->internal_domeigest_type = ARKODE_LSRK_ARNOLDI_ITERATION;
+    step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_ARNOLDI;
     /* Create an internal dominant eigenvalue estimator -- ArnI*/
     if (step_mem->DEE == NULL)
     {
       step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
     }
 #else
-    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
                     __FILE__,
-                    "Internal Arnoldi iteration requires LAPACK package");
-    return ARK_INTERNAL_DOMEIG_FAIL;
+                    "Sundials Arnoldi DDE requires LAPACK package");
+    return ARK_DEE_FAIL;
 #endif
   }
   else
   {
-    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                    __FILE__, "Attempted to set an internal domeig estimator with an unknown type");
-    return ARK_INTERNAL_DOMEIG_FAIL;
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                    __FILE__, "Attempted to set a DDE with an unknown type");
+    return ARK_DEE_FAIL;
   }
   return ARK_SUCCESS;
 }
@@ -548,6 +548,35 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
   return ARK_SUCCESS;
 }
 
+/*---------------------------------------------------------------
+  LSRKStepGetNumRHSinDQ:
+
+  Returns the number of RHS evals in DQ Jacobian computations
+  ---------------------------------------------------------------*/
+SUNDIALS_EXPORT int LSRKStepGetNumRHSinDQ(void* arkode_mem, int* nfeDQ)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (nfeDQ == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "nfeDQ cannot be NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  /* get values from step_mem */
+  *nfeDQ = step_mem->nfeDQ;
+
+  return ARK_SUCCESS;
+}
+
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
@@ -580,8 +609,8 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->spectral_radius_min = ZERO;
   step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
   step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
-  step_mem->domeig_krydim       = DOMEIG_KRYLOV_DIM_DEFAULT;
-  step_mem->numwarmups          = SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT;
+  step_mem->dee_krydim          = DEE_KRYLOV_DIM_DEFAULT;
+  step_mem->dee_numwarmups      = DEE_NUM_OF_WARMUPS_DEFAULT;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;

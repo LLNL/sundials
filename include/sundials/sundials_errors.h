@@ -75,9 +75,11 @@
   ENTRY(SUN_ERR_DEE_ATIMES_FAIL_REC, "Atimes recoverable failure")             \
   ENTRY(SUN_ERR_DEE_ATIMES_FAIL_UNREC, "Atimes unrecoverable failure")         \
   ENTRY(SUN_ERR_DEE_NULL_HES, "Hessenberg matrix is null")                     \
-  ENTRY(SUN_ERR_DEE_NULL_MEM, "Domimant eigenvalue estimator memory is null")  \
+  ENTRY(SUN_ERR_DEE_NULL_MEM, "DEE memory is null")                            \
   ENTRY(SUN_ERR_DEE_NULL_CONTENT, "DDE content is null")                       \
-  ENTRY(SUN_ERR_DEE_LAPACK_FAIL, "LAPACK _dgeev function failure")             \
+  ENTRY(SUN_ERR_DEE_LAPACK_FAIL, "LAPACK _dgeev/_sgeev function failure")      \
+  ENTRY(SUN_ERR_DEE_NULL_ESTIMATE, "Estimate function ptr is NULL")            \
+  ENTRY(SUN_ERR_DEE_NULL_FREE, "Free function ptr is NULL")                    \
                                                                                \
   ENTRY(SUN_ERR_SUNCTX_CORRUPT, "SUNContext is NULL or corrupt")               \
                                                                                \

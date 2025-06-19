@@ -191,10 +191,9 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe         = rhs;
-  step_mem->domeig_rhs = NULL;
 
   /* Set internal DomEigEst type */
-  step_mem->internal_domeigest_type = ARKODE_LSRK_POWER_ITERATION;
+  step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_POWER;
 
   /* Set NULL for dom_eig_fn */
   step_mem->dom_eig_fn = NULL;
@@ -2226,9 +2225,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     step_mem->dom_eig_num_evals++;
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
-      return ARK_INTERNAL_DOMEIG_FAIL;
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                      __FILE__, MSG_ARK_DEE_FAIL);
+      return ARK_DEE_FAIL;
     }
   }
   else
@@ -2305,53 +2304,50 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
     return NULL;
   }
 
-  step_mem->domeig_rhs = step_mem->fe;
-
-  step_mem->domeig_krydim   = DOMEIG_KRYLOV_DIM_DEFAULT;
-  step_mem->numwarmups      = SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT;
-  step_mem->domeig_maxiters = DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT;
+  step_mem->dee_krydim     = DEE_KRYLOV_DIM_DEFAULT;
+  step_mem->dee_numwarmups = DEE_NUM_OF_WARMUPS_DEFAULT;
+  step_mem->dee_maxiters   = DEE_MAX_NUMBER_OF_POWER_ITERS_DEFAULT;
 
   /* Enforce the power iteration if the problem size < 3 */
-  if (step_mem->internal_domeigest_type == ARKODE_LSRK_ARNOLDI_ITERATION &&
+  if (step_mem->DDE_ID == SUNDSOMEIGESTIMATOR_ARNOLDI &&
       ark_mem->yn->ops->nvgetlength(ark_mem->yn) < 3)
   {
-    step_mem->internal_domeigest_type = ARKODE_LSRK_POWER_ITERATION;
+    step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_POWER;
   }
 
   /* Create the internal DomEigEst */
-  if (step_mem->internal_domeigest_type == ARKODE_LSRK_POWER_ITERATION)
+  if (step_mem->DDE_ID == SUNDSOMEIGESTIMATOR_POWER)
   {
-    DEE = SUNDomEigEst_PI(ark_mem->yn, step_mem->domeig_maxiters,
+    DEE = SUNDomEigEst_PI(ark_mem->yn, step_mem->dee_maxiters,
                           ark_mem->sunctx);
     if (DEE == NULL)
     {
-      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                      __FILE__, "ARKODE failed to create a DDE: Creation routine returned NULL DDE");
       return NULL;
     }
   }
-  else if (step_mem->internal_domeigest_type == ARKODE_LSRK_ARNOLDI_ITERATION)
+  else if (step_mem->DDE_ID == SUNDSOMEIGESTIMATOR_ARNOLDI)
   {
 #ifdef SUNDIALS_BLAS_LAPACK_ENABLED
-    DEE = SUNDomEigEst_ArnI(ark_mem->yn, step_mem->domeig_krydim,
-                            ark_mem->sunctx);
+    DEE = SUNDomEigEst_ArnI(ark_mem->yn, step_mem->dee_krydim, ark_mem->sunctx);
     if (DEE == NULL)
     {
-      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                      __FILE__, "ARKODE failed to create a DDE: Creation routine returned NULL DDE");
       return NULL;
     }
 #else
-    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
                     __FILE__,
-                    "Internal Arnoldi iteration requires LAPACK package");
+                    "Sundials Arnoldi DDE requires LAPACK package");
     return NULL;
 #endif
   }
   else
   {
-    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                    __FILE__, "Attempted to create an internal domeig estimator with an unknown type");
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                    __FILE__, "Attempted to create a DDE with an unknown type");
     return NULL;
   }
 
@@ -2359,19 +2355,19 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   retval = DEE->ops->setatimes(DEE, arkode_mem, lsrkStep_DQJtimes);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                    __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                    __FILE__, MSG_ARK_DEE_FAIL);
     return NULL;
   }
 
   /* Set Max Power Itetations*/
   if (DEE->ops->setmaxpoweriter != NULL)
   {
-    retval = DEE->ops->setmaxpoweriter(DEE, step_mem->domeig_maxiters);
+    retval = DEE->ops->setmaxpoweriter(DEE, step_mem->dee_maxiters);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                      __FILE__, MSG_ARK_DEE_FAIL);
       return NULL;
     }
   }
@@ -2380,19 +2376,19 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   retval = DEE->ops->initialize(DEE);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                    __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                    __FILE__, MSG_ARK_DEE_FAIL);
     return NULL;
   }
 
   /* Set the number of preprocessings */
   if (DEE->ops->setnumofperprocess != NULL)
   {
-    retval = DEE->ops->setnumofperprocess(DEE, step_mem->numwarmups);
+    retval = DEE->ops->setnumofperprocess(DEE, step_mem->dee_numwarmups);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                      __FILE__, MSG_ARK_DEE_FAIL);
       return NULL;
     }
   }
@@ -2426,16 +2422,16 @@ int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
     return ARK_ILL_INPUT;
   }
 
-  /* Set the initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
+  /* Set the initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
   if (DEE->ops->preprocess != NULL)
   {
     retval = DEE->ops->preprocess(DEE);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                      __FILE__, MSG_ARK_DEE_FAIL);
 
-      return ARK_INTERNAL_DOMEIG_FAIL;
+      return ARK_DEE_FAIL;
     }
   }
 
@@ -2445,20 +2441,20 @@ int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
     retval = DEE->ops->computehess(DEE);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                      __FILE__, MSG_ARK_DEE_FAIL);
 
-      return ARK_INTERNAL_DOMEIG_FAIL;
+      return ARK_DEE_FAIL;
     }
   }
 
   retval = DEE->ops->estimate(DEE, lambdaR, lambdaI);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_INTERNAL_DOMEIG_FAIL, __LINE__, __func__,
-                    __FILE__, MSG_ARK_INTERNAL_DOMEIG_FAIL);
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
+                    __FILE__, MSG_ARK_DEE_FAIL);
 
-    return ARK_INTERNAL_DOMEIG_FAIL;
+    return ARK_DEE_FAIL;
   }
 
   return ARK_SUCCESS;
@@ -2507,7 +2503,8 @@ int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv)
     N_VLinearSum(sig, v, ONE, y, work);
 
     /* Set Jv = f(tn, y+sig*v) */
-    retval = step_mem->domeig_rhs(t, work, Jv, ark_mem->user_data);
+    //TODO:Needs to be update when LSRK Supports IMEX
+    retval = step_mem->fe(t, work, Jv, ark_mem->user_data);
     step_mem->nfeDQ++;
     if (retval == 0) { break; }
     if (retval < 0) { return (-1); }

@@ -172,7 +172,7 @@ SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->estimate) { ier = DEE->ops->estimate(DEE, lambdaR, lambdaI); }
-  else { ier = SUN_SUCCESS; }
+  else { ier = SUN_ERR_DEE_NULL_ESTIMATE; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
 }
@@ -210,6 +210,22 @@ SUNErrCode SUNDomEigEstRes(SUNDomEigEstimator DEE, sunrealtype* res)
   {
     *res = SUN_RCONST(0.0);
     ier  = SUN_SUCCESS;
+  }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
+  return (ier);
+}
+
+SUNErrCode SUNDomEigEstFree(SUNDomEigEstimator DEE)
+{
+  SUNErrCode ier;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
+  if (DEE->ops->free)
+  {
+    ier  = DEE->ops->free(DEE);
+  }
+  else
+  {
+    ier  = SUN_ERR_DEE_NULL_FREE;
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);

@@ -137,7 +137,7 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   }
   if (ArnI_CONTENT(DEE)->numwarmups < 0)
   {
-    ArnI_CONTENT(DEE)->numwarmups = SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT;
+    ArnI_CONTENT(DEE)->numwarmups = DEE_NUM_OF_WARMUPS_DEFAULT;
   }
 
   SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
@@ -360,7 +360,7 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
 
   /* Sort the array using qsort */
   qsort(ArnI_CONTENT(DEE)->LAPACK_arr, n,
-        sizeof(ArnI_CONTENT(DEE)->LAPACK_arr[0]), domeig_Compare);
+        sizeof(ArnI_CONTENT(DEE)->LAPACK_arr[0]), sundomeigest_Compare);
 
   // alternatively we can return a vector of all computed dom_eigs (up to krydim)
   // TODO: Get opinions
@@ -443,7 +443,7 @@ SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
 }
 
 // Comparison function for qsort
-int domeig_Compare(const void* a, const void* b)
+int sundomeigest_Compare(const void* a, const void* b)
 {
   const sunrealtype* c1 = *(const sunrealtype* const*)a;
   const sunrealtype* c2 = *(const sunrealtype* const*)b;

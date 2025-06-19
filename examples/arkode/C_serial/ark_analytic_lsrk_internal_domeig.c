@@ -33,7 +33,7 @@
  * larger than 100 the problem becomes quite stiff.
  *
  * This program solves the problem with the LSRK method using internal
- * dominant eigenvalue module for eigenvalue estimation.
+ * SUNDIALS dominant eigenvalue estimation (DEE) module.
  * Output is printed every 1.0 units of time (10 total).
  * Run statistics (optional outputs) are printed at the end.
  *-----------------------------------------------------------------*/
@@ -154,7 +154,7 @@ int main(void)
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
-  /* Specify NULL spectral radius function */
+  /* Specify NULL spectral radius function for internal DEE*/
   flag = LSRKStepSetDomEigFn(arkode_mem, NULL);
   if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
 

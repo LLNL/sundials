@@ -19,7 +19,6 @@
 #define _ARKODE_LSRKSTEP_IMPL_H
 
 #include <arkode/arkode_lsrkstep.h>
-#include <sundials/sundials_domeigestimator.h>
 #include <sundomeigest/sundomeigest_pi.h>
 
 #ifdef SUNDIALS_BLAS_LAPACK_ENABLED
@@ -35,8 +34,8 @@ extern "C" {
 #define STAGE_MAX_LIMIT_DEFAULT                  200
 #define DOM_EIG_SAFETY_DEFAULT                   SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT                     25
-#define DOMEIG_KRYLOV_DIM_DEFAULT                3
-#define DOMEIG_MAX_NUMBER_OF_POWER_ITERS_DEFAULT 100
+#define DEE_KRYLOV_DIM_DEFAULT                   3
+#define DEE_MAX_NUMBER_OF_POWER_ITERS_DEFAULT    100
 
 /*===============================================================
   LSRK time step module private math function macros
@@ -136,7 +135,6 @@ typedef struct ARKodeLSRKStepMemRec
 {
   /* LSRK problem specification */
   ARKRhsFn fe;
-  ARKRhsFn domeig_rhs;
   ARKDomEigFn dom_eig_fn;
 
   int q; /* method order               */
@@ -164,11 +162,11 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
-  ARKODE_LSRKInternal_DomEigEst_Type internal_domeigest_type; /* Internal DomEig estimator type*/
+  SUNDomEigEstimator_ID DDE_ID; /* DEE ID */
   SUNDomEigEstimator DEE; /* DomEig estimator*/
-  int domeig_krydim;      /* Krylov subspace dimension */
-  int numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
-  int domeig_maxiters; /* Max number of Power Iterations */
+  int dee_krydim;      /* Krylov subspace dimension */
+  int dee_numwarmups; /* Power of A in the preprocessing; initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
+  int dee_maxiters;   /* Max number of Power Iterations */
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */

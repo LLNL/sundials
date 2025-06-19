@@ -134,7 +134,7 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
   }
   if (PI_CONTENT(DEE)->numwarmups <= 0)
   {
-    PI_CONTENT(DEE)->numwarmups = SUNDOMEIGEST_NUM_OF_WARMUPS_DEFAULT;
+    PI_CONTENT(DEE)->numwarmups = DEE_NUM_OF_WARMUPS_DEFAULT;
   }
   if (PI_CONTENT(DEE)->max_powiter <= 0)
   {
