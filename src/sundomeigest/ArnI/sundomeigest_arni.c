@@ -445,8 +445,9 @@ SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
 // Comparison function for qsort
 int domeig_Compare(const void* a, const void* b)
 {
-  const sunrealtype* c1 = *(sunrealtype**)a;
-  const sunrealtype* c2 = *(sunrealtype**)b;
+  const sunrealtype* c1 = *(const sunrealtype* const *)a;
+  const sunrealtype* c2 = *(const sunrealtype* const *)b;
+
   sunrealtype mag1      = SUNRsqrt(c1[0] * c1[0] + c1[1] * c1[1]);
   sunrealtype mag2      = SUNRsqrt(c2[0] * c2[0] + c2[1] * c2[1]);
   return (mag2 > mag1) - (mag2 < mag1); // Descending order
