@@ -781,7 +781,9 @@ static void PrintHeader(sunrealtype rtol, sunrealtype atol)
   printf(" polynomial initial conditions.\n");
   printf("          Mesh dimensions: %d x %d", MGRID, MGRID);
   printf("        Total system size: %d\n\n", NEQ);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("Tolerance parameters:  rtol = %Qg   atol = %Qg\n", rtol, atol);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
@@ -791,7 +793,9 @@ static void PrintHeader(sunrealtype rtol, sunrealtype atol)
   printf("Constraints set to force all solution components >= 0. \n");
   printf("Linear solver: KLU, sparse direct solver \n");
   printf("       difference quotient Jacobian\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("IDACalcIC called with input boundary values = %Qg \n", BVAL);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("IDACalcIC called with input boundary values = %Lg \n", BVAL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("IDACalcIC called with input boundary values = %g \n", BVAL);
@@ -830,7 +834,10 @@ static void PrintOutput(void* mem, sunrealtype t, N_Vector uu)
   retval = IDAGetNumJacEvals(mem, &nje);
   check_retval(&retval, "IDAGetNumJacEvals", 1);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf(" %5.2Qf %13.5Qe  %d  %3ld  %3ld  %3ld  %4ld  %9.2Qe \n", t, umax,
+         kused, nst, nni, nje, nre, hused);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %9.2Le \n", t, umax,
          kused, nst, nni, nje, nre, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)

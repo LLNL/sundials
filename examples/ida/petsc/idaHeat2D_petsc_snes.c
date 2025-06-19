@@ -783,7 +783,11 @@ static void PrintHeader(sunindextype Neq, sunrealtype rtol, sunrealtype atol)
   printf("\tTotal system size: %ld\n", (long int)Neq);
   printf("                         Subgrid dimensions: %d x %d", MXSUB, MYSUB);
   printf("\tProcessor array: %d x %d\n", NPEX, NPEY);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("                         Tolerance parameters:  rtol = %Qg   atol = "
+         "%Qg\n",
+         rtol, atol);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("                         Tolerance parameters:  rtol = %Lg   atol = "
          "%Lg\n",
          rtol, atol);
@@ -844,7 +848,10 @@ static void PrintOutput(int id, void* ida_mem, sunrealtype t, N_Vector uu,
     retval = KSPGetTotalIterations(ksp, &nli);
     CHKERRV(retval);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf(" %5.2Qf %13.5Qe  %d  %3ld  %3ld  %3" DSYM "  %4ld  %9.2Qe \n", t,
+           umax, kused, nst, nni, nli, nre, hused);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3" DSYM "  %4ld  %9.2Le \n", t,
            umax, kused, nst, nni, nli, nre, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)

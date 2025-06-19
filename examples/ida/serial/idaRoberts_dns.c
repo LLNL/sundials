@@ -42,10 +42,10 @@
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
 #define GSYM "Qg"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
 #else
 #define GSYM "g"
 #endif
@@ -90,8 +90,8 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
 int main(void)
 {
   void* mem;
-  N_Vector yy, yp, avtol, constraints;
-  sunrealtype rtol, *yval, *ypval, *atval, *constraintsval;
+  N_Vector yy, yp, avtol;
+  sunrealtype rtol, *yval, *ypval, *atval;
   sunrealtype t0, tout1, tout, tret;
   suncountertype maxNumSteps;
   int iout, retval, retvalr;
@@ -102,12 +102,12 @@ int main(void)
   SUNContext ctx;
   FILE* FID;
 
-  mem = NULL;
-  yy = yp = avtol = constraints         = NULL;
-  yval = ypval = atval = constraintsval = NULL;
-  A                                     = NULL;
-  LS                                    = NULL;
-  NLS                                   = NULL;
+  mem                  = NULL;
+  yy = yp = avtol      = NULL;
+  yval = ypval = atval = NULL;
+  A                    = NULL;
+  LS                   = NULL;
+  NLS                  = NULL;
 
   /* Create SUNDIALS context */
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
@@ -120,8 +120,6 @@ int main(void)
   if (check_retval((void*)yp, "N_VClone", 0)) { return (1); }
   avtol = N_VClone(yy);
   if (check_retval((void*)avtol, "N_VClone", 0)) { return (1); }
-  constraints = N_VClone(yy);
-  if (check_retval((void*)constraints, "N_VClone", 0)) { return (1); }
   /* Create and initialize  y, y', and absolute tolerance vectors. */
   yval    = N_VGetArrayPointer(yy);
   yval[0] = ONE;
@@ -139,11 +137,6 @@ int main(void)
   atval[0] = SUN_RCONST(1.0e-8);
   atval[1] = SUN_RCONST(1.0e-6);
   atval[2] = SUN_RCONST(1.0e-6);
-
-  constraintsval    = N_VGetArrayPointer(constraints);
-  constraintsval[0] = SUN_RCONST(1.0);
-  constraintsval[1] = SUN_RCONST(1.0);
-  constraintsval[2] = SUN_RCONST(1.0);
 
   maxNumSteps = 100000L;
 
@@ -192,11 +185,6 @@ int main(void)
   /* Attach the nonlinear solver */
   retval = IDASetNonlinearSolver(mem, NLS);
   if (check_retval(&retval, "IDASetNonlinearSolver", 1)) { return (1); }
-
-  /* specifies a vector defining inequality constraints
-   * for each component of the solution vector y*/
-  retval = IDASetConstraints(mem, constraints);
-  if (check_retval(&retval, "IDASetConstraints", 1)) { return (1); }
 
   /* specifies the maximum number of steps to be taken by the solver
    * in its attempt to reach the next output time*/
@@ -249,7 +237,6 @@ int main(void)
   SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
-  N_VDestroy(constraints);
   N_VDestroy(avtol);
   N_VDestroy(yy);
   N_VDestroy(yp);
@@ -350,7 +337,11 @@ static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y)
          "IDA\n");
   printf("         Three equation chemical kinetics problem.\n\n");
   printf("Linear solver: DENSE, with user-supplied Jacobian.\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("Tolerance parameters:  rtol = %Qg   atol = %Qg %Qg %Qg \n", rtol,
+           atval[0], atval[1], atval[2]);
+  printf("Initial conditions y0 = (%Qg %Qg %Qg)\n", yval[0], yval[1], yval[2]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg %Lg %Lg \n", rtol,
          atval[0], atval[1], atval[2]);
   printf("Initial conditions y0 = (%Lg %Lg %Lg)\n", yval[0], yval[1], yval[2]);
@@ -358,16 +349,12 @@ static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y)
   printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n", rtol,
          atval[0], atval[1], atval[2]);
   printf("Initial conditions y0 = (%g %g %g)\n", yval[0], yval[1], yval[2]);
-#elif defined(SUNDIALS_FLOAT128_PRECISION)
-  printf("Tolerance parameters:  rtol = %Qg   atol = %Qg %Qg %Qg \n", rtol,
-         atval[0], atval[1], atval[2]);
-  printf("Initial conditions y0 = (%Qg %Qg %Qg)\n", yval[0], yval[1], yval[2]);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g %g %g \n", rtol,
          atval[0], atval[1], atval[2]);
   printf("Initial conditions y0 = (%g %g %g)\n", yval[0], yval[1], yval[2]);
 #endif
-  printf("Constraints used and id not used.\n\n");
+  printf("Constraints and id not used.\n\n");
   printf("---------------------------------------------------------------------"
          "--\n");
   printf("  t             y1           y2           y3");
@@ -459,7 +446,7 @@ static int check_retval(void* returnvalue, const char* funcname, int opt)
 }
 
 /* compare the solution at the final time 4e10s to a reference solution computed
-   using a relative tolerance of 1e-8 and absolute tolerance of 1e-14 */
+   using a relative tolerance of 1e-31 and absolute tolerance of 1e-31 */
 static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
 {
   int passfail = 0; /* answer pass (0) or fail (1) retval */
@@ -471,12 +458,8 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
   ref = N_VClone(y);
   ewt = N_VClone(y);
 
-  /* set the reference solution data */
-  NV_Ith_S(ref, 0) = SUN_RCONST(5.2083474251394888e-08);
-  NV_Ith_S(ref, 1) = SUN_RCONST(2.0833390772616859e-13);
-  NV_Ith_S(ref, 2) = SUN_RCONST(9.9999994791631752e-01);
   /* set the reference solution data, using float128 precision,
-   * rtol=atol=1e-31 */
+     rtol=atol=1e-31 */
   NV_Ith_S(ref, 0) = SUN_RCONST(5.20834517679923919877889080688790329e-08);
   NV_Ith_S(ref, 1) = SUN_RCONST(2.08333817792548903496396691950921252e-13);
   NV_Ith_S(ref, 2) = SUN_RCONST(9.99999947916339898189815463307595615e-01);
