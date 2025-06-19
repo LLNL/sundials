@@ -105,7 +105,7 @@ The SUNDomEigEst_ARNI module defines the *content* field of a
      sunrealtype* LAPACK_wr;
      sunrealtype* LAPACK_wi;
      sunrealtype* LAPACK_work;
-     suncomplextype* LAPACK_arr;
+     sunrealtype** LAPACK_arr;
      sunrealtype** Hes;
    };
 
@@ -125,7 +125,7 @@ information:
 
 * ``LAPACK_A, LAPACK_wr, LAPACK_wi, LAPACK_work`` - ``sunrealtype`` used for workspace by LAPACK,
 
-* ``LAPACK_arr`` - ``suncomplextype`` used for workspace by LAPACK,
+* ``LAPACK_arr`` - storage for the estimated dominant eigenvalues,
 
 * ``Hes`` - Hessenberg matrix,
 

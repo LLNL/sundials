@@ -84,7 +84,7 @@ for iterations (:c:func:`SUNDomEigEstPreProcess`), computes Hessenberg matrix (w
          retval = SUNDomEigEstComputeHess(DEE);
 
 
-.. c:function:: SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, suncomplextype* dom_eig)
+.. c:function:: SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
 
    This *required* function estimates the dominant eigenvalue,
    :math:`\lambda_{\max} = \lambda` such that
@@ -93,7 +93,8 @@ for iterations (:c:func:`SUNDomEigEstPreProcess`), computes Hessenberg matrix (w
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEst object.
-      * *dom_eig* -- a ``SUNMatrix`` object.
+      * *lambdaR* -- The real part of the dominant eigenvalue
+      * *lambdaI* -- The imaginary part of the dominant eigenvalue
 
    **Return value:**
 
@@ -284,26 +285,11 @@ Functions provided by SUNDIALS packages
 ---------------------------------------------
 
 To interface with SUNDomEigEst modules, the SUNDIALS packages supply
-a routine for evaluating the matrix-vector product.  This package-provided
+a routine (:c:type:`SUNATimesFn`) for evaluating the matrix-vector product.  This package-provided
 routine translate between the user-supplied ODE, DAE, or linear and nonlinear
 systems and the generic dominant eigenvalue estimatimator API. The
 function types for these routines are defined in the header file
-``sundials/sundials_iterative.h``, and are described below.
-
-
-.. c:type:: int (*SUNATimesFn)(void *A_data, N_Vector v, N_Vector z)
-
-   Computes the action of a matrix on a vector, performing the
-   operation :math:`z \gets Av`.  Memory for *z* will already be
-   allocated prior to calling this function.  The parameter
-   *A_data* is a pointer to any information about :math:`A` which
-   the function needs in order to do its job. The vector :math:`v`
-   should be left unchanged.
-
-   **Return value:**
-
-      Zero for a successful call, and non-zero upon failure.
-
+``sundials/sundials_iterative.h``.
 
 .. _SUNDomEigEst.ReturnCodes:
 
@@ -424,7 +410,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEstComputeHess`
 
-   .. c:member:: SUNErrCode (*estimate)(SUNDomEigEstimator, suncomplextype*)
+   .. c:member:: SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*)
 
       The function implementing :c:func:`SUNDomEigEstimate`
 

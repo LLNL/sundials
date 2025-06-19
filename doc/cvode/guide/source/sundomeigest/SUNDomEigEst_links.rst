@@ -10,6 +10,6 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. include:: ../../../shared/sundomeigest/SUNDomEigEst_PI.rst
-.. include:: ../../../shared/sundomeigest/SUNDomEigEst_ARNI.rst
-.. include:: ../../../shared/sundomeigest/SUNDomEigEst_Examples.rst
+.. include:: ../../../../shared/sundomeigest/SUNDomEigEst_PI.rst
+.. include:: ../../../../shared/sundomeigest/SUNDomEigEst_ARNI.rst
+.. include:: ../../../../shared/sundomeigest/SUNDomEigEst_Examples.rst
