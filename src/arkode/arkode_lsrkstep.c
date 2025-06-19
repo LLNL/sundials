@@ -2012,10 +2012,7 @@ void lsrkStep_Free(ARKodeMem ark_mem)
       ark_mem->liw -= step_mem->nfusedopvecs;
     }
     /* free DEE */
-    if(step_mem->DEE != NULL)
-    {
-      step_mem->DEE->ops->free(step_mem->DEE);
-    }
+    if (step_mem->DEE != NULL) { step_mem->DEE->ops->free(step_mem->DEE); }
 
     /* free the time stepper module itself */
     free(ark_mem->step_mem);
