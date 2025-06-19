@@ -230,3 +230,4 @@ SUNErrCode SUNDomEigEstFree(SUNDomEigEstimator DEE)
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
 }
+
