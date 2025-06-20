@@ -104,8 +104,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "ARKodeSStolerances")) { return 1; }
 
   MRIStepInnerStepper stepper = nullptr;
-  flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
-  if (check_flag(flag, "ARKStepCreateMRIStepInnerStepper")) { return 1; }
+  flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
+  if (check_flag(flag, "ARKodeCreateMRIStepInnerStepper")) { return 1; }
 
   // Create MRIStep memory structure
   void* arkode_mem = nullptr;
@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
 
   // Output initial contion
   cout << scientific;
-  cout << setprecision(numeric_limits<sunrealtype>::digits10);
+  cout << setprecision(numeric_limits<double>::digits10);
   cout << "           t              ";
   cout << "          u              ";
   cout << "          v              ";

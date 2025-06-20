@@ -323,7 +323,10 @@ int main(int argc, char* argv[])
 
   printf("\nncheck = %d\n", ncheck);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %Qf \n\n", ISPEC,
+         N_VGetArrayPointer(c)[NEQ]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\n   G = int_t int_x int_y c%d(t,x,y) dx dy dt = %Lf \n\n", ISPEC,
          N_VGetArrayPointer(c)[NEQ]);
 #else
@@ -1301,7 +1304,9 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
     }
 
     printf("\nMaximum sensitivity with respect to I.C. of species %d\n", i);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("  lambda max = %Qe\n", cmax);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("  lambda max = %Le\n", cmax);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("  lambda max = %e\n", cmax);
@@ -1309,7 +1314,9 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
     printf("  lambda max = %e\n", cmax);
 #endif
     printf("at\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("  x = %Qe\n  y = %Qe\n", x, y);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("  x = %Le\n  y = %Le\n", x, y);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("  x = %e\n  y = %e\n", x, y);

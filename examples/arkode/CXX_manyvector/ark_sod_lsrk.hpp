@@ -304,6 +304,8 @@ inline void find_arg(std::vector<std::string>& args, const std::string key,
     dest = stod(*(it + 1));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
     dest = stold(*(it + 1));
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+    dest = sunrealtype(stold(*(it + 1)));
 #endif
     args.erase(it, it + 2);
   }
@@ -477,11 +479,11 @@ static int WriteOutput(sunrealtype t, N_Vector y, EulerData& udata,
     N_Vector my        = N_VGetSubvector_ManyVector(y, 2);
     N_Vector mz        = N_VGetSubvector_ManyVector(y, 3);
     N_Vector et        = N_VGetSubvector_ManyVector(y, 4);
-    sunrealtype rhorms = sqrt(N_VDotProd(rho, rho) / (sunrealtype)udata.nx);
-    sunrealtype mxrms  = sqrt(N_VDotProd(mx, mx) / (sunrealtype)udata.nx);
-    sunrealtype myrms  = sqrt(N_VDotProd(my, my) / (sunrealtype)udata.nx);
-    sunrealtype mzrms  = sqrt(N_VDotProd(mz, mz) / (sunrealtype)udata.nx);
-    sunrealtype etrms  = sqrt(N_VDotProd(et, et) / (sunrealtype)udata.nx);
+    sunrealtype rhorms = SUNRsqrt(N_VDotProd(rho, rho) / (sunrealtype)udata.nx);
+    sunrealtype mxrms  = SUNRsqrt(N_VDotProd(mx, mx) / (sunrealtype)udata.nx);
+    sunrealtype myrms  = SUNRsqrt(N_VDotProd(my, my) / (sunrealtype)udata.nx);
+    sunrealtype mzrms  = SUNRsqrt(N_VDotProd(mz, mz) / (sunrealtype)udata.nx);
+    sunrealtype etrms  = SUNRsqrt(N_VDotProd(et, et) / (sunrealtype)udata.nx);
     std::cout << std::setprecision(2) << "  " << t << std::setprecision(5)
               << "  " << rhorms << "  " << mxrms << "  " << myrms << "  "
               << mzrms << "  " << etrms << std::endl;

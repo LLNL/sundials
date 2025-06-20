@@ -877,10 +877,10 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Print some final statistics
-  uerrtot = std::sqrt(uerrtot / (sunrealtype)nsts);
-  verrtot = std::sqrt(verrtot / (sunrealtype)nsts);
-  werrtot = std::sqrt(werrtot / (sunrealtype)nsts);
-  errtot  = std::sqrt(errtot / SUN_RCONST(3.0) / (sunrealtype)nsts);
+  uerrtot = SUNRsqrt(uerrtot / (sunrealtype)nsts);
+  verrtot = SUNRsqrt(verrtot / (sunrealtype)nsts);
+  werrtot = SUNRsqrt(werrtot / (sunrealtype)nsts);
+  errtot  = SUNRsqrt(errtot / SUN_RCONST(3.0) / (sunrealtype)nsts);
   std::cout << "\nFinal Solver Statistics:\n";
   std::cout << "   Slow steps = " << nsts << "  (attempts = " << natts
             << ",  fails = " << netfs << ")\n";

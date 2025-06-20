@@ -91,7 +91,7 @@ if(ENABLE_ALL_WARNINGS)
   # CI tests
 
   # Avoid numerous warnings from printf
-  if(SUNDIALS_PRECISION MATCHES "EXTENDED")
+  if((SUNDIALS_PRECISION MATCHES "EXTENDED") OR (SUNDIALS_PRECISION MATCHES "FLOAT128"))
     set(WARNING_FLAGS "-Wdouble-promotion ${WARNING_FLAGS}")
   endif()
 

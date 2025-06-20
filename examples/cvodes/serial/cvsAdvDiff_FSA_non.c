@@ -416,7 +416,9 @@ static void PrintOutput(void* cvode_mem, sunrealtype t, N_Vector u)
   retval = CVodeGetLastStep(cvode_mem, &hu);
   check_retval(&retval, "CVodeGetLastStep", 1);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%8.3Qe %2d  %8.3Qe %5ld\n", t, qu, hu, nst);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%8.3Le %2d  %8.3Le %5ld\n", t, qu, hu, nst);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%8.3e %2d  %8.3e %5ld\n", t, qu, hu, nst);
@@ -426,7 +428,9 @@ static void PrintOutput(void* cvode_mem, sunrealtype t, N_Vector u)
 
   printf("                                Solution       ");
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%12.4Qe \n", N_VMaxNorm(u));
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le \n", N_VMaxNorm(u));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%12.4e \n", N_VMaxNorm(u));
@@ -442,7 +446,9 @@ static void PrintOutput(void* cvode_mem, sunrealtype t, N_Vector u)
 static void PrintOutputS(N_Vector* uS)
 {
   printf("                                Sensitivity 1  ");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%12.4Qe \n", N_VMaxNorm(uS[0]));
+#elif defined(SUDIALS_EXTENDED_PRECISION)
   printf("%12.4Le \n", N_VMaxNorm(uS[0]));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%12.4e \n", N_VMaxNorm(uS[0]));
@@ -451,7 +457,9 @@ static void PrintOutputS(N_Vector* uS)
 #endif
 
   printf("                                Sensitivity 2  ");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%12.4Qe \n", N_VMaxNorm(uS[1]));
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%12.4Le \n", N_VMaxNorm(uS[1]));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%12.4e \n", N_VMaxNorm(uS[1]));

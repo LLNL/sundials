@@ -44,7 +44,10 @@
 #include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype, etc */
 #include <sunlinsol/sunlinsol_pcg.h> /* access to PCG SUNLinearSolver        */
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
+#define ESYM "Qe"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"
 #else
@@ -110,6 +113,7 @@ int main(void)
   N_Vector y2        = NULL; /* empty vector for storing solution */
   N_Vector yt        = NULL; /* empty vector for swapping */
   SUNLinearSolver LS = NULL; /* empty linear solver object */
+  SUNAdaptController C = NULL; /* empty controller object */
   void* arkode_mem   = NULL; /* empty ARKode memory structure */
   FILE *XFID, *UFID;
   sunrealtype t, olddt, newdt;
@@ -154,10 +158,15 @@ int main(void)
   for (i = 0; i < udata->N; i++) { fprintf(UFID, " %.16" ESYM, data[i]); }
   fprintf(UFID, "\n");
 
+
   /* Initialize the ARK timestepper */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
-
+  /* Specify I-controller with default parameters */
+  C = SUNAdaptController_I(ctx);
+  if (check_flag((void*)C, "SUNAdaptController_I", 0)) { return 1; }
+  flag = ARKodeSetAdaptController(arkode_mem, C);
+  if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
   /* Set routines */
   flag = ARKodeSetUserData(arkode_mem,
                            (void*)udata); /* Pass udata to user functions */
@@ -166,9 +175,6 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
   flag = ARKodeSStolerances(arkode_mem, rtol, atol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
-  flag = ARKStepSetAdaptivityMethod(arkode_mem, 2, 1, 0,
-                                    NULL); /* Set adaptivity method */
-  if (check_flag(&flag, "ARKodeSetAdaptivityMethod", 1)) { return 1; }
   flag = ARKodeSetPredictorMethod(arkode_mem, 0); /* Set predictor method */
   if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) { return 1; }
 
@@ -196,8 +202,8 @@ int main(void)
          "||u||_rms       N   NNI  NLI\n");
   printf(" --------------------------------------------------------------------"
          "--------------------\n");
-  printf(" %4i  %19.15" ESYM "  %19.15" ESYM "  %19.15e  %li   %2i  %3i\n",
-         iout, olddt, newdt, sqrt(N_VDotProd(y, y) / udata->N),
+  printf(" %4i  %19.15" ESYM "  %19.15" ESYM "  %19.15" ESYM "  %li   %2i  %3i\n",
+         iout, olddt, newdt, SUNRsqrt(N_VDotProd(y, y) / udata->N),
          (long int)udata->N, 0, 0);
   while (t < Tf)
   {
@@ -221,8 +227,8 @@ int main(void)
 
     /* print current solution stats */
     iout++;
-    printf(" %4i  %19.15" ESYM "  %19.15" ESYM "  %19.15e  %li   %2li  %3li\n",
-           iout, olddt, newdt, sqrt(N_VDotProd(y, y) / udata->N),
+    printf(" %4i  %19.15" ESYM "  %19.15" ESYM "  %19.15" ESYM "  %li   %2li  %3li\n",
+           iout, olddt, newdt, SUNRsqrt(N_VDotProd(y, y) / udata->N),
            (long int)udata->N, nni, nli);
     nni_tot += nni;
     nli_tot += nli;
@@ -288,6 +294,7 @@ int main(void)
   N_VDestroy(y);  /* Free vectors */
   free(udata->x); /* Free user data */
   free(udata);
+  (void)SUNAdaptController_Destroy(C); /* Free time adaptivity controller */
   ARKodeFree(&arkode_mem); /* Free integrator memory */
   SUNLinSolFree(LS);       /* Free linear solver */
   SUNContext_Free(&ctx);   /* Free context */
@@ -327,10 +334,10 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
     Ydot[i] =
       Y[i - 1] * k * TWO / (dxL * (dxL + dxR)) - Y[i] * k * TWO / (dxL * dxR) +
       Y[i + 1] * k * TWO / (dxR * (dxL + dxR)) +
-      TWO * exp(-TWOHUNDRED * (x[i] - PT25) * (x[i] - PT25)) /* source term */
-      - exp(-FOURHUNDRED * (x[i] - PT7) * (x[i] - PT7)) +
-      exp(-FIVEHUNDRED * (x[i] - PT4) * (x[i] - PT4)) -
-      TWO * exp(-SIXHUNDRED * (x[i] - PT55) * (x[i] - PT55));
+      TWO * SUNRexp(-TWOHUNDRED * (x[i] - PT25) * (x[i] - PT25)) /* source term */
+      - SUNRexp(-FOURHUNDRED * (x[i] - PT7) * (x[i] - PT7)) +
+      SUNRexp(-FIVEHUNDRED * (x[i] - PT4) * (x[i] - PT4)) -
+      TWO * SUNRexp(-SIXHUNDRED * (x[i] - PT55) * (x[i] - PT55));
   }
 
   return 0; /* Return with success */

@@ -78,7 +78,7 @@ struct UserData
   // Fixed Point Solver settings
   sunrealtype rtol; // relative tolerance
   int maa;          // m for Anderson Acceleration
-  double damping;   // damping for Anderson Acceleration
+  sunrealtype damping;   // damping for Anderson Acceleration
   int orthaa;       // orthogonalization routine for AA
   int maxits;       // max number of fixed point iterations
 

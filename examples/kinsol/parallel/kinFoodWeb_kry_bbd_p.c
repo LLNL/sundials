@@ -793,7 +793,10 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
          (long int)mudq, (long int)mldq);
   printf("  Retained band block half-bandwidths: mukeep = %ld, mlkeep = %ld\n",
          (long int)mukeep, (long int)mlkeep);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("Tolerance parameters:  fnormtol = %Qg   scsteptol = %Qg\n", fnormtol,
+         scsteptol);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n", fnormtol,
          scsteptol);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -805,7 +808,10 @@ static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
 #endif
 
   printf("\nInitial profile of concentration\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("At all mesh points:  %Qg %Qg %Qg   %Qg %Qg %Qg\n", PREYIN, PREYIN,
+         PREYIN, PREDIN, PREDIN, PREDIN);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At all mesh points:  %Lg %Lg %Lg   %Lg %Lg %Lg\n", PREYIN, PREYIN,
          PREYIN, PREDIN, PREDIN, PREDIN);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
@@ -859,7 +865,9 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
     for (is = 0; is < NUM_SPECIES; is++)
     {
       if ((is % 6) * 6 == is) { printf("\n"); }
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+      printf(" %Qg", ct[is]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
       printf(" %Lg", ct[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
       printf(" %g", ct[is]);
@@ -872,7 +880,9 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
     for (is = 0; is < NUM_SPECIES; is++)
     {
       if ((is % 6) * 6 == is) { printf("\n"); }
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+      printf(" %Qg", tempc[is]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
       printf(" %Lg", tempc[is]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
       printf(" %g", tempc[is]);

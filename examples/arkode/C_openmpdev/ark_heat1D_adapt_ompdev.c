@@ -189,9 +189,7 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
   flag = ARKodeSStolerances(arkode_mem, rtol, atol); /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
-  flag = ARKodeSetAdaptivityMethod(arkode_mem, 2, 1, 0,
-                                   NULL); /* Set adaptivity method */
-  if (check_flag(&flag, "ARKodeSetAdaptivityMethod", 1)) { return 1; }
+
   flag = ARKodeSetPredictorMethod(arkode_mem, 0); /* Set predictor method */
   if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) { return 1; }
 
@@ -555,7 +553,7 @@ static int project(sunindextype Nold, sunrealtype* xold, N_Vector yold,
 #pragma omp target map(to : iv) is_device_ptr(Yold, Ynew, xnew, xold) \
   device(dev)
 #pragma omp teams distribute parallel for schedule(static, 1)
-  {
+
     for (i = 0; i < Nnew; i++)
     {
       /* find old interval, start with previous value since sorted */
@@ -573,7 +571,7 @@ static int project(sunindextype Nold, sunrealtype* xold, N_Vector yold,
       Ynew[i] = Yold[iv] * (xnew[i] - xold[iv + 1]) / (xold[iv] - xold[iv + 1]) +
                 Yold[iv + 1] * (xnew[i] - xold[iv]) / (xold[iv + 1] - xold[iv]);
     }
-  }
+
 
   return 0; /* Return with success */
 }

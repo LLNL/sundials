@@ -3,6 +3,7 @@
 /.project
 /builddir
 /build*
+/cmake-build*
 /instdir
 /install*
 /TPLs
@@ -20,6 +21,7 @@
 .vscode
 compile_commands.json
 .clangd
+.idea
 
 # custom test environment setup script
 /test/env/env.sh

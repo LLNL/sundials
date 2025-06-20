@@ -200,7 +200,9 @@ int main(void)
   retval = KINGetFuncNorm(kmem, &fnorm);
   if (check_retval(&retval, "KINGetfuncNorm", 1)) { return (1); }
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("\nComputed solution (||F|| = %Qg):\n\n", fnorm);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\nComputed solution (||F|| = %Lg):\n\n", fnorm);
 #else
   printf("\nComputed solution (||F|| = %g):\n\n", fnorm);
@@ -269,7 +271,7 @@ static int func(N_Vector u, N_Vector f, void* user_data)
 
       /* Set residual at x_i, y_j */
 
-      IJth(fdata, i, j) = hdiff + vdiff + uij - uij * uij * uij + 2.0;
+      IJth(fdata, i, j) = hdiff + vdiff + uij - uij * uij * uij + TWO;
     }
   }
 
@@ -295,7 +297,9 @@ static void PrintOutput(N_Vector u)
   for (i = 1; i <= NX; i += SKIP)
   {
     x = i * dx;
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%-8.5Qf ", x);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%-8.5Lf ", x);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("%-8.5f ", x);
@@ -308,7 +312,9 @@ static void PrintOutput(N_Vector u)
   for (j = 1; j <= NY; j += SKIP)
   {
     y = j * dy;
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("%-8.5Qf    ", y);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("%-8.5Lf    ", y);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf("%-8.5f    ", y);
@@ -317,7 +323,9 @@ static void PrintOutput(N_Vector u)
 #endif
     for (i = 1; i <= NX; i += SKIP)
     {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+      printf("%-8.5Qf ", IJth(udata, i, j));
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
       printf("%-8.5Lf ", IJth(udata, i, j));
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
       printf("%-8.5f ", IJth(udata, i, j));

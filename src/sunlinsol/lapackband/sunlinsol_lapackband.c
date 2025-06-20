@@ -32,6 +32,9 @@
 #elif defined(SUNDIALS_SINGLE_PRECISION)
 #define xgbtrf_f77 sgbtrf_f77
 #define xgbtrs_f77 sgbtrs_f77
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define xgbtrf_f77 qgbtrf_f77
+#define xgbtrs_f77 qgbtrs_f77
 #else
 #error Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
 #endif

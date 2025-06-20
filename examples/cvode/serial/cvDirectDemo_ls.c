@@ -347,7 +347,9 @@ static void PrintIntro1(void)
   printf("\n\n");
   printf("Problem 1: Van der Pol oscillator\n");
   printf(" xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf(" neq = %d,  reltol = %.2Qg,  abstol = %.2Qg", P1_NEQ, RTOL, ATOL);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" neq = %d,  reltol = %.2Lg,  abstol = %.2Lg", P1_NEQ, RTOL, ATOL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf(" neq = %d,  reltol = %.2g,  abstol = %.2g", P1_NEQ, RTOL, ATOL);
@@ -366,7 +368,9 @@ static void PrintHeader1(void)
 static void PrintOutput1(sunrealtype t, sunrealtype y0, sunrealtype y1, int qu,
                          sunrealtype hu)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%10.5Qf    %12.5Qe   %12.5Qe   %2d    %6.4Qe\n", t, y0, y1, qu, hu);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%10.5Lf    %12.5Le   %12.5Le   %2d    %6.4Le\n", t, y0, y1, qu, hu);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%10.5f    %12.5e   %12.5e   %2d    %6.4e\n", t, y0, y1, qu, hu);
@@ -581,7 +585,9 @@ static void PrintIntro2(void)
   printf("\n\nProblem 2: ydot = A * y, where A is a banded lower\n");
   printf("triangular matrix derived from 2-D advection PDE\n\n");
   printf(" neq = %d, ml = %d, mu = %d\n", P2_NEQ, P2_ML, P2_MU);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf(" itol = %s, reltol = %.2Qg, abstol = %.2Qg", "CV_SS", RTOL, ATOL);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" itol = %s, reltol = %.2Lg, abstol = %.2Lg", "CV_SS", RTOL, ATOL);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf(" itol = %s, reltol = %.2g, abstol = %.2g", "CV_SS", RTOL, ATOL);
@@ -593,21 +599,19 @@ static void PrintIntro2(void)
 static void PrintHeader2(void)
 {
   printf("\n      t        max.err      qu     hu \n");
-
-  return;
 }
 
 static void PrintOutput2(sunrealtype t, sunrealtype erm, int qu, sunrealtype hu)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%10.3Qf  %12.4Qe   %2d   %12.4Qe\n", t, erm, qu, hu);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%10.3Lf  %12.4Le   %2d   %12.4Le\n", t, erm, qu, hu);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
 #else
   printf("%10.3f  %12.4e   %2d   %12.4e\n", t, erm, qu, hu);
 #endif
-
-  return;
 }
 
 static int f2(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
@@ -692,7 +696,7 @@ static sunrealtype MaxError(N_Vector y, sunrealtype t)
   if (t == ZERO) { return (ZERO); }
 
   ydata = N_VGetArrayPointer(y);
-  if (t <= THIRTY) { ex = exp(-TWO * t); }
+  if (t <= THIRTY) { ex = SUNRexp(-TWO * t); }
 
   for (j = 0; j < P2_MESHY; j++)
   {
@@ -700,7 +704,7 @@ static sunrealtype MaxError(N_Vector y, sunrealtype t)
     for (i = 0; i < P2_MESHX; i++)
     {
       k  = i + j * P2_MESHX;
-      yt = pow(t, i + j) * ex * ifact_inv * jfact_inv;
+      yt = SUNRpowerI(t, i + j) * ex * ifact_inv * jfact_inv;
       er = SUNRabs(ydata[k] - yt);
       if (er > maxError) { maxError = er; }
       ifact_inv /= (i + 1);
@@ -851,7 +855,9 @@ static int PrepareNextRun(SUNContext sunctx, void* cvode_mem, int lmm,
 
 static void PrintErrOutput(sunrealtype tol_factor)
 {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("\n\n Error exceeds %Qg * tolerance \n\n", tol_factor);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("\n\n Error exceeds %Lg * tolerance \n\n", tol_factor);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("\n\n Error exceeds %g * tolerance \n\n", tol_factor);
@@ -918,7 +924,9 @@ static void PrintFinalStats(void* cvode_mem, int miter, sunrealtype ero)
     printf(" Number of f evals. in linear solver      = %4ld \n\n", nfeLS);
   }
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf(" Error overrun = %.3Qf \n", ero);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" Error overrun = %.3Lf \n", ero);
 #else
   printf(" Error overrun = %.3f \n", ero);

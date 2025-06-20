@@ -42,7 +42,9 @@
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+#define GSYM "Qg"
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #else
 #define GSYM "g"
@@ -328,7 +330,11 @@ static void PrintHeader(sunrealtype rtol, N_Vector avtol, N_Vector y)
          "IDA.\n");
   printf("               Three equation chemical kinetics problem.\n\n");
   printf("Linear solver: DENSE, with user-supplied Jacobian.\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("Tolerance parameters:  rtol = %Qg   atol = %Qg %Qg %Qg \n", rtol,
+         atval[0], atval[1], atval[2]);
+  printf("Initial conditions y0 = (%Qg %Qg %Qg)\n", yval[0], yval[1], yval[2]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg %Lg %Lg \n", rtol,
          atval[0], atval[1], atval[2]);
   printf("Initial conditions y0 = (%Lg %Lg %Lg)\n", yval[0], yval[1], yval[2]);
@@ -369,7 +375,10 @@ static void PrintOutput(void* mem, sunrealtype t, N_Vector y)
   check_retval(&retval, "IDAGetNumSteps", 1);
   retval = IDAGetLastStep(mem, &hused);
   check_retval(&retval, "IDAGetLastStep", 1);
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+  printf("%10.4Qe %12.4Qe %12.4Qe %12.4Qe | %3ld  %1d %12.4Qe\n", t, yval[0],
+         yval[1], yval[2], nst, kused, hused);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%10.4Le %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n", t, yval[0],
          yval[1], yval[2], nst, kused, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)

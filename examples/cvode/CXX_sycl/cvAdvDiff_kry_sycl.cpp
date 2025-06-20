@@ -136,7 +136,7 @@ int main(int argc, char** argv)
     sunrealtype y = (j + 1) * data.dy; // y location
 
     udata[tid] = x * (data.xmax - x) * y * (data.ymax - y) *
-                 std::exp(FIVE * x * y);
+                 SUNRexp(FIVE * x * y);
   }
 
   // Copy data to device

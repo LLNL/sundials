@@ -26,7 +26,7 @@ int Solution(sunrealtype t, N_Vector u, UserData* udata)
   sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Constants for computing solution
-  sunrealtype cos_sqr_t = cos(PI * t) * cos(PI * t);
+  sunrealtype cos_sqr_t = SUNRcos(PI * t) * SUNRcos(PI * t);
 
   // Iterative over domain interior
   sunindextype istart = (udata->HaveNbrW) ? 0 : 1;
@@ -45,8 +45,8 @@ int Solution(sunrealtype t, N_Vector u, UserData* udata)
       x = (udata->is + i) * udata->dx;
       y = (udata->js + j) * udata->dy;
 
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
+      sin_sqr_x = SUNRsin(PI * x) * SUNRsin(PI * x);
+      sin_sqr_y = SUNRsin(PI * y) * SUNRsin(PI * y);
 
       uarray[IDX(i, j, udata->nx_loc)] = sin_sqr_x * sin_sqr_y * cos_sqr_t;
     }
@@ -65,7 +65,7 @@ int SolutionDerivative(sunrealtype t, N_Vector up, UserData* udata)
   sunrealtype sin_sqr_x, sin_sqr_y;
 
   // Constants for computing solution
-  sunrealtype cos_sin_t = -TWO * PI * cos(PI * t) * sin(PI * t);
+  sunrealtype cos_sin_t = -TWO * PI * SUNRcos(PI * t) * SUNRsin(PI * t);
 
   // Iterative over domain interior
   sunindextype istart = (udata->HaveNbrW) ? 0 : 1;
@@ -84,8 +84,8 @@ int SolutionDerivative(sunrealtype t, N_Vector up, UserData* udata)
       x = (udata->is + i) * udata->dx;
       y = (udata->js + j) * udata->dy;
 
-      sin_sqr_x = sin(PI * x) * sin(PI * x);
-      sin_sqr_y = sin(PI * y) * sin(PI * y);
+      sin_sqr_x = SUNRsin(PI * x) * SUNRsin(PI * x);
+      sin_sqr_y = SUNRsin(PI * y) * SUNRsin(PI * y);
 
       uparray[IDX(i, j, udata->nx_loc)] = sin_sqr_x * sin_sqr_y * cos_sin_t;
     }

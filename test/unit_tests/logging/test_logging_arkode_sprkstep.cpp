@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
   if (check_ptr(y, "N_VGetArrayPointer")) { return 1; }
 
   cout << scientific;
-  cout << setprecision(numeric_limits<sunrealtype>::digits10);
+  cout << setprecision(numeric_limits<double>::digits10);
   cout << "           t              ";
   cout << "          q1             ";
   cout << "          q2             ";

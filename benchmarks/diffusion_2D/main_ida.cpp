@@ -16,6 +16,7 @@
 
 #include "diffusion_2D.hpp"
 #include "ida/ida.h"
+#include <sundials/sundials_math.h>
 
 struct UserOptions
 {

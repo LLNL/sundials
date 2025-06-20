@@ -59,6 +59,8 @@ extern "C" {
 #define SUNRlog(x) (logf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRlog(x) (logl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define SUNRlog(x) (logq((x)))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
@@ -83,6 +85,8 @@ extern "C" {
 #define SUNRsinh(x) (sinhf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRsinh(x) (sinhl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define SUNRsinh(x) (sinhq((x)))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
@@ -107,6 +111,8 @@ extern "C" {
 #define SUNRcosh(x) (coshf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRcosh(x) (coshl((x)))
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+#define SUNRcosh(x) (coshq((x)))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"

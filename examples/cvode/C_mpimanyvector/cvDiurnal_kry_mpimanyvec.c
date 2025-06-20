@@ -91,7 +91,7 @@
 #define NOUT    12                 /* number of output times */
 #define TWOHR   SUN_RCONST(7200.0) /* number of seconds in two hours  */
 #define HALFDAY SUN_RCONST(4.32e4) /* number of seconds in a half day */
-#define PI      SUN_RCONST(3.1415926535898) /* pi */
+#define PI      SUN_RCONST(3.141592653589793238462643383279502884197169) /* pi */
 
 #define XMIN SUN_RCONST(0.0) /* grid boundaries in x  */
 #define XMAX SUN_RCONST(20.0)
@@ -485,7 +485,12 @@ static void PrintOutput(void* cvode_mem, int my_pe, MPI_Comm comm, N_Vector u,
     retval = CVodeGetLastStep(cvode_mem, &hu);
     check_retval(&retval, "CVodeGetLastStep", 1, my_pe);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("t = %.2Qe   no. steps = %ld   order = %d   stepsize = %.2Qe\n", t,
+           nst, qu, hu);
+    printf("At bottom left:  c1, c2 = %12.3Qe %12.3Qe \n", c1data[0], c2data[0]);
+    printf("At top right:    c1, c2 = %12.3Qe %12.3Qe \n\n", tempu[0], tempu[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n", t,
            nst, qu, hu);
     printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", c1data[0], c2data[0]);
@@ -906,11 +911,11 @@ static void fcalc(sunrealtype t, N_Vector udot, UserData data)
 
   /* Set diurnal rate coefficients as functions of t, and save q4 in
   data block for use by preconditioner evaluation routine */
-  s = sin((data->om) * t);
+  s = SUNRsin((data->om) * t);
   if (s > SUN_RCONST(0.0))
   {
-    q3     = exp(-A3 / s);
-    q4coef = exp(-A4 / s);
+    q3     = SUNRexp(-A3 / s);
+    q4coef = SUNRexp(-A4 / s);
   }
   else
   {
@@ -928,8 +933,8 @@ static void fcalc(sunrealtype t, N_Vector udot, UserData data)
     /* Set vertical diffusion coefficients at jy +- 1/2 */
     ydn  = YMIN + (jy - SUN_RCONST(0.5)) * (data->dy);
     yup  = ydn + data->dy;
-    cydn = (data->vdco) * exp(SUN_RCONST(0.2) * ydn);
-    cyup = (data->vdco) * exp(SUN_RCONST(0.2) * yup);
+    cydn = (data->vdco) * SUNRexp(SUN_RCONST(0.2) * ydn);
+    cyup = (data->vdco) * SUNRexp(SUN_RCONST(0.2) * yup);
 
     /* Loop over x-direction */
     for (lx = 0; lx < MXSUB; lx++)
@@ -1034,8 +1039,8 @@ static int Precond(sunrealtype tn, N_Vector u, N_Vector fu, sunbooleantype jok,
       jy   = ly + (data->isuby) * MYSUB;
       ydn  = YMIN + (jy - SUN_RCONST(0.5)) * (data->dy);
       yup  = ydn + (data->dy);
-      cydn = (data->vdco) * exp(SUN_RCONST(0.2) * ydn);
-      cyup = (data->vdco) * exp(SUN_RCONST(0.2) * yup);
+      cydn = (data->vdco) * SUNRexp(SUN_RCONST(0.2) * ydn);
+      cyup = (data->vdco) * SUNRexp(SUN_RCONST(0.2) * yup);
       diag = -(cydn + cyup + SUN_RCONST(2.0) * (data->hdco));
       for (lx = 0; lx < MXSUB; lx++)
       {

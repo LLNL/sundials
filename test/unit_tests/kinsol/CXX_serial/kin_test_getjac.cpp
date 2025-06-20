@@ -87,9 +87,9 @@ static int res(N_Vector uu, N_Vector fuu, void* user_data)
   const sunrealtype y = udata[1];
   const sunrealtype z = udata[2];
 
-  fdata[0] = THREE * x - std::cos((y - ONE) * z) - HALF;
-  fdata[1] = SQR(x) - EIGHTYONE * SQR((y - PTNINE)) + std::sin(z) + ONEPTZEROSIX;
-  fdata[2] = std::exp(-x * (y - ONE)) + TWENTY * z + (TEN * PI - THREE) / THREE;
+  fdata[0] = THREE * x - SUNRcos((y - ONE) * z) - HALF;
+  fdata[1] = SQR(x) - EIGHTYONE * SQR((y - PTNINE)) + SUNRsin(z) + ONEPTZEROSIX;
+  fdata[2] = SUNRexp(-x * (y - ONE)) + TWENTY * z + (TEN * PI - THREE) / THREE;
 
   return 0;
 }
@@ -115,16 +115,16 @@ static int J(N_Vector uu, N_Vector fuu, SUNMatrix J, void* user_data,
   // First column
   Jdata[0] = THREE;
   Jdata[1] = TWO * x;
-  Jdata[2] = std::exp(-x * (y - ONE)) * (ONE - y);
+  Jdata[2] = SUNRexp(-x * (y - ONE)) * (ONE - y);
 
   // Second column
-  Jdata[3] = std::sin((y - ONE) * z) * z;
+  Jdata[3] = SUNRsin((y - ONE) * z) * z;
   Jdata[4] = -TWO * EIGHTYONE * (y - PTNINE);
-  Jdata[5] = -std::exp(-x * (y - ONE)) * x;
+  Jdata[5] = -SUNRexp(-x * (y - ONE)) * x;
 
   // Third column
-  Jdata[6] = std::sin((y - ONE) * z) * (y - ONE);
-  Jdata[7] = cos(z);
+  Jdata[6] = SUNRsin((y - ONE) * z) * (y - ONE);
+  Jdata[7] = SUNRcos(z);
   Jdata[8] = TWENTY;
 
   return 0;
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
   sundials::Context sunctx;
 
   // Comparison tolerance
-  sunrealtype tol = 100 * std::sqrt(SUN_UNIT_ROUNDOFF);
+  sunrealtype tol = 100 * SUNRsqrt(SUN_UNIT_ROUNDOFF);
   if (argc > 1)
   {
 #if defined(SUNDIALS_SINGLE_PRECISION)
@@ -199,6 +199,8 @@ int main(int argc, char* argv[])
     tol = std::stod(argv[1]);
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
     tol = std::stold(argv[1]);
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+    tol = strtoflt128(argv[1], NULL);
 #else
 #error "SUNDIALS precision macro not defined"
 #endif
@@ -210,7 +212,7 @@ int main(int argc, char* argv[])
   }
 
   // Integration tolerances
-  const sunrealtype ftol = 10 * std::sqrt(SUN_UNIT_ROUNDOFF);
+  const sunrealtype ftol = 10 * SUNRsqrt(SUN_UNIT_ROUNDOFF);
 
   // Create initial guess and scaling vectors
   N_Vector uu = N_VNew_Serial(3, sunctx);

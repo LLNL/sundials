@@ -893,7 +893,7 @@ int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   if (prob_data->m_type == mass_matrix_type::fixed) { yd_data[0] *= TWO; }
   else if (prob_data->m_type == mass_matrix_type::time_dependent)
   {
-    yd_data[0] *= TWO + std::cos(t);
+    yd_data[0] *= TWO + SUNRcos(t);
   }
 
   return 0;
@@ -911,7 +911,7 @@ int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   if (prob_data->m_type == mass_matrix_type::fixed) { yd_data[0] *= TWO; }
   else if (prob_data->m_type == mass_matrix_type::time_dependent)
   {
-    yd_data[0] *= TWO + std::cos(t);
+    yd_data[0] *= TWO + SUNRcos(t);
   }
 
   return 0;
@@ -936,7 +936,7 @@ int MassMatrix(sunrealtype t, SUNMatrix M, void* user_data, N_Vector tmp1,
   ProblemData* prob_data = static_cast<ProblemData*>(user_data);
 
   if (prob_data->m_type == mass_matrix_type::fixed) { M_data[0] = TWO; }
-  else { M_data[0] = TWO + std::cos(t); }
+  else { M_data[0] = TWO + SUNRcos(t); }
 
   return 0;
 }

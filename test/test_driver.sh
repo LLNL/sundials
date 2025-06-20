@@ -69,6 +69,7 @@ help ()
             double   -- (default) use double precision
             single   -- use single precision
             extended -- use extended precision
+            float128 -- use float128 precision
 
         --indexsize SIZE
             Index size to use in a custom test. SIZE must be one of:
@@ -230,6 +231,9 @@ while [[ $# -gt 0 ]]; do
                     ;;
                 EXTENDED|Extended|extended)
                     sunrealtype=extended
+                    ;;
+                FLOAT128|Float128|flaot128)
+                    sunrealtype=flaot128
                     ;;
                 *)
                     echo "ERROR: Invalid real type option $sunrealtype"

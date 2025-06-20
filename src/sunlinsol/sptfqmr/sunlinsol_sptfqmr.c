@@ -447,13 +447,13 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     LASTFLAG(S) = SUN_SUCCESS;
 
     SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
-               "cur-iter = 0, res-norm = %.16g, status = success", *res_norm);
+               "cur-iter = 0, res-norm = " SUN_FORMAT_G ", status = success", *res_norm);
 
     return (LASTFLAG(S));
   }
 
   SUNLogInfo(S->sunctx->logger, "linear-iterate",
-             "cur-iter = 0, res-norm = %.16g", *res_norm);
+             "cur-iter = 0, res-norm = " SUN_FORMAT_G , *res_norm);
 
   /* Set v = A*r_0 (preconditioned and scaled) */
   if (scale_x)
@@ -704,7 +704,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       if (r_curr_norm <= delta)
       {
         SUNLogInfo(S->sunctx->logger, "linear-iterate",
-                   "cur-iter = %i, res-norm = %.16g", n + 1, *nli, *res_norm);
+                   "cur-iter = %i, res-norm = " SUN_FORMAT_G , n + 1, *nli, *res_norm);
 
         converged = SUNTRUE;
         break;
@@ -845,7 +845,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         if (r_curr_norm <= delta)
         {
           SUNLogInfo(S->sunctx->logger, "linear-iterate",
-                     "cur-iter = %i, res-norm = %.16g", n + 1, *nli, *res_norm);
+                     "cur-iter = %i, res-norm = " SUN_FORMAT_G , n + 1, *nli, *res_norm);
 
           converged = SUNTRUE;
           break;
@@ -853,7 +853,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       }
 
       SUNLogInfo(S->sunctx->logger, "linear-iterate",
-                 "cur-iter = %i, res-norm = %.16g", n + 1, *nli, *res_norm);
+                 "cur-iter = %i, res-norm = " SUN_FORMAT_G , n + 1, *nli, *res_norm);
 
     } /* END inner loop */
 

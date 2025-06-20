@@ -84,7 +84,7 @@
 #define NOUT    12                 /* number of output times */
 #define TWOHR   SUN_RCONST(7200.0) /* number of seconds in two hours  */
 #define HALFDAY SUN_RCONST(4.32e4) /* number of seconds in a half day */
-#define PI      SUN_RCONST(3.1415926535898) /* pi */
+#define PI      SUN_RCONST(3.141592653589793238462643383279502884197169) /* pi */
 
 #define XMIN SUN_RCONST(0.0) /* grid boundaries in x  */
 #define XMAX SUN_RCONST(20.0)
@@ -445,7 +445,11 @@ static void PrintOutput(void* arkode_mem, int my_pe, MPI_Comm comm, N_Vector u,
     flag = ARKodeGetLastStep(arkode_mem, &hu);
     check_flag(&flag, "ARKodeGetLastStep", 1, my_pe);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_FLOAT128_PRECISION)
+    printf("t = %.2Qe   no. steps = %ld   stepsize = %.2Qe\n", t, nst, hu);
+    printf("At bottom left:  c1, c2 = %12.3Qe %12.3Qe \n", udata[0], udata[1]);
+    printf("At top right:    c1, c2 = %12.3Qe %12.3Qe \n\n", tempu[0], tempu[1]);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   stepsize = %.2Le\n", t, nst, hu);
     printf("At bottom left:  c1, c2 = %12.3Le %12.3Le \n", udata[0], udata[1]);
     printf("At top right:    c1, c2 = %12.3Le %12.3Le \n\n", tempu[0], tempu[1]);

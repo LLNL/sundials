@@ -85,6 +85,8 @@ sunrealtype SUNStrToReal(const char* str)
   return strtod(str, &end);
 #elif defined(SUNDIALS_SINGLE_PRECISION)
   return strtof(str, &end);
+#elif defined(SUNDIALS_FLOAT128_PRECISION)
+  return strtoflt128(str, &end);
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"

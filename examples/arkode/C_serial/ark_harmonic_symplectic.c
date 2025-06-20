@@ -116,8 +116,8 @@ int main(int argc, char* argv[])
 
   /* Fill the initial conditions (x0 then v0) */
   ydata    = N_VGetArrayPointer(y);
-  ydata[0] = A * cos(phi);
-  ydata[1] = -A * omega * sin(phi);
+  ydata[0] = A * SUNRcos(phi);
+  ydata[1] = -A * omega * SUNRsin(phi);
 
   /* Create SPRKStep integrator */
   arkode_mem = SPRKStepCreate(xdot, vdot, T0, y, sunctx);

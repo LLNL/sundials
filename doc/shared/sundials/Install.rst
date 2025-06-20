@@ -607,7 +607,7 @@ Precision
 .. cmakeoption:: SUNDIALS_PRECISION
 
    The floating-point precision used in SUNDIALS packages and class
-   implementations, options are: ``single``, ``double``, or ``extended``
+   implementations, options are: ``single``, ``double``, ``extended`` or ``float128``
 
    Default: ``double``
 
@@ -618,7 +618,7 @@ Math Library
 
 .. cmakeoption:: SUNDIALS_MATH_LIBRARY
 
-   The standard C math library (e.g., ``libm``) to link with.
+   The standard C math library (e.g., ``libm``, ``libquadmath``) to link with.
 
    Default: ``-lm`` on Unix systems, none otherwise
 
@@ -995,7 +995,7 @@ configure SUNDIALS with Ginkgo support using the reference, OpenMP, and CUDA
 .. note::
 
    The SUNDIALS interfaces to Ginkgo are not compatible with extended precision
-   (i.e., when :cmakeop:`SUNDIALS_PRECISION` is set to ``extended``).
+   (i.e., when :cmakeop:`SUNDIALS_PRECISION` is set to ``extended`` or ``float128``).
 
 .. cmakeoption:: ENABLE_GINKGO
 
