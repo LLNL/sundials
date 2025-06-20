@@ -190,7 +190,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   }
 
   /* Copy the input parameters into ARKODE state */
-  step_mem->fe         = rhs;
+  step_mem->fe = rhs;
 
   /* Set internal DomEigEst type */
   step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_POWER;
@@ -2225,8 +2225,8 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     step_mem->dom_eig_num_evals++;
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_DEE_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
       return ARK_DEE_FAIL;
     }
   }
@@ -2318,8 +2318,7 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   /* Create the internal DomEigEst */
   if (step_mem->DDE_ID == SUNDSOMEIGESTIMATOR_POWER)
   {
-    DEE = SUNDomEigEst_PI(ark_mem->yn, step_mem->dee_maxiters,
-                          ark_mem->sunctx);
+    DEE = SUNDomEigEst_PI(ark_mem->yn, step_mem->dee_maxiters, ark_mem->sunctx);
     if (DEE == NULL)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
@@ -2338,16 +2337,15 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
       return NULL;
     }
 #else
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                    __FILE__,
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
                     "Sundials Arnoldi DDE requires LAPACK package");
     return NULL;
 #endif
   }
   else
   {
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                    __FILE__, "Attempted to create a DDE with an unknown type");
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                    "Attempted to create a DDE with an unknown type");
     return NULL;
   }
 
@@ -2355,8 +2353,8 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   retval = DEE->ops->setatimes(DEE, arkode_mem, lsrkStep_DQJtimes);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                    __FILE__, MSG_ARK_DEE_FAIL);
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_DEE_FAIL);
     return NULL;
   }
 
@@ -2366,8 +2364,8 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
     retval = DEE->ops->setmaxpoweriter(DEE, step_mem->dee_maxiters);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_DEE_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
       return NULL;
     }
   }
@@ -2376,8 +2374,8 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   retval = DEE->ops->initialize(DEE);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                    __FILE__, MSG_ARK_DEE_FAIL);
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_DEE_FAIL);
     return NULL;
   }
 
@@ -2387,8 +2385,8 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
     retval = DEE->ops->setnumofperprocess(DEE, step_mem->dee_numwarmups);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_DEE_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
       return NULL;
     }
   }
@@ -2428,8 +2426,8 @@ int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
     retval = DEE->ops->preprocess(DEE);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_DEE_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
 
       return ARK_DEE_FAIL;
     }
@@ -2441,8 +2439,8 @@ int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
     retval = DEE->ops->computehess(DEE);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_DEE_FAIL);
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
 
       return ARK_DEE_FAIL;
     }
@@ -2451,8 +2449,8 @@ int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
   retval = DEE->ops->estimate(DEE, lambdaR, lambdaI);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                    __FILE__, MSG_ARK_DEE_FAIL);
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_DEE_FAIL);
 
     return ARK_DEE_FAIL;
   }

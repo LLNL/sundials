@@ -16,13 +16,9 @@
  * -----------------------------------------------------------------
  */
 
-#include <nvector/nvector_serial.h>
-#include <stdlib.h>
-#include <sundials/sundials_math.h>
-
-#include <sundomeigest/sundomeigest_pi.h>
-
 #include "../test_sundomeigest.h"
+#include <sundomeigest/sundomeigest_pi.h>
+#include <nvector/nvector_serial.h>
 
 /* constants */
 #define ZERO SUN_RCONST(0.0)
@@ -51,10 +47,9 @@ int check_flag(void* flagvalue, const char* funcname, int opt);
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails              = 0;     /* counter for test failures */
+  int fails              = 0;     /* counter for test failures  */
   int passfail           = 0;     /* overall pass/fail flag     */
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
-  N_Vector q;                     /* test vectors               */
   UserData ProbData;              /* problem data structure     */
   int numwarmups;                 /* Number of the preprocessing warmups */
   int max_powiter;                /* max power iteration        */
@@ -76,8 +71,8 @@ int main(int argc, char* argv[])
   /* check inputs: local problem size, timing flag */
   if (argc < 5)
   {
-    printf("ERROR: TWO (4) Inputs required:\n");
-    printf("  Problem size should be >0\n");
+    printf("ERROR: FOUR (4) Inputs required:\n");
+    printf("  Problem size should be >= 2\n");
     printf("  Maximum number of power iterations should be >0\n");
     printf("  Number of preprocessing should be >= 0\n");
     return 1;
@@ -111,10 +106,8 @@ int main(int argc, char* argv[])
   printf("  Timing output flag = %i\n\n", print_timing);
 
   /* Create vectors */
-  q = N_VNew_Serial(ProbData.N, sunctx);
-  if (check_flag(q, "N_VNew_Serial", 0)) { return 1; }
-  ProbData.diag = N_VClone(q);
-  if (check_flag(ProbData.diag, "N_VClone", 0)) { return 1; }
+  ProbData.diag = N_VNew_Serial(ProbData.N, sunctx);
+  if (check_flag(ProbData.diag, "N_VNew_Serial", 0)) { return 1; }
 
   /* Fill matrix diagonal and problem data */
   // real diag is [3 4 5 ... N 0 0]*factor
@@ -133,13 +126,13 @@ int main(int argc, char* argv[])
   ProbData.A12 = nondiagonal;
 
   /* Create Arnoldi DomEig estimator*/
-  DEE = SUNDomEigEst_PI(q, max_powiter, sunctx);
+  DEE = SUNDomEigEst_PI(ProbData.diag, max_powiter, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
 
   fails += Test_SUNDomEigEstGetID(DEE, SUNDSOMEIGESTIMATOR_POWER, 0);
   fails += Test_SUNDomEigEstSetATimes(DEE, &ProbData, ATimes, 0);
-  fails += Test_SUNDomEigEstSetNumPreProcess(DEE, numwarmups, 0);
   fails += Test_SUNDomEigEstSetMaxPowerIter(DEE, max_powiter, 0);
+  fails += Test_SUNDomEigEstSetNumPreProcess(DEE, numwarmups, 0);
   fails += Test_SUNDomEigEstInitialize(DEE, 0);
   fails += Test_SUNDomEigEstPreProcess(DEE, 0);
   // Test_SUNDomEigEstComputeHess is not an option for power iteration.
@@ -147,7 +140,7 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEstComputeHess(DEE, 0);
   fails += Test_SUNDomEigEstimate(DEE, &lambdaR, &lambdaI, 0);
   fails += Test_SUNDomEigEstNumIters(DEE, &niter, 0);
-  if (niter == 0)
+  if (niter <= 0)
   {
     printf("    >>> FAILED test -- SUNDomEigEstNumIters return value\n");
     fails++;
@@ -155,7 +148,7 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEstRes(DEE, &res, 0);
   if (res < SUN_SMALL_REAL)
   {
-    printf("    >>> FAILED test -- Test_SUNDomEigEstRes return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEstRes return value\n");
     fails++;
   }
 
@@ -207,7 +200,7 @@ int main(int argc, char* argv[])
 
   rel_error /= norm_of_dom_eig;
 
-  if (rel_error < rel_tol && passfail == 0)
+  if (rel_error < rel_tol)
   {
     printf("\n\nPASS:   relative error = %lf\n\n", rel_error);
   }
@@ -218,7 +211,6 @@ int main(int argc, char* argv[])
   }
 
   /* Free solver and vectors */
-  N_VDestroy(q);
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
   DEE->ops->free(DEE);

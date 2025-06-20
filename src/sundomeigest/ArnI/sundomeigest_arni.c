@@ -20,8 +20,6 @@
 #include <stdlib.h>
 
 #include <sundials/priv/sundials_domeigestimator_impl.h>
-#include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/sundials_math.h>
 #include <sundomeigest/sundomeigest_arni.h>
 
 #include "sundials_logger_impl.h"
@@ -127,6 +125,18 @@ SUNDomEigEstimator_ID SUNDomEigEst_ArnIGetID(
   return (SUNDSOMEIGESTIMATOR_ARNOLDI);
 }
 
+SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
+                                      SUNATimesFn ATimes)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  /* set function pointers to integrator-supplied ATimes routine
+     and data, and return with success */
+  ArnI_CONTENT(DEE)->ATimes = ATimes;
+  ArnI_CONTENT(DEE)->ATdata = A_data;
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
@@ -192,18 +202,6 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   N_VScale(ONE / normq, ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->V[0]);
   SUNCheckLastErr();
 
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
-                                      SUNATimesFn ATimes)
-{
-  SUNFunctionBegin(DEE->sunctx);
-
-  /* set function pointers to integrator-supplied ATimes routine
-     and data, and return with success */
-  ArnI_CONTENT(DEE)->ATimes = ATimes;
-  ArnI_CONTENT(DEE)->ATdata = A_data;
   return SUN_SUCCESS;
 }
 

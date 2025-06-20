@@ -98,7 +98,7 @@ SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
                                  SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter);
+SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE,
@@ -108,7 +108,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetTol(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstPreProcess(SUNDomEigEstimator DEE);

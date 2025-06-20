@@ -80,7 +80,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetTol_PI(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_PISetMaxPowerIter(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEstSetMaxPowerIter_PI(SUNDomEigEstimator DEE,
                                           int max_powiter);
 
 SUNDIALS_EXPORT

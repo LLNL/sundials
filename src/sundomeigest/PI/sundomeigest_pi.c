@@ -20,8 +20,6 @@
 #include <stdlib.h>
 
 #include <sundials/priv/sundials_domeigestimator_impl.h>
-#include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/sundials_math.h>
 #include <sundomeigest/sundomeigest_pi.h>
 
 #include "sundials_logger_impl.h"
@@ -72,7 +70,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_powiter, SUNContext sunct
   /* Attach operations */
   DEE->ops->getid              = SUNDomEigEst_PIGetID;
   DEE->ops->setatimes          = SUNDomEigEstSetATimes_PI;
-  DEE->ops->setmaxpoweriter    = SUNDomEigEst_PISetMaxPowerIter;
+  DEE->ops->setmaxpoweriter    = SUNDomEigEstSetMaxPowerIter_PI;
   DEE->ops->settol             = SUNDomEigEstSetTol_PI;
   DEE->ops->setnumofperprocess = SUNDomEigEstSetNumPreProcess_PI;
   DEE->ops->initialize         = SUNDomEigEstInitialize_PI;
@@ -122,6 +120,18 @@ SUNDomEigEstimator_ID SUNDomEigEst_PIGetID(
   SUNDIALS_MAYBE_UNUSED SUNDomEigEstimator DEE)
 {
   return (SUNDSOMEIGESTIMATOR_POWER);
+}
+
+SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data,
+                                    SUNATimesFn ATimes)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  /* set function pointers to integrator-supplied ATimes routine
+     and data, and return with success */
+  PI_CONTENT(DEE)->ATimes = ATimes;
+  PI_CONTENT(DEE)->ATdata = A_data;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
@@ -179,19 +189,7 @@ SUNErrCode SUNDomEigEstSetTol_PI(SUNDomEigEstimator DEE, sunrealtype tol)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data,
-                                    SUNATimesFn ATimes)
-{
-  SUNFunctionBegin(DEE->sunctx);
-
-  /* set function pointers to integrator-supplied ATimes routine
-     and data, and return with success */
-  PI_CONTENT(DEE)->ATimes = ATimes;
-  PI_CONTENT(DEE)->ATdata = A_data;
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNDomEigEst_PISetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter)
+SUNErrCode SUNDomEigEstSetMaxPowerIter_PI(SUNDomEigEstimator DEE, int max_powiter)
 {
   SUNFunctionBegin(DEE->sunctx);
 

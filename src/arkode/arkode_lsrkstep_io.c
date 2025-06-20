@@ -239,8 +239,8 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
 /*---------------------------------------------------------------
   LSRKStepSetDEECreateWithID creates DomEigEst with ID.
   ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int LSRKStepSetDEECreateWithID(
-  void* arkode_mem, SUNDomEigEstimator_ID DEE_id)
+SUNDIALS_EXPORT int LSRKStepSetDEECreateWithID(void* arkode_mem,
+                                               SUNDomEigEstimator_ID DEE_id)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -270,16 +270,15 @@ SUNDIALS_EXPORT int LSRKStepSetDEECreateWithID(
       step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
     }
 #else
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                    __FILE__,
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
                     "Sundials Arnoldi DDE requires LAPACK package");
     return ARK_DEE_FAIL;
 #endif
   }
   else
   {
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                    __FILE__, "Attempted to set a DDE with an unknown type");
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                    "Attempted to set a DDE with an unknown type");
     return ARK_DEE_FAIL;
   }
   return ARK_SUCCESS;
@@ -553,7 +552,7 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 
   Returns the number of RHS evals in DQ Jacobian computations
   ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int LSRKStepGetNumRHSinDQ(void* arkode_mem, int* nfeDQ)
+SUNDIALS_EXPORT int LSRKStepGetNumRHSinDQ(void* arkode_mem, long int* nfeDQ)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;

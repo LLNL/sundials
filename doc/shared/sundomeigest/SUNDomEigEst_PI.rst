@@ -144,7 +144,7 @@ dominant eigenvalue estimator operations listed in
 
 * ``SUNDomEigEstSetNumPreProcess_PI``
 
-* ``SUNDomEigEst_PISetMaxPowerIter``
+* ``SUNDomEigEstSetMaxPowerIter_PI``
 
 * ``SUNDomEigEstPreProcess_PI``
 

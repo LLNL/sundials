@@ -135,7 +135,9 @@ sundials_add_library(
   SOURCES ${sundials_SOURCES}
   HEADERS ${sundials_HEADERS}
   INCLUDE_SUBDIR sundials
-  LINK_LIBRARIES ${_link_mpi_if_needed} ${_link_lapack_if_needed} #TODO: Do we need to link lapack here?
+  LINK_LIBRARIES
+    ${_link_mpi_if_needed} ${_link_lapack_if_needed} # TODO: Do we need to link
+                                                     # lapack here?
   OUTPUT_NAME sundials_core
   VERSION ${sundialslib_VERSION}
   SOVERSION ${sundialslib_SOVERSION})
