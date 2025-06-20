@@ -33,6 +33,7 @@ KINSOL Documentation
    nvectors/index.rst
    sunmatrix/index.rst
    sunlinsol/index.rst
+   sundomeigest/index.rst
    sunmemory/index.rst
    sundials/Install_link.rst
    Constants

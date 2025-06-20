@@ -16,9 +16,9 @@
  * -----------------------------------------------------------------
  */
 
-#include "../test_sundomeigest.h"
-#include <sundomeigest/sundomeigest_arni.h>
 #include <nvector/nvector_serial.h>
+#include <sundomeigest/sundomeigest_arni.h>
+#include "../test_sundomeigest.h"
 
 /* constants */
 #define ZERO SUN_RCONST(0.0)
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 
   fails += Test_SUNDomEigEstGetID(DEE, SUNDSOMEIGESTIMATOR_ARNOLDI, 0);
   fails += Test_SUNDomEigEstSetATimes(DEE, &ProbData, ATimes, 0);
-    // SUNDomEigEstSetMaxPowerIter is not an option for Arnoldi iteration.
+  // SUNDomEigEstSetMaxPowerIter is not an option for Arnoldi iteration.
   // It should return with SUN_SUCCESS
   max_powiter = krydim;
   fails += Test_SUNDomEigEstSetMaxPowerIter(DEE, max_powiter, 0);

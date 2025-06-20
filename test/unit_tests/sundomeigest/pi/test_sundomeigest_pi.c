@@ -16,9 +16,9 @@
  * -----------------------------------------------------------------
  */
 
-#include "../test_sundomeigest.h"
-#include <sundomeigest/sundomeigest_pi.h>
 #include <nvector/nvector_serial.h>
+#include <sundomeigest/sundomeigest_pi.h>
+#include "../test_sundomeigest.h"
 
 /* constants */
 #define ZERO SUN_RCONST(0.0)

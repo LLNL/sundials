@@ -137,10 +137,7 @@ SUNErrCode SUNDomEigEstSetTol(SUNDomEigEstimator DEE, sunrealtype tol)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->settol)
-  {
-    ier = DEE->ops->settol(DEE, tol);
-  }
+  if (DEE->ops->settol) { ier = DEE->ops->settol(DEE, tol); }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
