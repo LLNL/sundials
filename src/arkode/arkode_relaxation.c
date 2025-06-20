@@ -316,12 +316,7 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
 
     /* If update is small, use tolerance in bisection direction */
     if (SUNRabs(new_update) > tol) { xb += new_update; }
-    else
-    {
-      /* TODO(DJG): Replace with copysign when C99+ required */
-      if (xm > ZERO) { xb += tol; }
-      else { xb -= tol; }
-    }
+    else { xb += SUNRcopysign(tol, xm); }
 
     /* Compute relaxation residual */
     retval = arkRelaxResidual(xb, &fb, ark_mem);
