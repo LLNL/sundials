@@ -545,7 +545,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_INT), dimension(*), target, intent(inout) :: nfedq
+integer(C_LONG), dimension(*), target, intent(inout) :: nfedq
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
