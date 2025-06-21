@@ -208,7 +208,7 @@ extern "C" {
 #endif
 #endif
 
-#define SUNRsamesign(x, y) (SUNRsignbit((x)) == SUNRsignbit((y)))
+#define SUNRsamesign(x, y)      (SUNRsignbit((x)) == SUNRsignbit((y)))
 #define SUNRdifferentsign(x, y) (!SUNRsamesign((x), (y)))
 
 /*
