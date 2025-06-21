@@ -317,22 +317,22 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
     }
   }
 
-  int lda = n, ldvl = n, ldvr = n;
-  int info, lwork = 4 * n;
-
   char jobvl = 'N'; // Do not compute left eigenvectors
   char jobvr = 'N'; // Do not compute right eigenvectors
 
   /* Call LAPACK's dgeev function
       return info values refer to
     = 0:  successful exit
-    < 0:  if INFO = -i, the i-th argument had an illegal value.
-    > 0:  if INFO = i, the QR algorithm failed to compute all the
+    < 0:  if info = -i, the i-th argument had an illegal value.
+    > 0:  if info = i, the QR algorithm failed to compute all the
           eigenvalues, and no eigenvectors have been computed;
           elements i+1:N of LAPACK_wr and LAPACK_wi contain
           eigenvalues which have converged.
   */
-#if defined(SUNDIALS_DOUBLE_PRECISION) || defined(SUNDIALS_EXTENDED_PRECISION)
+#if defined(SUNDIALS_INT32_T)
+  sunindextype lda = n; sunindextype ldvl = n; sunindextype ldvr = n;
+  sunindextype info; sunindextype lwork = 4 * n;
+#if defined(SUNDIALS_DOUBLE_PRECISION)
   dgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
          ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
          &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
@@ -340,6 +340,19 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   sgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
          ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
          &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
+#endif
+#elif defined(SUNDIALS_INT64_T)
+  int32_t lda = n; int32_t ldvl = n; int32_t ldvr = n;
+  int32_t info; int32_t lwork = 4 * n;
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+  dgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
+         ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
+         &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+  sgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
+         ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
+         &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
+#endif
 #endif
 
   if (info != 0)
