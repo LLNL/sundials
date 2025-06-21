@@ -1,14 +1,13 @@
-#include <iostream>
-#include <memory>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
-#include <unordered_map>
 
 #include <sundials/sundials_core.hpp>
 
 #include <arkode/arkode.h>
 #include <arkode/arkode.hpp>
 #include <arkode/arkode_ls.h>
+
+#include "sundials_adjointcheckpointscheme_impl.h"
 
 namespace nb = nanobind;
 
@@ -18,84 +17,7 @@ void bind_arkode_arkstep(nb::module_& m);
 
 void bind_arkode(nb::module_& m)
 {
-  //
-  // ARKODE Constants
-  //
-
-  m.attr("ARK_NORMAL")                 = ARK_NORMAL;
-  m.attr("ARK_ONE_STEP")               = ARK_ONE_STEP;
-  m.attr("ARK_ADAPT_CUSTOM")           = ARK_ADAPT_CUSTOM;
-  m.attr("ARK_ADAPT_PID")              = ARK_ADAPT_PID;
-  m.attr("ARK_ADAPT_PI")               = ARK_ADAPT_PI;
-  m.attr("ARK_ADAPT_I")                = ARK_ADAPT_I;
-  m.attr("ARK_ADAPT_EXP_GUS")          = ARK_ADAPT_EXP_GUS;
-  m.attr("ARK_ADAPT_IMP_GUS")          = ARK_ADAPT_IMP_GUS;
-  m.attr("ARK_ADAPT_IMEX_GUS")         = ARK_ADAPT_IMEX_GUS;
-  m.attr("ARK_FULLRHS_START")          = ARK_FULLRHS_START;
-  m.attr("ARK_FULLRHS_END")            = ARK_FULLRHS_END;
-  m.attr("ARK_FULLRHS_OTHER")          = ARK_FULLRHS_OTHER;
-  m.attr("ARK_INTERP_MAX_DEGREE")      = ARK_INTERP_MAX_DEGREE;
-  m.attr("ARK_INTERP_NONE")            = ARK_INTERP_NONE;
-  m.attr("ARK_INTERP_HERMITE")         = ARK_INTERP_HERMITE;
-  m.attr("ARK_INTERP_LAGRANGE")        = ARK_INTERP_LAGRANGE;
-  m.attr("ARK_SUCCESS")                = ARK_SUCCESS;
-  m.attr("ARK_TSTOP_RETURN")           = ARK_TSTOP_RETURN;
-  m.attr("ARK_ROOT_RETURN")            = ARK_ROOT_RETURN;
-  m.attr("ARK_WARNING")                = ARK_WARNING;
-  m.attr("ARK_TOO_MUCH_WORK")          = ARK_TOO_MUCH_WORK;
-  m.attr("ARK_TOO_MUCH_ACC")           = ARK_TOO_MUCH_ACC;
-  m.attr("ARK_ERR_FAILURE")            = ARK_ERR_FAILURE;
-  m.attr("ARK_CONV_FAILURE")           = ARK_CONV_FAILURE;
-  m.attr("ARK_LINIT_FAIL")             = ARK_LINIT_FAIL;
-  m.attr("ARK_LSETUP_FAIL")            = ARK_LSETUP_FAIL;
-  m.attr("ARK_LSOLVE_FAIL")            = ARK_LSOLVE_FAIL;
-  m.attr("ARK_RHSFUNC_FAIL")           = ARK_RHSFUNC_FAIL;
-  m.attr("ARK_FIRST_RHSFUNC_ERR")      = ARK_FIRST_RHSFUNC_ERR;
-  m.attr("ARK_REPTD_RHSFUNC_ERR")      = ARK_REPTD_RHSFUNC_ERR;
-  m.attr("ARK_UNREC_RHSFUNC_ERR")      = ARK_UNREC_RHSFUNC_ERR;
-  m.attr("ARK_RTFUNC_FAIL")            = ARK_RTFUNC_FAIL;
-  m.attr("ARK_LFREE_FAIL")             = ARK_LFREE_FAIL;
-  m.attr("ARK_MASSINIT_FAIL")          = ARK_MASSINIT_FAIL;
-  m.attr("ARK_MASSSETUP_FAIL")         = ARK_MASSSETUP_FAIL;
-  m.attr("ARK_MASSSOLVE_FAIL")         = ARK_MASSSOLVE_FAIL;
-  m.attr("ARK_MASSFREE_FAIL")          = ARK_MASSFREE_FAIL;
-  m.attr("ARK_MASSMULT_FAIL")          = ARK_MASSMULT_FAIL;
-  m.attr("ARK_CONSTR_FAIL")            = ARK_CONSTR_FAIL;
-  m.attr("ARK_MEM_FAIL")               = ARK_MEM_FAIL;
-  m.attr("ARK_MEM_NULL")               = ARK_MEM_NULL;
-  m.attr("ARK_ILL_INPUT")              = ARK_ILL_INPUT;
-  m.attr("ARK_NO_MALLOC")              = ARK_NO_MALLOC;
-  m.attr("ARK_BAD_K")                  = ARK_BAD_K;
-  m.attr("ARK_BAD_T")                  = ARK_BAD_T;
-  m.attr("ARK_BAD_DKY")                = ARK_BAD_DKY;
-  m.attr("ARK_TOO_CLOSE")              = ARK_TOO_CLOSE;
-  m.attr("ARK_VECTOROP_ERR")           = ARK_VECTOROP_ERR;
-  m.attr("ARK_NLS_INIT_FAIL")          = ARK_NLS_INIT_FAIL;
-  m.attr("ARK_NLS_SETUP_FAIL")         = ARK_NLS_SETUP_FAIL;
-  m.attr("ARK_NLS_SETUP_RECVR")        = ARK_NLS_SETUP_RECVR;
-  m.attr("ARK_NLS_OP_ERR")             = ARK_NLS_OP_ERR;
-  m.attr("ARK_INNERSTEP_ATTACH_ERR")   = ARK_INNERSTEP_ATTACH_ERR;
-  m.attr("ARK_INNERSTEP_FAIL")         = ARK_INNERSTEP_FAIL;
-  m.attr("ARK_OUTERTOINNER_FAIL")      = ARK_OUTERTOINNER_FAIL;
-  m.attr("ARK_INNERTOOUTER_FAIL")      = ARK_INNERTOOUTER_FAIL;
-  m.attr("ARK_POSTPROCESS_FAIL")       = ARK_POSTPROCESS_FAIL;
-  m.attr("ARK_POSTPROCESS_STEP_FAIL")  = ARK_POSTPROCESS_STEP_FAIL;
-  m.attr("ARK_POSTPROCESS_STAGE_FAIL") = ARK_POSTPROCESS_STAGE_FAIL;
-  m.attr("ARK_USER_PREDICT_FAIL")      = ARK_USER_PREDICT_FAIL;
-  m.attr("ARK_INTERP_FAIL")            = ARK_INTERP_FAIL;
-  m.attr("ARK_INVALID_TABLE")          = ARK_INVALID_TABLE;
-  m.attr("ARK_CONTEXT_ERR")            = ARK_CONTEXT_ERR;
-  m.attr("ARK_RELAX_FAIL")             = ARK_RELAX_FAIL;
-  m.attr("ARK_RELAX_MEM_NULL")         = ARK_RELAX_MEM_NULL;
-  m.attr("ARK_RELAX_FUNC_FAIL")        = ARK_RELAX_FUNC_FAIL;
-  m.attr("ARK_RELAX_JAC_FAIL")         = ARK_RELAX_JAC_FAIL;
-  m.attr("ARK_CONTROLLER_ERR")         = ARK_CONTROLLER_ERR;
-  m.attr("ARK_STEPPER_UNSUPPORTED")    = ARK_STEPPER_UNSUPPORTED;
-  m.attr("ARK_DOMEIG_FAIL")            = ARK_DOMEIG_FAIL;
-  m.attr("ARK_MAX_STAGE_LIMIT_FAIL")   = ARK_MAX_STAGE_LIMIT_FAIL;
-  m.attr("ARK_SUNSTEPPER_ERR")         = ARK_SUNSTEPPER_ERR;
-  m.attr("ARK_STEP_DIRECTION_ERR")     = ARK_STEP_DIRECTION_ERR;
-  m.attr("ARK_UNRECOGNIZED_ERROR")     = ARK_UNRECOGNIZED_ERROR;
+#include "pysundials_arkode_generated.hpp"
 
   nb::class_<sundials::experimental::ARKodeView>(m, "ARKodeView")
     .def(nb::init<>())
