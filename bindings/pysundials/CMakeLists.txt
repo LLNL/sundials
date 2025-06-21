@@ -68,9 +68,6 @@ set(sundials_SOURCES
     sundials/pysundials_nvector.cpp
     sundials/pysundials_profiler.cpp
     sundials/pysundials_stepper.cpp
-    arkode/arkode.cpp
-    arkode/arkode_arkstep.cpp
-    arkode/arkode_erkstep.cpp
     nvector/nvector_serial.cpp
     sunlinsol/sunlinsol_spgmr.cpp
     sunlinsol/sunlinsol_dense.cpp
@@ -78,7 +75,10 @@ set(sundials_SOURCES
     sunlinsol/sunlinsol_spbcgs.cpp
     sunlinsol/sunlinsol_spfgmr.cpp
     sunlinsol/sunlinsol_sptfqmr.cpp
-    sunlinsol/sunlinsol_pcg.cpp)
+    sunlinsol/sunlinsol_pcg.cpp
+    arkode/pysundials_arkode.cpp
+    arkode/pysundials_arkode_arkstep.cpp
+    arkode/pysundials_arkode_erkstep.cpp)
 
 # Create the Python sundials library
 nanobind_add_module(pysundials STABLE_ABI NB_STATIC ${sundials_SOURCES})
