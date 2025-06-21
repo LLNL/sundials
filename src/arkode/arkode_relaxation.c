@@ -230,7 +230,7 @@ static int arkRelaxBrentSolve(ARKodeMem ark_mem)
   for (i = 0; i < ark_mem->relax_mem->max_iters; i++)
   {
     /* Ensure xc and xb bracket zero */
-    if (SAME_SIGN(fc, fb))
+    if (SUNRsamesign(fc, fb))
     {
       xc         = xa;
       fc         = fa;
