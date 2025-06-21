@@ -188,28 +188,49 @@ extern "C" {
  * -----------------------------------------------------------------
  * Function : SUNRsignbit
  * -----------------------------------------------------------------
- * Usage : sunrealtype z;
+ * Usage : sunrealtype y;
  *         y = SUNRsignbit(x);
  * -----------------------------------------------------------------
- * SUNRsignbit(x) returns nonzero value if x is negative, ​0​ otherwise.
+ * SUNRsignbit(x) returns nonzero value if x is negative, ​0​
+ * otherwise.
  * -----------------------------------------------------------------
  */
 
 #ifndef SUNRsignbit
-#if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRsignbit(x) (signbit((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNRsignbit(x) (signbitf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNRsignbit(x) (signbitl((x)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
 #endif
 
-#define SUNRsamesign(x, y)      (SUNRsignbit((x)) == SUNRsignbit((y)))
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRsamesign
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype z;
+ *         z = SUNRsamesign(x, y);
+ * -----------------------------------------------------------------
+ * SUNRsamesign(x, y) returns true if x and y share the same sign,
+ * false otherwise
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRsamesign
+#define SUNRsamesign(x, y) (SUNRsignbit((x)) == SUNRsignbit((y)))
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRdifferentsign
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype z;
+ *         z = SUNRdifferentsign(x, y);
+ * -----------------------------------------------------------------
+ * SUNRdifferentsign(x) returns true if x and y have different
+ * signs, false otherwise
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRdifferentsign
 #define SUNRdifferentsign(x, y) (!SUNRsamesign((x), (y)))
+#endif
 
 /*
  * -----------------------------------------------------------------
