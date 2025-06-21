@@ -569,7 +569,7 @@ provide additional information to the user in case of a linear solver failure.
 
 
 
-.. _SUNLininSol.Generic:
+.. _SUNLinSol.Generic:
 
 The generic SUNLinearSolver module
 -----------------------------------------

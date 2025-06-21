@@ -25,7 +25,7 @@ set(sunlinsol_superlumt_examples
     "test_sunlinsol_superlumt\;1000 0 3 0\;exclude"
     "test_sunlinsol_superlumt\;1000 1 3 0\;exclude")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_superlumt_dependencies test_sunlinsol)
 
 # Add source directory to include directories
