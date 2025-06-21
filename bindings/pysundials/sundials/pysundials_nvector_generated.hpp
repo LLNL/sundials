@@ -23,7 +23,8 @@ auto pyEnumN_Vector_ID =
         .value("SUNDIALS_NVEC_MANYVECTOR", SUNDIALS_NVEC_MANYVECTOR, "")
         .value("SUNDIALS_NVEC_MPIMANYVECTOR", SUNDIALS_NVEC_MPIMANYVECTOR, "")
         .value("SUNDIALS_NVEC_MPIPLUSX", SUNDIALS_NVEC_MPIPLUSX, "")
-        .value("SUNDIALS_NVEC_CUSTOM", SUNDIALS_NVEC_CUSTOM, "");
+        .value("SUNDIALS_NVEC_CUSTOM", SUNDIALS_NVEC_CUSTOM, "")
+    .export_values();
 
 
 auto pyClass_generic_N_Vector_Ops =

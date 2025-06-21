@@ -95,7 +95,6 @@ enum SUNErrCode_
   SUN_ERR_MAXIMUM                                       = -1000,
   SUN_SUCCESS                                           = 0
 };
-
 /* clang-format on */
 
 /* ----------------------------------------------------------------------------

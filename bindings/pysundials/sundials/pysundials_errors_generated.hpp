@@ -1,12 +1,5 @@
 // #ifndef _SUNDIALS_ERRORS_H
 // 
-
-
-auto pyEnumSUNErrCode_ =
-    nb::enum_<SUNErrCode_>(m, "SUNErrCode_", nb::is_arithmetic(), "")
-        .value("SUN_ERR_MINIMUM", SUN_ERR_MINIMUM, "")
-        .value("SUN_ERR_MAXIMUM", SUN_ERR_MAXIMUM, "")
-        .value("SUN_SUCCESS", SUN_SUCCESS, "");
 // #ifdef __cplusplus 
 // #endif
 // 

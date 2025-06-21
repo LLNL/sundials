@@ -10,7 +10,8 @@ auto pyEnumSUNMemoryType_ =
         .value("SUN_MEMTYPE_HOST", SUN_MEMTYPE_HOST, "")
         .value("SUN_MEMTYPE_PINNED", SUN_MEMTYPE_PINNED, "")
         .value("SUN_MEMTYPE_DEVICE", SUN_MEMTYPE_DEVICE, "")
-        .value("SUN_MEMTYPE_UVM", SUN_MEMTYPE_UVM, "");
+        .value("SUN_MEMTYPE_UVM", SUN_MEMTYPE_UVM, "")
+    .export_values();
 
 
 auto pyClassSUNMemoryHelper_ =

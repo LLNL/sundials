@@ -26,6 +26,10 @@ def load_opt_from_yaml(config_object, module, opt):
     return opt_list
 
 
+def load_enum_exclusions_from_yaml(config_object, module):
+    return load_opt_from_yaml(config_object, module, "enum_exclude_by_name__regex")
+
+
 def load_class_exclusions_from_yaml(config_object, module):
     return load_opt_from_yaml(config_object, module, "class_exclude_by_name__regex")
 
@@ -60,6 +64,7 @@ def main():
     options.python_run_black_formatter = True
     options.python_convert_to_snake_case = False
     options.comments_exclude = True
+    options.enum_export_values = True
     options.srcmlcpp_options.code_preprocess_function = preprocess_header
     options.srcmlcpp_options.ignored_warning_parts.append(
         # "ops" functions pointers cause this warning, but we dont care cause we dont need to bind those.
@@ -80,6 +85,10 @@ def main():
             continue
 
         module = config_object.get(module_name)
+
+        options.enum_exclude_by_name__regex = code_utils.join_string_by_pipe_char(
+            load_enum_exclusions_from_yaml(config_object, module_name)
+        )
 
         options.class_exclude_by_name__regex = code_utils.join_string_by_pipe_char(
             load_class_exclusions_from_yaml(config_object, module_name)

@@ -59,6 +59,8 @@ modules:
     path: sundials/pysundials_errors_generated.hpp
     headers:
     - ../../include/sundials/sundials_errors.h
+    enum_exclude_by_name__regex:
+    - "SUNErrCode_" # not needed in Python
   sundials_linearsolver:
     path: sundials/pysundials_linearsolver_generated.hpp
     headers:
