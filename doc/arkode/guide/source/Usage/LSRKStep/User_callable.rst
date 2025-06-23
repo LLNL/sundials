@@ -191,7 +191,7 @@ Allowable Method Families
    .. note:: *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).  These errors
       are handled by :c:type:`SUNErrCode`.
 
-      Either this function or the DEE creater function, :c:func:`LSRKStepDomEigEstCreateWithID` is required
+      Either this function or the DEE creator function, :c:func:`LSRKStepDomEigEstCreateWithID` is required
       when either the RKC or RKL methods are used.
 
 
