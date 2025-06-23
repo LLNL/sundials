@@ -723,7 +723,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   case SUNFALSE:
     fprintf(fp, "  Maximum number of stages allowed = %i\n",
             step_mem->stage_max_limit);
-    fprintf(fp, "  Number of fe calls for DEE = %i\n",
+    fprintf(fp, "  Number of fe calls for DEE = %li\n",
             step_mem->nfeDQ);
     fprintf(fp, "  Krylov subspace dimension in DEE = %i\n",
             step_mem->dee_krydim);
