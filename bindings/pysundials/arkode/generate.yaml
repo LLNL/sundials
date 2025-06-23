@@ -29,6 +29,7 @@ modules:
     path: arkode/pysundials_arkode_generated.hpp
     headers:
     - ../../include/arkode/arkode.h
+    - ../../include/arkode/arkode_ls.h
     fn_exclude_by_name__regex:
     # nanobind doesnt support **
     - "ARKodeCreateMRIStepInnerStepper" 

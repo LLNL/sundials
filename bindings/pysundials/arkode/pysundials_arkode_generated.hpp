@@ -144,8 +144,8 @@ m.def("ARKodeSetFixedStep",
 m.def("ARKodeSetStepDirection",
     ARKodeSetStepDirection, nb::arg("arkode_mem"), nb::arg("stepdir"));
 
-m.def("ARKodeSetUserData",
-    ARKodeSetUserData, nb::arg("arkode_mem"), nb::arg("user_data"));
+m.def("ARKodeSetOwnUserData",
+    ARKodeSetOwnUserData, nb::arg("ark_mem"), nb::arg("own_user_data"));
 
 m.def("ARKodeSetNonlinearSolver",
     ARKodeSetNonlinearSolver, nb::arg("arkode_mem"), nb::arg("NLS"));
@@ -458,6 +458,65 @@ m.def("ARKodeGetNumRelaxSolveFails",
 
 m.def("ARKodeGetNumRelaxSolveIters",
     ARKodeGetNumRelaxSolveIters, nb::arg("arkode_mem"), nb::arg("iters"));
+// #ifdef __cplusplus
+// 
+// #endif
+// 
+// #endif
+// 
+// #ifndef _ARKLS_H
+// 
+// #ifdef __cplusplus 
+// #endif
+// 
+
+m.def("ARKodeSetLinearSolver",
+    ARKodeSetLinearSolver, nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("A"));
+
+m.def("ARKodeSetMassLinearSolver",
+    ARKodeSetMassLinearSolver, nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M"), nb::arg("time_dep"));
+
+m.def("ARKodeSetJacFn",
+    ARKodeSetJacFn, nb::arg("arkode_mem"), nb::arg("jac"));
+
+m.def("ARKodeSetMassFn",
+    ARKodeSetMassFn, nb::arg("arkode_mem"), nb::arg("mass"));
+
+m.def("ARKodeSetJacEvalFrequency",
+    ARKodeSetJacEvalFrequency, nb::arg("arkode_mem"), nb::arg("msbj"));
+
+m.def("ARKodeSetLinearSolutionScaling",
+    ARKodeSetLinearSolutionScaling, nb::arg("arkode_mem"), nb::arg("onoff"));
+
+m.def("ARKodeSetEpsLin",
+    ARKodeSetEpsLin, nb::arg("arkode_mem"), nb::arg("eplifac"));
+
+m.def("ARKodeSetMassEpsLin",
+    ARKodeSetMassEpsLin, nb::arg("arkode_mem"), nb::arg("eplifac"));
+
+m.def("ARKodeSetLSNormFactor",
+    ARKodeSetLSNormFactor, nb::arg("arkode_mem"), nb::arg("nrmfac"));
+
+m.def("ARKodeSetMassLSNormFactor",
+    ARKodeSetMassLSNormFactor, nb::arg("arkode_mem"), nb::arg("nrmfac"));
+
+m.def("ARKodeSetPreconditioner",
+    ARKodeSetPreconditioner, nb::arg("arkode_mem"), nb::arg("psetup"), nb::arg("psolve"));
+
+m.def("ARKodeSetMassPreconditioner",
+    ARKodeSetMassPreconditioner, nb::arg("arkode_mem"), nb::arg("psetup"), nb::arg("psolve"));
+
+m.def("ARKodeSetJacTimes",
+    ARKodeSetJacTimes, nb::arg("arkode_mem"), nb::arg("jtsetup"), nb::arg("jtimes"));
+
+m.def("ARKodeSetJacTimesRhsFn",
+    ARKodeSetJacTimesRhsFn, nb::arg("arkode_mem"), nb::arg("jtimesRhsFn"));
+
+m.def("ARKodeSetMassTimes",
+    ARKodeSetMassTimes, nb::arg("arkode_mem"), nb::arg("msetup"), nb::arg("mtimes"), nb::arg("mtimes_data"));
+
+m.def("ARKodeSetLinSysFn",
+    ARKodeSetLinSysFn, nb::arg("arkode_mem"), nb::arg("linsys"));
 // #ifdef __cplusplus
 // 
 // #endif

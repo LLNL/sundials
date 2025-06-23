@@ -12,8 +12,8 @@
  * SUNDIALS Copyright End
  *----------------------------------------------------------------------------*/
 
-#ifndef PYSUNDIALS_ARKODE_USERSUPPLIED_HPP
-#define PYSUNDIALS_ARKODE_USERSUPPLIED_HPP
+#ifndef _PYSUNDIALS_ARKODE_USERSUPPLIED_HPP
+#define _PYSUNDIALS_ARKODE_USERSUPPLIED_HPP
 
 #include "pysundials_helpers.hpp"
 
@@ -35,7 +35,7 @@ struct erkstep_user_supplied_fn_table
 inline int erk_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
                              void* user_data)
 {
-  return user_supplied_fn_wrapper<
+  return pysundials::user_supplied_fn_wrapper<
     ARKRhsStdFn,
     erkstep_user_supplied_fn_table>(t, y, ydot, user_data,
                                     &erkstep_user_supplied_fn_table::erkstep_rhsfn);

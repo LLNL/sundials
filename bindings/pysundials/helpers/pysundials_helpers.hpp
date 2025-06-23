@@ -19,6 +19,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 template<typename FnType, typename CallbackType>
 int user_supplied_fn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
                              void* user_data,
@@ -28,5 +30,7 @@ int user_supplied_fn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
   auto fn       = nb::cast<std::function<FnType>>(fn_table->*fn_member);
   return fn(t, y, ydot, user_data);
 }
+
+} // namespace pysundials
 
 #endif
