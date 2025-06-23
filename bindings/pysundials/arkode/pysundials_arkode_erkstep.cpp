@@ -25,6 +25,8 @@ namespace nb = nanobind;
 
 void bind_arkode_erkstep(nb::module_& m)
 {
+#include "pysundials_arkode_erkstep_generated.hpp"
+
   m.def("ERKStepCreate",
         [](std::function<ARKRhsStdFn> rhs, sunrealtype t0, N_Vector y0,
            SUNContext sunctx)

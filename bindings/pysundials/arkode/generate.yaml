@@ -47,3 +47,12 @@ modules:
     - "ARKodeSetStagePredictFn" 
     - "ARKodeSetStabilityFn" 
     - "ARKodeSetRelaxFn"
+  erkstep:
+    path: arkode/pysundials_arkode_erkstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_erkstep.h
+    fn_exclude_by_name__regex:
+    # we dont bind the ERKStepCreate function as we need to do something custom
+    - "Create"
+    # nanobind doesnt support **
+    - "ERKStepGetCurrentButcherTable"
