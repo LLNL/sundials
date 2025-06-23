@@ -84,7 +84,8 @@ set(sundials_SOURCES
 nanobind_add_module(pysundials STABLE_ABI NB_STATIC ${sundials_SOURCES})
 
 # Include private header locations
-target_include_directories(pysundials PRIVATE ${SUNDIALS_SOURCE_DIR}/src
+target_include_directories(pysundials PRIVATE helpers
+                                              ${SUNDIALS_SOURCE_DIR}/src
                                               ${SUNDIALS_SOURCE_DIR}/src/arkode)
 
 # Link against sundials libraries

@@ -32,17 +32,19 @@ struct ARKodeDeleter
   }
 };
 
-using ARKodeView = ClassView<void*, ARKodeDeleter>;
+class ARKodeView : public ClassView<void*, ARKodeDeleter>
+{ 
+public:
+  using ClassView<void*, ARKodeDeleter>::ClassView;
+  template<typename... Args>
+  static ARKodeView Create(Args&&... args);
+};
 
-// class ARKodeView : public ClassView<void*, ARKodeDeleter>
-// {
-// public:
-//   ARKodeView() : ClassView() {}
-//   ARKodeView(void*&& object) : ClassView(object) {}
-
-// private:
-//   void* callback_functions;
-// };
+template<typename... Args>
+ARKodeView ARKodeView::Create(Args&&... args)
+{
+  return ARKodeView(std::forward<Args>(args)...);
+}
 
 } // namespace experimental
 } // namespace sundials

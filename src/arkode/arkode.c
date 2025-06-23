@@ -1277,6 +1277,13 @@ void ARKodeFree(void** arkode_mem)
     ark_mem->relax_mem = NULL;
   }
 
+  /* free user data if ARKODE owns it */
+  if (ark_mem->own_user_data && (ark_mem->user_data != NULL))
+  {
+    free(ark_mem->user_data);
+    ark_mem->user_data = NULL;
+  }
+
   free(*arkode_mem);
   *arkode_mem = NULL;
 }
@@ -1591,7 +1598,8 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->ProcessStage = NULL;
 
   /* No user_data pointer yet */
-  ark_mem->user_data = NULL;
+  ark_mem->user_data     = NULL;
+  ark_mem->own_user_data = SUNFALSE;
 
   /* Allocate step adaptivity structure and note storage */
   ark_mem->hadapt_mem = arkAdaptInit();
@@ -1686,10 +1694,8 @@ int arkRwtSet(N_Vector y, N_Vector weight, void* data)
     flag = ark_mem->step_mmult((void*)ark_mem, y, My);
     if (flag != ARK_SUCCESS) { return (ARK_MASSMULT_FAIL); }
   }
-  else
-  { /* this condition should not apply, but just in case */
-    N_VScale(ONE, y, My);
-  }
+  else { /* this condition should not apply, but just in case */
+         N_VScale(ONE, y, My); }
 
   /* call appropriate routine to fill rwt */
   switch (ark_mem->ritol)
@@ -2051,10 +2057,8 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   }
 
   /* Load initial residual weights */
-  if (ark_mem->rwt_is_ewt)
-  { /* update pointer to ewt */
-    ark_mem->rwt = ark_mem->ewt;
-  }
+  if (ark_mem->rwt_is_ewt) { /* update pointer to ewt */
+                             ark_mem->rwt = ark_mem->ewt; }
   else
   {
     retval = ark_mem->rfun(ark_mem->yn, ark_mem->rwt, ark_mem->r_data);
@@ -3628,10 +3632,8 @@ sunbooleantype arkResizeVectors(ARKodeMem ark_mem, ARKVecResizeFn resize,
   }
 
   /* rwt  */
-  if (ark_mem->rwt_is_ewt)
-  { /* update pointer to ewt */
-    ark_mem->rwt = ark_mem->ewt;
-  }
+  if (ark_mem->rwt_is_ewt) { /* update pointer to ewt */
+                             ark_mem->rwt = ark_mem->ewt; }
   else
   { /* resize if distinct from ewt */
     if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, tmpl,
