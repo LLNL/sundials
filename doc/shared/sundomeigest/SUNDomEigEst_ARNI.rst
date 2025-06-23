@@ -39,7 +39,7 @@ well-approximated by the dominant eigenvalue of :math:`H_m`.
 
 ArnI works for the matrices that have a **complex** dominant eigenvalue.  It supports
 estimations with a user specified fixed dimension of Krylov subspaces, at least 3.  While
-these choice requires a prefixed amount of memory (depending on the dimension), it stricly
+these choice requires a prefixed amount of memory (depending on the dimension), it strictly
 determines how good an estimation is.  To improve the estimation accuracy, we found preprocessing
 with :c:func:`SUNDomEigEstPreProcess` particularly useful.  This operation is free from any
 additional memory requirement and explained below.

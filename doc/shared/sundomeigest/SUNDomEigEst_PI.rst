@@ -41,8 +41,8 @@ can be approximated using the Rayleigh quotient
 
     \lambda_k = \frac{\mathbf{v}_k^T A \mathbf{v}_k}{\|\mathbf{v}_k\|^2}.
 
-The iteration continues until the two succesive eigenvalues are relatively close
-enough to one another.  That is, for some reletive tolerance :math:`\tau`,
+The iteration continues until the two successive eigenvalues are relatively close
+enough to one another.  That is, for some relative tolerance :math:`\tau`,
 
 .. math::
 
