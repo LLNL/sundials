@@ -38,6 +38,7 @@ modules:
     - "ARKodeCreateSUNStepper"
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
     - "ARKodeGetUserData" 
+    - "ARKodeSetUserData" 
     # generator cannot handle setting of function pointers 
     - "ARKodeSetPostprocessStepFn" 
     - "ARKodeSetPostprocessStageFn" 
