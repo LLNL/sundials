@@ -2081,7 +2081,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     fprintf(outfile, "LSRKStep: dom_eig_freq          = %li\n",
             step_mem->dom_eig_freq);
 
-    if(step_mem->DEE != NULL)
+    if (step_mem->DEE != NULL)
     {
       fprintf(outfile, "LSRKStep: dee_krydim            = %i\n",
               step_mem->dee_krydim);
@@ -2092,9 +2092,10 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     }
     /* output long integer quantities */
     fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
-    if(step_mem->DEE != NULL)
+    if (step_mem->DEE != NULL)
     {
-      fprintf(outfile, "LSRKStep: nfeDQ                 = %li\n", step_mem->nfeDQ);
+      fprintf(outfile, "LSRKStep: nfeDQ                 = %li\n",
+              step_mem->nfeDQ);
     }
     fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
             step_mem->dom_eig_num_evals);

@@ -38,7 +38,7 @@ int Test_SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE,
                                      sunindextype max_powiter, int myid);
 int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
                                       int myid);
-int Test_SUNDomEigEstSetTol(SUNDomEigEstimator DEE, int tol, int myid);
+int Test_SUNDomEigEstSetTol(SUNDomEigEstimator DEE, sunrealtype tol, int myid);
 int Test_SUNDomEigEstInitialize(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEstPreProcess(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEstComputeHess(SUNDomEigEstimator DEE, int myid);

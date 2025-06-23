@@ -98,8 +98,7 @@ SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
                                  SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE,
-                                       int max_powiter);
+SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE,

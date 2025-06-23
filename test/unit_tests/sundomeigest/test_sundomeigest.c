@@ -163,7 +163,7 @@ int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
 /* ----------------------------------------------------------------------
  * SUNDomEigEstSetTol Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstSetTol(SUNDomEigEstimator DEE, int tol, int myid)
+int Test_SUNDomEigEstSetTol(SUNDomEigEstimator DEE, sunrealtype tol, int myid)
 {
   int failure;
   double start_time, stop_time;
@@ -176,8 +176,7 @@ int Test_SUNDomEigEstSetTol(SUNDomEigEstimator DEE, int tol, int myid)
 
   if (failure)
   {
-    printf(">>> FAILED test -- SUNDomEigEstSetTol check, Proc %d \n",
-           myid);
+    printf(">>> FAILED test -- SUNDomEigEstSetTol check, Proc %d \n", myid);
     PRINT_TIME("    SUNDomEigEstSetTol Time: %22.15e \n \n",
                stop_time - start_time);
     return (1);

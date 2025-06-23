@@ -330,8 +330,11 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
           eigenvalues which have converged.
   */
 #if defined(SUNDIALS_INT32_T)
-  sunindextype lda = n; sunindextype ldvl = n; sunindextype ldvr = n;
-  sunindextype info; sunindextype lwork = 4 * n;
+  sunindextype lda  = n;
+  sunindextype ldvl = n;
+  sunindextype ldvr = n;
+  sunindextype info;
+  sunindextype lwork = 4 * n;
 #if defined(SUNDIALS_DOUBLE_PRECISION)
   dgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
          ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
@@ -342,8 +345,11 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
          &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
 #endif
 #elif defined(SUNDIALS_INT64_T)
-  int32_t lda = n; int32_t ldvl = n; int32_t ldvr = n;
-  int32_t info; int32_t lwork = 4 * n;
+  int32_t lda  = n;
+  int32_t ldvl = n;
+  int32_t ldvr = n;
+  int32_t info;
+  int32_t lwork = 4 * n;
 #if defined(SUNDIALS_DOUBLE_PRECISION)
   dgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
          ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
