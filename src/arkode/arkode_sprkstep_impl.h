@@ -78,6 +78,7 @@ int sprkStep_SetDefaults(ARKodeMem ark_mem);
 int sprkStep_SetOrder(ARKodeMem ark_mem, int ord);
 int sprkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
 int sprkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
+int sprkStep_SetUseCompensatedSums(ARKodeMem ark_mem, sunbooleantype onoff);
 int sprkStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
 int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                     sunrealtype t0, ARKVecResizeFn resize, void* resize_data);

@@ -87,7 +87,7 @@ the header file for CVODES in addition to the SUNDIALS core header file:
   #include <sundials/sundials_core.h> // Provides core SUNDIALS types
   #include <cvodes/cvodes.h>          // CVODES provides linear multistep methods with sensitivity analysis
 
-The calling program must also include an :c:type`N_Vector` implementation header file, of the form
+The calling program must also include an :c:type:`N_Vector` implementation header file, of the form
 ``nvector/nvector_*.h``. See :numref:`NVectors` for the appropriate name.
 
 If using a non-default nonlinear solver module, or when interacting with a
@@ -1785,7 +1785,7 @@ step size adaptivity.
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
      * ``eta_min_fx`` -- value of the lower bound of the fixed step interval. If
-       ``eta_min_fx`` is :math:`< 0` or :math:`\geq 1`, the default value is
+       ``eta_min_fx`` is :math:`< 0` or :math:`> 1`, the default value is
        used.
      * ``eta_max_fx`` -- value of the upper bound of the fixed step interval. If
        ``eta_max_fx`` is :math:`< 1`, the default value is used.
@@ -1796,6 +1796,10 @@ step size adaptivity.
        previous call to :c:func:`CVodeCreate`.
 
    .. versionadded:: 6.2.0
+
+   .. versionchanged:: 7.4.0
+
+      Updated the allowable values for ``eta_min_fx`` in include 1.
 
 .. c:function:: int CVodeSetEtaMaxFirstStep(void* cvode_mem, sunrealtype eta_max_fs)
 
@@ -2757,6 +2761,9 @@ described next.
    **Return value:**
      * A string containing the name of the corresponding constant
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
 
 .. _CVODES.Usage.SIM.optional_output.optout_root:
@@ -3106,7 +3113,7 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
       Replaces the deprecated functions ``CVDlsGetLastFlag`` and  ``CVSpilsGetLastFlag``.
 
 
-.. c:function:: int CVodeGetLinReturnFlagName(long int lsflag)
+.. c:function:: char* CVodeGetLinReturnFlagName(long int lsflag)
 
    The function ``CVodeGetLinReturnFlagName`` returns the name of the CVLS constant corresponding to ``lsflag``.
 
@@ -3119,6 +3126,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
    .. versionadded:: 4.0.0
 
       Replaces the deprecated functions ``CVDlsGetReturnFlagName`` and  ``CVSpilsGetReturnFlagName``.
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
 
 .. _CVODES.Usage.SIM.optional_output.optout_diag:
@@ -3199,6 +3210,10 @@ solver, a suffix (for Linear Solver) has been added here (e.g. ``lenrwLS``).
 
    **Return value:**
      * A string containing the name of the corresponding constant.
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
 
 .. _CVODES.Usage.SIM.reinit:

@@ -245,7 +245,7 @@ provide his own error handler function (see :numref:`KINSOL.Usage.CC.optional_in
 KINSOL initialization and deallocation functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. c:function:: void KINCreate(SUNContext sunctx)
+.. c:function:: void * KINCreate(SUNContext sunctx)
 
    The function :c:func:`KINCreate` instantiates a KINSOL solver object.
 
@@ -253,7 +253,7 @@ KINSOL initialization and deallocation functions
      - ``sunctx`` -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
-     * ``void``
+     * ``void *``
 
 
 .. c:function:: int KINInit(void * kin_mem, KINSysFn func, N_Vector tmpl)
@@ -1535,6 +1535,10 @@ functions are described next.
    **Return value:**
      * A string containing the name of the corresponding constant
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
+
 
 .. _KINSOL.Usage.CC.optional_output.optout_ls:
 
@@ -1805,6 +1809,10 @@ The following optional outputs are available from the KINLS modules:
       * ``char*`` -- the flag name string or if
         :math:`1 \leq \mathtt{lsflag} \leq N` (LU factorization failed), this
         function returns "NONE".
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
    .. versionadded:: 4.0.0
 
