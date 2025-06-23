@@ -76,22 +76,22 @@ or by downloading release compressed archives (``.tar.gz`` files) from the
 <https://computing.llnl.gov/projects/sundials/sundials-software>`__. The
 compressed archives allow for downloading the entire SUNDIALS suite or
 individual packages. The name of the distribution archive is of the form
-``SOLVER-7.4.0.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
-``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``7.4.0``
+``SOLVER-x.y.z.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
+``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``x.y.z``
 represents the version number of the SUNDIALS suite or of the individual
 package. After downloading the relevant archives, uncompress and expand the
 sources. For example, by running
 
 .. code-block:: bash
 
-   tar -zxf SOLVER-7.4.0.tar.gz
+   tar -zxf SOLVER-x.y.z.tar.gz
 
-the extracted source files will be under the ``SOLVER-7.4.0`` directory.
+the extracted source files will be under the ``SOLVER-x.y.z`` directory.
 
 In the installation steps below we will refer to the following directories:
 
 * ``SOLVER_DIR`` is the ``sundials`` directory created when cloning from GitHub
-  or the ``SOLVER-7.4.0`` directory created after uncompressing the release
+  or the ``SOLVER-x.y.z`` directory created after uncompressing the release
   archive.
 
 * ``BUILD_DIR`` is the (temporary) directory under which SUNDIALS is built.
