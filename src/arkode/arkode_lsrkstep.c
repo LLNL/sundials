@@ -2081,8 +2081,21 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     fprintf(outfile, "LSRKStep: dom_eig_freq          = %li\n",
             step_mem->dom_eig_freq);
 
+    if(step_mem->DEE != NULL)
+    {
+      fprintf(outfile, "LSRKStep: dee_krydim            = %i\n",
+              step_mem->dee_krydim);
+      fprintf(outfile, "LSRKStep: dee_numwarmups        = %i\n",
+              step_mem->dee_numwarmups);
+      fprintf(outfile, "LSRKStep: dee_maxiters          = %i\n",
+              step_mem->dee_maxiters);
+    }
     /* output long integer quantities */
     fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
+    if(step_mem->DEE != NULL)
+    {
+      fprintf(outfile, "LSRKStep: nfeDQ                 = %li\n", step_mem->nfeDQ);
+    }
     fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
             step_mem->dom_eig_num_evals);
 
@@ -2489,8 +2502,24 @@ int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv)
 
   sunrealtype t = ark_mem->tn;
   N_Vector y    = ark_mem->yn;
-  N_Vector fy   = ark_mem->fn; //make sure it is current!
   N_Vector work = ark_mem->tempv3;
+
+  /* Compute RHS function, if necessary. */
+  if ((!ark_mem->fn_is_current && ark_mem->initsetup) ||
+      (step_mem->step_nst != ark_mem->nst))
+  {
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                          ark_mem->user_data);
+    step_mem->nfeDQ++;
+    if (retval != ARK_SUCCESS)
+    {
+      SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed rhs eval, retval = %i", retval);
+      return (ARK_RHSFUNC_FAIL);
+    }
+    ark_mem->fn_is_current = SUNTRUE;
+  }
 
   /* Initialize perturbation to 1/||v|| */
   sig = ONE / N_VWrmsNorm(v, ark_mem->ewt);
@@ -2514,9 +2543,9 @@ int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv)
   /* If retval still isn't 0, return with a recoverable failure */
   if (retval > 0) { return (+1); }
 
-  /* Replace Jv by (Jv - fy)/sig */
+  /* Replace Jv by (Jv - fn)/sig */
   siginv = ONE / sig;
-  N_VLinearSum(siginv, Jv, -siginv, fy, Jv);
+  N_VLinearSum(siginv, Jv, -siginv, ark_mem->fn, Jv);
 
   return (0);
 }

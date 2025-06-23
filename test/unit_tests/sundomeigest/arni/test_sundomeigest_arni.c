@@ -137,6 +137,7 @@ int main(int argc, char* argv[])
   max_powiter = krydim;
   fails += Test_SUNDomEigEstSetMaxPowerIter(DEE, max_powiter, 0);
   fails += Test_SUNDomEigEstSetNumPreProcess(DEE, numwarmups, 0);
+  fails += Test_SUNDomEigEstSetTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEstInitialize(DEE, 0);
   fails += Test_SUNDomEigEstPreProcess(DEE, 0);
   fails += Test_SUNDomEigEstComputeHess(DEE, 0);

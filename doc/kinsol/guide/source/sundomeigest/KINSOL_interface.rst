@@ -40,42 +40,52 @@ the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstSetATimes`                    |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstSetMaxPowerIter`              |          O          |          O          |
+   | :c:func:`SUNDomEigEstSetMaxPowerIter`\ :sup:`1`    |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstSetNumPreProcess`             |          O          |          O          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEstSetTol`\ :sup:`2`             |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstInitialize`                   |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstPreProcess`                   |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstComputeHess`\ :sup:`1`        |         N/A         |          X          |
+   | :c:func:`SUNDomEigEstComputeHess`\ :sup:`3`        |         N/A         |          X          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstimate`                        |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstNumIters`\ :sup:`2`           |          O          |         N/A         |
+   | :c:func:`SUNDomEigEstNumIters`\ :sup:`4`           |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstRes`\ :sup:`3`                |          O          |         N/A         |
+   | :c:func:`SUNDomEigEstRes`\ :sup:`5`                |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstFree`\ :sup:`4`               |                     |                     |
+   | :c:func:`SUNDomEigEstFree`\ :sup:`6`               |                     |                     |
    +----------------------------------------------------+---------------------+---------------------+
 
 
 Notes:
 
-1. :c:func:`SUNDomEigEstComputeHess()` might or might not be required depending on
+1. :c:func:`SUNDomEigEstSetMaxPowerIter()` might or might not be required depending on
    ``SUNDomEigEstimator`` implementation that is being used. This flag must be left
    ``NULL`` if it is not applicable for an estimator.
 
-2. :c:func:`SUNDomEigEstNumIters()` is only used to accumulate overall
+2. :c:func:`SUNDomEigEstSetTol()` might or might not be required depending on
+   ``SUNDomEigEstimator`` implementation that is being used. This flag must be left
+   ``NULL`` if it is not applicable for an estimator.
+
+3. :c:func:`SUNDomEigEstComputeHess()` might or might not be required depending on
+   ``SUNDomEigEstimator`` implementation that is being used. This flag must be left
+   ``NULL`` if it is not applicable for an estimator.
+
+4. :c:func:`SUNDomEigEstNumIters()` is only used to accumulate overall
    iterative estimator statistics.  If it is not implemented by
    the ``SUNDomEigEstimator`` module, then KINDEE will consider all
    estimates as requiring zero iterations.
 
-3. Although :c:func:`SUNDomEigEstRes()` is optional, if it is not
+5. Although :c:func:`SUNDomEigEstRes()` is optional, if it is not
    implemented by the ``SUNDomEigEstimator`` then KINDEE will consider all
    estimates a being *exact*.
 
-4. Although KINDEE does not call :c:func:`SUNDomEigEstFree()`
+6. Although KINDEE does not call :c:func:`SUNDomEigEstFree()`
    directly, this routine should be available for users to call when
    cleaning up from a simulation.
 

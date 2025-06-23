@@ -18,18 +18,34 @@ The SUNDomEigEst_ARNI Module
 ======================================
 
 The SUNDomEigEst_ARNI implementation of the ``SUNDomEigEstimator`` class performs
-the Arnoldi Iteration :cite:p:`arnoldi51` method; this is an iterative dominant
+the Arnoldi Iteration (ArnI) method :cite:p:`arnoldi51`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
-implementation that supports a minimal subset of operations
+implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
+:c:func:`N_VCloneVectorArray()`, :c:func:`N_VRandom()`, :c:func:`N_VDotProd()`,
+:c:func:`N_VLinearSum()`, :c:func:`N_VScale()`, :c:func:`N_VDestroy()`, and
+:c:func:`N_VDestroyVectorArray()`).
 
-TODO:Check the list.
-(:c:func:`N_VClone()`, :c:func:`N_VDotProd()`, :c:func:`N_VScale()`,
-:c:func:`N_VLinearSum()`, :c:func:`N_VProd()`, and
-:c:func:`N_VDestroy()`).  ARNI requires a prefixed amount of
-memory that depends on the user provided dimension of Krylov subspaces.
+ArnI is particularly effective for large, sparse matrices where only the dominant
+eigenvalue is needed.  It constructs an orthonormal basis of the Krylov subspace
 
-The matrix :math:`A` is not required explicitly; only routines
-that provide :math:`A` as operator is required.
+.. math::
+
+   \mathcal{K}_m(A, \mathbf{v}) = \text{span}\{\mathbf{v}, A \mathbf{v}, A^2 \mathbf{v}, \dots, A^{m-1} \mathbf{v}\}
+
+using the Gram-Schmidt process.  The matrix :math:`A` is projected onto this subspace
+to form a small upper Hessenberg matrix :math:`H_m`.  The eigenvalues of :math:`H_m`
+approximate some of the eigenvalues of :math:`A`; the dominant eigenvalue of :math:`A` is
+well-approximated by the dominant eigenvalue of :math:`H_m`.
+
+ArnI works for the matrices that have a **complex** dominant eigenvalue.  It supports
+estimations with a user specified fixed dimension of Krylov subspaces, at least 3.  While
+these choice requires a prefixed amount of memory (depending on the dimension), it stricly
+determines how good an estimation is.  To improve the estimation accuracy, we found preprocessing
+with :c:func:`SUNDomEigEstPreProcess` particularly useful.  This operation is free from any
+additional memory requirement and explained below.
+
+The matrix :math:`A` is not required explicitly; only routines that provide :math:`A`
+as operator is required.
 
 
 .. _SUNDomEigEst.ARNI.Usage:
@@ -37,10 +53,15 @@ that provide :math:`A` as operator is required.
 SUNDomEigEst_ARNI Usage
 -----------------------
 
-The header file to be included when using this module is
-``sundomeigest/sundomeigest_arni.h``.  The SUNDomEigEst_ARNI module is accessible from all SUNDIALS solvers
-*without* linking to the ``libsundials_sundomeigestarni`` module library after enabling LAPACK package.
-This LAPACK dependence is limited to the ``dgeev_`` function after computing Hessenberg matrix internally.
+The header file to be included when using this module is ``sundomeigest/sundomeigest_pi.h``.
+The SUNDomEigEst_PI module is accessible from all SUNDIALS solvers *without* linking to the
+``libsundials_sundomeigestpi`` module library.
+
+The header file to be included when using this module is ``sundomeigest/sundomeigest_arni.h``.
+The SUNDomEigEst_ARNI module is accessible from all SUNDIALS solvers *without* linking to the
+``libsundials_sundomeigestarni`` module library after enabling LAPACK package.
+This LAPACK dependence is limited to the eigenvalue estimation of the Hessenberg matrix with
+``dgeev_/sgeev_`` functions.
 
 The module SUNDomEigEst_ARNI provides the following user-callable routines:
 
@@ -61,27 +82,12 @@ The module SUNDomEigEst_ARNI provides the following user-callable routines:
 
    **Notes:**
       This routine will perform consistency checks to ensure that it is
-      called with a consistent ``N_Vector`` implementation (i.e. that it
+      called with a consistent ``N_Vector`` implementation (i.e.  that it
       supplies the requisite vector operations).
 
       A ``krydim`` argument that is :math:`\leq 2` will result in the default
-      value (3).
-
-
-.. c:function:: SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE)
-
-   This function computes the Hessenberg matrix.
-
-   **Return value:**
-
-      A :c:type:`SUNErrCode`.
-
-   **Notes:**
-      This routine can be called with (:c:func:`SUNDomEigEstPreProcess`) as well.
-      It must be called after initialization (:c:func:`SUNDomEigEstInitialize`),
-      and also preprocess (if requested) should be performed (:c:func:`SUNDomEigEstPreProcess`)
-      before calling this function.
-
+      value (3).  This default value is particularly chosen to minimize the memory
+      footprint.
 
 .. _SUNDomEigEst.ARNI.Description:
 
@@ -139,15 +145,19 @@ This estimator is constructed to perform the following operations:
 * User-facing "set" routines may be called to modify default
   estimator parameters.
 
-* Additional "set" routines are called by the SUNDIALS estimator
-  that interfaces with SUNDomEigEst_ARNI to supply the
-  ``ATimes`` function pointers and the related data ``ATData``.
+* An additional "set" routine must be called by the SUNDIALS estimator
+  that interfaces with SUNDomEigEst_ARNI to supply the ``ATimes``
+  function pointers and the related data ``ATData``.
 
 * In the "initialize" call, the estimator parameters are checked
   for validity and ARNI estimator memory is allocated.
 
 * In the "preprocess" call, the initial random vector :math:`q_0` is warmed up
-  :math:`k=` ``numwarmups`` times as :math:`q_1 = \frac{Aq_0}{||Aq_0||} \cdots q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}`.
+  :math:`k=` ``numwarmups`` times as
+
+.. math::
+
+    q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}.
 
 * In the "estimate" call the ARNI estimator is performed.
 

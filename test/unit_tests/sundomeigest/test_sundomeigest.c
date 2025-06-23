@@ -161,6 +161,38 @@ int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
 }
 
 /* ----------------------------------------------------------------------
+ * SUNDomEigEstSetTol Test
+ * --------------------------------------------------------------------*/
+int Test_SUNDomEigEstSetTol(SUNDomEigEstimator DEE, int tol, int myid)
+{
+  int failure;
+  double start_time, stop_time;
+
+  /* try calling SUNDomEigEstSetTol routine: should pass/fail based on expected input */
+  start_time = get_time();
+  failure    = SUNDomEigEstSetTol(DEE, tol);
+  // sync_device();
+  stop_time = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEstSetTol check, Proc %d \n",
+           myid);
+    PRINT_TIME("    SUNDomEigEstSetTol Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEstSetTol \n");
+    PRINT_TIME("    SUNDomEigEstSetTol Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
  * SUNDomEigEstInitialize Test
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEstInitialize(SUNDomEigEstimator DEE, int myid)

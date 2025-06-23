@@ -44,12 +44,12 @@ struct _SUNDomEigEstimatorContent_PI
 
   N_Vector V, q; /* workspace vectors */
 
-  int numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
+  int numwarmups;  /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
+  int max_powiter; /* Maximum number of power iterations */
+  int numiters;    /* Current number of power iterations */
 
   sunrealtype powiter_tol; /* Convergence criteria for the power iteration */
   sunrealtype res;         /* Current residual of power iterations */
-  int max_powiter;         /* Maximum number of power iterations */
-  int numiters;            /* Current number of power iterations */
 };
 
 typedef struct _SUNDomEigEstimatorContent_PI* SUNDomEigEstimatorContent_PI;
@@ -70,7 +70,8 @@ SUNErrCode SUNDomEigEstSetATimes_PI(SUNDomEigEstimator DEE, void* A_data,
                                     SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEstSetMaxPowerIter_PI(SUNDomEigEstimator DEE,
+                                          int max_powiter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetNumPreProcess_PI(SUNDomEigEstimator DEE,
@@ -80,8 +81,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstSetTol_PI(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetMaxPowerIter_PI(SUNDomEigEstimator DEE,
-                                          int max_powiter);
+SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE);
+
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstPreProcess_PI(SUNDomEigEstimator DEE);

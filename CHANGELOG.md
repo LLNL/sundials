@@ -1,5 +1,17 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release 7.5.0
+
+### Major Features
+
+Added a dominant eigenvalue estimator module to SUNDIALS. This enables internal
+dominant eigenvalue estimation for the LSRKStep step methods:
+second-order Runge–Kutta–Chebyshev and Runge–Kutta–Legendre methods. Users no
+longer need to provide dominant eigenvalue estimates manually. This module is
+standalone and can also be used for other purposes. Currently available methods
+include Power Iteration (PI) and Arnoldi Iteration (ArnI). The latter requires
+enabling the LAPACK library, while PI is available without any additional flags.
+
 ## Changes to SUNDIALS in release 7.4.0
 
 ### New Features and Enhancements

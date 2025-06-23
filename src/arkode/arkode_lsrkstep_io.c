@@ -237,10 +237,10 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetDEECreateWithID creates DomEigEst with ID.
+  LSRKStepDomEigEstCreateWithID creates DomEigEst with ID.
   ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int LSRKStepSetDEECreateWithID(void* arkode_mem,
-                                               SUNDomEigEstimator_ID DEE_id)
+SUNDIALS_EXPORT int LSRKStepDomEigEstCreateWithID(void* arkode_mem,
+                                                  SUNDomEigEstimator_ID DEE_id)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -648,6 +648,17 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   {
     sunfprintf_long(outfile, fmt, SUNFALSE, "Number of dom_eig updates",
                     step_mem->dom_eig_num_evals);
+    if(step_mem->DEE != NULL)
+    {
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Number of fe calls for DEE",
+                      step_mem->nfeDQ);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Krylov subspace dim. in DEE",
+                      step_mem->dee_krydim);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Number of warmups in DEE",
+                      step_mem->dee_numwarmups);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of iters in DEE",
+                      step_mem->dee_maxiters);
+    }
     sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of stages used",
                     step_mem->stage_max);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of stages allowed",
@@ -712,6 +723,14 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   case SUNFALSE:
     fprintf(fp, "  Maximum number of stages allowed = %i\n",
             step_mem->stage_max_limit);
+    fprintf(fp, "  Number of fe calls for DEE = %i\n",
+            step_mem->nfeDQ);
+    fprintf(fp, "  Krylov subspace dimension in DEE = %i\n",
+            step_mem->dee_krydim);
+    fprintf(fp, "  Number of warmups in DEE = %i\n",
+            step_mem->dee_numwarmups);
+    fprintf(fp, "  Max. num. of iters in DEE = %i\n",
+            step_mem->dee_maxiters);
     fprintf(fp, "  Current spectral radius = " SUN_FORMAT_G "\n",
             step_mem->spectral_radius);
     fprintf(fp, "  Safety factor for the dom eig = " SUN_FORMAT_G "\n",
