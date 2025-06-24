@@ -22,7 +22,7 @@ set(sunlinsol_klu_examples
     "test_sunlinsol_klu\;300 0 0\;" "test_sunlinsol_klu\;300 1 0\;"
     "test_sunlinsol_klu\;1000 0 0\;" "test_sunlinsol_klu\;1000 1 0\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_klu_dependencies test_sunlinsol)
 
 # If building F2003 tests
