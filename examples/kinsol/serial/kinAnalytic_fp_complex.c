@@ -15,7 +15,7 @@
  *  
  * 4x    - sin(y) - zi     - 1  = 0
  * -x^2  + 5y     - cos(z) - 2i = 0
- * -e^-x -y      + 6z      - 3  = 0
+ * -e^-x - y      + 6z     - 3  = 0
  * 
  * using the accelerated fixed pointer solver in KINSOL. The nonlinear fixed point function is
  * 
@@ -157,8 +157,8 @@ int main(int argc, char* argv[])
 
   printf("Solve the nonlinear system:\n");
   printf("    4x    - sin(y) - zi     - 1  = 0\n");
-  printf("   -x^2  + 5y     - cos(z) - 2i = 0\n");
-  printf("    -e^-x -y      + 6z      - 3  = 0\n");
+  printf("   -x^2   + 5y     - cos(z) - 2i = 0\n");
+  printf("   -e^-x  - y      + 6z     - 3  = 0\n");
   printf("Analytic solution:\n");
   printf("    x = %f  + %fI\n", creal(XTRUE), cimag(XTRUE));
   printf("    y = %f  + %fI\n", creal(YTRUE), cimag(YTRUE));
@@ -424,9 +424,9 @@ static int check_ans(N_Vector u, sunrealtype tol)
 
   /* print the solution error */
   printf("Solution error:\n");
-  printf("    ex = %f + %fI\n", exR, exI);
-  printf("    ey = %f + %fI\n", eyR, eyI);
-  printf("    ez = %f + %fI\n", ezR, ezI);
+  printf("    ex = %e + %eI\n", exR, exI);
+  printf("    ey = %e + %eI\n", eyR, eyI);
+  printf("    ez = %e + %eI\n", ezR, ezI);
 
   tol *= TEN;
   if (exR > tol || eyR > tol || ezR > tol || exI > tol || eyI > tol || ezI > tol)
