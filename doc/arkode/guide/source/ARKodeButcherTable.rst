@@ -308,7 +308,7 @@ ARKodeButcherTable functions
       The *outfile* argument can be ``stdout`` or ``stderr``, or it
       may point to a specific file created using ``fopen``.
 
-.. c:function:: void ARKodeButcherTable_IsStifflyAccurate(ARKodeButcherTable B)
+.. c:function:: sunbooleantype ARKodeButcherTable_IsStifflyAccurate(ARKodeButcherTable B)
 
    Determine if the table satisfies ``A[stages - 1][i] == b[i]``
 
