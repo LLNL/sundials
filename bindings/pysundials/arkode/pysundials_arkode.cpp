@@ -1,3 +1,17 @@
+/*------------------------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ *------------------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ *----------------------------------------------------------------------------*/
+ 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
 
@@ -18,6 +32,8 @@ using namespace sundials::experimental;
 // Forward declarations of functions defined in other translation units
 void bind_arkode_erkstep(nb::module_& m);
 void bind_arkode_arkstep(nb::module_& m);
+void bind_arkode_sprkstep(nb::module_& m);
+void bind_arkode_lsrkstep(nb::module_& m);
 
 void bind_arkode(nb::module_& m)
 {
@@ -226,4 +242,6 @@ void bind_arkode(nb::module_& m)
 
   bind_arkode_arkstep(m);
   bind_arkode_erkstep(m);
+  bind_arkode_sprkstep(m);
+  bind_arkode_lsrkstep(m);
 }

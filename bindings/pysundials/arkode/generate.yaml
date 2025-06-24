@@ -63,3 +63,18 @@ modules:
     - "Create"
     # nanobind doesnt support **
     - "ERKStepGetCurrentButcherTable"
+  sprkstep:
+    path: arkode/pysundials_arkode_sprkstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_sprkstep.h
+    fn_exclude_by_name__regex:
+    - "Create"
+    # nanobind doesnt support **
+    - "GetCurrentMethod"
+  lsrkstep:
+    path: arkode/pysundials_arkode_lsrkstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_lsrkstep.h
+    fn_exclude_by_name__regex:
+    - "Create"
+    

@@ -67,6 +67,13 @@ struct arkode_user_supplied_fn_table
   // arkstep-specific user-supplied function pointers
   nb::object arkstep_fe;
   nb::object arkstep_fi;
+
+  // sprkstep-specific user-supplied function pointers
+  nb::object sprkstep_f1;
+  nb::object sprkstep_f2;
+
+  // lsrkstep-specific user-supplied function pointers
+  nb::object lsrkstep_rhs;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -325,6 +332,41 @@ inline int arkstep_fi_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKRhsFn>,
     arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::arkstep_fi,
+                                   t, y, ydot, user_data);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SPRKStep user-supplied functions
+///////////////////////////////////////////////////////////////////////////////
+
+inline int sprkstep_f1_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
+                               void* user_data)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<ARKRhsFn>,
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::sprkstep_f1,
+                                   t, y, ydot, user_data);
+}
+
+inline int sprkstep_f2_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
+                               void* user_data)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<ARKRhsFn>,
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::sprkstep_f2,
+                                   t, y, ydot, user_data);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// LSRKStep user-supplied functions
+///////////////////////////////////////////////////////////////////////////////
+
+inline int lsrkstep_rhs_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
+                                void* user_data)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<ARKRhsFn>,
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsrkstep_rhs,
                                    t, y, ydot, user_data);
 }
 

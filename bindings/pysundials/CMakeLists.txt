@@ -78,7 +78,9 @@ set(sundials_SOURCES
     sunlinsol/sunlinsol_pcg.cpp
     arkode/pysundials_arkode.cpp
     arkode/pysundials_arkode_arkstep.cpp
-    arkode/pysundials_arkode_erkstep.cpp)
+    arkode/pysundials_arkode_erkstep.cpp
+    arkode/pysundials_arkode_sprkstep.cpp
+    arkode/pysundials_arkode_lsrkstep.cpp)
 
 # Create the Python sundials library
 nanobind_add_module(pysundials STABLE_ABI NB_STATIC ${sundials_SOURCES})
