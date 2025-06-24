@@ -1,3 +1,17 @@
+/*------------------------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ *------------------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ *----------------------------------------------------------------------------*/
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
 
@@ -5,48 +19,58 @@
 #include <arkode/arkode_arkstep.h>
 #include <sundials/sundials_core.hpp>
 
+#include "pysundials_arkode_usersupplied.hpp"
+
 namespace nb = nanobind;
-
-using ark_rhsfn_type = int(sunrealtype, N_Vector, N_Vector, void*);
-
-struct function_pointers
-{
-  nb::object fe, fi;
-};
-
-int ark_fe_wrapper(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
-{
-  auto fn_ptrs = static_cast<function_pointers*>(user_data);
-  auto ark_rhs = nb::cast<std::function<ark_rhsfn_type>>(fn_ptrs->fe);
-  return ark_rhs(t, y, ydot, user_data);
-}
-
-int ark_fi_wrapper(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
-{
-  auto fn_ptrs = static_cast<function_pointers*>(user_data);
-  auto ark_rhs = nb::cast<std::function<ark_rhsfn_type>>(fn_ptrs->fi);
-  return ark_rhs(t, y, ydot, user_data);
-}
 
 void bind_arkode_arkstep(nb::module_& m)
 {
+  #include "pysundials_arkode_arkstep_generated.hpp"
+
   m.def(
     "ARKStepCreate",
-    [](std::function<ark_rhsfn_type> fe, std::function<ark_rhsfn_type> fi,
-       sunrealtype t0, N_Vector y0, SUNContext sunctx)
+    [](std::function<std::remove_pointer_t<ARKRhsFn>> fe,
+       std::function<std::remove_pointer_t<ARKRhsFn>> fi, sunrealtype t0,
+       N_Vector y0, SUNContext sunctx)
     {
-      function_pointers* ptrs = new function_pointers;
+      auto fe_wrapper = fe ? arkstep_fe_wrapper : nullptr;
+      auto fi_wrapper = fi ? arkstep_fi_wrapper : nullptr;
 
-      if (fe) { ptrs->fe = nb::borrow(nb::cast(fe)); }
-      if (fi) { ptrs->fi = nb::borrow(nb::cast(fi)); }
-      void* ark_mem = ARKStepCreate(fe ? ark_fe_wrapper : nullptr,
-                                    fi ? ark_fi_wrapper : nullptr, t0, y0,
-                                    sunctx);
+      void* ark_mem = ARKStepCreate(fe_wrapper, fi_wrapper, t0, y0, sunctx);
+      if (ark_mem == nullptr)
+      {
+        throw std::runtime_error("Failed to create ARKODE memory");
+      }
 
-      ARKodeSetUserData(ark_mem, static_cast<void*>(ptrs));
+      // Create the user-supplied function table to store the Python user functions
+      // NOTE: we must use malloc since ARKodeFree calls free
+      arkstep_user_supplied_fn_table* cb_fns =
+        static_cast<arkstep_user_supplied_fn_table*>(
+          malloc(sizeof(arkstep_user_supplied_fn_table)));
+
+      // Smuggle the user-supplied function table into callback wrappers through the user_data pointer
+      int ark_status = ARKodeSetUserData(ark_mem, static_cast<void*>(cb_fns));
+      if (ark_status != ARK_SUCCESS)
+      {
+        free(cb_fns);
+        throw std::runtime_error("Failed to set user data in ARKODE memory");
+      }
+
+      // Ensure ARKodeFree will free the user-supplied function table
+      ark_status = ARKodeSetOwnUserData(ark_mem, SUNTRUE);
+      if (ark_status != ARK_SUCCESS)
+      {
+        free(cb_fns);
+        throw std::runtime_error(
+          "Failed to set user data ownership in ARKODE memory");
+      }
+
+      // Finally, set the RHS functions
+      cb_fns->fe = nb::cast(fe);
+      cb_fns->fi = nb::cast(fi);
+
       return ark_mem;
-    },
-    // .none() must be added to functions that accept nullptr as a valid argument
+    }, // .none() must be added to functions that accept nullptr as a valid argument
     nb::arg("fe").none(), nb::arg("fi").none(), nb::arg("t0"), nb::arg("y0"),
     nb::arg("sunctx"));
 }

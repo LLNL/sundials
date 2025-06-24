@@ -1,86 +1,85 @@
 #!/bin/python
 
 import numpy as np
-# import jax
-# import jax.numpy as jnp
-# from numba import jit
 from pysundials.core import *
 from pysundials.arkode import *
 from analytic_ode_problem import AnalyticIMEXODEProblem
 
-def test_implicit():
-  print('  testing implicit')
-  sunctx = SUNContextView.Create()
-  nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
-  ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
-
-  # Get the array and change a value in it
-  arr = N_VGetArrayPointer(nv.get())
-  arr[0] = 0.0 # set initial condition
-
-  ode_problem = AnalyticIMEXODEProblem()
-  ark = ARKodeView(ARKStepCreate(
-        None,
-        lambda t, y, ydot, _: ode_problem.fe(t, y, ydot),
-        0,
-        nv.get(),
-        sunctx.get(),
-    ))
-  status = ARKodeSStolerances(ark.get(), 1e-6, 1e-6)
-  status = ARKodeSetLinearSolver(ark.get(), ls.get(), None)
-
-  tout, tret = 10.0, 0.0
-  status = ARKodeEvolve(ark.get(), tout, nv.get(), tret, ARK_NORMAL)
-  print(f'status={status}, ans={arr}')
 
 def test_explicit():
-  print('  testing explicit')
-  sunctx = SUNContextView.Create()
-  nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+    print("  testing explicit")
+    sunctx = SUNContextView.Create()
+    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
 
-  # Get the array and change a value in it
-  arr = N_VGetArrayPointer(nv.get())
-  arr[0] = 0.0 # set initial condition
+    # Get the array and change a value in it
+    arr = N_VGetArrayPointer(nv.get())
+    arr[0] = 0.0  # set initial condition
 
-  ode_problem = AnalyticIMEXODEProblem()
-  ark = ARKodeView(ARKStepCreate(
-        lambda t, y, ydot, _: ode_problem.fe(t, y, ydot),
-        None,
-        0,
-        nv.get(),
-        sunctx.get(),
-    ))
-  status = ARKodeSStolerances(ark.get(), 1e-6, 1e-6)
-  tout, tret = 10.0, 0.0
-  status = ARKodeEvolve(ark.get(), tout, nv.get(), tret, ARK_NORMAL)
-  print(f'status={status}, ans={arr}')
+    ode_problem = AnalyticIMEXODEProblem()
+    ark = ARKodeView.Create(
+        ARKStepCreate(
+            lambda t, y, ydot, _: ode_problem.fe(t, y, ydot), None, 0, nv.get(), sunctx.get()
+        )
+    )
+    status = ARKodeSStolerances(ark.get(), 1e-6, 1e-6)
+    tout, tret = 10.0, 0.0
+    status = ARKodeEvolve(ark.get(), tout, nv.get(), tret, ARK_NORMAL)
+    print(f"status={status}, ans={arr}")
+
+
+def test_implicit():
+    print("  testing implicit")
+    sunctx = SUNContextView.Create()
+    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
+
+    # Get the array and change a value in it
+    arr = N_VGetArrayPointer(nv.get())
+    arr[0] = 0.0  # set initial condition
+
+    ode_problem = AnalyticIMEXODEProblem()
+    ark = ARKodeView.Create(
+        ARKStepCreate(
+            None, lambda t, y, ydot, _: ode_problem.fe(t, y, ydot), 0, nv.get(), sunctx.get()
+        )
+    )
+    status = ARKodeSStolerances(ark.get(), 1e-6, 1e-6)
+    status = ARKodeSetLinearSolver(ark.get(), ls.get(), None)
+
+    tout, tret = 10.0, 0.0
+    status = ARKodeEvolve(ark.get(), tout, nv.get(), tret, ARK_NORMAL)
+    print(f"status={status}, ans={arr}")
+
 
 def test_imex():
-  print('  testing imex')
-  sunctx = SUNContextView.Create()
-  nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
-  ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
+    print("  testing imex")
+    sunctx = SUNContextView.Create()
+    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
 
-  # Get the array and change a value in it
-  arr = N_VGetArrayPointer(nv.get())
-  arr[0] = 0.0 # set initial condition
+    # Get the array and change a value in it
+    arr = N_VGetArrayPointer(nv.get())
+    arr[0] = 0.0  # set initial condition
 
-  ode_problem = AnalyticIMEXODEProblem()
-  ark = ARKodeView(ARKStepCreate(
-        lambda t, y, ydot, _: ode_problem.fe(t, y, ydot),
-        lambda t, y, ydot, _: ode_problem.fi(t, y, ydot),
-        0,
-        nv.get(),
-        sunctx.get(),
-    ))
-  status = ARKodeSStolerances(ark.get(), 1e-6, 1e-6)
-  status = ARKodeSetLinearSolver(ark.get(), ls.get(), None)
+    ode_problem = AnalyticIMEXODEProblem()
+    ark = ARKodeView.Create(
+        ARKStepCreate(
+            lambda t, y, ydot, _: ode_problem.fe(t, y, ydot),
+            lambda t, y, ydot, _: ode_problem.fi(t, y, ydot),
+            0,
+            nv.get(),
+            sunctx.get(),
+        )
+    )
+    status = ARKodeSStolerances(ark.get(), 1e-6, 1e-6)
+    status = ARKodeSetLinearSolver(ark.get(), ls.get(), None)
 
-  tout, tret = 10.0, 0.0
-  status = ARKodeEvolve(ark.get(), tout, nv.get(), tret, ARK_NORMAL)
-  print(f'status={status}, ans={arr}')
+    tout, tret = 10.0, 0.0
+    status = ARKodeEvolve(ark.get(), tout, nv.get(), tret, ARK_NORMAL)
+    print(f"status={status}, ans={arr}")
+
 
 if __name__ == "__main__":
-  test_explicit()
-  test_implicit()
-  test_imex()
+    test_explicit()
+    test_implicit()
+    test_imex()
