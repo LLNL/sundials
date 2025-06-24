@@ -28,10 +28,10 @@ void bind_arkode_erkstep(nb::module_& m)
 #include "pysundials_arkode_erkstep_generated.hpp"
 
   m.def("ERKStepCreate",
-        [](std::function<ARKRhsStdFn> rhs, sunrealtype t0, N_Vector y0,
+        [](std::function<std::remove_pointer_t<ARKRhsFn>> rhs, sunrealtype t0, N_Vector y0,
            SUNContext sunctx)
         {
-          void* ark_mem = ERKStepCreate(erk_rhsfn_wrapper, t0, y0, sunctx);
+          void* ark_mem = ERKStepCreate(erkstep_rhsfn_wrapper, t0, y0, sunctx);
           if (ark_mem == nullptr)
           {
             throw std::runtime_error("Failed to create ARKODE memory");
