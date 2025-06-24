@@ -24,11 +24,6 @@ Changelog
 Changes to SUNDIALS in release X.Y.Z
 ====================================
 
-**Bug Fixes**
-
-The shared library version numbers for the oneMKL dense linear solver and
-the PETSc SNES nonlinear solver libraries have been corrected.
-
 .. include:: RecentChanges_link.rst
 
 Changes to SUNDIALS in release 7.4.0
