@@ -24,9 +24,9 @@
  * g3(x,y,z) = (1/6)*(exp(-x) + y + 3)
  * 
  *  This system has the analytic solution: 
- *                                        x = 0.2844 + 0.2703i 
- *                                        y = 0.1612 + 0.4262i
- *                                        z = 0.6477 + 0.0375i
+ *                                        x = 0.28443101049565 + 0.27031686078054i 
+ *                                        y = 0.16117132843381 + 0.42622240595676i
+ *                                        z = 0.64771494226506 + 0.03754877135588i
  * ---------------------------------------------------------------------------*/
 
 #include <math.h>
@@ -46,23 +46,23 @@
 
 /* precision specific math function macros */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define ABS(x)  (fabs((x)))
-#define SQRT(x) (sqrt((x)))
-#define CEXP(x)  (cexp((x)))
-#define CSIN(x)  (csin((x)))
-#define CCOS(x)  (ccos((x)))
+#define ABS(x)   (fabs((x)))
+#define SQRT(x)  (sqrt((x)))
+#define EXP(x)   (cexp((x)))
+#define SIN(x)   (csin((x)))
+#define COS(x)   (ccos((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define ABS(x)  (fabsf((x)))
-#define SQRT(x) (sqrtf((x)))
-#define CEXP(x)  (cexpf((x)))
-#define CSIN(x)  (csinf((x)))
-#define CCOS(x)  (ccosf((x)))
+#define ABS(x)   (fabsf((x)))
+#define SQRT(x)  (sqrtf((x)))
+#define EXP(x)   (cexpf((x)))
+#define SIN(x)   (csinf((x)))
+#define COS(x)   (ccosf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define ABS(x)  (fabsl((x)))
-#define SQRT(x) (sqrtl((x)))
-#define CEXP(x)  (cexpl((x)))
-#define CSIN(x)  (csinl((x)))
-#define CCOS(x)  (ccosl((x)))
+#define ABS(x)   (fabsl((x)))
+#define SQRT(x)  (sqrtl((x)))
+#define EXP(x)   (cexpl((x)))
+#define SIN(x)   (csinl((x)))
+#define COS(x)   (ccosl((x)))
 #endif
 
 /* problem constants */
@@ -320,7 +320,7 @@ int main(int argc, char* argv[])
   *
   * 4x    - sin(y) - zi     - 1  = 0
   * -x^2  + 5y     - cos(z) - 2i = 0
-  * -e^-x -y      + 6z      - 3  = 0
+  * -e^-x - y      + 6z     - 3  = 0
   *
   * Nonlinear fixed point function
   *
@@ -346,9 +346,9 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
   y = udata[1];
   z = udata[2];
 
-  gdata[0] = (ONE/FOUR)*(CSIN(y) + SUN_CCONST(ZERO,ONE)*z + ONE); 
-  gdata[1] = (ONE/FIVE)*(x*x + CCOS(z) + SUN_CCONST(ZERO,TWO));  
-  gdata[2] = (ONE/SIX)*(CEXP(-x) + y + THREE); 
+  gdata[0] = (ONE/FOUR)*(SIN(y) + SUN_CCONST(ZERO, ONE)*z + ONE); 
+  gdata[1] = (ONE/FIVE)*(x*x + COS(z) + SUN_CCONST(ZERO, TWO));  
+  gdata[2] = (ONE/SIX)*(EXP(-x) + y + THREE); 
 
   return (0);
 }
