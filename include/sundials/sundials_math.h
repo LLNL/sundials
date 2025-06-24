@@ -186,22 +186,6 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Function : SUNRsignbit
- * -----------------------------------------------------------------
- * Usage : sunrealtype y;
- *         y = SUNRsignbit(x);
- * -----------------------------------------------------------------
- * SUNRsignbit(x) returns nonzero value if x is negative, ​0​
- * otherwise.
- * -----------------------------------------------------------------
- */
-
-#ifndef SUNRsignbit
-#define SUNRsignbit(x) (signbit((x)))
-#endif
-
-/*
- * -----------------------------------------------------------------
  * Function : SUNRsamesign
  * -----------------------------------------------------------------
  * Usage : sunrealtype z;
@@ -213,7 +197,7 @@ extern "C" {
  */
 
 #ifndef SUNRsamesign
-#define SUNRsamesign(x, y) (SUNRsignbit((x)) == SUNRsignbit((y)))
+#define SUNRsamesign(x, y) (signbit((x)) == signbit((y)))
 #endif
 
 /*
