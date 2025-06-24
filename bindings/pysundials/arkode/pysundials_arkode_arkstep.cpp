@@ -25,7 +25,7 @@ namespace nb = nanobind;
 
 void bind_arkode_arkstep(nb::module_& m)
 {
-  #include "pysundials_arkode_arkstep_generated.hpp"
+#include "pysundials_arkode_arkstep_generated.hpp"
 
   m.def(
     "ARKStepCreate",
@@ -43,10 +43,7 @@ void bind_arkode_arkstep(nb::module_& m)
       }
 
       // Create the user-supplied function table to store the Python user functions
-      // NOTE: we must use malloc since ARKodeFree calls free
-      arkstep_user_supplied_fn_table* cb_fns =
-        static_cast<arkstep_user_supplied_fn_table*>(
-          malloc(sizeof(arkstep_user_supplied_fn_table)));
+      auto cb_fns = arkode_user_supplied_fn_table_alloc();
 
       // Smuggle the user-supplied function table into callback wrappers through the user_data pointer
       int ark_status = ARKodeSetUserData(ark_mem, static_cast<void*>(cb_fns));
@@ -66,8 +63,8 @@ void bind_arkode_arkstep(nb::module_& m)
       }
 
       // Finally, set the RHS functions
-      cb_fns->fe = nb::cast(fe);
-      cb_fns->fi = nb::cast(fi);
+      cb_fns->arkstep_fe = nb::cast(fe);
+      cb_fns->arkstep_fi = nb::cast(fi);
 
       return ark_mem;
     }, // .none() must be added to functions that accept nullptr as a valid argument

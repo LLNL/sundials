@@ -27,11 +27,14 @@
 #include "pysundials_helpers.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
-// ARKODE user-supplied functions
+// ARKODE user-supplied function table
+// Every integrator-level user-supplied function must be in this table.
+// The user-supplied function table is passed to ARKODE as user_data.
 ///////////////////////////////////////////////////////////////////////////////
 
 struct arkode_user_supplied_fn_table
 {
+  // common user-supplied function pointers
   nb::object rootfn;
   nb::object ewtn;
   nb::object rwtn;
@@ -42,7 +45,40 @@ struct arkode_user_supplied_fn_table
   nb::object stagepredictfn;
   nb::object relaxfn;
   nb::object relaxjacfn;
+  nb::object nlsfi;
+
+  // akrode_ls user-supplied function pointers
+  nb::object lsjacfn;
+  nb::object lsmassfn;
+  nb::object lsprecsetupfn;
+  nb::object lsprecsolvefn;
+  nb::object lsjactimessetupfn;
+  nb::object lsjactimesvecfn;
+  nb::object lslinsysfn;
+  nb::object lsmass_timessetupfn;
+  nb::object lsmass_timesvecfn;
+  nb::object lsmassprecsetupfn;
+  nb::object lsmassprecsolvefn;
+  nb::object lsjacrhsfn;
+
+  // erkstep-specific user-supplied function pointers
+  nb::object erkstep_f;
+
+  // arkstep-specific user-supplied function pointers
+  nb::object arkstep_fe;
+  nb::object arkstep_fi;
 };
+
+///////////////////////////////////////////////////////////////////////////////
+// ARKODE user-supplied functions
+///////////////////////////////////////////////////////////////////////////////
+
+inline arkode_user_supplied_fn_table* arkode_user_supplied_fn_table_alloc()
+{
+  // We must use malloc since ARKodeFree calls free
+  return static_cast<arkode_user_supplied_fn_table*>(
+    std::malloc(sizeof(arkode_user_supplied_fn_table)));
+}
 
 inline int arkode_rootfn_wrapper(sunrealtype t, N_Vector y, sunrealtype* gout,
                                  void* user_data)
@@ -115,6 +151,15 @@ inline int arkode_stagepredictfn_wrapper(sunrealtype t, N_Vector zpred,
                                    t, zpred, user_data);
 }
 
+inline int arkode_nlsrhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
+                                   void* user_data)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<ARKRhsFn>,
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::nlsfi, t, y,
+                                   ydot, user_data);
+}
+
 inline int arkode_relaxfn_wrapper(N_Vector y, sunrealtype* r, void* user_data)
 {
   return pysundials::user_supplied_fn_caller<
@@ -131,29 +176,14 @@ inline int arkode_relaxjacfn_wrapper(N_Vector y, N_Vector J, void* user_data)
                                    y, J, user_data);
 }
 
-struct arkode_ls_user_supplied_fn_table
-{
-  nb::object lsjacfn;
-  nb::object lsmassfn;
-  nb::object lsprecsetupfn;
-  nb::object lsprecsolvefn;
-  nb::object lsjactimessetupfn;
-  nb::object lsjactimesvecfn;
-  nb::object lslinsysfn;
-  nb::object lsmass_timessetupfn;
-  nb::object lsmass_timesvecfn;
-  nb::object lsmassprecsetupfn;
-  nb::object lsmassprecsolvefn;
-};
-
 inline int arkode_lsjacfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
                                   SUNMatrix Jac, void* user_data, N_Vector tmp1,
                                   N_Vector tmp2, N_Vector tmp3)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsJacFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsjacfn,
-                                      t, y, fy, Jac, user_data, tmp1, tmp2, tmp3);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsjacfn, t,
+                                   y, fy, Jac, user_data, tmp1, tmp2, tmp3);
 }
 
 inline int arkode_lsmassfn_wrapper(sunrealtype t, SUNMatrix M, void* user_data,
@@ -161,8 +191,8 @@ inline int arkode_lsmassfn_wrapper(sunrealtype t, SUNMatrix M, void* user_data,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsMassFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsmassfn,
-                                      t, M, user_data, tmp1, tmp2, tmp3);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsmassfn, t,
+                                   M, user_data, tmp1, tmp2, tmp3);
 }
 
 inline int arkode_lsprecsetupfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
@@ -172,8 +202,8 @@ inline int arkode_lsprecsetupfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsPrecSetupFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsprecsetupfn,
-                                      t, y, fy, jok, jcurPtr, gamma, user_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsprecsetupfn,
+                                   t, y, fy, jok, jcurPtr, gamma, user_data);
 }
 
 inline int arkode_lsprecsolvefn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
@@ -183,9 +213,8 @@ inline int arkode_lsprecsolvefn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsPrecSolveFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsprecsolvefn,
-                                      t, y, fy, r, z, gamma, delta, lr,
-                                      user_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsprecsolvefn,
+                                   t, y, fy, r, z, gamma, delta, lr, user_data);
 }
 
 inline int arkode_lsjactimessetupfn_wrapper(sunrealtype t, N_Vector y,
@@ -193,8 +222,8 @@ inline int arkode_lsjactimessetupfn_wrapper(sunrealtype t, N_Vector y,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsJacTimesSetupFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsjactimessetupfn,
-                                      t, y, fy, user_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsjactimessetupfn,
+                                   t, y, fy, user_data);
 }
 
 inline int arkode_lsjactimesvecfn_wrapper(N_Vector v, N_Vector Jv,
@@ -203,8 +232,8 @@ inline int arkode_lsjactimesvecfn_wrapper(N_Vector v, N_Vector Jv,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsJacTimesVecFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsjactimesvecfn,
-                                      v, Jv, t, y, fy, user_data, tmp);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsjactimesvecfn,
+                                   v, Jv, t, y, fy, user_data, tmp);
 }
 
 inline int arkode_lslinsysfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
@@ -215,17 +244,17 @@ inline int arkode_lslinsysfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsLinSysFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lslinsysfn,
-                                      t, y, fy, A, M, jok, jcur, gamma,
-                                      user_data, tmp1, tmp2, tmp3);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lslinsysfn,
+                                   t, y, fy, A, M, jok, jcur, gamma, user_data,
+                                   tmp1, tmp2, tmp3);
 }
 
 inline int arkode_lsmass_timessetupfn_wrapper(sunrealtype t, void* mtimes_data)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsMassTimesSetupFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsmass_timessetupfn,
-                                      t, mtimes_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsmass_timessetupfn,
+                                   t, mtimes_data);
 }
 
 inline int arkode_lsmass_timesvecfn_wrapper(N_Vector v, N_Vector Mv,
@@ -233,16 +262,16 @@ inline int arkode_lsmass_timesvecfn_wrapper(N_Vector v, N_Vector Mv,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsMassTimesVecFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsmass_timesvecfn,
-                                      v, Mv, t, mtimes_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsmass_timesvecfn,
+                                   v, Mv, t, mtimes_data);
 }
 
 inline int arkode_lsmassprecsetupfn_wrapper(sunrealtype t, void* user_data)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsMassPrecSetupFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsmassprecsetupfn,
-                                      t, user_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsmassprecsetupfn,
+                                   t, user_data);
 }
 
 inline int arkode_lsmassprecsolvefn_wrapper(sunrealtype t, N_Vector r,
@@ -251,60 +280,43 @@ inline int arkode_lsmassprecsolvefn_wrapper(sunrealtype t, N_Vector r,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsMassPrecSolveFn>,
-    arkode_ls_user_supplied_fn_table>(&arkode_ls_user_supplied_fn_table::lsmassprecsolvefn,
-                                      t, r, z, delta, lr, user_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsmassprecsolvefn,
+                                   t, r, z, delta, lr, user_data);
+}
+
+inline int arkode_lsjacrhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
+                                     void* user_data)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<ARKRhsFn>,
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsjacrhsfn,
+                                   t, y, fy, user_data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // ERKStep user-supplied functions
 ///////////////////////////////////////////////////////////////////////////////
 
-struct erkstep_user_supplied_fn_table : public arkode_user_supplied_fn_table
-{
-  nb::object erkstep_rhsfn;
-};
-
-inline erkstep_user_supplied_fn_table* erkstep_user_supplied_fn_table_alloc()
-{
-  // We must use malloc since ARKodeFree calls free
-  return static_cast<erkstep_user_supplied_fn_table*>(
-    std::malloc(sizeof(erkstep_user_supplied_fn_table)));
-}
-
-inline int erkstep_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
-                                 void* user_data)
+inline int erkstep_f_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
+                             void* user_data)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKRhsFn>,
-    erkstep_user_supplied_fn_table>(&erkstep_user_supplied_fn_table::erkstep_rhsfn,
-                                    t, y, ydot, user_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::erkstep_f, t,
+                                   y, ydot, user_data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARKStep user-supplied functions
 ///////////////////////////////////////////////////////////////////////////////
 
-struct arkstep_user_supplied_fn_table : public arkode_user_supplied_fn_table,
-                                        public arkode_ls_user_supplied_fn_table
-{
-  nb::object fe;
-  nb::object fi;
-};
-
-inline arkstep_user_supplied_fn_table* arkstep_user_supplied_fn_table_alloc()
-{
-  // We must use malloc since ARKodeFree calls free
-  return static_cast<arkstep_user_supplied_fn_table*>(
-    std::malloc(sizeof(arkstep_user_supplied_fn_table)));
-}
-
 inline int arkstep_fe_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
                               void* user_data)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKRhsFn>,
-    arkstep_user_supplied_fn_table>(&arkstep_user_supplied_fn_table::fe, t, y,
-                                    ydot, user_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::arkstep_fe,
+                                   t, y, ydot, user_data);
 }
 
 inline int arkstep_fi_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
@@ -312,8 +324,8 @@ inline int arkstep_fi_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKRhsFn>,
-    arkstep_user_supplied_fn_table>(&arkstep_user_supplied_fn_table::fi, t, y,
-                                    ydot, user_data);
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::arkstep_fi,
+                                   t, y, ydot, user_data);
 }
 
 #endif

@@ -476,12 +476,6 @@ m.def("ARKodeSetLinearSolver",
 m.def("ARKodeSetMassLinearSolver",
     ARKodeSetMassLinearSolver, nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M"), nb::arg("time_dep"));
 
-m.def("ARKodeSetJacFn",
-    ARKodeSetJacFn, nb::arg("arkode_mem"), nb::arg("jac"));
-
-m.def("ARKodeSetMassFn",
-    ARKodeSetMassFn, nb::arg("arkode_mem"), nb::arg("mass"));
-
 m.def("ARKodeSetJacEvalFrequency",
     ARKodeSetJacEvalFrequency, nb::arg("arkode_mem"), nb::arg("msbj"));
 
@@ -499,24 +493,6 @@ m.def("ARKodeSetLSNormFactor",
 
 m.def("ARKodeSetMassLSNormFactor",
     ARKodeSetMassLSNormFactor, nb::arg("arkode_mem"), nb::arg("nrmfac"));
-
-m.def("ARKodeSetPreconditioner",
-    ARKodeSetPreconditioner, nb::arg("arkode_mem"), nb::arg("psetup"), nb::arg("psolve"));
-
-m.def("ARKodeSetMassPreconditioner",
-    ARKodeSetMassPreconditioner, nb::arg("arkode_mem"), nb::arg("psetup"), nb::arg("psolve"));
-
-m.def("ARKodeSetJacTimes",
-    ARKodeSetJacTimes, nb::arg("arkode_mem"), nb::arg("jtsetup"), nb::arg("jtimes"));
-
-m.def("ARKodeSetJacTimesRhsFn",
-    ARKodeSetJacTimesRhsFn, nb::arg("arkode_mem"), nb::arg("jtimesRhsFn"));
-
-m.def("ARKodeSetMassTimes",
-    ARKodeSetMassTimes, nb::arg("arkode_mem"), nb::arg("msetup"), nb::arg("mtimes"), nb::arg("mtimes_data"));
-
-m.def("ARKodeSetLinSysFn",
-    ARKodeSetLinSysFn, nb::arg("arkode_mem"), nb::arg("linsys"));
 // #ifdef __cplusplus
 // 
 // #endif

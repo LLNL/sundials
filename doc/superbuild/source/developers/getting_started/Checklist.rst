@@ -85,3 +85,11 @@ system, etc. developers should adhere to the following checklist.
    from the SWIG GitHub action that we run on all pull requests. The patch can be found
    under the job artifacts (if there were in fact changes that required updates
    to the Fortran).
+
+#. Similarly, re-run the Python interface generator to generate updated Python
+   interfaces. This is done by navigating to the ``bindings/pysundials/``
+   directory and running ``python generate.py``. 
+
+   * If you added a new user-supplied function, or new module, then there will be manual
+     changes to make in the ``bindings/pysundials/`` directory. See the
+     `Python`_ section for more details.

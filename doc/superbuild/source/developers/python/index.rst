@@ -64,3 +64,90 @@ The last ``pip install`` command will allow automatic incremental builds. It wil
 ``-DSUNDIALS_ENABLE_PYTHON=ON`` option through `scikit-build-core <https://scikit-build-core.readthedocs.io/en/latest/index.html>`__.
 After the initial build, if you make any changes within SUNDIALS a rebuild will be triggered when you import the ``pysundials``
 module wihtin a Python script. 
+
+
+Things to Know
+--------------
+
+All user-supplied Python functions have to be wrapped with a functions which converts between a ``std::function`` and a raw C function pointer.
+This is done by smuggling in a "function table" -- a struct of ``std::function`` members -- in the ``user_data``.
+The upshot is that everytime we add a user-supplied function, we need to add a new member to the function table struct, and add a wrapper for it.
+We also have to add a wrapper for the "Set" function that takes the user-supplied function. Here is an example for ARKODE:
+
+In ``bindings/pysundials/arkode/pysundials_arkode_usersupplied.hpp``, the function table struct is defined:
+
+.. code-block:: cpp
+
+   struct arkode_user_supplied_fn_table
+   {
+      // common user-supplied function pointers
+      nb::object rootfn;
+      nb::object ewtn;
+      nb::object rwtn;
+      nb::object adaptfn;
+      nb::object expstabfn;
+      nb::object vecresizefn;
+      nb::object postprocessfn;
+      nb::object stagepredictfn;
+      nb::object relaxfn;
+      nb::object relaxjacfn;
+      nb::object nlsfi;
+
+      // akrode_ls user-supplied function pointers
+      nb::object lsjacfn;
+      nb::object lsmassfn;
+      nb::object lsprecsetupfn;
+      nb::object lsprecsolvefn;
+      nb::object lsjactimessetupfn;
+      nb::object lsjactimesvecfn;
+      nb::object lslinsysfn;
+      nb::object lsmass_timessetupfn;
+      nb::object lsmass_timesvecfn;
+      nb::object lsmassprecsetupfn;
+      nb::object lsmassprecsolvefn;
+      nb::object lsjacrhsfn;
+
+      // erkstep-specific user-supplied function pointers
+      nb::object erkstep_f;
+
+      // arkstep-specific user-supplied function pointers
+      nb::object arkstep_fe;
+      nb::object arkstep_fi;
+   };
+
+
+Then each one of the functions in the table has a wrapper function defined below this struct definition, e.g.,
+
+.. code-block:: cpp
+
+   inline int arkode_postprocessfn_wrapper(sunrealtype t, N_Vector y, void* user_data)
+   {
+      return pysundials::user_supplied_fn_caller<
+         std::remove_pointer_t<ARKPostProcessFn>,
+         arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::postprocessfn,
+                                       t, y, user_data);
+   }
+
+Finally, in ``bindings/pysundials/arkode/pysundials_arkode.cpp``, the Set function is registered with nanobind:
+
+.. code-block:: cpp
+
+     m.def("ARKodeSetPostprocessStepFn",
+        [](void* ark_mem, std::function<std::remove_pointer_t<ARKPostProcessFn>> fn)
+        {
+            void* user_data = nullptr;
+
+            ARKodeGetUserData(ark_mem, &user_data);
+            if (!user_data)
+            {
+               throw std::runtime_error(
+               "Failed to get Python function table from ARKODE memory");
+            }
+
+            auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
+
+            // Set the user-supplied function
+            fntable->postprocessfn = nb::cast(fn);
+            return ARKodeSetPostprocessStepFn(ark_mem,
+                                             &arkode_postprocessfn_wrapper);
+        });

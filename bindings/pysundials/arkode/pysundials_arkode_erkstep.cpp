@@ -31,14 +31,14 @@ void bind_arkode_erkstep(nb::module_& m)
         [](std::function<std::remove_pointer_t<ARKRhsFn>> rhs, sunrealtype t0, N_Vector y0,
            SUNContext sunctx)
         {
-          void* ark_mem = ERKStepCreate(erkstep_rhsfn_wrapper, t0, y0, sunctx);
+          void* ark_mem = ERKStepCreate(erkstep_f_wrapper, t0, y0, sunctx);
           if (ark_mem == nullptr)
           {
             throw std::runtime_error("Failed to create ARKODE memory");
           }
 
           // Create the user-supplied function table to store the Python user functions
-          auto cb_fns = erkstep_user_supplied_fn_table_alloc();
+          auto cb_fns = arkode_user_supplied_fn_table_alloc();
          
           // Smuggle the user-supplied function table into callback wrappers through the user_data pointer
           int ark_status = ARKodeSetUserData(ark_mem, static_cast<void*>(cb_fns));
@@ -59,7 +59,7 @@ void bind_arkode_erkstep(nb::module_& m)
           }
 
           // Finally, set the RHS function
-          cb_fns->erkstep_rhsfn = nb::cast(rhs);
+          cb_fns->erkstep_f = nb::cast(rhs);
 
           return ark_mem;
         });
