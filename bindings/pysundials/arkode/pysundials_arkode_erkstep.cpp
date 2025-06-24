@@ -38,10 +38,7 @@ void bind_arkode_erkstep(nb::module_& m)
           }
 
           // Create the user-supplied function table to store the Python user functions
-          // NOTE: we must use malloc since ARKodeFree calls free
-          erkstep_user_supplied_fn_table* cb_fns =
-            static_cast<erkstep_user_supplied_fn_table*>(
-              malloc(sizeof(erkstep_user_supplied_fn_table)));
+          auto cb_fns = erkstep_user_supplied_fn_table_alloc();
          
           // Smuggle the user-supplied function table into callback wrappers through the user_data pointer
           int ark_status = ARKodeSetUserData(ark_mem, static_cast<void*>(cb_fns));

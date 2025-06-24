@@ -23,7 +23,6 @@
 #include <arkode/arkode_mristep.h>
 
 #include <sundials/sundials_core.hpp>
-#include <type_traits>
 
 #include "pysundials_helpers.hpp"
 
@@ -260,11 +259,17 @@ inline int arkode_lsmassprecsolvefn_wrapper(sunrealtype t, N_Vector r,
 // ERKStep user-supplied functions
 ///////////////////////////////////////////////////////////////////////////////
 
-struct erkstep_user_supplied_fn_table
+struct erkstep_user_supplied_fn_table : public arkode_user_supplied_fn_table
 {
-  arkode_user_supplied_fn_table ark_fn_table;
   nb::object erkstep_rhsfn;
 };
+
+inline erkstep_user_supplied_fn_table* erkstep_user_supplied_fn_table_alloc()
+{
+  // We must use malloc since ARKodeFree calls free
+  return static_cast<erkstep_user_supplied_fn_table*>(
+    std::malloc(sizeof(erkstep_user_supplied_fn_table)));
+}
 
 inline int erkstep_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
                                  void* user_data)
@@ -279,12 +284,19 @@ inline int erkstep_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
 // ARKStep user-supplied functions
 ///////////////////////////////////////////////////////////////////////////////
 
-struct arkstep_user_supplied_fn_table
+struct arkstep_user_supplied_fn_table : public arkode_user_supplied_fn_table,
+                                        public arkode_ls_user_supplied_fn_table
 {
-  arkode_user_supplied_fn_table arkode_fn_table;
   nb::object fe;
   nb::object fi;
 };
+
+inline arkstep_user_supplied_fn_table* arkstep_user_supplied_fn_table_alloc()
+{
+  // We must use malloc since ARKodeFree calls free
+  return static_cast<arkstep_user_supplied_fn_table*>(
+    std::malloc(sizeof(arkstep_user_supplied_fn_table)));
+}
 
 inline int arkstep_fe_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
                               void* user_data)
