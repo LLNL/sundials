@@ -7,4 +7,7 @@
 
 **Bug Fixes**
 
+The shared library version numbers for the oneMKL dense linear solver and
+matrix as well as the PETSc SNES nonlinear solver have been corrected.
+
 **Deprecation Notices**

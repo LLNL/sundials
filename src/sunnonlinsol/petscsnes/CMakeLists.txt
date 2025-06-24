@@ -33,7 +33,7 @@ sundials_add_library(
   OBJECT_LIBRARIES
   LINK_LIBRARIES PUBLIC sundials_nvecpetsc SUNDIALS::PETSC
   OUTPUT_NAME sundials_sunnonlinsolpetscsnes
-  VERSION ${nveclib_VERSION}
-  SOVERSION ${nveclib_SOVERSION})
+  VERSION ${sunnonlinsollib_VERSION}
+  SOVERSION ${sunnonlinsollib_SOVERSION})
 
 message(STATUS "Added SUNNONLINSOL_PETSCSNES module")

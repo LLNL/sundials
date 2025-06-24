@@ -22,7 +22,7 @@ set(sunlinsol_band_examples
     "test_sunlinsol_band\;10 2 3 0\;" "test_sunlinsol_band\;300 7 4 0\;"
     "test_sunlinsol_band\;1000 8 8 0\;" "test_sunlinsol_band\;5000 3 100 0\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_band_dependencies test_sunlinsol)
 
 # If building F2003 tests
