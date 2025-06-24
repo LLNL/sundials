@@ -186,6 +186,38 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Function : SUNRsamesign
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype z;
+ *         z = SUNRsamesign(x, y);
+ * -----------------------------------------------------------------
+ * SUNRsamesign(x, y) returns true if x and y share the same sign,
+ * false otherwise
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRsamesign
+#define SUNRsamesign(x, y) (signbit((x)) == signbit((y)))
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRdifferentsign
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype z;
+ *         z = SUNRdifferentsign(x, y);
+ * -----------------------------------------------------------------
+ * SUNRdifferentsign(x) returns true if x and y have different
+ * signs, false otherwise
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRdifferentsign
+#define SUNRdifferentsign(x, y) (!SUNRsamesign((x), (y)))
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUNRpowerR
  * -----------------------------------------------------------------
  * Usage : sunrealtype base, exponent, ans;
