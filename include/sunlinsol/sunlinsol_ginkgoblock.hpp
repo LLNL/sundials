@@ -6,6 +6,9 @@
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <sunmatrix/sunmatrix_ginkgoblock.hpp>
 
+#if (GKO_VERSION_MAJOR < 1) || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR < 9)
+#error "Ginkgo 1.9.0 or later is required."
+#endif
 
 #ifndef _SUNLINSOL_GINKGOBLOCK_HPP
 #define _SUNLINSOL_GINKGOBLOCK_HPP
@@ -412,13 +415,6 @@ private:
     SUNLogger log{nullptr};
     SUNContext_GetLogger(object_->sunctx, &log);
     return log;
-  }
-
-  SUNProfiler sunProfiler()
-  {
-    SUNProfiler prof{nullptr};
-    SUNContext_GetProfiler(object_->sunctx, &prof);
-    return prof;
   }
 
   static constexpr int default_max_iters_ = 500;

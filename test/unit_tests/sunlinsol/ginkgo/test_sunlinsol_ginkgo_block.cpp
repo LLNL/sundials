@@ -323,20 +323,20 @@ int main(int argc, char* argv[])
     if (matrix_type == "csr")
     {
       using GkoBatchMatrixType = gko::batch::matrix::Csr<sunrealtype>;
-      using SUNLinearSolverViewType =
+      using SUNGkoLinearSolverType =
         BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
       LS = std::make_unique<
-        SUNLinearSolverViewType>(gko_exec,
+        SUNGkoLinearSolverType>(gko_exec,
                                  gko::batch::stop::tolerance_type::absolute,
                                  precond_factory, num_blocks, sunctx);
     }
     else if (matrix_type == "dense")
     {
       using GkoBatchMatrixType = gko::batch::matrix::Dense<sunrealtype>;
-      using SUNLinearSolverViewType =
+      using SUNGkoLinearSolverType =
         BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
       LS =
-        std::make_unique<SUNLinearSolverViewType>(gko_exec,
+        std::make_unique<SUNGkoLinearSolverType>(gko_exec,
                                                   gko::batch::stop::tolerance_type::absolute,
                                                   nullptr, num_blocks, sunctx);
     }
