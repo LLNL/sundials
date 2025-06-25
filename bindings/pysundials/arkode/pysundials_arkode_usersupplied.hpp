@@ -83,8 +83,13 @@ struct arkode_user_supplied_fn_table
 inline arkode_user_supplied_fn_table* arkode_user_supplied_fn_table_alloc()
 {
   // We must use malloc since ARKodeFree calls free
-  return static_cast<arkode_user_supplied_fn_table*>(
+  auto fn_table = static_cast<arkode_user_supplied_fn_table*>(
     std::malloc(sizeof(arkode_user_supplied_fn_table)));
+
+  // Zero out the memory
+  std::memset(fn_table, 0, sizeof(arkode_user_supplied_fn_table));
+
+  return fn_table;
 }
 
 inline int arkode_rootfn_wrapper(sunrealtype t, N_Vector y, sunrealtype* gout,
@@ -347,5 +352,16 @@ inline int lsrkstep_f_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
     std::remove_pointer_t<ARKRhsFn>, arkode_user_supplied_fn_table,
     1>(&arkode_user_supplied_fn_table::lsrkstep_f, t, y, ydot, user_data);
 }
+
+// inline int lsrkstep_domeig_wrapper(sunrealtype t, N_Vector y, N_Vector fn,
+//                                    sunrealtype* lambdaR, sunrealtype* lambdaI,
+//                                    void* user_data, N_Vector temp1,
+//                                    N_Vector temp2, N_Vector temp3)
+// {
+//   return pysundials::user_supplied_fn_caller<
+//     std::remove_pointer_t<ARKDomEigFn>, arkode_user_supplied_fn_table,
+//     4>(&arkode_user_supplied_fn_table::lsrkstep_domeig, t, y, fn, lambdaR,
+//         lambdaI, user_data, temp1, temp2, temp3);
+// }
 
 #endif
