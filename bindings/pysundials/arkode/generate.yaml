@@ -77,4 +77,5 @@ modules:
     - ../../include/arkode/arkode_lsrkstep.h
     fn_exclude_by_name__regex:
     - "Create"
+    - "SetDomEigFn"
     
