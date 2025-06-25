@@ -41,7 +41,8 @@ struct arkode_user_supplied_fn_table
   nb::object adaptfn;
   nb::object expstabfn;
   nb::object vecresizefn;
-  nb::object postprocessfn;
+  nb::object postprocessstepfn;
+  nb::object postprocessstagefn;
   nb::object stagepredictfn;
   nb::object relaxfn;
   nb::object relaxjacfn;
@@ -143,11 +144,18 @@ inline int arkode_vecresizefn_wrapper(N_Vector y, N_Vector ytemplate,
     1>(&arkode_user_supplied_fn_table::vecresizefn, y, ytemplate, user_data);
 }
 
-inline int arkode_postprocessfn_wrapper(sunrealtype t, N_Vector y, void* user_data)
+inline int arkode_postprocessstepfn_wrapper(sunrealtype t, N_Vector y, void* user_data)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKPostProcessFn>, arkode_user_supplied_fn_table,
-    1>(&arkode_user_supplied_fn_table::postprocessfn, t, y, user_data);
+    1>(&arkode_user_supplied_fn_table::postprocessstepfn, t, y, user_data);
+}
+
+inline int arkode_postprocessstagefn_wrapper(sunrealtype t, N_Vector y, void* user_data)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<ARKPostProcessFn>, arkode_user_supplied_fn_table,
+    1>(&arkode_user_supplied_fn_table::postprocessstagefn, t, y, user_data);
 }
 
 inline int arkode_stagepredictfn_wrapper(sunrealtype t, N_Vector zpred,

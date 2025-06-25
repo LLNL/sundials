@@ -60,9 +60,9 @@ void bind_arkode(nb::module_& m)
           auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
 
           // Set the user-supplied function
-          fntable->postprocessfn = nb::cast(fn);
+          fntable->postprocessstepfn = nb::cast(fn);
           return ARKodeSetPostprocessStepFn(ark_mem,
-                                            &arkode_postprocessfn_wrapper);
+                                            &arkode_postprocessstepfn_wrapper);
         });
 
   m.def("ARKodeSetPostprocessStageFn",
@@ -74,9 +74,9 @@ void bind_arkode(nb::module_& m)
             throw std::runtime_error(
               "Failed to get Python function table from ARKODE memory");
           auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->stagepredictfn = nb::cast(fn);
+          fntable->postprocessstagefn = nb::cast(fn);
           return ARKodeSetPostprocessStageFn(ark_mem,
-                                             &arkode_stagepredictfn_wrapper);
+                                             &arkode_postprocessstagefn_wrapper);
         });
 
   m.def("ARKodeSetStagePredictFn",
