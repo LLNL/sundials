@@ -29,12 +29,6 @@ set(examples
     "test_sunlinsol_ginkgo_block.cpp\;bicgstab dense 50 10 2 500 0\;"
 )
 
-# The BiCGStab solver has a known bug with the OpenMP backend
-# https://github.com/ginkgo-project/ginkgo/issues/1563 which should be fixed in
-# the next release (1.9.0) by https://github.com/ginkgo-project/ginkgo/pull/1676
-set(examples_bicgstab
-)
-
 # Add source directory to include directories
 include_directories(..)
 
