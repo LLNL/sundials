@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *----------------------------------------------------------------------------*/
- 
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
 
@@ -221,10 +221,10 @@ void bind_arkode(nb::module_& m)
             throw std::runtime_error(
               "Failed to get Python function table from ARKODE memory");
           auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lsmass_timessetupfn = nb::cast(msetup);
-          fntable->lsmass_timesvecfn   = nb::cast(mtimes);
-          return ARKodeSetMassTimes(ark_mem, &arkode_lsmass_timessetupfn_wrapper,
-                                    &arkode_lsmass_timesvecfn_wrapper, nullptr);
+          fntable->lsmasstimessetupfn = nb::cast(msetup);
+          fntable->lsmasstimesvecfn   = nb::cast(mtimes);
+          return ARKodeSetMassTimes(ark_mem, &arkode_lsmasstimessetupfn_wrapper,
+                                    &arkode_lsmasstimesvecfn_wrapper, nullptr);
         });
 
   m.def("ARKodeSetLinSysFn",
