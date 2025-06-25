@@ -157,7 +157,7 @@ int main(void)
   /* LSRKStepSetDomEigFn expects a user-provided spectral radius function
   pointer of type ARKDomEigFn. Alternatively, passing a NULL pointer for
   this function does not return an error; instead, it triggers the creation
-  of an internal Dominant Eigenvalue Estimator (DEE). While this appoach
+  of an internal Dominant Eigenvalue Estimator (DEE). While this approach
   works in many cases, we recommend explicitly creating a DEE using
   the LSRKStepDomEigEstCreate function. This function returns a pointer
   to the DEE, which can then be used with the associated set/get routines.

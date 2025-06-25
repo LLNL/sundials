@@ -281,7 +281,7 @@ int main(int argc, char* argv[])
   flag = SUNDomEigEstSetNumPreProcess(DEE, udata->dee_numofpreprocess);
   if (check_flag(&flag, "SUNDomEigEstSetNumPreProcess", 2)) { return 1; }
 
-  if(udata->dee_id == 0)
+  if (udata->dee_id == 0)
   {
     flag = SUNDomEigEstSetMaxPowerIter(DEE, udata->dee_max_powiter);
     if (check_flag(&flag, "SUNDomEigEstSetMaxPowerIter", 2)) { return 1; }
@@ -653,10 +653,7 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
     {
       udata->dee_max_powiter = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--dee_tol")
-    {
-      udata->dee_tol = stod((*argv)[arg_idx++]);
-    }
+    else if (arg == "--dee_tol") { udata->dee_tol = stod((*argv)[arg_idx++]); }
     else if (arg == "--timing") { udata->timing = true; }
     // Help
     else if (arg == "--help")
@@ -740,24 +737,27 @@ static void InputHelp()
 {
   cout << endl;
   cout << "Command line options:" << endl;
-  cout << "  --mesh <nx> <ny>            : mesh points in the x and y directions"
-       << endl;
   cout
-    << "  --domain <xu> <yu>             : domain upper bound in the x and y direction"
+    << "  --mesh <nx> <ny>            : mesh points in the x and y directions"
     << endl;
+  cout << "  --domain <xu> <yu>             : domain upper bound in the x and "
+          "y direction"
+       << endl;
   cout << "  --k <kx> <ky>               : diffusion coefficients" << endl;
   cout << "  --noforcing                 : disable forcing term" << endl;
   cout << "  --tf <time>                 : final time" << endl;
   cout << "  --rtol <rtol>               : relative tolerance" << endl;
   cout << "  --atol <atol>               : absolute tolerance" << endl;
   cout << "  --fixedstep <step>          : used fixed step size" << endl;
-  cout << "  --controller <ctr>          : time step adaptivity controller" << endl;
+  cout << "  --controller <ctr>          : time step adaptivity controller"
+       << endl;
   cout << "  --method <mth>              : LSRK method choice" << endl;
   cout << "  --eigfrequency <nst>        : dominant eigenvalue update frequency"
        << endl;
   cout << "  --stage_max_limit <smax>    : maximum number of stages per step"
        << endl;
-  cout << "  --eigsafety <safety>        : dominant eigenvalue safety factor" << endl;
+  cout << "  --eigsafety <safety>        : dominant eigenvalue safety factor"
+       << endl;
   cout << "  --diagnostics               : output diagnostics" << endl;
   cout << "  --output <level>            : output level" << endl;
   cout << "  --nout <nout>               : number of outputs" << endl;

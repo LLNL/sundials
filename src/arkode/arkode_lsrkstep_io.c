@@ -661,7 +661,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
                         step_mem->dee_krydim);
       }
 #endif
-      if(step_mem->DDE_ID == 0) // SUNDSOMEIGESTIMATOR_POWER
+      if (step_mem->DDE_ID == 0) // SUNDSOMEIGESTIMATOR_POWER
       {
         sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of iters in DEE",
                         step_mem->dee_maxiters);
@@ -754,13 +754,15 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
                 step_mem->dee_krydim);
       }
 #endif
-      if(step_mem->DDE_ID == 0) // SUNDSOMEIGESTIMATOR_POWER
+      if (step_mem->DDE_ID == 0) // SUNDSOMEIGESTIMATOR_POWER
       {
         fprintf(fp, "  Max. num. of iters in DEE = %i\n", step_mem->dee_maxiters);
         fprintf(fp, "  Num. of cur. iters in DEE = %i\n", step_mem->dee_curniter);
         fprintf(fp, "  Num. of tot. iters in DEE = %li\n", step_mem->dee_niters);
-        fprintf(fp, "           Tolerance in DEE = " SUN_FORMAT_G "\n", step_mem->dee_tol);
-        fprintf(fp, "    Current residual in DEE = " SUN_FORMAT_G "\n", step_mem->dee_res);
+        fprintf(fp, "           Tolerance in DEE = " SUN_FORMAT_G "\n",
+                step_mem->dee_tol);
+        fprintf(fp, "    Current residual in DEE = " SUN_FORMAT_G "\n",
+                step_mem->dee_res);
       }
     }
 

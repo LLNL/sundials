@@ -47,7 +47,8 @@ if(BUILD_CVODE)
 endif()
 
 if(ENABLE_LAPACK)
-  list(APPEND ARKODE_examples "ark_heat2D_lsrk_internal_domeig.cpp\;\;exclude-single")
+  list(APPEND ARKODE_examples
+       "ark_heat2D_lsrk_internal_domeig.cpp\;\;exclude-single")
 endif()
 
 # Auxiliary files to install
