@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
   if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in y'=f(t,y), the inital time T0, and
+   * user's right hand side function in y'=f(t,y), the initial time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
   if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
@@ -528,7 +528,7 @@ int JacVec(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, N_Vector fy,
 }
 
 #if defined(USE_CUDA) || defined(USE_HIP)
-/* Right hand side function evalutation GPU kernel.
+/* Right hand side function evaluation GPU kernel.
    This kernel needs total number of threads >= nbatches. */
 __global__ void f_kernel(sunrealtype t, sunrealtype* ydata,
                          sunrealtype* ydotdata, sunrealtype* A, sunrealtype* B,

@@ -71,7 +71,7 @@ expecting a ``SUNLinearSolver`` object through the implicit conversion operator 
    CVodeSetLinearSolver(cvode_mem, LS.Convert(), A.Convert());
 
 After attaching the linear solver to the SUNDIALS integrator, one must change the norm factor the integrator uses
-since the Ginkgo linear solver will take norms over indiviual batches, not the entire system.
+since the Ginkgo linear solver will take norms over individual batches, not the entire system.
 
 .. code-block:: cpp
 
