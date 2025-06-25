@@ -11,39 +11,37 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * C++ specific ARKODE definitions.
+ * C++ specific CVODE definitions.
  * ---------------------------------------------------------------------------*/
 
-#ifndef _SUNDIALS_ARKODE_HPP
-#define _SUNDIALS_ARKODE_HPP
+#ifndef _CVODE_HPP
+#define _CVODE_HPP
+
+extern "C" {
+#include <cvode/cvode.h>
+}
 
 #include <sundials/sundials_base.hpp>
-#include <arkode/arkode.h>
-#include <arkode/arkode_erkstep.h>
 
 namespace sundials {
 namespace experimental {
 
-struct ARKodeDeleter
-{
-  void operator()(void* v)
-  {
-    if (v) { ARKodeFree(&v); }
+struct CVodeDeleter {
+  void operator()(void* v) {
+    if (v) { CVodeFree(&v); }
   }
 };
 
-class ARKodeView : public ClassView<void*, ARKodeDeleter>
-{ 
+class CVodeView : public ClassView<void*, CVodeDeleter> {
 public:
-  using ClassView<void*, ARKodeDeleter>::ClassView;
+  using ClassView<void*, CVodeDeleter>::ClassView;
   template<typename... Args>
-  static ARKodeView Create(Args&&... args);
+  static CVodeView Create(Args&&... args);
 };
 
 template<typename... Args>
-ARKodeView ARKodeView::Create(Args&&... args)
-{
-  return ARKodeView(std::forward<Args>(args)...);
+CVodeView CVodeView::Create(Args&&... args) {
+  return CVodeView(std::forward<Args>(args)...);
 }
 
 } // namespace experimental

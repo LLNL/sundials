@@ -11,39 +11,37 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * C++ specific ARKODE definitions.
+ * C++ specific IDA definitions.
  * ---------------------------------------------------------------------------*/
 
-#ifndef _SUNDIALS_ARKODE_HPP
-#define _SUNDIALS_ARKODE_HPP
+#ifndef _IDA_HPP
+#define _IDA_HPP
+
+extern "C" {
+#include <ida/ida.h>
+}
 
 #include <sundials/sundials_base.hpp>
-#include <arkode/arkode.h>
-#include <arkode/arkode_erkstep.h>
 
 namespace sundials {
 namespace experimental {
 
-struct ARKodeDeleter
-{
-  void operator()(void* v)
-  {
-    if (v) { ARKodeFree(&v); }
+struct IDADeleter {
+  void operator()(void* v) {
+    if (v) { IDAFree(&v); }
   }
 };
 
-class ARKodeView : public ClassView<void*, ARKodeDeleter>
-{ 
+class IDAView : public ClassView<void*, IDADeleter> {
 public:
-  using ClassView<void*, ARKodeDeleter>::ClassView;
+  using ClassView<void*, IDADeleter>::ClassView;
   template<typename... Args>
-  static ARKodeView Create(Args&&... args);
+  static IDAView Create(Args&&... args);
 };
 
 template<typename... Args>
-ARKodeView ARKodeView::Create(Args&&... args)
-{
-  return ARKodeView(std::forward<Args>(args)...);
+IDAView IDAView::Create(Args&&... args) {
+  return IDAView(std::forward<Args>(args)...);
 }
 
 } // namespace experimental

@@ -11,39 +11,37 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * C++ specific ARKODE definitions.
+ * C++ specific KINSOL definitions.
  * ---------------------------------------------------------------------------*/
 
-#ifndef _SUNDIALS_ARKODE_HPP
-#define _SUNDIALS_ARKODE_HPP
+#ifndef _KINSOL_HPP
+#define _KINSOL_HPP
+
+extern "C" {
+#include <kinsol/kinsol.h>
+}
 
 #include <sundials/sundials_base.hpp>
-#include <arkode/arkode.h>
-#include <arkode/arkode_erkstep.h>
 
 namespace sundials {
 namespace experimental {
 
-struct ARKodeDeleter
-{
-  void operator()(void* v)
-  {
-    if (v) { ARKodeFree(&v); }
+struct KINSOLDeleter {
+  void operator()(void* v) {
+    if (v) { KINFree(&v); }
   }
 };
 
-class ARKodeView : public ClassView<void*, ARKodeDeleter>
-{ 
+class KINSOLView : public ClassView<void*, KINSOLDeleter> {
 public:
-  using ClassView<void*, ARKodeDeleter>::ClassView;
+  using ClassView<void*, KINSOLDeleter>::ClassView;
   template<typename... Args>
-  static ARKodeView Create(Args&&... args);
+  static KINSOLView Create(Args&&... args);
 };
 
 template<typename... Args>
-ARKodeView ARKodeView::Create(Args&&... args)
-{
-  return ARKodeView(std::forward<Args>(args)...);
+KINSOLView KINSOLView::Create(Args&&... args) {
+  return KINSOLView(std::forward<Args>(args)...);
 }
 
 } // namespace experimental
