@@ -1,23 +1,26 @@
 import numpy as np
+
 # import jax
 # import jax.numpy as jnp
 # from numba import jit
 from pysundials.core import *
 
-class AnalyticODE:
-  def __init__(self, lamb = 1.0):
-    self.lamb = lamb
 
-  def f(self, t, yvec, ydotvec):
-    y = N_VGetArrayPointer(yvec)
-    ydot = N_VGetArrayPointer(ydotvec)
-    ydot[0] = self.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.arctan(t)
-    return 0
-  
-  def dom_eig(self, t, yvec, fnvec, lambdaR, lambdaI, user_data, tempvec1, tempvec2, tempvec3):
-    lamdbaR = self.lamb
-    lamdbaI = 0.0
-    return 0
+class AnalyticODE:
+    def __init__(self, lamb=1.0):
+        self.lamb = lamb
+
+    def f(self, t, yvec, ydotvec):
+        y = N_VGetArrayPointer(yvec)
+        ydot = N_VGetArrayPointer(ydotvec)
+        ydot[0] = self.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.arctan(t)
+        return 0
+
+    def dom_eig(self, t, yvec, fnvec, lambdaR, lambdaI, tempv1, tempv2, tempv3):
+        lamdbaR = self.lamb
+        lamdbaI = 0.0
+        return 0
+
 
 # class AnalyticODEJaxJit:
 #   lamb = 1.0
@@ -42,6 +45,7 @@ class AnalyticODE:
 #     ydot = N_VGetArrayPointer(ydotvec)
 #     ydot[0] = AnalyticODENumbaJit.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.arctan(t)
 #     return 0
+
 
 class AnalyticIMEXODE:
     def __init__(self, lamb=1.0):

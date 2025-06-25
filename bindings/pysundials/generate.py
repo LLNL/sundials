@@ -56,7 +56,11 @@ def main():
         description="Generate Python bindings for SUNDIALS using litgen and nanobind."
     )
     parser.add_argument("config_yaml_path", type=str, help="Path to the generate.yaml config file")
-    parser.add_argument("--dump-srcml", action="store_true", help="Dump the srcML XML for the parsed headers and exit")
+    parser.add_argument(
+        "--dump-srcml",
+        action="store_true",
+        help="Dump the srcML XML for the parsed headers and exit",
+    )
     args = parser.parse_args()
 
     options = litgen.LitgenOptions()
@@ -71,7 +75,9 @@ def main():
         'A cpp element of type "function_decl" was stored as CppUnprocessed'
     )
     options.srcmlcpp_options.header_filter_preprocess_regions = True
-    options.srcmlcpp_options.header_filter_acceptable__regex = "__cplusplus|_h_$|_h$|_H$|_H_$|hpp$|HPP$|hxx$|HXX$|SWIG$"
+    options.srcmlcpp_options.header_filter_acceptable__regex = (
+        "__cplusplus|_h_$|_h$|_H$|_H_$|hpp$|HPP$|hxx$|HXX$|SWIG$"
+    )
 
     config_yaml_path = args.config_yaml_path
     with open(config_yaml_path, "r") as yaml_file:
