@@ -38,6 +38,8 @@ using GkoBatchVecType  = gko::batch::MultiVector<sunrealtype>;
 template<class GkoBatchMatType>
 class BlockMatrix;
 
+namespace impl {
+
 //
 // Methods that operate on SUNMatrix
 //
@@ -95,6 +97,8 @@ int SUNMatMatvec_GinkgoBlock(SUNMatrix A, N_Vector x, N_Vector y)
   Matvec(*Amat, x, y);
   return SUN_SUCCESS;
 }
+
+} // namespace impl
 
 template<class GkoBatchMatType>
 class BlockMatrix : public sundials::impl::BaseMatrix,
