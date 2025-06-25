@@ -77,7 +77,8 @@ SUNErrCode SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
 {
   SUNFunctionBegin(helper->sunctx);
 
-  SUNAssert(mem_type == SUNMEMTYPE_HOST || mem_type == SUNMEMTYPE_UVM, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssert(mem_type == SUNMEMTYPE_HOST || mem_type == SUNMEMTYPE_UVM,
+            SUN_ERR_ARG_INCOMPATIBLE);
 
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
   SUNCheckLastErr();
@@ -124,7 +125,8 @@ SUNErrCode SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem,
 
   if (mem == NULL) { return SUN_SUCCESS; }
 
-  SUNAssert(mem->type == SUNMEMTYPE_HOST || mem->type == SUNMEMTYPE_UVM, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssert(mem->type == SUNMEMTYPE_HOST || mem->type == SUNMEMTYPE_UVM,
+            SUN_ERR_ARG_INCOMPATIBLE);
 
   if (mem->ptr != NULL && mem->own)
   {
@@ -146,8 +148,10 @@ SUNErrCode SUNMemoryHelper_Copy_Sys(SUNMemoryHelper helper, SUNMemory dst,
                                     SUNDIALS_MAYBE_UNUSED void* queue)
 {
   SUNFunctionBegin(helper->sunctx);
-  SUNAssert(src->type == SUNMEMTYPE_HOST || src->type == SUNMEMTYPE_UVM, SUN_ERR_ARG_INCOMPATIBLE);
-  SUNAssert(dst->type == SUNMEMTYPE_HOST || dst->type == SUNMEMTYPE_UVM, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssert(src->type == SUNMEMTYPE_HOST || src->type == SUNMEMTYPE_UVM,
+            SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssert(dst->type == SUNMEMTYPE_HOST || dst->type == SUNMEMTYPE_UVM,
+            SUN_ERR_ARG_INCOMPATIBLE);
   memcpy(dst->ptr, src->ptr, memory_size);
   return SUN_SUCCESS;
 }
@@ -158,7 +162,8 @@ SUNErrCode SUNMemoryHelper_GetAllocStats_Sys(
   size_t* bytes_allocated, size_t* bytes_high_watermark)
 {
   SUNFunctionBegin(helper->sunctx);
-  SUNAssert(mem_type == SUNMEMTYPE_HOST || mem_type == SUNMEMTYPE_UVM, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssert(mem_type == SUNMEMTYPE_HOST || mem_type == SUNMEMTYPE_UVM,
+            SUN_ERR_ARG_INCOMPATIBLE);
   *num_allocations      = SUNHELPER_CONTENT(helper)->num_allocations;
   *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations;
   *bytes_allocated      = SUNHELPER_CONTENT(helper)->bytes_allocated;

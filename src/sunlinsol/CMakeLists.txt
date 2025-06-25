@@ -39,9 +39,10 @@ if(BUILD_SUNLINSOL_GINKGO)
               $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
               $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-  install(FILES ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgo.hpp
+  install(
+    FILES ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgo.hpp
           ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgoblock.hpp
-          DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunlinsol")
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunlinsol")
   set(_SUNDIALS_INSTALLED_COMPONENTS
       "sunlinsolginkgo;${_SUNDIALS_INSTALLED_COMPONENTS}"
       CACHE INTERNAL "" FORCE)
