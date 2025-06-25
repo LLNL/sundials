@@ -31,7 +31,7 @@ void bind_arkode_lsrkstep(nb::module_& m)
     "LSRKStepCreateSTS",
     [](std::function<std::remove_pointer_t<ARKRhsFn>> rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx)
     {
-      auto rhs_wrapper = rhs ? erkstep_f_wrapper : nullptr;
+      auto rhs_wrapper = rhs ? lsrkstep_f_wrapper : nullptr;
       void* ark_mem = LSRKStepCreateSTS(rhs_wrapper, t0, y0, sunctx);
       if (ark_mem == nullptr)
       {
@@ -59,7 +59,7 @@ void bind_arkode_lsrkstep(nb::module_& m)
     "LSRKStepCreateSSP",
     [](std::function<std::remove_pointer_t<ARKRhsFn>> rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx)
     {
-      auto rhs_wrapper = rhs ? erkstep_f_wrapper : nullptr;
+      auto rhs_wrapper = rhs ? lsrkstep_f_wrapper : nullptr;
       void* ark_mem = LSRKStepCreateSSP(rhs_wrapper, t0, y0, sunctx);
       if (ark_mem == nullptr)
       {
@@ -82,4 +82,18 @@ void bind_arkode_lsrkstep(nb::module_& m)
       return ark_mem;
     },
     nb::arg("rhs"), nb::arg("t0"), nb::arg("y0"), nb::arg("sunctx"));
+
+  m.def("LSRKStepSetDomEigFn",
+        [](void* ark_mem, std::function<std::remove_pointer_t<ARKDomEigFn>> fn)
+        {
+          void* user_data = nullptr;
+          ARKodeGetUserData(ark_mem, &user_data);
+          if (!user_data)
+            throw std::runtime_error(
+              "Failed to get Python function table from ARKODE memory");
+          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
+          fntable->lsrkstep_domeig = nb::cast(fn);
+          return LSRKStepSetDomEigFn(ark_mem, &lsrkstep_domeig_wrapper);
+        });
+
 }

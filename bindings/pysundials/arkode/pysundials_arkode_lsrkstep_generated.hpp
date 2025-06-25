@@ -22,9 +22,6 @@ m.def("LSRKStepSetSTSMethodByName",
 m.def("LSRKStepSetSSPMethodByName",
     LSRKStepSetSSPMethodByName, nb::arg("arkode_mem"), nb::arg("emethod"));
 
-m.def("LSRKStepSetDomEigFn",
-    LSRKStepSetDomEigFn, nb::arg("arkode_mem"), nb::arg("dom_eig"));
-
 m.def("LSRKStepSetDomEigFrequency",
     LSRKStepSetDomEigFrequency, nb::arg("arkode_mem"), nb::arg("nsteps"));
 

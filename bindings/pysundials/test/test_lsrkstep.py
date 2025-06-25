@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from pysundials.core import *
 from pysundials.arkode import *
-from analytic_ode_problem import *
+from ode_problems import AnalyticODE
 
 def test_lsrkstep():
     sunctx = SUNContextView.Create()
@@ -13,13 +13,19 @@ def test_lsrkstep():
     arr = N_VGetArrayPointer(nv.get())
     arr[0] = 0.0
 
-    ode_problem = AnalyticODEProblem()
+    ode_problem = AnalyticODE()
 
     def rhs(t, y, ydot, _):
-        return ode_problem.rhs(t, y, ydot)
+        return ode_problem.f(t, y, ydot)
+    
+    def dom_eig(t, yvec, fnvec, lambdaR, lambdaI, _, tempv1, tempv2, tempv3):
+        return ode_problem.dom_eig(t, yvec, fnvec, lambdaR, lambdaI, tempv1, tempv2, tempv3)
 
     lsrk = ARKodeView.Create(LSRKStepCreateSTS(rhs, 0, nv.get(), sunctx.get()))
+
+    status = LSRKStepSetDomEigFn(lsrk.get(), dom_eig)
     status = ARKodeSStolerances(lsrk.get(), 1e-6, 1e-6)
+    
     tout, tret = 10.0, 0.0
     status = ARKodeEvolve(lsrk.get(), tout, nv.get(), tret, ARK_NORMAL)
     print(f"status={status}, ans={arr}")
