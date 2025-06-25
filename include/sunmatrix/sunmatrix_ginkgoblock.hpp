@@ -22,8 +22,8 @@
 #include <sundials/sundials_matrix.hpp>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 
-#if (GKO_VERSION_MAJOR < 1) || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR < 9)
-#error "Ginkgo 1.9.0 or later is required."
+#if (GKO_VERSION_MAJOR < 1) || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR < 8)
+#error "Ginkgo 1.8.0 or later is required."
 #endif
 
 namespace sundials {
