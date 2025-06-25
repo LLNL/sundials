@@ -23,23 +23,15 @@ import matplotlib.pyplot as plt
 # command line options
 parser = argparse.ArgumentParser(description="Plots cvPraticle_dns output")
 parser.add_argument(
-    "--sfile",
-    type=str,
-    default="cvParticle_solution.txt",
-    help="solution output file to read",
+    "--sfile", type=str, default="cvParticle_solution.txt", help="solution output file to read"
 )
 parser.add_argument(
-    "--efile",
-    type=str,
-    default="cvParticle_error.txt",
-    help="error output file to read",
+    "--efile", type=str, default="cvParticle_error.txt", help="error output file to read"
 )
 parser.add_argument(
     "--alpha", type=float, nargs=1, default=1.0, help="set a non-default alpha value"
 )
-parser.add_argument(
-    "--slim", type=float, nargs=2, help="x and y limits for solution plot"
-)
+parser.add_argument("--slim", type=float, nargs=2, help="x and y limits for solution plot")
 parser.add_argument("--eylim", type=float, nargs=2, help="y limits for error plot")
 
 # parse inputs

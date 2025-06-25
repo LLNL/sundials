@@ -33,9 +33,7 @@ def main():
         formatter_class=argparse.RawTextHelpFormatter,
     )
 
-    parser.add_argument(
-        "directory", type=str, help="Directory to search for build files"
-    )
+    parser.add_argument("directory", type=str, help="Directory to search for build files")
 
     parser.add_argument("--cmake", action="store_true", help="CMake build")
 
@@ -47,9 +45,7 @@ def main():
         "--regex", type=str, help="Regular expression for filtering example directories"
     )
 
-    parser.add_argument(
-        "-v", "--verbose", action="count", default=0, help="Verbose output"
-    )
+    parser.add_argument("-v", "--verbose", action="count", default=0, help="Verbose output")
 
     parser.add_argument("--failfast", action="store_true", help="Stop on first failure")
 
@@ -104,10 +100,7 @@ def main():
         # clean and move on
         if args.clean:
             ret = subprocess.call(
-                "make clean",
-                shell=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                "make clean", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
             )
             # return to original directory
             os.chdir(cwd)
@@ -146,10 +139,7 @@ def main():
         testfail = False
         if not configfail and not buildfail and args.test:
             ret = subprocess.call(
-                "make test",
-                shell=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                "make test", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
             )
             if args.verbose > 0:
                 print(f"  Test return: {ret}")

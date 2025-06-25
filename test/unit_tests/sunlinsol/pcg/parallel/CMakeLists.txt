@@ -30,7 +30,7 @@ endif()
 set(sunlinsol_pcg_examples
     "test_sunlinsol_pcg_parallel\;100 500 ${TOL} 0\;1\;4\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_pcg_dependencies test_sunlinsol)
 
 # Add source directory to include directories

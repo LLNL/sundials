@@ -7,6 +7,7 @@
 
 **Bug Fixes**
 
-Fixed a CMake bug that would cause the Caliper compile test to fail at configure time.
+The shared library version numbers for the oneMKL dense linear solver and
+matrix as well as the PETSc SNES nonlinear solver have been corrected.
 
 **Deprecation Notices**

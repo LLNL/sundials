@@ -1788,7 +1788,7 @@ step size adaptivity.
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
      * ``eta_min_fx`` -- value of the lower bound of the fixed step interval. If
-       ``eta_min_fx`` is :math:`< 0` or :math:`\geq 1`, the default value is
+       ``eta_min_fx`` is :math:`< 0` or :math:`> 1`, the default value is
        used.
      * ``eta_max_fx`` -- value of the upper bound of the fixed step interval. If
        ``eta_max_fx`` is :math:`< 1`, the default value is used.
@@ -1799,6 +1799,10 @@ step size adaptivity.
        previous call to :c:func:`CVodeCreate`.
 
    .. versionadded:: 6.2.0
+
+   .. versionchanged:: 7.4.0
+
+      Updated the allowable values for ``eta_min_fx`` in include 1.
 
 .. c:function:: int CVodeSetEtaMaxFirstStep(void* cvode_mem, sunrealtype eta_max_fs)
 
@@ -2757,6 +2761,10 @@ described next.
    **Return value:**
      * A string containing the name of the corresponding constant
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
+
 
 
 .. _CVODE.Usage.CC.optional_output.optout_root:
@@ -3114,7 +3122,7 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
       ``CVSpilsGetLastFlag``.
 
 
-.. c:function:: int CVodeGetLinReturnFlagName(long int lsflag)
+.. c:function:: char* CVodeGetLinReturnFlagName(long int lsflag)
 
    The function ``CVodeGetLinReturnFlagName`` returns the name of the CVLS constant corresponding to ``lsflag``.
 
@@ -3123,6 +3131,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
 
    **Return value:**
      * The return value is a string containing the name of the corresponding constant. If :math:`1 \leq \text{lsflag} \leq N` (LU factorization failed), this routine returns "NONE".
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
    .. versionadded:: 4.0.0
 
@@ -3207,6 +3219,10 @@ solver, a suffix (for Linear Solver) has been added here (e.g. ``lenrwLS``).
 
    **Return value:**
      * A string containing the name of the corresponding constant.
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
 
 .. _CVODE.Usage.CC.reinit:

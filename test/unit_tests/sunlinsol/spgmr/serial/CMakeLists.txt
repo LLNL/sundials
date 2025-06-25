@@ -33,7 +33,7 @@ set(sunlinsol_spgmr_examples
     "test_sunlinsol_spgmr_serial\;100 1 2 100 ${TOL} 0\;"
     "test_sunlinsol_spgmr_serial\;100 2 2 100 ${TOL} 0\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_spgmr_dependencies test_sunlinsol)
 
 # If building F2003 tests

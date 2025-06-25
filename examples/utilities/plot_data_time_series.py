@@ -67,17 +67,11 @@ def main():
     # Axis scaling
     logscale = parser.add_mutually_exclusive_group()
 
-    logscale.add_argument(
-        "--logx", action="store_true", help="""Plot with log scale x-axis"""
-    )
+    logscale.add_argument("--logx", action="store_true", help="""Plot with log scale x-axis""")
 
-    logscale.add_argument(
-        "--logy", action="store_true", help="""Plot with log scale y-axis"""
-    )
+    logscale.add_argument("--logy", action="store_true", help="""Plot with log scale y-axis""")
 
-    logscale.add_argument(
-        "--loglog", action="store_true", help="""Use log scale x and y axes"""
-    )
+    logscale.add_argument("--loglog", action="store_true", help="""Use log scale x and y axes""")
 
     # Debugging options
 

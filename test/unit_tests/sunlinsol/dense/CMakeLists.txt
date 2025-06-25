@@ -23,7 +23,7 @@ set(sunlinsol_dense_examples
     "test_sunlinsol_dense\;10 0\;" "test_sunlinsol_dense\;100 0\;"
     "test_sunlinsol_dense\;500 0\;" "test_sunlinsol_dense\;1000 0\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_dense_dependencies test_sunlinsol)
 
 # If building F2003 tests

@@ -33,9 +33,7 @@ def main():
         help="Status of regression test",
     )
 
-    parser.add_argument(
-        "testname", type=str, help="Name branch name or pull-request tested"
-    )
+    parser.add_argument("testname", type=str, help="Name branch name or pull-request tested")
 
     parser.add_argument("testurl", type=str, help="URL for viewing test results")
 

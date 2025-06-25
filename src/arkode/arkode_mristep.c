@@ -104,6 +104,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setuserdata               = mriStep_SetUserData;
   ark_mem->step_printallstats             = mriStep_PrintAllStats;
   ark_mem->step_writeparameters           = mriStep_WriteParameters;
+  ark_mem->step_setusecompensatedsums     = NULL;
   ark_mem->step_resize                    = mriStep_Resize;
   ark_mem->step_reset                     = mriStep_Reset;
   ark_mem->step_free                      = mriStep_Free;

@@ -91,9 +91,7 @@ nz = z.size
 
 # ensure that the run used exactly 1 or 8 MPI ranks
 for i in range(9):
-    if exists("u.00000" + str(i) + ".txt") and not exists(
-        "u.00000" + str(i + 1) + ".txt"
-    ):
+    if exists("u.00000" + str(i) + ".txt") and not exists("u.00000" + str(i + 1) + ".txt"):
         nprocs = i + 1
 if (nprocs != 1) and (nprocs != 8):
     print("make_plots.py error: run must have used either 1 or 8 MPI ranks")
@@ -142,15 +140,9 @@ else:
         klo = coords[2] * nzl
         khi = (coords[2] + 1) * nzl
         for it in range(nt):
-            u[it, ilo:ihi, jlo:jhi, klo:khi] = np.reshape(
-                udata[it, :], (nxl, nyl, nzl), order="C"
-            )
-            v[it, ilo:ihi, jlo:jhi, klo:khi] = np.reshape(
-                vdata[it, :], (nxl, nyl, nzl), order="C"
-            )
-            w[it, ilo:ihi, jlo:jhi, klo:khi] = np.reshape(
-                wdata[it, :], (nxl, nyl, nzl), order="C"
-            )
+            u[it, ilo:ihi, jlo:jhi, klo:khi] = np.reshape(udata[it, :], (nxl, nyl, nzl), order="C")
+            v[it, ilo:ihi, jlo:jhi, klo:khi] = np.reshape(vdata[it, :], (nxl, nyl, nzl), order="C")
+            w[it, ilo:ihi, jlo:jhi, klo:khi] = np.reshape(wdata[it, :], (nxl, nyl, nzl), order="C")
 
 
 # set meshgrid objects
@@ -174,14 +166,7 @@ myplot(ax3, xy0, xy1, zslice(u, tslice[2], sliceidx))
 myplot(ax4, xy0, xy1, zslice(v, tslice[0], sliceidx), ylabel="v")
 myplot(ax5, xy0, xy1, zslice(v, tslice[1], sliceidx))
 myplot(ax6, xy0, xy1, zslice(v, tslice[2], sliceidx))
-myplot(
-    ax7,
-    xy0,
-    xy1,
-    zslice(w, tslice[0], sliceidx),
-    ylabel="w",
-    xlabel="t = " + str(times[0]),
-)
+myplot(ax7, xy0, xy1, zslice(w, tslice[0], sliceidx), ylabel="w", xlabel="t = " + str(times[0]))
 myplot(ax8, xy0, xy1, zslice(w, tslice[1], sliceidx), xlabel="t = " + str(times[1]))
 myplot(ax9, xy0, xy1, zslice(w, tslice[2], sliceidx), xlabel="t = " + str(times[2]))
 plt.savefig("xy-slices.png")
@@ -197,14 +182,7 @@ myplot(ax3, yz0, yz1, xslice(u, tslice[2], sliceidx))
 myplot(ax4, yz0, yz1, xslice(v, tslice[0], sliceidx), ylabel="v")
 myplot(ax5, yz0, yz1, xslice(v, tslice[1], sliceidx))
 myplot(ax6, yz0, yz1, xslice(v, tslice[2], sliceidx))
-myplot(
-    ax7,
-    yz0,
-    yz1,
-    xslice(w, tslice[0], sliceidx),
-    ylabel="w",
-    xlabel="t = " + str(times[0]),
-)
+myplot(ax7, yz0, yz1, xslice(w, tslice[0], sliceidx), ylabel="w", xlabel="t = " + str(times[0]))
 myplot(ax8, yz0, yz1, xslice(w, tslice[1], sliceidx), xlabel="t = " + str(times[1]))
 myplot(ax9, yz0, yz1, xslice(w, tslice[2], sliceidx), xlabel="t = " + str(times[2]))
 plt.savefig("yz-slices.png")
@@ -220,14 +198,7 @@ myplot(ax3, xz0, xz1, yslice(u, tslice[2], sliceidx))
 myplot(ax4, xz0, xz1, yslice(v, tslice[0], sliceidx), ylabel="v")
 myplot(ax5, xz0, xz1, yslice(v, tslice[1], sliceidx))
 myplot(ax6, xz0, xz1, yslice(v, tslice[2], sliceidx))
-myplot(
-    ax7,
-    xz0,
-    xz1,
-    yslice(w, tslice[0], sliceidx),
-    ylabel="w",
-    xlabel="t = " + str(times[0]),
-)
+myplot(ax7, xz0, xz1, yslice(w, tslice[0], sliceidx), ylabel="w", xlabel="t = " + str(times[0]))
 myplot(ax8, xz0, xz1, yslice(w, tslice[1], sliceidx), xlabel="t = " + str(times[1]))
 myplot(ax9, xz0, xz1, yslice(w, tslice[2], sliceidx), xlabel="t = " + str(times[2]))
 plt.savefig("xz-slices.png")

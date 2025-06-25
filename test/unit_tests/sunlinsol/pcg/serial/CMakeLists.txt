@@ -29,7 +29,7 @@ endif()
 # Examples using SUNDIALS PCG linear solver
 set(sunlinsol_pcg_examples "test_sunlinsol_pcg_serial\;100 500 ${TOL} 0\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_pcg_dependencies test_sunlinsol)
 
 # If building F2003 tests

@@ -15,6 +15,7 @@
 # Function to parse SUNDIALS CSV output files
 # -----------------------------------------------------------------------------
 
+
 def num(s):
     """Try to convert a string to an int or float"""
 
@@ -42,7 +43,7 @@ def keys(filename):
     """
 
     # Get keys from the first row
-    with open(filename, mode='r') as csvfile:
+    with open(filename, mode="r") as csvfile:
         keys = csvfile.readline().split(",")[::2]
 
     return keys
@@ -73,7 +74,7 @@ def read(filename):
         csv_dict[k] = []
 
     # Get values from each row
-    with open(filename, mode='r') as csvfile:
+    with open(filename, mode="r") as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             values = row[1::2]

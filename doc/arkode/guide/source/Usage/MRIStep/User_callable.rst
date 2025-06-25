@@ -1744,6 +1744,10 @@ Main solver optional output functions
 
    :returns: A string containing the name of the corresponding constant.
 
+   .. warning::
+
+      The user is responsible for freeing the returned string.
+
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeGetReturnFlagName` instead.
@@ -2331,6 +2335,10 @@ Linear solver interface optional output functions
               or ``SUNLINSOL_BAND`` modules, then if  1 :math:`\le` `lsflag`
               :math:`\le n` (LU factorization failed), this routine returns
               "NONE".
+
+   .. warning::
+
+      The user is responsible for freeing the returned string.
 
    .. deprecated:: 6.1.0
 

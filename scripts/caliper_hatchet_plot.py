@@ -35,6 +35,7 @@ import pandas as pd
 import subprocess
 import tempfile
 
+
 def run_flamegraph(txt_file, fg_args):
     """
     Call Flamegraph.
@@ -49,19 +50,24 @@ def Flamegraph(gf, fg_args):
         run_flamegraph(folded_stack.name, fg_args)
 
 
-parser = argparse.ArgumentParser(description='Utility for parsing/plotting Caliper data with Hatchet.')
-subparsers = parser.add_subparsers(help='sub-command help', dest='command')
+parser = argparse.ArgumentParser(
+    description="Utility for parsing/plotting Caliper data with Hatchet."
+)
+subparsers = parser.add_subparsers(help="sub-command help", dest="command")
 
-fg_parser = subparsers.add_parser('flamegraph')
-fg_parser.add_argument('--fg-bin',
-                       help='path to Flamegraph binary')
-fg_parser.add_argument('json_file',
-                       help='path to the Caliper json-split data file (generated when the hatchet-region-profile Caliper config is enabled)')
-fg_parser.add_argument('fg_args', help='Flamegraph arguments', nargs=argparse.REMAINDER)
+fg_parser = subparsers.add_parser("flamegraph")
+fg_parser.add_argument("--fg-bin", help="path to Flamegraph binary")
+fg_parser.add_argument(
+    "json_file",
+    help="path to the Caliper json-split data file (generated when the hatchet-region-profile Caliper config is enabled)",
+)
+fg_parser.add_argument("fg_args", help="Flamegraph arguments", nargs=argparse.REMAINDER)
 
-ht_parser = subparsers.add_parser('hatchet')
-ht_parser.add_argument('json_file',
-                       help='path to the Caliper json-split data file (generated when the hatchet-region-profile Caliper config is enabled)')
+ht_parser = subparsers.add_parser("hatchet")
+ht_parser.add_argument(
+    "json_file",
+    help="path to the Caliper json-split data file (generated when the hatchet-region-profile Caliper config is enabled)",
+)
 
 args = parser.parse_args()
 # print(args)
@@ -70,7 +76,7 @@ args = parser.parse_args()
 # The result is stored into Hatchet's GraphFrame.
 gf = ht.GraphFrame.from_caliper_json(args.json_file)
 
-if args.command == 'flamegraph':
+if args.command == "flamegraph":
     Flamegraph(gf, args.fg_args)
-elif args.command == 'hatchet':
+elif args.command == "hatchet":
     print(gf.tree())

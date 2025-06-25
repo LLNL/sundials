@@ -32,8 +32,6 @@ jobs:
       - name: Check out repository code
         if: github.event_name != 'issue_comment'
         uses: actions/checkout@v4
-        with:
-          submodules: true
 
       - name: Check out repository code
         if: github.event_name == 'issue_comment'

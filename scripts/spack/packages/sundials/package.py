@@ -11,6 +11,7 @@ from llnl.util import tty
 
 from spack.package import *
 
+
 class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     """SUNDIALS (SUite of Nonlinear and DIfferential/ALgebraic equation
     Solvers)"""
@@ -72,12 +73,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         "cstd", default="99", description="C language standard", values=("90", "99", "11", "17")
     )
 
-    variant(
-        "cxxstd",
-        default="14",
-        description="C++ language standard",
-        values=("14", "17"),
-    )
+    variant("cxxstd", default="14", description="C++ language standard", values=("14", "17"))
 
     # Logging
     variant(
@@ -186,7 +182,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         "scheduler",
         default="slurm",
         description="Specify which scheduler the system runs on",
-        values=("flux", "lsf", "slurm")
+        values=("flux", "lsf", "slurm"),
     )
 
     # Benchmarking
@@ -197,7 +193,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         "profile-examples",
         default=False,
         when="+adiak +caliper",
-        description="Build examples with profiling capabilities")
+        description="Build examples with profiling capabilities",
+    )
 
     # Caliper Directory
     variant("caliper-dir", default="none", description="Specify where to place Caliper files")
@@ -259,12 +256,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     depends_on("petsc+double~complex", when="+petsc precision=double")
 
     # Require that external libraries built with the same index type
-    with when('+int64'):
+    with when("+int64"):
         depends_on("hypre+mpi+int64", when="+hypre +int64")
         depends_on("petsc+int64", when="+petsc +int64")
         depends_on("superlu-dist+int64", when="+superlu-dist +int64")
 
-    with when('~int64'):
+    with when("~int64"):
         depends_on("hypre+mpi~int64", when="+hypre ~int64")
         depends_on("petsc~int64", when="+petsc ~int64")
         depends_on("superlu-dist~int64", when="+superlu-dist ~int64")
@@ -591,22 +588,23 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         self.clean_smoke_tests()
         return
         """Run the smoke tests."""
-        if '+examples' not in self.spec:
-            print('Smoke tests were skipped: install with examples enabled')
+        if "+examples" not in self.spec:
+            print("Smoke tests were skipped: install with examples enabled")
         return
 
-        self.run_test('examples/nvector/serial/test_nvector_serial',
-                      options=['10', '0'],
-                      work_dir=self._extra_tests_path)
-        if '+cuda' in self.spec:
-            self.run_test('examples/cvode/cuda/cvAdvDiff_ky_cuda',
-                          work_dir=self._extra_tests_path)
-        if '+rocm' in self.spec:
-            self.run_test('examples/cvode/hip/cvAdvDiff_kry_hip',
-                          work_dir=self._extra_tests_path)
-        if '+sycl' in self.spec:
-            self.run_test('examples/cvode/CXX_sycl/cvAdvDiff_kry_sycl',
-                          work_dir=self._extra_tests_path)
+        self.run_test(
+            "examples/nvector/serial/test_nvector_serial",
+            options=["10", "0"],
+            work_dir=self._extra_tests_path,
+        )
+        if "+cuda" in self.spec:
+            self.run_test("examples/cvode/cuda/cvAdvDiff_ky_cuda", work_dir=self._extra_tests_path)
+        if "+rocm" in self.spec:
+            self.run_test("examples/cvode/hip/cvAdvDiff_kry_hip", work_dir=self._extra_tests_path)
+        if "+sycl" in self.spec:
+            self.run_test(
+                "examples/cvode/CXX_sycl/cvAdvDiff_kry_sycl", work_dir=self._extra_tests_path
+            )
         return
 
     # ==========================================================================
@@ -652,7 +650,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 cmake_cache_path("CMAKE_Fortran_COMPILER", self.compiler.fc),
                 # language standard
                 self.cache_string_from_variant("CMAKE_C_STANDARD", "cstd"),
-                self.cache_string_from_variant("CMAKE_CXX_STANDARD", "cxxstd")
+                self.cache_string_from_variant("CMAKE_CXX_STANDARD", "cxxstd"),
             ]
         )
 
@@ -669,7 +667,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("MPI_MPICC", spec["mpi"].mpicc),
                     cmake_cache_path("MPI_MPICXX", spec["mpi"].mpicxx),
                     cmake_cache_path("MPI_MPIF77", spec["mpi"].mpif77),
-                    cmake_cache_path("MPI_MPIF90", spec["mpi"].mpifc)
+                    cmake_cache_path("MPI_MPIF90", spec["mpi"].mpifc),
                 ]
             )
             if "scheduler=flux" in spec:
@@ -679,7 +677,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             if "scheduler=lsf" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "jsrun"))
 
-
         return entries
 
     def initconfig_hardware_entries(self):
@@ -687,9 +684,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         entries = []
 
         if "+cuda" in spec:
-            entries.append(
-                self.cache_option_from_variant("CUDA_ENABLE", "cuda")
-            )
+            entries.append(self.cache_option_from_variant("CUDA_ENABLE", "cuda"))
             if not spec.satisfies("cuda_arch=none"):
                 cuda_arch = spec.variants["cuda_arch"].value
                 entries.append(
@@ -704,7 +699,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("HIP_DIR", spec["hip"].prefix.cmake),
                     cmake_cache_path("HIP_CLANG_INCLUDE_PATH", spec["llvm-amdgpu"].prefix.include),
                     cmake_cache_path("ROCM_PATH", spec["hsa-rocr-dev"].prefix),
-                    cmake_cache_string("AMDGPU_TARGETS", ";".join(spec.variants["amdgpu_target"].value))
+                    cmake_cache_string(
+                        "AMDGPU_TARGETS", ";".join(spec.variants["amdgpu_target"].value)
+                    ),
                 ]
             )
         return entries
@@ -740,10 +737,13 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 # Benchmarking
                 self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks"),
                 # Profile examples
-                self.cache_option_from_variant("SUNDIALS_TEST_ENABLE_PROFILING", "profile-examples"),
-                self.cache_option_from_variant("SUNDIALS_TEST_ENABLE_DEV_TESTS", "profile-examples"),
-                cmake_cache_string("SPACK_VERSION", ".".join(map(str, spack.spack_version_info)))
-
+                self.cache_option_from_variant(
+                    "SUNDIALS_TEST_ENABLE_PROFILING", "profile-examples"
+                ),
+                self.cache_option_from_variant(
+                    "SUNDIALS_TEST_ENABLE_DEV_TESTS", "profile-examples"
+                ),
+                cmake_cache_string("SPACK_VERSION", ".".join(map(str, spack.spack_version_info))),
             ]
         )
 
@@ -753,7 +753,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.extend(
                 [
                     cmake_cache_string("SUNDIALS_INDEX_SIZE", intsize),
-                    cmake_cache_string("SUNDIALS_INDEX_TYPE", "int{}_t".format(intsize))
+                    cmake_cache_string("SUNDIALS_INDEX_TYPE", "int{}_t".format(intsize)),
                 ]
             )
 
@@ -774,23 +774,35 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("RAJA_ENABLE", "raja"),
                 self.cache_option_from_variant("SUPERLUDIST_ENABLE", "superlu-dist"),
                 self.cache_option_from_variant("SUPERLUMT_ENABLE", "superlu-mt"),
-                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos")
+                self.cache_option_from_variant("Trilinos_ENABLE", "trilinos"),
             ]
         )
 
         # Building with Adiak
         if "+adiak" in spec:
-            entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
+            entries.append(
+                cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak")
+            )
 
         # Building with Caliper
         if "+caliper" in spec:
             entries.append(cmake_cache_path("CALIPER_DIR", spec["caliper"].prefix))
             if "+adiak" in spec["caliper"]:
-                entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
+                entries.append(
+                    cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak")
+                )
 
             if not "caliper-dir=none" in spec:
-                entries.append(self.cache_string_from_variant("SUNDIALS_TEST_CALIPER_OUTPUT_DIR", "caliper-dir"))
-                entries.append(self.cache_string_from_variant("SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR", "caliper-dir"))
+                entries.append(
+                    self.cache_string_from_variant(
+                        "SUNDIALS_TEST_CALIPER_OUTPUT_DIR", "caliper-dir"
+                    )
+                )
+                entries.append(
+                    self.cache_string_from_variant(
+                        "SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR", "caliper-dir"
+                    )
+                )
 
         # Building with Ginkgo
         if "+ginkgo" in spec:
@@ -815,7 +827,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.extend(
                 [
                     cmake_cache_path("HYPRE_INCLUDE_DIR", spec["hypre"].prefix.include),
-                    cmake_cache_path("HYPRE_LIBRARY_DIR", spec["hypre"].prefix.lib)
+                    cmake_cache_path("HYPRE_LIBRARY_DIR", spec["hypre"].prefix.lib),
                 ]
             )
             if not spec["hypre"].variants["shared"].value:
@@ -833,7 +845,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.extend(
                 [
                     cmake_cache_path("KLU_INCLUDE_DIR", spec["suite-sparse"].prefix.include),
-                    cmake_cache_path("KLU_LIBRARY_DIR", spec["suite-sparse"].prefix.lib)
+                    cmake_cache_path("KLU_LIBRARY_DIR", spec["suite-sparse"].prefix.lib),
                 ]
             )
 
@@ -846,7 +858,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
         # Building with MAGMA
         if "+magma" in spec:
-            entries.extend([cmake_cache_option("ENABLE_MAGMA", True), cmake_cache_path("MAGMA_DIR", spec["magma"].prefix)])
+            entries.extend(
+                [
+                    cmake_cache_option("ENABLE_MAGMA", True),
+                    cmake_cache_path("MAGMA_DIR", spec["magma"].prefix),
+                ]
+            )
             if "+cuda" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_MAGMA_BACKENDS", "CUDA"))
             if "+rocm" in spec:
@@ -857,10 +874,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             if spec.version >= Version("5"):
                 entries.append(cmake_cache_path("PETSC_DIR", spec["petsc"].prefix))
                 if "+kokkos" in spec["petsc"]:
-                    entries.extend([
-                        cmake_cache_path("Kokkos_DIR", spec["kokkos"].prefix),
-                        cmake_cache_path("KokkosKernels_DIR", spec["kokkos-kernels"].prefix)
-                    ])
+                    entries.extend(
+                        [
+                            cmake_cache_path("Kokkos_DIR", spec["kokkos"].prefix),
+                            cmake_cache_path("KokkosKernels_DIR", spec["kokkos-kernels"].prefix),
+                        ]
+                    )
             else:
                 entries.extend(
                     [
@@ -873,13 +892,15 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if "+raja" in spec:
             entries.append(cmake_cache_path("RAJA_DIR", spec["raja"].prefix))
             if "camp" in spec:
-                entries.append(cmake_cache_path("camp_DIR", spec["camp"].prefix.lib.cmake + '/camp'))
+                entries.append(
+                    cmake_cache_path("camp_DIR", spec["camp"].prefix.lib.cmake + "/camp")
+                )
             if "+rocm" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_RAJA_BACKENDS", "HIP"))
 
         # Building with SuperLU_DIST
         if "+superlu-dist" in spec:
-            #if spec.satisfies("@6.4.0:"):
+            # if spec.satisfies("@6.4.0:"):
             if False:
                 entries.extend(
                     [
@@ -894,8 +915,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 superludist_libs.extend(spec["superlu-dist"].libs)
                 entries.extend(
                     [
-                        cmake_cache_path("SUPERLUDIST_INCLUDE_DIR", spec["superlu-dist"].prefix.include),
-                        cmake_cache_path("SUPERLUDIST_LIBRARY_DIR", spec["superlu-dist"].prefix.lib),
+                        cmake_cache_path(
+                            "SUPERLUDIST_INCLUDE_DIR", spec["superlu-dist"].prefix.include
+                        ),
+                        cmake_cache_path(
+                            "SUPERLUDIST_LIBRARY_DIR", spec["superlu-dist"].prefix.lib
+                        ),
                         cmake_cache_string("SUPERLUDIST_LIBRARIES", ";".join(superludist_libs)),
                         cmake_cache_string("SUPERLUDIST_OpenMP", "^superlu-dist+openmp" in spec),
                     ]

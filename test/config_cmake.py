@@ -52,9 +52,7 @@ def main():
     )
 
     parser.add_argument(
-        "--debugscript",
-        action="store_true",
-        help="Enable debugging output for this script",
+        "--debugscript", action="store_true", help="Enable debugging output for this script"
     )
 
     # -----------------
@@ -79,29 +77,11 @@ def main():
     )
 
     # C compiler
-    add_arg(
-        group, "--c-compiler", "CC", "CMAKE_C_COMPILER", None, "FILEPATH", "C compiler"
-    )
+    add_arg(group, "--c-compiler", "CC", "CMAKE_C_COMPILER", None, "FILEPATH", "C compiler")
 
-    add_arg(
-        group,
-        "--c-flags",
-        "CFLAGS",
-        "CMAKE_C_FLAGS",
-        None,
-        "STRING",
-        "C compiler flags",
-    )
+    add_arg(group, "--c-flags", "CFLAGS", "CMAKE_C_FLAGS", None, "STRING", "C compiler flags")
 
-    add_arg(
-        group,
-        "--c-std",
-        "CMAKE_C_STANDARD",
-        "CMAKE_C_STANDARD",
-        "99",
-        "STRING",
-        "C standard",
-    )
+    add_arg(group, "--c-std", "CMAKE_C_STANDARD", "CMAKE_C_STANDARD", "99", "STRING", "C standard")
 
     add_arg(
         group,
@@ -114,24 +94,10 @@ def main():
     )
 
     # C++ compiler
-    add_arg(
-        group,
-        "--cxx-compiler",
-        "CXX",
-        "CMAKE_CXX_COMPILER",
-        None,
-        "FILEPATH",
-        "C++ compiler",
-    )
+    add_arg(group, "--cxx-compiler", "CXX", "CMAKE_CXX_COMPILER", None, "FILEPATH", "C++ compiler")
 
     add_arg(
-        group,
-        "--cxx-flags",
-        "CXXFLAGS",
-        "CMAKE_CXX_FLAGS",
-        None,
-        "STRING",
-        "C++ compiler flags",
+        group, "--cxx-flags", "CXXFLAGS", "CMAKE_CXX_FLAGS", None, "STRING", "C++ compiler flags"
     )
 
     add_arg(
@@ -274,9 +240,7 @@ def main():
     # Debugging Options
     # ------------------
 
-    group = parser.add_argument_group(
-        "Debugging Options", """Options debugging SUNDIALS."""
-    )
+    group = parser.add_argument_group("Debugging Options", """Options debugging SUNDIALS.""")
 
     add_arg(
         group,
@@ -382,13 +346,7 @@ def main():
     )
 
     add_arg(
-        group,
-        "--cvode",
-        "SUNDIALS_CVODE",
-        "BUILD_CVODE",
-        "ON",
-        "BOOL",
-        "Build the CVODE library",
+        group, "--cvode", "SUNDIALS_CVODE", "BUILD_CVODE", "ON", "BOOL", "Build the CVODE library"
     )
 
     add_arg(
@@ -401,25 +359,9 @@ def main():
         "Build the CVODES library",
     )
 
-    add_arg(
-        group,
-        "--ida",
-        "SUNDIALS_IDA",
-        "BUILD_IDA",
-        "ON",
-        "BOOL",
-        "Build the IDA library",
-    )
+    add_arg(group, "--ida", "SUNDIALS_IDA", "BUILD_IDA", "ON", "BOOL", "Build the IDA library")
 
-    add_arg(
-        group,
-        "--idas",
-        "SUNDIALS_IDAS",
-        "BUILD_IDAS",
-        "ON",
-        "BOOL",
-        "Build the IDAS library",
-    )
+    add_arg(group, "--idas", "SUNDIALS_IDAS", "BUILD_IDAS", "ON", "BOOL", "Build the IDAS library")
 
     add_arg(
         group,
@@ -618,13 +560,7 @@ def main():
     )
 
     add_arg(
-        group,
-        "--mpi",
-        "SUNDIALS_MPI",
-        "ENABLE_MPI",
-        "OFF",
-        "FILEPATH",
-        "SUNDIALS MPI support",
+        group, "--mpi", "SUNDIALS_MPI", "ENABLE_MPI", "OFF", "FILEPATH", "SUNDIALS MPI support"
     )
 
     add_arg(
@@ -742,13 +678,7 @@ def main():
                                       SUNDIALS""",
     )
     add_arg(
-        group,
-        "--cuda",
-        "SUNDIALS_CUDA",
-        "ENABLE_CUDA",
-        "OFF",
-        "BOOL",
-        "SUNDIALS CUDA support",
+        group, "--cuda", "SUNDIALS_CUDA", "ENABLE_CUDA", "OFF", "BOOL", "SUNDIALS CUDA support"
     )
 
     # HIP
@@ -758,15 +688,7 @@ def main():
                                       SUNDIALS.""",
     )
 
-    add_arg(
-        group,
-        "--hip",
-        "SUNDIALS_HIP",
-        "ENABLE_HIP",
-        "OFF",
-        "BOOL",
-        "SUNDIALS HIP support",
-    )
+    add_arg(group, "--hip", "SUNDIALS_HIP", "ENABLE_HIP", "OFF", "BOOL", "SUNDIALS HIP support")
 
     # OpenMP Offload
     group = parser.add_argument_group(
@@ -817,13 +739,7 @@ def main():
     group = parser.add_argument_group("RAJA Options")
 
     add_arg(
-        group,
-        "--raja",
-        "SUNDIALS_RAJA",
-        "ENABLE_RAJA",
-        "OFF",
-        "BOOL",
-        "SUNDIALS Raja support",
+        group, "--raja", "SUNDIALS_RAJA", "ENABLE_RAJA", "OFF", "BOOL", "SUNDIALS Raja support"
     )
 
     add_arg(
@@ -853,13 +769,7 @@ def main():
     group = parser.add_argument_group("SYCL Options")
 
     add_arg(
-        group,
-        "--sycl",
-        "SUNDIALS_SYCL",
-        "ENABLE_SYCL",
-        "OFF",
-        "BOOL",
-        "SUNDIALS SYCL support",
+        group, "--sycl", "SUNDIALS_SYCL", "ENABLE_SYCL", "OFF", "BOOL", "SUNDIALS SYCL support"
     )
 
     # ------------------------
@@ -940,15 +850,7 @@ def main():
     # KLU
     group = parser.add_argument_group("KLU Options")
 
-    add_arg(
-        group,
-        "--klu",
-        "SUNDIALS_KLU",
-        "ENABLE_KLU",
-        "OFF",
-        "BOOL",
-        "SUNDIALS KLU support",
-    )
+    add_arg(group, "--klu", "SUNDIALS_KLU", "ENABLE_KLU", "OFF", "BOOL", "SUNDIALS KLU support")
 
     add_arg(
         group,
@@ -1126,13 +1028,7 @@ def main():
     group = parser.add_argument_group("MAGMA Options")
 
     add_arg(
-        group,
-        "--magma",
-        "SUNDIALS_MAGMA",
-        "ENABLE_MAGMA",
-        "OFF",
-        "BOOL",
-        "SUNDIALS MAGMA support",
+        group, "--magma", "SUNDIALS_MAGMA", "ENABLE_MAGMA", "OFF", "BOOL", "SUNDIALS MAGMA support"
     )
 
     add_arg(
@@ -1166,13 +1062,7 @@ def main():
     group = parser.add_argument_group("hypre Options")
 
     add_arg(
-        group,
-        "--hypre",
-        "SUNDIALS_HYPRE",
-        "ENABLE_HYPRE",
-        "OFF",
-        "BOOL",
-        "SUNDIALS hypre support",
+        group, "--hypre", "SUNDIALS_HYPRE", "ENABLE_HYPRE", "OFF", "BOOL", "SUNDIALS hypre support"
     )
 
     add_arg(
@@ -1201,13 +1091,7 @@ def main():
     group = parser.add_argument_group("PTESc Options")
 
     add_arg(
-        group,
-        "--petsc",
-        "SUNDIALS_PETSC",
-        "ENABLE_PETSC",
-        "OFF",
-        "BOOL",
-        "SUNDIALS PETSc support",
+        group, "--petsc", "SUNDIALS_PETSC", "ENABLE_PETSC", "OFF", "BOOL", "SUNDIALS PETSc support"
     )
 
     add_arg(
@@ -1429,15 +1313,7 @@ def read_env(args):
 
 
 def add_arg(
-    parser,
-    arg,
-    env_var,
-    cmake_var,
-    cmake_default,
-    cmake_type,
-    msg,
-    choices=None,
-    dependson=None,
+    parser, arg, env_var, cmake_var, cmake_default, cmake_type, msg, choices=None, dependson=None
 ):
     """Add a command SUNDIALS option command line arg"""
 
@@ -1447,13 +1323,7 @@ def add_arg(
 
     # Define function to create an argparse SUNDIALS option type
     arg_type = cmake_arg(
-        env_var,
-        cmake_var,
-        cmake_default,
-        cmake_type,
-        msg,
-        choices=choices,
-        dependson=dependson,
+        env_var, cmake_var, cmake_default, cmake_type, msg, choices=choices, dependson=dependson
     )
 
     # Replace 'None' with a default string to ensure a dictionary is created
@@ -1463,14 +1333,10 @@ def add_arg(
         cmake_default = "__default_none__"
 
     # Create command line arg
-    parser.add_argument(
-        arg, dest=arg_dest, type=arg_type, default=cmake_default, help=help_msg
-    )
+    parser.add_argument(arg, dest=arg_dest, type=arg_type, default=cmake_default, help=help_msg)
 
 
-def cmake_arg(
-    env_var, cmake_var, cmake_default, cmake_type, msg, choices=None, dependson=None
-):
+def cmake_arg(env_var, cmake_var, cmake_default, cmake_type, msg, choices=None, dependson=None):
     """Function factory for argparse SUNDIALS option type"""
 
     def _cmake_arg(str_var):
