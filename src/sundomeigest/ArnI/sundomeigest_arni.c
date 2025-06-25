@@ -53,7 +53,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
   SUNDomEigEstimatorContent_ArnI content;
 
   /* Check if krydim >= 2 */
-  if (krydim < 3) { krydim = SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT; }
+  if (krydim < 3) { krydim = DEE_KRYLOV_DIM_DEFAULT; }
 
   /* check for legal q; if illegal return NULL */
   // TO DO: check required vector operations
@@ -143,7 +143,7 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
 
   if (ArnI_CONTENT(DEE)->krydim < 2)
   {
-    ArnI_CONTENT(DEE)->krydim = SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT;
+    ArnI_CONTENT(DEE)->krydim = DEE_KRYLOV_DIM_DEFAULT;
   }
   if (ArnI_CONTENT(DEE)->numwarmups < 0)
   {
@@ -363,7 +363,7 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
 
   if (info != 0)
   {
-    printf(SUNDOMEIGEST_LAPACK_FAIL, info);
+    printf(DEE_LAPACK_FAIL, info);
 
     return SUN_ERR_DEE_LAPACK_FAIL;
   }

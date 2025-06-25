@@ -154,7 +154,16 @@ int main(void)
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
-  /* Specify NULL spectral radius function for internal DEE*/
+  /* LSRKStepSetDomEigFn expects a user-provided spectral radius function
+  pointer of type ARKDomEigFn. Alternatively, passing a NULL pointer for
+  this function does not return an error; instead, it triggers the creation
+  of an internal Dominant Eigenvalue Estimator (DEE). While this appoach
+  works in many cases, we recommend explicitly creating a DEE using
+  the LSRKStepDomEigEstCreate function. This function returns a pointer
+  to the DEE, which can then be used with the associated set/get routines.
+  An example use case can be found in following example file:
+  /examples/arkode/CXX_serial/ark_heat2D_lsrk_internal_domeig.cpp
+  */
   flag = LSRKStepSetDomEigFn(arkode_mem, NULL);
   if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
 

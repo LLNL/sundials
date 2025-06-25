@@ -29,10 +29,6 @@
 extern "C" {
 #endif
 
-/* Default Power Iteration parameters */
-#define SUNDOMEIGEST_PI_TOL_DEFAULT SUN_RCONST(0.01)
-#define SUNDOMEIGEST_MAX_PI_DEFAULT 100
-
 /* -----------------------------------------------------
  * Power Iteration Implementation of SUNDomEigEstimator
  * ----------------------------------------------------- */

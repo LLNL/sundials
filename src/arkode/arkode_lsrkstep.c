@@ -2083,18 +2083,36 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
     if (step_mem->DEE != NULL)
     {
-      fprintf(outfile, "LSRKStep: dee_krydim            = %i\n",
-              step_mem->dee_krydim);
-      fprintf(outfile, "LSRKStep: dee_numwarmups        = %i\n",
+      fprintf(outfile, "LSRKStep: dee_numwarmups      = %i\n",
               step_mem->dee_numwarmups);
-      fprintf(outfile, "LSRKStep: dee_maxiters          = %i\n",
-              step_mem->dee_maxiters);
+      fprintf(outfile, "LSRKStep: DDE_ID              = %i\n",
+              step_mem->DDE_ID);
+
+      if (step_mem->DDE_ID == 0)
+      {
+        fprintf(outfile, "LSRKStep: dee_maxiters      = %i\n",
+        step_mem->dee_maxiters);
+        fprintf(outfile, "LSRKStep: dee_curniter      = %i\n",
+        step_mem->dee_curniter);
+        fprintf(outfile, "LSRKStep: dee_niters        = %li\n",
+        step_mem->dee_niters);
+        fprintf(outfile, "LSRKStep: dee_tol           = " SUN_FORMAT_G "\n",
+        step_mem->dee_tol);
+        fprintf(outfile, "LSRKStep: dee_res           = " SUN_FORMAT_G "\n",
+        step_mem->dee_res);
+      }
+      else if (step_mem->DDE_ID == 1)
+      {
+        fprintf(outfile, "LSRKStep: dee_krydim        = %i\n",
+                step_mem->dee_krydim);
+      }
     }
+
     /* output long integer quantities */
     fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
     if (step_mem->DEE != NULL)
     {
-      fprintf(outfile, "LSRKStep: nfeDQ                 = %li\n",
+      fprintf(outfile, "LSRKStep: nfeDQ               = %li\n",
               step_mem->nfeDQ);
     }
     fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
@@ -2320,7 +2338,11 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
 
   step_mem->dee_krydim     = DEE_KRYLOV_DIM_DEFAULT;
   step_mem->dee_numwarmups = DEE_NUM_OF_WARMUPS_DEFAULT;
-  step_mem->dee_maxiters   = DEE_MAX_NUMBER_OF_POWER_ITERS_DEFAULT;
+  step_mem->dee_maxiters   = DEE_MAX_ITER_DEFAULT;
+  step_mem->dee_curniter   = 0;
+  step_mem->dee_niters     = 0;
+  step_mem->dee_tol        = DEE_TOL_DEFAULT;
+  step_mem->dee_res        = ZERO;
 
   /* Enforce the power iteration if the problem size < 3 */
   if (step_mem->DDE_ID == SUNDSOMEIGESTIMATOR_ARNOLDI &&
@@ -2417,6 +2439,7 @@ int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
                             sunrealtype* lambdaR, sunrealtype* lambdaI)
 {
   ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
 
   int retval;
   if (arkode_mem == NULL)
@@ -2425,7 +2448,11 @@ int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
                     MSG_ARK_NO_MEM);
     return ARK_MEM_NULL;
   }
-  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (ark_mem->sunctx == NULL)
   {
@@ -2467,6 +2494,30 @@ int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
                     MSG_ARK_DEE_FAIL);
 
     return ARK_DEE_FAIL;
+  }
+
+  if(step_mem->DDE_ID == 0) // SUNDSOMEIGESTIMATOR_POWER
+  {
+    step_mem->dee_numwarmups = ((SUNDomEigEstimatorContent_PI)(DEE->content))->numwarmups;
+    step_mem->dee_maxiters   = ((SUNDomEigEstimatorContent_PI)(DEE->content))->max_powiter;
+    step_mem->dee_curniter   = ((SUNDomEigEstimatorContent_PI)(DEE->content))->numiters;
+    step_mem->dee_tol        = ((SUNDomEigEstimatorContent_PI)(DEE->content))->powiter_tol;
+    step_mem->dee_res        = ((SUNDomEigEstimatorContent_PI)(DEE->content))->res;
+
+    step_mem->dee_niters += step_mem->dee_curniter;
+  }
+#ifdef SUNDIALS_BLAS_LAPACK_ENABLED
+  else if (step_mem->DDE_ID == 1) // SUNDSOMEIGESTIMATOR_ARNOLDI
+  {
+    step_mem->dee_numwarmups = ((SUNDomEigEstimatorContent_ArnI)(DEE->content))->numwarmups;
+    step_mem->dee_krydim     = ((SUNDomEigEstimatorContent_ArnI)(DEE->content))->krydim;
+  }
+#endif
+  else
+  {
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                    "Attempted to estimate with an unavailable DDE type");
+    return NULL;
   }
 
   return ARK_SUCCESS;

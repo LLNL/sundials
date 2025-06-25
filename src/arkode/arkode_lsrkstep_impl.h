@@ -34,8 +34,6 @@ extern "C" {
 #define STAGE_MAX_LIMIT_DEFAULT               200
 #define DOM_EIG_SAFETY_DEFAULT                SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT                  25
-#define DEE_KRYLOV_DIM_DEFAULT                3
-#define DEE_MAX_NUMBER_OF_POWER_ITERS_DEFAULT 100
 
 /*===============================================================
   LSRK time step module private math function macros
@@ -165,8 +163,12 @@ typedef struct ARKodeLSRKStepMemRec
   SUNDomEigEstimator_ID DDE_ID; /* DEE ID */
   SUNDomEigEstimator DEE;       /* DomEig estimator*/
   int dee_krydim;               /* Krylov subspace dimension */
-  int dee_numwarmups; /* Power of A in the preprocessing; initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
-  int dee_maxiters;   /* Max number of Power Iterations */
+  int dee_numwarmups;    /* Power of A in the preprocessing; initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
+  int dee_maxiters;      /* Max number of Power Iterations */
+  int dee_curniter;      /* Current number of iterations */
+  long int dee_niters;   /* Total number of iterations */
+  sunrealtype dee_tol;   /* Tolerance of the DEE*/
+  sunrealtype dee_res;   /* Current residual of the DEE*/
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */

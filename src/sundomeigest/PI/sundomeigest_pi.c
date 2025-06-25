@@ -60,7 +60,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_powiter, SUNContext sunct
                 SUN_ERR_DEE_BAD_NVECTOR);
 
   /* check for max_powiter values; if illegal use defaults */
-  if (max_powiter <= 0) { max_powiter = SUNDOMEIGEST_MAX_PI_DEFAULT; }
+  if (max_powiter <= 0) { max_powiter = DEE_MAX_ITER_DEFAULT; }
 
   /* Create dominant eigenvalue estimator */
   DEE = NULL;
@@ -140,7 +140,7 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
 
   if (PI_CONTENT(DEE)->powiter_tol <= 0)
   {
-    PI_CONTENT(DEE)->powiter_tol = SUNDOMEIGEST_PI_TOL_DEFAULT;
+    PI_CONTENT(DEE)->powiter_tol = DEE_TOL_DEFAULT;
   }
   if (PI_CONTENT(DEE)->numwarmups <= 0)
   {
@@ -148,7 +148,7 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
   }
   if (PI_CONTENT(DEE)->max_powiter <= 0)
   {
-    PI_CONTENT(DEE)->max_powiter = SUNDOMEIGEST_MAX_PI_DEFAULT;
+    PI_CONTENT(DEE)->max_powiter = DEE_MAX_ITER_DEFAULT;
   }
 
   SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
@@ -194,7 +194,7 @@ SUNErrCode SUNDomEigEstSetMaxPowerIter_PI(SUNDomEigEstimator DEE, int max_powite
   SUNFunctionBegin(DEE->sunctx);
 
   /* Check for legal number of iters */
-  if (max_powiter <= 0) { max_powiter = SUNDOMEIGEST_MAX_PI_DEFAULT; }
+  if (max_powiter <= 0) { max_powiter = DEE_MAX_ITER_DEFAULT; }
 
   /* Set max iters */
   PI_CONTENT(DEE)->max_powiter = max_powiter;

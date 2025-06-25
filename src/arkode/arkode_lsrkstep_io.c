@@ -237,10 +237,11 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepDomEigEstCreateWithID creates DomEigEst with ID.
+  LSRKStepDomEigEstCreate creates DomEigEst with ID.
   ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int LSRKStepDomEigEstCreateWithID(void* arkode_mem,
-                                                  SUNDomEigEstimator_ID DEE_id)
+SUNDIALS_EXPORT int LSRKStepDomEigEstCreate(void* arkode_mem,
+                                            SUNDomEigEstimator_ID DEE_id,
+                                            SUNDomEigEstimator* DEE)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -281,6 +282,7 @@ SUNDIALS_EXPORT int LSRKStepDomEigEstCreateWithID(void* arkode_mem,
                     "Attempted to set a DDE with an unknown type");
     return ARK_DEE_FAIL;
   }
+  *DEE = step_mem->DEE;
   return ARK_SUCCESS;
 }
 
@@ -650,14 +652,30 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
                     step_mem->dom_eig_num_evals);
     if (step_mem->DEE != NULL)
     {
-      sunfprintf_long(outfile, fmt, SUNFALSE, "Number of fe calls for DEE",
-                      step_mem->nfeDQ);
-      sunfprintf_long(outfile, fmt, SUNFALSE, "Krylov subspace dim. in DEE",
-                      step_mem->dee_krydim);
       sunfprintf_long(outfile, fmt, SUNFALSE, "Number of warmups in DEE",
                       step_mem->dee_numwarmups);
-      sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of iters in DEE",
-                      step_mem->dee_maxiters);
+#ifdef SUNDIALS_BLAS_LAPACK_ENABLED
+      if (step_mem->DDE_ID == 1) // SUNDSOMEIGESTIMATOR_ARNOLDI
+      {
+        sunfprintf_long(outfile, fmt, SUNFALSE, "Krylov subspace dim. in DEE",
+                        step_mem->dee_krydim);
+      }
+#endif
+      if(step_mem->DDE_ID == 0) // SUNDSOMEIGESTIMATOR_POWER
+      {
+        sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of iters in DEE",
+                        step_mem->dee_maxiters);
+        sunfprintf_long(outfile, fmt, SUNFALSE, "Num. of current iters in DEE",
+                        step_mem->dee_curniter);
+        sunfprintf_long(outfile, fmt, SUNFALSE, "Num. of total iters in DEE",
+                        step_mem->dee_niters);
+        sunfprintf_real(outfile, fmt, SUNFALSE, "Tolerance in DEE",
+                        step_mem->dee_tol);
+        sunfprintf_real(outfile, fmt, SUNFALSE, "Current residual in DEE",
+                        step_mem->dee_res);
+      }
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Number of fe calls for DEE",
+                      step_mem->nfeDQ);
     }
     sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of stages used",
                     step_mem->stage_max);
@@ -723,11 +741,29 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   case SUNFALSE:
     fprintf(fp, "  Maximum number of stages allowed = %i\n",
             step_mem->stage_max_limit);
-    fprintf(fp, "  Number of fe calls for DEE = %li\n", step_mem->nfeDQ);
-    fprintf(fp, "  Krylov subspace dimension in DEE = %i\n",
-            step_mem->dee_krydim);
-    fprintf(fp, "  Number of warmups in DEE = %i\n", step_mem->dee_numwarmups);
-    fprintf(fp, "  Max. num. of iters in DEE = %i\n", step_mem->dee_maxiters);
+
+    if (step_mem->DEE != NULL)
+    {
+      fprintf(fp, "  Number of fe calls for DEE = %li\n", step_mem->nfeDQ);
+      fprintf(fp, "  Number of warmups in DEE = %i\n", step_mem->dee_numwarmups);
+
+#ifdef SUNDIALS_BLAS_LAPACK_ENABLED
+      if (step_mem->DDE_ID == 1) // SUNDSOMEIGESTIMATOR_ARNOLDI
+      {
+        fprintf(fp, "  Krylov subspace dimension in DEE = %i\n",
+                step_mem->dee_krydim);
+      }
+#endif
+      if(step_mem->DDE_ID == 0) // SUNDSOMEIGESTIMATOR_POWER
+      {
+        fprintf(fp, "  Max. num. of iters in DEE = %i\n", step_mem->dee_maxiters);
+        fprintf(fp, "  Num. of cur. iters in DEE = %i\n", step_mem->dee_curniter);
+        fprintf(fp, "  Num. of tot. iters in DEE = %li\n", step_mem->dee_niters);
+        fprintf(fp, "           Tolerance in DEE = " SUN_FORMAT_G "\n", step_mem->dee_tol);
+        fprintf(fp, "    Current residual in DEE = " SUN_FORMAT_G "\n", step_mem->dee_res);
+      }
+    }
+
     fprintf(fp, "  Current spectral radius = " SUN_FORMAT_G "\n",
             step_mem->spectral_radius);
     fprintf(fp, "  Safety factor for the dom eig = " SUN_FORMAT_G "\n",

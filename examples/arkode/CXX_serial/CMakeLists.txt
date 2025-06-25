@@ -46,6 +46,10 @@ if(BUILD_CVODE)
   list(APPEND ARKODE_headers "ark_advection_diffusion_reaction.hpp")
 endif()
 
+if(ENABLE_LAPACK)
+  list(APPEND ARKODE_examples "ark_heat2D_lsrk_internal_domeig.cpp\;\;exclude-single")
+endif()
+
 # Auxiliary files to install
 set(ARKODE_extras plot_heat2D.py plot_sol.py)
 

@@ -30,10 +30,6 @@
 extern "C" {
 #endif
 
-/* Default Arnoldi Iteration parameters */
-#define SUNDOMEIGEST_ARN_KRYLDIM_DEFAULT 3
-#define SUNDOMEIGEST_LAPACK_FAIL         "Error: LAPACK dgeev failed with info = %d\n"
-
 /* -----------------------------------------------------
  * Arnoldi Iteration Implementation of SUNDomEigEstimator
  * ----------------------------------------------------- */

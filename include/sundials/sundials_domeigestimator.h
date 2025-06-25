@@ -33,6 +33,14 @@ extern "C" {
 /* Default estimator parameters */
 #define DEE_NUM_OF_WARMUPS_DEFAULT 0
 
+/* Default Power Iteration parameters */
+#define DEE_TOL_DEFAULT      SUN_RCONST(0.01)
+#define DEE_MAX_ITER_DEFAULT 100
+
+/* Default Arnoldi Iteration parameters */
+#define DEE_KRYLOV_DIM_DEFAULT 3
+#define DEE_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
+
 /* -----------------------------------------------------------------
  * Implemented SUNDomEigEstimator types
  * ----------------------------------------------------------------- */
