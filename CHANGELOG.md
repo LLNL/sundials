@@ -1,6 +1,7 @@
 # SUNDIALS Changelog
 
-## Changes to SUNDIALS in release 7.5.0
+=======
+## Changes to SUNDIALS in release X.Y.Z
 
 ### Major Features
 
@@ -11,6 +12,16 @@ longer need to provide dominant eigenvalue estimates manually. This module is
 standalone and can also be used for other purposes. Currently available methods
 include Power Iteration (PI) and Arnoldi Iteration (ArnI). The latter requires
 enabling the LAPACK library, while PI is available without any additional flags.
+
+### New Features and Enhancements
+
+### Bug Fixes
+
+The shared library version numbers for the oneMKL dense linear solver and
+matrix as well as the PETSc SNES nonlinear solver have been corrected.
+
+### Deprecation Notices
+
 
 ## Changes to SUNDIALS in release 7.4.0
 
