@@ -146,6 +146,7 @@ SUNDIALS_EXPORT int CVodeClearStopTime(void* cvode_mem);
 SUNDIALS_EXPORT int CVodeSetUseIntegratorFusedKernels(void* cvode_mem,
                                                       sunbooleantype onoff);
 SUNDIALS_EXPORT int CVodeSetUserData(void* cvode_mem, void* user_data);
+SUNDIALS_EXPORT int CVodeSetOwnUserData(void* cvode_mem, sunbooleantype own_user_data);
 
 /* Optional step adaptivity input functions */
 SUNDIALS_EXPORT

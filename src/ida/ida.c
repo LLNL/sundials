@@ -1718,6 +1718,8 @@ void IDAFree(void** ida_mem)
     IDA_mem->ida_gactive = NULL;
   }
 
+  if (IDA_mem->ida_own_user_data) { free(IDA_mem->ida_user_data); }
+
   free(*ida_mem);
   *ida_mem = NULL;
 }

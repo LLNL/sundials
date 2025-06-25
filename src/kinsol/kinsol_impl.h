@@ -78,6 +78,7 @@ typedef struct KINMemRec
 
   KINSysFn kin_func;         /* nonlinear system function implementation     */
   void* kin_user_data;       /* work space available to func routine         */
+  sunbooleantype kin_own_user_data; /* SUNTRUE if we own user_data and should free it */
   sunrealtype kin_fnormtol;  /* stopping tolerance on L2-norm of function
                                   value                                        */
   sunrealtype kin_scsteptol; /* scaled step length tolerance                 */

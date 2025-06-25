@@ -804,6 +804,8 @@ void KINFree(void** kinmem)
 
   if (kin_mem->kin_lfree != NULL) { kin_mem->kin_lfree(kin_mem); }
 
+  if (kin_mem->kin_own_user_data) { free(kin_mem->kin_user_data); }
+
   free(*kinmem);
   *kinmem = NULL;
 }

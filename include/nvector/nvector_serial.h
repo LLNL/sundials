@@ -84,14 +84,14 @@ typedef struct _N_VectorContent_Serial* N_VectorContent_Serial;
  */
 
 SUNDIALS_EXPORT
-N_Vector N_VNewEmpty_Serial(sunindextype vec_length, SUNContext sunctx); // py::return_value_policy::reference
+N_Vector N_VNewEmpty_Serial(sunindextype vec_length, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-N_Vector N_VNew_Serial(sunindextype vec_length, SUNContext sunctx); // py::return_value_policy::reference
+N_Vector N_VNew_Serial(sunindextype vec_length, SUNContext sunctx);
 
 SUNDIALS_EXPORT
 N_Vector N_VMake_Serial(sunindextype vec_length, sunrealtype* v_data,
-                        SUNContext sunctx); // py::return_value_policy::reference
+                        SUNContext sunctx);
 
 SUNDIALS_EXPORT
 sunindextype N_VGetLength_Serial(N_Vector v);
@@ -106,10 +106,10 @@ SUNDIALS_EXPORT
 N_Vector_ID N_VGetVectorID_Serial(N_Vector v);
 
 SUNDIALS_EXPORT
-N_Vector N_VCloneEmpty_Serial(N_Vector w); // py::return_value_policy::reference
+N_Vector N_VCloneEmpty_Serial(N_Vector w);
 
 SUNDIALS_EXPORT
-N_Vector N_VClone_Serial(N_Vector w); // py::return_value_policy::reference
+N_Vector N_VClone_Serial(N_Vector w);
 
 SUNDIALS_EXPORT
 void N_VDestroy_Serial(N_Vector v);

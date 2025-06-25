@@ -109,6 +109,7 @@ SUNDIALS_EXPORT int KINSol(void* kinmem, N_Vector uu, int strategy,
 
 /* Optional input functions */
 SUNDIALS_EXPORT int KINSetUserData(void* kinmem, void* user_data);
+SUNDIALS_EXPORT int KINSetOwnUserData(void* kinmem, sunbooleantype own_user_data);
 SUNDIALS_EXPORT int KINSetDamping(void* kinmem, sunrealtype beta);
 SUNDIALS_EXPORT int KINSetMAA(void* kinmem, long int maa);
 SUNDIALS_EXPORT int KINSetOrthAA(void* kinmem, int orthaa);

@@ -381,7 +381,7 @@ struct ARKodeMemRec
 
   /* Problem specification data */
   void* user_data;               /* user ptr passed to supplied functions */
-  sunbooleantype own_user_data;  /* SUNTRUE if ark_mem owns user_data */
+  sunbooleantype own_user_data;  /* SUNTRUE if we own user_data and should free it */
   int itol;                      /* itol = ARK_SS (scalar, default),
                                          ARK_SV (vector),
                                          ARK_WF (user weight function)  */

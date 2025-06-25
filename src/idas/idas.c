@@ -4094,6 +4094,8 @@ void IDAFree(void** ida_mem)
   free(IDA_mem->ida_Zvecs);
   IDA_mem->ida_Zvecs = NULL;
 
+  if (IDA_mem->ida_own_user_data) { free(IDA_mem->ida_user_data); }
+
   free(*ida_mem);
   *ida_mem = NULL;
 }

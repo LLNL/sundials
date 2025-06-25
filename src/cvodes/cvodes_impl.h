@@ -231,10 +231,11 @@ typedef struct CVodeMemRec
     Problem Specification Data
     --------------------------*/
 
-  CVRhsFn cv_f;       /* y' = f(t,y(t))                                */
-  void* cv_user_data; /* user pointer passed to f                      */
-  int cv_lmm;         /* lmm = CV_ADAMS or CV_BDF                      */
-  int cv_itol;        /* itol = CV_SS, CV_SV, CV_WF, CV_NN             */
+  CVRhsFn cv_f;                     /* y' = f(t,y(t))                                */
+  void* cv_user_data;               /* user pointer passed to f                      */
+  sunbooleantype cv_own_user_data;  /* SUNTRUE if we own user_data and should free it */
+  int cv_lmm;                       /* lmm = CV_ADAMS or CV_BDF                      */
+  int cv_itol;                      /* itol = CV_SS, CV_SV, CV_WF, CV_NN             */
 
   sunrealtype cv_reltol;  /* relative tolerance                            */
   sunrealtype cv_Sabstol; /* scalar absolute tolerance                     */

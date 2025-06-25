@@ -4453,6 +4453,8 @@ void CVodeFree(void** cvode_mem)
 
   if (cv_mem->proj_mem) { cvProjFree(&(cv_mem->proj_mem)); }
 
+  if (cv_mem->cv_own_user_data) { free(cv_mem->cv_user_data); }
+
   free(*cvode_mem);
   *cvode_mem = NULL;
 }
