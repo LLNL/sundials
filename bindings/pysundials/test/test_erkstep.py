@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from pysundials.core import *
 from pysundials.arkode import *
-from analytic_ode_problem import *
+from ode_problems import AnalyticODE
 
 
 def test_erkstep_with_postprocess():
@@ -14,10 +14,10 @@ def test_erkstep_with_postprocess():
     arr = N_VGetArrayPointer(nv.get())
     arr[0] = 0.0
 
-    ode_problem = AnalyticODEProblem()
+    ode_problem = AnalyticODE()
 
     def rhs(t, y, ydot, _):
-        return ode_problem.rhs(t, y, ydot)
+        return ode_problem.f(t, y, ydot)
 
     postprocess_called = {"count": 0}
 
@@ -43,10 +43,10 @@ def test_erkstep():
     arr = N_VGetArrayPointer(nv.get())
     arr[0] = 0.0
 
-    ode_problem = AnalyticODEProblem()
+    ode_problem = AnalyticODE()
 
     def rhs(t, y, ydot, _):
-        return ode_problem.rhs(t, y, ydot)
+        return ode_problem.f(t, y, ydot)
 
     erk = ARKodeView.Create(ERKStepCreate(rhs, 0, nv.get(), sunctx.get()))
     status = ARKodeSStolerances(erk.get(), 1e-6, 1e-6)

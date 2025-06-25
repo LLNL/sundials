@@ -3,7 +3,7 @@
 import numpy as np
 from pysundials.core import *
 from pysundials.arkode import *
-from analytic_ode_problem import AnalyticIMEXODEProblem
+from ode_problems import AnalyticIMEXODE
 
 
 def test_explicit():
@@ -15,7 +15,7 @@ def test_explicit():
     arr = N_VGetArrayPointer(nv.get())
     arr[0] = 0.0  # set initial condition
 
-    ode_problem = AnalyticIMEXODEProblem()
+    ode_problem = AnalyticIMEXODE()
     ark = ARKodeView.Create(
         ARKStepCreate(
             lambda t, y, ydot, _: ode_problem.fe(t, y, ydot), None, 0, nv.get(), sunctx.get()
@@ -37,7 +37,7 @@ def test_implicit():
     arr = N_VGetArrayPointer(nv.get())
     arr[0] = 0.0  # set initial condition
 
-    ode_problem = AnalyticIMEXODEProblem()
+    ode_problem = AnalyticIMEXODE()
     ark = ARKodeView.Create(
         ARKStepCreate(
             None, lambda t, y, ydot, _: ode_problem.fe(t, y, ydot), 0, nv.get(), sunctx.get()
@@ -61,7 +61,7 @@ def test_imex():
     arr = N_VGetArrayPointer(nv.get())
     arr[0] = 0.0  # set initial condition
 
-    ode_problem = AnalyticIMEXODEProblem()
+    ode_problem = AnalyticIMEXODE()
     ark = ARKodeView.Create(
         ARKStepCreate(
             lambda t, y, ydot, _: ode_problem.fe(t, y, ydot),
