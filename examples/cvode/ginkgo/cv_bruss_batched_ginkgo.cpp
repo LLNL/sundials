@@ -763,8 +763,8 @@ void PrintFinalStats(void* cvode_mem, SUNLinearSolver LS)
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje  = %ld\n", nst, nfe,
          nsetups, nje);
-  printf("nni = %-6ld ncfn = %-6ld nli     = %-6ld netf = %-6ld\n \n", nni, ncfn, nli,
-         netf);
+  printf("nni = %-6ld ncfn = %-6ld nli     = %-6ld netf = %-6ld\n \n", nni,
+         ncfn, nli, netf);
 }
 
 /*

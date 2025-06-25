@@ -769,7 +769,8 @@ int main(int argc, char* argv[])
  * Implementation-specific 'check' routines                                   *
  * -------------------------------------------------------------------------- */
 
-extern "C" int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
+extern "C" int check_vector(N_Vector expected, N_Vector actual,
+                            sunrealtype check_tol)
 {
   int failure{0};
 

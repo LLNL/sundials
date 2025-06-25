@@ -1,7 +1,7 @@
 #include <cmath>
 
-#include <sundials/sundials_core.hpp>
 #include <sundials/priv/sundials_logger_impl.h>
+#include <sundials/sundials_core.hpp>
 
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <sunmatrix/sunmatrix_ginkgoblock.hpp>
@@ -179,7 +179,7 @@ public:
     : BlockLinearSolver(gko_exec, gko::batch::stop::tolerance_type::absolute,
                         precon_factory, max_iters, num_blocks, sunctx)
   {}
-  
+
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     gko::batch::stop::tolerance_type tolerance_type,
@@ -188,7 +188,7 @@ public:
     : BlockLinearSolver(gko_exec, tolerance_type, precon_factory,
                         default_max_iters_, num_blocks, sunctx)
   {}
-  
+
   /// Get the ``gko::Executor`` associated with the Ginkgo matrix
   std::shared_ptr<const gko::Executor> GkoExec() const { return gko_exec_; }
 
@@ -205,20 +205,20 @@ public:
 
   /// Explicit conversion to a :c:type:`SUNLinearSolver`
   SUNLinearSolver Convert() const override { return object_.get(); }
-  
+
   /// Get the underlying Ginkgo solver
   /// \note This will be `nullptr` until the linear solver setup phase.
   GkoBatchSolverType* GkoSolver() { return gko_solver_.get(); }
 
   /// Average number of iterations across the batches during the last solve.
   sunrealtype AvgNumIters() const { return avg_iter_count_; }
-  
+
   /// Standard deviation of the number of iterations across the batches during the last solve.
   sunrealtype StddevNumIters() const { return stddev_iter_count_; }
-  
+
   /// Running sum of the average number of iterations in this solvers lifetime.
   sunrealtype SumAvgNumIters() const { return sum_of_avg_iters_; }
-  
+
   /// Sets the left and right scaling vectors to be used.
   void setScalingVectors(N_Vector s1, N_Vector s2)
   {
@@ -423,7 +423,8 @@ private:
     object_->ops->setscalingvectors =
       impl::SUNLinSolSetScalingVectors_GinkgoBlock<this_type>;
     object_->ops->initialize = impl::SUNLinSolInitialize_GinkgoBlock<this_type>;
-    object_->ops->setup = impl::SUNLinSolSetup_GinkgoBlock<this_type, GkoBatchMatType>;
+    object_->ops->setup =
+      impl::SUNLinSolSetup_GinkgoBlock<this_type, GkoBatchMatType>;
     object_->ops->solve    = impl::SUNLinSolSolve_GinkgoBlock<this_type>;
     object_->ops->free     = impl::SUNLinSolFree_GinkgoBlock<this_type>;
     object_->ops->numiters = impl::SUNLinSolNumIters_GinkgoBlock<this_type>;

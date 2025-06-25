@@ -325,10 +325,11 @@ int main(int argc, char* argv[])
       using GkoBatchMatrixType = gko::batch::matrix::Csr<sunrealtype>;
       using SUNGkoLinearSolverType =
         BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
-      LS = std::make_unique<
-        SUNGkoLinearSolverType>(gko_exec,
-                                 gko::batch::stop::tolerance_type::absolute,
-                                 precond_factory, num_blocks, sunctx);
+      LS =
+        std::make_unique<SUNGkoLinearSolverType>(gko_exec,
+                                                 gko::batch::stop::tolerance_type::absolute,
+                                                 precond_factory, num_blocks,
+                                                 sunctx);
     }
     else if (matrix_type == "dense")
     {
@@ -337,8 +338,8 @@ int main(int argc, char* argv[])
         BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
       LS =
         std::make_unique<SUNGkoLinearSolverType>(gko_exec,
-                                                  gko::batch::stop::tolerance_type::absolute,
-                                                  nullptr, num_blocks, sunctx);
+                                                 gko::batch::stop::tolerance_type::absolute,
+                                                 nullptr, num_blocks, sunctx);
     }
   }
 
@@ -356,7 +357,6 @@ int main(int argc, char* argv[])
   fails += Test_SUNLinSolSetup(LS->Convert(), A->Convert(), 0);
   fails += Test_SUNLinSolSolve(LS->Convert(), A->Convert(), x, b,
                                solve_tolerance, SUNTRUE, 0);
-
 
   /* Print result */
   if (fails)
