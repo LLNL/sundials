@@ -430,6 +430,7 @@ void* IDACreate(SUNContext sunctx)
   /* Set default values for integrator optional inputs */
   IDA_mem->ida_res            = NULL;
   IDA_mem->ida_user_data      = NULL;
+  IDA_mem->ida_own_user_data  = SUNFALSE;
   IDA_mem->ida_itol           = IDA_NN;
   IDA_mem->ida_atolmin0       = SUNTRUE;
   IDA_mem->ida_user_efun      = SUNFALSE;

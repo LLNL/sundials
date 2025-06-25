@@ -243,6 +243,7 @@ void* KINCreate(SUNContext sunctx)
 
   kin_mem->kin_func             = NULL;
   kin_mem->kin_user_data        = NULL;
+  kin_mem->kin_own_user_data    = SUNFALSE;
   kin_mem->kin_uu               = NULL;
   kin_mem->kin_unew             = NULL;
   kin_mem->kin_fval             = NULL;
