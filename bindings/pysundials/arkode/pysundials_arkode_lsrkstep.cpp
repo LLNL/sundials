@@ -50,7 +50,7 @@ void bind_arkode_lsrkstep(nb::module_& m)
         free(cb_fns);
         throw std::runtime_error("Failed to set user data ownership in LSRKStep memory");
       }
-      cb_fns->lsrkstep_rhs = nb::cast(rhs);
+      cb_fns->lsrkstep_f = nb::cast(rhs);
       return ark_mem;
     },
     nb::arg("rhs"), nb::arg("t0"), nb::arg("y0"), nb::arg("sunctx"));
@@ -78,7 +78,7 @@ void bind_arkode_lsrkstep(nb::module_& m)
         free(cb_fns);
         throw std::runtime_error("Failed to set user data ownership in LSRKStep memory");
       }
-      cb_fns->lsrkstep_rhs = nb::cast(rhs);
+      cb_fns->lsrkstep_f = nb::cast(rhs);
       return ark_mem;
     },
     nb::arg("rhs"), nb::arg("t0"), nb::arg("y0"), nb::arg("sunctx"));

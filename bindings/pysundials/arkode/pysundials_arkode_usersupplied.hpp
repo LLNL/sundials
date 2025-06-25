@@ -71,9 +71,9 @@ struct arkode_user_supplied_fn_table
   // sprkstep-specific user-supplied function pointers
   nb::object sprkstep_f1;
   nb::object sprkstep_f2;
-
+  
   // lsrkstep-specific user-supplied function pointers
-  nb::object lsrkstep_rhs;
+  nb::object lsrkstep_f;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -366,7 +366,7 @@ inline int lsrkstep_rhs_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKRhsFn>,
-    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsrkstep_rhs,
+    arkode_user_supplied_fn_table>(&arkode_user_supplied_fn_table::lsrkstep_f,
                                    t, y, ydot, user_data);
 }
 
