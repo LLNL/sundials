@@ -62,7 +62,7 @@ constexpr auto N_VNew = N_VNew_Serial;
 
 using namespace sundials::ginkgo;
 
-const std::unordered_map<std::string, int> methods{{"bicgstab", 0}, {"cg", 1}};
+const std::unordered_map<std::string, int> methods{{"bicgstab", 0}};
 const std::unordered_map<std::string, int> matrix_types{{"csr", 0}, {"dense", 1}};
 
 constexpr sunrealtype solve_tolerance =
@@ -335,33 +335,6 @@ int main(int argc, char* argv[])
       using GkoBatchMatrixType = gko::batch::matrix::Dense<sunrealtype>;
       using SUNLinearSolverViewType =
         BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
-      LS =
-        std::make_unique<SUNLinearSolverViewType>(gko_exec,
-                                                  gko::batch::stop::tolerance_type::absolute,
-                                                  nullptr, num_blocks, sunctx);
-    }
-  }
-  else if (method == "cg")
-  {
-    using GkoSolverType = gko::batch::solver::Cg<sunrealtype>;
-    if (matrix_type == "csr")
-    {
-      using GkoBatchMatrixType = gko::batch::matrix::Csr<sunrealtype>;
-      using SUNLinearSolverViewType =
-        BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
-      LS = std::make_unique<
-        SUNLinearSolverViewType>(gko_exec,
-                                 gko::batch::stop::tolerance_type::absolute,
-                                 precond_factory, num_blocks, sunctx);
-    }
-    else if (matrix_type == "dense")
-    {
-      using GkoBatchMatrixType = gko::batch::matrix::Dense<sunrealtype>;
-      using SUNLinearSolverViewType =
-        BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
-
-      // Ginkgo does not support the batched Jacobi preconditioner
-      // with the Dense batch matrix format, at least for ginkgo <= 1.9.0.
       LS =
         std::make_unique<SUNLinearSolverViewType>(gko_exec,
                                                   gko::batch::stop::tolerance_type::absolute,
