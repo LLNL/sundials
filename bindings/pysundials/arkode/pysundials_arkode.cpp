@@ -17,6 +17,7 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
 #include <nanobind/stl/optional.h>
+#include <nanobind/stl/tuple.h>
 
 #include <sundials/sundials_core.hpp>
 
@@ -47,9 +48,10 @@ void bind_arkode(nb::module_& m)
     .def("get", nb::overload_cast<>(&ARKodeView::get, nb::const_),
          nb::rv_policy::reference);
 
-  //
-  // ARKode function pointer setters
-  //
+  /////////////////////////////////////////////////////////////////////////////
+  // ARKODE user-supplied function setters
+  /////////////////////////////////////////////////////////////////////////////
+
   m.def("ARKodeSetPostprocessStepFn",
         [](void* ark_mem, std::function<std::remove_pointer_t<ARKPostProcessFn>> fn)
         {

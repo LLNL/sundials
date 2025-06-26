@@ -39,6 +39,7 @@ modules:
     fn_exclude_by_name__regex:
     - "CVodeInit"
     # nanobind doesnt support **
+    - "CVodeComputeStateSens"
     - "CVodeGetCurrentState" 
     - "CVodeGetJac" 
     - "CVodeGetQuadSens"
@@ -51,11 +52,10 @@ modules:
     - "CVodeQuadSensReInit"
     - "CVodeQuadSensSVtolerances"
     - "CVodeResizeHistory"
-    - "CVodeSensSVtolerances"
-    - "CVodeSensReInit"
     - "CVodeSensInit"
     - "CVodeSensInit1"
-    - "CVodeComputeStateSens"
+    - "CVodeSensReInit"
+    - "CVodeSensSVtolerances"
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
     - "CVodeGetUserData" 
     - "CVodeSetUserData" 
