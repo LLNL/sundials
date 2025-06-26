@@ -34,9 +34,8 @@ SUNDIALS_EXPORT int CVBandPrecInit(void* cvode_mem, sunindextype N,
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int CVBandPrecGetWorkSpace(void* cvode_mem, long int* lenrwLS, long int* leniwLS);
-SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void* cvode_mem,
-                                             long int* nfevalsBP);
+int CVBandPrecGetWorkSpace(void* cvode_mem, long* lenrwLS, long* leniwLS);
+SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void* cvode_mem, long* nfevalsBP);
 
 #ifdef __cplusplus
 }

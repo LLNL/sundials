@@ -125,7 +125,7 @@ struct _generic_SUNLinearSolver_Ops
   int (*numiters)(SUNLinearSolver);
   sunrealtype (*resnorm)(SUNLinearSolver);
   sunindextype (*lastflag)(SUNLinearSolver);
-  SUNErrCode (*space)(SUNLinearSolver, long int*, long int*);
+  SUNErrCode (*space)(SUNLinearSolver, long*, long*);
   N_Vector (*resid)(SUNLinearSolver);
   SUNErrCode (*free)(SUNLinearSolver);
 };
@@ -181,7 +181,7 @@ SUNDIALS_EXPORT
 int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
                    sunrealtype tol);
 
-/* TODO(CJB): We should consider changing the return type to long int since
+/* TODO(CJB): We should consider changing the return type to long since
  batched solvers could in theory return a very large number here. */
 SUNDIALS_EXPORT
 int SUNLinSolNumIters(SUNLinearSolver S);
@@ -199,8 +199,7 @@ sunindextype SUNLinSolLastFlag(SUNLinearSolver S);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS,
-                          long int* leniwLS);
+SUNErrCode SUNLinSolSpace(SUNLinearSolver S, long* lenrwLS, long* leniwLS);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNLinSolFree(SUNLinearSolver S);

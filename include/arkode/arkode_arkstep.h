@@ -96,10 +96,11 @@ SUNDIALS_EXPORT int ARKStepSetTableName(void* arkode_mem, const char* itable,
 SUNDIALS_EXPORT int ARKStepGetCurrentButcherTables(void* arkode_mem,
                                                    ARKodeButcherTable* Bi,
                                                    ARKodeButcherTable* Be);
-SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
-  void* arkode_mem, long int* expsteps, long int* accsteps,
-  long int* step_attempts, long int* nfe_evals, long int* nfi_evals,
-  long int* nlinsetups, long int* netfails);
+SUNDIALS_EXPORT int ARKStepGetTimestepperStats(void* arkode_mem, long* expsteps,
+                                               long* accsteps,
+                                               long* step_attempts,
+                                               long* nfe_evals, long* nfi_evals,
+                                               long* nlinsetups, long* netfails);
 
 /* Adjoint solver functions */
 SUNDIALS_EXPORT

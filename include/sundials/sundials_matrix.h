@@ -94,7 +94,7 @@ struct _generic_SUNMatrix_Ops
   SUNErrCode (*matvecsetup)(SUNMatrix);
   SUNErrCode (*matvec)(SUNMatrix, N_Vector, N_Vector);
   SUNErrCode (*mathermitiantransposevec)(SUNMatrix, N_Vector, N_Vector);
-  SUNErrCode (*space)(SUNMatrix, long int*, long int*);
+  SUNErrCode (*space)(SUNMatrix, long*, long*);
 };
 
 /* A matrix is a structure with an implementation-dependent
@@ -152,7 +152,7 @@ SUNErrCode SUNMatHermitianTransposeVec(SUNMatrix A, N_Vector x, N_Vector y);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNMatSpace(SUNMatrix A, long int* lenrw, long int* leniw);
+SUNErrCode SUNMatSpace(SUNMatrix A, long* lenrw, long* leniw);
 
 #ifdef __cplusplus
 }

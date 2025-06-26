@@ -81,8 +81,8 @@ SUNErrCode SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C,
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNAdaptController_Space_ImExGus(SUNAdaptController C,
-                                            long int* lenrw, long int* leniw);
+SUNErrCode SUNAdaptController_Space_ImExGus(SUNAdaptController C, long* lenrw,
+                                            long* leniw);
 
 #ifdef __cplusplus
 }

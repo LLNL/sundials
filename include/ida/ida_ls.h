@@ -98,20 +98,20 @@ SUNDIALS_EXPORT int IDASetIncrementFactor(void* ida_mem, sunrealtype dqincfac);
 SUNDIALS_EXPORT int IDAGetJac(void* ida_mem, SUNMatrix* J);
 SUNDIALS_EXPORT int IDAGetJacCj(void* ida_mem, sunrealtype* cj_J);
 SUNDIALS_EXPORT int IDAGetJacTime(void* ida_mem, sunrealtype* t_J);
-SUNDIALS_EXPORT int IDAGetJacNumSteps(void* ida_mem, long int* nst_J);
+SUNDIALS_EXPORT int IDAGetJacNumSteps(void* ida_mem, long* nst_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int IDAGetLinWorkSpace(void* ida_mem, long int* lenrwLS, long int* leniwLS);
-SUNDIALS_EXPORT int IDAGetNumJacEvals(void* ida_mem, long int* njevals);
-SUNDIALS_EXPORT int IDAGetNumPrecEvals(void* ida_mem, long int* npevals);
-SUNDIALS_EXPORT int IDAGetNumPrecSolves(void* ida_mem, long int* npsolves);
-SUNDIALS_EXPORT int IDAGetNumLinIters(void* ida_mem, long int* nliters);
-SUNDIALS_EXPORT int IDAGetNumLinConvFails(void* ida_mem, long int* nlcfails);
-SUNDIALS_EXPORT int IDAGetNumJTSetupEvals(void* ida_mem, long int* njtsetups);
-SUNDIALS_EXPORT int IDAGetNumJtimesEvals(void* ida_mem, long int* njvevals);
-SUNDIALS_EXPORT int IDAGetNumLinResEvals(void* ida_mem, long int* nrevalsLS);
-SUNDIALS_EXPORT int IDAGetLastLinFlag(void* ida_mem, long int* flag);
-SUNDIALS_EXPORT char* IDAGetLinReturnFlagName(long int flag);
+int IDAGetLinWorkSpace(void* ida_mem, long* lenrwLS, long* leniwLS);
+SUNDIALS_EXPORT int IDAGetNumJacEvals(void* ida_mem, long* njevals);
+SUNDIALS_EXPORT int IDAGetNumPrecEvals(void* ida_mem, long* npevals);
+SUNDIALS_EXPORT int IDAGetNumPrecSolves(void* ida_mem, long* npsolves);
+SUNDIALS_EXPORT int IDAGetNumLinIters(void* ida_mem, long* nliters);
+SUNDIALS_EXPORT int IDAGetNumLinConvFails(void* ida_mem, long* nlcfails);
+SUNDIALS_EXPORT int IDAGetNumJTSetupEvals(void* ida_mem, long* njtsetups);
+SUNDIALS_EXPORT int IDAGetNumJtimesEvals(void* ida_mem, long* njvevals);
+SUNDIALS_EXPORT int IDAGetNumLinResEvals(void* ida_mem, long* nrevalsLS);
+SUNDIALS_EXPORT int IDAGetLastLinFlag(void* ida_mem, long* flag);
+SUNDIALS_EXPORT char* IDAGetLinReturnFlagName(long flag);
 
 #ifdef __cplusplus
 }

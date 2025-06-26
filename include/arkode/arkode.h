@@ -250,7 +250,7 @@ SUNDIALS_EXPORT int ARKodeSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetOrder(void* arkode_mem, int maxord);
 SUNDIALS_EXPORT int ARKodeSetInterpolantType(void* arkode_mem, int itype);
 SUNDIALS_EXPORT int ARKodeSetInterpolantDegree(void* arkode_mem, int degree);
-SUNDIALS_EXPORT int ARKodeSetMaxNumSteps(void* arkode_mem, long int mxsteps);
+SUNDIALS_EXPORT int ARKodeSetMaxNumSteps(void* arkode_mem, long mxsteps);
 SUNDIALS_EXPORT int ARKodeSetInterpolateStopTime(void* arkode_mem,
                                                  sunbooleantype interp);
 SUNDIALS_EXPORT int ARKodeSetStopTime(void* arkode_mem, sunrealtype tstop);
@@ -335,103 +335,90 @@ SUNDIALS_EXPORT int ARKodeComputeState(void* arkode_mem, N_Vector zcor,
 
 /* Optional output functions (general) */
 SUNDIALS_EXPORT int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index,
-                                         long int* num_rhs_evals);
+                                         long* num_rhs_evals);
 SUNDIALS_EXPORT int ARKodeGetNumStepAttempts(void* arkode_mem,
-                                             long int* step_attempts);
+                                             long* step_attempts);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int ARKodeGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
-SUNDIALS_EXPORT int ARKodeGetNumSteps(void* arkode_mem, long int* nsteps);
+int ARKodeGetWorkSpace(void* arkode_mem, long* lenrw, long* leniw);
+SUNDIALS_EXPORT int ARKodeGetNumSteps(void* arkode_mem, long* nsteps);
 SUNDIALS_EXPORT int ARKodeGetLastStep(void* arkode_mem, sunrealtype* hlast);
 SUNDIALS_EXPORT int ARKodeGetCurrentStep(void* arkode_mem, sunrealtype* hcur);
 SUNDIALS_EXPORT int ARKodeGetStepDirection(void* arkode_mem,
                                            sunrealtype* stepdir);
 SUNDIALS_EXPORT int ARKodeGetErrWeights(void* arkode_mem, N_Vector eweight);
-SUNDIALS_EXPORT int ARKodeGetNumGEvals(void* arkode_mem, long int* ngevals);
+SUNDIALS_EXPORT int ARKodeGetNumGEvals(void* arkode_mem, long* ngevals);
 SUNDIALS_EXPORT int ARKodeGetRootInfo(void* arkode_mem, int* rootsfound);
 SUNDIALS_EXPORT int ARKodeGetUserData(void* arkode_mem, void** user_data);
 SUNDIALS_EXPORT int ARKodePrintAllStats(void* arkode_mem, FILE* outfile,
                                         SUNOutputFormat fmt);
-SUNDIALS_EXPORT char* ARKodeGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT char* ARKodeGetReturnFlagName(long flag);
 SUNDIALS_EXPORT int ARKodeWriteParameters(void* arkode_mem, FILE* fp);
 
 /* Optional output functions (temporal adaptivity) */
-SUNDIALS_EXPORT int ARKodeGetNumExpSteps(void* arkode_mem, long int* expsteps);
-SUNDIALS_EXPORT int ARKodeGetNumAccSteps(void* arkode_mem, long int* accsteps);
-SUNDIALS_EXPORT int ARKodeGetNumErrTestFails(void* arkode_mem,
-                                             long int* netfails);
+SUNDIALS_EXPORT int ARKodeGetNumExpSteps(void* arkode_mem, long* expsteps);
+SUNDIALS_EXPORT int ARKodeGetNumAccSteps(void* arkode_mem, long* accsteps);
+SUNDIALS_EXPORT int ARKodeGetNumErrTestFails(void* arkode_mem, long* netfails);
 SUNDIALS_EXPORT int ARKodeGetEstLocalErrors(void* arkode_mem, N_Vector ele);
 SUNDIALS_EXPORT int ARKodeGetActualInitStep(void* arkode_mem,
                                             sunrealtype* hinused);
 SUNDIALS_EXPORT int ARKodeGetTolScaleFactor(void* arkode_mem,
                                             sunrealtype* tolsfac);
-SUNDIALS_EXPORT int ARKodeGetNumConstrFails(void* arkode_mem,
-                                            long int* nconstrfails);
-SUNDIALS_EXPORT int ARKodeGetStepStats(void* arkode_mem, long int* nsteps,
+SUNDIALS_EXPORT int ARKodeGetNumConstrFails(void* arkode_mem, long* nconstrfails);
+SUNDIALS_EXPORT int ARKodeGetStepStats(void* arkode_mem, long* nsteps,
                                        sunrealtype* hinused, sunrealtype* hlast,
                                        sunrealtype* hcur, sunrealtype* tcur);
 SUNDIALS_EXPORT int ARKodeGetAccumulatedError(void* arkode_mem,
                                               sunrealtype* accum_error);
 
 /* Optional output functions (implicit solver) */
-SUNDIALS_EXPORT int ARKodeGetNumLinSolvSetups(void* arkode_mem,
-                                              long int* nlinsetups);
+SUNDIALS_EXPORT int ARKodeGetNumLinSolvSetups(void* arkode_mem, long* nlinsetups);
 SUNDIALS_EXPORT int ARKodeGetCurrentTime(void* arkode_mem, sunrealtype* tcur);
 SUNDIALS_EXPORT int ARKodeGetCurrentState(void* arkode_mem, N_Vector* state);
 SUNDIALS_EXPORT int ARKodeGetCurrentGamma(void* arkode_mem, sunrealtype* gamma);
 SUNDIALS_EXPORT int ARKodeGetNonlinearSystemData(
   void* arkode_mem, sunrealtype* tcur, N_Vector* zpred, N_Vector* z,
   N_Vector* Fi, sunrealtype* gamma, N_Vector* sdata, void** user_data);
-SUNDIALS_EXPORT int ARKodeGetNumNonlinSolvIters(void* arkode_mem,
-                                                long int* nniters);
+SUNDIALS_EXPORT int ARKodeGetNumNonlinSolvIters(void* arkode_mem, long* nniters);
 SUNDIALS_EXPORT int ARKodeGetNumNonlinSolvConvFails(void* arkode_mem,
-                                                    long int* nnfails);
-SUNDIALS_EXPORT int ARKodeGetNonlinSolvStats(void* arkode_mem, long int* nniters,
-                                             long int* nnfails);
-SUNDIALS_EXPORT int ARKodeGetNumStepSolveFails(void* arkode_mem,
-                                               long int* nncfails);
+                                                    long* nnfails);
+SUNDIALS_EXPORT int ARKodeGetNonlinSolvStats(void* arkode_mem, long* nniters,
+                                             long* nnfails);
+SUNDIALS_EXPORT int ARKodeGetNumStepSolveFails(void* arkode_mem, long* nncfails);
 SUNDIALS_EXPORT int ARKodeGetJac(void* arkode_mem, SUNMatrix* J);
 SUNDIALS_EXPORT int ARKodeGetJacTime(void* arkode_mem, sunrealtype* t_J);
-SUNDIALS_EXPORT int ARKodeGetJacNumSteps(void* arkode_mem, long int* nst_J);
+SUNDIALS_EXPORT int ARKodeGetJacNumSteps(void* arkode_mem, long* nst_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int ARKodeGetLinWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS);
-SUNDIALS_EXPORT int ARKodeGetNumJacEvals(void* arkode_mem, long int* njevals);
-SUNDIALS_EXPORT int ARKodeGetNumPrecEvals(void* arkode_mem, long int* npevals);
-SUNDIALS_EXPORT int ARKodeGetNumPrecSolves(void* arkode_mem, long int* npsolves);
-SUNDIALS_EXPORT int ARKodeGetNumLinIters(void* arkode_mem, long int* nliters);
-SUNDIALS_EXPORT int ARKodeGetNumLinConvFails(void* arkode_mem,
-                                             long int* nlcfails);
-SUNDIALS_EXPORT int ARKodeGetNumJTSetupEvals(void* arkode_mem,
-                                             long int* njtsetups);
-SUNDIALS_EXPORT int ARKodeGetNumJtimesEvals(void* arkode_mem, long int* njvevals);
-SUNDIALS_EXPORT int ARKodeGetNumLinRhsEvals(void* arkode_mem,
-                                            long int* nfevalsLS);
-SUNDIALS_EXPORT int ARKodeGetLastLinFlag(void* arkode_mem, long int* flag);
-SUNDIALS_EXPORT char* ARKodeGetLinReturnFlagName(long int flag);
+int ARKodeGetLinWorkSpace(void* arkode_mem, long* lenrwLS, long* leniwLS);
+SUNDIALS_EXPORT int ARKodeGetNumJacEvals(void* arkode_mem, long* njevals);
+SUNDIALS_EXPORT int ARKodeGetNumPrecEvals(void* arkode_mem, long* npevals);
+SUNDIALS_EXPORT int ARKodeGetNumPrecSolves(void* arkode_mem, long* npsolves);
+SUNDIALS_EXPORT int ARKodeGetNumLinIters(void* arkode_mem, long* nliters);
+SUNDIALS_EXPORT int ARKodeGetNumLinConvFails(void* arkode_mem, long* nlcfails);
+SUNDIALS_EXPORT int ARKodeGetNumJTSetupEvals(void* arkode_mem, long* njtsetups);
+SUNDIALS_EXPORT int ARKodeGetNumJtimesEvals(void* arkode_mem, long* njvevals);
+SUNDIALS_EXPORT int ARKodeGetNumLinRhsEvals(void* arkode_mem, long* nfevalsLS);
+SUNDIALS_EXPORT int ARKodeGetLastLinFlag(void* arkode_mem, long* flag);
+SUNDIALS_EXPORT char* ARKodeGetLinReturnFlagName(long flag);
 
 /* Optional output functions (non-identity mass matrices) */
 SUNDIALS_EXPORT int ARKodeGetCurrentMassMatrix(void* arkode_mem, SUNMatrix* M);
 SUNDIALS_EXPORT int ARKodeGetResWeights(void* arkode_mem, N_Vector rweight);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int ARKodeGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS,
-                           long int* leniwMLS);
-SUNDIALS_EXPORT int ARKodeGetNumMassSetups(void* arkode_mem, long int* nmsetups);
-SUNDIALS_EXPORT int ARKodeGetNumMassMultSetups(void* arkode_mem,
-                                               long int* nmvsetups);
-SUNDIALS_EXPORT int ARKodeGetNumMassMult(void* arkode_mem, long int* nmvevals);
-SUNDIALS_EXPORT int ARKodeGetNumMassSolves(void* arkode_mem, long int* nmsolves);
-SUNDIALS_EXPORT int ARKodeGetNumMassPrecEvals(void* arkode_mem,
-                                              long int* nmpevals);
-SUNDIALS_EXPORT int ARKodeGetNumMassPrecSolves(void* arkode_mem,
-                                               long int* nmpsolves);
-SUNDIALS_EXPORT int ARKodeGetNumMassIters(void* arkode_mem, long int* nmiters);
-SUNDIALS_EXPORT int ARKodeGetNumMassConvFails(void* arkode_mem,
-                                              long int* nmcfails);
-SUNDIALS_EXPORT int ARKodeGetNumMTSetups(void* arkode_mem, long int* nmtsetups);
-SUNDIALS_EXPORT int ARKodeGetLastMassFlag(void* arkode_mem, long int* flag);
+int ARKodeGetMassWorkSpace(void* arkode_mem, long* lenrwMLS, long* leniwMLS);
+SUNDIALS_EXPORT int ARKodeGetNumMassSetups(void* arkode_mem, long* nmsetups);
+SUNDIALS_EXPORT int ARKodeGetNumMassMultSetups(void* arkode_mem, long* nmvsetups);
+SUNDIALS_EXPORT int ARKodeGetNumMassMult(void* arkode_mem, long* nmvevals);
+SUNDIALS_EXPORT int ARKodeGetNumMassSolves(void* arkode_mem, long* nmsolves);
+SUNDIALS_EXPORT int ARKodeGetNumMassPrecEvals(void* arkode_mem, long* nmpevals);
+SUNDIALS_EXPORT int ARKodeGetNumMassPrecSolves(void* arkode_mem, long* nmpsolves);
+SUNDIALS_EXPORT int ARKodeGetNumMassIters(void* arkode_mem, long* nmiters);
+SUNDIALS_EXPORT int ARKodeGetNumMassConvFails(void* arkode_mem, long* nmcfails);
+SUNDIALS_EXPORT int ARKodeGetNumMTSetups(void* arkode_mem, long* nmtsetups);
+SUNDIALS_EXPORT int ARKodeGetLastMassFlag(void* arkode_mem, long* flag);
 
 /* Free function */
 SUNDIALS_EXPORT void ARKodeFree(void** arkode_mem);
@@ -451,17 +438,12 @@ SUNDIALS_EXPORT int ARKodeSetRelaxResTol(void* arkode_mem, sunrealtype res_tol);
 SUNDIALS_EXPORT int ARKodeSetRelaxTol(void* arkode_mem, sunrealtype rel_tol,
                                       sunrealtype abs_tol);
 SUNDIALS_EXPORT int ARKodeSetRelaxUpperBound(void* arkode_mem, sunrealtype upper);
-SUNDIALS_EXPORT int ARKodeGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals);
-SUNDIALS_EXPORT int ARKodeGetNumRelaxJacEvals(void* arkode_mem,
-                                              long int* J_evals);
-SUNDIALS_EXPORT int ARKodeGetNumRelaxFails(void* arkode_mem,
-                                           long int* relax_fails);
-SUNDIALS_EXPORT int ARKodeGetNumRelaxBoundFails(void* arkode_mem,
-                                                long int* fails);
-SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveFails(void* arkode_mem,
-                                                long int* fails);
-SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveIters(void* arkode_mem,
-                                                long int* iters);
+SUNDIALS_EXPORT int ARKodeGetNumRelaxFnEvals(void* arkode_mem, long* r_evals);
+SUNDIALS_EXPORT int ARKodeGetNumRelaxJacEvals(void* arkode_mem, long* J_evals);
+SUNDIALS_EXPORT int ARKodeGetNumRelaxFails(void* arkode_mem, long* relax_fails);
+SUNDIALS_EXPORT int ARKodeGetNumRelaxBoundFails(void* arkode_mem, long* fails);
+SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveFails(void* arkode_mem, long* fails);
+SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveIters(void* arkode_mem, long* iters);
 
 /* SUNStepper functions */
 SUNDIALS_EXPORT int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper);

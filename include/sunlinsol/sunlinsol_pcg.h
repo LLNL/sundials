@@ -123,8 +123,7 @@ sunindextype SUNLinSolLastFlag_PCG(SUNLinearSolver S);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNLinSolSpace_PCG(SUNLinearSolver S, long int* lenrwLS,
-                              long int* leniwLS);
+SUNErrCode SUNLinSolSpace_PCG(SUNLinearSolver S, long* lenrwLS, long* leniwLS);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNLinSolFree_PCG(SUNLinearSolver S);

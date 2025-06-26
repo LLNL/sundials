@@ -45,10 +45,10 @@ struct _SUNNonlinearSolverContent_Newton
   /* nonlinear solver variables */
   N_Vector delta; /* Newton update vector                                   */
   sunbooleantype jcur; /* Jacobian status, current = SUNTRUE / stale = SUNFALSE  */
-  int curiter;     /* current number of iterations in a solve attempt        */
-  int maxiters;    /* maximum number of iterations in a solve attempt        */
-  long int niters; /* total number of nonlinear iterations across all solves */
-  long int nconvfails; /* total number of convergence failures across all solves
+  int curiter;      /* current number of iterations in a solve attempt        */
+  int maxiters;     /* maximum number of iterations in a solve attempt        */
+  long niters;      /* total number of nonlinear iterations across all solves */
+  long nconvfails;  /* total number of convergence failures across all solves
                         */
   void* ctest_data; /* data to pass to convergence test function              */
 };
@@ -105,15 +105,14 @@ SUNErrCode SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters);
 
 /* get functions */
 SUNDIALS_EXPORT
-SUNErrCode SUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver NLS,
-                                          long int* niters);
+SUNErrCode SUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver NLS, long* niters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetCurIter_Newton(SUNNonlinearSolver NLS, int* iter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetNumConvFails_Newton(SUNNonlinearSolver NLS,
-                                              long int* nconvfails);
+                                              long* nconvfails);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS,

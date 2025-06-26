@@ -126,7 +126,7 @@ SUNDIALS_EXPORT SUNErrCode SUNMatHermitianTransposeVec_Band(SUNMatrix A,
                                                             N_Vector y);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNMatSpace_Band(SUNMatrix A, long int* lenrw, long int* leniw);
+SUNErrCode SUNMatSpace_Band(SUNMatrix A, long* lenrw, long* leniw);
 
 #ifdef __cplusplus
 }
