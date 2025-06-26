@@ -32,7 +32,18 @@ m.def("SUNLogger_Flush",
     SUNLogger_Flush, nb::arg("logger"), nb::arg("lvl"));
 
 m.def("SUNLogger_GetOutputRank",
-    SUNLogger_GetOutputRank, nb::arg("logger"), nb::arg("output_rank"));
+    [](SUNLogger logger, int output_rank) -> std::tuple<SUNErrCode, int>
+    {
+        auto SUNLogger_GetOutputRank_adapt_modifiable_immutable_to_return = [](SUNLogger logger, int output_rank) -> std::tuple<SUNErrCode, int>
+        {
+            int * output_rank_adapt_modifiable = & output_rank;
+
+            SUNErrCode r = SUNLogger_GetOutputRank(logger, output_rank_adapt_modifiable);
+            return std::make_tuple(r, output_rank);
+        };
+
+        return SUNLogger_GetOutputRank_adapt_modifiable_immutable_to_return(logger, output_rank);
+    },     nb::arg("logger"), nb::arg("output_rank"));
 // #ifdef __cplusplus 
 // #endif
 // 

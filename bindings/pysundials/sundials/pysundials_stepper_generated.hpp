@@ -33,7 +33,18 @@ m.def("SUNStepper_SetLastFlag",
     SUNStepper_SetLastFlag, nb::arg("stepper"), nb::arg("last_flag"));
 
 m.def("SUNStepper_GetLastFlag",
-    SUNStepper_GetLastFlag, nb::arg("stepper"), nb::arg("last_flag"));
+    [](SUNStepper stepper, int last_flag) -> std::tuple<SUNErrCode, int>
+    {
+        auto SUNStepper_GetLastFlag_adapt_modifiable_immutable_to_return = [](SUNStepper stepper, int last_flag) -> std::tuple<SUNErrCode, int>
+        {
+            int * last_flag_adapt_modifiable = & last_flag;
+
+            SUNErrCode r = SUNStepper_GetLastFlag(stepper, last_flag_adapt_modifiable);
+            return std::make_tuple(r, last_flag);
+        };
+
+        return SUNStepper_GetLastFlag_adapt_modifiable_immutable_to_return(stepper, last_flag);
+    },     nb::arg("stepper"), nb::arg("last_flag"));
 
 m.def("SUNStepper_GetNumSteps",
     SUNStepper_GetNumSteps, nb::arg("stepper"), nb::arg("nst"));

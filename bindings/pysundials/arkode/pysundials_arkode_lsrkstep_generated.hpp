@@ -35,7 +35,18 @@ m.def("LSRKStepSetNumSSPStages",
     LSRKStepSetNumSSPStages, nb::arg("arkode_mem"), nb::arg("num_of_stages"));
 
 m.def("LSRKStepGetNumDomEigUpdates",
-    LSRKStepGetNumDomEigUpdates, nb::arg("arkode_mem"), nb::arg("dom_eig_num_evals"));
+    [](void * arkode_mem, long dom_eig_num_evals) -> std::tuple<int, long>
+    {
+        auto LSRKStepGetNumDomEigUpdates_adapt_modifiable_immutable_to_return = [](void * arkode_mem, long dom_eig_num_evals) -> std::tuple<int, long>
+        {
+            long * dom_eig_num_evals_adapt_modifiable = & dom_eig_num_evals;
+
+            int r = LSRKStepGetNumDomEigUpdates(arkode_mem, dom_eig_num_evals_adapt_modifiable);
+            return std::make_tuple(r, dom_eig_num_evals);
+        };
+
+        return LSRKStepGetNumDomEigUpdates_adapt_modifiable_immutable_to_return(arkode_mem, dom_eig_num_evals);
+    },     nb::arg("arkode_mem"), nb::arg("dom_eig_num_evals"));
 
 m.def("LSRKStepGetMaxNumStages",
     [](void * arkode_mem, int stage_max) -> std::tuple<int, int>
