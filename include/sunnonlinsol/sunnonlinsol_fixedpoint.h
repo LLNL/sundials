@@ -56,12 +56,12 @@ struct _SUNNonlinearSolverContent_FixedPoint
   N_Vector gy;
   N_Vector fold;
   N_Vector gold;
-  N_Vector delta;      /* correction vector (change between 2 iterates)  */
-  int curiter;         /* current iteration number in a solve attempt    */
-  int maxiters;        /* maximum number of iterations per solve attempt */
-  long int niters;     /* total number of iterations across all solves   */
-  long int nconvfails; /* total number of convergence failures           */
-  void* ctest_data;    /* data to pass to convergence test function      */
+  N_Vector delta;   /* correction vector (change between 2 iterates)  */
+  int curiter;      /* current iteration number in a solve attempt    */
+  int maxiters;     /* maximum number of iterations per solve attempt */
+  long niters;      /* total number of iterations across all solves   */
+  long nconvfails;  /* total number of convergence failures           */
+  void* ctest_data; /* data to pass to convergence test function      */
 };
 
 typedef struct _SUNNonlinearSolverContent_FixedPoint* SUNNonlinearSolverContent_FixedPoint;
@@ -114,14 +114,14 @@ SUNErrCode SUNNonlinSolSetDamping_FixedPoint(SUNNonlinearSolver NLS,
 /* get functions */
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS,
-                                              long int* niters);
+                                              long* niters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetCurIter_FixedPoint(SUNNonlinearSolver NLS, int* iter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver NLS,
-                                                  long int* nconvfails);
+                                                  long* nconvfails);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS,

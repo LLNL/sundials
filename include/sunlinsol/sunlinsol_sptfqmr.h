@@ -107,8 +107,8 @@ SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNLinSolSpace_SPTFQMR(SUNLinearSolver S, long int* lenrwLS,
-                                  long int* leniwLS);
+SUNErrCode SUNLinSolSpace_SPTFQMR(SUNLinearSolver S, long* lenrwLS,
+                                  long* leniwLS);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolFree_SPTFQMR(SUNLinearSolver S);
 
 #ifdef __cplusplus

@@ -81,19 +81,19 @@ SUNDIALS_EXPORT int KINSetJacTimesVecFn(void* kinmem, KINLsJacTimesVecFn jtv);
   -----------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int KINGetJac(void* kinmem, SUNMatrix* J);
-SUNDIALS_EXPORT int KINGetJacNumIters(void* kinmem, long int* nni_J);
+SUNDIALS_EXPORT int KINGetJacNumIters(void* kinmem, long* nni_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int KINGetLinWorkSpace(void* kinmem, long int* lenrwLS, long int* leniwLS);
-SUNDIALS_EXPORT int KINGetNumJacEvals(void* kinmem, long int* njevals);
-SUNDIALS_EXPORT int KINGetNumLinFuncEvals(void* kinmem, long int* nfevals);
-SUNDIALS_EXPORT int KINGetNumPrecEvals(void* kinmem, long int* npevals);
-SUNDIALS_EXPORT int KINGetNumPrecSolves(void* kinmem, long int* npsolves);
-SUNDIALS_EXPORT int KINGetNumLinIters(void* kinmem, long int* nliters);
-SUNDIALS_EXPORT int KINGetNumLinConvFails(void* kinmem, long int* nlcfails);
-SUNDIALS_EXPORT int KINGetNumJtimesEvals(void* kinmem, long int* njvevals);
-SUNDIALS_EXPORT int KINGetLastLinFlag(void* kinmem, long int* flag);
-SUNDIALS_EXPORT char* KINGetLinReturnFlagName(long int flag);
+int KINGetLinWorkSpace(void* kinmem, long* lenrwLS, long* leniwLS);
+SUNDIALS_EXPORT int KINGetNumJacEvals(void* kinmem, long* njevals);
+SUNDIALS_EXPORT int KINGetNumLinFuncEvals(void* kinmem, long* nfevals);
+SUNDIALS_EXPORT int KINGetNumPrecEvals(void* kinmem, long* npevals);
+SUNDIALS_EXPORT int KINGetNumPrecSolves(void* kinmem, long* npsolves);
+SUNDIALS_EXPORT int KINGetNumLinIters(void* kinmem, long* nliters);
+SUNDIALS_EXPORT int KINGetNumLinConvFails(void* kinmem, long* nlcfails);
+SUNDIALS_EXPORT int KINGetNumJtimesEvals(void* kinmem, long* njvevals);
+SUNDIALS_EXPORT int KINGetLastLinFlag(void* kinmem, long* flag);
+SUNDIALS_EXPORT char* KINGetLinReturnFlagName(long flag);
 
 #ifdef __cplusplus
 }

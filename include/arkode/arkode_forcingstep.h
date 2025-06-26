@@ -34,7 +34,7 @@ SUNDIALS_EXPORT int ForcingStepReInit(void* arkode_mem, SUNStepper stepper1,
                                       N_Vector y0);
 
 SUNDIALS_EXPORT int ForcingStepGetNumEvolves(void* arkode_mem, int partition,
-                                             long int* evolves);
+                                             long* evolves);
 
 #ifdef __cplusplus
 }

@@ -80,7 +80,7 @@ struct _generic_SUNAdaptController_Ops
   SUNErrCode (*updatemrihtol)(SUNAdaptController C, sunrealtype H,
                               sunrealtype tolfac, sunrealtype DSM,
                               sunrealtype dsm);
-  SUNErrCode (*space)(SUNAdaptController C, long int* lenrw, long int* leniw);
+  SUNErrCode (*space)(SUNAdaptController C, long* lenrw, long* leniw);
 };
 
 /* A SUNAdaptController is a structure with an implementation-dependent
@@ -181,8 +181,8 @@ SUNErrCode SUNAdaptController_UpdateMRIHTol(SUNAdaptController C, sunrealtype H,
 /* Function to return the memory requirements of the controller object. */
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int* lenrw,
-                                    long int* leniw);
+SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long* lenrw,
+                                    long* leniw);
 
 #ifdef __cplusplus
 }

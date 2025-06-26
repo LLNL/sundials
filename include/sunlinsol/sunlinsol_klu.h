@@ -137,8 +137,7 @@ SUNDIALS_EXPORT int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A,
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_KLU(SUNLinearSolver S);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNLinSolSpace_KLU(SUNLinearSolver S, long int* lenrwLS,
-                              long int* leniwLS);
+SUNErrCode SUNLinSolSpace_KLU(SUNLinearSolver S, long* lenrwLS, long* leniwLS);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolFree_KLU(SUNLinearSolver S);
 
 #ifdef __cplusplus
