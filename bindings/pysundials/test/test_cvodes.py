@@ -16,16 +16,21 @@ def test_implicit():
     arr[0] = 0.0  # set initial condition
 
     ode_problem = AnalyticODE()
-    ark = CVodeView.Create(
+
+    solver = CVodeView.Create(
         CVodeCreate(
-            lambda t, y, ydot, _: ode_problem.fe(t, y, ydot), 0, nv.get(), sunctx.get()
+            CV_BDF, sunctx.get()
         )
     )
-    status = CVodeSStolerances(ark.get(), 1e-6, 1e-6)
-    status = CVodeSetLinearSolver(ark.get(), ls.get(), None)
+
+    status = CVodeInit(solver.get(),
+        lambda t, y, ydot, _: ode_problem.f(t, y, ydot), 0, nv.get(),
+    )
+    status = CVodeSStolerances(solver.get(), 1e-6, 1e-6)
+    status = CVodeSetLinearSolver(solver.get(), ls.get(), None)
 
     tout, tret = 10.0, 0.0
-    status = CVodeEvolve(ark.get(), tout, nv.get(), tret, CV_NORMAL)
+    status = CVode(solver.get(), tout, nv.get(), tret, CV_NORMAL)
     print(f"status={status}, ans={arr}")
 
 

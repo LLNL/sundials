@@ -92,7 +92,7 @@ target_include_directories(pysundials PRIVATE helpers
                                               ${SUNDIALS_SOURCE_DIR}/src/arkode)
 
 # Link against sundials libraries
-target_link_libraries(pysundials PRIVATE sundials_arkode sundials_nvecserial
+target_link_libraries(pysundials PRIVATE sundials_arkode sundials_cvodes sundials_nvecserial
                                          sundials_core)
 
 # Install directive for scikit-build-core

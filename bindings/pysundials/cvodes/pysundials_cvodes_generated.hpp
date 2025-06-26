@@ -73,8 +73,8 @@ m.attr("CV_REIFWD_FAIL") = -105;
 m.attr("CV_FWD_FAIL") = -106;
 m.attr("CV_GETY_BADT") = -107;
 
-m.def("CVodeInit",
-    CVodeInit, nb::arg("cvode_mem"), nb::arg("f"), nb::arg("t0"), nb::arg("y0"));
+m.def("CVodeCreate",
+    CVodeCreate, nb::arg("lmm"), nb::arg("sunctx"));
 
 m.def("CVodeReInit",
     CVodeReInit, nb::arg("cvode_mem"), nb::arg("t0"), nb::arg("y0"));
@@ -367,11 +367,8 @@ m.def("CVodeAdjInit",
 m.def("CVodeAdjReInit",
     CVodeAdjReInit, nb::arg("cvode_mem"));
 
-m.def("CVodeInitB",
-    CVodeInitB, nb::arg("cvode_mem"), nb::arg("which"), nb::arg("fB"), nb::arg("tB0"), nb::arg("yB0"));
-
-m.def("CVodeInitBS",
-    CVodeInitBS, nb::arg("cvode_mem"), nb::arg("which"), nb::arg("fBs"), nb::arg("tB0"), nb::arg("yB0"));
+m.def("CVodeCreateB",
+    CVodeCreateB, nb::arg("cvode_mem"), nb::arg("lmmB"), nb::arg("which"));
 
 m.def("CVodeReInitB",
     CVodeReInitB, nb::arg("cvode_mem"), nb::arg("which"), nb::arg("tB0"), nb::arg("yB0"));
@@ -466,7 +463,20 @@ m.def("CVodeGetAdjDataPointPolynomial",
 // 
 
 m.def("CVodeSetLinearSolver",
-    CVodeSetLinearSolver, nb::arg("cvode_mem"), nb::arg("LS"), nb::arg("A"));
+    [](void * cvode_mem, SUNLinearSolver LS, std::optional<SUNMatrix> A = std::nullopt) -> int
+    {
+        auto CVodeSetLinearSolver_adapt_optional_arg_with_default_null = [](void * cvode_mem, SUNLinearSolver LS, std::optional<SUNMatrix> A = std::nullopt) -> int
+        {
+            SUNMatrix A_adapt_default_null = nullptr;
+            if (A.has_value())
+                A_adapt_default_null = A.value();
+
+            auto lambda_result = CVodeSetLinearSolver(cvode_mem, LS, A_adapt_default_null);
+            return lambda_result;
+        };
+
+        return CVodeSetLinearSolver_adapt_optional_arg_with_default_null(cvode_mem, LS, A);
+    },     nb::arg("cvode_mem"), nb::arg("LS"), nb::arg("A") = nb::none());
 
 m.def("CVodeSetJacEvalFrequency",
     CVodeSetJacEvalFrequency, nb::arg("cvode_mem"), nb::arg("msbj"));
@@ -517,7 +527,20 @@ m.def("CVodeGetLinReturnFlagName",
     CVodeGetLinReturnFlagName, nb::arg("flag"));
 
 m.def("CVodeSetLinearSolverB",
-    CVodeSetLinearSolverB, nb::arg("cvode_mem"), nb::arg("which"), nb::arg("LS"), nb::arg("A"));
+    [](void * cvode_mem, int which, SUNLinearSolver LS, std::optional<SUNMatrix> A = std::nullopt) -> int
+    {
+        auto CVodeSetLinearSolverB_adapt_optional_arg_with_default_null = [](void * cvode_mem, int which, SUNLinearSolver LS, std::optional<SUNMatrix> A = std::nullopt) -> int
+        {
+            SUNMatrix A_adapt_default_null = nullptr;
+            if (A.has_value())
+                A_adapt_default_null = A.value();
+
+            auto lambda_result = CVodeSetLinearSolverB(cvode_mem, which, LS, A_adapt_default_null);
+            return lambda_result;
+        };
+
+        return CVodeSetLinearSolverB_adapt_optional_arg_with_default_null(cvode_mem, which, LS, A);
+    },     nb::arg("cvode_mem"), nb::arg("which"), nb::arg("LS"), nb::arg("A") = nb::none());
 
 m.def("CVodeSetEpsLinB",
     CVodeSetEpsLinB, nb::arg("cvode_mem"), nb::arg("which"), nb::arg("eplifacB"));

@@ -31,8 +31,13 @@ modules:
     - ../../include/cvodes/cvodes.h
     - ../../include/cvodes/cvodes_ls.h
     - ../../include/cvodes/cvodes_proj.h
+    # this option describes the functions which have optional pointer arguments,
+    # i.e., one where you could provide NULL
+    fn_params_optional_with_default_null:
+      "SetLinearSolver":
+      - "A" 
     fn_exclude_by_name__regex:
-    - "Create"
+    - "CVodeInit"
     # nanobind doesnt support **
     - "CVodeGetCurrentState" 
     - "CVodeGetJac" 

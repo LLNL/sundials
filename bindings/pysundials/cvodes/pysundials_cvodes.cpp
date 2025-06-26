@@ -12,8 +12,11 @@
  * SUNDIALS Copyright End
  *----------------------------------------------------------------------------*/
 
+#include <optional>
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
+#include <nanobind/stl/optional.h>
 
 #include <sundials/sundials_core.hpp>
 
@@ -23,7 +26,7 @@
 
 #include "sundials_adjointcheckpointscheme_impl.h"
 
-// #include "pysundials_cvodes_usersupplied.hpp"
+#include "pysundials_cvodes_usersupplied.hpp"
 
 namespace nb = nanobind;
 
@@ -40,5 +43,37 @@ void bind_cvodes(nb::module_& m)
     .def_static("Create", &CVodeView::Create<void*>)
     .def("get", nb::overload_cast<>(&CVodeView::get, nb::const_),
          nb::rv_policy::reference);
+
+  m.def("CVodeInit",
+        [](void* cv_mem, std::function<std::remove_pointer_t<CVRhsFn>> rhs, sunrealtype t0, N_Vector y0)
+        {
+          int cv_status = CVodeInit(cv_mem, cvode_f_wrapper, t0, y0);
+
+          // Create the user-supplied function table to store the Python user functions
+          auto cb_fns = cvode_user_supplied_fn_table_alloc();
+         
+          // Smuggle the user-supplied function table into callback wrappers through the user_data pointer
+          cv_status = CVodeSetUserData(cv_mem, static_cast<void*>(cb_fns));
+          if (cv_status != CV_SUCCESS)
+          {
+            free(cb_fns);
+            throw std::runtime_error(
+              "Failed to set user data in CVODE memory");
+          }
+
+          // Ensure CVodeFree will free the user-supplied function table
+          cv_status = CVodeSetOwnUserData(cv_mem, SUNTRUE);
+          if (cv_status != CV_SUCCESS)
+          {
+            free(cb_fns);
+            throw std::runtime_error(
+              "Failed to set user data ownership in CVODE memory");
+          }
+
+          // Finally, set the RHS function
+          cb_fns->cvode_f = nb::cast(rhs);
+
+          return cv_status;
+        });
 
 }
