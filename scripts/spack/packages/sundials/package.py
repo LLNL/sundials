@@ -221,7 +221,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # External libraries
     depends_on("adiak", when="+adiak")
     depends_on("caliper", when="+caliper")
-    depends_on("ginkgo@1.5.0:", when="+ginkgo")
+    depends_on("ginkgo@1.9.0:", when="+ginkgo")
     depends_on("kokkos", when="+kokkos")
     depends_on("kokkos-kernels", when="+kokkos-kernels")
     for cuda_arch in CudaPackage.cuda_arch_values:
