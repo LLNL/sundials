@@ -471,10 +471,20 @@ m.def("ARKodeGetNumRelaxSolveIters",
 // 
 
 m.def("ARKodeSetLinearSolver",
-    ARKodeSetLinearSolver, nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("A"));
+    [](void * arkode_mem, SUNLinearSolver LS, std::optional<SUNMatrix> A = std::nullopt) -> int
+    {
+        auto ARKodeSetLinearSolver_adapt_optional_arg_with_default_null = [](void * arkode_mem, SUNLinearSolver LS, std::optional<SUNMatrix> A = std::nullopt) -> int
+        {
+            SUNMatrix A_adapt_default_null = nullptr;
+            if (A.has_value())
+                A_adapt_default_null = A.value();
 
-m.def("ARKodeSetMassLinearSolver",
-    ARKodeSetMassLinearSolver, nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M"), nb::arg("time_dep"));
+            auto lambda_result = ARKodeSetLinearSolver(arkode_mem, LS, A_adapt_default_null);
+            return lambda_result;
+        };
+
+        return ARKodeSetLinearSolver_adapt_optional_arg_with_default_null(arkode_mem, LS, A);
+    },     nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("A") = nb::none());
 
 m.def("ARKodeSetJacEvalFrequency",
     ARKodeSetJacEvalFrequency, nb::arg("arkode_mem"), nb::arg("msbj"));

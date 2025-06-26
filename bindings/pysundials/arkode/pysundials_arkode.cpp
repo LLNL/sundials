@@ -12,8 +12,11 @@
  * SUNDIALS Copyright End
  *----------------------------------------------------------------------------*/
 
+#include <optional>
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
+#include <nanobind/stl/optional.h>
 
 #include <sundials/sundials_core.hpp>
 
@@ -44,7 +47,9 @@ void bind_arkode(nb::module_& m)
     .def("get", nb::overload_cast<>(&ARKodeView::get, nb::const_),
          nb::rv_policy::reference);
 
+  //
   // ARKode function pointer setters
+  //
   m.def("ARKodeSetPostprocessStepFn",
         [](void* ark_mem, std::function<std::remove_pointer_t<ARKPostProcessFn>> fn)
         {
@@ -239,6 +244,15 @@ void bind_arkode(nb::module_& m)
           fntable->lslinsysfn = nb::cast(fn);
           return ARKodeSetLinSysFn(ark_mem, &arkode_lslinsysfn_wrapper);
         });
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Additional functions that litgen cannot generate
+  /////////////////////////////////////////////////////////////////////////////
+
+  // These functions have optional arguments which litgen cannot deal with
+  m.def("ARKodeSetMassLinearSolver",
+    ARKodeSetMassLinearSolver, nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M").none(), nb::arg("time_dep"));
+
 
   bind_arkode_arkstep(m);
   bind_arkode_erkstep(m);

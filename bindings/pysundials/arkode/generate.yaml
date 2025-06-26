@@ -25,6 +25,9 @@ modules:
     macro_define_include_by_name__regex:
     - "^SUN_"
     - "^ARK_"
+    fn_params_optional_with_default_null:
+      "SetLinearSolver":
+      - "A" 
   arkode:
     path: arkode/pysundials_arkode_generated.hpp
     headers:
@@ -45,6 +48,8 @@ modules:
     - "ARKodeSetWFtolerances"
     - "ARKodeSet.*Preconditioner"
     - "ARKodeSet.*Times"
+    # generator cannot handle functions with optional (i.e. NULLable) parameters that is not followed by only optional parameters
+    - "ARKodeSetMassLinearSolver"
   arkstep:
     path: arkode/pysundials_arkode_arkstep_generated.hpp
     headers:
