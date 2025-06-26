@@ -182,7 +182,18 @@ m.def("CVodeRootInit",
     CVodeRootInit, nb::arg("cvode_mem"), nb::arg("nrtfn"), nb::arg("g"));
 
 m.def("CVodeSetRootDirection",
-    CVodeSetRootDirection, nb::arg("cvode_mem"), nb::arg("rootdir"));
+    [](void * cvode_mem, int rootdir) -> std::tuple<int, int>
+    {
+        auto CVodeSetRootDirection_adapt_modifiable_immutable_to_return = [](void * cvode_mem, int rootdir) -> std::tuple<int, int>
+        {
+            int * rootdir_adapt_modifiable = & rootdir;
+
+            int r = CVodeSetRootDirection(cvode_mem, rootdir_adapt_modifiable);
+            return std::make_tuple(r, rootdir);
+        };
+
+        return CVodeSetRootDirection_adapt_modifiable_immutable_to_return(cvode_mem, rootdir);
+    },     nb::arg("cvode_mem"), nb::arg("rootdir"));
 
 m.def("CVodeSetNoInactiveRootWarn",
     CVodeSetNoInactiveRootWarn, nb::arg("cvode_mem"));
@@ -209,10 +220,32 @@ m.def("CVodeGetNumErrTestFails",
     CVodeGetNumErrTestFails, nb::arg("cvode_mem"), nb::arg("netfails"));
 
 m.def("CVodeGetLastOrder",
-    CVodeGetLastOrder, nb::arg("cvode_mem"), nb::arg("qlast"));
+    [](void * cvode_mem, int qlast) -> std::tuple<int, int>
+    {
+        auto CVodeGetLastOrder_adapt_modifiable_immutable_to_return = [](void * cvode_mem, int qlast) -> std::tuple<int, int>
+        {
+            int * qlast_adapt_modifiable = & qlast;
+
+            int r = CVodeGetLastOrder(cvode_mem, qlast_adapt_modifiable);
+            return std::make_tuple(r, qlast);
+        };
+
+        return CVodeGetLastOrder_adapt_modifiable_immutable_to_return(cvode_mem, qlast);
+    },     nb::arg("cvode_mem"), nb::arg("qlast"));
 
 m.def("CVodeGetCurrentOrder",
-    CVodeGetCurrentOrder, nb::arg("cvode_mem"), nb::arg("qcur"));
+    [](void * cvode_mem, int qcur) -> std::tuple<int, int>
+    {
+        auto CVodeGetCurrentOrder_adapt_modifiable_immutable_to_return = [](void * cvode_mem, int qcur) -> std::tuple<int, int>
+        {
+            int * qcur_adapt_modifiable = & qcur;
+
+            int r = CVodeGetCurrentOrder(cvode_mem, qcur_adapt_modifiable);
+            return std::make_tuple(r, qcur);
+        };
+
+        return CVodeGetCurrentOrder_adapt_modifiable_immutable_to_return(cvode_mem, qcur);
+    },     nb::arg("cvode_mem"), nb::arg("qcur"));
 
 m.def("CVodeGetCurrentGamma",
     CVodeGetCurrentGamma, nb::arg("cvode_mem"), nb::arg("gamma"));
@@ -230,7 +263,18 @@ m.def("CVodeGetCurrentStep",
     CVodeGetCurrentStep, nb::arg("cvode_mem"), nb::arg("hcur"));
 
 m.def("CVodeGetCurrentSensSolveIndex",
-    CVodeGetCurrentSensSolveIndex, nb::arg("cvode_mem"), nb::arg("index"));
+    [](void * cvode_mem, int index) -> std::tuple<int, int>
+    {
+        auto CVodeGetCurrentSensSolveIndex_adapt_modifiable_immutable_to_return = [](void * cvode_mem, int index) -> std::tuple<int, int>
+        {
+            int * index_adapt_modifiable = & index;
+
+            int r = CVodeGetCurrentSensSolveIndex(cvode_mem, index_adapt_modifiable);
+            return std::make_tuple(r, index);
+        };
+
+        return CVodeGetCurrentSensSolveIndex_adapt_modifiable_immutable_to_return(cvode_mem, index);
+    },     nb::arg("cvode_mem"), nb::arg("index"));
 
 m.def("CVodeGetCurrentTime",
     CVodeGetCurrentTime, nb::arg("cvode_mem"), nb::arg("tcur"));
@@ -248,10 +292,33 @@ m.def("CVodeGetNumGEvals",
     CVodeGetNumGEvals, nb::arg("cvode_mem"), nb::arg("ngevals"));
 
 m.def("CVodeGetRootInfo",
-    CVodeGetRootInfo, nb::arg("cvode_mem"), nb::arg("rootsfound"));
+    [](void * cvode_mem, int rootsfound) -> std::tuple<int, int>
+    {
+        auto CVodeGetRootInfo_adapt_modifiable_immutable_to_return = [](void * cvode_mem, int rootsfound) -> std::tuple<int, int>
+        {
+            int * rootsfound_adapt_modifiable = & rootsfound;
+
+            int r = CVodeGetRootInfo(cvode_mem, rootsfound_adapt_modifiable);
+            return std::make_tuple(r, rootsfound);
+        };
+
+        return CVodeGetRootInfo_adapt_modifiable_immutable_to_return(cvode_mem, rootsfound);
+    },     nb::arg("cvode_mem"), nb::arg("rootsfound"));
 
 m.def("CVodeGetIntegratorStats",
-    CVodeGetIntegratorStats, nb::arg("cvode_mem"), nb::arg("nsteps"), nb::arg("nfevals"), nb::arg("nlinsetups"), nb::arg("netfails"), nb::arg("qlast"), nb::arg("qcur"), nb::arg("hinused"), nb::arg("hlast"), nb::arg("hcur"), nb::arg("tcur"));
+    [](void * cvode_mem, long int * nsteps, long int * nfevals, long int * nlinsetups, long int * netfails, int qlast, int qcur, sunrealtype * hinused, sunrealtype * hlast, sunrealtype * hcur, sunrealtype * tcur) -> std::tuple<int, int, int>
+    {
+        auto CVodeGetIntegratorStats_adapt_modifiable_immutable_to_return = [](void * cvode_mem, long int * nsteps, long int * nfevals, long int * nlinsetups, long int * netfails, int qlast, int qcur, sunrealtype * hinused, sunrealtype * hlast, sunrealtype * hcur, sunrealtype * tcur) -> std::tuple<int, int, int>
+        {
+            int * qlast_adapt_modifiable = & qlast;
+            int * qcur_adapt_modifiable = & qcur;
+
+            int r = CVodeGetIntegratorStats(cvode_mem, nsteps, nfevals, nlinsetups, netfails, qlast_adapt_modifiable, qcur_adapt_modifiable, hinused, hlast, hcur, tcur);
+            return std::make_tuple(r, qlast, qcur);
+        };
+
+        return CVodeGetIntegratorStats_adapt_modifiable_immutable_to_return(cvode_mem, nsteps, nfevals, nlinsetups, netfails, qlast, qcur, hinused, hlast, hcur, tcur);
+    },     nb::arg("cvode_mem"), nb::arg("nsteps"), nb::arg("nfevals"), nb::arg("nlinsetups"), nb::arg("netfails"), nb::arg("qlast"), nb::arg("qcur"), nb::arg("hinused"), nb::arg("hlast"), nb::arg("hcur"), nb::arg("tcur"));
 
 m.def("CVodeGetNumNonlinSolvIters",
     CVodeGetNumNonlinSolvIters, nb::arg("cvode_mem"), nb::arg("nniters"));
@@ -320,7 +387,18 @@ m.def("CVodeSetSensMaxNonlinIters",
     CVodeSetSensMaxNonlinIters, nb::arg("cvode_mem"), nb::arg("maxcorS"));
 
 m.def("CVodeSetSensParams",
-    CVodeSetSensParams, nb::arg("cvode_mem"), nb::arg("p"), nb::arg("pbar"), nb::arg("plist"));
+    [](void * cvode_mem, sunrealtype * p, sunrealtype * pbar, int plist) -> std::tuple<int, int>
+    {
+        auto CVodeSetSensParams_adapt_modifiable_immutable_to_return = [](void * cvode_mem, sunrealtype * p, sunrealtype * pbar, int plist) -> std::tuple<int, int>
+        {
+            int * plist_adapt_modifiable = & plist;
+
+            int r = CVodeSetSensParams(cvode_mem, p, pbar, plist_adapt_modifiable);
+            return std::make_tuple(r, plist);
+        };
+
+        return CVodeSetSensParams_adapt_modifiable_immutable_to_return(cvode_mem, p, pbar, plist);
+    },     nb::arg("cvode_mem"), nb::arg("p"), nb::arg("pbar"), nb::arg("plist"));
 
 m.def("CVodeSetNonlinearSolverSensSim",
     CVodeSetNonlinearSolverSensSim, nb::arg("cvode_mem"), nb::arg("NLS"));
@@ -368,7 +446,18 @@ m.def("CVodeAdjReInit",
     CVodeAdjReInit, nb::arg("cvode_mem"));
 
 m.def("CVodeCreateB",
-    CVodeCreateB, nb::arg("cvode_mem"), nb::arg("lmmB"), nb::arg("which"));
+    [](void * cvode_mem, int lmmB, int which) -> std::tuple<int, int>
+    {
+        auto CVodeCreateB_adapt_modifiable_immutable_to_return = [](void * cvode_mem, int lmmB, int which) -> std::tuple<int, int>
+        {
+            int * which_adapt_modifiable = & which;
+
+            int r = CVodeCreateB(cvode_mem, lmmB, which_adapt_modifiable);
+            return std::make_tuple(r, which);
+        };
+
+        return CVodeCreateB_adapt_modifiable_immutable_to_return(cvode_mem, lmmB, which);
+    },     nb::arg("cvode_mem"), nb::arg("lmmB"), nb::arg("which"));
 
 m.def("CVodeReInitB",
     CVodeReInitB, nb::arg("cvode_mem"), nb::arg("which"), nb::arg("tB0"), nb::arg("yB0"));
@@ -395,7 +484,18 @@ m.def("CVodeQuadSVtolerancesB",
     CVodeQuadSVtolerancesB, nb::arg("cvode_mem"), nb::arg("which"), nb::arg("reltolQB"), nb::arg("abstolQB"));
 
 m.def("CVodeF",
-    CVodeF, nb::arg("cvode_mem"), nb::arg("tout"), nb::arg("yout"), nb::arg("tret"), nb::arg("itask"), nb::arg("ncheckPtr"));
+    [](void * cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype * tret, int itask, int ncheckPtr) -> std::tuple<int, int>
+    {
+        auto CVodeF_adapt_modifiable_immutable_to_return = [](void * cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype * tret, int itask, int ncheckPtr) -> std::tuple<int, int>
+        {
+            int * ncheckPtr_adapt_modifiable = & ncheckPtr;
+
+            int r = CVodeF(cvode_mem, tout, yout, tret, itask, ncheckPtr_adapt_modifiable);
+            return std::make_tuple(r, ncheckPtr);
+        };
+
+        return CVodeF_adapt_modifiable_immutable_to_return(cvode_mem, tout, yout, tret, itask, ncheckPtr);
+    },     nb::arg("cvode_mem"), nb::arg("tout"), nb::arg("yout"), nb::arg("tret"), nb::arg("itask"), nb::arg("ncheckPtr"));
 
 m.def("CVodeB",
     CVodeB, nb::arg("cvode_mem"), nb::arg("tBout"), nb::arg("itaskB"));
@@ -449,7 +549,18 @@ m.def("CVodeGetAdjDataPointHermite",
     CVodeGetAdjDataPointHermite, nb::arg("cvode_mem"), nb::arg("which"), nb::arg("t"), nb::arg("y"), nb::arg("yd"));
 
 m.def("CVodeGetAdjDataPointPolynomial",
-    CVodeGetAdjDataPointPolynomial, nb::arg("cvode_mem"), nb::arg("which"), nb::arg("t"), nb::arg("order"), nb::arg("y"));
+    [](void * cvode_mem, int which, sunrealtype * t, int order, N_Vector y) -> std::tuple<int, int>
+    {
+        auto CVodeGetAdjDataPointPolynomial_adapt_modifiable_immutable_to_return = [](void * cvode_mem, int which, sunrealtype * t, int order, N_Vector y) -> std::tuple<int, int>
+        {
+            int * order_adapt_modifiable = & order;
+
+            int r = CVodeGetAdjDataPointPolynomial(cvode_mem, which, t, order_adapt_modifiable, y);
+            return std::make_tuple(r, order);
+        };
+
+        return CVodeGetAdjDataPointPolynomial_adapt_modifiable_immutable_to_return(cvode_mem, which, t, order, y);
+    },     nb::arg("cvode_mem"), nb::arg("which"), nb::arg("t"), nb::arg("order"), nb::arg("y"));
 // #ifdef __cplusplus
 // 
 // #endif

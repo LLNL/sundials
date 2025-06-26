@@ -5,8 +5,7 @@ from pysundials.core import *
 from pysundials.cvodes import *
 from ode_problems import AnalyticODE
 
-def test_implicit():
-    print("  testing implicit")
+def test_bdf():
     sunctx = SUNContextView.Create()
     nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
     ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
@@ -33,6 +32,9 @@ def test_implicit():
     status = CVode(solver.get(), tout, nv.get(), tret, CV_NORMAL)
     print(f"status={status}, ans={arr}")
 
+    status, last_order = CVodeGetLastOrder(solver.get(), 0)
+    print(f"last_order={last_order}")
+
 
 if __name__ == "__main__":
-    test_implicit()
+    test_bdf()

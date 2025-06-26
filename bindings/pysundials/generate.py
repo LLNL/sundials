@@ -80,10 +80,22 @@ def main():
     options.bind_library = litgen.BindLibraryType.nanobind
     options.python_run_black_formatter = True
     options.python_convert_to_snake_case = False
+
+    # Don't capture comments from the source for generating Python doc strings
     options.comments_exclude = True
+
+    # Export enum values to the package namespace
     options.enum_export_values = True
+
+    # Allow const char to be nullable
     options.fn_params_const_char_pointer_with_default_null = True
+
+    # Transform inplace modification of values, e.g. int CVodeGetNumSteps(void* cvode_mem, long* num_steps), to CvodeGetNumSteps(cvode_mem) -> Tuple[int, long]
+    options.fn_params_output_modifiable_immutable_to_return__regex = r".*"
+
+    # Our own custom function adapters
     options.fn_custom_adapters = [adapt_default_arg_pointer_with_default_null]
+
     options.srcmlcpp_options.code_preprocess_function = preprocess_header
     options.srcmlcpp_options.ignored_warning_parts.append(
         # "ops" functions pointers cause this warning, but we dont care cause we dont need to bind those.
@@ -100,7 +112,6 @@ def main():
     if not config_object:
         raise RuntimeError(f"modules: section not found in {config_yaml_path}")
 
-    # print(config_object)
     for module_name in config_object:
         if module_name == "all":
             continue
@@ -124,12 +135,6 @@ def main():
         options.macro_define_include_by_name__regex = code_utils.join_string_by_pipe_char(
             load_macro_defines_from_yaml(config_object, module_name)
         )
-
-        # TODO(CJB): this does not seem to work
-        # options.fn_return_force_policy_reference_for_pointers__regex = code_utils.join_string_by_pipe_char([
-        #   "N_VNewEmpty",
-        #   "N_VMake"
-        # ])
 
         source_code = ""
         for file_path in module["headers"]:

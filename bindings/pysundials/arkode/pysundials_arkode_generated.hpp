@@ -109,7 +109,18 @@ m.def("ARKodeRootInit",
     ARKodeRootInit, nb::arg("arkode_mem"), nb::arg("nrtfn"), nb::arg("g"));
 
 m.def("ARKodeSetRootDirection",
-    ARKodeSetRootDirection, nb::arg("arkode_mem"), nb::arg("rootdir"));
+    [](void * arkode_mem, int rootdir) -> std::tuple<int, int>
+    {
+        auto ARKodeSetRootDirection_adapt_modifiable_immutable_to_return = [](void * arkode_mem, int rootdir) -> std::tuple<int, int>
+        {
+            int * rootdir_adapt_modifiable = & rootdir;
+
+            int r = ARKodeSetRootDirection(arkode_mem, rootdir_adapt_modifiable);
+            return std::make_tuple(r, rootdir);
+        };
+
+        return ARKodeSetRootDirection_adapt_modifiable_immutable_to_return(arkode_mem, rootdir);
+    },     nb::arg("arkode_mem"), nb::arg("rootdir"));
 
 m.def("ARKodeSetNoInactiveRootWarn",
     ARKodeSetNoInactiveRootWarn, nb::arg("arkode_mem"));
@@ -292,7 +303,18 @@ m.def("ARKodeGetNumGEvals",
     ARKodeGetNumGEvals, nb::arg("arkode_mem"), nb::arg("ngevals"));
 
 m.def("ARKodeGetRootInfo",
-    ARKodeGetRootInfo, nb::arg("arkode_mem"), nb::arg("rootsfound"));
+    [](void * arkode_mem, int rootsfound) -> std::tuple<int, int>
+    {
+        auto ARKodeGetRootInfo_adapt_modifiable_immutable_to_return = [](void * arkode_mem, int rootsfound) -> std::tuple<int, int>
+        {
+            int * rootsfound_adapt_modifiable = & rootsfound;
+
+            int r = ARKodeGetRootInfo(arkode_mem, rootsfound_adapt_modifiable);
+            return std::make_tuple(r, rootsfound);
+        };
+
+        return ARKodeGetRootInfo_adapt_modifiable_immutable_to_return(arkode_mem, rootsfound);
+    },     nb::arg("arkode_mem"), nb::arg("rootsfound"));
 
 m.def("ARKodePrintAllStats",
     ARKodePrintAllStats, nb::arg("arkode_mem"), nb::arg("outfile"), nb::arg("fmt"));
