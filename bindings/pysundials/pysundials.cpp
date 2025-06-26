@@ -5,6 +5,7 @@ namespace nb = nanobind;
 // Forward declarations of all of the binding functions
 void bind_core(nb::module_& m);
 void bind_arkode(nb::module_& m);
+void bind_cvodes(nb::module_& m);
 void bind_nvector_serial(nb::module_& m);
 void bind_sunlinsol_spgmr(nb::module_& m);
 void bind_sunlinsol_dense(nb::module_& m);
@@ -26,6 +27,10 @@ NB_MODULE(pysundials, m)
   nb::module_ arkode_m = m.def_submodule("arkode",
                                          "A submodule of 'pysundials'");
   bind_arkode(arkode_m);
+
+  nb::module_ cvodes_m = m.def_submodule("cvodes",
+                                         "A submodule of 'pysundials'");
+  bind_cvodes(cvodes_m);
 
   {
     // Bind N_Vector implementations

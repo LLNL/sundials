@@ -80,7 +80,8 @@ set(sundials_SOURCES
     arkode/pysundials_arkode_arkstep.cpp
     arkode/pysundials_arkode_erkstep.cpp
     arkode/pysundials_arkode_sprkstep.cpp
-    arkode/pysundials_arkode_lsrkstep.cpp)
+    arkode/pysundials_arkode_lsrkstep.cpp
+    cvodes/pysundials_cvodes.cpp)
 
 # Create the Python sundials library
 nanobind_add_module(pysundials STABLE_ABI NB_STATIC ${sundials_SOURCES})

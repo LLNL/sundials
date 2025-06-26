@@ -1,0 +1,61 @@
+# -----------------------------------------------------------------
+# Programmer(s): Cody J. Balos @ LLNL
+# -----------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------
+# This YAML file is used to instruct the generate.py script on
+# how to generate some of the nanobind code needed for the
+# ARKODE module of pysundials.
+# -----------------------------------------------------------------
+
+modules:
+  all:
+    fn_exclude_by_name__regex:
+    - "Free" # Free and destroy functions should not need to be called as all objects on the Python side are RAII ClassView objects
+    - "Destroy"
+    - "Space" # Space functions are deprecated, so dont expose them in Python
+    macro_define_include_by_name__regex:
+    - "^SUN_"
+    - "^CV_"
+  cvodes:
+    path: cvodes/pysundials_cvodes_generated.hpp
+    headers:
+    - ../../include/cvodes/cvodes.h
+    - ../../include/cvodes/cvodes_ls.h
+    - ../../include/cvodes/cvodes_proj.h
+    fn_exclude_by_name__regex:
+    - "Create"
+    # nanobind doesnt support **
+    - "CVodeGetCurrentState" 
+    - "CVodeGetJac" 
+    - "CVodeGetQuadSens"
+    - "CVodeGetQuadSensDky"
+    - "CVodeGetQuadSensErrWeights"
+    - "CVodeGetSens"
+    - "CVodeGetSensDky"
+    - "CVodeGetSensErrWeights"
+    - "CVodeQuadSensInit"
+    - "CVodeQuadSensReInit"
+    - "CVodeQuadSensSVtolerances"
+    - "CVodeResizeHistory"
+    - "CVodeSensSVtolerances"
+    - "CVodeSensReInit"
+    - "CVodeSensInit"
+    - "CVodeSensInit1"
+    - "CVodeComputeStateSens"
+    # we use user_data for sneaking in python contexts, users can instead capture their states in a class
+    - "CVodeGetUserData" 
+    - "CVodeSetUserData" 
+    # generator cannot handle setting of function pointers 
+    - "CVodeSet.*Fn" 
+    - "CVodeSetWFtolerances"
+    - "CVodeSet.*Preconditioner"
+    - "CVodeSet.*Times"
