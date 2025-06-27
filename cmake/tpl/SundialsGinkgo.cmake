@@ -36,9 +36,14 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
+if(CMAKE_CXX_STANDARD LESS "17")
+  message(SEND_ERROR "CMAKE_CXX_STANDARD must be >= 17 when using Ginkgo")
+endif()
+
 # -----------------------------------------------------------------------------
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
+
 find_package(Ginkgo REQUIRED HINTS "${Ginkgo_DIR}" NO_DEFAULT_PATH)
 
 message(STATUS "GINKGO VERSION:     ${GINKGO_PROJECT_VERSION}")
@@ -55,6 +60,7 @@ endif()
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
+
 if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
   if(SUNDIALS_PRECISION MATCHES "extended|EXTENDED")
     message(
