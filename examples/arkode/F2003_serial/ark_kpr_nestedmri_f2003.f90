@@ -67,11 +67,11 @@ module kpr_mod
   implicit none
 
   ! Problem parameters
-  real(c_double), parameter :: G  = -10.0d0
-  real(c_double), parameter :: e  =   0.5d0
-  real(c_double), parameter :: al =  -1.0d0
-  real(c_double), parameter :: be =   1.0d0
-  real(c_double), parameter :: om =  50.0d0
+  real(c_double), parameter :: G = -10.0d0
+  real(c_double), parameter :: e = 0.5d0
+  real(c_double), parameter :: al = -1.0d0
+  real(c_double), parameter :: be = 1.0d0
+  real(c_double), parameter :: om = 50.0d0
 
 contains
 
@@ -103,20 +103,19 @@ contains
     !   [ 0   0   0 ] [ (u^2 - p - 2) / (2u) ] +  [      0         ]
     !   [ 0   0   0 ] [ (v^2 - q - 2) / (2v) ]    [      0         ]
     !   [ e -be  al ] [ (w^2 - r - 2) / (2w) ]    [ rdot(t) / (2w) ]
-    tmp1 = (-2.0d0 + u * u - p(t)) / (2.0d0 * u)
-    tmp2 = (-2.0d0 + v * v - q(t)) / (2.0d0 * v)
-    tmp3 = (-2.0d0 + w * w - r(t)) / (2.0d0 * w)
+    tmp1 = (-2.0d0 + u*u - p(t))/(2.0d0*u)
+    tmp2 = (-2.0d0 + v*v - q(t))/(2.0d0*v)
+    tmp3 = (-2.0d0 + w*w - r(t))/(2.0d0*w)
 
     ydotdata(1) = 0.0d0
     ydotdata(2) = 0.0d0
-    ydotdata(3) = e * tmp1 - be * tmp2 + al * tmp3 + rdot(t) / (2.0d0 * w)
+    ydotdata(3) = e*tmp1 - be*tmp2 + al*tmp3 + rdot(t)/(2.0d0*w)
 
     ! Return success
     ierr = 0
     return
 
   end function ff
-
 
   ! fm routine to compute the intermediate portion of the ODE RHS
   integer(c_int) function fm(t, y, ydot, user_data) result(ierr) bind(C)
@@ -146,19 +145,18 @@ contains
     !   [ 0   0   0 ] [ (u^2 - p - 2) / (2u) ] +  [      0         ]
     !   [ e  al  be ] [ (v^2 - q - 2) / (2v) ]    [ qdot(t) / (2v) ]
     !   [ 0   0   0 ] [ (w^2 - r - 2) / (2w) ]    [      0         ]
-    tmp1 = (-2.0d0 + u * u - p(t)) / (2.0d0 * u)
-    tmp2 = (-2.0d0 + v * v - q(t)) / (2.0d0 * v)
-    tmp3 = (-2.0d0 + w * w - r(t)) / (2.0d0 * w)
+    tmp1 = (-2.0d0 + u*u - p(t))/(2.0d0*u)
+    tmp2 = (-2.0d0 + v*v - q(t))/(2.0d0*v)
+    tmp3 = (-2.0d0 + w*w - r(t))/(2.0d0*w)
 
     ydotdata(1) = 0.0d0
-    ydotdata(2) = e * tmp1 + al * tmp2 + be * tmp3 + qdot(t) / (2.0d0 * v)
+    ydotdata(2) = e*tmp1 + al*tmp2 + be*tmp3 + qdot(t)/(2.0d0*v)
     ydotdata(3) = 0.0d0
 
     ierr = 0
     return
 
   end function fm
-
 
   ! fs routine to compute the slow portion of the ODE RHS
   integer(c_int) function fs(t, y, ydot, user_data) result(ierr) bind(C)
@@ -188,11 +186,11 @@ contains
     !   [ G   e   e ] [ (u^2 - p - 2) / (2u) ] +  [ pdot(t) / (2u) ]
     !   [ 0   0   0 ] [ (v^2 - q - 2) / (2v) ]    [      0         ]
     !   [ 0   0   0 ] [ (w^2 - r - 2) / (2w) ]    [      0         ]
-    tmp1 = (-2.0d0 + u * u - p(t)) / (2.0d0 * u)
-    tmp2 = (-2.0d0 + v * v - q(t)) / (2.0d0 * v)
-    tmp3 = (-2.0d0 + w * w - r(t)) / (2.0d0 * w)
+    tmp1 = (-2.0d0 + u*u - p(t))/(2.0d0*u)
+    tmp2 = (-2.0d0 + v*v - q(t))/(2.0d0*v)
+    tmp3 = (-2.0d0 + w*w - r(t))/(2.0d0*w)
 
-    ydotdata(1) = G * tmp1 + e * tmp2 + e * tmp3 + pdot(t) / (2.0d0 * u)
+    ydotdata(1) = G*tmp1 + e*tmp2 + e*tmp3 + pdot(t)/(2.0d0*u)
     ydotdata(2) = 0.0d0
     ydotdata(3) = 0.0d0
 
@@ -209,7 +207,7 @@ contains
     use, intrinsic :: iso_c_binding
     implicit none
     real(c_double) :: t
-    result = 0.5d0 * cos(t)
+    result = 0.5d0*cos(t)
     return
   end function p
 
@@ -217,7 +215,7 @@ contains
     use, intrinsic :: iso_c_binding
     implicit none
     real(c_double) :: t
-    result = cos(om * t * (1.0d0 + exp(-(t - 2.0d0) * (t - 2.0d0))))
+    result = cos(om*t*(1.0d0 + exp(-(t - 2.0d0)*(t - 2.0d0))))
     return
   end function q
 
@@ -225,7 +223,7 @@ contains
     use, intrinsic :: iso_c_binding
     implicit none
     real(c_double) :: t
-    result = cos(om * om * t * (1.0d0 + exp(-(t - 3.0d0) * (t - 3.0d0))))
+    result = cos(om*om*t*(1.0d0 + exp(-(t - 3.0d0)*(t - 3.0d0))))
     return
   end function r
 
@@ -233,7 +231,7 @@ contains
     use, intrinsic :: iso_c_binding
     implicit none
     real(c_double) :: t
-    result = -0.5d0 * sin(t)
+    result = -0.5d0*sin(t)
     return
   end function pdot
 
@@ -244,8 +242,8 @@ contains
     real(c_double) :: tm2
     real(c_double) :: eterm
     tm2 = t - 2.0d0
-    eterm = exp(-tm2 * tm2)
-    result = -sin(om * t * (1.0d0 + eterm)) * om * (1.0d0 + eterm * (1.0d0 - 2.0d0 * t * tm2))
+    eterm = exp(-tm2*tm2)
+    result = -sin(om*t*(1.0d0 + eterm))*om*(1.0d0 + eterm*(1.0d0 - 2.0d0*t*tm2))
     return
   end function qdot
 
@@ -256,8 +254,8 @@ contains
     real(c_double) :: tm3
     real(c_double) :: eterm
     tm3 = t - 3.0d0
-    eterm  = exp(-tm3 * tm3)
-    result = -sin(om * om * t * (1.0d0 + eterm)) * om * om * (1.0d0 + eterm * (1.0d0 - 2.0d0 * t * tm3))
+    eterm = exp(-tm3*tm3)
+    result = -sin(om*om*t*(1.0d0 + eterm))*om*om*(1.0d0 + eterm*(1.0d0 - 2.0d0*t*tm3))
   end function rdot
 
   real(c_double) function utrue(t) result(result)
@@ -345,12 +343,12 @@ program main
 #elif defined(SUNDIALS_INT64_T)
   integer(kind=selected_int_kind(16)), parameter :: neq = 3
 #endif
-  real(c_double), parameter :: t0         = 0.0d0              ! initial time
-  real(c_double), parameter :: tf         = 5.0d0              ! final time
+  real(c_double), parameter :: t0 = 0.0d0              ! initial time
+  real(c_double), parameter :: tf = 5.0d0              ! final time
   integer(c_int), parameter :: num_output = 20                  ! number of outputs
-  real(c_double), parameter :: rtol       = 1.0d-4             ! relative tolerance
-  real(c_double), parameter :: atol       = 1.0d-11            ! absolute tolerance
-  integer(c_int), parameter :: acc_type   = ARK_ACCUMERROR_MAX ! error accumulation type
+  real(c_double), parameter :: rtol = 1.0d-4             ! relative tolerance
+  real(c_double), parameter :: atol = 1.0d-11            ! absolute tolerance
+  integer(c_int), parameter :: acc_type = ARK_ACCUMERROR_MAX ! error accumulation type
 
   ! Output variables
   real(c_double) :: output_dt        ! output interval
@@ -378,8 +376,8 @@ program main
 
   yvec => FN_VNew_Serial(neq, sunctx)
   if (.not. associated(yvec)) then
-     print *, 'ERROR: N_VNew_Serial failed'
-     stop 1
+    print *, 'ERROR: N_VNew_Serial failed'
+    stop 1
   end if
 
   retval = Ytrue(T0, yvec)
@@ -391,8 +389,8 @@ program main
 
   f_arkode_mem = FERKStepCreate(c_funloc(ff), t0, yvec, sunctx)
   if (.not. c_associated(f_arkode_mem)) then
-     print *, 'ERROR: f_arkode_mem = NULL'
-     stop 1
+    print *, 'ERROR: f_arkode_mem = NULL'
+    stop 1
   end if
 
   retval = FARKodeSStolerances(f_arkode_mem, rtol, atol)
@@ -413,8 +411,8 @@ program main
 
   m_arkode_mem = FMRIStepCreate(c_funloc(fm), c_null_funptr, t0, yvec, f_stepper, sunctx)
   if (.not. c_associated(m_arkode_mem)) then
-     print *, 'ERROR: m_arkode_mem = NULL'
-     stop 1
+    print *, 'ERROR: m_arkode_mem = NULL'
+    stop 1
   end if
 
   retval = FARKodeSStolerances(m_arkode_mem, rtol, atol)
@@ -428,20 +426,20 @@ program main
 
   m_controller_H => FSUNAdaptController_I(sunctx)
   if (.not. associated(m_controller_H)) then
-     print *, 'ERROR: m_controller_H = NULL'
-     stop 1
+    print *, 'ERROR: m_controller_H = NULL'
+    stop 1
   end if
 
   m_controller_Tol => FSUNAdaptController_I(sunctx)
   if (.not. associated(m_controller_Tol)) then
-     print *, 'ERROR: m_controller_Tol = NULL'
-     stop 1
+    print *, 'ERROR: m_controller_Tol = NULL'
+    stop 1
   end if
 
   m_controller => FSUNAdaptController_MRIHTol(m_controller_H, m_controller_Tol, sunctx)
   if (.not. associated(m_controller)) then
-     print *, 'ERROR: m_controller = NULL'
-     stop 1
+    print *, 'ERROR: m_controller = NULL'
+    stop 1
   end if
 
   retval = FARKodeSetAdaptController(m_arkode_mem, m_controller)
@@ -456,8 +454,8 @@ program main
 
   s_arkode_mem = FMRIStepCreate(c_funloc(fs), c_null_funptr, t0, yvec, m_stepper, sunctx)
   if (.not. c_associated(s_arkode_mem)) then
-     print *, 'ERROR: s_arkode_mem = NULL'
-     stop 1
+    print *, 'ERROR: s_arkode_mem = NULL'
+    stop 1
   end if
 
   retval = FARKodeSStolerances(s_arkode_mem, rtol, atol)
@@ -468,20 +466,20 @@ program main
 
   s_controller_H => FSUNAdaptController_I(sunctx)
   if (.not. associated(s_controller_H)) then
-     print *, 'ERROR: s_controller_H = NULL'
-     stop 1
+    print *, 'ERROR: s_controller_H = NULL'
+    stop 1
   end if
 
   s_controller_Tol => FSUNAdaptController_I(sunctx)
   if (.not. associated(s_controller_Tol)) then
-     print *, 'ERROR: s_controller_Tol = NULL'
-     stop 1
+    print *, 'ERROR: s_controller_Tol = NULL'
+    stop 1
   end if
 
   s_controller => FSUNAdaptController_MRIHTol(s_controller_H, s_controller_Tol, sunctx)
   if (.not. associated(s_controller)) then
-     print *, 'ERROR: s_controller = NULL'
-     stop 1
+    print *, 'ERROR: s_controller = NULL'
+    stop 1
   end if
 
   retval = FARKodeSetAdaptController(s_arkode_mem, s_controller)
@@ -491,42 +489,42 @@ program main
   ! Advance in time
   ! ---------------
 
-  output_dt  = (tf - t0) / num_output ! output interval
-  tout       = t0 + output_dt         ! output time
-  tret       = t0                     ! return time
+  output_dt = (tf - t0)/num_output ! output interval
+  tout = t0 + output_dt         ! output time
+  tret = t0                     ! return time
 
   ! Get state data to output
   ydata => FN_VGetArrayPointer(yvec)
 
   print '(7A23)', "t", "u", "v", "w", "u err", "v err", "w err"
   do iout = 1, 7*23
-     write (*, '(A)', advance='no') "-"
+    write (*, '(A)', advance='no') "-"
   end do
   write (*, *)
   print '(7ES23.15)', tret(1), ydata(1), ydata(2), ydata(3), 0.0d0, 0.0d0, 0.0d0
 
   do iout = 1, num_output
 
-     ! Stop at output time (do not interpolate)
-     retval = FARKodeSetStopTime(s_arkode_mem, tout)
+    ! Stop at output time (do not interpolate)
+    retval = FARKodeSetStopTime(s_arkode_mem, tout)
 
-     retval = FARKodeEvolve(s_arkode_mem, tout, yvec, tret, ARK_NORMAL)
-     call check_retval(retval, "FARKodeEvolve")
+    retval = FARKodeEvolve(s_arkode_mem, tout, yvec, tret, ARK_NORMAL)
+    call check_retval(retval, "FARKodeEvolve")
 
-     ! Output solution and error
-     uerr = abs(utrue(tret(1)) - ydata(1))
-     verr = abs(vtrue(tret(1)) - ydata(2))
-     werr = abs(wtrue(tret(1)) - ydata(3))
+    ! Output solution and error
+    uerr = abs(utrue(tret(1)) - ydata(1))
+    verr = abs(vtrue(tret(1)) - ydata(2))
+    werr = abs(wtrue(tret(1)) - ydata(3))
 
-     print '(7ES23.15)', tret(1), ydata(1), ydata(2), ydata(3), uerr, verr, werr
+    print '(7ES23.15)', tret(1), ydata(1), ydata(2), ydata(3), uerr, verr, werr
 
-     ! Update output time
-     tout = tout + output_dt
+    ! Update output time
+    tout = tout + output_dt
 
   end do
 
   do iout = 1, 7*23
-     write (*, '(A)', advance='no') "-"
+    write (*, '(A)', advance='no') "-"
   end do
   write (*, *)
 

@@ -1076,7 +1076,8 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
     ark_mem->lrw += step_mem->MRIC->stages;
 
     /* Allocate reusable arrays for fused vector operations */
-    int fused_workspace_size = SUNMAX(3, 2 * step_mem->MRIC->stages + 2 + step_mem->nforcing);
+    int fused_workspace_size =
+      SUNMAX(3, 2 * step_mem->MRIC->stages + 2 + step_mem->nforcing);
 
     if (step_mem->nfusedopvecs < fused_workspace_size)
     {
