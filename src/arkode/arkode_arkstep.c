@@ -108,6 +108,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setuserdata               = arkStep_SetUserData;
   ark_mem->step_printallstats             = arkStep_PrintAllStats;
   ark_mem->step_writeparameters           = arkStep_WriteParameters;
+  ark_mem->step_setusecompensatedsums     = NULL;
   ark_mem->step_resize                    = arkStep_Resize;
   ark_mem->step_free                      = arkStep_Free;
   ark_mem->step_printmem                  = arkStep_PrintMem;

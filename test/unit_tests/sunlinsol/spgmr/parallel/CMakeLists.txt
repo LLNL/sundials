@@ -24,7 +24,7 @@ set(sunlinsol_spgmr_examples
     "test_sunlinsol_spgmr_parallel\;100 2 1 50 1e-3 0\;1\;4\;"
     "test_sunlinsol_spgmr_parallel\;100 2 2 50 1e-3 0\;1\;4\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_spgmr_dependencies test_sunlinsol)
 
 # Add source directory to include directories

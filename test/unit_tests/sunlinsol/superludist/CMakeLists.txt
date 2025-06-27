@@ -24,7 +24,7 @@ set(sunlinsol_superludist_examples
     "test_sunlinsol_superludist.cpp\;900 3 1 0\;3\;"
     "test_sunlinsol_superludist.cpp\;1000 2 2 0\;4\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_superludist_dependencies test_sunlinsol)
 
 if(SUPERLUDIST_CUDA)

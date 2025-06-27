@@ -31,7 +31,7 @@ set(sunlinsol_spfgmr_examples
     "test_sunlinsol_spfgmr_serial\;100 1 100 ${TOL} 0\;"
     "test_sunlinsol_spfgmr_serial\;100 2 100 ${TOL} 0\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_spfgmr_dependencies test_sunlinsol)
 
 if(BUILD_FORTRAN_MODULE_INTERFACE)

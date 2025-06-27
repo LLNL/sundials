@@ -316,6 +316,8 @@ int ARKodeSetAdjointCheckpointScheme(void* arkode_mem,
                                      SUNAdjointCheckpointScheme checkpoint_scheme);
 SUNDIALS_EXPORT
 int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index);
+SUNDIALS_EXPORT
+int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff);
 SUNDIALS_EXPORT int ARKodeSetAccumulatedErrorType(void* arkode_mem,
                                                   ARKAccumError accum_type);
 SUNDIALS_EXPORT int ARKodeResetAccumulatedError(void* arkode_mem);

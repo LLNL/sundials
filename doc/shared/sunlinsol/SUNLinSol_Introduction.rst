@@ -112,7 +112,7 @@ the definition of functions supplied to a linear solver implementation in
 :numref:`SUNLinSol.SUNSuppliedFn`. The linear solver return
 codes are described in :numref:`SUNLinSol.ErrorCodes`. The
 ``SUNLinearSolver`` type and the generic SUNLinSol module are defined in
-:numref:`SUNLininSol.Generic`.  :numref:`SUNLinSol.API.Custom` lists the
+:numref:`SUNLinSol.API.Generic`.  :numref:`SUNLinSol.API.Custom` lists the
 requirements for supplying a custom SUNLinSol module and discusses some
 intended use cases. Users wishing to supply their own SUNLinSol module are
 encouraged to use the SUNLinSol implementations provided with SUNDIALS as a

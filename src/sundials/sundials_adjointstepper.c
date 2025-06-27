@@ -99,8 +99,11 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper self,
 
   SUNCheckCall(SUNStepper_SetStopTime(fwd_stepper, tf));
 
+  suncountertype nst_before, nst_after;
+  SUNCheckCall(SUNStepper_GetNumSteps(fwd_stepper, &nst_before));
   SUNCheckCall(SUNStepper_Evolve(fwd_stepper, tf, y0, &fwd_t));
-  self->nrecompute++;
+  SUNCheckCall(SUNStepper_GetNumSteps(fwd_stepper, &nst_after));
+  self->nrecompute += nst_after - nst_before;
 
   SUNCheckCall(SUNAdjointCheckpointScheme_EnableDense(self->checkpoint_scheme, 0));
 
@@ -148,7 +151,7 @@ SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper self,
   suncountertype nst = 0;
   SUNCheckCall(SUNStepper_GetNumSteps(self->adj_sunstepper, &nst));
   sunfprintf_long(outfile, fmt, SUNTRUE, "Num backwards steps", nst);
-  sunfprintf_long(outfile, fmt, SUNFALSE, "Num recompute passes",
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Num recompute steps",
                   self->nrecompute);
 
   return SUN_SUCCESS;

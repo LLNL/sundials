@@ -32,7 +32,7 @@ sedi() {
 # ------------------------------------------------------------------------------
 
 fn="../doc/shared/sundials_vars.py"
-sedi "s/doc_version =.*/doc_version = \'develop\'/" $fn
+sedi "s/doc_version =.*/doc_version = \"develop\"/" $fn
 
 # ------------------------------------------------------------------------------
 # Update Markdown changelog

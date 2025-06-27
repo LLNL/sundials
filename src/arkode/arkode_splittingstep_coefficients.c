@@ -445,7 +445,6 @@ SplittingStepCoefficients SplittingStepCoefficients_SuzukiFractal(
 void SplittingStepCoefficients_Write(const SplittingStepCoefficients coefficients,
                                      FILE* const outfile)
 {
-  // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   if (outfile == NULL || coefficients == NULL || coefficients->alpha == NULL ||
       coefficients->beta == NULL || coefficients->beta[0] == NULL ||
       coefficients->beta[0][0] == NULL)
