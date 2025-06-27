@@ -528,7 +528,6 @@ program main
   end do
   write (*, *)
   write (*, *)
-  call flush
 
   ! ----------------
   ! Final statistics
