@@ -318,7 +318,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Hip(SUNMemoryHelper helper, SUNMemory dst,
   hipStream_t stream = 0;
 
   if (queue != NULL) { stream = *((hipStream_t*)queue); }
-  else if (helper->queue != NULL) { *((hipStream_t*)helper->queue); }
+  else if (helper->queue != NULL) { stream = *((hipStream_t*)helper->queue); }
 
   switch (src->type)
   {
