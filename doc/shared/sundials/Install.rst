@@ -39,7 +39,7 @@ install with the command
 
    spack install sundials
 
-Additional options can be enabled through various Spack package variants. For
+Additional options can be enabled through Spack package variants. For
 information on the available variants visit the `SUNDIALS Spack package
 <https://packages.spack.io/package.html?name=sundials>`__ web page or use the
 command
@@ -60,7 +60,7 @@ available allowing for an interactive build and installation process.
 
 At a minimum, building SUNDIALS requires CMake version 3.18.0 or higher and a
 working C compiler. If a compatible version of CMake is not already installed on
-you system, source files or pre-built binary files can be obtained from the
+your system, source files or pre-built binary files can be obtained from the
 `CMake Download website <https://cmake.org/download/>`__.
 
 When building with CMake, you will need to obtain the SUNDIALS source code. You
@@ -76,22 +76,23 @@ or by downloading release compressed archives (``.tar.gz`` files) from the
 <https://computing.llnl.gov/projects/sundials/sundials-software>`__. The
 compressed archives allow for downloading the entire SUNDIALS suite or
 individual packages. The name of the distribution archive is of the form
-``SOLVER-x.y.z.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
-``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``x.y.z``
+``SOLVER-a.b.c.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
+``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``a.b.c``
 represents the version number of the SUNDIALS suite or of the individual
 package. After downloading the relevant archives, uncompress and expand the
-sources. For example, by running
+sources. For example, if you downloaded ``sundials-x.y.z.tar.gz``, running the
+command
 
 .. code-block:: bash
 
-   tar -zxf SOLVER-x.y.z.tar.gz
+   tar -zxf sundials-x.y.z.tar.gz
 
-the extracted source files will be under the ``SOLVER-x.y.z`` directory.
+will extract the source files under the ``sundials-x.y.z`` directory.
 
 In the installation steps below we will refer to the following directories:
 
 * ``SOLVER_DIR`` is the ``sundials`` directory created when cloning from GitHub
-  or the ``SOLVER-x.y.z`` directory created after uncompressing the release
+  or the ``SOLVER-a.b.c`` directory created after uncompressing the release
   archive.
 
 * ``BUILD_DIR`` is the (temporary) directory under which SUNDIALS is built.
@@ -441,7 +442,8 @@ C++ Compiler
 
    The C++ standard used when building SUNDIALS C++ source files.
 
-   Default: ``14``
+   Default: ``14`` or ``17`` if :cmakeop:`ENABLE_GINKGO` or
+   :cmakeop:`ENABLE_SYCL` are ``ON``
 
    Options: ``14``, ``17``, or ``20``
 
@@ -958,12 +960,13 @@ Building with Ginkgo
 
 `Ginkgo <https://ginkgo-project.github.io/>`__ is a high-performance linear
 algebra library with a focus on solving sparse linear systems. It is implemented
-using modern C++ (you will need at least a C++14 compliant compiler to build
+using modern C++ (you will need at least a C++17 compliant compiler to build
 it), with GPU kernels implemented in CUDA (for NVIDIA devices), HIP (for AMD
 devices), and SYCL/DPC++ (for Intel devices and other supported
 hardware). Ginkgo can be obtained from the `Ginkgo GitHub repository
-<https://github.com/ginkgo-project/ginkgo>`__. SUNDIALS is regularly tested with
-the latest versions of Ginkgo, specifically up to version 1.8.0.
+<https://github.com/ginkgo-project/ginkgo>`__. SUNDIALS requires using Ginkgo
+version 1.9.0 or newer and is regularly tested with the latest versions of
+Ginkgo, specifically versions 1.9.0 and 1.10.0.
 
 When Ginkgo support is enabled, the :ref:`Ginkgo SUNMatrix <SUNMatrix.Ginkgo>`
 and the :ref:`Ginkgo SUNLinearSolver <SUNLinSol.Ginkgo>` header files will be

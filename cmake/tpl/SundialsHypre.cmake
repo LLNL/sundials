@@ -36,16 +36,10 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
-if(ENABLE_HYPRE)
-  # Using hypre requires building with MPI enabled
-  if(NOT ENABLE_MPI)
-    message(
-      FATAL_ERROR "MPI is required for hypre support. Set ENABLE_MPI to ON.")
-  endif()
-  # Using hypre requires C99 or newer
-  if(CMAKE_C_STANDARD STREQUAL "90")
-    message(SEND_ERROR "CMAKE_C_STANDARD must be >= c99 with ENABLE_HYPRE=ON")
-  endif()
+# Using hypre requires building with MPI enabled
+if(NOT ENABLE_MPI)
+  message(
+    FATAL_ERROR "MPI is required for hypre support. Set ENABLE_MPI to ON.")
 endif()
 
 # -----------------------------------------------------------------------------

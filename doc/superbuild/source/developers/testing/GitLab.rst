@@ -90,7 +90,7 @@ Take for example, this Tioga job:
      variables:
        # have to use ginkgo@master because our spack version does not have ginkgo@1.8.0: yet (which seems to be needed)
        # similarly, we need a newer magma than available to compile with 'rocm@6:' so we turn it off
-       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=17 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
      before_script:
        - module load rocmcc/6.2.0-magic
      extends: [.sundials_job_on_tioga]
@@ -119,7 +119,7 @@ section of the job, e.g.,
            AMDGPU_TARGET: [gfx90a]
      variables:
        ON_TIOGA: "OFF" # disable this job
-       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=17 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
      before_script:
        - module load rocmcc/6.2.0-magic
      extends: [.sundials_job_on_tioga]
