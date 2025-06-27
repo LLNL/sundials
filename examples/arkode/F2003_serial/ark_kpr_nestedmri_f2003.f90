@@ -527,6 +527,8 @@ program main
     write (*, '(A)', advance='no') "-"
   end do
   write (*, *)
+  write (*, *)
+  call flush
 
   ! ----------------
   ! Final statistics
@@ -539,9 +541,11 @@ program main
   print '(A)', "Slow Integrator Stats"
   retval = FARKodePrintAllStats(s_arkode_mem, fp, SUN_OUTPUTFORMAT_TABLE)
   write (*, *)
+  call flush
   print '(A)', "Intermediate Integrator Stats"
   retval = FARKodePrintAllStats(m_arkode_mem, fp, SUN_OUTPUTFORMAT_TABLE)
   write (*, *)
+  call flush
   print '(A)', "Fast Integrator Stats"
   retval = FARKodePrintAllStats(f_arkode_mem, fp, SUN_OUTPUTFORMAT_TABLE)
 
