@@ -539,14 +539,15 @@ program main
   call check_retval(retval, "FSUNDIALSFileOpen")
 
   print '(A)', "Slow Integrator Stats"
+  call flush
   retval = FARKodePrintAllStats(s_arkode_mem, fp, SUN_OUTPUTFORMAT_TABLE)
   write (*, *)
-  call flush
   print '(A)', "Intermediate Integrator Stats"
+  call flush
   retval = FARKodePrintAllStats(m_arkode_mem, fp, SUN_OUTPUTFORMAT_TABLE)
   write (*, *)
-  call flush
   print '(A)', "Fast Integrator Stats"
+  call flush
   retval = FARKodePrintAllStats(f_arkode_mem, fp, SUN_OUTPUTFORMAT_TABLE)
 
   ! Close the file
