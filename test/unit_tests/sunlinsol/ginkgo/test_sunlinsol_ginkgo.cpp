@@ -769,7 +769,8 @@ int main(int argc, char* argv[])
  * Implementation-specific 'check' routines                                   *
  * -------------------------------------------------------------------------- */
 
-int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
+extern "C" int check_vector(N_Vector expected, N_Vector actual,
+                            sunrealtype check_tol)
 {
   int failure{0};
 
@@ -817,7 +818,7 @@ int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
   return failure > 0;
 }
 
-void sync_device()
+extern "C" void sync_device()
 {
   HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(),
                       global_exec->synchronize());

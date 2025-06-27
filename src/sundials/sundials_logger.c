@@ -30,7 +30,7 @@
 #include <mpi.h>
 #endif
 
-#include "sundials_logger_impl.h"
+#include <sundials/priv/sundials_logger_impl.h>
 #include "sundials_macros.h"
 #include "sundials_utils.h"
 

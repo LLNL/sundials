@@ -5,6 +5,10 @@
 
 **New Features and Enhancements**
 
+A new SUNLinearSolver module, SUNLINEARSOLVER_GINKGOBLOCK, for block/batched systems is included.
+A corresponding SUNMatrix module, SUNMATRIX_GINKGOBLOCK, was also added.
+These new modules use the `Ginkgo linear solver library <https://ginkgo-project.github.io/>`__.
+
 **Bug Fixes**
 
 The shared library version numbers for the oneMKL dense linear solver and
