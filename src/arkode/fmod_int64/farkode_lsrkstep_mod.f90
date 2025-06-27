@@ -49,12 +49,28 @@ module farkode_lsrkstep_mod
  public :: FLSRKStepSetSTSMethodByName
  public :: FLSRKStepSetSSPMethodByName
  public :: FLSRKStepSetDomEigFn
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
+ type, public :: SWIGTYPE_p_SUNDomEigEstimator_ID
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ type, public :: SWIGTYPE_p_SUNDomEigEstimator
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ public :: FLSRKStepDomEigEstCreate
  public :: FLSRKStepSetDomEigFrequency
  public :: FLSRKStepSetMaxNumStages
  public :: FLSRKStepSetDomEigSafetyFactor
  public :: FLSRKStepSetNumSSPStages
  public :: FLSRKStepGetNumDomEigUpdates
  public :: FLSRKStepGetMaxNumStages
+ public :: FLSRKStepGetNumRHSinDQ
 
 ! WRAPPER DECLARATIONS
 interface
@@ -149,6 +165,17 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FLSRKStepDomEigEstCreate(farg1, farg2, farg3) &
+bind(C, name="_wrap_FLSRKStepDomEigEstCreate") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigClassWrapper) :: farg2
+type(SwigClassWrapper) :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FLSRKStepSetDomEigFrequency(farg1, farg2) &
 bind(C, name="_wrap_FLSRKStepSetDomEigFrequency") &
 result(fresult)
@@ -196,6 +223,15 @@ end function
 
 function swigc_FLSRKStepGetMaxNumStages(farg1, farg2) &
 bind(C, name="_wrap_FLSRKStepGetMaxNumStages") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepGetNumRHSinDQ(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepGetNumRHSinDQ") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -396,6 +432,25 @@ fresult = swigc_FLSRKStepSetDomEigFn(farg1, farg2)
 swig_result = fresult
 end function
 
+function FLSRKStepDomEigEstCreate(arkode_mem, dee_id, dee) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(SWIGTYPE_p_SUNDomEigEstimator_ID), intent(in) :: dee_id
+class(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg2 
+type(SwigClassWrapper) :: farg3 
+
+farg1 = arkode_mem
+farg2 = dee_id%swigdata
+farg3 = dee%swigdata
+fresult = swigc_FLSRKStepDomEigEstCreate(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FLSRKStepSetDomEigFrequency(arkode_mem, nsteps) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -489,6 +544,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(stage_max(1))
 fresult = swigc_FLSRKStepGetMaxNumStages(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepGetNumRHSinDQ(arkode_mem, nfedq) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nfedq
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(nfedq(1))
+fresult = swigc_FLSRKStepGetNumRHSinDQ(farg1, farg2)
 swig_result = fresult
 end function
 

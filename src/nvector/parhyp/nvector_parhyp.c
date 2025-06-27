@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 #include <nvector/nvector_parhyp.h>
-#include <sundials/sundials_errors.h>
+#include <sundials/priv/sundials_mpi_errors_impl.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector.h>
 
@@ -127,6 +127,7 @@ static void VScaleDiff_ParHyp(sunrealtype c, N_Vector x, N_Vector y, N_Vector z)
 static void VLin1_ParHyp(sunrealtype a, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax-y */
 static void VLin2_ParHyp(sunrealtype a, N_Vector x, N_Vector y, N_Vector z);
+static SUNErrCode N_VRandom_ParHyp(N_Vector x);
 
 /*
  * -----------------------------------------------------------------
@@ -150,8 +151,10 @@ N_Vector_ID N_VGetVectorID_ParHyp(SUNDIALS_MAYBE_UNUSED N_Vector v)
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
                             sunindextype global_length, SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
   N_Vector v;
   N_VectorContent_ParHyp content;
+  int myid;
 
   /* Create an empty vector object */
   v = NULL;
@@ -189,6 +192,7 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
   v->ops->nvinvtest      = N_VInvTest_ParHyp;
   v->ops->nvconstrmask   = N_VConstrMask_ParHyp;
   v->ops->nvminquotient  = N_VMinQuotient_ParHyp;
+  v->ops->nvrandom       = N_VRandom_ParHyp;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
@@ -230,6 +234,10 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
   content->comm          = comm;
   content->own_parvector = SUNFALSE;
   content->x             = NULL;
+
+  /* Seed random number generator with MPI rank ID to ensure distinct streams */
+  SUNCheckMPICallNull(MPI_Comm_rank(comm, &myid));
+  srand(myid + 1);
 
   return (v);
 }
@@ -932,6 +940,18 @@ sunrealtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
   lmin = N_VMinQuotientLocal_ParHyp(num, denom);
   MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_PH(num));
   return (gmin);
+}
+
+SUNErrCode N_VRandom_ParHyp(N_Vector x)
+{
+  SUNFunctionBegin(x->sunctx);
+  sunrealtype* xd = NULL;
+  xd              = NV_DATA_PH(x);
+  for (int i = 0; i < NV_LOCLENGTH_PH(x); i++)
+  {
+    xd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
+  }
+  return SUN_SUCCESS;
 }
 
 /*

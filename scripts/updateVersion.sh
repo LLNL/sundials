@@ -164,6 +164,19 @@ else
     nls_ver="${nls_major}.${nls_minor}.${nls_patch}-${nls_label}"
 fi
 
+# Set the SUNDomEigEstimator version values. Assume the major version is six
+# less than the SUNDIALS major version.
+dee_major=$(( sun_major - 6 ))
+dee_minor=$sun_minor
+dee_patch=$sun_patch
+dee_label=$sun_label
+
+if [ "${dee_label}" == "" ]; then
+    dee_ver="${dee_major}.${dee_minor}.${dee_patch}"
+else
+    dee_ver="${dee_major}.${dee_minor}.${dee_patch}-${dee_label}"
+fi
+
 # ------------------------------------------------------------------------------
 # Wrapper for editing inplace with different sed implementations
 # ------------------------------------------------------------------------------
@@ -216,6 +229,9 @@ sedi "/sunlinsollib_SOVERSION.*/ s/SOVERSION.*/SOVERSION \"${ls_major}\")/" $fn
 
 sedi "/sunnonlinsollib_VERSION.*/   s/VERSION.*/VERSION \"${nls_ver}\")/" $fn
 sedi "/sunnonlinsollib_SOVERSION.*/ s/SOVERSION.*/SOVERSION \"${nls_major}\")/" $fn
+
+sedi "/sundomeigestlib_VERSION.*/   s/VERSION.*/VERSION \"${dee_ver}\")/" $fn
+sedi "/sundomeigestlib_SOVERSION.*/ s/SOVERSION.*/SOVERSION \"${dee_major}\")/" $fn
 
 # ------------------------------------------------------------------------------
 # Update README files

@@ -33,6 +33,7 @@ set(sundials_HEADERS
     sundials_core.hpp
     sundials_dense.h
     sundials_direct.h
+    sundials_domeigestimator.h
     sundials_errors.h
     sundials_futils.h
     sundials_iterative.h
@@ -91,6 +92,7 @@ set(sundials_SOURCES
     sundials_datanode.c
     sundials_direct.c
     sundials_errors.c
+    sundials_domeigestimator.c
     sundials_futils.c
     sundials_hashmap.c
     sundials_iterative.c
@@ -133,7 +135,9 @@ sundials_add_library(
   SOURCES ${sundials_SOURCES}
   HEADERS ${sundials_HEADERS}
   INCLUDE_SUBDIR sundials
-  LINK_LIBRARIES ${_link_mpi_if_needed}
+  LINK_LIBRARIES
+    ${_link_mpi_if_needed} ${_link_lapack_if_needed} # TODO: Do we need to link
+                                                     # lapack here?
   OUTPUT_NAME sundials_core
   VERSION ${sundialslib_VERSION}
   SOVERSION ${sundialslib_SOVERSION})

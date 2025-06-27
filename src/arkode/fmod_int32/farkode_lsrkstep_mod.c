@@ -178,6 +178,30 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
+enum {
+    SWIG_MEM_OWN = 0x01,
+    SWIG_MEM_RVALUE = 0x02,
+    SWIG_MEM_CONST = 0x04
+};
+
+
+#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+  if (!(SWIG_CLASS_WRAPPER).cptr) { \
+    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
+                        "as a reference", RETURNNULL); \
+  }
+
+
+#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
+        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+            "Cannot pass const " TYPENAME " (class " FNAME ") " \
+            "as a mutable reference", \
+            RETURNNULL); \
+    }
+
+
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -228,6 +252,20 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   result.data = NULL;
   result.size = 0;
   return result;
+}
+
+
+typedef struct {
+    void* cptr;
+    int cmemflags;
+} SwigClassWrapper;
+
+
+SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+    SwigClassWrapper result;
+    result.cptr = NULL;
+    result.cmemflags = 0;
+    return result;
 }
 
 SWIGEXPORT void * _wrap_FLSRKStepCreateSTS(ARKRhsFn farg1, double const *farg2, N_Vector farg3, void *farg4) {
@@ -372,6 +410,24 @@ SWIGEXPORT int _wrap_FLSRKStepSetDomEigFn(void *farg1, ARKDomEigFn farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FLSRKStepDomEigEstCreate(void *farg1, SwigClassWrapper const *farg2, SwigClassWrapper const *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNDomEigEstimator_ID arg2 ;
+  SUNDomEigEstimator *arg3 = (SUNDomEigEstimator *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  SWIG_check_nonnull(*farg2, "SUNDomEigEstimator_ID", "SWIGTYPE_p_SUNDomEigEstimator_ID", "LSRKStepDomEigEstCreate(void *,SUNDomEigEstimator_ID,SUNDomEigEstimator *)", return 0);
+  arg2 = *(SUNDomEigEstimator_ID *)(farg2->cptr);
+  SWIG_check_mutable(*farg3, "SUNDomEigEstimator *", "SWIGTYPE_p_SUNDomEigEstimator", "LSRKStepDomEigEstCreate(void *,SUNDomEigEstimator_ID,SUNDomEigEstimator *)", return 0);
+  arg3 = (SUNDomEigEstimator *)(farg3->cptr);
+  result = (int)LSRKStepDomEigEstCreate(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FLSRKStepSetDomEigFrequency(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -451,6 +507,20 @@ SWIGEXPORT int _wrap_FLSRKStepGetMaxNumStages(void *farg1, int *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)LSRKStepGetMaxNumStages(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepGetNumRHSinDQ(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)LSRKStepGetNumRHSinDQ(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -19,6 +19,11 @@
 #define _ARKODE_LSRKSTEP_IMPL_H
 
 #include <arkode/arkode_lsrkstep.h>
+#include <sundomeigest/sundomeigest_pi.h>
+
+#ifdef SUNDIALS_BLAS_LAPACK_ENABLED
+#include <sundomeigest/sundomeigest_arni.h>
+#endif
 
 #include "arkode_impl.h"
 
@@ -138,7 +143,8 @@ typedef struct ARKodeLSRKStepMemRec
   ARKODE_LSRKMethodType LSRKmethod;
 
   /* Counters and stats*/
-  long int nfe;               /* num fe calls       */
+  long int nfe;   /* num fe calls       */
+  long int nfeDQ; /* num fe calls for difference quotient approximation */
   long int dom_eig_num_evals; /* num of dom_eig computations   */
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
@@ -153,6 +159,16 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype spectral_radius_min; /* min spectral radius*/
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
+
+  SUNDomEigEstimator_ID DDE_ID; /* DEE ID */
+  SUNDomEigEstimator DEE;       /* DomEig estimator*/
+  int dee_krydim;               /* Krylov subspace dimension */
+  int dee_numwarmups; /* Power of A in the preprocessing; initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
+  int dee_maxiters;   /* Max number of Power Iterations */
+  int dee_curniter;   /* Current number of iterations */
+  long int dee_niters; /* Total number of iterations */
+  sunrealtype dee_tol; /* Tolerance of the DEE*/
+  sunrealtype dee_res; /* Current residual of the DEE*/
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */
@@ -203,6 +219,10 @@ int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
+SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem);
+int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
+                            sunrealtype* lambdaR, sunrealtype* lambdaI);
+int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv);
 
 /*===============================================================
   Reusable LSRKStep Error Messages
