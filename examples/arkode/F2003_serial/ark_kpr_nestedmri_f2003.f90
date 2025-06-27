@@ -389,7 +389,6 @@ program main
   ! Create fast integrator
   ! ----------------------
 
-  !f_arkode_mem = FARKStepCreate(c_funloc(ff), c_null_ptr, t0, yvec, sunctx)
   f_arkode_mem = FERKStepCreate(c_funloc(ff), t0, yvec, sunctx)
   if (.not. c_associated(f_arkode_mem)) then
      print *, 'ERROR: f_arkode_mem = NULL'
@@ -412,7 +411,7 @@ program main
   ! Create intermediate integrator
   ! ------------------------------
 
-  m_arkode_mem = FMRIStepCreate(c_funloc(fm), c_null_ptr, t0, yvec, f_stepper, sunctx)
+  m_arkode_mem = FMRIStepCreate(c_funloc(fm), c_null_funptr, t0, yvec, f_stepper, sunctx)
   if (.not. c_associated(m_arkode_mem)) then
      print *, 'ERROR: m_arkode_mem = NULL'
      stop 1
@@ -455,7 +454,7 @@ program main
   ! Create slow integrator
   ! ----------------------
 
-  s_arkode_mem = FMRIStepCreate(c_funloc(fs), c_null_ptr, t0, yvec, m_stepper, sunctx)
+  s_arkode_mem = FMRIStepCreate(c_funloc(fs), c_null_funptr, t0, yvec, m_stepper, sunctx)
   if (.not. c_associated(s_arkode_mem)) then
      print *, 'ERROR: s_arkode_mem = NULL'
      stop 1
