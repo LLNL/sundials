@@ -49,8 +49,7 @@ message(STATUS "GINKGO CXX FLAGS:   ${GINKGO_INTERFACE_CXX_FLAGS}")
 
 if(GINKGO_PROJECT_VERSION VERSION_LESS "1.9.0")
   message(
-    FATAL_ERROR
-      "The SUNDIALS Ginkgo interface requires Ginkgo 1.9.0 or newer")
+    FATAL_ERROR "The SUNDIALS Ginkgo interface requires Ginkgo 1.9.0 or newer")
 endif()
 
 # -----------------------------------------------------------------------------
