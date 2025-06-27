@@ -37,7 +37,7 @@ endif()
 # -----------------------------------------------------------------------------
 
 if(CMAKE_CXX_STANDARD LESS "17")
-  message(SEND_ERROR "CMAKE_CXX_STANDARD must be >= 17 when using Ginkgo")
+  message(FATAL_ERROR "CMAKE_CXX_STANDARD must be >= 17 when using Ginkgo")
 endif()
 
 # -----------------------------------------------------------------------------

@@ -43,5 +43,5 @@ message(STATUS "C++ extensions set to ${CMAKE_CXX_EXTENSIONS}")
 
 # SYCL requires C++17
 if(ENABLE_SYCL AND (CMAKE_CXX_STANDARD LESS "17"))
-  message(SEND_ERROR "CMAKE_CXX_STANDARD must be >= 17 because ENABLE_SYCL=ON")
+  message(FATAL_ERROR "CMAKE_CXX_STANDARD must be >= 17 because ENABLE_SYCL=ON")
 endif()
