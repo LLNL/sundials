@@ -1113,7 +1113,7 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
       }
       step_mem->nfusedopvecs = fused_workspace_size;
       ark_mem->lrw += fused_workspace_size;
-      ark_mem->liw += step_mem->nfusedopvecs;
+      ark_mem->liw += fused_workspace_size;
     }
 
     /* Retrieve/store method and embedding orders now that tables are finalized */
