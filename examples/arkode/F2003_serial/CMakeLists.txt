@@ -18,7 +18,9 @@
 # Example lists are tuples "name\;type" where the type is 'develop' for examples
 # excluded from 'make test' in releases
 
-set(FARKODE_examples "ark_analytic_f2003\;\;develop")
+set(FARKODE_examples
+  "ark_analytic_f2003\;\;develop"
+  "ark_kpr_nestedmri_f2003\;\;develop")
 
 # Regression tests
 set(FARKODE_tests "test_ark_butcher_f2003\;develop")
@@ -42,8 +44,7 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
     "ark_kpr_mri_f2003\;6 0.005\;develop"
     "ark_kpr_mri_f2003\;7 0.001\;develop"
     "ark_kpr_mri_f2003\;8 0.001\;develop"
-    "ark_kpr_mri_f2003\;9 0.001\;develop"
-    "ark_kpr_nestedmri_f2003\;\;develop")
+    "ark_kpr_mri_f2003\;9 0.001\;develop")
 
   set(FARKODE_examples_KLU "ark_bruss1D_FEM_klu_f2003\;develop")
 
