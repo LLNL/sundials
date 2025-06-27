@@ -573,6 +573,9 @@ program main
   retval = FSUNAdaptController_Destroy(s_controller_Tol)
   call FARKodeFree(s_arkode_mem)
 
+  ! Context
+  retval = FSUNContext_Free(sunctx)
+
 end program main
 
 ! ------------------------------------------------------------------------------
