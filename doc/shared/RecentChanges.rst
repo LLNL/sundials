@@ -17,7 +17,7 @@ Fixed a bug in the CUDA and HIP implementations of ``SUNMemoryHelper_CopyAsync``
 where the execution stream is not extracted correctly from the helper when a
 stream is not provided to ``SUNMemoryHelper_CopyAsync``.
 
-Fixed a bug in MRIStep where a segfault could occur when an MRI coupling table
+Fixed a bug in MRIStep where a segfault would occur when an MRI coupling table
 is not explicitly set and an MRI integrator is nested inside another MRI
 integrator.
 
