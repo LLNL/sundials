@@ -47,6 +47,12 @@ message(STATUS "GINKGO LIBRARIES:   ${GINKGO_INTERFACE_LINK_LIBRARIES}")
 message(STATUS "GINKGO LINK FLAGS:  ${GINKGO_INTERFACE_LINK_FLAGS}")
 message(STATUS "GINKGO CXX FLAGS:   ${GINKGO_INTERFACE_CXX_FLAGS}")
 
+if(GINKGO_PROJECT_VERSION VERSION_LESS "1.9.0")
+  message(
+    FATAL_ERROR
+      "The SUNDIALS Ginkgo interface requires Ginkgo 1.9.0 or newer")
+endif()
+
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
