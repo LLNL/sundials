@@ -28,7 +28,7 @@ set(CXX_FOUND TRUE)
 sundials_option(CMAKE_CXX_STANDARD_REQUIRED BOOL "Require C++ standard version"
                 ON)
 
-if(ENABLE_SYCL)
+if(ENABLE_SYCL OR ENABLE_GINKGO)
   set(DOCSTR "The C++ standard to use if C++ is enabled (17, 20)")
   sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "17" OPTIONS "17;20")
 else()
@@ -43,5 +43,5 @@ message(STATUS "C++ extensions set to ${CMAKE_CXX_EXTENSIONS}")
 
 # SYCL requires C++17
 if(ENABLE_SYCL AND (CMAKE_CXX_STANDARD LESS "17"))
-  message(SEND_ERROR "CMAKE_CXX_STANDARD must be >= 17 because ENABLE_SYCL=ON")
+  message(FATAL_ERROR "CMAKE_CXX_STANDARD must be >= 17 because ENABLE_SYCL=ON")
 endif()

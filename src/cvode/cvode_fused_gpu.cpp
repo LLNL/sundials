@@ -19,11 +19,13 @@
 #include <nvector/nvector_cuda.h>
 
 #include "sundials_cuda_kernels.cuh"
-using SUNExecPolicy                 = SUNCudaExecPolicy;
-using NVectorContent                = N_VectorContent_Cuda;
+using SUNExecPolicy  = SUNCudaExecPolicy;
+using NVectorContent = N_VectorContent_Cuda;
+#ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
 constexpr auto gpuDeviceSynchronize = cudaDeviceSynchronize;
 constexpr auto gpuGetLastError      = cudaGetLastError;
 constexpr auto gpuAssert            = SUNDIALS_CUDA_Assert;
+#endif
 #ifdef SUNDIALS_DEBUG_CUDA_LASTERROR
 #define SUNDIALS_DEBUG_GPU_LASTERROR
 #endif
@@ -33,11 +35,13 @@ constexpr auto gpuAssert            = SUNDIALS_CUDA_Assert;
 #include <nvector/nvector_hip.h>
 
 #include "sundials_hip_kernels.hip.hpp"
-using SUNExecPolicy                 = SUNHipExecPolicy;
-using NVectorContent                = N_VectorContent_Hip;
+using SUNExecPolicy  = SUNHipExecPolicy;
+using NVectorContent = N_VectorContent_Hip;
+#ifdef SUNDIALS_DEBUG_HIP_LASTERROR
 constexpr auto gpuDeviceSynchronize = hipDeviceSynchronize;
 constexpr auto gpuGetLastError      = hipGetLastError;
 constexpr auto gpuAssert            = SUNDIALS_HIP_Assert;
+#endif
 #ifdef SUNDIALS_DEBUG_HIP_LASTERROR
 #define SUNDIALS_DEBUG_GPU_LASTERROR
 #endif

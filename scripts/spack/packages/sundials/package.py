@@ -300,6 +300,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     # rocm+examples and cstd do not work together in 6.0.0
     conflicts("+rocm+examples", when="@6.0.0")
 
+    # Ginkgo requires at least C++17 starting with 1.9.0
+    conflicts("cxxstd=14", when="+ginkgo@1.9.0:")
+
+    # SYCL requires at least C++17
+    conflicts("cxxstd=14", when="+sycl")
+
     # ==========================================================================
     # Patches
     # ==========================================================================

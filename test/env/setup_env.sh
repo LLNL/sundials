@@ -112,10 +112,6 @@ export SUNDIALS_TEST_ENABLE_GTEST=OFF
 # Build Type
 export CMAKE_BUILD_TYPE="Debug"
 
-# C and C++ standards.
-export CMAKE_C_STANDARD="99"
-export CMAKE_CXX_STANDARD="14"
-
 # Disable compiler extensions by default. The user's environment script may
 # override this setting if necessary.
 export CMAKE_C_EXTENSIONS="OFF"
