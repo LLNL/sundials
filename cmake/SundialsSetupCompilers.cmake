@@ -131,7 +131,7 @@ if(ENABLE_WARNINGS_AS_ERRORS)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Werror")
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --Werror all-warnings")
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --Werror all-warnings") # CUDA 10.2+
 endif()
 
 # With clang it is not possible to combine the -fsanitize=address and
