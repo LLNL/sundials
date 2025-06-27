@@ -362,7 +362,7 @@ program main
   ! Error return flag
   integer(c_int) :: retval = 0
 
-  ! File pointer for ouptut
+  ! File pointer for output
   type(c_ptr) :: fp
 
   ! -----------------------
