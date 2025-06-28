@@ -20,8 +20,6 @@
 #include "arkode/arkode_impl.h"
 #include "nvector/nvector_serial.h"
 #include "sundials/sundials_context.hpp"
-#include "sundials/sundials_logger.h"
-#include "sundials/sundials_nvector.h"
 
 static const std::string errfile{"test_arkode_error_handling.err"};
 
@@ -56,23 +54,36 @@ protected:
 
 TEST_F(ARKodeErrConditionTest, WarningIsPrinted)
 {
-  SUNLogger_SetWarningFilename(logger, errfile.c_str());
+  SUNErrCode err = SUNLogger_SetWarningFilename(logger, errfile.c_str());
+  ASSERT_EQ(err, SUN_SUCCESS);
   ARKodeMemRec* ark_mem = (ARKodeMemRec*)arkode_mem;
   arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__, "test");
-  SUNLogger_Flush(logger, SUN_LOGLEVEL_WARNING);
+  err = SUNLogger_Flush(logger, SUN_LOGLEVEL_WARNING);
+  ASSERT_EQ(err, SUN_SUCCESS);
   std::string output = dumpstderr(sunctx, errfile);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[WARNING]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr("test")));
+#else
+  EXPECT_EQ(output, "");
+#endif
 }
 
 TEST_F(ARKodeErrConditionTest, ErrorIsPrinted)
 {
-  SUNLogger_SetErrorFilename(logger, errfile.c_str());
+  SUNErrCode err = SUNLogger_SetErrorFilename(logger, errfile.c_str());
+  ASSERT_EQ(err, SUN_SUCCESS);
   // negative reltol is illegal
-  ARKodeSStolerances(arkode_mem, /* reltol= */ -1e-4, /* abstol= */ 1e-4);
+  int ierr = ARKodeSStolerances(arkode_mem, /* reltol= */ -1e-4,
+                                /* abstol= */ 1e-4);
+  ASSERT_NE(ierr, ARK_SUCCESS);
   std::string output = dumpstderr(sunctx, errfile);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_ERROR
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr(MSG_ARK_BAD_RELTOL)));
+#else
+  EXPECT_EQ(output, "");
+#endif
 }

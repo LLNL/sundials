@@ -41,23 +41,35 @@ protected:
 
 TEST_F(IDAErrConditionTest, WarningIsPrinted)
 {
-  SUNLogger_SetWarningFilename(logger, errfile.c_str());
+  SUNErrCode err = SUNLogger_SetWarningFilename(logger, errfile.c_str());
+  ASSERT_EQ(err, SUN_SUCCESS);
   IDAMemRec* ark_mem = (IDAMemRec*)IDA_mem;
   IDAProcessError(ark_mem, IDA_WARNING, __LINE__, __func__, __FILE__, "test");
-  SUNLogger_Flush(logger, SUN_LOGLEVEL_WARNING);
+  err = SUNLogger_Flush(logger, SUN_LOGLEVEL_WARNING);
+  ASSERT_EQ(err, SUN_SUCCESS);
   std::string output = dumpstderr(sunctx, errfile);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[WARNING]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr("test")));
+#else
+  EXPECT_EQ(output, "");
+#endif
 }
 
 TEST_F(IDAErrConditionTest, ErrorIsPrinted)
 {
-  SUNLogger_SetErrorFilename(logger, errfile.c_str());
+  SUNErrCode err = SUNLogger_SetErrorFilename(logger, errfile.c_str());
+  ASSERT_EQ(err, SUN_SUCCESS);
   // attempting to call IDASStolerances before IDAInit is illegal
-  IDASStolerances(IDA_mem, 1e-4, 1e-4);
+  int ierr = IDASStolerances(IDA_mem, 1e-4, 1e-4);
+  ASSERT_NE(ierr, IDA_SUCCESS);
   std::string output = dumpstderr(sunctx, errfile);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_ERROR
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr(MSG_NO_MALLOC)));
+#else
+  EXPECT_EQ(output, "");
+#endif
 }
