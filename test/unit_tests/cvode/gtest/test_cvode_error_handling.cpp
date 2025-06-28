@@ -10,7 +10,6 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include "gmock/gmock.h"
 #include <cvode/cvode.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
