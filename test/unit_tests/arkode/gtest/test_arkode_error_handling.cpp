@@ -61,36 +61,11 @@ protected:
 
 TEST_F(ARKodeErrConditionTest, WarningIsPrinted)
 {
-  // figure out where we are
-  auto cwd = fs::current_path();
-  auto err_path = cwd / errfile;
-  std::cout << "DEBUG: CWD      = " << cwd      << "\n"
-            << "DEBUG: err_path = " << err_path << "\n";
-  if (fs::exists(err_path))
-  {
-    std::cout << "DEBUG: file exists BEFORE ARKODE call!\n";
-    fs::remove(err_path);
-    std::cout << "DEBUG: removed file!\n";
-  }
-
   SUNErrCode err = SUNLogger_SetWarningFilename(logger, errfile.c_str());
   ASSERT_EQ(err, SUN_SUCCESS);
   ARKodeMemRec* ark_mem = (ARKodeMemRec*)arkode_mem;
   arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__, "test");
   SUNLogger_Flush(logger, SUN_LOGLEVEL_WARNING);
-
-  // check that the file actually exists
-  if (!fs::exists(err_path)) {
-    std::cout << "DEBUG: file does not exist AFTER ARKODE call!\n";
-  } else {
-    auto sz = fs::file_size(err_path);
-    std::cout << "DEBUG: file size = " << sz << "\n";
-    // dump raw contents
-    std::ifstream ifs(err_path);
-    std::string dump{std::istreambuf_iterator<char>(ifs),{}};
-    std::cout << "DEBUG: raw output: '" << dump << "'\n";
-  }
-
   std::string output = dumpstderr(sunctx, errfile);
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[WARNING]"),
