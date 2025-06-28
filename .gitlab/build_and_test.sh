@@ -232,6 +232,8 @@ then
     ctest --output-on-failure ${verbose_test} -T test 2>&1 | tee tests_output.txt
     date
 
+    ls -l unit_tests/arkode/gtest/*
+
     no_test_str="No tests were found!!!"
     if [[ "$(tail -n 1 tests_output.txt)" == "${no_test_str}" ]]
     then
