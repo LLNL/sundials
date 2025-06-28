@@ -12,7 +12,7 @@ def test_bdf():
 
     # Get the array and change a value in it
     arr = N_VGetArrayPointer(nv.get())
-    arr[0] = 0.0  # set initial condition
+    arr[:] = 0.0  # set initial condition
 
     ode_problem = AnalyticODE()
 
@@ -32,8 +32,15 @@ def test_bdf():
     status = CVode(solver.get(), tout, nv.get(), tret, CV_NORMAL)
     print(f"status={status}, ans={arr}")
 
-    status, last_order = CVodeGetLastOrder(solver.get(), 0)
-    print(f"last_order={last_order}")
+    nv2 = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+    arr2 = N_VGetArrayPointer(nv2.get())
+    arr2[:] = 1.0 
+
+    status = CVodeGetCurrentState(solver.get(), [nv2.get()])
+    print(arr2)
+
+    status, num_steps = CVodeGetNumSteps(solver.get(), 0)
+    print(f"num_steps={num_steps}")
 
 
 if __name__ == "__main__":

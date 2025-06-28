@@ -21,6 +21,14 @@ namespace nb = nanobind;
 
 namespace pysundials {
 
+/// This function will call a user-supplied Python function through C++ side wrappers
+/// \tparam FnType is the function signature, e.g., std::remove_pointer_t<CVRhsFn>
+/// \tparam FnTableType is the struct function table that holds the user-supplied Python functions as std::function
+/// \tparam UserDataArg is the index of the void* user_data argument of the C function. We are counting from the last arg to the first arg, so if user_data is the last arg then this should be 1.
+/// \tparam  Args is the template parameter pack that contains all of the types of the function arguments to the C function
+///
+/// \param fn_member is the name of the function in the FnTableType to call
+/// \param args is the arguments to the C function, which will be forwarded to the user-supplied Python function, except user_data, which is intercepted and passed as a nullptr.
 template<typename FnType, typename FnTableType, std::size_t UserDataArg, typename... Args>
 int user_supplied_fn_caller(nb::object FnTableType::*fn_member, Args... args)
 {

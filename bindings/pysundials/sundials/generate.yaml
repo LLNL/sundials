@@ -99,9 +99,11 @@ modules:
     headers:
     - ../../include/sundials/sundials_nvector.h
     fn_exclude_by_name__regex:
+    # we have to have custom handling for the following to get the proper dimensions set for the numpy array
     - "ArrayPointer"
     - "BufPack"
     - "BufUnpack"
+    # these have ** and *** argument types which trip up nanobind
     - "VectorArray"
     - "Multi"
     - "LinearCombination"

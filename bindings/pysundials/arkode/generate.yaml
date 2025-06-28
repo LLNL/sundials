@@ -37,9 +37,8 @@ modules:
     # nanobind doesnt support **
     - "ARKodeCreateMRIStepInnerStepper" 
     - "ARKodeGetJac" 
-    - "ARKodeGetCurrentState" 
-    - "ARKodeGetCurrentMassMatrix"
     - "ARKodeCreateSUNStepper"
+    - "ARKodeGetCurrentMassMatrix"
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
     - "ARKodeGetUserData" 
     - "ARKodeSetUserData" 

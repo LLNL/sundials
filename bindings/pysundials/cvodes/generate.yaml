@@ -37,30 +37,19 @@ modules:
       "SetLinearSolver":
       - "A" 
     fn_exclude_by_name__regex:
-    - "CVodeInit"
-    # nanobind doesnt support **
-    - "CVodeComputeStateSens"
-    - "CVodeGetCurrentState" 
-    - "CVodeGetJac" 
-    - "CVodeGetQuadSens"
-    - "CVodeGetQuadSensDky"
-    - "CVodeGetQuadSensErrWeights"
-    - "CVodeGetSens"
-    - "CVodeGetSensDky"
-    - "CVodeGetSensErrWeights"
-    - "CVodeQuadSensInit"
-    - "CVodeQuadSensReInit"
-    - "CVodeQuadSensSVtolerances"
-    - "CVodeResizeHistory"
-    - "CVodeSensInit"
-    - "CVodeSensInit1"
-    - "CVodeSensReInit"
-    - "CVodeSensSVtolerances"
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
     - "CVodeGetUserData" 
     - "CVodeSetUserData" 
-    # generator cannot handle setting of function pointers 
+    # TODO(CJB): add support for these functions
+    # nanobind doesnt support ** out of the box
+    - "CVodeComputeStateSens"
+    - "CVodeGetJac" 
+    - "CVodeResizeHistory"
+    # generator cannot handle setting of function pointers, so we do something custom
+    - "CVodeInit"
+    - "CVodeQuadSensInit"
+    - "CVodeSensInit"
+    - "CVodeSensInit1"
     - "CVodeSet.*Fn" 
-    - "CVodeSetWFtolerances"
     - "CVodeSet.*Preconditioner"
     - "CVodeSet.*Times"

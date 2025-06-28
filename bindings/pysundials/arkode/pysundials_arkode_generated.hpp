@@ -468,6 +468,20 @@ m.def("ARKodeGetNumLinSolvSetups",
 m.def("ARKodeGetCurrentTime",
     ARKodeGetCurrentTime, nb::arg("arkode_mem"), nb::arg("tcur"));
 
+m.def("ARKodeGetCurrentState",
+    [](void * arkode_mem, std::vector<N_Vector> state) -> int
+    {
+        auto ARKodeGetCurrentState_adapt_nvector_ptr_to_vector = [](void * arkode_mem, std::vector<N_Vector> state) -> int
+        {
+            N_Vector* state_ptr = state.empty() ? nullptr : state.data();
+
+            auto lambda_result = ARKodeGetCurrentState(arkode_mem, state_ptr);
+            return lambda_result;
+        };
+
+        return ARKodeGetCurrentState_adapt_nvector_ptr_to_vector(arkode_mem, state);
+    },     nb::arg("arkode_mem"), nb::arg("state"));
+
 m.def("ARKodeGetCurrentGamma",
     ARKodeGetCurrentGamma, nb::arg("arkode_mem"), nb::arg("gamma"));
 

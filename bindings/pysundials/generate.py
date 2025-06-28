@@ -37,11 +37,11 @@ def main():
     # Allow const char to be nullable
     options.fn_params_const_char_pointer_with_default_null = True
 
-    # Transform inplace modification of values, e.g. int CVodeGetNumSteps(void* cvode_mem, long* num_steps), to CvodeGetNumSteps(cvode_mem) -> Tuple[int, long]
+    # Transform inplace modification of values, e.g. int CVodeGetNumSteps(void* cvode_mem, long int* num_steps), to CvodeGetNumSteps(cvode_mem) -> Tuple[int, long int]
     options.fn_params_output_modifiable_immutable_to_return__regex = r".*"
 
     # Our own custom function adapters
-    options.fn_custom_adapters = [adapt_default_arg_pointer_with_default_null]
+    options.fn_custom_adapters = [adapt_default_arg_pointer_with_default_null, adapt_nvector_pointer_to_vector]
 
     options.srcmlcpp_options.code_preprocess_function = preprocess_header
     options.srcmlcpp_options.ignored_warning_parts.append(
