@@ -39,6 +39,7 @@ sundials_add_f2003_library(
   LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
     sundials_fnvecserial_mod_obj
+    sundials_fsunadaptcontrollermrihtol_mod_obj
     sundials_fsunadaptcontrollersoderlind_mod_obj
     sundials_fsunadaptcontrollerimexgus_mod_obj
     sundials_fsunmatrixband_mod_obj

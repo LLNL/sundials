@@ -18,7 +18,8 @@
 # Example lists are tuples "name\;type" where the type is 'develop' for examples
 # excluded from 'make test' in releases
 
-set(FARKODE_examples "ark_analytic_f2003\;\;develop")
+set(FARKODE_examples "ark_analytic_f2003\;\;develop"
+                     "ark_kpr_nestedmri_f2003\;\;develop")
 
 # Regression tests
 set(FARKODE_tests "test_ark_butcher_f2003\;develop")
