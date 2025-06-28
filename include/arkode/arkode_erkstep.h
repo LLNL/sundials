@@ -66,10 +66,9 @@ SUNDIALS_EXPORT int ERKStepGetCurrentButcherTable(void* arkode_mem,
                                                   ARKodeButcherTable* B);
 
 /* Grouped optional output functions */
-SUNDIALS_EXPORT int ERKStepGetTimestepperStats(void* arkode_mem, long* expsteps,
-                                               long* accsteps,
-                                               long* step_attempts,
-                                               long* nfevals, long* netfails);
+SUNDIALS_EXPORT int ERKStepGetTimestepperStats(
+  void* arkode_mem, long int* expsteps, long int* accsteps,
+  long int* step_attempts, long int* nfevals, long int* netfails);
 
 /* Adjoint solver functions */
 SUNDIALS_EXPORT

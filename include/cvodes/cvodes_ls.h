@@ -92,7 +92,7 @@ SUNDIALS_EXPORT int CVodeSetLinearSolver(void* cvode_mem, SUNLinearSolver LS,
   -----------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int CVodeSetJacFn(void* cvode_mem, CVLsJacFn jac);
-SUNDIALS_EXPORT int CVodeSetJacEvalFrequency(void* cvode_mem, long msbj);
+SUNDIALS_EXPORT int CVodeSetJacEvalFrequency(void* cvode_mem, long int msbj);
 SUNDIALS_EXPORT int CVodeSetLinearSolutionScaling(void* cvode_mem,
                                                   sunbooleantype onoff);
 SUNDIALS_EXPORT int CVodeSetDeltaGammaMaxBadJac(void* cvode_mem,
@@ -111,25 +111,25 @@ SUNDIALS_EXPORT int CVodeSetLinSysFn(void* cvode_mem, CVLsLinSysFn linsys);
 
 SUNDIALS_EXPORT int CVodeGetJac(void* cvode_mem, SUNMatrix* J);
 SUNDIALS_EXPORT int CVodeGetJacTime(void* cvode_mem, sunrealtype* t_J);
-SUNDIALS_EXPORT int CVodeGetJacNumSteps(void* cvode_mem, long* nst_J);
+SUNDIALS_EXPORT int CVodeGetJacNumSteps(void* cvode_mem, long int* nst_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int CVodeGetLinWorkSpace(void* cvode_mem, long* lenrwLS, long* leniwLS);
-SUNDIALS_EXPORT int CVodeGetNumJacEvals(void* cvode_mem, long* njevals);
-SUNDIALS_EXPORT int CVodeGetNumPrecEvals(void* cvode_mem, long* npevals);
-SUNDIALS_EXPORT int CVodeGetNumPrecSolves(void* cvode_mem, long* npsolves);
-SUNDIALS_EXPORT int CVodeGetNumLinIters(void* cvode_mem, long* nliters);
-SUNDIALS_EXPORT int CVodeGetNumLinConvFails(void* cvode_mem, long* nlcfails);
-SUNDIALS_EXPORT int CVodeGetNumJTSetupEvals(void* cvode_mem, long* njtsetups);
-SUNDIALS_EXPORT int CVodeGetNumJtimesEvals(void* cvode_mem, long* njvevals);
-SUNDIALS_EXPORT int CVodeGetNumLinRhsEvals(void* cvode_mem, long* nfevalsLS);
-SUNDIALS_EXPORT int CVodeGetLinSolveStats(void* cvode_mem, long* njevals,
-                                          long* nfevalsLS, long* nliters,
-                                          long* nlcfails, long* npevals,
-                                          long* npsolves, long* njtsetups,
-                                          long* njtimes);
-SUNDIALS_EXPORT int CVodeGetLastLinFlag(void* cvode_mem, long* flag);
-SUNDIALS_EXPORT char* CVodeGetLinReturnFlagName(long flag);
+int CVodeGetLinWorkSpace(void* cvode_mem, long int* lenrwLS, long int* leniwLS);
+SUNDIALS_EXPORT int CVodeGetNumJacEvals(void* cvode_mem, long int* njevals);
+SUNDIALS_EXPORT int CVodeGetNumPrecEvals(void* cvode_mem, long int* npevals);
+SUNDIALS_EXPORT int CVodeGetNumPrecSolves(void* cvode_mem, long int* npsolves);
+SUNDIALS_EXPORT int CVodeGetNumLinIters(void* cvode_mem, long int* nliters);
+SUNDIALS_EXPORT int CVodeGetNumLinConvFails(void* cvode_mem, long int* nlcfails);
+SUNDIALS_EXPORT int CVodeGetNumJTSetupEvals(void* cvode_mem, long int* njtsetups);
+SUNDIALS_EXPORT int CVodeGetNumJtimesEvals(void* cvode_mem, long int* njvevals);
+SUNDIALS_EXPORT int CVodeGetNumLinRhsEvals(void* cvode_mem, long int* nfevalsLS);
+SUNDIALS_EXPORT int CVodeGetLinSolveStats(void* cvode_mem, long int* njevals,
+                                          long int* nfevalsLS,
+                                          long int* nliters, long int* nlcfails,
+                                          long int* npevals, long int* npsolves,
+                                          long int* njtsetups, long int* njtimes);
+SUNDIALS_EXPORT int CVodeGetLastLinFlag(void* cvode_mem, long int* flag);
+SUNDIALS_EXPORT char* CVodeGetLinReturnFlagName(long int flag);
 
 /*=================================================================
   Backward problems

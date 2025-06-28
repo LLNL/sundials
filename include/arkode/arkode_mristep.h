@@ -199,7 +199,7 @@ SUNDIALS_EXPORT int MRIStepGetCurrentCoupling(void* arkode_mem,
                                               MRIStepCoupling* MRIC);
 SUNDIALS_EXPORT int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag);
 SUNDIALS_EXPORT int MRIStepGetNumInnerStepperFails(void* arkode_mem,
-                                                   long* inner_fails);
+                                                   long int* inner_fails);
 
 /* Custom inner stepper functions */
 SUNDIALS_EXPORT int MRIStepInnerStepper_Create(SUNContext sunctx,

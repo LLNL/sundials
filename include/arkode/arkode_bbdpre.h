@@ -48,9 +48,11 @@ SUNDIALS_EXPORT int ARKBBDPrecReInit(void* arkode_mem, sunindextype mudq,
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int ARKBBDPrecGetWorkSpace(void* arkode_mem, long* lenrwBBDP, long* leniwBBDP);
+int ARKBBDPrecGetWorkSpace(void* arkode_mem, long int* lenrwBBDP,
+                           long int* leniwBBDP);
 
-SUNDIALS_EXPORT int ARKBBDPrecGetNumGfnEvals(void* arkode_mem, long* ngevalsBBDP);
+SUNDIALS_EXPORT int ARKBBDPrecGetNumGfnEvals(void* arkode_mem,
+                                             long int* ngevalsBBDP);
 
 #ifdef __cplusplus
 }

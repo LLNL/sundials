@@ -72,8 +72,8 @@ SUNDIALS_EXPORT int SUNLinSolSolve_MagmaDense(SUNLinearSolver S, SUNMatrix A,
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_MagmaDense(SUNLinearSolver S);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNLinSolSpace_MagmaDense(SUNLinearSolver S, long* lenrwLS,
-                                     long* leniwLS);
+SUNErrCode SUNLinSolSpace_MagmaDense(SUNLinearSolver S, long int* lenrwLS,
+                                     long int* leniwLS);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolFree_MagmaDense(SUNLinearSolver S);
 
 #ifdef __cplusplus

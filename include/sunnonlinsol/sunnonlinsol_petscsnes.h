@@ -40,11 +40,11 @@ struct _SUNNonlinearSolverContent_PetscSNES
 {
   int sysfn_last_err; /* last error returned by the system function Sys */
   PetscErrorCode petsc_last_err; /* last error return by PETSc */
-  long nconvfails; /* number of nonlinear converge failures (recoverable or not) */
-  long nni;        /* number of nonlinear iterations */
-  void* imem;      /* SUNDIALS integrator memory */
-  SNES snes;       /* PETSc SNES context */
-  Vec r;           /* nonlinear residual */
+  long int nconvfails; /* number of nonlinear converge failures (recoverable or not) */
+  long int nni;        /* number of nonlinear iterations */
+  void* imem;          /* SUNDIALS integrator memory */
+  SNES snes;           /* PETSc SNES context */
+  Vec r;               /* nonlinear residual */
   N_Vector y, f; /* wrappers for PETSc vectors in system function */
   /* functions provided by the integrator */
   SUNNonlinSolSysFn Sys; /* nonlinear system function         */
@@ -80,11 +80,12 @@ SUNErrCode SUNNonlinSolSetSysFn_PetscSNES(SUNNonlinearSolver NLS,
                                           SUNNonlinSolSysFn SysFn);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNNonlinSolGetNumIters_PetscSNES(SUNNonlinearSolver NLS, long* nni);
+SUNErrCode SUNNonlinSolGetNumIters_PetscSNES(SUNNonlinearSolver NLS,
+                                             long int* nni);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolGetNumConvFails_PetscSNES(SUNNonlinearSolver NLS,
-                                                 long* nconvfails);
+                                                 long int* nconvfails);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolFree_PetscSNES(SUNNonlinearSolver NLS);

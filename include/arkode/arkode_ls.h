@@ -98,7 +98,7 @@ SUNDIALS_EXPORT int ARKodeSetMassLinearSolver(void* arkode_mem,
    AFTER ARKodeSetLinearSolver and/or ARKodeSetMassLinearSolver */
 SUNDIALS_EXPORT int ARKodeSetJacFn(void* arkode_mem, ARKLsJacFn jac);
 SUNDIALS_EXPORT int ARKodeSetMassFn(void* arkode_mem, ARKLsMassFn mass);
-SUNDIALS_EXPORT int ARKodeSetJacEvalFrequency(void* arkode_mem, long msbj);
+SUNDIALS_EXPORT int ARKodeSetJacEvalFrequency(void* arkode_mem, long int msbj);
 SUNDIALS_EXPORT int ARKodeSetLinearSolutionScaling(void* arkode_mem,
                                                    sunbooleantype onoff);
 SUNDIALS_EXPORT int ARKodeSetEpsLin(void* arkode_mem, sunrealtype eplifac);

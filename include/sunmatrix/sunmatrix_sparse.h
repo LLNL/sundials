@@ -181,7 +181,7 @@ SUNErrCode SUNMatHermitianTransposeVec_Sparse(SUNMatrix A, N_Vector x,
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long* lenrw, long* leniw);
+SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus
 }

@@ -52,9 +52,10 @@ SUNDIALS_EXPORT int KINBBDPrecInit(void* kinmem, sunindextype Nlocal,
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int KINBBDPrecGetWorkSpace(void* kinmem, long* lenrwBBDP, long* leniwBBDP);
+int KINBBDPrecGetWorkSpace(void* kinmem, long int* lenrwBBDP,
+                           long int* leniwBBDP);
 
-SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void* kinmem, long* ngevalsBBDP);
+SUNDIALS_EXPORT int KINBBDPrecGetNumGfnEvals(void* kinmem, long int* ngevalsBBDP);
 
 #ifdef __cplusplus
 }

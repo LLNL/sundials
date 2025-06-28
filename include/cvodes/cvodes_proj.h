@@ -41,14 +41,14 @@ SUNDIALS_EXPORT int CVodeSetProjFn(void* cvode_mem, CVProjFn pfun);
 
 /* Optional input functions */
 SUNDIALS_EXPORT int CVodeSetProjErrEst(void* cvode_mem, sunbooleantype onoff);
-SUNDIALS_EXPORT int CVodeSetProjFrequency(void* cvode_mem, long proj_freq);
+SUNDIALS_EXPORT int CVodeSetProjFrequency(void* cvode_mem, long int proj_freq);
 SUNDIALS_EXPORT int CVodeSetMaxNumProjFails(void* cvode_mem, int max_fails);
 SUNDIALS_EXPORT int CVodeSetEpsProj(void* cvode_mem, sunrealtype eps);
 SUNDIALS_EXPORT int CVodeSetProjFailEta(void* cvode_mem, sunrealtype eta);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int CVodeGetNumProjEvals(void* cvode_mem, long* nproj);
-SUNDIALS_EXPORT int CVodeGetNumProjFails(void* cvode_mem, long* nprf);
+SUNDIALS_EXPORT int CVodeGetNumProjEvals(void* cvode_mem, long int* nproj);
+SUNDIALS_EXPORT int CVodeGetNumProjFails(void* cvode_mem, long int* nprf);
 
 #ifdef __cplusplus
 }

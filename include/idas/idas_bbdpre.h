@@ -53,9 +53,11 @@ SUNDIALS_EXPORT int IDABBDPrecReInit(void* ida_mem, sunindextype mudq,
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int IDABBDPrecGetWorkSpace(void* ida_mem, long* lenrwBBDP, long* leniwBBDP);
+int IDABBDPrecGetWorkSpace(void* ida_mem, long int* lenrwBBDP,
+                           long int* leniwBBDP);
 
-SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void* ida_mem, long* ngevalsBBDP);
+SUNDIALS_EXPORT int IDABBDPrecGetNumGfnEvals(void* ida_mem,
+                                             long int* ngevalsBBDP);
 
 /*------------------
   BACKWARD PROBLEMS
