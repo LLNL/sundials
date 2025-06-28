@@ -73,7 +73,8 @@ TEST_F(ARKodeErrConditionTest, WarningIsPrinted)
     std::cout << "DEBUG: removed file!\n";
   }
 
-  SUNLogger_SetWarningFilename(logger, errfile.c_str());
+  SUNErrCode err = SUNLogger_SetWarningFilename(logger, errfile.c_str());
+  ASSERT_EQ(err, SUN_SUCCESS);
   ARKodeMemRec* ark_mem = (ARKodeMemRec*)arkode_mem;
   arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__, "test");
   SUNLogger_Flush(logger, SUN_LOGLEVEL_WARNING);
