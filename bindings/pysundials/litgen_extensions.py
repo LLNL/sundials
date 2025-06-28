@@ -12,6 +12,64 @@ from litgen.internal.adapt_function_params._lambda_adapter import LambdaAdapter
 from litgen.internal.adapted_types import AdaptedFunction, AdaptedParameter
 
 
+def generate_code(options, source_code):
+    generated_code = litgen.generate_code(options, source_code)
+    return generated_code
+
+
+def load_opt_from_yaml(config_object, module, opt):
+    opt_list = []
+    all_section = config_object.get("all", [])
+    if all_section:
+        opt_list.extend(all_section.get(opt, []))
+    module_section = config_object.get(module, [])
+    if module_section:
+        opt_list.extend(module_section.get(opt, []))
+    return opt_list
+
+
+def load_enum_exclusions_from_yaml(config_object, module):
+    return load_opt_from_yaml(config_object, module, "enum_exclude_by_name__regex")
+
+
+def load_class_exclusions_from_yaml(config_object, module):
+    return load_opt_from_yaml(config_object, module, "class_exclude_by_name__regex")
+
+
+def load_fn_exclusions_from_yaml(config_object, module):
+    return load_opt_from_yaml(config_object, module, "fn_exclude_by_name__regex")
+
+
+def load_macro_defines_from_yaml(config_object, module):
+    return load_opt_from_yaml(config_object, module, "macro_define_include_by_name__regex")
+
+
+def load_nullable_params_from_yaml(config_object, module):
+    opt = "fn_params_optional_with_default_null"
+    opt_dict = {}
+    all_section = config_object.get("all", {})
+    if all_section:
+        opt_dict = opt_dict | all_section.get(opt, {})
+    module_section = config_object.get(module, {})
+    if module_section:
+        opt_dict = opt_dict | module_section.get(opt, {})
+    return opt_dict
+
+
+def strip_sundials_export(code):
+    return code.replace("SUNDIALS_EXPORT", "")
+
+
+def change_long_int_to_long(code):
+    return code.replace("long int", "long")
+
+
+def preprocess_header(code):
+    code = strip_sundials_export(code)
+    code = change_long_int_to_long(code)
+    return code
+
+
 def match_regex(regex_str: str, word: str) -> bool:
     if regex_str.startswith("|"):
         regex_str = regex_str[1:]
