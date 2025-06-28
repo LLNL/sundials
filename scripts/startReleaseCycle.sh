@@ -95,6 +95,8 @@ HEREDOC
 cat > tmp.txt <<HEREDOC
 .. SED_REPLACEMENT_KEY
 
+.. _Changelog.X.Y.Z:
+
 Changes to SUNDIALS in release X.Y.Z
 ====================================
 
