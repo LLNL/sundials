@@ -75,7 +75,8 @@ TEST_F(ARKodeErrConditionTest, ErrorIsPrinted)
   SUNErrCode err = SUNLogger_SetErrorFilename(logger, errfile.c_str());
   ASSERT_EQ(err, SUN_SUCCESS);
   // negative reltol is illegal
-  int ierr = ARKodeSStolerances(arkode_mem, /* reltol= */ -1e-4, /* abstol= */ 1e-4);
+  int ierr = ARKodeSStolerances(arkode_mem, /* reltol= */ -1e-4,
+                                /* abstol= */ 1e-4);
   ASSERT_NE(ierr, ARK_SUCCESS);
   std::string output = dumpstderr(sunctx, errfile);
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_ERROR
