@@ -1,39 +1,3 @@
-Current time                  = 5
-Steps                         = 242
-Step attempts                 = 312
-Stability limited steps       = 0
-Accuracy limited steps        = 312
-Error test fails              = 70
-NLS step fails                = 0
-Inequality constraint fails   = 0
-Initial step size             = 0.025
-Last step size                = 0.0258711979041237
-Current step size             = 0.0258711979041237
-Explicit slow RHS fn evals    = 1491
-Implicit slow RHS fn evals    = 0
-Inner stepper failures        = 0
-NLS iters                     = 0
-NLS fails                     = 0
-NLS iters per step            = 0
-LS setups                     = 0
-Current time                  = 5
-Steps                         = 2982
-Step attempts                 = 3169
-Stability limited steps       = 0
-Accuracy limited steps        = 3169
-Error test fails              = 187
-NLS step fails                = 0
-Inequality constraint fails   = 0
-Initial step size             = 0.0005
-Last step size                = 0.00517423958082474
-Current step size             = 0.00517423958082474
-Explicit slow RHS fn evals    = 15901
-Implicit slow RHS fn evals    = 0
-Inner stepper failures        = 0
-NLS iters                     = 0
-NLS fails                     = 0
-NLS iters per step            = 0
-LS setups                     = 0
                       t                      u                      v                      w                  u err                  v err                  w err
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
   0.000000000000000E+00  1.581138830084190E+00  1.732050807568877E+00  1.732050807568877E+00  0.000000000000000E+00  0.000000000000000E+00  0.000000000000000E+00
@@ -58,9 +22,46 @@ LS setups                     = 0
   4.750000000000000E+00  1.417737644421425E+00  1.510885615348590E+00  1.158937763182584E+00  3.107553495641957E-03  4.466421552633992E-02  8.800123298265516E-03
   5.000000000000000E+00  1.460953298338492E+00  1.470134387042476E+00  1.643590770857166E+00  2.546306284485933E-03  3.678699021167353E-02  1.189678851420295E-03
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 Slow Integrator Stats
+Current time                  = 5
+Steps                         = 242
+Step attempts                 = 312
+Stability limited steps       = 0
+Accuracy limited steps        = 312
+Error test fails              = 70
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.025
+Last step size                = 0.0258711979041237
+Current step size             = 0.0258711979041237
+Explicit slow RHS fn evals    = 1491
+Implicit slow RHS fn evals    = 0
+Inner stepper failures        = 0
+NLS iters                     = 0
+NLS fails                     = 0
+NLS iters per step            = 0
+LS setups                     = 0
 
 Intermediate Integrator Stats
+Current time                  = 5
+Steps                         = 2982
+Step attempts                 = 3169
+Stability limited steps       = 0
+Accuracy limited steps        = 3169
+Error test fails              = 187
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.0005
+Last step size                = 0.00517423958082474
+Current step size             = 0.00517423958082474
+Explicit slow RHS fn evals    = 15901
+Implicit slow RHS fn evals    = 0
+Inner stepper failures        = 0
+NLS iters                     = 0
+NLS fails                     = 0
+NLS iters per step            = 0
+LS setups                     = 0
 
 Fast Integrator Stats
 Current time                  = 5
