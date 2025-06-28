@@ -20,13 +20,6 @@
 #include "arkode/arkode_impl.h"
 #include "nvector/nvector_serial.h"
 #include "sundials/sundials_context.hpp"
-#include "sundials/sundials_logger.h"
-#include "sundials/sundials_nvector.h"
-
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-namespace fs = std::filesystem;
 
 static const std::string errfile{"test_arkode_error_handling.err"};
 
