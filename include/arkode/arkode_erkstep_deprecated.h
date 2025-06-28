@@ -78,7 +78,7 @@ int ERKStepSetMaxErrTestFails(void* arkode_mem, int maxnef);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetConstraints instead")
 int ERKStepSetConstraints(void* arkode_mem, N_Vector constraints);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMaxNumSteps instead")
-int ERKStepSetMaxNumSteps(void* arkode_mem, long mxsteps);
+int ERKStepSetMaxNumSteps(void* arkode_mem, long int mxsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMaxHnilWarns instead")
 int ERKStepSetMaxHnilWarns(void* arkode_mem, int mxhnil);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetInitStep instead")
@@ -113,20 +113,20 @@ int ERKStepEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetDky instead")
 int ERKStepGetDky(void* arkode_mem, sunrealtype t, int k, N_Vector dky);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumExpSteps instead")
-int ERKStepGetNumExpSteps(void* arkode_mem, long* expsteps);
+int ERKStepGetNumExpSteps(void* arkode_mem, long int* expsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumAccSteps instead")
-int ERKStepGetNumAccSteps(void* arkode_mem, long* accsteps);
+int ERKStepGetNumAccSteps(void* arkode_mem, long int* accsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumStepAttempts instead")
-int ERKStepGetNumStepAttempts(void* arkode_mem, long* step_attempts);
+int ERKStepGetNumStepAttempts(void* arkode_mem, long int* step_attempts);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumErrTestFails instead")
-int ERKStepGetNumErrTestFails(void* arkode_mem, long* netfails);
+int ERKStepGetNumErrTestFails(void* arkode_mem, long int* netfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetEstLocalErrors instead")
 int ERKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
-int ERKStepGetWorkSpace(void* arkode_mem, long* lenrw, long* leniw);
+int ERKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumSteps instead")
-int ERKStepGetNumSteps(void* arkode_mem, long* nsteps);
+int ERKStepGetNumSteps(void* arkode_mem, long int* nsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetActualInitStep instead")
 int ERKStepGetActualInitStep(void* arkode_mem, sunrealtype* hinused);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLastStep instead")
@@ -140,24 +140,24 @@ int ERKStepGetTolScaleFactor(void* arkode_mem, sunrealtype* tolsfac);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetErrWeights instead")
 int ERKStepGetErrWeights(void* arkode_mem, N_Vector eweight);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumGEvals instead")
-int ERKStepGetNumGEvals(void* arkode_mem, long* ngevals);
+int ERKStepGetNumGEvals(void* arkode_mem, long int* ngevals);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetRootInfo instead")
 int ERKStepGetRootInfo(void* arkode_mem, int* rootsfound);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumConstrFails instead")
-int ERKStepGetNumConstrFails(void* arkode_mem, long* nconstrfails);
+int ERKStepGetNumConstrFails(void* arkode_mem, long int* nconstrfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetUserData instead")
 int ERKStepGetUserData(void* arkode_mem, void** user_data);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintAllStats instead")
 int ERKStepPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetReturnFlagName instead")
-char* ERKStepGetReturnFlagName(long flag);
+char* ERKStepGetReturnFlagName(long int flag);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeWriteParameters instead")
 int ERKStepWriteParameters(void* arkode_mem, FILE* fp);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "use ERKStepGetCurrentButcherTable and ARKodeButcherTable_Write instead")
 int ERKStepWriteButcher(void* arkode_mem, FILE* fp);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetStepStats instead")
-int ERKStepGetStepStats(void* arkode_mem, long* nsteps, sunrealtype* hinused,
+int ERKStepGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
                         sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void ERKStepFree(void** arkode_mem);
@@ -183,19 +183,19 @@ int ERKStepSetRelaxTol(void* arkode_mem, sunrealtype rel_tol,
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxUpperBound instead")
 int ERKStepSetRelaxUpperBound(void* arkode_mem, sunrealtype upper);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxFnEvals instead")
-int ERKStepGetNumRelaxFnEvals(void* arkode_mem, long* r_evals);
+int ERKStepGetNumRelaxFnEvals(void* arkode_mem, long int* r_evals);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxJacEvals instead")
-int ERKStepGetNumRelaxJacEvals(void* arkode_mem, long* J_evals);
+int ERKStepGetNumRelaxJacEvals(void* arkode_mem, long int* J_evals);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxFails instead")
-int ERKStepGetNumRelaxFails(void* arkode_mem, long* relax_fails);
+int ERKStepGetNumRelaxFails(void* arkode_mem, long int* relax_fails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxBoundFails instead")
-int ERKStepGetNumRelaxBoundFails(void* arkode_mem, long* fails);
+int ERKStepGetNumRelaxBoundFails(void* arkode_mem, long int* fails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxSolveFails instead")
-int ERKStepGetNumRelaxSolveFails(void* arkode_mem, long* fails);
+int ERKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxSolveIters instead")
-int ERKStepGetNumRelaxSolveIters(void* arkode_mem, long* iters);
+int ERKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRhsEvals instead")
-int ERKStepGetNumRhsEvals(void* arkode_mem, long* nfevals);
+int ERKStepGetNumRhsEvals(void* arkode_mem, long int* nfevals);
 
 #ifdef __cplusplus
 }
