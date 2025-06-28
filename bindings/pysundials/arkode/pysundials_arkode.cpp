@@ -251,7 +251,8 @@ void bind_arkode(nb::module_& m)
   // Additional functions that litgen cannot generate
   /////////////////////////////////////////////////////////////////////////////
 
-  // These functions have optional arguments which litgen cannot deal with
+  // These functions have optional arguments which litgen cannot deal with because they are followed by
+  // non-optional arguments.
   m.def("ARKodeSetMassLinearSolver",
     ARKodeSetMassLinearSolver, nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M").none(), nb::arg("time_dep"));
 
