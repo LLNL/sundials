@@ -304,6 +304,7 @@ end module kpr_mod
 
 program main
 
+  use, intrinsic :: iso_fortran_env
   use farkode_mod
   use farkode_arkstep_mod
   use farkode_erkstep_mod
@@ -538,15 +539,15 @@ program main
   call check_retval(retval, "FSUNDIALSFileOpen")
 
   print '(A)', "Slow Integrator Stats"
-  call flush
+  flush(output_unit)
   retval = FARKodePrintAllStats(s_arkode_mem, fp, SUN_OUTPUTFORMAT_TABLE)
   write (*, *)
   print '(A)', "Intermediate Integrator Stats"
-  call flush
+  flush(output_unit)
   retval = FARKodePrintAllStats(m_arkode_mem, fp, SUN_OUTPUTFORMAT_TABLE)
   write (*, *)
   print '(A)', "Fast Integrator Stats"
-  call flush
+  flush(output_unit)
   retval = FARKodePrintAllStats(f_arkode_mem, fp, SUN_OUTPUTFORMAT_TABLE)
 
   ! Close the file
