@@ -92,9 +92,13 @@ TEST_F(ARKodeErrConditionTest, WarningIsPrinted)
   }
 
   std::string output = dumpstderr(sunctx, errfile);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[WARNING]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr("test")));
+#else
+  EXPECT_EQ(output, "");
+#endif
 }
 
 TEST_F(ARKodeErrConditionTest, ErrorIsPrinted)
@@ -103,7 +107,11 @@ TEST_F(ARKodeErrConditionTest, ErrorIsPrinted)
   // negative reltol is illegal
   ARKodeSStolerances(arkode_mem, /* reltol= */ -1e-4, /* abstol= */ 1e-4);
   std::string output = dumpstderr(sunctx, errfile);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_ERROR
   EXPECT_THAT(output, testing::AllOf(testing::StartsWith("[ERROR]"),
                                      testing::HasSubstr("[rank 0]"),
                                      testing::HasSubstr(MSG_ARK_BAD_RELTOL)));
+#else
+  EXPECT_EQ(output, "");
+#endif
 }
