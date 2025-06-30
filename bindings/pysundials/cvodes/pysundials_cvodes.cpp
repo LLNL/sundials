@@ -25,6 +25,7 @@
 #include <cvodes/cvodes.h>
 #include <cvodes/cvodes.hpp>
 #include <cvodes/cvodes_ls.h>
+#include <cvodes/cvodes_proj.h>
 
 #include "sundials_adjointcheckpointscheme_impl.h"
 
@@ -34,7 +35,63 @@ namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
-// Forward declarations of functions defined in other translation units
+#define BIND_CVODE_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER) \
+  m.def(#NAME,                                              \
+        [](void* cv_mem, std::function<std::remove_pointer_t<FN_TYPE>> fn) { \
+          void* user_data = nullptr;                        \
+          CVodeGetUserData(cv_mem, &user_data);             \
+          if (!user_data)                                   \
+            throw std::runtime_error(                       \
+              "Failed to get Python function table from CVODE memory"); \
+          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data); \
+          fntable->MEMBER = nb::cast(fn);                   \
+          return NAME(cv_mem, &WRAPPER);                    \
+        })
+
+#define BIND_CVODE_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2, MEMBER2, WRAPPER2) \
+  m.def(#NAME,                                                                               \
+        [](void* cv_mem,                                                                     \
+           std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                               \
+           std::function<std::remove_pointer_t<FN_TYPE2>> fn2) {                             \
+          void* user_data = nullptr;                                                         \
+          CVodeGetUserData(cv_mem, &user_data);                                              \
+          if (!user_data)                                                                    \
+            throw std::runtime_error(                                                        \
+              "Failed to get Python function table from CVODE memory");                      \
+          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);              \
+          fntable->MEMBER1 = nb::cast(fn1);                                                  \
+          fntable->MEMBER2 = nb::cast(fn2);                                                  \
+          return NAME(cv_mem, &WRAPPER1, &WRAPPER2);                                         \
+        })
+
+#define BIND_CVODEB_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER) \
+  m.def(#NAME,                                              \
+        [](void* cv_mem, int which, std::function<std::remove_pointer_t<FN_TYPE>> fn) { \
+          void* user_data = nullptr;                        \
+          CVodeGetUserData(cv_mem, &user_data);             \
+          if (!user_data)                                   \
+            throw std::runtime_error(                       \
+              "Failed to get Python function table from CVODE memory"); \
+          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data); \
+          fntable->MEMBER = nb::cast(fn);                   \
+          return NAME(cv_mem, which, &WRAPPER);             \
+        })
+
+#define BIND_CVODEB_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2, MEMBER2, WRAPPER2) \
+  m.def(#NAME,                                                                                \
+        [](void* cv_mem, int which,                                                           \
+           std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                                \
+           std::function<std::remove_pointer_t<FN_TYPE2>> fn2) {                              \
+          void* user_data = nullptr;                                                          \
+          CVodeGetUserData(cv_mem, &user_data);                                               \
+          if (!user_data)                                                                     \
+            throw std::runtime_error(                                                         \
+              "Failed to get Python function table from CVODE memory");                       \
+          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);               \
+          fntable->MEMBER1 = nb::cast(fn1);                                                   \
+          fntable->MEMBER2 = nb::cast(fn2);                                                   \
+          return NAME(cv_mem, which, &WRAPPER1, &WRAPPER2);                                   \
+        })
 
 void bind_cvodes(nb::module_& m)
 {
@@ -75,6 +132,20 @@ void bind_cvodes(nb::module_& m)
           cb_fns->f = nb::cast(rhs);
 
           return cv_status;
+        });
+
+  m.def("CVodeRootInit",
+        [](void* cv_mem, int nrtfn,
+           std::function<std::remove_pointer_t<CVRootFn>> fn)
+        {
+          void* user_data = nullptr;
+          CVodeGetUserData(cv_mem, &user_data);
+          if (!user_data)
+            throw std::runtime_error(
+              "Failed to get Python function table from CVODE memory");
+          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
+          fntable->rootfn = nb::cast(fn);
+          return CVodeRootInit(cv_mem, nrtfn, &cvode_rootfn_wrapper);
         });
 
   // We cant use std::function<std::remove_pointer_t<CVQuadSensRhsFn>>
@@ -127,8 +198,88 @@ void bind_cvodes(nb::module_& m)
               "Failed to get Python function table from CVODE memory");
           auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
           fntable->fS1 = nb::cast(fS1);
-          // void* cvode_mem, int Ns, int ism,
-          //  CVSensRhs1Fn fS1, N_Vector* yS0
           return CVodeSensInit1(cv_mem, Ns, ism, cvode_fs1_wrapper, yS0.data());
         });
+
+  BIND_CVODE_CALLBACK(CVodeWFtolerances, CVEwtFn, ewtn, cvode_ewtfn_wrapper);
+
+  BIND_CVODE_CALLBACK(CVodeSetNlsRhsFn, CVRhsFn, nlsfi, cvode_nlsrhsfn_wrapper);
+
+  BIND_CVODE_CALLBACK(CVodeSetJacFn, CVLsJacFn, lsjacfn, cvode_lsjacfn_wrapper);
+
+  BIND_CVODE_CALLBACK2(CVodeSetPreconditioner,
+                       CVLsPrecSetupFn, lsprecsetupfn, cvode_lsprecsetupfn_wrapper,
+                       CVLsPrecSolveFn, lsprecsolvefn, cvode_lsprecsolvefn_wrapper);
+
+  BIND_CVODE_CALLBACK2(CVodeSetJacTimes,
+                       CVLsJacTimesSetupFn, lsjactimessetupfn, cvode_lsjactimessetupfn_wrapper,
+                       CVLsJacTimesVecFn, lsjactimesvecfn, cvode_lsjactimesvecfn_wrapper);
+
+  BIND_CVODE_CALLBACK(CVodeSetLinSysFn, CVLsLinSysFn, lslinsysfn, cvode_lslinsysfn_wrapper);
+
+  BIND_CVODE_CALLBACK(CVodeSetJacTimesRhsFn, CVLsJacTimesVecFn, lsjacrhsfn, cvode_lsjacrhsfn_wrapper);
+
+  BIND_CVODE_CALLBACK(CVodeSetProjFn, CVProjFn, projfn, cvode_projfn_wrapper);
+
+  m.def("CVodeInitB",
+        [](void* cv_mem, int which, std::function<std::remove_pointer_t<CVRhsFnB>> fB,
+           sunrealtype tB0, N_Vector yB0)
+        {
+          int cv_status = CVodeInitB(cv_mem, which, cvode_fB_wrapper, tB0, yB0);
+
+          // Create the user-supplied function table to store the Python user functions
+          auto cb_fns = cvode_user_supplied_fn_table_alloc();
+
+          // Smuggle the user-supplied function table into callback wrappers through the user_data pointer
+          cv_status = CVodeSetUserDataB(cv_mem, which, static_cast<void*>(cb_fns));
+          if (cv_status != CV_SUCCESS)
+          {
+            free(cb_fns);
+            throw std::runtime_error("Failed to set user data in CVODE memory");
+          }
+
+          // Ensure CVodeFree will free the user-supplied function table
+          cv_status = CVodeSetOwnUserData(cv_mem, SUNTRUE);
+          if (cv_status != CV_SUCCESS)
+          {
+            free(cb_fns);
+            throw std::runtime_error(
+              "Failed to set user data ownership in CVODE memory");
+          }
+
+          // Finally, set the RHS function
+          cb_fns->fB = nb::cast(fB);
+
+          return cv_status;
+        });
+
+  m.def("CVodeQuadInitB",
+        [](void* cv_mem, int which, std::function<std::remove_pointer_t<CVQuadRhsFnB>> fQB, N_Vector yQBO)
+        {
+          void* user_data = nullptr;
+          CVodeGetUserDataB(cv_mem, which, &user_data);
+          if (!user_data)
+            throw std::runtime_error(
+              "Failed to get Python function table from CVODE memory");
+          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
+          fntable->fQB = nb::cast(fQB);
+          return CVodeQuadInitB(cv_mem, which, cvode_fQB_wrapper, yQBO);
+        });       
+
+  BIND_CVODEB_CALLBACK(CVodeSetJacFnB, CVLsJacFnB, lsjacfnB, cvode_lsjacfnB_wrapper);
+  // BIND_CVODEB_CALLBACK(CVodeSetJacFnBS, CVLsJacFn, lsjacfnBS, cvode_lsjacfnBS_wrapper);
+  BIND_CVODEB_CALLBACK2(CVodeSetPreconditionerB,
+                        CVLsPrecSetupFnB, lsprecsetupfnB, cvode_lsprecsetupfnB_wrapper,
+                        CVLsPrecSolveFnB, lsprecsolvefnB, cvode_lsprecsolvefnB_wrapper);
+  // BIND_CVODEB_CALLBACK2(CVodeSetPreconditionerBS,
+  //                       CVLsPrecSetupFnBS, lsprecsetupfnBS, cvode_lsprecsetupfnBS_wrapper,
+  //                       CVLsPrecSolveFnBS, lsprecsolvefnBS, cvode_lsprecsolvefnBS_wrapper);
+  BIND_CVODEB_CALLBACK2(CVodeSetJacTimesB,
+                       CVLsJacTimesSetupFnB, lsjactimessetupfnB, cvode_lsjactimessetupfnB_wrapper,
+                       CVLsJacTimesVecFnB, lsjactimesvecfnB, cvode_lsjactimesvecfnB_wrapper);
+  // BIND_CVODEB_CALLBACK2(CVodeSetJacTimesBS,
+  //                       CVLsJacTimesSetupFnBS, lsjactimessetupfnBS, cvode_lsjactimessetupfnBS_wrapper,
+  //                       CVLsJacTimesVecFnBS, lsjactimesvecfnBS, cvode_lsjactimesvecfnBS_wrapper);
+  BIND_CVODEB_CALLBACK(CVodeSetLinSysFnB, CVLsLinSysFnB, lslinsysfnB, cvode_lslinsysfnB_wrapper);
+  // BIND_CVODEB_CALLBACK(CVodeSetLinSysFnBS, CVLsLinSysFnBS, lslinsysfnBS, cvode_lslinsysfnBS_wrapper);
 }

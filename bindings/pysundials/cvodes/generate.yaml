@@ -46,7 +46,8 @@ modules:
     - "CVodeGetJac" 
     - "CVodeResizeHistory"
     # generator cannot handle setting of function pointers, so we do something custom
-    - "CVodeInit"
+    - "CVodeInit.*"
+    - "CVodeQuadInit.*"
     - "CVodeQuadSensInit"
     - "CVodeSensInit"
     - "CVodeSensInit1"

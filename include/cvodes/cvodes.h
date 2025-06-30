@@ -565,6 +565,8 @@ SUNDIALS_EXPORT int CVodeGetQuadB(void* cvode_mem, int which,
 
 /* Optional Output Functions For Backward Problems */
 
+SUNDIALS_EXPORT int CVodeGetUserDataB(void* cvode_mem, int which, void** user_dataB);
+
 SUNDIALS_EXPORT void* CVodeGetAdjCVodeBmem(void* cvode_mem, int which);
 
 SUNDIALS_EXPORT int CVodeGetAdjY(void* cvode_mem, sunrealtype t, N_Vector y);
