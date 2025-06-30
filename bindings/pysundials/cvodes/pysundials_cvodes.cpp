@@ -154,14 +154,9 @@ void bind_cvodes(nb::module_& m)
           return CVodeRootInit(cv_mem, nrtfn, &cvode_rootfn_wrapper);
         });
 
-  // We cant use std::function<std::remove_pointer_t<CVQuadSensRhsFn>>
-  // because we need to replace the N_Vector* arguments with std::vector<N_Vector>.
-  using CVQuadSensRhsStdFn = int(sunrealtype t, N_Vector y,
-                                 std::vector<N_Vector> yQS, N_Vector ydot,
-                                 std::vector<N_Vector> yQSdot, void* user_data);
-  m.def("CVodeQuadSensInit",
-        [](void* cv_mem, std::function<CVQuadSensRhsStdFn> fQS,
-           std::vector<N_Vector> yQS0)
+  m.def("CVodeQuadInit",
+        [](void* cv_mem, std::function<std::remove_pointer_t<CVQuadRhsFn>> fQ,
+           N_Vector yQ0)
         {
           void* user_data = nullptr;
           CVodeGetUserData(cv_mem, &user_data);
@@ -169,42 +164,8 @@ void bind_cvodes(nb::module_& m)
             throw std::runtime_error(
               "Failed to get Python function table from CVODE memory");
           auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
-          fntable->fQS = nb::cast(fQS);
-          return CVodeQuadSensInit(cv_mem, cvode_fqs_wrapper, yQS0.data());
-        });
-
-  using CVSensRhsStdFn = int(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
-                             int iS, std::vector<N_Vector> yS,
-                             std::vector<N_Vector> ySdot, void* user_data);
-  m.def("CVodeSensInit",
-        [](void* cv_mem, int Ns, int ism, std::function<CVSensRhsStdFn> fS,
-           std::vector<N_Vector> yS0)
-        {
-          void* user_data = nullptr;
-          CVodeGetUserData(cv_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from CVODE memory");
-          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
-          fntable->fS  = nb::cast(fS);
-          return CVodeSensInit(cv_mem, Ns, ism, cvode_fs_wrapper, yS0.data());
-        });
-
-  using CVSensRhs1StdFn = int(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
-                              int iS, N_Vector yS, N_Vector ySdot,
-                              void* user_data, N_Vector tmp1, N_Vector tmp2);
-  m.def("CVodeSensInit1",
-        [](void* cv_mem, int Ns, std::function<CVSensRhs1StdFn> fS1, int ism,
-           std::vector<N_Vector> yS0)
-        {
-          void* user_data = nullptr;
-          CVodeGetUserData(cv_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from CVODE memory");
-          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
-          fntable->fS1 = nb::cast(fS1);
-          return CVodeSensInit1(cv_mem, Ns, ism, cvode_fs1_wrapper, yS0.data());
+          fntable->fQ  = nb::cast(fQ);
+          return CVodeQuadInit(cv_mem, &cvode_fQ_wrapper, yQ0);
         });
 
   BIND_CVODE_CALLBACK(CVodeWFtolerances, CVEwtFn, ewtn, cvode_ewtfn_wrapper);
@@ -228,6 +189,63 @@ void bind_cvodes(nb::module_& m)
                       cvode_lsjacrhsfn_wrapper);
 
   BIND_CVODE_CALLBACK(CVodeSetProjFn, CVProjFn, projfn, cvode_projfn_wrapper);
+
+  // We cant use std::function<std::remove_pointer_t<CVQuadSensRhsFn>>
+  // because we need to replace the N_Vector* arguments with std::vector<N_Vector>.
+  using CVQuadSensRhsStdFn = int(sunrealtype t, N_Vector y,
+                                 std::vector<N_Vector> yQS, N_Vector ydot,
+                                 std::vector<N_Vector> yQSdot, void* user_data);
+  m.def("CVodeQuadSensInit",
+        [](void* cv_mem, std::function<CVQuadSensRhsStdFn> fQS,
+           std::vector<N_Vector> yQS0)
+        {
+          void* user_data = nullptr;
+          CVodeGetUserData(cv_mem, &user_data);
+          if (!user_data)
+            throw std::runtime_error(
+              "Failed to get Python function table from CVODE memory");
+          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
+          fntable->fQS = nb::cast(fQS);
+          return CVodeQuadSensInit(cv_mem, cvode_fQS_wrapper, yQS0.data());
+        });
+
+  using CVSensRhsStdFn = int(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
+                             int iS, std::vector<N_Vector> yS,
+                             std::vector<N_Vector> ySdot, void* user_data);
+  m.def("CVodeSensInit",
+        [](void* cv_mem, int Ns, int ism, std::function<CVSensRhsStdFn> fS,
+           std::vector<N_Vector> yS0)
+        {
+          void* user_data = nullptr;
+          CVodeGetUserData(cv_mem, &user_data);
+          if (!user_data)
+            throw std::runtime_error(
+              "Failed to get Python function table from CVODE memory");
+          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
+          fntable->fS  = nb::cast(fS);
+          return CVodeSensInit(cv_mem, Ns, ism, cvode_fS_wrapper, yS0.data());
+        });
+
+  using CVSensRhs1StdFn = int(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
+                              int iS, N_Vector yS, N_Vector ySdot,
+                              void* user_data, N_Vector tmp1, N_Vector tmp2);
+  m.def("CVodeSensInit1",
+        [](void* cv_mem, int Ns, std::function<CVSensRhs1StdFn> fS1, int ism,
+           std::vector<N_Vector> yS0)
+        {
+          void* user_data = nullptr;
+          CVodeGetUserData(cv_mem, &user_data);
+          if (!user_data)
+            throw std::runtime_error(
+              "Failed to get Python function table from CVODE memory");
+          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
+          fntable->fS1 = nb::cast(fS1);
+          return CVodeSensInit1(cv_mem, Ns, ism, cvode_fS1_wrapper, yS0.data());
+        });
+
+  ///
+  // CVODES Adjoint Bindings
+  ///
 
   m.def("CVodeInitB",
         [](void* cv_mem, int which,
@@ -296,21 +314,51 @@ void bind_cvodes(nb::module_& m)
 
   BIND_CVODEB_CALLBACK(CVodeSetJacFnB, CVLsJacFnB, lsjacfnB,
                        cvode_lsjacfnB_wrapper);
-  // BIND_CVODEB_CALLBACK(CVodeSetJacFnBS, CVLsJacFn, lsjacfnBS, cvode_lsjacfnBS_wrapper);
   BIND_CVODEB_CALLBACK2(CVodeSetPreconditionerB, CVLsPrecSetupFnB, lsprecsetupfnB,
                         cvode_lsprecsetupfnB_wrapper, CVLsPrecSolveFnB,
                         lsprecsolvefnB, cvode_lsprecsolvefnB_wrapper);
-  // BIND_CVODEB_CALLBACK2(CVodeSetPreconditionerBS,
-  //                       CVLsPrecSetupFnBS, lsprecsetupfnBS, cvode_lsprecsetupfnBS_wrapper,
-  //                       CVLsPrecSolveFnBS, lsprecsolvefnBS, cvode_lsprecsolvefnBS_wrapper);
   BIND_CVODEB_CALLBACK2(CVodeSetJacTimesB, CVLsJacTimesSetupFnB,
                         lsjactimessetupfnB, cvode_lsjactimessetupfnB_wrapper,
                         CVLsJacTimesVecFnB, lsjactimesvecfnB,
                         cvode_lsjactimesvecfnB_wrapper);
-  // BIND_CVODEB_CALLBACK2(CVodeSetJacTimesBS,
-  //                       CVLsJacTimesSetupFnBS, lsjactimessetupfnBS, cvode_lsjactimessetupfnBS_wrapper,
-  //                       CVLsJacTimesVecFnBS, lsjactimesvecfnBS, cvode_lsjactimesvecfnBS_wrapper);
+
   BIND_CVODEB_CALLBACK(CVodeSetLinSysFnB, CVLsLinSysFnB, lslinsysfnB,
                        cvode_lslinsysfnB_wrapper);
-  // BIND_CVODEB_CALLBACK(CVodeSetLinSysFnBS, CVLsLinSysFnBS, lslinsysfnBS, cvode_lslinsysfnBS_wrapper);
+
+  using CVLsJacStdFnBS = int(sunrealtype t, N_Vector y,
+                             std::vector<N_Vector> yS, N_Vector yB,
+                             N_Vector fyB, SUNMatrix JB, void* user_dataB,
+                             N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
+  BIND_CVODEB_CALLBACK(CVodeSetJacFnBS, CVLsJacStdFnBS, lsjacfnBS,
+                       cvode_lsjacfnBS_wrapper);
+  using CVLsPrecSetupStdFnBS = int(sunrealtype t, N_Vector y, N_Vector yB,
+                                   N_Vector fyB, sunbooleantype jokB,
+                                   sunbooleantype * jcurPtrB,
+                                   sunrealtype gammaB, void* user_dataB);
+  using CVLsPrecSolveStdFnBS =
+    int(sunrealtype t, N_Vector y, std::vector<N_Vector> yS, N_Vector yB,
+        N_Vector fyB, N_Vector rB, N_Vector zB, sunrealtype gammaB,
+        sunrealtype deltaB, int lrB, void* user_dataB);
+  BIND_CVODEB_CALLBACK2(CVodeSetPreconditionerBS, CVLsPrecSetupStdFnBS,
+                        lsprecsetupfnBS, cvode_lsprecsetupfnBS_wrapper,
+                        CVLsPrecSolveStdFnBS, lsprecsolvefnBS,
+                        cvode_lsprecsolvefnBS_wrapper);
+  using CVLsJacTimesSetupStdFnBS = int(sunrealtype t, N_Vector y,
+                                       std::vector<N_Vector> yS, N_Vector yB,
+                                       N_Vector fyB, void* jac_dataB);
+  using CVLsJacTimesVecStdFnBS   = int(N_Vector vB, N_Vector JvB, sunrealtype t,
+                                     N_Vector y, std::vector<N_Vector> yS,
+                                     N_Vector yB, N_Vector fyB, void* jac_dataB,
+                                     N_Vector tmpB);
+  BIND_CVODEB_CALLBACK2(CVodeSetJacTimesBS, CVLsJacTimesSetupStdFnBS,
+                        lsjactimessetupfnBS, cvode_lsjactimessetupfnBS_wrapper,
+                        CVLsJacTimesVecStdFnBS, lsjactimesvecfnBS,
+                        cvode_lsjactimesvecfnBS_wrapper);
+  using CVLsLinSysStdFnBS =
+    int(sunrealtype t, N_Vector y, std::vector<N_Vector> yS, N_Vector yB,
+        N_Vector fyB, SUNMatrix AB, sunbooleantype jokB, sunbooleantype * jcurB,
+        sunrealtype gammaB, void* user_dataB, N_Vector tmp1B, N_Vector tmp2B,
+        N_Vector tmp3B);
+  BIND_CVODEB_CALLBACK(CVodeSetLinSysFnBS, CVLsLinSysStdFnBS, lslinsysfnBS,
+                       cvode_lslinsysfnBS_wrapper);
 }

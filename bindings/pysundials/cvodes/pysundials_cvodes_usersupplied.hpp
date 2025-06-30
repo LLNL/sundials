@@ -38,7 +38,7 @@ struct cvode_user_supplied_fn_table
     lsjactimesvecfn, lslinsysfn, lsjacrhsfn;
 
   // cvode quadrature user-supplied function pointers
-  nanobind::object fQS;
+  nanobind::object fQ, fQS;
 
   // cvode FSA user-supplied function pointers
   nanobind::object fS, fS1;
@@ -152,7 +152,16 @@ inline int cvode_lsjacrhsfn_wrapper(Args... args)
 }
 
 template<typename... Args>
-inline int cvode_fqs_wrapper(Args... args)
+inline int cvode_fQ_wrapper(Args... args)
+{
+  return pysundials::user_supplied_fn_caller<std::remove_pointer_t<CVQuadRhsFn>,
+                                             cvode_user_supplied_fn_table,
+                                             1>(&cvode_user_supplied_fn_table::fQ,
+                                                std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+inline int cvode_fQS_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVQuadSensRhsFn>, cvode_user_supplied_fn_table,
@@ -160,7 +169,7 @@ inline int cvode_fqs_wrapper(Args... args)
 }
 
 template<typename... Args>
-inline int cvode_fs_wrapper(Args... args)
+inline int cvode_fS_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<std::remove_pointer_t<CVSensRhsFn>,
                                              cvode_user_supplied_fn_table,
@@ -169,7 +178,7 @@ inline int cvode_fs_wrapper(Args... args)
 }
 
 template<typename... Args>
-inline int cvode_fs1_wrapper(Args... args)
+inline int cvode_fS1_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVSensRhs1Fn>, cvode_user_supplied_fn_table,

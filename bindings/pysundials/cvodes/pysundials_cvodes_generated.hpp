@@ -553,9 +553,6 @@ m.def("CVodePrintAllStats", CVodePrintAllStats, nb::arg("cvode_mem"),
 
 m.def("CVodeGetReturnFlagName", CVodeGetReturnFlagName, nb::arg("flag"));
 
-m.def("CVodeQuadInit", CVodeQuadInit, nb::arg("cvode_mem"), nb::arg("fQ"),
-      nb::arg("yQ0"));
-
 m.def("CVodeQuadReInit", CVodeQuadReInit, nb::arg("cvode_mem"), nb::arg("yQ0"));
 
 m.def("CVodeQuadSStolerances", CVodeQuadSStolerances, nb::arg("cvode_mem"),
@@ -1235,12 +1232,6 @@ m.def("CVodeSStolerancesB", CVodeSStolerancesB, nb::arg("cvode_mem"),
 m.def("CVodeSVtolerancesB", CVodeSVtolerancesB, nb::arg("cvode_mem"),
       nb::arg("which"), nb::arg("reltolB"), nb::arg("abstolB"));
 
-m.def("CVodeQuadInitB", CVodeQuadInitB, nb::arg("cvode_mem"), nb::arg("which"),
-      nb::arg("fQB"), nb::arg("yQB0"));
-
-m.def("CVodeQuadInitBS", CVodeQuadInitBS, nb::arg("cvode_mem"),
-      nb::arg("which"), nb::arg("fQBs"), nb::arg("yQB0"));
-
 m.def("CVodeQuadReInitB", CVodeQuadReInitB, nb::arg("cvode_mem"),
       nb::arg("which"), nb::arg("yQB0"));
 
@@ -1276,6 +1267,9 @@ m.def("CVodeB", CVodeB, nb::arg("cvode_mem"), nb::arg("tBout"),
       nb::arg("itaskB"));
 
 m.def("CVodeSetAdjNoSensi", CVodeSetAdjNoSensi, nb::arg("cvode_mem"));
+
+m.def("CVodeSetOwnUserDataB", CVodeSetOwnUserDataB, nb::arg("cvode_mem"),
+      nb::arg("which"), nb::arg("own_user_data"));
 
 m.def("CVodeSetMaxOrdB", CVodeSetMaxOrdB, nb::arg("cvode_mem"),
       nb::arg("which"), nb::arg("maxordB"));
