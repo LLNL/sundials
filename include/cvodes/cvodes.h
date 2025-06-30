@@ -537,6 +537,7 @@ SUNDIALS_EXPORT int CVodeSetAdjNoSensi(void* cvode_mem);
 
 SUNDIALS_EXPORT int CVodeSetUserDataB(void* cvode_mem, int which,
                                       void* user_dataB);
+SUNDIALS_EXPORT int CVodeSetOwnUserDataB(void* cvode_mem, int which, sunbooleantype own_user_data);
 SUNDIALS_EXPORT int CVodeSetMaxOrdB(void* cvode_mem, int which, int maxordB);
 SUNDIALS_EXPORT int CVodeSetMaxNumStepsB(void* cvode_mem, int which,
                                          long int mxstepsB);

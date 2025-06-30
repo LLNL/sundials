@@ -852,6 +852,7 @@ struct CVodeBMemRec
 
   /* User user_data */
   void* cv_user_data;
+  sunbooleantype cv_own_user_data;
 
   /* Memory block for a linear solver's interface to CVODEA */
   void* cv_lmem;
