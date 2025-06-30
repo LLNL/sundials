@@ -67,7 +67,8 @@ modules:
     - ../../include/sundials/sundials_iterative.h
     - ../../include/sundials/sundials_linearsolver.h
     fn_exclude_by_name__regex:
-    - "SUNQRAdd" # nanobind cannot bind to functions which take a **
+    # TODO(CJB): for some reason, this function is causing litgen to bomb out
+    - "^SUNClassicalGS$"
   sundials_logger:
     path: sundials/pysundials_logger_generated.hpp
     headers:

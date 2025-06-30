@@ -155,7 +155,18 @@ m.def("N_VMinQuotientLocal",
     N_VMinQuotientLocal, nb::arg("num"), nb::arg("denom"));
 
 m.def("N_VBufSize",
-    N_VBufSize, nb::arg("x"), nb::arg("size"));
+    [](N_Vector x, long size) -> std::tuple<SUNErrCode, long>
+    {
+        auto N_VBufSize_adapt_modifiable_immutable_to_return = [](N_Vector x, long size) -> std::tuple<SUNErrCode, long>
+        {
+            long * size_adapt_modifiable = & size;
+
+            SUNErrCode r = N_VBufSize(x, size_adapt_modifiable);
+            return std::make_tuple(r, size);
+        };
+
+        return N_VBufSize_adapt_modifiable_immutable_to_return(x, size);
+    },     nb::arg("x"), nb::arg("size"));
 
 m.def("N_VPrint",
     N_VPrint, nb::arg("v"));

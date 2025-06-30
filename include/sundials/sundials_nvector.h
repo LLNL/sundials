@@ -111,9 +111,9 @@ struct _generic_N_Vector_Ops
   N_Vector (*nvcloneempty)(N_Vector);
   void (*nvdestroy)(N_Vector);
   void (*nvspace)(N_Vector, sunindextype*, sunindextype*);
-  sunrealtype* (*nvgetarraypointer)(N_Vector);
-  sunrealtype* (*nvgetdevicearraypointer)(N_Vector);
-  void (*nvsetarraypointer)(sunrealtype*, N_Vector);
+  sunrealtype1d (*nvgetarraypointer)(N_Vector);
+  sunrealtype1d (*nvgetdevicearraypointer)(N_Vector);
+  void (*nvsetarraypointer)(sunrealtype1d, N_Vector);
   SUNComm (*nvgetcommunicator)(N_Vector);
   sunindextype (*nvgetlength)(N_Vector);
   sunindextype (*nvgetlocallength)(N_Vector);
@@ -146,22 +146,22 @@ struct _generic_N_Vector_Ops
    */
 
   /* OPTIONAL fused vector operations */
-  SUNErrCode (*nvlinearcombination)(int, sunrealtype*, N_Vector*, N_Vector);
-  SUNErrCode (*nvscaleaddmulti)(int, sunrealtype*, N_Vector, N_Vector*,
+  SUNErrCode (*nvlinearcombination)(int, sunrealtype1d, N_Vector*, N_Vector);
+  SUNErrCode (*nvscaleaddmulti)(int, sunrealtype1d, N_Vector, N_Vector*,
                                 N_Vector*);
-  SUNErrCode (*nvdotprodmulti)(int, N_Vector, N_Vector*, sunrealtype*);
+  SUNErrCode (*nvdotprodmulti)(int, N_Vector, N_Vector*, sunrealtype1d);
 
   /* OPTIONAL vector array operations */
   SUNErrCode (*nvlinearsumvectorarray)(int, sunrealtype, N_Vector*, sunrealtype,
                                        N_Vector*, N_Vector*);
-  SUNErrCode (*nvscalevectorarray)(int, sunrealtype*, N_Vector*, N_Vector*);
+  SUNErrCode (*nvscalevectorarray)(int, sunrealtype1d, N_Vector*, N_Vector*);
   SUNErrCode (*nvconstvectorarray)(int, sunrealtype, N_Vector*);
-  SUNErrCode (*nvwrmsnormvectorarray)(int, N_Vector*, N_Vector*, sunrealtype*);
+  SUNErrCode (*nvwrmsnormvectorarray)(int, N_Vector*, N_Vector*, sunrealtype1d);
   SUNErrCode (*nvwrmsnormmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector,
-                                          sunrealtype*);
-  SUNErrCode (*nvscaleaddmultivectorarray)(int, int, sunrealtype*, N_Vector*,
+                                          sunrealtype1d);
+  SUNErrCode (*nvscaleaddmultivectorarray)(int, int, sunrealtype1d, N_Vector*,
                                            N_Vector**, N_Vector**);
-  SUNErrCode (*nvlinearcombinationvectorarray)(int, int, sunrealtype*,
+  SUNErrCode (*nvlinearcombinationvectorarray)(int, int, sunrealtype1d,
                                                N_Vector**, N_Vector*);
 
   /*
@@ -180,8 +180,8 @@ struct _generic_N_Vector_Ops
   sunrealtype (*nvwsqrsummasklocal)(N_Vector, N_Vector, N_Vector);
 
   /* Single buffer reduction operations */
-  SUNErrCode (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, sunrealtype*);
-  SUNErrCode (*nvdotprodmultiallreduce)(int, N_Vector, sunrealtype*);
+  SUNErrCode (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, sunrealtype1d);
+  SUNErrCode (*nvdotprodmultiallreduce)(int, N_Vector, sunrealtype1d);
 
   /* XBraid interface operations */
   SUNErrCode (*nvbufsize)(N_Vector, sunindextype*);
@@ -222,9 +222,9 @@ SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
 void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw);
-SUNDIALS_EXPORT sunrealtype* N_VGetArrayPointer(N_Vector v);
-SUNDIALS_EXPORT sunrealtype* N_VGetDeviceArrayPointer(N_Vector v);
-SUNDIALS_EXPORT void N_VSetArrayPointer(sunrealtype* v_data, N_Vector v);
+SUNDIALS_EXPORT sunrealtype1d N_VGetArrayPointer(N_Vector v);
+SUNDIALS_EXPORT sunrealtype1d N_VGetDeviceArrayPointer(N_Vector v);
+SUNDIALS_EXPORT void N_VSetArrayPointer(sunrealtype1d v_data, N_Vector v);
 SUNDIALS_EXPORT SUNComm N_VGetCommunicator(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLocalLength(N_Vector v);
@@ -257,16 +257,16 @@ SUNDIALS_EXPORT sunrealtype N_VMinQuotient(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
 SUNDIALS_EXPORT
-SUNErrCode N_VLinearCombination(int nvec, sunrealtype* c, N_Vector* X,
+SUNErrCode N_VLinearCombination(int nvec, sunrealtype1d c, N_Vector* X,
                                 N_Vector z);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VScaleAddMulti(int nvec, sunrealtype* a, N_Vector x, N_Vector* Y,
+SUNErrCode N_VScaleAddMulti(int nvec, sunrealtype1d a, N_Vector x, N_Vector* Y,
                             N_Vector* Z);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y,
-                           sunrealtype* dotprods);
+                           sunrealtype1d dotprods);
 
 /* vector array operations */
 SUNDIALS_EXPORT
@@ -274,7 +274,7 @@ SUNErrCode N_VLinearSumVectorArray(int nvec, sunrealtype a, N_Vector* X,
                                    sunrealtype b, N_Vector* Y, N_Vector* Z);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VScaleVectorArray(int nvec, sunrealtype* c, N_Vector* X,
+SUNErrCode N_VScaleVectorArray(int nvec, sunrealtype1d c, N_Vector* X,
                                N_Vector* Z);
 
 SUNDIALS_EXPORT
@@ -282,18 +282,18 @@ SUNErrCode N_VConstVectorArray(int nvec, sunrealtype c, N_Vector* Z);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VWrmsNormVectorArray(int nvec, N_Vector* X, N_Vector* W,
-                                  sunrealtype* nrm);
+                                  sunrealtype1d nrm);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W,
-                                      N_Vector id, sunrealtype* nrm);
+                                      N_Vector id, sunrealtype1d nrm);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VScaleAddMultiVectorArray(int nvec, int nsum, sunrealtype* a,
+SUNErrCode N_VScaleAddMultiVectorArray(int nvec, int nsum, sunrealtype1d a,
                                        N_Vector* X, N_Vector** Y, N_Vector** Z);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
+SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype1d c,
                                            N_Vector** X, N_Vector* Z);
 
 /*
@@ -315,9 +315,9 @@ SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal(N_Vector num, N_Vector denom);
 
 /* single buffer reduction operations */
 SUNDIALS_EXPORT SUNErrCode N_VDotProdMultiLocal(int nvec, N_Vector x, N_Vector* Y,
-                                                sunrealtype* dotprods);
+                                                sunrealtype1d dotprods);
 SUNDIALS_EXPORT SUNErrCode N_VDotProdMultiAllReduce(int nvec_total, N_Vector x,
-                                                    sunrealtype* sum);
+                                                    sunrealtype1d sum);
 
 /* XBraid interface operations */
 SUNDIALS_EXPORT SUNErrCode N_VBufSize(N_Vector x, sunindextype* size);

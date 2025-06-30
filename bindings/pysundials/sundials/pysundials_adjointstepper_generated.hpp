@@ -9,10 +9,32 @@ m.def("SUNAdjointStepper_ReInit",
     SUNAdjointStepper_ReInit, nb::arg("adj"), nb::arg("t0"), nb::arg("y0"), nb::arg("tf"), nb::arg("sf"));
 
 m.def("SUNAdjointStepper_Evolve",
-    SUNAdjointStepper_Evolve, nb::arg("adj_stepper"), nb::arg("tout"), nb::arg("sens"), nb::arg("tret"));
+    [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens, double tret) -> std::tuple<SUNErrCode, double>
+    {
+        auto SUNAdjointStepper_Evolve_adapt_modifiable_immutable_to_return = [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens, double tret) -> std::tuple<SUNErrCode, double>
+        {
+            double * tret_adapt_modifiable = & tret;
+
+            SUNErrCode r = SUNAdjointStepper_Evolve(adj_stepper, tout, sens, tret_adapt_modifiable);
+            return std::make_tuple(r, tret);
+        };
+
+        return SUNAdjointStepper_Evolve_adapt_modifiable_immutable_to_return(adj_stepper, tout, sens, tret);
+    },     nb::arg("adj_stepper"), nb::arg("tout"), nb::arg("sens"), nb::arg("tret"));
 
 m.def("SUNAdjointStepper_OneStep",
-    SUNAdjointStepper_OneStep, nb::arg("adj_stepper"), nb::arg("tout"), nb::arg("sens"), nb::arg("tret"));
+    [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens, double tret) -> std::tuple<SUNErrCode, double>
+    {
+        auto SUNAdjointStepper_OneStep_adapt_modifiable_immutable_to_return = [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens, double tret) -> std::tuple<SUNErrCode, double>
+        {
+            double * tret_adapt_modifiable = & tret;
+
+            SUNErrCode r = SUNAdjointStepper_OneStep(adj_stepper, tout, sens, tret_adapt_modifiable);
+            return std::make_tuple(r, tret);
+        };
+
+        return SUNAdjointStepper_OneStep_adapt_modifiable_immutable_to_return(adj_stepper, tout, sens, tret);
+    },     nb::arg("adj_stepper"), nb::arg("tout"), nb::arg("sens"), nb::arg("tret"));
 
 m.def("SUNAdjointStepper_RecomputeFwd",
     SUNAdjointStepper_RecomputeFwd, nb::arg("adj_stepper"), nb::arg("start_idx"), nb::arg("t0"), nb::arg("y0"), nb::arg("tf"));

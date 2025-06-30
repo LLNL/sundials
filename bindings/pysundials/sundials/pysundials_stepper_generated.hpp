@@ -6,10 +6,32 @@
 // 
 
 m.def("SUNStepper_Evolve",
-    SUNStepper_Evolve, nb::arg("stepper"), nb::arg("tout"), nb::arg("vret"), nb::arg("tret"));
+    [](SUNStepper stepper, double tout, N_Vector vret, double tret) -> std::tuple<SUNErrCode, double>
+    {
+        auto SUNStepper_Evolve_adapt_modifiable_immutable_to_return = [](SUNStepper stepper, double tout, N_Vector vret, double tret) -> std::tuple<SUNErrCode, double>
+        {
+            double * tret_adapt_modifiable = & tret;
+
+            SUNErrCode r = SUNStepper_Evolve(stepper, tout, vret, tret_adapt_modifiable);
+            return std::make_tuple(r, tret);
+        };
+
+        return SUNStepper_Evolve_adapt_modifiable_immutable_to_return(stepper, tout, vret, tret);
+    },     nb::arg("stepper"), nb::arg("tout"), nb::arg("vret"), nb::arg("tret"));
 
 m.def("SUNStepper_OneStep",
-    SUNStepper_OneStep, nb::arg("stepper"), nb::arg("tout"), nb::arg("vret"), nb::arg("tret"));
+    [](SUNStepper stepper, double tout, N_Vector vret, double tret) -> std::tuple<SUNErrCode, double>
+    {
+        auto SUNStepper_OneStep_adapt_modifiable_immutable_to_return = [](SUNStepper stepper, double tout, N_Vector vret, double tret) -> std::tuple<SUNErrCode, double>
+        {
+            double * tret_adapt_modifiable = & tret;
+
+            SUNErrCode r = SUNStepper_OneStep(stepper, tout, vret, tret_adapt_modifiable);
+            return std::make_tuple(r, tret);
+        };
+
+        return SUNStepper_OneStep_adapt_modifiable_immutable_to_return(stepper, tout, vret, tret);
+    },     nb::arg("stepper"), nb::arg("tout"), nb::arg("vret"), nb::arg("tret"));
 
 m.def("SUNStepper_FullRhs",
     SUNStepper_FullRhs, nb::arg("stepper"), nb::arg("t"), nb::arg("v"), nb::arg("f"), nb::arg("mode"));
