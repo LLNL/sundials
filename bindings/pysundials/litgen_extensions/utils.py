@@ -4,7 +4,7 @@
 # not subject to GPLv3 though, and can use our standard license.
 
 import litgen
-
+import re
 
 def generate_code(options, source_code):
     generated_code = litgen.generate_code(options, source_code)
