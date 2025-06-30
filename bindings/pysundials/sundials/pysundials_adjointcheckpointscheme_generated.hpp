@@ -5,11 +5,11 @@
 // 
 
 m.def("SUNAdjointCheckpointScheme_NeedsSaving",
-    [](SUNAdjointCheckpointScheme check_scheme, suncountertype step_num, suncountertype stage_num, double t, bool yes_or_no) -> std::tuple<SUNErrCode, bool>
+    [](SUNAdjointCheckpointScheme check_scheme, suncountertype step_num, suncountertype stage_num, double t, int yes_or_no) -> std::tuple<SUNErrCode, int>
     {
-        auto SUNAdjointCheckpointScheme_NeedsSaving_adapt_modifiable_immutable_to_return = [](SUNAdjointCheckpointScheme check_scheme, suncountertype step_num, suncountertype stage_num, double t, bool yes_or_no) -> std::tuple<SUNErrCode, bool>
+        auto SUNAdjointCheckpointScheme_NeedsSaving_adapt_modifiable_immutable_to_return = [](SUNAdjointCheckpointScheme check_scheme, suncountertype step_num, suncountertype stage_num, double t, int yes_or_no) -> std::tuple<SUNErrCode, int>
         {
-            bool * yes_or_no_adapt_modifiable = & yes_or_no;
+            int * yes_or_no_adapt_modifiable = & yes_or_no;
 
             SUNErrCode r = SUNAdjointCheckpointScheme_NeedsSaving(check_scheme, step_num, stage_num, t, yes_or_no_adapt_modifiable);
             return std::make_tuple(r, yes_or_no);

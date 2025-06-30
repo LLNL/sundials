@@ -67,8 +67,11 @@ modules:
     - ../../include/sundials/sundials_iterative.h
     - ../../include/sundials/sundials_linearsolver.h
     fn_exclude_by_name__regex:
-    # TODO(CJB): for some reason, this function is causing litgen to bomb out
+    # nanobind cannot handle ** (2d arrays) by default
     - "^SUNClassicalGS$"
+    - "^SUNModifiedGS$"
+    - "^SUNQRfact$"
+    - "^SUNQRsol$"
   sundials_logger:
     path: sundials/pysundials_logger_generated.hpp
     headers:

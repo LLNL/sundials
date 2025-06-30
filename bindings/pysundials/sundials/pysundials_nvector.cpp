@@ -17,9 +17,9 @@
  * produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
-#include "sundials/sundials_nvector.h"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/vector.h>
 
 #include <sundials/sundials_nvector.hpp>
 

@@ -19,6 +19,7 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/vector.h>
 
 #include <sundials/sundials_linearsolver.hpp>
 
