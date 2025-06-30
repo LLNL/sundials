@@ -38,6 +38,7 @@ set(KINSOL_examples
     "kinLaplace_picard_bnd\;\;exclude-single"
     "kinLaplace_picard_kry\;\;exclude-single"
     "kinRoberts_fp\;\;develop"
+    "kinRoberts_fp\;kinsol.m_aa 1\;develop"
     "kinRoboKin_dns\;\;exclude-single")
 
 # Examples using LAPACK linear solvers
