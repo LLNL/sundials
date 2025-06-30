@@ -66,37 +66,37 @@ using namespace sundials::experimental;
           return NAME(cv_mem, &WRAPPER1, &WRAPPER2);                            \
         })
 
-#define BIND_CVODEB_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER)                    \
-  m.def(#NAME,                                                                  \
-        [](void* cv_mem, int which,                                             \
-           std::function<std::remove_pointer_t<FN_TYPE>> fn)                    \
-        {                                                                       \
-          void* user_data = nullptr;                                            \
-          CVodeGetUserData(cv_mem, &user_data);                                 \
-          if (!user_data)                                                       \
-            throw std::runtime_error(                                           \
-              "Failed to get Python function table from CVODE memory");         \
-          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data); \
-          fntable->MEMBER = nb::cast(fn);                                       \
-          return NAME(cv_mem, which, &WRAPPER);                                 \
+#define BIND_CVODEB_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER)                     \
+  m.def(#NAME,                                                                   \
+        [](void* cv_mem, int which,                                              \
+           std::function<std::remove_pointer_t<FN_TYPE>> fn)                     \
+        {                                                                        \
+          void* user_data = nullptr;                                             \
+          CVodeGetUserDataB(cv_mem, which, &user_data);                          \
+          if (!user_data)                                                        \
+            throw std::runtime_error(                                            \
+              "Failed to get Python function table from CVODE memory");          \
+          auto fntable = static_cast<cvodea_user_supplied_fn_table*>(user_data); \
+          fntable->MEMBER = nb::cast(fn);                                        \
+          return NAME(cv_mem, which, &WRAPPER);                                  \
         })
 
-#define BIND_CVODEB_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2,      \
-                              MEMBER2, WRAPPER2)                                \
-  m.def(#NAME,                                                                  \
-        [](void* cv_mem, int which,                                             \
-           std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                  \
-           std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                  \
-        {                                                                       \
-          void* user_data = nullptr;                                            \
-          CVodeGetUserData(cv_mem, &user_data);                                 \
-          if (!user_data)                                                       \
-            throw std::runtime_error(                                           \
-              "Failed to get Python function table from CVODE memory");         \
-          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data); \
-          fntable->MEMBER1 = nb::cast(fn1);                                     \
-          fntable->MEMBER2 = nb::cast(fn2);                                     \
-          return NAME(cv_mem, which, &WRAPPER1, &WRAPPER2);                     \
+#define BIND_CVODEB_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2,       \
+                              MEMBER2, WRAPPER2)                                 \
+  m.def(#NAME,                                                                   \
+        [](void* cv_mem, int which,                                              \
+           std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                   \
+           std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                   \
+        {                                                                        \
+          void* user_data = nullptr;                                             \
+          CVodeGetUserDataB(cv_mem, which, &user_data);                          \
+          if (!user_data)                                                        \
+            throw std::runtime_error(                                            \
+              "Failed to get Python function table from CVODE memory");          \
+          auto fntable = static_cast<cvodea_user_supplied_fn_table*>(user_data); \
+          fntable->MEMBER1 = nb::cast(fn1);                                      \
+          fntable->MEMBER2 = nb::cast(fn2);                                      \
+          return NAME(cv_mem, which, &WRAPPER1, &WRAPPER2);                      \
         })
 
 void bind_cvodes(nb::module_& m)
@@ -237,7 +237,7 @@ void bind_cvodes(nb::module_& m)
           int cv_status = CVodeInitB(cv_mem, which, cvode_fB_wrapper, tB0, yB0);
 
           // Create the user-supplied function table to store the Python user functions
-          auto cb_fns = cvode_user_supplied_fn_table_alloc();
+          auto cb_fns = cvodea_user_supplied_fn_table_alloc();
 
           // Smuggle the user-supplied function table into callback wrappers through the user_data pointer
           cv_status = CVodeSetUserDataB(cv_mem, which,
@@ -249,7 +249,7 @@ void bind_cvodes(nb::module_& m)
           }
 
           // Ensure CVodeFree will free the user-supplied function table
-          cv_status = CVodeSetOwnUserData(cv_mem, SUNTRUE);
+          cv_status = CVodeSetOwnUserDataB(cv_mem, which, SUNTRUE);
           if (cv_status != CV_SUCCESS)
           {
             free(cb_fns);
@@ -272,7 +272,7 @@ void bind_cvodes(nb::module_& m)
           if (!user_data)
             throw std::runtime_error(
               "Failed to get Python function table from CVODE memory");
-          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data);
+          auto fntable = static_cast<cvodea_user_supplied_fn_table*>(user_data);
           fntable->fQB = nb::cast(fQB);
           return CVodeQuadInitB(cv_mem, which, cvode_fQB_wrapper, yQBO);
         });
@@ -289,7 +289,7 @@ void bind_cvodes(nb::module_& m)
           if (!user_data)
             throw std::runtime_error(
               "Failed to get Python function table from CVODE memory");
-          auto fntable  = static_cast<cvode_user_supplied_fn_table*>(user_data);
+          auto fntable = static_cast<cvodea_user_supplied_fn_table*>(user_data);
           fntable->fQBs = nb::cast(fQBs);
           return CVodeQuadInitBS(cv_mem, which, cvode_fQBs_wrapper, yQBO);
         });
