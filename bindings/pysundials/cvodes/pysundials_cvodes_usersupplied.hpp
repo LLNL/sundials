@@ -44,11 +44,11 @@ struct cvode_user_supplied_fn_table
   nanobind::object fS, fS1;
 
   // cvode adjoint user-supplied function pointers
-  nb::object fB, fQB;
+  nb::object fB, fQB, fQBs;
 
   // cvode_ls adjoint user-supplied function pointers
   nb::object lsjacfnB, lsjacfnBS, lsprecsetupfnB, lsprecsetupfnBS,
-   lsprecsolvefnB, lsprecsolvefnBS, lsjactimessetupfnB, lsjactimessetupfnBS,
+    lsprecsolvefnB, lsprecsolvefnBS, lsjactimessetupfnB, lsjactimessetupfnBS,
     lsjactimesvecfnB, lsjactimesvecfnBS, lslinsysfnB, lslinsysfnBS;
 };
 
@@ -71,9 +71,10 @@ inline cvode_user_supplied_fn_table* cvode_user_supplied_fn_table_alloc()
 template<typename... Args>
 inline int cvode_f_wrapper(Args... args)
 {
-  return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<CVRhsFn>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::f, std::forward<Args>(args)...);
+  return pysundials::user_supplied_fn_caller<std::remove_pointer_t<CVRhsFn>,
+                                             cvode_user_supplied_fn_table,
+                                             1>(&cvode_user_supplied_fn_table::f,
+                                                std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -129,7 +130,8 @@ inline int cvode_lsjactimessetupfn_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsJacTimesSetupFn>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::lsjactimessetupfn, std::forward<Args>(args)...);
+    1>(&cvode_user_supplied_fn_table::lsjactimessetupfn,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -137,7 +139,8 @@ inline int cvode_lsjactimesvecfn_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsJacTimesVecFn>, cvode_user_supplied_fn_table,
-    2>(&cvode_user_supplied_fn_table::lsjactimesvecfn, std::forward<Args>(args)...);
+    2>(&cvode_user_supplied_fn_table::lsjactimesvecfn,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -176,10 +179,9 @@ inline int cvode_fs_wrapper(Args... args)
 template<typename... Args>
 inline int cvode_fs1_wrapper(Args... args)
 {
-  return pysundials::user_supplied_fn_caller<std::remove_pointer_t<CVSensRhs1Fn>,
-                                             cvode_user_supplied_fn_table,
-                                             3>(&cvode_user_supplied_fn_table::fS1,
-                                                std::forward<Args>(args)...);
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<CVSensRhs1Fn>, cvode_user_supplied_fn_table,
+    3>(&cvode_user_supplied_fn_table::fS1, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -197,17 +199,26 @@ inline int cvode_projfn_wrapper(Args... args)
 template<typename... Args>
 inline int cvode_fB_wrapper(Args... args)
 {
-  return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<CVRhsFnB>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::fB, std::forward<Args>(args)...);
+  return pysundials::user_supplied_fn_caller<std::remove_pointer_t<CVRhsFnB>,
+                                             cvode_user_supplied_fn_table,
+                                             1>(&cvode_user_supplied_fn_table::fB,
+                                                std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 inline int cvode_fQB_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<CVRhsFnB>, cvode_user_supplied_fn_table,
+    std::remove_pointer_t<CVQuadRhsFnB>, cvode_user_supplied_fn_table,
     1>(&cvode_user_supplied_fn_table::fQB, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+inline int cvode_fQBs_wrapper(Args... args)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<CVQuadRhsFnBS>, cvode_user_supplied_fn_table,
+    1>(&cvode_user_supplied_fn_table::fQBs, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -231,7 +242,8 @@ inline int cvode_lsprecsetupfnB_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsPrecSetupFnB>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::lsprecsetupfnB, std::forward<Args>(args)...);
+    1>(&cvode_user_supplied_fn_table::lsprecsetupfnB,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -239,7 +251,8 @@ inline int cvode_lsprecsetupfnBS_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsPrecSetupFnBS>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::lsprecsetupfnBS, std::forward<Args>(args)...);
+    1>(&cvode_user_supplied_fn_table::lsprecsetupfnBS,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -247,7 +260,8 @@ inline int cvode_lsprecsolvefnB_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsPrecSolveFnB>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::lsprecsolvefnB, std::forward<Args>(args)...);
+    1>(&cvode_user_supplied_fn_table::lsprecsolvefnB,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -255,7 +269,8 @@ inline int cvode_lsprecsolvefnBS_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsPrecSolveFnBS>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::lsprecsolvefnBS, std::forward<Args>(args)...);
+    1>(&cvode_user_supplied_fn_table::lsprecsolvefnBS,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -263,7 +278,8 @@ inline int cvode_lsjactimessetupfnB_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsJacTimesSetupFnB>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::lsjactimessetupfnB, std::forward<Args>(args)...);
+    1>(&cvode_user_supplied_fn_table::lsjactimessetupfnB,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -271,7 +287,8 @@ inline int cvode_lsjactimessetupfnBS_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsJacTimesSetupFnBS>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::lsjactimessetupfnBS, std::forward<Args>(args)...);
+    1>(&cvode_user_supplied_fn_table::lsjactimessetupfnBS,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -279,7 +296,8 @@ inline int cvode_lsjactimesvecfnB_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsJacTimesVecFnB>, cvode_user_supplied_fn_table,
-    2>(&cvode_user_supplied_fn_table::lsjactimesvecfnB, std::forward<Args>(args)...);
+    2>(&cvode_user_supplied_fn_table::lsjactimesvecfnB,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -287,7 +305,8 @@ inline int cvode_lsjactimesvecfnBS_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVLsJacTimesVecFnBS>, cvode_user_supplied_fn_table,
-    2>(&cvode_user_supplied_fn_table::lsjactimesvecfnBS, std::forward<Args>(args)...);
+    2>(&cvode_user_supplied_fn_table::lsjactimesvecfnBS,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
