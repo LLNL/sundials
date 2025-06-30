@@ -107,7 +107,6 @@ modules:
     # these have ** and *** argument types which trip up nanobind
     - "VectorArray"
     - "Multi"
-    - "LinearCombination"
   sundials_profiler:
     path: sundials/pysundials_profiler_generated.hpp
     headers:

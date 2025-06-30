@@ -127,6 +127,20 @@ m.def("N_VConstrMask",
 m.def("N_VMinQuotient",
     N_VMinQuotient, nb::arg("num"), nb::arg("denom"));
 
+m.def("N_VLinearCombination",
+    [](int nvec, sunrealtype1d c, std::vector<N_Vector> X, N_Vector z) -> SUNErrCode
+    {
+        auto N_VLinearCombination_adapt_nvector_ptr_to_vector = [](int nvec, sunrealtype1d c, std::vector<N_Vector> X, N_Vector z) -> SUNErrCode
+        {
+            N_Vector* X_ptr = X.empty() ? nullptr : X.data();
+
+            auto lambda_result = N_VLinearCombination(nvec, c, X_ptr, z);
+            return lambda_result;
+        };
+
+        return N_VLinearCombination_adapt_nvector_ptr_to_vector(nvec, c, X, z);
+    },     nb::arg("nvec"), nb::arg("c"), nb::arg("X"), nb::arg("z"));
+
 m.def("N_VDotProdLocal",
     N_VDotProdLocal, nb::arg("x"), nb::arg("y"));
 
