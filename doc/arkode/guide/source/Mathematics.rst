@@ -1203,7 +1203,8 @@ expensive, and where convergence can be seriously hindered through use
 of an inaccurate matrix.  To accommodate these scenarios, the step is
 left unchanged when :math:`\eta \in [\eta_L, \eta_U]`.  The default
 values for this interval are :math:`\eta_L = 1` and :math:`\eta_U =
-1.5`, and may be modified by the user.
+1.0` (so small step size adjustments are possible), and may be
+modified by the user.
 
 We note that any choices for :math:`\eta` (or equivalently,
 :math:`h'`) are subsequently constrained by the optional user-supplied
@@ -2753,7 +2754,7 @@ and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`, where
 The discrete adjoint variables represent the gradients of the discrete cost function
 
 .. math::
-   \frac{dg}{dy_n} = \lambda_n , \quad \frac{dg}{dp} = \mu_n + \lambda_n^* \left(\frac{\partial y_0}{\partial p} \right).
+   \frac{dg}{dy_n} = \lambda_n^* , \quad \frac{dg}{dp} = \mu_n^* + \lambda_n^* \left(\frac{\partial y_0}{\partial p} \right).
    :label: ARKODE_DISCRETE_ADJOINT_GRADIENTS
 
 
@@ -2764,7 +2765,7 @@ to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1
 .. math::
    \Lambda_i &= h_n f_y^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i+1}^s a_{j,i} \Lambda_j \right), \quad \quad i = s, \dots, 1,\\
    \lambda_n &= \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j, \\
-   \nu_i     &= h_n f_p^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{j,i} \Lambda_j \right), \\
+   \nu_i     &= h_n f_p^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i+1}^{s} a_{j,i} \Lambda_j \right), \\
    \mu_n     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
    :label: ARKODE_ERK_ADJOINT
 

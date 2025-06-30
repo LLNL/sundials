@@ -3678,8 +3678,6 @@ static int IDARcheck3(IDAMem IDA_mem)
   return (RTFOUND);
 }
 
-#define DIFFERENT_SIGN(a, b) (((a) < 0 && (b) > 0) || ((a) > 0 && (b) < 0))
-
 /*
  * IDARootfind
  *
@@ -3782,7 +3780,7 @@ static int IDARootfind(IDAMem IDA_mem)
     }
     else
     {
-      if ((DIFFERENT_SIGN(IDA_mem->ida_glo[i], IDA_mem->ida_ghi[i])) &&
+      if ((SUNRdifferentsign(IDA_mem->ida_glo[i], IDA_mem->ida_ghi[i])) &&
           (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO))
       {
         gfrac = SUNRabs(IDA_mem->ida_ghi[i] /
@@ -3892,7 +3890,7 @@ static int IDARootfind(IDAMem IDA_mem)
       }
       else
       {
-        if ((DIFFERENT_SIGN(IDA_mem->ida_glo[i], IDA_mem->ida_grout[i])) &&
+        if ((SUNRdifferentsign(IDA_mem->ida_glo[i], IDA_mem->ida_grout[i])) &&
             (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO))
         {
           gfrac = SUNRabs(IDA_mem->ida_grout[i] /
@@ -3962,7 +3960,7 @@ static int IDARootfind(IDAMem IDA_mem)
     {
       IDA_mem->ida_iroots[i] = IDA_mem->ida_glo[i] > 0 ? -1 : 1;
     }
-    if ((DIFFERENT_SIGN(IDA_mem->ida_glo[i], IDA_mem->ida_ghi[i])) &&
+    if ((SUNRdifferentsign(IDA_mem->ida_glo[i], IDA_mem->ida_ghi[i])) &&
         (IDA_mem->ida_rootdir[i] * IDA_mem->ida_glo[i] <= ZERO))
     {
       IDA_mem->ida_iroots[i] = IDA_mem->ida_glo[i] > 0 ? -1 : 1;

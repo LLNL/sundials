@@ -27,7 +27,7 @@ sundials_add_library(
   LINK_LIBRARIES PUBLIC MKL::MKL_DPCPP sundials_sunmatrixonemkldense
                  sundials_nvecsycl
   OUTPUT_NAME sundials_sunlinsolonemkldense
-  VERSION ${sunmatrixlib_VERSION}
-  SOVERSION ${sunmatrixlib_SOVERSION})
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_ONEMKLDENSE module")

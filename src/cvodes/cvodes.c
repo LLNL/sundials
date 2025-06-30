@@ -8849,8 +8849,6 @@ static int cvRcheck3(CVodeMem cv_mem)
   return (RTFOUND);
 }
 
-#define DIFFERENT_SIGN(a, b) (((a) < 0 && (b) > 0) || ((a) > 0 && (b) < 0))
-
 /*
  * cvRootfind
  *
@@ -8952,7 +8950,7 @@ static int cvRootfind(CVodeMem cv_mem)
     }
     else
     {
-      if ((DIFFERENT_SIGN(cv_mem->cv_glo[i], cv_mem->cv_ghi[i])) &&
+      if ((SUNRdifferentsign(cv_mem->cv_glo[i], cv_mem->cv_ghi[i])) &&
           (cv_mem->cv_rootdir[i] * cv_mem->cv_glo[i] <= ZERO))
       {
         gfrac =
@@ -9059,7 +9057,7 @@ static int cvRootfind(CVodeMem cv_mem)
       }
       else
       {
-        if ((DIFFERENT_SIGN(cv_mem->cv_glo[i], cv_mem->cv_grout[i])) &&
+        if ((SUNRdifferentsign(cv_mem->cv_glo[i], cv_mem->cv_grout[i])) &&
             (cv_mem->cv_rootdir[i] * cv_mem->cv_glo[i] <= ZERO))
         {
           gfrac = SUNRabs(cv_mem->cv_grout[i] /
@@ -9126,7 +9124,7 @@ static int cvRootfind(CVodeMem cv_mem)
     {
       cv_mem->cv_iroots[i] = cv_mem->cv_glo[i] > 0 ? -1 : 1;
     }
-    if ((DIFFERENT_SIGN(cv_mem->cv_glo[i], cv_mem->cv_ghi[i])) &&
+    if ((SUNRdifferentsign(cv_mem->cv_glo[i], cv_mem->cv_ghi[i])) &&
         (cv_mem->cv_rootdir[i] * cv_mem->cv_glo[i] <= ZERO))
     {
       cv_mem->cv_iroots[i] = cv_mem->cv_glo[i] > 0 ? -1 : 1;
