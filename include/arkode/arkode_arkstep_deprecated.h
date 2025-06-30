@@ -16,6 +16,7 @@
 #define _ARKSTEP_DEPRECATED_H
 
 #include <arkode/arkode.h>
+#include <arkode/arkode_ls.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
