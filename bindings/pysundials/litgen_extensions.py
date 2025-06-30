@@ -64,9 +64,18 @@ def change_long_int_to_long(code):
     return code.replace("long int", "long")
 
 
+def change_sundials_types(code):
+    code = re.sub(r"\bsunrealtype\b", "double", code)
+    # code = re.sub(r"sunrealtype?\*$", "double", code)
+    code = re.sub(r"\bsunindextype\b", "long", code)
+    code = re.sub(r"\bsunbooleantype\b", "bool", code)
+    return code
+
+
 def preprocess_header(code):
     code = strip_sundials_export(code)
     code = change_long_int_to_long(code)
+    code = change_sundials_types(code)
     return code
 
 

@@ -124,6 +124,8 @@ typedef long double sunrealtype;
 
 #endif
 
+typedef sunrealtype* sunrealtype1d;
+
 /*
  *------------------------------------------------------------------
  * Type : sunindextype

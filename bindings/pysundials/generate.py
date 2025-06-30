@@ -102,9 +102,8 @@ def main():
             with open(module["path"], "w") as file:
                 file.write(generated_code.glue_code)
                 file.write(generated_code.pydef_code)
-            # Macros in our headers (like SUNDIALS_EXPORT) throw off litgen
-            # and pollute the stub file, so we don't generate it for now.
-            # with open('pysundials.pyi', 'w') as file:
+            # TODO(CJB): Not sure how we would combine generated and custom code for stubs
+            # with open(f'{module["path"]}.pyi', 'w') as file:
             #   file.write(generated_code.stub_code)
         else:
             print(generated_code.glue_code)

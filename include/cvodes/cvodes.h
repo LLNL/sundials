@@ -177,7 +177,7 @@ SUNDIALS_EXPORT void* CVodeCreate(int lmm, SUNContext sunctx);
 SUNDIALS_EXPORT int CVodeInit(void* cvode_mem, CVRhsFn f, sunrealtype t0,
                               N_Vector y0);
 SUNDIALS_EXPORT int CVodeReInit(void* cvode_mem, sunrealtype t0, N_Vector y0);
-SUNDIALS_EXPORT int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist,
+SUNDIALS_EXPORT int CVodeResizeHistory(void* cvode_mem, sunrealtype1d t_hist,
                                        N_Vector* y_hist, N_Vector* f_hist,
                                        int num_y_hist, int num_f_hist);
 
@@ -367,7 +367,7 @@ SUNDIALS_EXPORT int CVodeSensReInit(void* cvode_mem, int ism, N_Vector* yS0);
 
 /* Tolerance input functions */
 SUNDIALS_EXPORT int CVodeSensSStolerances(void* cvode_mem, sunrealtype reltolS,
-                                          sunrealtype* abstolS);
+                                          sunrealtype1d abstolS);
 SUNDIALS_EXPORT int CVodeSensSVtolerances(void* cvode_mem, sunrealtype reltolS,
                                           N_Vector* abstolS);
 SUNDIALS_EXPORT int CVodeSensEEtolerances(void* cvode_mem);
@@ -377,8 +377,8 @@ SUNDIALS_EXPORT int CVodeSetSensDQMethod(void* cvode_mem, int DQtype,
                                          sunrealtype DQrhomax);
 SUNDIALS_EXPORT int CVodeSetSensErrCon(void* cvode_mem, sunbooleantype errconS);
 SUNDIALS_EXPORT int CVodeSetSensMaxNonlinIters(void* cvode_mem, int maxcorS);
-SUNDIALS_EXPORT int CVodeSetSensParams(void* cvode_mem, sunrealtype* p,
-                                       sunrealtype* pbar, int* plist);
+SUNDIALS_EXPORT int CVodeSetSensParams(void* cvode_mem, sunrealtype1d p,
+                                       sunrealtype1d pbar, int* plist);
 
 /* Integrator nonlinear solver specification functions */
 SUNDIALS_EXPORT int CVodeSetNonlinearSolverSensSim(void* cvode_mem,
@@ -447,7 +447,7 @@ SUNDIALS_EXPORT int CVodeQuadSensReInit(void* cvode_mem, N_Vector* yQS0);
 /* Tolerance input functions */
 SUNDIALS_EXPORT int CVodeQuadSensSStolerances(void* cvode_mem,
                                               sunrealtype reltolQS,
-                                              sunrealtype* abstolQS);
+                                              sunrealtype1d abstolQS);
 SUNDIALS_EXPORT int CVodeQuadSensSVtolerances(void* cvode_mem,
                                               sunrealtype reltolQS,
                                               N_Vector* abstolQS);
