@@ -75,10 +75,10 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
     variant("cxxstd", default="14", description="C++ language standard", values=("14", "17"))
 
-    # Logging
+    # Logging (default=0 when "@6.2.0:6.7.0", default=2 when "@7.0.0:")
     variant(
         "logging-level",
-        default="0",
+        default="2",
         description="logging level\n 0 = no logging,\n 1 = errors,\n "
         "2 = errors + warnings,\n 3 = errors + "
         "warnings + info,\n 4 = errors + warnings + info + debugging, "
@@ -88,12 +88,12 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         when="@6.2.0:",
     )
 
-    # MPI logging
+    # MPI logging (option removed in 7.0)
     variant(
         "logging-mpi",
         default="OFF",
         description="enable MPI support in the logger",
-        when="@6.2.0:",
+        when="@6.2.0:6.7.0",
     )
 
     # Real type
