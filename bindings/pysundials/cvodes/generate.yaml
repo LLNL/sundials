@@ -41,7 +41,9 @@ modules:
     - "^CVodeGetUserData$" 
     - "^CVodeSetUserData$" 
     - "^CVodeGetUserDataB$" 
-    - "^CVodeSetUserDataB$" 
+    - "^CVodeSetUserDataB$"
+    # this function should be deprecated
+    - "^CVodeSetMonitorFn$"
     # TODO(CJB): add support for these functions
     # nanobind doesnt support ** out of the box
     - "^CVodeComputeStateSens$"
