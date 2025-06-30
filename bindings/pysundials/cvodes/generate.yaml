@@ -38,19 +38,22 @@ modules:
       - "A" 
     fn_exclude_by_name__regex:
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
-    - "CVodeGetUserData" 
-    - "CVodeSetUserData" 
+    - "^CVodeGetUserData$" 
+    - "^CVodeSetUserData$" 
+    - "^CVodeGetUserDataB$" 
+    - "^CVodeSetUserDataB$" 
     # TODO(CJB): add support for these functions
     # nanobind doesnt support ** out of the box
-    - "CVodeComputeStateSens"
-    - "CVodeGetJac" 
-    - "CVodeResizeHistory"
+    - "^CVodeComputeStateSens$"
+    - "^CVodeComputeStateSens1$"
+    - "^CVodeGetJac$" 
+    - "^CVodeResizeHistory$"
     # generator cannot handle setting of function pointers, so we do something custom
     - "CVodeInit.*"
+    - "^CVodeSensInit$"
+    - "^CVodeSensInit1$"
     - "CVodeQuadInit.*"
-    - "CVodeQuadSensInit"
-    - "CVodeSensInit"
-    - "CVodeSensInit1"
+    - "CVodeQuadSensInit.*"
     - "CVodeSet.*Fn" 
     - "CVodeSet.*Preconditioner"
-    - "CVodeSet.*Times"
+    - "CVodeSetJacTimes.*"

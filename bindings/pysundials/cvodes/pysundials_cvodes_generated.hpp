@@ -1389,6 +1389,26 @@ m.def("CVodeSetEpsLin", CVodeSetEpsLin, nb::arg("cvode_mem"), nb::arg("eplifac")
 m.def("CVodeSetLSNormFactor", CVodeSetLSNormFactor, nb::arg("arkode_mem"),
       nb::arg("nrmfac"));
 
+m.def("CVodeGetJacTime", CVodeGetJacTime, nb::arg("cvode_mem"), nb::arg("t_J"));
+
+m.def(
+  "CVodeGetJacNumSteps",
+  [](void* cvode_mem, long nst_J) -> std::tuple<int, long>
+  {
+    auto CVodeGetJacNumSteps_adapt_modifiable_immutable_to_return =
+      [](void* cvode_mem, long nst_J) -> std::tuple<int, long>
+    {
+      long* nst_J_adapt_modifiable = &nst_J;
+
+      int r = CVodeGetJacNumSteps(cvode_mem, nst_J_adapt_modifiable);
+      return std::make_tuple(r, nst_J);
+    };
+
+    return CVodeGetJacNumSteps_adapt_modifiable_immutable_to_return(cvode_mem,
+                                                                    nst_J);
+  },
+  nb::arg("cvode_mem"), nb::arg("nst_J"));
+
 m.def(
   "CVodeGetNumJacEvals",
   [](void* cvode_mem, long njevals) -> std::tuple<int, long>
