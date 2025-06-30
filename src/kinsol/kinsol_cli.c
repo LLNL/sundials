@@ -97,74 +97,58 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     }
 
     /* check all "int" command-line options */
-    for (j = 0; j < num_int_keys; j++)
+    sunretval = sunCheckAndSetIntArgs(kinmem, &idx, argv, offset,
+                                     int_pairs, num_int_keys,
+                                     &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetIntArg(kinmem, &idx, argv, offset,
-                                       int_pairs[j].key, int_pairs[j].set,
-                                       &arg_used);
-      if (sunretval != KIN_SUCCESS)
-      {
-        retval = KIN_ILL_INPUT;
-        KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        int_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = KIN_ILL_INPUT;
+      KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      int_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all long int command-line options */
-    for (j = 0; j < num_long_keys; j++)
+    sunretval = sunCheckAndSetLongArgs(kinmem, &idx, argv, offset,
+                                       long_pairs, num_long_keys,
+                                       &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetLongArg(kinmem, &idx, argv, offset,
-                                        long_pairs[j].key, long_pairs[j].set,
-                                        &arg_used);
-      if (sunretval != KIN_SUCCESS)
-      {
-        retval = KIN_ILL_INPUT;
-        KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        long_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = KIN_ILL_INPUT;
+      KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      long_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all real command-line options */
-    for (j = 0; j < num_real_keys; j++)
+    sunretval = sunCheckAndSetRealArgs(kinmem, &idx, argv, offset,
+                                       real_pairs, num_real_keys,
+                                       &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetRealArg(kinmem, &idx, argv, offset,
-                                        real_pairs[j].key, real_pairs[j].set,
-                                        &arg_used);
-      if (sunretval != KIN_SUCCESS)
-      {
-        retval = KIN_ILL_INPUT;
-        KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        real_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = KIN_ILL_INPUT;
+      KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      real_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all pair-of-real command-line options */
-    for (j = 0; j < num_tworeal_keys; j++)
+    sunretval = sunCheckAndSetTwoRealArgs(kinmem, &idx, argv, offset,
+                                          tworeal_pairs, num_tworeal_keys,
+                                          &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetTwoRealArg(kinmem, &idx, argv, offset,
-                                           tworeal_pairs[j].key,
-                                           tworeal_pairs[j].set, &arg_used);
-      if (sunretval != KIN_SUCCESS)
-      {
-        retval = KIN_ILL_INPUT;
-        KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        tworeal_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = KIN_ILL_INPUT;
+      KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      tworeal_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 

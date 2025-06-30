@@ -147,165 +147,128 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     }
 
     /* check all "int" command-line options */
-    for (j = 0; j < num_int_keys; j++)
+    sunretval = sunCheckAndSetIntArgs(ida_mem, &idx, argv, offset,
+                                      int_pairs, num_int_keys,
+                                      &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetIntArg(ida_mem, &idx, argv, offset,
-                                       int_pairs[j].key, int_pairs[j].set,
-                                       &arg_used);
-      if (sunretval != IDA_SUCCESS)
-      {
-        retval = IDA_ILL_INPUT;
-        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        int_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = IDA_ILL_INPUT;
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      int_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all long int command-line options */
-    for (j = 0; j < num_long_keys; j++)
+    sunretval = sunCheckAndSetLongArgs(ida_mem, &idx, argv, offset,
+                                       long_pairs, num_long_keys,
+                                       &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetLongArg(ida_mem, &idx, argv, offset,
-                                        long_pairs[j].key, long_pairs[j].set,
-                                        &arg_used);
-      if (sunretval != IDA_SUCCESS)
-      {
-        retval = IDA_ILL_INPUT;
-        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        long_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = IDA_ILL_INPUT;
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      long_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all real command-line options */
-    for (j = 0; j < num_real_keys; j++)
+    sunretval = sunCheckAndSetRealArgs(ida_mem, &idx, argv, offset,
+                                       real_pairs, num_real_keys,
+                                       &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetRealArg(ida_mem, &idx, argv, offset,
-                                        real_pairs[j].key, real_pairs[j].set,
-                                        &arg_used);
-      if (sunretval != IDA_SUCCESS)
-      {
-        retval = IDA_ILL_INPUT;
-        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        real_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = IDA_ILL_INPUT;
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      real_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all pair-of-int command-line options */
-    for (j = 0; j < num_twoint_keys; j++)
+    sunretval = sunCheckAndSetTwoIntArgs(ida_mem, &idx, argv, offset,
+                                         twoint_pairs, num_twoint_keys,
+                                         &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetTwoIntArg(ida_mem, &idx, argv, offset,
-                                          twoint_pairs[j].key,
-                                          twoint_pairs[j].set, &arg_used);
-      if (sunretval != IDA_SUCCESS)
-      {
-        retval = IDA_ILL_INPUT;
-        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        twoint_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = IDA_ILL_INPUT;
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      twoint_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all pair-of-real command-line options */
-    for (j = 0; j < num_tworeal_keys; j++)
+    sunretval = sunCheckAndSetTwoRealArgs(ida_mem, &idx, argv, offset,
+                                          tworeal_pairs, num_tworeal_keys,
+                                          &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetTwoRealArg(ida_mem, &idx, argv, offset,
-                                           tworeal_pairs[j].key,
-                                           tworeal_pairs[j].set, &arg_used);
-      if (sunretval != IDA_SUCCESS)
-      {
-        retval = IDA_ILL_INPUT;
-        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        tworeal_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = IDA_ILL_INPUT;
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      tworeal_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all action command-line options */
-    for (j = 0; j < num_action_keys; j++)
+    sunretval = sunCheckAndSetActionArgs(ida_mem, &idx, argv, offset,
+                                         action_pairs, num_action_keys,
+                                         &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetActionArg(ida_mem, &idx, argv, offset,
-                                          action_pairs[j].key,
-                                          action_pairs[j].set, &arg_used);
-      if (sunretval != IDA_SUCCESS)
-      {
-        retval = IDA_ILL_INPUT;
-        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        action_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = IDA_ILL_INPUT;
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      action_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all int+real command-line options */
-    for (j = 0; j < num_int_real_keys; j++)
+    sunretval = sunCheckAndSetIntRealArgs(ida_mem, &idx, argv, offset,
+                                         int_real_pairs, num_int_real_keys,
+                                         &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetIntRealArg(ida_mem, &idx, argv, offset,
-                                           int_real_pairs[j].key,
-                                           int_real_pairs[j].set, &arg_used);
-      if (sunretval != IDA_SUCCESS)
-      {
-        retval = IDA_ILL_INPUT;
-        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        int_real_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = IDA_ILL_INPUT;
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      int_real_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all int+long command-line options */
-    for (j = 0; j < num_int_long_keys; j++)
+    sunretval = sunCheckAndSetIntLongArgs(ida_mem, &idx, argv, offset,
+                                          int_long_pairs, num_int_long_keys,
+                                          &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetIntLongArg(ida_mem, &idx, argv, offset,
-                                           int_long_pairs[j].key,
-                                           int_long_pairs[j].set, &arg_used);
-      if (sunretval != IDA_SUCCESS)
-      {
-        retval = IDA_ILL_INPUT;
-        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        int_long_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = IDA_ILL_INPUT;
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      int_long_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all int+real+real command-line options */
-    for (j = 0; j < num_int_real_real_keys; j++)
+    sunretval = sunCheckAndSetIntRealRealArgs(ida_mem, &idx, argv, offset,
+                                              int_real_real_pairs, num_int_real_real_keys,
+                                              &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetIntRealRealArg(ida_mem, &idx, argv, offset,
-                                               int_real_real_pairs[j].key,
-                                               int_real_real_pairs[j].set,
-                                               &arg_used);
-      if (sunretval != IDA_SUCCESS)
-      {
-        retval = IDA_ILL_INPUT;
-        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s",
-                        int_real_real_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = IDA_ILL_INPUT;
+      IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      int_real_real_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 

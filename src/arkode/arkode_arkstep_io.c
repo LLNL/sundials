@@ -651,35 +651,28 @@ int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
 
   /* check all "twochar" command-line options */
   int j, retval;
-  for (j = 0; j < num_twochar_keys; j++)
+  retval = sunCheckAndSetTwoCharArgs((void*)ark_mem, argidx, argv, offset,
+                                     twochar_pairs, num_twochar_keys,
+                                     arg_used, &j);
+  if (retval != SUN_SUCCESS)
   {
-    retval = sunCheckAndSetTwoCharArg((void*)ark_mem, argidx, argv, offset,
-                                      twochar_pairs[j].key,
-                                      twochar_pairs[j].set, arg_used);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
-                      twochar_pairs[j].key);
-      return retval;
-    }
-    if (*arg_used) { return ARK_SUCCESS; }
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting command-line argument: %s",
+                    twochar_pairs[j].key);
+    return retval;
   }
+  if (*arg_used) { return ARK_SUCCESS; }
 
   /* check all action command-line options */
-  for (j = 0; j < num_action_keys; j++)
+  retval = sunCheckAndSetActionArgs((void*)ark_mem, argidx, argv, offset,
+                                    action_pairs, num_action_keys,
+                                    arg_used, &j);
+  if (retval != SUN_SUCCESS)
   {
-    retval = sunCheckAndSetActionArg((void*)ark_mem, argidx, argv, offset,
-                                     action_pairs[j].key, action_pairs[j].set,
-                                     arg_used);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
-                      action_pairs[j].key);
-      return retval;
-    }
-    if (*arg_used) { return ARK_SUCCESS; }
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting command-line argument: %s",
+                    action_pairs[j].key);
+    return retval;
   }
 
   return (ARK_SUCCESS);

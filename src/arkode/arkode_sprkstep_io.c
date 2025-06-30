@@ -228,34 +228,27 @@ int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
 
   /* check all "char" command-line options */
   int j, retval;
-  for (j = 0; j < num_char_keys; j++)
+  retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
+                                  char_pairs, num_char_keys,
+                                  arg_used, &j);
+  if (retval != SUN_SUCCESS)
   {
-    retval = sunCheckAndSetCharArg((void*)ark_mem, argidx, argv, offset,
-                                   char_pairs[j].key, char_pairs[j].set,
-                                   arg_used);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
-                      char_pairs[j].key);
-      return retval;
-    }
-    if (*arg_used) { return ARK_SUCCESS; }
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting command-line argument: %s",
+                    char_pairs[j].key);
+    return retval;
   }
+  if (*arg_used) { return ARK_SUCCESS; }
 
   /* check all "int" command-line options */
-  for (j = 0; j < num_int_keys; j++)
+  retval = sunCheckAndSetIntArgs((void*)ark_mem, argidx, argv, offset,
+                                 int_pairs, num_int_keys, arg_used, &j);
+  if (retval != SUN_SUCCESS)
   {
-    retval = sunCheckAndSetIntArg((void*)ark_mem, argidx, argv, offset,
-                                  int_pairs[j].key, int_pairs[j].set, arg_used);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
-                      int_pairs[j].key);
-      return retval;
-    }
-    if (*arg_used) { return ARK_SUCCESS; }
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting command-line argument: %s",
+                    int_pairs[j].key);
+    return retval;
   }
 
   return (ARK_SUCCESS);

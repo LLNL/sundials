@@ -153,165 +153,128 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     }
 
     /* check all "int" command-line options */
-    for (j = 0; j < num_int_keys; j++)
+    sunretval = sunCheckAndSetIntArgs(cvode_mem, &idx, argv, offset,
+                                      int_pairs, num_int_keys,
+                                      &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetIntArg(cvode_mem, &idx, argv, offset,
-                                       int_pairs[j].key, int_pairs[j].set,
-                                       &arg_used);
-      if (sunretval != CV_SUCCESS)
-      {
-        retval = CV_ILL_INPUT;
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                       "error setting command-line argument: %s",
-                       int_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = CV_ILL_INPUT;
+      cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                     "error setting command-line argument: %s",
+                     int_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all long int command-line options */
-    for (j = 0; j < num_long_keys; j++)
+    sunretval = sunCheckAndSetLongArgs(cvode_mem, &idx, argv, offset,
+                                       long_pairs, num_long_keys,
+                                       &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetLongArg(cvode_mem, &idx, argv, offset,
-                                        long_pairs[j].key, long_pairs[j].set,
-                                        &arg_used);
-      if (sunretval != CV_SUCCESS)
-      {
-        retval = CV_ILL_INPUT;
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                       "error setting command-line argument: %s",
-                       long_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = CV_ILL_INPUT;
+      cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                     "error setting command-line argument: %s",
+                     long_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all real command-line options */
-    for (j = 0; j < num_real_keys; j++)
+    sunretval = sunCheckAndSetRealArgs(cvode_mem, &idx, argv, offset,
+                                       real_pairs, num_real_keys,
+                                       &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetRealArg(cvode_mem, &idx, argv, offset,
-                                        real_pairs[j].key, real_pairs[j].set,
-                                        &arg_used);
-      if (sunretval != CV_SUCCESS)
-      {
-        retval = CV_ILL_INPUT;
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                       "error setting command-line argument: %s",
-                       real_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = CV_ILL_INPUT;
+      cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                     "error setting command-line argument: %s",
+                     real_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all pair-of-int command-line options */
-    for (j = 0; j < num_twoint_keys; j++)
+    sunretval = sunCheckAndSetTwoIntArgs(cvode_mem, &idx, argv, offset,
+                                         twoint_pairs, num_twoint_keys,
+                                         &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetTwoIntArg(cvode_mem, &idx, argv, offset,
-                                          twoint_pairs[j].key,
-                                          twoint_pairs[j].set, &arg_used);
-      if (sunretval != CV_SUCCESS)
-      {
-        retval = CV_ILL_INPUT;
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                       "error setting command-line argument: %s",
-                       twoint_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = CV_ILL_INPUT;
+      cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                     "error setting command-line argument: %s",
+                     twoint_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all pair-of-real command-line options */
-    for (j = 0; j < num_tworeal_keys; j++)
+    sunretval = sunCheckAndSetTwoRealArgs(cvode_mem, &idx, argv, offset,
+                                          tworeal_pairs, num_tworeal_keys,
+                                          &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetTwoRealArg(cvode_mem, &idx, argv, offset,
-                                           tworeal_pairs[j].key,
-                                           tworeal_pairs[j].set, &arg_used);
-      if (sunretval != CV_SUCCESS)
-      {
-        retval = CV_ILL_INPUT;
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                       "error setting command-line argument: %s",
-                       tworeal_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = CV_ILL_INPUT;
+      cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                     "error setting command-line argument: %s",
+                     tworeal_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all action command-line options */
-    for (j = 0; j < num_action_keys; j++)
+    sunretval = sunCheckAndSetActionArgs(cvode_mem, &idx, argv, offset,
+                                         action_pairs, num_action_keys,
+                                         &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetActionArg(cvode_mem, &idx, argv, offset,
-                                          action_pairs[j].key,
-                                          action_pairs[j].set, &arg_used);
-      if (sunretval != CV_SUCCESS)
-      {
-        retval = CV_ILL_INPUT;
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                       "error setting command-line argument: %s",
-                       action_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = CV_ILL_INPUT;
+      cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                     "error setting command-line argument: %s",
+                     action_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all int+real command-line options */
-    for (j = 0; j < num_int_real_keys; j++)
+    sunretval = sunCheckAndSetIntRealArgs(cvode_mem, &idx, argv, offset,
+                                          int_real_pairs, num_int_real_keys,
+                                          &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetIntRealArg(cvode_mem, &idx, argv, offset,
-                                           int_real_pairs[j].key,
-                                           int_real_pairs[j].set, &arg_used);
-      if (sunretval != CV_SUCCESS)
-      {
-        retval = CV_ILL_INPUT;
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                       "error setting command-line argument: %s",
-                       int_real_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = CV_ILL_INPUT;
+      cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                     "error setting command-line argument: %s",
+                     int_real_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all int+long command-line options */
-    for (j = 0; j < num_int_long_keys; j++)
+    sunretval = sunCheckAndSetIntLongArgs(cvode_mem, &idx, argv, offset,
+                                          int_long_pairs, num_int_long_keys,
+                                          &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetIntLongArg(cvode_mem, &idx, argv, offset,
-                                           int_long_pairs[j].key,
-                                           int_long_pairs[j].set, &arg_used);
-      if (sunretval != CV_SUCCESS)
-      {
-        retval = CV_ILL_INPUT;
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                       "error setting command-line argument: %s",
-                       int_long_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = CV_ILL_INPUT;
+      cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                     "error setting command-line argument: %s",
+                     int_long_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 
     /* check all int+real+real command-line options */
-    for (j = 0; j < num_int_real_real_keys; j++)
+    sunretval = sunCheckAndSetIntRealRealArgs(cvode_mem, &idx, argv, offset,
+                                              int_real_real_pairs, num_int_real_real_keys,
+                                              &arg_used, &j);
+    if (sunretval != SUN_SUCCESS)
     {
-      sunretval = sunCheckAndSetIntRealRealArg(cvode_mem, &idx, argv, offset,
-                                               int_real_real_pairs[j].key,
-                                               int_real_real_pairs[j].set,
-                                               &arg_used);
-      if (sunretval != CV_SUCCESS)
-      {
-        retval = CV_ILL_INPUT;
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                       "error setting command-line argument: %s",
-                       int_real_real_pairs[j].key);
-        return retval;
-      }
-      if (arg_used) break;
+      retval = CV_ILL_INPUT;
+      cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+                     "error setting command-line argument: %s",
+                     int_real_real_pairs[j].key);
+      return retval;
     }
     if (arg_used) continue;
 

@@ -42,6 +42,27 @@ SUNErrCode sunCheckAndSetIntArg(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
+SUNErrCode sunCheckAndSetIntArgs(void* mem, int* argidx,
+                                 char* argv[], const size_t offset,
+                                 const struct sunKeyIntPair* testpairs,
+                                 int numpairs, sunbooleantype* arg_used,
+                                 int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetIntArg(mem, argidx, argv, offset,
+                                      testpairs[j].key, testpairs[j].set,
+                                      arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
+  }
+  return SUN_SUCCESS;
+}
+
 SUNErrCode sunCheckAndSetTwoIntArg(void* mem, int* argidx, char* argv[],
                                    const size_t offset, const char* argtest,
                                    sunTwoIntSetFn fname, sunbooleantype* arg_used)
@@ -56,6 +77,27 @@ SUNErrCode sunCheckAndSetTwoIntArg(void* mem, int* argidx, char* argv[],
     int retval = fname(mem, iarg1, iarg2);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode sunCheckAndSetTwoIntArgs(void* mem, int* argidx,
+                                    char* argv[], const size_t offset,
+                                    const struct sunKeyTwoIntPair* testpairs,
+                                    int numpairs, sunbooleantype* arg_used,
+                                    int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetTwoIntArg(mem, argidx, argv, offset,
+                                         testpairs[j].key, testpairs[j].set,
+                                         arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
   }
   return SUN_SUCCESS;
 }
@@ -76,6 +118,27 @@ SUNErrCode sunCheckAndSetLongArg(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
+SUNErrCode sunCheckAndSetLongArgs(void* mem, int* argidx,
+                                  char* argv[], const size_t offset,
+                                  const struct sunKeyLongPair* testpairs,
+                                  int numpairs, sunbooleantype* arg_used,
+                                  int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetLongArg(mem, argidx, argv, offset,
+                                       testpairs[j].key, testpairs[j].set,
+                                       arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
+  }
+  return SUN_SUCCESS;
+}
+
 SUNErrCode sunCheckAndSetIntRealArg(void* mem, int* argidx, char* argv[],
                                     const size_t offset, const char* argtest,
                                     sunIntRealSetFn fname,
@@ -91,6 +154,27 @@ SUNErrCode sunCheckAndSetIntRealArg(void* mem, int* argidx, char* argv[],
     int retval       = fname(mem, iarg, rarg);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode sunCheckAndSetIntRealArgs(void* mem, int* argidx,
+                                     char* argv[], const size_t offset,
+                                     const struct sunKeyIntRealPair* testpairs,
+                                     int numpairs, sunbooleantype* arg_used,
+                                     int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetIntRealArg(mem, argidx, argv, offset,
+                                          testpairs[j].key, testpairs[j].set,
+                                          arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
   }
   return SUN_SUCCESS;
 }
@@ -116,6 +200,27 @@ SUNErrCode sunCheckAndSetIntRealRealArg(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
+SUNErrCode sunCheckAndSetIntRealRealArgs(void* mem, int* argidx,
+                                         char* argv[], const size_t offset,
+                                         const struct sunKeyIntRealRealPair* testpairs,
+                                         int numpairs, sunbooleantype* arg_used,
+                                         int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetIntRealRealArg(mem, argidx, argv, offset,
+                                              testpairs[j].key, testpairs[j].set,
+                                              arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
+  }
+  return SUN_SUCCESS;
+}
+
 SUNErrCode sunCheckAndSetIntLongArg(void* mem, int* argidx, char* argv[],
                                     const size_t offset, const char* argtest,
                                     sunIntLongSetFn fname,
@@ -135,6 +240,27 @@ SUNErrCode sunCheckAndSetIntLongArg(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
+SUNErrCode sunCheckAndSetIntLongArgs(void* mem, int* argidx,
+                                     char* argv[], const size_t offset,
+                                     const struct sunKeyIntLongPair* testpairs,
+                                     int numpairs, sunbooleantype* arg_used,
+                                     int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetIntLongArg(mem, argidx, argv, offset,
+                                          testpairs[j].key, testpairs[j].set,
+                                          arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
+  }
+  return SUN_SUCCESS;
+}
+
 SUNErrCode sunCheckAndSetRealArg(void* mem, int* argidx, char* argv[],
                                  const size_t offset, const char* argtest,
                                  sunRealSetFn fname, sunbooleantype* arg_used)
@@ -147,6 +273,27 @@ SUNErrCode sunCheckAndSetRealArg(void* mem, int* argidx, char* argv[],
     int retval       = fname(mem, rarg);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode sunCheckAndSetRealArgs(void* mem, int* argidx,
+                                  char* argv[], const size_t offset,
+                                  const struct sunKeyRealPair* testpairs,
+                                  int numpairs, sunbooleantype* arg_used,
+                                  int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetRealArg(mem, argidx, argv, offset,
+                                       testpairs[j].key, testpairs[j].set,
+                                       arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
   }
   return SUN_SUCCESS;
 }
@@ -170,6 +317,27 @@ SUNErrCode sunCheckAndSetTwoRealArg(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
+SUNErrCode sunCheckAndSetTwoRealArgs(void* mem, int* argidx,
+                                     char* argv[], const size_t offset,
+                                     const struct sunKeyTwoRealPair* testpairs,
+                                     int numpairs, sunbooleantype* arg_used,
+                                     int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetTwoRealArg(mem, argidx, argv, offset,
+                                          testpairs[j].key, testpairs[j].set,
+                                          arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
+  }
+  return SUN_SUCCESS;
+}
+
 SUNErrCode sunCheckAndSetCharArg(void* mem, int* argidx, char* argv[],
                                  const size_t offset, const char* argtest,
                                  sunCharSetFn fname, sunbooleantype* arg_used)
@@ -181,6 +349,27 @@ SUNErrCode sunCheckAndSetCharArg(void* mem, int* argidx, char* argv[],
     int retval = fname(mem, argv[*argidx]);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode sunCheckAndSetCharArgs(void* mem, int* argidx,
+                                  char* argv[], const size_t offset,
+                                  const struct sunKeyCharPair* testpairs,
+                                  int numpairs, sunbooleantype* arg_used,
+                                  int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetCharArg(mem, argidx, argv, offset,
+                                       testpairs[j].key, testpairs[j].set,
+                                       arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
   }
   return SUN_SUCCESS;
 }
@@ -201,6 +390,27 @@ SUNErrCode sunCheckAndSetTwoCharArg(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
+SUNErrCode sunCheckAndSetTwoCharArgs(void* mem, int* argidx,
+                                     char* argv[], const size_t offset,
+                                     const struct sunKeyTwoCharPair* testpairs,
+                                     int numpairs, sunbooleantype* arg_used,
+                                     int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetTwoCharArg(mem, argidx, argv, offset,
+                                          testpairs[j].key, testpairs[j].set,
+                                          arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
+  }
+  return SUN_SUCCESS;
+}
+
 SUNErrCode sunCheckAndSetActionArg(void* mem, int* argidx, char* argv[],
                                    const size_t offset, const char* argtest,
                                    sunActionSetFn fname, sunbooleantype* arg_used)
@@ -211,6 +421,27 @@ SUNErrCode sunCheckAndSetActionArg(void* mem, int* argidx, char* argv[],
     int retval = fname(mem);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode sunCheckAndSetActionArgs(void* mem, int* argidx,
+                                    char* argv[], const size_t offset,
+                                    const struct sunKeyActionPair* testpairs,
+                                    int numpairs, sunbooleantype* arg_used,
+                                    int *failedarg)
+{
+  for (int j = 0; j < numpairs; j++)
+  {
+    int retval = sunCheckAndSetActionArg(mem, argidx, argv, offset,
+                                         testpairs[j].key, testpairs[j].set,
+                                         arg_used);
+    if (retval != SUN_SUCCESS)
+    {
+      *failedarg = j;
+      return retval;
+    }
+    if (*arg_used) { return SUN_SUCCESS; }
   }
   return SUN_SUCCESS;
 }
