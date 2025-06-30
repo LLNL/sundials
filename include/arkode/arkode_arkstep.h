@@ -18,10 +18,10 @@
 #define _ARKSTEP_H
 
 #include <arkode/arkode.h>
+#include <arkode/arkode_arkstep_deprecated.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
 #include <arkode/arkode_ls.h>
-#include <arkode/arkode_arkstep_deprecated.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include <sundials/sundials_adjointstepper.h>

@@ -334,7 +334,8 @@ SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray(int count, N_Vector w);
 SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, int count);
 
 /* These function are really only for users of the Fortran interface */
-SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index); // py::return_value_policy::reference
+SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(
+  N_Vector* vs, int index); // py::return_value_policy::reference
 SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index,
                                                  N_Vector w);
 

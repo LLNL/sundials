@@ -36,7 +36,7 @@ struct SUNMatrixDeleter
 };
 
 class SUNMatrixView : public ClassView<SUNMatrix, SUNMatrixDeleter>
-{ 
+{
 public:
   using ClassView<SUNMatrix, SUNMatrixDeleter>::ClassView;
   template<typename... Args>

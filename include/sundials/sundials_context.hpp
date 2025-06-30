@@ -34,8 +34,7 @@ public:
     SUNContext_Create(comm, sunctx_.get());
   }
 
-  Context(SUNContext sunctx) 
-  {  sunctx_.reset(&sunctx);  }
+  Context(SUNContext sunctx) { sunctx_.reset(&sunctx); }
 
   /* disallow copy, but allow move construction */
   Context(const Context&) = delete;
@@ -72,7 +71,6 @@ Context Context::Create(Args&&... args)
 }
 
 using SUNContextView = Context;
-
 
 } // namespace sundials
 

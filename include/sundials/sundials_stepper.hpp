@@ -33,7 +33,7 @@ struct SUNStepperDeleter
 };
 
 class SUNStepperView : public ClassView<SUNStepper, SUNStepperDeleter>
-{ 
+{
 public:
   using ClassView<SUNStepper, SUNStepperDeleter>::ClassView;
   template<typename... Args>

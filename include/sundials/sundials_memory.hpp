@@ -35,8 +35,9 @@ struct SUNMemoryHelperDeleter
   }
 };
 
-class SUNMemoryHelperView : public ClassView<SUNMemoryHelper, SUNMemoryHelperDeleter>
-{ 
+class SUNMemoryHelperView
+  : public ClassView<SUNMemoryHelper, SUNMemoryHelperDeleter>
+{
 public:
   using ClassView<SUNMemoryHelper, SUNMemoryHelperDeleter>::ClassView;
   template<typename... Args>

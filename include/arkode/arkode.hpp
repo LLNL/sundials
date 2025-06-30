@@ -17,9 +17,9 @@
 #ifndef _SUNDIALS_ARKODE_HPP
 #define _SUNDIALS_ARKODE_HPP
 
-#include <sundials/sundials_base.hpp>
 #include <arkode/arkode.h>
 #include <arkode/arkode_erkstep.h>
+#include <sundials/sundials_base.hpp>
 
 namespace sundials {
 namespace experimental {
@@ -33,7 +33,7 @@ struct ARKodeDeleter
 };
 
 class ARKodeView : public ClassView<void*, ARKodeDeleter>
-{ 
+{
 public:
   using ClassView<void*, ARKodeDeleter>::ClassView;
   template<typename... Args>

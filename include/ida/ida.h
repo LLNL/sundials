@@ -126,7 +126,8 @@ SUNDIALS_EXPORT int IDASetMaxBacksIC(void* ida_mem, int maxbacks);
 /* Optional input functions */
 SUNDIALS_EXPORT int IDASetDeltaCjLSetup(void* ida_max, sunrealtype dcj);
 SUNDIALS_EXPORT int IDASetUserData(void* ida_mem, void* user_data);
-SUNDIALS_EXPORT int IDASetOwnUserData(void* ida_mem, sunbooleantype own_user_data);
+SUNDIALS_EXPORT int IDASetOwnUserData(void* ida_mem,
+                                      sunbooleantype own_user_data);
 SUNDIALS_EXPORT int IDASetMaxOrd(void* ida_mem, int maxord);
 SUNDIALS_EXPORT int IDASetMaxNumSteps(void* ida_mem, long int mxsteps);
 SUNDIALS_EXPORT int IDASetInitStep(void* ida_mem, sunrealtype hin);

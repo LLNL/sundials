@@ -258,7 +258,8 @@ SUNDIALS_EXPORT int ARKodeClearStopTime(void* arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed);
 SUNDIALS_EXPORT int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir);
 SUNDIALS_EXPORT int ARKodeSetUserData(void* arkode_mem, void* user_data);
-SUNDIALS_EXPORT int ARKodeSetOwnUserData(void* ark_mem, sunbooleantype own_user_data);
+SUNDIALS_EXPORT int ARKodeSetOwnUserData(void* ark_mem,
+                                         sunbooleantype own_user_data);
 SUNDIALS_EXPORT int ARKodeSetPostprocessStepFn(void* arkode_mem,
                                                ARKPostProcessFn ProcessStep);
 SUNDIALS_EXPORT int ARKodeSetPostprocessStageFn(void* arkode_mem,

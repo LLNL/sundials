@@ -18,8 +18,8 @@
 #define _ERKSTEP_H
 
 #include <arkode/arkode.h>
-#include <arkode/arkode_erkstep_deprecated.h>
 #include <arkode/arkode_butcher_erk.h>
+#include <arkode/arkode_erkstep_deprecated.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include <sundials/sundials_adjointstepper.h>

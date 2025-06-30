@@ -26,13 +26,16 @@ extern "C" {
 namespace sundials {
 namespace experimental {
 
-struct KINSOLDeleter {
-  void operator()(void* v) {
+struct KINSOLDeleter
+{
+  void operator()(void* v)
+  {
     if (v) { KINFree(&v); }
   }
 };
 
-class KINSOLView : public ClassView<void*, KINSOLDeleter> {
+class KINSOLView : public ClassView<void*, KINSOLDeleter>
+{
 public:
   using ClassView<void*, KINSOLDeleter>::ClassView;
   template<typename... Args>
@@ -40,7 +43,8 @@ public:
 };
 
 template<typename... Args>
-KINSOLView KINSOLView::Create(Args&&... args) {
+KINSOLView KINSOLView::Create(Args&&... args)
+{
   return KINSOLView(std::forward<Args>(args)...);
 }
 

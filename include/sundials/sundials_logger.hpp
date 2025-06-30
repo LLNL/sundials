@@ -15,8 +15,8 @@
 #ifndef _SUNDIALS_LOGGER_HPP
 #define _SUNDIALS_LOGGER_HPP
 
-#include <sundials/sundials_config.h>
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_config.h>
 #include <sundials/sundials_logger.h>
 
 namespace sundials {
@@ -37,8 +37,7 @@ public:
     SUNLogger_CreateFromEnv(comm, logger_.get());
   }
 
-  SUNLoggerView(SUNLogger sunlogger) 
-  {  logger_.reset(&sunlogger);  }
+  SUNLoggerView(SUNLogger sunlogger) { logger_.reset(&sunlogger); }
 
   /* disallow copy, but allow move construction */
   SUNLoggerView(const SUNLoggerView&) = delete;
@@ -68,13 +67,11 @@ private:
   std::unique_ptr<SUNLogger> logger_;
 };
 
-
 template<typename... Args>
 SUNLoggerView SUNLoggerView::Create(Args&&... args)
 {
   return SUNLoggerView(std::forward<Args>(args)...);
 }
-
 
 } // namespace experimental
 } // namespace sundials

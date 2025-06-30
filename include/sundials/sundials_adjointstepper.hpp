@@ -17,8 +17,8 @@
 #ifndef _SUNDIALS_ADJOINTSTEPPER_HPP
 #define _SUNDIALS_ADJOINTSTEPPER_HPP
 
-#include <sundials/sundials_base.hpp>
 #include <sundials/sundials_adjointstepper.h>
+#include <sundials/sundials_base.hpp>
 
 namespace sundials {
 namespace experimental {
@@ -31,8 +31,9 @@ struct SUNAdjointStepperDeleter
   }
 };
 
-class SUNAdjointStepperView : public ClassView<SUNAdjointStepper, SUNAdjointStepperDeleter>
-{ 
+class SUNAdjointStepperView
+  : public ClassView<SUNAdjointStepper, SUNAdjointStepperDeleter>
+{
 public:
   using ClassView<SUNAdjointStepper, SUNAdjointStepperDeleter>::ClassView;
   template<typename... Args>

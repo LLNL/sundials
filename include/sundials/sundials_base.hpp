@@ -118,7 +118,9 @@ class ClassView : public sundials::ConvertibleTo<T>
 {
 public:
   ClassView() : object_(nullptr) {}
+
   ClassView(T& object) : object_(std::make_unique<T>(object)) {}
+
   ClassView(T&& object) : object_(std::make_unique<T>(object)) {}
 
   ClassView(const ClassView&)  = delete;
@@ -140,6 +142,7 @@ public:
   operator T() override { return *object_.get(); }
 
   operator T() const override { return *object_.get(); }
+
 private:
   std::unique_ptr<T> object_;
 };

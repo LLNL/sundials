@@ -17,8 +17,8 @@
 #ifndef _SUNDIALS_ADJOINTCHECKPOINTSCHEME_HPP
 #define _SUNDIALS_ADJOINTCHECKPOINTSCHEME_HPP
 
-#include <sundials/sundials_base.hpp>
 #include <sundials/sundials_adjointcheckpointscheme.h>
+#include <sundials/sundials_base.hpp>
 
 namespace sundials {
 namespace experimental {
@@ -31,8 +31,9 @@ struct SUNAdjointCheckpointSchemeDeleter
   }
 };
 
-class SUNAdjointCheckpointSchemeView : public ClassView<SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeDeleter>
-{ 
+class SUNAdjointCheckpointSchemeView
+  : public ClassView<SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeDeleter>
+{
 public:
   using ClassView<SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeDeleter>::ClassView;
   template<typename... Args>

@@ -37,7 +37,7 @@ struct NVectorDeleter
 };
 
 class NVectorView : public ClassView<N_Vector, NVectorDeleter>
-{ 
+{
 public:
   using ClassView<N_Vector, NVectorDeleter>::ClassView;
   template<typename... Args>
@@ -49,7 +49,6 @@ NVectorView NVectorView::Create(Args&&... args)
 {
   return NVectorView(std::forward<Args>(args)...);
 }
-
 
 } // namespace experimental
 } // namespace sundials

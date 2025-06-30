@@ -16,8 +16,8 @@
 #define _SUNDIALS_PROFILER_HPP
 
 #include <cstring>
-#include <sundials/sundials_config.h>
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_config.h>
 #include <sundials/sundials_profiler.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING) && defined(SUNDIALS_CALIPER_ENABLED)
@@ -60,8 +60,7 @@ public:
     SUNProfiler_Create(comm, title, profiler_.get());
   }
 
-  SUNProfilerView(SUNProfiler sunctx) 
-  {  profiler_.reset(&sunctx);  }
+  SUNProfilerView(SUNProfiler sunctx) { profiler_.reset(&sunctx); }
 
   /* disallow copy, but allow move construction */
   SUNProfilerView(const SUNProfilerView&) = delete;
@@ -91,13 +90,11 @@ private:
   std::unique_ptr<SUNProfiler> profiler_;
 };
 
-
 template<typename... Args>
 SUNProfilerView SUNProfilerView::Create(Args&&... args)
 {
   return SUNProfilerView(std::forward<Args>(args)...);
 }
-
 
 } // namespace experimental
 

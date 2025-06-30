@@ -26,13 +26,16 @@ extern "C" {
 namespace sundials {
 namespace experimental {
 
-struct IDADeleter {
-  void operator()(void* v) {
+struct IDADeleter
+{
+  void operator()(void* v)
+  {
     if (v) { IDAFree(&v); }
   }
 };
 
-class IDAView : public ClassView<void*, IDADeleter> {
+class IDAView : public ClassView<void*, IDADeleter>
+{
 public:
   using ClassView<void*, IDADeleter>::ClassView;
   template<typename... Args>
@@ -40,7 +43,8 @@ public:
 };
 
 template<typename... Args>
-IDAView IDAView::Create(Args&&... args) {
+IDAView IDAView::Create(Args&&... args)
+{
   return IDAView(std::forward<Args>(args)...);
 }
 

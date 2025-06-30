@@ -36,8 +36,9 @@ struct SUNLinearSolverDeleter
   }
 };
 
-class SUNLinearSolverView : public ClassView<SUNLinearSolver, SUNLinearSolverDeleter>
-{ 
+class SUNLinearSolverView
+  : public ClassView<SUNLinearSolver, SUNLinearSolverDeleter>
+{
 public:
   using ClassView<SUNLinearSolver, SUNLinearSolverDeleter>::ClassView;
   template<typename... Args>
