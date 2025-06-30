@@ -65,3 +65,5 @@ def adapt_nvector_pointer_to_vector(adapted_function: AdaptedFunction) -> Option
     )
 
     return lambda_adapter
+
+
