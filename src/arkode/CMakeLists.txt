@@ -72,13 +72,13 @@ set(arkode_HEADERS
 # Add variable DOMEIG_OBJECT_LIBRARIES
 set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
 
-if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
-  set(LAPACK_LIBRARY LAPACK::LAPACK)
-  if(CMAKE_VERSION VERSION_LESS 3.20)
-    list(APPEND LAPACK_LIBRARY BLAS::BLAS)
-  endif()
-endif()
+# if(ENABLE_LAPACK)
+#   list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
+#   set(LAPACK_LIBRARY LAPACK::LAPACK)
+#   if(CMAKE_VERSION VERSION_LESS 3.20)
+#     list(APPEND LAPACK_LIBRARY BLAS::BLAS)
+#   endif()
+# endif()
 
 # Add prefix with complete path to the ARKODE header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
