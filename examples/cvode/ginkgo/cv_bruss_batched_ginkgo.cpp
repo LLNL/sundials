@@ -657,11 +657,9 @@ void j_kernel(sunrealtype* ydata, sunrealtype* Jdata, sunrealtype* A,
               sunrealtype* B, sunrealtype* Ep, int neq, int nbatches,
               int batchSize, int nnzper)
 {
-  sunrealtype u, v, w, a, b, ep;
+  sunrealtype u, v, w, ep;
   for (int batchj = 0; batchj < nbatches; batchj++)
   {
-    a  = A[batchj];
-    b  = B[batchj];
     ep = Ep[batchj];
     u  = ydata[batchSize * batchj];
     v  = ydata[batchSize * batchj + 1];
@@ -685,11 +683,9 @@ void jv_kernel(sunrealtype* vdata, sunrealtype* Jvdata, sunrealtype* A,
                sunrealtype* B, sunrealtype* Ep, int neq, int nbatches,
                int batchSize, int nnzper)
 {
-  sunrealtype u, v, w, a, b, ep;
+  sunrealtype u, v, w, ep;
   for (int batchj = 0; batchj < nbatches; batchj++)
   {
-    a  = A[batchj];
-    b  = B[batchj];
     ep = Ep[batchj];
     // get v values
     u = vdata[batchSize * batchj];
