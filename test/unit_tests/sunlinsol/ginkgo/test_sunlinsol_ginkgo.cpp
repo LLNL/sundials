@@ -143,12 +143,8 @@ __global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols,
 }
 #endif
 
-#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
-static void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
-#else
 static void fill_matrix(
   std::shared_ptr<gko::matrix::Csr<sunrealtype, sunindextype>> matrix)
-#endif
 {
   sunindextype mat_rows  = static_cast<sunindextype>(matrix->get_size()[0]);
   sunindextype mat_cols  = static_cast<sunindextype>(matrix->get_size()[1]);
@@ -234,11 +230,7 @@ static void fill_matrix(
 #endif
 }
 
-#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
-static void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
-#else
 static void fill_matrix(std::shared_ptr<gko::matrix::Dense<sunrealtype>> matrix)
-#endif
 {
   sunindextype mat_rows = static_cast<sunindextype>(matrix->get_size()[0]);
   sunindextype mat_cols = static_cast<sunindextype>(matrix->get_size()[1]);
@@ -350,19 +342,9 @@ int main(int argc, char* argv[])
   sundials::Context sunctx;
 
 #if defined(USE_HIP)
-#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 7)
   auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create())};
-#else
-  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false,
-                                         gko::allocation_mode::device)};
-#endif
 #elif defined(USE_CUDA)
-#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 7)
   auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create())};
-#else
-  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false,
-                                          gko::allocation_mode::device)};
-#endif
 #elif defined(USE_SYCL)
   auto gko_exec{gko::DpcppExecutor::create(0, gko::ReferenceExecutor::create())};
 #elif defined(USE_OMP)
@@ -499,11 +481,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
-      fill_matrix(gko::lend(gko_matrix));
-#else
       fill_matrix(gko_matrix);
-#endif
     }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),
@@ -525,11 +503,7 @@ int main(int argc, char* argv[])
     else
     {
       gko_matrix->fill(0.0);
-#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
-      fill_matrix(gko::lend(gko_matrix));
-#else
       fill_matrix(gko_matrix);
-#endif
     }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),
