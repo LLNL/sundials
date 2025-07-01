@@ -261,21 +261,21 @@ SUNDIALS_EXPORT int LSRKStepDomEigEstCreate(void* arkode_mem,
       step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
     }
   }
-/*   else if (DEE_id == SUNDSOMEIGESTIMATOR_ARNOLDI) */
-/*   { */
-/* #ifdef SUNDIALS_BLAS_LAPACK_ENABLED */
-/*     step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_ARNOLDI; */
-/*     /\* Create an internal dominant eigenvalue estimator -- ArnI*\/ */
-/*     if (step_mem->DEE == NULL) */
-/*     { */
-/*       step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem); */
-/*     } */
-/* #else */
-/*     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__, */
-/*                     "Sundials Arnoldi DDE requires LAPACK package"); */
-/*     return ARK_DEE_FAIL; */
-/* #endif */
-/*   } */
+  /*   else if (DEE_id == SUNDSOMEIGESTIMATOR_ARNOLDI) */
+  /*   { */
+  /* #ifdef SUNDIALS_BLAS_LAPACK_ENABLED */
+  /*     step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_ARNOLDI; */
+  /*     /\* Create an internal dominant eigenvalue estimator -- ArnI*\/ */
+  /*     if (step_mem->DEE == NULL) */
+  /*     { */
+  /*       step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem); */
+  /*     } */
+  /* #else */
+  /*     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__, */
+  /*                     "Sundials Arnoldi DDE requires LAPACK package"); */
+  /*     return ARK_DEE_FAIL; */
+  /* #endif */
+  /*   } */
   else
   {
     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,

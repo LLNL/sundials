@@ -2360,22 +2360,22 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
       return NULL;
     }
   }
-/*   else if (step_mem->DDE_ID == SUNDSOMEIGESTIMATOR_ARNOLDI) */
-/*   { */
-/* #ifdef SUNDIALS_BLAS_LAPACK_ENABLED */
-/*     DEE = SUNDomEigEst_ArnI(ark_mem->yn, step_mem->dee_krydim, ark_mem->sunctx); */
-/*     if (DEE == NULL) */
-/*     { */
-/*       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, */
-/*                       __FILE__, "ARKODE failed to create a DDE: Creation routine returned NULL DDE"); */
-/*       return NULL; */
-/*     } */
-/* #else */
-/*     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__, */
-/*                     "Sundials Arnoldi DDE requires LAPACK package"); */
-/*     return NULL; */
-/* #endif */
-/*   } */
+  /*   else if (step_mem->DDE_ID == SUNDSOMEIGESTIMATOR_ARNOLDI) */
+  /*   { */
+  /* #ifdef SUNDIALS_BLAS_LAPACK_ENABLED */
+  /*     DEE = SUNDomEigEst_ArnI(ark_mem->yn, step_mem->dee_krydim, ark_mem->sunctx); */
+  /*     if (DEE == NULL) */
+  /*     { */
+  /*       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, */
+  /*                       __FILE__, "ARKODE failed to create a DDE: Creation routine returned NULL DDE"); */
+  /*       return NULL; */
+  /*     } */
+  /* #else */
+  /*     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__, */
+  /*                     "Sundials Arnoldi DDE requires LAPACK package"); */
+  /*     return NULL; */
+  /* #endif */
+  /*   } */
   else
   {
     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
