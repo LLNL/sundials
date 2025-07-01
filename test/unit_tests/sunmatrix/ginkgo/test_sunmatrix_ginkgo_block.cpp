@@ -516,6 +516,9 @@ extern "C" sunbooleantype is_square(SUNMatrix A)
     }
     return SUNTRUE;
   }
+
+  // unknown matrix type
+  return SUNFALSE;
 }
 
 extern "C" void sync_device(SUNMatrix A)

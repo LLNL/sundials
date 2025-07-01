@@ -526,7 +526,9 @@ extern "C" sunbooleantype is_square(SUNMatrix A)
       static_cast<sundials::ginkgo::Matrix<GkoDenseMat>*>(A->content)->GkoMtx()};
     return Amat->get_size()[0] == Amat->get_size()[1];
   }
-  else { return SUNTRUE; }
+
+  // unknown matrix type
+  return SUNFALSE;
 }
 
 extern "C" void sync_device(SUNMatrix A)
