@@ -504,11 +504,11 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
       * ``r+`` to open a text file for reading/writing
       * ``w``  to truncate a text file to zero length or create it for writing
       * ``w+`` to open a text file for reading/writing or create it if it does
-         not exist
-      * ``a``  to open a text file for appending, see documentation of ``fopen`` for
-         your system/compiler
+        not exist
+      * ``a`` to open a text file for appending, see documentation of ``fopen``
+        for your system/compiler
       * ``a+`` to open a text file for reading/appending, see documentation for
-         ``fopen`` for your system/compiler
+        ``fopen`` for your system/compiler
 
    :param fp: The ``FILE*`` that will be open when the function returns.
       This should be a `type(c_ptr)` in the Fortran.
