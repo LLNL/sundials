@@ -10,9 +10,9 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <string>
 #include <iostream>
 #include <limits.h>
+#include <string>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
