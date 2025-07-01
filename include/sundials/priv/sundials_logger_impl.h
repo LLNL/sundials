@@ -17,12 +17,10 @@
 #ifndef _SUNDIALS_LOGGER_IMPL_H
 #define _SUNDIALS_LOGGER_IMPL_H
 
-#include <stdarg.h>
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_types.h>
 
 #include "sundials_hashmap_impl.h"
-#include "sundials_utils.h"
 
 #define SUNDIALS_LOGGING_ERROR   1
 #define SUNDIALS_LOGGING_WARNING 2
