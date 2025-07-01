@@ -19,7 +19,7 @@ SUNLINEARSOLVER_GINKGOBLOCK module described in :numref:`SUNLinSol.GinkgoBlock`.
    lightweight interoperability layer between Ginkgo and SUNDIALS. Most, if not
    all, of the Ginkgo batch matrix types should work with this interface.
 
-.. _SUNMatrix.Ginkgo.CompatibleNVectors:
+.. _SUNMatrix.GinkgoBlock.CompatibleNVectors:
 
 Compatible Vectors
 ------------------

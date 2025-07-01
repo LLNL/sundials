@@ -11,7 +11,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNLinSol.Ginkgo:
+.. _SUNLinSol.GinkgoBlock:
 
 The SUNLINEARSOLVER_GINKGOBLOCK Module
 =======================================
