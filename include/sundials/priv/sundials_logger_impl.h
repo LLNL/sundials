@@ -19,8 +19,7 @@
 
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_types.h>
-
-#include "sundials_hashmap_impl.h"
+#include <sundials/priv/sundials_hashmap_impl.h>
 
 #define SUNDIALS_LOGGING_ERROR   1
 #define SUNDIALS_LOGGING_WARNING 2

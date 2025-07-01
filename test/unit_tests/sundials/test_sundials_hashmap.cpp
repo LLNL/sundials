@@ -18,7 +18,7 @@
 #include <string>
 #include <sundials/sundials_core.hpp>
 
-#include "sundials_hashmap_impl.h"
+#include <sundials/priv/sundials_hashmap_impl.h>
 
 // Helper function to free memory for value
 static SUNErrCode freeKeyValue(SUNHashMapKeyValue* ptr)
