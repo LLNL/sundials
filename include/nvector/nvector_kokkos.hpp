@@ -415,7 +415,7 @@ SUNErrCode N_VRandom_Kokkos(N_Vector x)
 {
   auto xvec{GetVec<VectorType>(x)};
   auto xdata{xvec->View()};
-  Kokkos::Random_XorShift64_Pool<> random_pool();
+  Kokkos::Random_XorShift64_Pool<> random_pool{};
   Kokkos::fill_random(xdata, random_pool, SUN_RCONST(0.0), SUN_RCONST(1.0));
   return SUN_SUCCESS;
 }
