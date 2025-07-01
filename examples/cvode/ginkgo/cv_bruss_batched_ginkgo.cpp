@@ -476,7 +476,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
   SERIAL_CUDA_OR_HIP(, cudaDeviceSynchronize(), hipDeviceSynchronize());
   SERIAL_CUDA_OR_HIP(, cudaError_t gpu_err = cudaGetLastError(),
                      hipError_t gpu_err    = hipGetLastError());
-  if (gpu_err != SERIAL_CUDA_OR_HIP(hipSuccess, cudaSuccess))
+  if (gpu_err != SERIAL_CUDA_OR_HIP(, hipSuccess, cudaSuccess))
   {
     fprintf(stderr, ">>> ERROR in Jac: GetLastError returned %s\n",
             SERIAL_CUDA_OR_HIP(, cudaGetErrorName(gpu_err),
@@ -512,7 +512,7 @@ int JacVec(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, N_Vector fy,
   SERIAL_CUDA_OR_HIP(, cudaDeviceSynchronize(), hipDeviceSynchronize());
   SERIAL_CUDA_OR_HIP(, cudaError_t gpu_err = cudaGetLastError(),
                      hipError_t gpu_err    = hipGetLastError());
-  if (gpu_err != SERIAL_CUDA_OR_HIP(hipSuccess, cudaSuccess))
+  if (gpu_err != SERIAL_CUDA_OR_HIP(, hipSuccess, cudaSuccess))
   {
     fprintf(stderr, ">>> ERROR in JacVec: GetLastError returned %s\n",
             SERIAL_CUDA_OR_HIP(, cudaGetErrorName(gpu_err),
