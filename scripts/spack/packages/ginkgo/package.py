@@ -6,6 +6,7 @@
 from spack.package import *
 import spack.pkg.builtin.ginkgo
 
+
 class Ginkgo(spack.pkg.builtin.ginkgo.Ginkgo):
 
     # The version of Spack we are using does not include Ginkgo 1.9.0

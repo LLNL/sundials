@@ -187,9 +187,11 @@ private:
     this->object_->ops->clone = impl::SUNMatClone_GinkgoBlock<GkoBatchMatType>;
     this->object_->ops->copy  = impl::SUNMatCopy_GinkgoBlock<GkoBatchMatType>;
     // Ginkgo does not provide what we need for ScaleAdd except with BatchDense
-    this->object_->ops->scaleadd = impl::SUNMatScaleAdd_GinkgoBlock<GkoBatchMatType>;
-    this->object_->ops->scaleaddi = impl::SUNMatScaleAddI_GinkgoBlock<GkoBatchMatType>;
-    this->object_->ops->matvec  = impl::SUNMatMatvec_GinkgoBlock<GkoBatchMatType>;
+    this->object_->ops->scaleadd =
+      impl::SUNMatScaleAdd_GinkgoBlock<GkoBatchMatType>;
+    this->object_->ops->scaleaddi =
+      impl::SUNMatScaleAddI_GinkgoBlock<GkoBatchMatType>;
+    this->object_->ops->matvec = impl::SUNMatMatvec_GinkgoBlock<GkoBatchMatType>;
     this->object_->ops->destroy = impl::SUNMatDestroy_GinkgoBlock<GkoBatchMatType>;
   }
 };
