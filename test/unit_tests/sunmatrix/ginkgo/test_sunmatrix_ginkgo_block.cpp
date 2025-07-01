@@ -102,11 +102,9 @@ int main(int argc, char* argv[])
     REF_OR_OMP_OR_HIP_OR_CUDA(gko::ReferenceExecutor::create(),
                               gko::OmpExecutor::create(),
                               gko::HipExecutor::create(0,
-                                                       gko::OmpExecutor::create(),
-                                                       true),
+                                                       gko::OmpExecutor::create()),
                               gko::CudaExecutor::create(0,
-                                                        gko::OmpExecutor::create(),
-                                                        true))};
+                                                        gko::OmpExecutor::create()))};
 
   /* check input and set vector length */
   if (argc < 5)
