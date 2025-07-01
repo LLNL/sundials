@@ -23,7 +23,7 @@
 
 #if defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
-#include <sunmemory/sunmemory_cuda.>
+#include <sunmemory/sunmemory_cuda.h>
 #define SERIAL_CUDA_OR_HIP(a, b, c) b
 constexpr auto N_VNew = N_VNewManaged_Cuda;
 #elif defined(USE_HIP)
