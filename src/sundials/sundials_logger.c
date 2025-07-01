@@ -31,6 +31,7 @@
 #include <mpi.h>
 #endif
 
+#include "sundials_hashmap_impl.h"
 #include "sundials_macros.h"
 #include "sundials_utils.h"
 

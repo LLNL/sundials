@@ -24,7 +24,7 @@ Data Structures
 ---------------
 
 We have our own implementation of a hash map, ``SUNHashMap``. It is found at
-``src/sundials/priv/sundials_hashmap_impl.h`` and
+``src/sundials/sundials_hashmap_impl.h`` and
 ``src/sundials/sundials_hashmap.c``.
 
 We have a C implementation of a ``std::vector`` in ``src/sundials/stl``.

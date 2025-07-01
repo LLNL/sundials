@@ -10,15 +10,17 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include <string>
 #include <iostream>
 #include <limits.h>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
 #include <nvector/nvector_serial.h>
-#include <string>
 #include <sundials/sundials_core.hpp>
 
-#include <sundials/priv/sundials_hashmap_impl.h>
+#include "sundials_hashmap_impl.h"
 
 // Helper function to free memory for value
 static SUNErrCode freeKeyValue(SUNHashMapKeyValue* ptr)
