@@ -63,9 +63,6 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
 static int FusedBuffer_CopyToDevice(N_Vector v);
 static int FusedBuffer_Free(N_Vector v);
 
-// Random number routine
-static SUNErrCode N_VRandom_Cuda(N_Vector X);
-
 // Kernel launch parameters
 static int GetKernelParameters(N_Vector v, sunbooleantype reduction,
                                size_t& grid, size_t& block, size_t& shMemSize,
