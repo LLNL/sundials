@@ -150,8 +150,8 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   }
 
   /* Allocate the general MRI stepper vectors using y0 as a template */
-  /* NOTE: Fse, Fsi, inner_forcing, cvals, Xvecs, sdata, zpred and zcor will
-     be allocated later on (based on the MRI method) */
+  /* NOTE: Fse, Fsi, inner_forcing, sdata, zpred and zcor will be allocated
+     later on (based on the MRI method) */
 
   /* Copy the slow RHS functions into stepper memory */
   step_mem->fse            = fse;
@@ -212,8 +212,9 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   step_mem->nls_fails   = 0;
   step_mem->inner_fails = 0;
 
-  /* Initialize fused op work space with sufficient storage for
-     at least filling the full RHS on an ImEx problem */
+  /* Initialize fused op work space with sufficient storage for at least filling
+     the full RHS on an ImEx problem -- must be allocate here as the full RHS
+     is called before mriStep_Init when nesting MRI methods */
   step_mem->nfusedopvecs = 3;
   step_mem->cvals        = NULL;
   step_mem->cvals        = (sunrealtype*)calloc(step_mem->nfusedopvecs,
@@ -1074,37 +1075,47 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
     }
     ark_mem->lrw += step_mem->MRIC->stages;
 
-    /* Allocate reusable arrays for fused vector interface */
-    if (step_mem->cvals)
-    {
-      free(step_mem->cvals);
-      ark_mem->lrw -= step_mem->nfusedopvecs;
-    }
-    if (step_mem->Xvecs)
-    {
-      free(step_mem->Xvecs);
-      ark_mem->liw -= step_mem->nfusedopvecs;
-    }
-    step_mem->nfusedopvecs = 2 * step_mem->MRIC->stages + 2 + step_mem->nforcing;
-    step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                           sizeof(*step_mem->cvals));
-    if (step_mem->cvals == NULL)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_MEM_FAIL);
-      return (ARK_MEM_FAIL);
-    }
-    ark_mem->lrw += step_mem->nfusedopvecs;
+    /* Allocate reusable arrays for fused vector operations */
+    int fused_workspace_size =
+      SUNMAX(3, 2 * step_mem->MRIC->stages + 2 + step_mem->nforcing);
 
-    step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
-                                        sizeof(*step_mem->Xvecs));
-    if (step_mem->Xvecs == NULL)
+    if (step_mem->nfusedopvecs < fused_workspace_size)
     {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_MEM_FAIL);
-      return (ARK_MEM_FAIL);
+      if (step_mem->cvals)
+      {
+        free(step_mem->cvals);
+        step_mem->cvals = NULL;
+        ark_mem->lrw -= step_mem->nfusedopvecs;
+      }
+      if (step_mem->Xvecs)
+      {
+        free(step_mem->Xvecs);
+        step_mem->Xvecs = NULL;
+        ark_mem->liw -= step_mem->nfusedopvecs;
+      }
+      step_mem->nfusedopvecs = 0;
+
+      step_mem->cvals = (sunrealtype*)calloc(fused_workspace_size,
+                                             sizeof(*step_mem->cvals));
+      if (step_mem->cvals == NULL)
+      {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_MEM_FAIL);
+        return (ARK_MEM_FAIL);
+      }
+
+      step_mem->Xvecs = (N_Vector*)calloc(fused_workspace_size,
+                                          sizeof(*step_mem->Xvecs));
+      if (step_mem->Xvecs == NULL)
+      {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_MEM_FAIL);
+        return (ARK_MEM_FAIL);
+      }
+      step_mem->nfusedopvecs = fused_workspace_size;
+      ark_mem->lrw += fused_workspace_size;
+      ark_mem->liw += fused_workspace_size;
     }
-    ark_mem->liw += step_mem->nfusedopvecs;
 
     /* Retrieve/store method and embedding orders now that tables are finalized */
     step_mem->stages = step_mem->MRIC->stages;
@@ -4914,12 +4925,13 @@ int mriStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
        has a stale forcing function */
     ark_mem->fn_is_current = SUNFALSE;
 
-    /* If cvals and Xvecs are not allocated then mriStep_Init has not been
-       called and the number of stages has not been set yet. These arrays will
-       be allocated in mriStep_Init and take into account the value of nforcing.
-       On subsequent calls will check if enough space has allocated in case
-       nforcing has increased since the original allocation. */
-    if (step_mem->cvals != NULL && step_mem->Xvecs != NULL)
+    /* If the coupling table is NULL, then mriStep_Init has not been called and
+       the number of stages has not been set yet. In this case, the workspace
+       arrays for fused vector operations will be re-allocated in mriStep_Init
+       if necessary to account the value of nforcing. On subsequent calls we
+       check if enough space has already been allocated in case nforcing has
+       increased since the original allocation. */
+    if (step_mem->MRIC)
     {
       /* check if there are enough reusable arrays for fused operations */
       if ((step_mem->nfusedopvecs - nvecs) < (2 * step_mem->MRIC->stages + 2))

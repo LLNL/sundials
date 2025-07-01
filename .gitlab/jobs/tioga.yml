@@ -48,8 +48,7 @@ tioga_rocmcc_571_tpls:
         AMDGPU_TARGET: [gfx90a]
   variables:
     ON_TIOGA: "OFF" # disable until we can figure out libpgmath.so error
-    # have to use ginkgo@master because our spack version does not have ginkgo@1.8.0: yet (which seems to be needed)
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi+magma+ginkgo+kokkos ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=17 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi+magma+ginkgo+kokkos ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^ginkgo+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
   before_script:
     - module load rocmcc/5.7.1-magic
   extends: [.sundials_job_on_tioga]
@@ -60,9 +59,8 @@ tioga_rocmcc_620_tpls:
       - COMPILER_SPEC: rocmcc@6.2.0
         AMDGPU_TARGET: [gfx90a]
   variables:
-    # have to use ginkgo@master because our spack version does not have ginkgo@1.8.0: yet (which seems to be needed)
-    # similarly, we need a newer magma than available to compile with 'rocm@6:' so we turn it off
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+    # we need a newer magma than available to compile with 'rocm@6:' so we turn it off
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=17 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
   before_script:
     - module load rocmcc/6.2.0-magic
   extends: [.sundials_job_on_tioga]

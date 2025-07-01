@@ -36,9 +36,14 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
+if(CMAKE_CXX_STANDARD LESS "17")
+  message(FATAL_ERROR "CMAKE_CXX_STANDARD must be >= 17 when using Ginkgo")
+endif()
+
 # -----------------------------------------------------------------------------
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
+
 find_package(Ginkgo REQUIRED HINTS "${Ginkgo_DIR}" NO_DEFAULT_PATH)
 
 message(STATUS "GINKGO VERSION:     ${GINKGO_PROJECT_VERSION}")
@@ -47,9 +52,15 @@ message(STATUS "GINKGO LIBRARIES:   ${GINKGO_INTERFACE_LINK_LIBRARIES}")
 message(STATUS "GINKGO LINK FLAGS:  ${GINKGO_INTERFACE_LINK_FLAGS}")
 message(STATUS "GINKGO CXX FLAGS:   ${GINKGO_INTERFACE_CXX_FLAGS}")
 
+if(GINKGO_PROJECT_VERSION VERSION_LESS "1.9.0")
+  message(
+    FATAL_ERROR "The SUNDIALS Ginkgo interface requires Ginkgo 1.9.0 or newer")
+endif()
+
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
+
 if(Ginkgo_FOUND AND (NOT GINKGO_WORKS))
   if(SUNDIALS_PRECISION MATCHES "extended|EXTENDED")
     message(
