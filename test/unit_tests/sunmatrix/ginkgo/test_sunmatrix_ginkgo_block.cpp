@@ -37,6 +37,8 @@
 #include <nvector/nvector_cuda.h>
 #elif defined(USE_HIP)
 #include <nvector/nvector_hip.h>
+#elif defined(USE_OMP)
+#include <nvector/nvector_openmp.h>
 #else
 #include <nvector/nvector_serial.h>
 #endif
