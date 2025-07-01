@@ -3,6 +3,10 @@ name: Containers - build llvm container for clang-format checker
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build_llvm_container:
     runs-on: ubuntu-22.04

@@ -3,6 +3,10 @@ name: Containers - spack@e4s
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   packages: write
 
