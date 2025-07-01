@@ -208,7 +208,7 @@ public:
 
   /// Get the underlying Ginkgo solver
   /// \note This will be `nullptr` until the linear solver setup phase.
-  GkoBatchSolverType* GkoSolver() { return gko_solver_.get(); }
+  GkoBatchSolverType* GkoSolver() { return solver_.get(); }
 
   /// Average number of iterations across the batches during the last solve.
   sunrealtype AvgNumIters() const { return avg_iter_count_; }
