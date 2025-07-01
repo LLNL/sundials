@@ -22,9 +22,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sundials/priv/sundials_hashmap_impl.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_types.h>
-#include <sundials/priv/sundials_hashmap_impl.h>
 
 #include "sundials_macros.h"
 
