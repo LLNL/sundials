@@ -37,9 +37,6 @@
 #define BAD_N2 "input global length. \n\n"
 #define BAD_N  BAD_N1 BAD_N2
 
-/* Private functions */
-static SUNErrCode N_VRandom_Petsc(N_Vector x);
-
 /*
  * -----------------------------------------------------------------
  * Simplifying macros NV_CONTENT_PTC, NV_OWN_DATA_PTC,
