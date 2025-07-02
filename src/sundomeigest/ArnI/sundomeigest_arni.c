@@ -30,7 +30,7 @@
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define xgeev_f77 dgeev_f77
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define xgeev_f77 sdeev_f77
+#define xgeev_f77 sgeev_f77
 #else
 #error Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
 #endif
