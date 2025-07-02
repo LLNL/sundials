@@ -117,21 +117,21 @@ public:
               std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx);
 
   BlockMatrix(std::shared_ptr<GkoBatchMatType> gko_mat, SUNContext sunctx)
-    : gkomtx_(gko_mat), sundials::impl::BaseMatrix(sunctx)
+    : sundials::impl::BaseMatrix(sunctx), gkomtx_(gko_mat)
   {
     initSUNMatrix();
   }
 
   // Move constructor
   BlockMatrix(BlockMatrix&& that_matrix) noexcept
-    : gkomtx_(std::move(that_matrix.gkomtx_)),
-      sundials::impl::BaseMatrix(std::forward<BlockMatrix>(that_matrix))
+    : sundials::impl::BaseMatrix(std::forward<BlockMatrix>(that_matrix)),
+      gkomtx_(std::move(that_matrix.gkomtx_))
   {}
 
   // Copy constructor clones the gko::matrix and SUNMatrix
   BlockMatrix(const BlockMatrix& that_matrix)
-    : gkomtx_(gko::clone(that_matrix.gkomtx_)),
-      sundials::impl::BaseMatrix(that_matrix)
+    : sundials::impl::BaseMatrix(that_matrix),
+      gkomtx_(gko::clone(that_matrix.gkomtx_))
   {}
 
   // Move assignment
@@ -204,10 +204,10 @@ template<>
 inline BlockMatrix<GkoBatchDenseMat>::BlockMatrix(
   gko::size_type num_blocks, sunindextype M, sunindextype N,
   std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
-  : gkomtx_(
+  : sundials::impl::BaseMatrix(sunctx),
+    gkomtx_(
       GkoBatchDenseMat::create(gko_exec, gko::batch_dim<2>(num_blocks,
-                                                           gko::dim<2>(M, N)))),
-    sundials::impl::BaseMatrix(sunctx)
+                                                           gko::dim<2>(M, N))))
 {
   initSUNMatrix();
 }
@@ -217,11 +217,11 @@ inline BlockMatrix<GkoBatchCsrMat>::BlockMatrix(
   gko::size_type num_blocks, sunindextype M, sunindextype N,
   sunindextype num_nonzeros, std::shared_ptr<const gko::Executor> gko_exec,
   SUNContext sunctx)
-  : gkomtx_(
+  : sundials::impl::BaseMatrix(sunctx),
+    gkomtx_(
       GkoBatchCsrMat::create(gko_exec,
                              gko::batch_dim<2>(num_blocks, gko::dim<2>(M, N)),
-                             num_nonzeros)),
-    sundials::impl::BaseMatrix(sunctx)
+                             num_nonzeros))
 {
   initSUNMatrix();
 }
@@ -231,11 +231,11 @@ inline BlockMatrix<GkoBatchEllMat>::BlockMatrix(
   gko::size_type num_blocks, sunindextype M, sunindextype N,
   sunindextype num_nonzeros, std::shared_ptr<const gko::Executor> gko_exec,
   SUNContext sunctx)
-  : gkomtx_(
+  : sundials::impl::BaseMatrix(sunctx),
+    gkomtx_(
       GkoBatchEllMat::create(gko_exec,
                              gko::batch_dim<2>(num_blocks, gko::dim<2>(M, N)),
-                             num_nonzeros)),
-    sundials::impl::BaseMatrix(sunctx)
+                             num_nonzeros))
 {
   initSUNMatrix();
 }
