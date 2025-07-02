@@ -299,9 +299,9 @@ public:
 
     gko::batch::BatchLinOp* result{nullptr};
     std::unique_ptr<GkoBatchVecType> x_vec{
-      WrapBatchVector(GkoExec(), num_blocks_, x)};
+      impl::WrapBatchVector(GkoExec(), num_blocks_, x)};
     std::unique_ptr<GkoBatchVecType> b_vec{
-      WrapBatchVector(GkoExec(), num_blocks_, b)};
+      impl::WrapBatchVector(GkoExec(), num_blocks_, b)};
 
     if (scaling_)
     {

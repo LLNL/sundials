@@ -240,6 +240,13 @@ inline BlockMatrix<GkoBatchEllMat>::BlockMatrix(
   initSUNMatrix();
 }
 
+// =============================================================================
+// Everything in the implementation (impl) namespace is private and should not
+// be referred to directly in user code.
+// =============================================================================
+
+namespace impl {
+
 //
 // Non-class methods
 //
@@ -349,6 +356,8 @@ void Print(BlockMatrix<GkoBatchMatType>& A, std::ostream& ost = std::cout)
 {
   gko::write(ost, A.GkoMtx().get());
 }
+
+} // namespace impl
 
 } // namespace ginkgo
 } // namespace sundials
