@@ -89,35 +89,35 @@ export CMAKE_VERBOSE_MAKEFILE=OFF
 export CMAKE_BUILD_TYPE=Debug
 
 # Number of build and test jobs
-export SUNDIALS_BUILD_JOBS=6
+export SUNDIALS_BUILD_JOBS=1
 export SUNDIALS_TEST_JOBS=1
 
 # Sundials packages
-export SUNDIALS_ARKODE=ON
+export SUNDIALS_ARKODE=OFF
 export SUNDIALS_CVODE=ON
-export SUNDIALS_CVODES=ON
-export SUNDIALS_IDA=ON
-export SUNDIALS_IDAS=ON
-export SUNDIALS_KINSOL=ON
+export SUNDIALS_CVODES=OFF
+export SUNDIALS_IDA=OFF
+export SUNDIALS_IDAS=OFF
+export SUNDIALS_KINSOL=OFF
 
 # Fortran interface status
 if [[ ("$SUNDIALS_PRECISION" == "double") ]]; then
-    export SUNDIALS_FMOD_INTERFACE=ON
+    export SUNDIALS_FMOD_INTERFACE=OFF
 else
     export SUNDIALS_FMOD_INTERFACE=OFF
 fi
 
 # Sundials benchmarks
-export SUNDIALS_BENCHMARKS=ON
+export SUNDIALS_BENCHMARKS=OFF
 
 # Sundials monitoring
-export SUNDIALS_MONITORING=ON
+export SUNDIALS_MONITORING=OFF
 
 # Sundials profiling
-export SUNDIALS_PROFILING=ON
+export SUNDIALS_PROFILING=OFF
 
 # Sundials logging
-export SUNDIALS_LOGGING_LEVEL=3
+export SUNDIALS_LOGGING_LEVEL=2
 
 # Uncomment to override the default output file comparison precisions. The float
 # precision is number of digits to compare (0 = all digits) and the integer
@@ -133,7 +133,7 @@ export SUNDIALS_TEST_INTEGER_PRECISION=0
 # PThread
 # -------
 
-export SUNDIALS_PTHREAD=ON
+export SUNDIALS_PTHREAD=OFF
 
 # ------
 # OpenMP
@@ -167,7 +167,7 @@ fi
 
 MPI_ROOT="$(spack location -i openmpi@5.0.5)"
 
-export SUNDIALS_MPI=ON
+export SUNDIALS_MPI=OFF
 export MPICC="${MPI_ROOT}/bin/mpicc"
 export MPICXX="${MPI_ROOT}/bin/mpicxx"
 export MPIFC="${MPI_ROOT}/bin/mpifort"
@@ -178,7 +178,7 @@ export MPIEXEC="${MPI_ROOT}/bin/mpirun"
 # -------------
 
 if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-    export SUNDIALS_LAPACK=ON
+    export SUNDIALS_LAPACK=OFF
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
         LAPACK_ROOT="$(spack location -i openblas@0.3.27 ~ilp64)"
     else
@@ -197,7 +197,7 @@ fi
 # ---
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_KLU=ON
+    export SUNDIALS_KLU=OFF
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
         SUITE_SPARSE_ROOT="$(spack location -i suite-sparse@7.7.0 ^openblas ~ilp64)"
     else
@@ -241,7 +241,7 @@ fi
 # ------
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_KOKKOS=ON
+    export SUNDIALS_KOKKOS=OFF
     export KOKKOS_ROOT="$(spack location -i kokkos@4.3.01 ~cuda)"
 else
     export SUNDIALS_KOKKOS=OFF
@@ -253,7 +253,7 @@ fi
 # --------------
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_KOKKOS_KERNELS=ON
+    export SUNDIALS_KOKKOS_KERNELS=OFF
     export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@4.3.01 ~cuda)"
 else
     export SUNDIALS_KOKKOS_KERNELS=OFF
@@ -267,7 +267,7 @@ fi
 if [ "$SUNDIALS_PRECISION" != "extended" ] && \
     [ "$SUNDIALS_INDEX_SIZE" == "32" ] && \
     [ "$SUNDIALS_CUDA" == "ON" ]; then
-    export SUNDIALS_MAGMA=ON
+    export SUNDIALS_MAGMA=OFF
     export MAGMA_ROOT="$(spack location -i magma@2.8.0 +cuda)"
     export MAGMA_BACKENDS="CUDA"
 else
@@ -281,7 +281,7 @@ fi
 # ----------
 
 if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-    export SUNDIALS_SUPERLU_MT=ON
+    export SUNDIALS_SUPERLU_MT=OFF
     # Using @master (sha 9e23fe72652afc28c97829e69e7c6966050541a7) as it
     # additional fixes necessary for building with newer versions of GCC
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
@@ -307,7 +307,7 @@ fi
 # ------------
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_SUPERLU_DIST=ON
+    export SUNDIALS_SUPERLU_DIST=OFF
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
         export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@8.2.1 ~int64 ~cuda)"
     else
@@ -325,7 +325,7 @@ fi
 # -----
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_HYPRE=ON
+    export SUNDIALS_HYPRE=OFF
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
         HYPRE_ROOT="$(spack location -i hypre@2.31.0 ~int64 ~cuda)"
     else
@@ -344,7 +344,7 @@ fi
 # -----
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_PETSC=ON
+    export SUNDIALS_PETSC=OFF
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
         PETSC_ROOT="$(spack location -i petsc@3.21.4 +double ~int64 ~cuda)"
     else
@@ -361,7 +361,7 @@ fi
 # --------
 
 if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-    export SUNDIALS_TRILINOS=ON
+    export SUNDIALS_TRILINOS=OFF
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
         TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=int ~cuda)"
     else
@@ -378,7 +378,7 @@ fi
 # ----
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_RAJA=ON
+    export SUNDIALS_RAJA=OFF
     export RAJA_ROOT="$(spack location -i raja@2024.02.2 +cuda)"
     export RAJA_BACKENDS="CUDA"
     # RAJA does not find camp on its own?
@@ -395,7 +395,7 @@ fi
 # ------
 
 if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-    export SUNDIALS_XBRAID=ON
+    export SUNDIALS_XBRAID=OFF
     export XBRAID_ROOT="$(spack location -i xbraid@3.0.0)"
 else
     export SUNDIALS_XBRAID=OFF
