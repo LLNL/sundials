@@ -22,8 +22,18 @@
 #include <sundials/priv/sundials_domeigestimator_impl.h>
 #include <sundomeigest/sundomeigest_arni.h>
 
+#include "sundials_lapack_defs.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
+
+/* Interfaces to match 'sunrealtype' with the correct LAPACK functions */
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define xgeev_f77 dgeev_f77
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define xgeev_f77 sdeev_f77
+#else
+#error Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
+#endif
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -156,12 +166,32 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
 
   ArnI_CONTENT(DEE)->LAPACK_A = (sunrealtype*)malloc(
     (ArnI_CONTENT(DEE)->krydim * ArnI_CONTENT(DEE)->krydim) * sizeof(sunrealtype));
+  if (ArnI_CONTENT(DEE)->LAPACK_A == NULL) { return SUN_ERR_MALLOC_FAIL; }
   ArnI_CONTENT(DEE)->LAPACK_wr =
     malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype));
+  if (ArnI_CONTENT(DEE)->LAPACK_wr == NULL) { return SUN_ERR_MALLOC_FAIL; }
   ArnI_CONTENT(DEE)->LAPACK_wi =
     malloc(ArnI_CONTENT(DEE)->krydim * sizeof(sunrealtype));
+  if (ArnI_CONTENT(DEE)->LAPACK_wi == NULL) { return SUN_ERR_MALLOC_FAIL; }
+
+  /* query the workspace size (call with lwork = -1) */
+  char jobvl = 'N';
+  char jobvr = 'N';
+  sunindextype N    = ArnI_CONTENT(DEE)->krydim;
+  sunindextype lda  = ArnI_CONTENT(DEE)->krydim;
+  sunindextype ldvl = 1;
+  sunindextype ldvr = 1;
+  sunindextype info = 0;
+  sunindextype lwork = -1;
+  sunrealtype work = SUN_RCONST(0.0);
+
+  xgeev_f77(&jobvl, &jobvr, &N, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
+            ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
+            &ldvl, NULL, &ldvr, &work, &lwork, &info);
+
   ArnI_CONTENT(DEE)->LAPACK_work =
-    malloc((4 * ArnI_CONTENT(DEE)->krydim) * sizeof(sunrealtype));
+    (sunrealtype*)malloc(((sunindextype)work) * sizeof(sunrealtype));
+  if (ArnI_CONTENT(DEE)->LAPACK_work == NULL) { return SUN_ERR_MALLOC_FAIL; }
 
   int k;
 
@@ -329,37 +359,14 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
           elements i+1:N of LAPACK_wr and LAPACK_wi contain
           eigenvalues which have converged.
   */
-#if defined(SUNDIALS_INT32_T)
   sunindextype lda  = n;
   sunindextype ldvl = n;
   sunindextype ldvr = n;
   sunindextype info;
   sunindextype lwork = 4 * n;
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-  dgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
-         ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
-         &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  sgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
-         ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
-         &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
-#endif
-#elif defined(SUNDIALS_INT64_T)
-  int32_t lda  = n;
-  int32_t ldvl = n;
-  int32_t ldvr = n;
-  int32_t info;
-  int32_t lwork = 4 * n;
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-  dgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
-         ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
-         &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  sgeev_(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
-         ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
-         &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
-#endif
-#endif
+  xgeev_f77(&jobvl, &jobvr, &n, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
+            ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
+            &ldvl, NULL, &ldvr, ArnI_CONTENT(DEE)->LAPACK_work, &lwork, &info);
 
   if (info != 0)
   {
