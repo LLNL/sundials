@@ -138,6 +138,9 @@ SUNDIALS_EXPORT sunbooleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector 
 SUNDIALS_EXPORT sunrealtype N_VMinQuotientLocal_Trilinos(N_Vector num,
                                                          N_Vector denom);
 
+/* OPTIONAL fill vector with random values operation */
+SUNDIALS_EXPORT SUNErrCode N_VRandom_Trilinos(N_Vector X);
+
 #ifdef __cplusplus
 }
 #endif

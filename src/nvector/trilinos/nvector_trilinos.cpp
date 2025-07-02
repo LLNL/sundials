@@ -52,14 +52,6 @@ using namespace sundials::trilinos::nvector_tpetra;
 
 typedef TpetraVectorInterface::vector_type vector_type;
 
-/*
- * -----------------------------------------------------------------
- * static functions accessible only within this file
- * -----------------------------------------------------------------
- */
-
-static SUNErrCode N_VRandom_Trilinos(N_Vector x);
-
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
@@ -113,7 +105,7 @@ N_Vector N_VNewEmpty_Trilinos(SUNContext sunctx)
   v->ops->nvinvtest      = N_VInvTest_Trilinos;
   v->ops->nvconstrmask   = N_VConstrMask_Trilinos;
   v->ops->nvminquotient  = N_VMinQuotient_Trilinos;
-  v->ops->nvrandom       = N_VMinRandom_Trilinos;
+  v->ops->nvrandom       = N_VRandom_Trilinos;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
