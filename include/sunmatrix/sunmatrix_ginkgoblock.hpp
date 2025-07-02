@@ -41,6 +41,40 @@ class BlockMatrix;
 namespace impl {
 
 //
+// Prototypes for non-class methods that operate on Matrix
+//
+
+inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(
+  std::shared_ptr<const gko::Executor> gko_exec, gko::size_type num_blocks,
+  N_Vector x);
+
+inline std::unique_ptr<const GkoBatchVecType> WrapConstBatchVector(
+  std::shared_ptr<const gko::Executor> gko_exec, gko::size_type num_blocks,
+  N_Vector x);
+
+template<class GkoBatchMatType>
+void Matvec(BlockMatrix<GkoBatchMatType>& A, GkoBatchVecType* x,
+            GkoBatchVecType* y);
+
+template<class GkoBatchMatType>
+void Matvec(BlockMatrix<GkoBatchMatType>& A, N_Vector x, N_Vector y);
+
+void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchDenseMat>& A,
+              BlockMatrix<GkoBatchDenseMat>& B);
+
+void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchCsrMat>& A,
+              BlockMatrix<GkoBatchCsrMat>& B);
+
+void ScaleAdd(const sunrealtype c, BlockMatrix<GkoBatchEllMat>& A,
+              BlockMatrix<GkoBatchEllMat>& B);
+
+template<class GkoBatchMatType>
+void ScaleAddI(const sunrealtype c, BlockMatrix<GkoBatchMatType>& A);
+
+template<class GkoBatchMatType>
+void Copy(BlockMatrix<GkoBatchMatType>& A, BlockMatrix<GkoBatchMatType>& B);
+
+//
 // Methods that operate on SUNMatrix
 //
 template<class GkoBatchMatType>
