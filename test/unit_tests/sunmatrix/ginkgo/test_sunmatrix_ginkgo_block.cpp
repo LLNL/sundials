@@ -163,12 +163,14 @@ int main(int argc, char* argv[])
 
   N_Vector x{
     REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matcols, sunctx),
-                              N_VNew_OpenMP(num_blocks * matcols, num_threads, sunctx),
+                              N_VNew_OpenMP(num_blocks * matcols, num_threads,
+                                            sunctx),
                               N_VNew_Hip(num_blocks * matcols, sunctx),
                               N_VNew_Cuda(num_blocks * matcols, sunctx))};
   N_Vector y{
     REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matrows, sunctx),
-                              N_VNew_OpenMP(num_blocks * matcols, num_threads, sunctx),
+                              N_VNew_OpenMP(num_blocks * matcols, num_threads,
+                                            sunctx),
                               N_VNew_Hip(num_blocks * matrows, sunctx),
                               N_VNew_Cuda(num_blocks * matrows, sunctx))};
 
@@ -232,7 +234,8 @@ int main(int argc, char* argv[])
         for (auto inz = Arowptrs[irow]; inz < Arowptrs[irow + 1]; inz++)
         {
           SM_ELEMENT_D(Aref, blocki * matrows + irow,
-                       blocki * matcols + gko_exec->copy_val_to_host(Acolidxs + inz)) =
+                       blocki * matcols +
+                         gko_exec->copy_val_to_host(Acolidxs + inz)) =
             gko_exec->copy_val_to_host(Avalues + inz);
         }
       }
@@ -282,8 +285,9 @@ int main(int argc, char* argv[])
         for (sunindextype j = 0; j < matcols; j++)
         {
           SM_ELEMENT_D(Aref, blocki * matrows + i, blocki * matcols + j) =
-            gko_exec->copy_val_to_host(Avalues + gko_batch_matrix->get_cumulative_offset(blocki) +
-                                       i * gko_batch_matrix->get_size().get_common_size()[1] + j);
+            gko_exec->copy_val_to_host(
+              Avalues + gko_batch_matrix->get_cumulative_offset(blocki) +
+              i * gko_batch_matrix->get_size().get_common_size()[1] + j);
         }
       }
     }
