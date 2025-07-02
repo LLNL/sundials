@@ -412,7 +412,7 @@ SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
     }
     if (ArnI_CONTENT(DEE)->V)
     {
-      N_VDestroyVectorArray(ArnI_CONTENT(DEE)->V, 1);
+      N_VDestroyVectorArray(ArnI_CONTENT(DEE)->V, ArnI_CONTENT(DEE)->krydim + 1);
       ArnI_CONTENT(DEE)->V = NULL;
     }
     if (ArnI_CONTENT(DEE)->LAPACK_A != NULL)
@@ -429,6 +429,11 @@ SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
     {
       free(ArnI_CONTENT(DEE)->LAPACK_wi);
       ArnI_CONTENT(DEE)->LAPACK_wi = NULL;
+    }
+    if (ArnI_CONTENT(DEE)->LAPACK_work != NULL)
+    {
+      free(ArnI_CONTENT(DEE)->LAPACK_work);
+      ArnI_CONTENT(DEE)->LAPACK_work = NULL;
     }
 
     int k;
