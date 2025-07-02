@@ -580,5 +580,5 @@ SUNErrCode N_VRandom_Trilinos(N_Vector x)
 {
   Teuchos::RCP<vector_type> xv = N_VGetVector_Trilinos(x);
   xv->randomize();
-  return SUN_SUCCESS
+  return SUN_SUCCESS;
 }
