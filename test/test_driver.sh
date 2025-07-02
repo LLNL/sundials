@@ -691,7 +691,7 @@ for ((j=0;j<ntestdirs;j++)); do
 
         echo "START MAKE"
 
-        time make -j "$buildjobs" 2>&1 | tee make.log
+        time make -j "$buildjobs" VERBOSE=1 2>&1 | tee make.log
 
         rc=${PIPESTATUS[0]}
         echo -e "\nmake returned $rc\n" | tee -a make.log
