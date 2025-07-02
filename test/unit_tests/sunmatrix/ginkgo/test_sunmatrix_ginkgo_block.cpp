@@ -163,12 +163,12 @@ int main(int argc, char* argv[])
 
   N_Vector x{
     REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matcols, sunctx),
-                              N_VNew_OpenMP(matcols, num_threads, sunctx),
+                              N_VNew_OpenMP(num_blocks * matcols, num_threads, sunctx),
                               N_VNew_Hip(num_blocks * matcols, sunctx),
                               N_VNew_Cuda(num_blocks * matcols, sunctx))};
   N_Vector y{
     REF_OR_OMP_OR_HIP_OR_CUDA(N_VNew_Serial(num_blocks * matrows, sunctx),
-                              N_VNew_OpenMP(matcols, num_threads, sunctx),
+                              N_VNew_OpenMP(num_blocks * matcols, num_threads, sunctx),
                               N_VNew_Hip(num_blocks * matrows, sunctx),
                               N_VNew_Cuda(num_blocks * matrows, sunctx))};
 
