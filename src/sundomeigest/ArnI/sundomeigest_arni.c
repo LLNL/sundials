@@ -175,15 +175,15 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   if (ArnI_CONTENT(DEE)->LAPACK_wi == NULL) { return SUN_ERR_MALLOC_FAIL; }
 
   /* query the workspace size (call with lwork = -1) */
-  char jobvl = 'N';
-  char jobvr = 'N';
-  sunindextype N    = ArnI_CONTENT(DEE)->krydim;
-  sunindextype lda  = ArnI_CONTENT(DEE)->krydim;
-  sunindextype ldvl = 1;
-  sunindextype ldvr = 1;
-  sunindextype info = 0;
+  char jobvl         = 'N';
+  char jobvr         = 'N';
+  sunindextype N     = ArnI_CONTENT(DEE)->krydim;
+  sunindextype lda   = ArnI_CONTENT(DEE)->krydim;
+  sunindextype ldvl  = 1;
+  sunindextype ldvr  = 1;
+  sunindextype info  = 0;
   sunindextype lwork = -1;
-  sunrealtype work = SUN_RCONST(0.0);
+  sunrealtype work   = SUN_RCONST(0.0);
 
   xgeev_f77(&jobvl, &jobvr, &N, ArnI_CONTENT(DEE)->LAPACK_A, &lda,
             ArnI_CONTENT(DEE)->LAPACK_wr, ArnI_CONTENT(DEE)->LAPACK_wi, NULL,
