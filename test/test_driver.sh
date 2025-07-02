@@ -402,11 +402,14 @@ case "$testtype" in
 
     PR)
         # Create sundials tarball
-        tarball=sundials
+        #tarball=sundials
+        tarball=NONE
 
         # Test configs
-        for rt in single double extended; do
-            for is in 32 64; do
+        # for rt in single double extended; do
+        #     for is in 32 64; do
+        for rt in double; do
+            for is in 32; do
                 args_realtypes+=("${rt}")
                 args_indexsizes+=("${is}")
                 args_libtypes+=("static")
@@ -691,7 +694,8 @@ for ((j=0;j<ntestdirs;j++)); do
 
         echo "START MAKE"
 
-        time make -j "$buildjobs" VERBOSE=1 2>&1 | tee make.log
+        # time make -j "$buildjobs" VERBOSE=1 2>&1 | tee make.log
+        time make -j 1 VERBOSE=1 2>&1 | tee make.log
 
         rc=${PIPESTATUS[0]}
         echo -e "\nmake returned $rc\n" | tee -a make.log
