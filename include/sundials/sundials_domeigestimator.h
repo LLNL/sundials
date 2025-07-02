@@ -39,7 +39,7 @@ extern "C" {
 
 /* Default Arnoldi Iteration parameters */
 #define DEE_KRYLOV_DIM_DEFAULT 3
-#define DEE_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
+//#define DEE_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
 
 /* -----------------------------------------------------------------
  * Implemented SUNDomEigEstimator types

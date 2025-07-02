@@ -370,7 +370,7 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
 
   if (info != 0)
   {
-    printf(DEE_LAPACK_FAIL, info);
+    // printf(DEE_LAPACK_FAIL, info); // Need to use the error handler
 
     return SUN_ERR_DEE_LAPACK_FAIL;
   }
