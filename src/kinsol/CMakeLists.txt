@@ -23,17 +23,6 @@ set(kinsol_SOURCES kinsol.c kinsol_bbdpre.c kinsol_io.c kinsol_ls.c)
 # Add variable kinsol_HEADERS with the exported KINSOL header files
 set(kinsol_HEADERS kinsol.h kinsol_bbdpre.h kinsol_ls.h)
 
-# Add variable DOMEIG_OBJECT_LIBRARIES
-set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
-
-if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
-  set(LAPACK_LIBRARY LAPACK::LAPACK)
-  if(CMAKE_VERSION VERSION_LESS 3.20)
-    list(APPEND LAPACK_LIBRARY BLAS::BLAS)
-  endif()
-endif()
-
 # Add prefix with complete path to the KINSOL header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/kinsol/ kinsol_HEADERS)
 
@@ -43,7 +32,7 @@ sundials_add_library(
   SOURCES ${kinsol_SOURCES}
   HEADERS ${kinsol_HEADERS}
   INCLUDE_SUBDIR kinsol
-  LINK_LIBRARIES PUBLIC sundials_core PRIVATE ${LAPACK_LIBRARY}
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
@@ -57,7 +46,6 @@ sundials_add_library(
     sundials_sunlinsolspgmr_obj
     sundials_sunlinsolsptfqmr_obj
     sundials_sunlinsolpcg_obj
-    ${DOMEIG_OBJECT_LIBRARIES}
   OUTPUT_NAME sundials_kinsol
   VERSION ${kinsollib_VERSION}
   SOVERSION ${kinsollib_SOVERSION})

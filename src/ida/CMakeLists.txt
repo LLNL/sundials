@@ -23,17 +23,6 @@ set(ida_SOURCES ida.c ida_bbdpre.c ida_ic.c ida_io.c ida_ls.c ida_nls.c)
 # Add variable ida_HEADERS with the exported IDA header files
 set(ida_HEADERS ida.h ida_bbdpre.h ida_ls.h)
 
-# Add variable DOMEIG_OBJECT_LIBRARIES
-set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
-
-if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
-  set(LAPACK_LIBRARY LAPACK::LAPACK)
-  if(CMAKE_VERSION VERSION_LESS 3.20)
-    list(APPEND LAPACK_LIBRARY BLAS::BLAS)
-  endif()
-endif()
-
 # Add prefix with complete path to the IDA header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/ida/ ida_HEADERS)
 
@@ -43,7 +32,7 @@ sundials_add_library(
   SOURCES ${ida_SOURCES}
   HEADERS ${ida_HEADERS}
   INCLUDE_SUBDIR ida
-  LINK_LIBRARIES PUBLIC sundials_core PRIVATE ${LAPACK_LIBRARY}
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
@@ -59,7 +48,6 @@ sundials_add_library(
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
-    ${DOMEIG_OBJECT_LIBRARIES}
   OUTPUT_NAME sundials_ida
   VERSION ${idalib_VERSION}
   SOVERSION ${idalib_SOVERSION})

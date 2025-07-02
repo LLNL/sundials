@@ -38,17 +38,6 @@ set(cvodes_SOURCES
 set(cvodes_HEADERS cvodes.h cvodes_bandpre.h cvodes_bbdpre.h cvodes_diag.h
                    cvodes_ls.h cvodes_proj.h)
 
-# Add variable DOMEIG_OBJECT_LIBRARIES
-set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
-
-if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
-  set(LAPACK_LIBRARY LAPACK::LAPACK)
-  if(CMAKE_VERSION VERSION_LESS 3.20)
-    list(APPEND LAPACK_LIBRARY BLAS::BLAS)
-  endif()
-endif()
-
 # Add prefix with complete path to the CVODES header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
 
@@ -58,7 +47,7 @@ sundials_add_library(
   SOURCES ${cvodes_SOURCES}
   HEADERS ${cvodes_HEADERS}
   INCLUDE_SUBDIR cvodes
-  LINK_LIBRARIES PUBLIC sundials_core PRIVATE ${LAPACK_LIBRARY}
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
@@ -74,7 +63,6 @@ sundials_add_library(
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
-    ${DOMEIG_OBJECT_LIBRARIES}
   OUTPUT_NAME sundials_cvodes
   VERSION ${cvodeslib_VERSION}
   SOVERSION ${cvodeslib_SOVERSION})

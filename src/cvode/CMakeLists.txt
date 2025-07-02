@@ -75,24 +75,13 @@ if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
   set(_fused_link_lib sundials_cvode_fused_stubs)
 endif()
 
-# Add variable DOMEIG_OBJECT_LIBRARIES
-set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
-
-if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
-  set(LAPACK_LIBRARY LAPACK::LAPACK)
-  if(CMAKE_VERSION VERSION_LESS 3.20)
-    list(APPEND LAPACK_LIBRARY BLAS::BLAS)
-  endif()
-endif()
-
 # Create the library
 sundials_add_library(
   sundials_cvode
   SOURCES ${cvode_SOURCES}
   HEADERS ${cvode_HEADERS}
   INCLUDE_SUBDIR cvode
-  LINK_LIBRARIES PUBLIC sundials_core PRIVATE ${LAPACK_LIBRARY}
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
@@ -108,7 +97,6 @@ sundials_add_library(
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
-    ${DOMEIG_OBJECT_LIBRARIES}
   LINK_LIBRARIES # Link to stubs so examples work.
                  PRIVATE ${_fused_link_lib}
   OUTPUT_NAME sundials_cvode
