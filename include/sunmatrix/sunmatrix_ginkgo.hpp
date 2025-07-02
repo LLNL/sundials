@@ -28,6 +28,10 @@
 namespace sundials {
 namespace ginkgo {
 
+using GkoDenseMat = gko::matrix::Dense<sunrealtype>;
+using GkoCsrMat   = gko::matrix::Csr<sunrealtype, sunindextype>;
+using GkoVecType  = GkoDenseMat;
+
 // Forward declaration of regular Matrix class
 template<typename GkoMatType>
 class Matrix;
@@ -38,10 +42,6 @@ class Matrix;
 // =============================================================================
 
 namespace impl {
-
-using GkoDenseMat = gko::matrix::Dense<sunrealtype>;
-using GkoCsrMat   = gko::matrix::Csr<sunrealtype, sunindextype>;
-using GkoVecType  = GkoDenseMat;
 
 //
 // Prototypes for non-class methods that operate on Matrix
@@ -260,7 +260,7 @@ private:
 namespace impl {
 
 //
-// Non-class methods that operate on Matrix
+// Non-class methods
 //
 
 inline std::unique_ptr<GkoVecType> WrapVector(

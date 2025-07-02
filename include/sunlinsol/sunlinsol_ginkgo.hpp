@@ -333,7 +333,7 @@ public:
 
     iter_count_ = static_cast<int>(logger->get_num_iterations());
     GkoExec()->get_master()->copy_from(GkoExec(), 1,
-                                       gko::as<impl::GkoDenseMat>(
+                                       gko::as<GkoDenseMat>(
                                          logger->get_residual_norm())
                                          ->get_const_values(),
                                        &res_norm_);
