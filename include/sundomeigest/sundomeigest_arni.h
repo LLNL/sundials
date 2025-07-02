@@ -41,7 +41,7 @@ struct _SUNDomEigEstimatorContent_ArnI
 
   N_Vector *V, q; /* Krylov subspace vectors */
 
-  int krydim;     /* Krylov subspace dimension */
+  sunindextype krydim; /* Krylov subspace dimension */
   int numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
 
   sunrealtype* LAPACK_A; /* The vector which holds rows of the Hessenberg matrix in the given order */
