@@ -578,7 +578,7 @@ sunrealtype N_VMinQuotientLocal_Trilinos(N_Vector num, N_Vector denom)
  */
 SUNErrCode N_VRandom_Trilinos(N_Vector x)
 {
-  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<vector_type> xv = N_VGetVector_Trilinos(x);
   xv->randomize();
   return SUN_SUCCESS
 }
