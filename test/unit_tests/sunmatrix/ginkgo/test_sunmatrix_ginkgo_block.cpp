@@ -232,7 +232,8 @@ int main(int argc, char* argv[])
         for (auto inz = Arowptrs[irow]; inz < Arowptrs[irow + 1]; inz++)
         {
           SM_ELEMENT_D(Aref, blocki * matrows + irow,
-                       blocki * matcols + Acolidxs[inz]) = Avalues[inz];
+                       blocki * matcols + gko_exec->copy_val_to_host(Acolidxs + inz)) =
+            gko_exec->copy_val_to_host(Avalues + inz);
         }
       }
     }
@@ -273,6 +274,7 @@ int main(int argc, char* argv[])
       gko_batch_ident->create_view_for_item(b)->read(ident_data);
     }
 
+    auto Avalues{gko_batch_matrix->get_const_values()};
     for (gko::size_type blocki = 0; blocki < num_blocks; blocki++)
     {
       for (sunindextype i = 0; i < matrows; i++)
@@ -280,7 +282,8 @@ int main(int argc, char* argv[])
         for (sunindextype j = 0; j < matcols; j++)
         {
           SM_ELEMENT_D(Aref, blocki * matrows + i, blocki * matcols + j) =
-            gko_batch_matrix->at(blocki, i, j);
+            gko_exec->copy_val_to_host(Avalues + gko_batch_matrix->get_cumulative_offset(blocki) +
+                                       i * gko_batch_matrix->get_size().get_common_size()[1] + j);
         }
       }
     }
