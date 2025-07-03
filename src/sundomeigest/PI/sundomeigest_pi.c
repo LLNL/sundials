@@ -265,7 +265,7 @@ SUNErrCode SUNDomEigEstimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                             PI_CONTENT(DEE)->q); //Rayleigh quotient
     SUNCheckLastErr();
 
-    PI_CONTENT(DEE)->res = fabs(newlambdaR - oldlambdaR);
+    PI_CONTENT(DEE)->res = SUNRabs(newlambdaR - oldlambdaR);
 
     if (PI_CONTENT(DEE)->res < PI_CONTENT(DEE)->powiter_tol) { break; }
 
