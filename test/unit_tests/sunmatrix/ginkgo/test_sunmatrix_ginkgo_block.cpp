@@ -233,7 +233,8 @@ int main(int argc, char* argv[])
       for (sunindextype irow = 0;
            irow < static_cast<sunindextype>(gko_matrix->get_size()[0]); irow++)
       {
-        for (sunindextype inz = Arowptrs[irow]; inz < Arowptrs[irow + 1]; inz++)
+        for (sunindextype inz = gko_exec->copy_val_to_host(Arowptrs + irow);
+             inz < gko_exec->copy_val_to_host(Arowptrs + irow + 1); inz++)
         {
           SM_ELEMENT_D(Aref, blocki * matrows + irow,
                        blocki * matcols +
@@ -338,8 +339,10 @@ static int check_matrix_csr(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   int failure{0};
   auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->GkoMtx()};
   auto Bmat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(B->content)->GkoMtx()};
-  const auto Avalues{Amat->get_const_values()};
-  const auto Bvalues{Bmat->get_const_values()};
+  auto Amat_ref = Amat->clone(Amat->get_executor()->get_master());
+  auto Bmat_ref = Bmat->clone(Bmat->get_executor()->get_master());
+  const auto Avalues{Amat_ref->get_const_values()};
+  const auto Bvalues{Bmat_ref->get_const_values()};
 
   /* check lengths */
   if (Amat->get_size() != Bmat->get_size())
@@ -350,7 +353,7 @@ static int check_matrix_csr(SUNMatrix A, SUNMatrix B, sunrealtype tol)
 
   /* compare data */
   for (sunindextype ivalue = 0;
-       ivalue < static_cast<sunindextype>(Amat->get_num_stored_elements());
+       ivalue < static_cast<sunindextype>(Amat_ref->get_num_stored_elements());
        ivalue++)
   {
     failure += SUNRCompareTol(Avalues[ivalue], Bvalues[ivalue], tol);
@@ -364,6 +367,8 @@ static int check_matrix_dense(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   int failure{0};
   auto Amat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(A->content)->GkoMtx()};
   auto Bmat{static_cast<BlockMatrix<GkoBatchDenseMat>*>(B->content)->GkoMtx()};
+  auto Amat_ref = Amat->clone(Amat->get_executor()->get_master());
+  auto Bmat_ref = Bmat->clone(Bmat->get_executor()->get_master());
   auto blocks{Amat->get_num_batch_items()};
   auto rows{Amat->get_size().get_common_size()[0]};
   auto cols{Amat->get_size().get_common_size()[1]};
@@ -383,8 +388,8 @@ static int check_matrix_dense(SUNMatrix A, SUNMatrix B, sunrealtype tol)
     {
       for (sunindextype j = 0; j < static_cast<sunindextype>(cols); j++)
       {
-        failure += SUNRCompareTol(Amat->at(blocki, i, j),
-                                  Bmat->at(blocki, i, j), tol);
+        failure += SUNRCompareTol(Amat_ref->at(blocki, i, j),
+                                  Bmat_ref->at(blocki, i, j), tol);
       }
     }
   }
@@ -403,11 +408,12 @@ static int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
 {
   int failure{0};
   auto Amat{static_cast<BlockMatrix<GkoBatchCsrMat>*>(A->content)->GkoMtx()};
-  auto Avalues{Amat->get_const_values()};
+  auto Amat_ref = Amat->clone(Amat->get_executor()->get_master());
+  auto Avalues{Amat_ref->get_const_values()};
 
   /* compare data */
   for (sunindextype ivalue = 0;
-       ivalue < static_cast<sunindextype>(Amat->get_num_stored_elements()); ivalue++)
+       ivalue < static_cast<sunindextype>(Amat_ref->get_num_stored_elements()); ivalue++)
   {
     failure += SUNRCompareTol(Avalues[ivalue], val, tol);
   }
@@ -422,6 +428,7 @@ static int check_matrix_entry_dense(SUNMatrix A, sunrealtype val, sunrealtype to
   auto blocks{Amat->get_num_batch_items()};
   auto rows{Amat->get_size().get_common_size()[0]};
   auto cols{Amat->get_size().get_common_size()[1]};
+  auto Amat_ref = Amat->clone(Amat->get_executor()->get_master());
 
   /* compare data */
   for (sunindextype blocki = 0;
@@ -431,7 +438,7 @@ static int check_matrix_entry_dense(SUNMatrix A, sunrealtype val, sunrealtype to
     {
       for (sunindextype j = 0; j < static_cast<sunindextype>(cols); j++)
       {
-        failure += SUNRCompareTol(Amat->at(blocki, i, j), val, tol);
+        failure += SUNRCompareTol(Amat_ref->at(blocki, i, j), val, tol);
       }
     }
   }
