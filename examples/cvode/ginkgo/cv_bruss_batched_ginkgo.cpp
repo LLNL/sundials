@@ -286,7 +286,8 @@ int main(int argc, char* argv[])
     gko::batch::preconditioner::Jacobi<sunrealtype>::build().on(gko_exec));
 
   SUNGkoLinearSolverType LS{gko_exec, gko::batch::stop::tolerance_type::absolute,
-                            precond_factory, udata.nbatches, sunctx};
+                            precond_factory,
+                            static_cast<gko::size_type>(udata.nbatches), sunctx};
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   if (solver_type == 0)
@@ -459,8 +460,6 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
   auto Jgko       = static_cast<SUNGkoMatrixType*>(J->content)->GkoMtx();
 
   sunrealtype* Jdata = Jgko->get_values();
-  int* rowptrs       = Jgko->get_row_ptrs();
-  int* colvals       = Jgko->get_col_idxs();
   sunrealtype* ydata = N_VGetArrayPointer(y);
 
 #if defined(USE_CUDA) || defined(USE_HIP)

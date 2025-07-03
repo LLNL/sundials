@@ -74,11 +74,11 @@ template<class GkoBatchLinearSolverType>
 int SUNLinSolNumIters_GinkgoBlock(SUNLinearSolver S)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
-  return std::round(solver->SumAvgNumIters());
+  return static_cast<int>(std::round(solver->SumAvgNumIters()));
 }
 
 inline gko::array<sunrealtype> WrapBatchScalingArray(
-  std::shared_ptr<const gko::Executor> gko_exec, sunindextype num_blocks,
+  std::shared_ptr<const gko::Executor> gko_exec, gko::size_type num_blocks,
   N_Vector x)
 {
   auto x_arr{(x->ops->nvgetdevicearraypointer) ? N_VGetDeviceArrayPointer(x)
@@ -90,7 +90,7 @@ inline gko::array<sunrealtype> WrapBatchScalingArray(
 }
 
 inline std::unique_ptr<GkoBatchVecType> WrapAsMultiVector(
-  gko::array<sunrealtype>& arr, sunindextype num_blocks)
+  gko::array<sunrealtype>& arr, gko::size_type num_blocks)
 {
   return GkoBatchVecType::create(arr.get_executor(),
                                  gko::batch_dim<2>(num_blocks,
@@ -110,8 +110,9 @@ public:
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     gko::batch::stop::tolerance_type tolerance_type,
                     std::shared_ptr<gko::batch::BatchLinOpFactory> precon_factory,
-                    int max_iters, sunindextype num_blocks, SUNContext sunctx)
-    : gko_exec_(std::move(gko_exec)),
+                    int max_iters, gko::size_type num_blocks, SUNContext sunctx)
+    : sundials::impl::BaseLinearSolver(sunctx),
+      gko_exec_(std::move(gko_exec)),
       tolerance_type_(tolerance_type),
       precon_factory_(std::move(precon_factory)),
       solver_factory_(nullptr),
@@ -128,15 +129,14 @@ public:
       previous_max_res_norm_(sunrealtype{0.0}),
       ones_(nullptr),
       s2inv_(nullptr),
-      scaling_(false),
-      sundials::impl::BaseLinearSolver(sunctx)
+      scaling_(false)
   {
     initSUNLinSol(sunctx);
   }
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
-                    sunindextype num_blocks, SUNContext sunctx)
+                    gko::size_type num_blocks, SUNContext sunctx)
     : BlockLinearSolver(gko_exec, gko::batch::stop::tolerance_type::absolute,
                         nullptr, default_max_iters_, num_blocks, sunctx)
   {}
@@ -144,7 +144,7 @@ public:
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     gko::batch::stop::tolerance_type tolerance_type,
-                    sunindextype num_blocks, SUNContext sunctx)
+                    gko::size_type num_blocks, SUNContext sunctx)
     : BlockLinearSolver(gko_exec, tolerance_type, nullptr, default_max_iters_,
                         num_blocks, sunctx)
   {}
@@ -152,14 +152,14 @@ public:
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     std::shared_ptr<gko::batch::BatchLinOpFactory> precon_factory,
-                    sunindextype num_blocks, SUNContext sunctx)
+                    gko::size_type num_blocks, SUNContext sunctx)
     : BlockLinearSolver(gko_exec, gko::batch::stop::tolerance_type::absolute,
                         precon_factory, default_max_iters_, num_blocks, sunctx)
   {}
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
-                    int max_iters, sunindextype num_blocks, SUNContext sunctx)
+                    int max_iters, gko::size_type num_blocks, SUNContext sunctx)
     : BlockLinearSolver(gko_exec, gko::batch::stop::tolerance_type::absolute,
                         nullptr, max_iters, num_blocks, sunctx)
   {}
@@ -167,7 +167,7 @@ public:
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     gko::batch::stop::tolerance_type tolerance_type,
-                    int max_iters, sunindextype num_blocks, SUNContext sunctx)
+                    int max_iters, gko::size_type num_blocks, SUNContext sunctx)
     : BlockLinearSolver(gko_exec, tolerance_type, nullptr, max_iters,
                         num_blocks, sunctx)
   {}
@@ -175,7 +175,7 @@ public:
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     std::shared_ptr<gko::batch::BatchLinOpFactory> precon_factory,
-                    int max_iters, sunindextype num_blocks, SUNContext sunctx)
+                    int max_iters, gko::size_type num_blocks, SUNContext sunctx)
     : BlockLinearSolver(gko_exec, gko::batch::stop::tolerance_type::absolute,
                         precon_factory, max_iters, num_blocks, sunctx)
   {}
@@ -184,7 +184,7 @@ public:
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     gko::batch::stop::tolerance_type tolerance_type,
                     std::shared_ptr<gko::batch::BatchLinOpFactory> precon_factory,
-                    sunindextype num_blocks, SUNContext sunctx)
+                    gko::size_type num_blocks, SUNContext sunctx)
     : BlockLinearSolver(gko_exec, tolerance_type, precon_factory,
                         default_max_iters_, num_blocks, sunctx)
   {}
@@ -297,7 +297,6 @@ public:
     }
     solver_->add_logger(logger_);
 
-    gko::batch::BatchLinOp* result{nullptr};
     std::unique_ptr<GkoBatchVecType> x_vec{
       impl::WrapBatchVector(GkoExec(), num_blocks_, x)};
     std::unique_ptr<GkoBatchVecType> b_vec{
@@ -310,7 +309,7 @@ public:
     }
 
     // \tilde{x} = \tilde{A}^{-1} \tilde{b}
-    result = solver_->apply(b_vec.get(), x_vec.get());
+    [[maybe_unused]] gko::batch::BatchLinOp* result = solver_->apply(b_vec.get(), x_vec.get());
 
     if (scaling_)
     {
@@ -324,7 +323,7 @@ public:
     sunrealtype max_res_norm{0.0};
     sunrealtype min_res_norm{SUN_BIG_REAL};
     auto res_norm{logger_->get_residual_norm().get_const_data()};
-    for (int i = 0; i < num_blocks_; i++)
+    for (gko::size_type i = 0; i < num_blocks_; i++)
     {
       max_res_norm =
         std::max(max_res_norm,
@@ -345,7 +344,7 @@ public:
     int max_iter_count{0};
     int min_iter_count{max_iters_};
     avg_iter_count_ = 0.0;
-    for (int i = 0; i < num_blocks_; i++)
+    for (gko::size_type i = 0; i < num_blocks_; i++)
     {
       avg_iter_count_ +=
         iter_count[i]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -356,19 +355,19 @@ public:
         std::min(min_iter_count,
                  iter_count[i]); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
-    avg_iter_count_ /= num_blocks_;
+    avg_iter_count_ /= static_cast<sunrealtype>(num_blocks_);
     sum_of_avg_iters_ += avg_iter_count_;
 
     // Compute the std. dev. in iteration count across all batch entries.
     // This helps us understand how varied (in difficulty to solve) the entries are.
     stddev_iter_count_ = 0.0;
-    for (int i = 0; i < num_blocks_; i++)
+    for (gko::size_type i = 0; i < num_blocks_; i++)
     {
       // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
       stddev_iter_count_ += std::pow(std::abs(iter_count[i] - avg_iter_count_),
                                      2);
     }
-    stddev_iter_count_ = std::sqrt(stddev_iter_count_ / num_blocks_);
+    stddev_iter_count_ = std::sqrt(stddev_iter_count_ / static_cast<sunrealtype>(num_blocks_));
 
     int retval{0};
     if (at_least_one_did_not_converge && max_res_norm_did_not_reduce)
@@ -400,7 +399,7 @@ private:
   gko::array<sunrealtype> row_scale_vec_;
   BlockMatrix<GkoBatchMatType>* matrix_;
   std::shared_ptr<gko::batch::log::BatchConvergence<sunrealtype>> logger_;
-  sunindextype num_blocks_;
+  gko::size_type num_blocks_;
   int max_iters_;
   sunrealtype avg_iter_count_;
   sunrealtype sum_of_avg_iters_;

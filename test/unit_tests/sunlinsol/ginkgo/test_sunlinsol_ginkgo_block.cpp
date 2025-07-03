@@ -68,10 +68,10 @@ const std::unordered_map<std::string, int> matrix_types{{"csr", 0}, {"dense", 1}
 constexpr sunrealtype solve_tolerance =
   1000 * std::numeric_limits<sunrealtype>::epsilon();
 
-void fill_matrix_data(gko::matrix_data<sunrealtype>& data)
+static void fill_matrix_data(gko::matrix_data<sunrealtype>& data)
 {
   auto num_rows = data.size[0];
-  for (int row = 0; row < num_rows; ++row)
+  for (gko::size_type row = 0; row < num_rows; ++row)
   {
     if (row > 0)
     {
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
                       N_VCopyToDevice_Sycl(x));
 
   auto matrix_dim     = gko::dim<2>(matrows, matcols);
-  auto batch_mat_size = gko::batch_dim<2>(num_blocks, matrix_dim);
+  //auto batch_mat_size = gko::batch_dim<2>(num_blocks, matrix_dim);
 
   auto gko_matdata =
     matcond > 0
@@ -255,9 +255,9 @@ int main(int argc, char* argv[])
       GkoBatchMatrixType::create(gko_exec,
                                  gko::batch_dim<2>(num_blocks, common_size),
                                  num_nnz)};
-    for (int b = 0; b < num_blocks; ++b)
+    for (sunindextype blk = 0; blk < num_blocks; ++b)
     {
-      gko_batch_matrix->create_view_for_item(b)->read(gko_matdata);
+      gko_batch_matrix->create_view_for_item(blk)->read(gko_matdata);
     }
 
     A = std::make_unique<
@@ -277,9 +277,9 @@ int main(int argc, char* argv[])
     auto gko_batch_matrix{
       GkoBatchMatrixType::create(gko_exec,
                                  gko::batch_dim<2>(num_blocks, common_size))};
-    for (int b = 0; b < num_blocks; ++b)
+    for (sunindextype blk = 0; blk < num_blocks; ++b)
     {
-      gko_batch_matrix->create_view_for_item(b)->read(gko_matdata);
+      gko_batch_matrix->create_view_for_item(blk)->read(gko_matdata);
     }
 
     A = std::make_unique<

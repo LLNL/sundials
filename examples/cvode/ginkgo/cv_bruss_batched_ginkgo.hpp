@@ -43,12 +43,12 @@ template<typename T, typename I>
 class Array
 {
 public:
-  Array(I size, SUNMemoryHelper helper) : helper_(helper), mem_(nullptr)
+  Array(I size, SUNMemoryHelper helper) : mem_(nullptr), helper_(helper)
   {
     SUNMemoryHelper_Alloc(helper, &mem_, size * sizeof(T), SUNMEMTYPE_UVM, NULL);
   }
 
-  Array(SUNMemory mem, SUNMemoryHelper helper) : helper_(helper), mem_(mem) {}
+  Array(SUNMemory mem, SUNMemoryHelper helper) : mem_(mem), helper_(helper) {}
 
   T& operator[](int index) { return static_cast<T*>(mem_->ptr)[index]; }
 
@@ -65,17 +65,17 @@ using RealArray = Array<sunrealtype, int>;
    in SUNDIALS callback functions. */
 struct UserData
 {
-  UserData(int nbatches, int batchSize, int nnzper, SUNMemoryHelper h)
-    : nbatches(nbatches),
-      batchSize(batchSize),
-      nnzper(nnzper),
-      neq(batchSize * nbatches),
-      u0{nbatches, h},
-      v0{nbatches, h},
-      w0{nbatches, h},
-      a{nbatches, h},
-      b{nbatches, h},
-      ep{nbatches, h}
+  UserData(int nbatches_in, int batchSize_in, int nnzper_in, SUNMemoryHelper h_in)
+    : nbatches(nbatches_in),
+      batchSize(batchSize_in),
+      nnzper(nnzper_in),
+      neq(batchSize_in * nbatches_in),
+      u0{nbatches_in, h_in},
+      v0{nbatches_in, h_in},
+      w0{nbatches_in, h_in},
+      a{nbatches_in, h_in},
+      b{nbatches_in, h_in},
+      ep{nbatches_in, h_in}
   {}
 
   int nbatches;         /* number of chemical networks  */

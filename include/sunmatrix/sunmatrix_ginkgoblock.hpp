@@ -197,7 +197,7 @@ public:
 
   const gko::batch_dim<2>& GkoSize() const { return GkoMtx()->get_size(); }
 
-  sunindextype NumBlocks() const { return GkoSize().get_num_batch_items(); }
+  gko::size_type NumBlocks() const { return GkoSize().get_num_batch_items(); }
 
   using sundials::impl::BaseMatrix::sunctx;
 
