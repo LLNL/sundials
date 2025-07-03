@@ -123,6 +123,8 @@ public:
       logger_(nullptr),
       num_blocks_(num_blocks),
       max_iters_(max_iters),
+      res_norm_array_(gko_exec_->get_master(), num_blocks_),
+      iter_count_array_(gko_exec_->get_master(), num_blocks_),
       avg_iter_count_(sunrealtype{0.0}),
       sum_of_avg_iters_(sunrealtype{0.0}),
       stddev_iter_count_(sunrealtype{0.0}),
@@ -322,7 +324,11 @@ public:
     bool max_res_norm_did_not_reduce{false};
     sunrealtype max_res_norm{0.0};
     sunrealtype min_res_norm{SUN_BIG_REAL};
-    auto res_norm{logger_->get_residual_norm().get_const_data()};
+    gko_exec_->get_master()->copy_from(gko_exec_, num_blocks_,
+                                       logger_->get_residual_norm().get_const_data(),
+                                       res_norm_array_.get_data());
+    auto res_norm = res_norm_array_.get_data();
+
     for (gko::size_type i = 0; i < num_blocks_; i++)
     {
       max_res_norm =
@@ -340,9 +346,13 @@ public:
 
     // Compute the average number of iterations across all batch entries
     // as well as the maximum and minimum iteration counts.
-    auto iter_count{logger_->get_num_iterations().get_const_data()};
-    int max_iter_count{0};
-    int min_iter_count{max_iters_};
+    gko_exec_->get_master()->copy_from(gko_exec_, num_blocks_,
+                                       logger_->get_num_iterations().get_const_data(),
+                                       iter_count_array_.get_data());
+    auto iter_count = iter_count_array_.get_data();
+
+    sunindextype max_iter_count{0};
+    sunindextype min_iter_count{max_iters_};
     avg_iter_count_ = 0.0;
     for (gko::size_type i = 0; i < num_blocks_; i++)
     {
@@ -401,6 +411,8 @@ private:
   std::shared_ptr<gko::batch::log::BatchConvergence<sunrealtype>> logger_;
   gko::size_type num_blocks_;
   int max_iters_;
+  gko::array<sunrealtype> res_norm_array_;
+  gko::array<sunindextype> iter_count_array_;
   sunrealtype avg_iter_count_;
   sunrealtype sum_of_avg_iters_;
   sunrealtype stddev_iter_count_;
