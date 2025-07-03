@@ -279,7 +279,8 @@ int main(int argc, char* argv[])
   SUNGkoMatrixType A{gko_matA, sunctx};
 
   /* Initialiize the Jacobian with its fixed sparsity pattern */
-  JacInit(A);
+  retval = JacInit(A);
+  if (check_retval(&retval, "JacInit", 1)) { return (1); }
 
   /* Create the SUNLinearSolver object for use by CVode */
   auto precond_factory = gko::share(
@@ -313,7 +314,7 @@ int main(int argc, char* argv[])
   /* WARNING: THIS STEP IS ESSENTIAL WHEN USING SUNLINSOL_GINKGOBLOCK!
      We need to adjust the norm factor to be the sqrt of the length of the batch
      instead of the sqrt of the length of the overall system, since the linear
-     solver is batched. 
+     solver is batched.
    */
   CVodeSetLSNormFactor(cvode_mem, std::sqrt(udata.batchSize));
 
@@ -376,7 +377,42 @@ int JacInit(SUNMatrix J)
   auto gko_exec = Jgko->get_executor();
 
   sunindextype* rowptrs = Jgko->get_row_ptrs();
+  if (rowptrs == nullptr) { return -1; }
   sunindextype* colvals = Jgko->get_col_idxs();
+  if (colvals == nullptr) { return -1; }
+
+#if defined(USE_CUDA) || defined(USE_HIP)
+
+  sunindextype rowptrs_host[4];
+
+  /* there are 3 entries per row */
+  rowptrs_host[0] = 0;
+  rowptrs_host[1] = 3;
+  rowptrs_host[2] = 6;
+  rowptrs_host[3] = 9;
+
+  gko_exec->copy_from(gko_exec->get_master(), 4, rowptrs_host, rowptrs);
+
+  sunindextype colvals_host[9];
+
+  /* first row of block */
+  colvals_host[0] = 0;
+  colvals_host[1] = 1;
+  colvals_host[2] = 2;
+
+  /* second row of block */
+  colvals_host[3] = 0;
+  colvals_host[4] = 1;
+  colvals_host[5] = 2;
+
+  /* third row of block */
+  colvals_host[6] = 0;
+  colvals_host[7] = 1;
+  colvals_host[8] = 2;
+
+  gko_exec->copy_from(gko_exec->get_master(), 9, colvals_host, colvals);
+
+#else
 
   /* there are 3 entries per row */
   rowptrs[0] = 0;
@@ -398,6 +434,8 @@ int JacInit(SUNMatrix J)
   colvals[6] = 0;
   colvals[7] = 1;
   colvals[8] = 2;
+
+#endif
 
   return 0;
 }
