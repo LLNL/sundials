@@ -311,7 +311,8 @@ public:
     }
 
     // \tilde{x} = \tilde{A}^{-1} \tilde{b}
-    [[maybe_unused]] gko::batch::BatchLinOp* result = solver_->apply(b_vec.get(), x_vec.get());
+    [[maybe_unused]] gko::batch::BatchLinOp* result =
+      solver_->apply(b_vec.get(), x_vec.get());
 
     if (scaling_)
     {
@@ -377,7 +378,8 @@ public:
       stddev_iter_count_ += std::pow(std::abs(iter_count[i] - avg_iter_count_),
                                      2);
     }
-    stddev_iter_count_ = std::sqrt(stddev_iter_count_ / static_cast<sunrealtype>(num_blocks_));
+    stddev_iter_count_ =
+      std::sqrt(stddev_iter_count_ / static_cast<sunrealtype>(num_blocks_));
 
     int retval{0};
     if (at_least_one_did_not_converge && max_res_norm_did_not_reduce)

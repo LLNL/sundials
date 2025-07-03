@@ -194,8 +194,7 @@ int main(int argc, char* argv[])
   std::unique_ptr<ConvertibleTo<SUNMatrix>> I;
 
   /* Compute true solution */
-  SUNMatrix Aref{
-    SUNDenseMatrix(tot_rows, tot_cols, sunctx)};
+  SUNMatrix Aref{SUNDenseMatrix(tot_rows, tot_cols, sunctx)};
   if (using_csr_matrix_type)
   {
     auto gko_matrix{GkoCsrMat::create(gko_exec, matrix_dim)};
@@ -381,8 +380,8 @@ static int check_matrix_dense(SUNMatrix A, SUNMatrix B, sunrealtype tol)
   }
 
   /* compare data */
-  for (sunindextype blocki = 0;
-       blocki < static_cast<sunindextype>(blocks); blocki++)
+  for (sunindextype blocki = 0; blocki < static_cast<sunindextype>(blocks);
+       blocki++)
   {
     for (sunindextype i = 0; i < static_cast<sunindextype>(rows); i++)
     {
@@ -413,7 +412,8 @@ static int check_matrix_entry_csr(SUNMatrix A, sunrealtype val, sunrealtype tol)
 
   /* compare data */
   for (sunindextype ivalue = 0;
-       ivalue < static_cast<sunindextype>(Amat_ref->get_num_stored_elements()); ivalue++)
+       ivalue < static_cast<sunindextype>(Amat_ref->get_num_stored_elements());
+       ivalue++)
   {
     failure += SUNRCompareTol(Avalues[ivalue], val, tol);
   }
@@ -431,8 +431,8 @@ static int check_matrix_entry_dense(SUNMatrix A, sunrealtype val, sunrealtype to
   auto Amat_ref = Amat->clone(Amat->get_executor()->get_master());
 
   /* compare data */
-  for (sunindextype blocki = 0;
-       blocki < static_cast<sunindextype>(blocks); blocki++)
+  for (sunindextype blocki = 0; blocki < static_cast<sunindextype>(blocks);
+       blocki++)
   {
     for (sunindextype i = 0; i < static_cast<sunindextype>(rows); i++)
     {

@@ -240,8 +240,8 @@ inline BlockMatrix<GkoBatchDenseMat>::BlockMatrix(
   std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
   : sundials::impl::BaseMatrix(sunctx),
     gkomtx_(
-      GkoBatchDenseMat::create(gko_exec, gko::batch_dim<2>(num_blocks,
-                                                           gko::dim<2>(M, N))))
+      GkoBatchDenseMat::create(gko_exec,
+                               gko::batch_dim<2>(num_blocks, gko::dim<2>(M, N))))
 {
   initSUNMatrix();
 }

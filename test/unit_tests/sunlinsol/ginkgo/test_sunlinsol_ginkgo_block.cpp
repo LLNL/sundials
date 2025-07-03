@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
   HIP_OR_CUDA_OR_SYCL(N_VCopyToDevice_Hip(x), N_VCopyToDevice_Cuda(x),
                       N_VCopyToDevice_Sycl(x));
 
-  auto matrix_dim     = gko::dim<2>(matrows, matcols);
+  auto matrix_dim = gko::dim<2>(matrows, matcols);
   //auto batch_mat_size = gko::batch_dim<2>(num_blocks, matrix_dim);
 
   auto gko_matdata =
