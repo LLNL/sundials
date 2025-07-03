@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
       GkoBatchMatrixType::create(gko_exec,
                                  gko::batch_dim<2>(num_blocks, common_size),
                                  num_nnz)};
-    for (sunindextype blk = 0; blk < num_blocks; ++b)
+    for (sunindextype blk = 0; blk < num_blocks; ++blk)
     {
       gko_batch_matrix->create_view_for_item(blk)->read(gko_matdata);
     }
@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
     auto gko_batch_matrix{
       GkoBatchMatrixType::create(gko_exec,
                                  gko::batch_dim<2>(num_blocks, common_size))};
-    for (sunindextype blk = 0; blk < num_blocks; ++b)
+    for (sunindextype blk = 0; blk < num_blocks; ++blk)
     {
       gko_batch_matrix->create_view_for_item(blk)->read(gko_matdata);
     }
