@@ -83,7 +83,6 @@ int main(void)
   int retval;
   void* kmem;
   SUNLinearSolver LS;
-  FILE* infofp;
 
   y = scale = NULL;
   kmem      = NULL;
@@ -140,10 +139,6 @@ int main(void)
   fnormtol = FTOL;
   retval   = KINSetFuncNormTol(kmem, fnormtol);
   if (check_retval(&retval, "KINSetFuncNormTol", 1)) { return (1); }
-
-  /* Set information file */
-
-  infofp = fopen("KINSOL.log", "w");
 
   /* ----------------------
    * Create SUNLinearSolver
@@ -210,7 +205,6 @@ int main(void)
    * Free memory
    * ----------- */
 
-  fclose(infofp);
   N_VDestroy(y);
   N_VDestroy(scale);
   KINFree(&kmem);
