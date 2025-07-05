@@ -97,9 +97,8 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     }
 
     /* check all "int" command-line options */
-    sunretval = sunCheckAndSetIntArgs(kinmem, &idx, argv, offset,
-                                     int_pairs, num_int_keys,
-                                     &arg_used, &j);
+    sunretval = sunCheckAndSetIntArgs(kinmem, &idx, argv, offset, int_pairs,
+                                      num_int_keys, &arg_used, &j);
     if (sunretval != SUN_SUCCESS)
     {
       retval = KIN_ILL_INPUT;
@@ -111,9 +110,8 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     if (arg_used) continue;
 
     /* check all long int command-line options */
-    sunretval = sunCheckAndSetLongArgs(kinmem, &idx, argv, offset,
-                                       long_pairs, num_long_keys,
-                                       &arg_used, &j);
+    sunretval = sunCheckAndSetLongArgs(kinmem, &idx, argv, offset, long_pairs,
+                                       num_long_keys, &arg_used, &j);
     if (sunretval != SUN_SUCCESS)
     {
       retval = KIN_ILL_INPUT;
@@ -125,9 +123,8 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     if (arg_used) continue;
 
     /* check all real command-line options */
-    sunretval = sunCheckAndSetRealArgs(kinmem, &idx, argv, offset,
-                                       real_pairs, num_real_keys,
-                                       &arg_used, &j);
+    sunretval = sunCheckAndSetRealArgs(kinmem, &idx, argv, offset, real_pairs,
+                                       num_real_keys, &arg_used, &j);
     if (sunretval != SUN_SUCCESS)
     {
       retval = KIN_ILL_INPUT;

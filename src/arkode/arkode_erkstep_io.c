@@ -272,13 +272,11 @@ int erkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
   /* check all "char" command-line options */
   int j, retval;
   retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
-                                  char_pairs, num_char_keys,
-                                  arg_used, &j);
+                                  char_pairs, num_char_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s",
-                    char_pairs[j].key);
+                    "error setting command-line argument: %s", char_pairs[j].key);
     return retval;
   }
 

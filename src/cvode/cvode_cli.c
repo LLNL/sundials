@@ -121,23 +121,20 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     }
 
     /* check all "int" command-line options */
-    sunretval = sunCheckAndSetIntArgs(cvode_mem, &idx, argv, offset,
-                                      int_pairs, num_int_keys,
-                                      &arg_used, &j);
+    sunretval = sunCheckAndSetIntArgs(cvode_mem, &idx, argv, offset, int_pairs,
+                                      num_int_keys, &arg_used, &j);
     if (sunretval != SUN_SUCCESS)
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting command-line argument: %s",
-                     int_pairs[j].key);
+                     "error setting command-line argument: %s", int_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
 
     /* check all long int command-line options */
     sunretval = sunCheckAndSetLongArgs(cvode_mem, &idx, argv, offset,
-                                       long_pairs, num_long_keys,
-                                       &arg_used, &j);
+                                       long_pairs, num_long_keys, &arg_used, &j);
     if (sunretval != SUN_SUCCESS)
     {
       retval = CV_ILL_INPUT;
@@ -150,8 +147,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
 
     /* check all real command-line options */
     sunretval = sunCheckAndSetRealArgs(cvode_mem, &idx, argv, offset,
-                                       real_pairs, num_real_keys,
-                                       &arg_used, &j);
+                                       real_pairs, num_real_keys, &arg_used, &j);
     if (sunretval != SUN_SUCCESS)
     {
       retval = CV_ILL_INPUT;

@@ -523,26 +523,22 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
   /* check all "char" command-line options */
   int j, retval;
   retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
-                                  char_pairs, num_char_keys,
-                                  arg_used, &j);
+                                  char_pairs, num_char_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s",
-                    char_pairs[j].key);
+                    "error setting command-line argument: %s", char_pairs[j].key);
     return retval;
   }
   if (*arg_used) { return ARK_SUCCESS; }
 
   /* check all "long int" command-line options */
   retval = sunCheckAndSetLongArgs((void*)ark_mem, argidx, argv, offset,
-                                  long_pairs, num_long_keys,
-                                  arg_used, &j);
+                                  long_pairs, num_long_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s",
-                    long_pairs[j].key);
+                    "error setting command-line argument: %s", long_pairs[j].key);
     return retval;
   }
   if (*arg_used) { return ARK_SUCCESS; }
@@ -553,21 +549,18 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s",
-                    int_pairs[j].key);
+                    "error setting command-line argument: %s", int_pairs[j].key);
     return retval;
   }
   if (*arg_used) { return ARK_SUCCESS; }
 
   /* check all "real" command-line options */
   retval = sunCheckAndSetRealArgs((void*)ark_mem, argidx, argv, offset,
-                                  real_pairs, num_real_keys,
-                                  arg_used, &j);
+                                  real_pairs, num_real_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s",
-                    real_pairs[j].key);
+                    "error setting command-line argument: %s", real_pairs[j].key);
     return retval;
   }
 

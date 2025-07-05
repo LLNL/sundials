@@ -129,9 +129,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     }
 
     /* check all "int" command-line options */
-    sunretval = sunCheckAndSetIntArgs(arkode_mem, &idx, argv, offset,
-                                      int_pairs, num_int_keys,
-                                      &arg_used, &j);
+    sunretval = sunCheckAndSetIntArgs(arkode_mem, &idx, argv, offset, int_pairs,
+                                      num_int_keys, &arg_used, &j);
     if (sunretval != SUN_SUCCESS)
     {
       retval = ARK_ILL_INPUT;
@@ -144,8 +143,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
 
     /* check all long int command-line options */
     sunretval = sunCheckAndSetLongArgs(arkode_mem, &idx, argv, offset,
-                                       long_pairs, num_long_keys,
-                                       &arg_used, &j);
+                                       long_pairs, num_long_keys, &arg_used, &j);
     if (sunretval != SUN_SUCCESS)
     {
       retval = ARK_ILL_INPUT;
@@ -158,8 +156,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
 
     /* check all real command-line options */
     sunretval = sunCheckAndSetRealArgs(arkode_mem, &idx, argv, offset,
-                                       real_pairs, num_real_keys,
-                                       &arg_used, &j);
+                                       real_pairs, num_real_keys, &arg_used, &j);
     if (sunretval != SUN_SUCCESS)
     {
       retval = ARK_ILL_INPUT;
