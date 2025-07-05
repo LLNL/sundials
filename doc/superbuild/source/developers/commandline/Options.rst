@@ -611,7 +611,7 @@ arguments, and perform the following steps:
    identifier (e.g., "arkode").  If it does not match, then skip to the next argument.
 #. If the prefix matches, then call each of the SUNDIALS-provided command-line processing
    routines above (e.g., :c:func:`sunCheckAndSetActionArgs`) to attempt processing of that
-   command-line arguent.  If that routine indicates that the argument was used, then
+   command-line argument.  If that routine indicates that the argument was used, then
    continue to the next command-line argument; else the next SUNDIALS-provided
    command-line processing routine should be called.
 #. If no SUNDIALS-provided command-line processing routine indicates that the argument
