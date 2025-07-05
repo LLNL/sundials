@@ -15,9 +15,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_magmadense.h>
 #include <sunmatrix/sunmatrix_magmadense.h>
+
 #include "sundials_cli.h"
 
 /* Interfaces to match 'sunrealtype' with the correct MAGMA functions */
@@ -248,14 +251,9 @@ SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
                                                   const char* LSid, int argc,
                                                   char* argv[])
 {
-  SUNFunctionBegin(S->sunctx);
-
-  int idx, j;
   SUNErrCode retval;
-  for (idx = 1; idx < argc; idx++)
+  for (int idx = 1; idx < argc; idx++)
   {
-    sunbooleantype arg_used = SUNFALSE;
-
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spbcgs." */
     size_t offset;
@@ -278,7 +276,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
       int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_MagmaDense_SetAsync(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
   }
