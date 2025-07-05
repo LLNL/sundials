@@ -511,6 +511,9 @@ Optional inputs for IVP method selection
       This routine will be called by :c:func:`ARKodeSetFromCommandLine`
       when using the command-line option "arkid.use_compensated_sums".
 
+   .. deprecated:: 6.4.0
+
+      Use :c:func:`ARKodeSetUseCompensatedSums` instead.
 
 
 .. _ARKODE.Usage.SPRKStep.SPRKStepRootfindingInput:

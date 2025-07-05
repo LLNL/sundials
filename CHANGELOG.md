@@ -8,12 +8,50 @@
 
 ### Bug Fixes
 
+The shared library version numbers for the oneMKL dense linear solver and
+matrix as well as the PETSc SNES nonlinear solver have been corrected.
+
+Fixed a CMake bug where the MRI H-Tol controller was not included in the ARKODE
+Fortran module.
+
+Fixed a bug in the CUDA and HIP implementations of `SUNMemoryHelper_CopyAsync`
+where the execution stream is not extracted correctly from the helper when a
+stream is not provided to `SUNMemoryHelper_CopyAsync`.
+
+Fixed a bug in MRIStep where a segfault would occur when an MRI coupling table
+is not explicitly set and an MRI integrator is nested inside another MRI
+integrator.
+
+### Deprecation Notices
+
+## Changes to SUNDIALS in release 7.4.0
+
+### New Features and Enhancements
+
+`ARKodeSetCFLFraction` now allows `cfl_frac` to be greater than or equal to one.
+
+Added an option to enable compensated summation of the time accumulator for all
+of ARKODE. This was previously only an option for the SPRKStep module. The new
+function to call to enable this is `ARKodeSetUseCompensatedSums`.
+
+### Bug Fixes
+
 Fixed segfaults in `CVodeAdjInit` and `IDAAdjInit` when called after adjoint
 memory has been freed.
 
-Fixed a CMake bug that would cause the Caliper compile test to fail at configure time.
+Fixed a CMake bug that would cause the Caliper compile test to fail at configure
+time.
+
+Fixed a bug in the CVODE/CVODES `CVodeSetEtaFixedStepBounds` function which
+disallowed setting `eta_min_fx` or `eta_max_fx` to 1.
+
+`SUNAdjointStepper_PrintAllStats` was reporting the wrong quantity for the
+number of "recompute passes" and has been fixed.
 
 ### Deprecation Notices
+
+The `SPRKStepSetUseCompensatedSums` function has been deprecated. Use the
+`ARKodeSetUseCompensatedSums` function instead.
 
 ## Changes to SUNDIALS in release 7.3.0
 

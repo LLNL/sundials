@@ -1897,7 +1897,7 @@ step size adaptivity.
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODE memory block.
      * ``eta_min_fx`` -- value of the lower bound of the fixed step interval. If
-       ``eta_min_fx`` is :math:`< 0` or :math:`\geq 1`, the default value is
+       ``eta_min_fx`` is :math:`< 0` or :math:`> 1`, the default value is
        used.
      * ``eta_max_fx`` -- value of the upper bound of the fixed step interval. If
        ``eta_max_fx`` is :math:`< 1`, the default value is used.
@@ -1912,6 +1912,10 @@ step size adaptivity.
       when using the command-line option "cvid.eta_fixed_step_bounds".
 
    .. versionadded:: 6.2.0
+
+   .. versionchanged:: 7.4.0
+
+      Updated the allowable values for ``eta_min_fx`` in include 1.
 
 .. c:function:: int CVodeSetEtaMaxFirstStep(void* cvode_mem, sunrealtype eta_max_fs)
 

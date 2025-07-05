@@ -24,7 +24,7 @@ set(sunlinsol_lapackband_examples
     "test_sunlinsol_lapackband\;1000 8 8 0 0\;"
     "test_sunlinsol_lapackband\;5000 3 100 0 0\;")
 
-# Dependencies for nvector examples
+# Dependencies for sunlinsol examples
 set(sunlinsol_lapackband_dependencies test_sunlinsol)
 
 # Add source directory to include directories

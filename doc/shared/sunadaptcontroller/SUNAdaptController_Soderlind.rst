@@ -355,7 +355,7 @@ also provides the following additional user-callable routines:
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
    This user-callable function provides control over the relevant parameters
-   above for the implicit Gustafsson controller, setting :math:`k_3 = k_4 = k_5 = 0`.
+   above for the implicit Gustafsson controller, setting :math:`k_4 = 1` and :math:`k_3 = k_5 = 0`.
    This should be called *before* the time integrator is called to evolve the problem.
 
    .. note::

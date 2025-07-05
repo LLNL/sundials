@@ -1669,14 +1669,6 @@ int ARKodeSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac)
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
-  /* check for allowable parameters */
-  if (cfl_frac >= ONE)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Illegal CFL fraction");
-    return (ARK_ILL_INPUT);
-  }
-
   /* set positive-valued parameters, otherwise set default */
   if (cfl_frac <= ZERO) { hadapt_mem->cfl = CFLFAC; }
   else { hadapt_mem->cfl = cfl_frac; }
@@ -2198,6 +2190,28 @@ int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
   }
 
   ark_mem->checkpoint_step_idx = step_index;
+
+  return (ARK_SUCCESS);
+}
+
+int ARKodeSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  ark_mem->use_compensated_sums = onoff;
+
+  /* Call stepper routine (if provided) */
+  if (ark_mem->step_setusecompensatedsums)
+  {
+    return ark_mem->step_setusecompensatedsums(arkode_mem, onoff);
+  }
 
   return (ARK_SUCCESS);
 }
