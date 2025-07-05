@@ -423,6 +423,12 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_H0321(sunctx);
 
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_soderlind".
+
 .. c:function:: SUNAdaptController SUNAdaptController_H211(SUNContext sunctx)
 
    This constructor creates and allocates memory for a
@@ -442,6 +448,12 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_H211(sunctx);
 
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_soderlind".
+
 .. c:function:: SUNAdaptController SUNAdaptController_H312(SUNContext sunctx)
 
    This constructor creates and allocates memory for a
@@ -460,3 +472,9 @@ also provides the following additional user-callable routines:
    .. code-block:: c
 
       SUNAdaptController C = SUNAdaptController_H312(sunctx);
+
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_soderlind".
