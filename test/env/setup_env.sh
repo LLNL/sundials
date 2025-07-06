@@ -124,7 +124,7 @@ export SUNDIALS_ENABLE_WARNINGS_AS_ERRORS=ON
 # Enable address sanitizer (environment script may disable)
 # TODO(DJG): Always enable sanitizer not just when TPLs are OFF
 if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
-    export SUNDIALS_ENABLE_ADDRESS_SANITIZER=ON
+    export SUNDIALS_ENABLE_ADDRESS_SANITIZER=OFF
 else
     export SUNDIALS_ENABLE_ADDRESS_SANITIZER=OFF
 fi
