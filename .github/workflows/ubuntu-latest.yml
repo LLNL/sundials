@@ -31,7 +31,7 @@ jobs:
         # tpls: ['ON']
         precision: ['extended']
         buildtype: ['Debug']
-        tpls: ['ON']
+        tpls: ['OFF']
         # exclude:
         #   - buildtype: Debug
         #     precision: single
