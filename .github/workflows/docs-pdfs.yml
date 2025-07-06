@@ -6,8 +6,14 @@ on:
       - main
       - develop
   pull_request:
+    paths:
+      - 'doc/**'
   merge_group:
+      paths:
+      - 'doc/**'
   workflow_dispatch:
+      paths:
+      - 'doc/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
