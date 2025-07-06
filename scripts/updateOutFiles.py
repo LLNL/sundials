@@ -18,20 +18,25 @@
 #   $ ./updateOutFiles.py ../build ../.
 # -----------------------------------------------------------------------------
 
+
 class colors:
-    SUCCESS = '\033[92m'
-    WARNING = '\033[93m'
-    ERROR = '\033[91m'
-    END = '\033[0m'
+    SUCCESS = "\033[92m"
+    WARNING = "\033[93m"
+    ERROR = "\033[91m"
+    END = "\033[0m"
+
 
 def print_success(msg):
     print(f"{colors.SUCCESS}{msg}{colors.END}")
 
+
 def print_warning(msg):
     print(f"{colors.WARNING}{msg}{colors.END}")
 
+
 def print_error(msg):
     print(f"{colors.ERROR}{msg}{colors.END}")
+
 
 # -----------------------------------------------------------------------------
 # main routine
@@ -129,7 +134,9 @@ def main():
                 print_warning(f"  Warning: did not find the answer file {out_file}")
                 if args.copy:
                     print(f"  Copying {out_file} to {args.destination}")
-                    shutil.copy(os.path.join(output, out_file), os.path.join(args.destination, out_file))
+                    shutil.copy(
+                        os.path.join(output, out_file), os.path.join(args.destination, out_file)
+                    )
 
 
 # -----------------------------------------------------------------------------
