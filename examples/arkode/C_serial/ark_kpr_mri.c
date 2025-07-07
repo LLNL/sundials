@@ -91,6 +91,27 @@
 #include <sunlinsol/sunlinsol_dense.h> /* dense linear solver                  */
 #include <sunmatrix/sunmatrix_dense.h> /* dense matrix type, fcts., macros     */
 
+/* Convenience macros for calling precision-specific math functions */
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define CEIL(x) (ceil((x)))
+#define COS(x)  (cos((x)))
+#define FABS(x) (fabs((x)))
+#define SIN(x)  (sin((x)))
+#define SQRT(x) (sqrt((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define CEIL(x) (ceilf((x)))
+#define COS(x)  (cosf((x)))
+#define FABS(x) (fabsf((x)))
+#define SIN(x)  (sinf((x)))
+#define SQRT(x) (sqrtf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define CEIL(x) (ceill((x)))
+#define COS(x)  (cosl((x)))
+#define FABS(x) (fabsl((x)))
+#define SIN(x)  (sinl((x)))
+#define SQRT(x) (sqrtl((x)))
+#endif
+
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM ".20Lg"
 #define ESYM "Le"
@@ -141,7 +162,7 @@ int main(int argc, char* argv[])
   sunrealtype Tf     = SUN_RCONST(5.0);       /* final time */
   sunrealtype dTout  = SUN_RCONST(0.1);       /* time between outputs */
   sunindextype NEQ   = 2;                     /* number of dependent vars. */
-  int Nt             = (int)ceil(Tf / dTout); /* number of output times */
+  int Nt             = (int)CEIL(Tf / dTout); /* number of output times */
   int slow_type      = 0;                     /* problem configuration type */
   int fast_type      = 0;                     /* problem configuration type */
   sunrealtype hs     = SUN_RCONST(0.01);      /* slow step size */
@@ -149,7 +170,7 @@ int main(int argc, char* argv[])
   sunrealtype G      = SUN_RCONST(-100.0);    /* stiffness at slow time scale */
   sunrealtype w      = SUN_RCONST(100.0);     /* time-scale separation factor */
   sunrealtype reltol = SUN_RCONST(0.01);
-  sunrealtype abstol = 1e-11;
+  sunrealtype abstol = SUN_RCONST(1.0e-11);
 
   /* general problem variables */
   int retval;                               /* reusable error-checking flag */
@@ -236,7 +257,7 @@ int main(int argc, char* argv[])
     printf("ERROR: hs must be in positive\n");
     return (-1);
   }
-  if ((hs > ONE / SUNRabs(G)) && (!implicit_slow))
+  if ((hs > ONE / FABS(G)) && (!implicit_slow))
   {
     printf("ERROR: hs must be in (0, 1/|G|)\n");
     return (-1);
@@ -292,50 +313,50 @@ int main(int argc, char* argv[])
   case (7):
     printf("    slow solver: ARKODE_MRI_GARK_IRK21a\n");
     implicit_slow = SUNTRUE;
-    reltol        = SUNMAX(hs * hs, 1e-10);
-    abstol        = 1e-11;
+    reltol        = SUNMAX(hs * hs, SUN_RCONST(1.0e-10));
+    abstol        = SUN_RCONST(1.0e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (8):
     printf("    slow solver: ARKODE_MRI_GARK_ESDIRK34a\n");
     implicit_slow = SUNTRUE;
-    reltol        = SUNMAX(hs * hs * hs, 1e-10);
-    abstol        = 1e-11;
+    reltol        = SUNMAX(hs * hs * hs, SUN_RCONST(1.0e-10));
+    abstol        = SUN_RCONST(1.0e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (9):
     printf("    slow solver: ARKODE_IMEX_MRI_GARK3b\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs * hs, 1e-10);
-    abstol    = 1e-11;
+    reltol    = SUNMAX(hs * hs * hs, SUN_RCONST(1.0e-10));
+    abstol    = SUN_RCONST(1.0e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (10):
     printf("    slow solver: ARKODE_IMEX_MRI_GARK4\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs * hs * hs, 1e-14);
-    abstol    = 1e-14;
+    reltol    = SUNMAX(hs * hs * hs * hs, SUN_RCONST(1.0e-14));
+    abstol    = SUN_RCONST(1.0e-14);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (11):
     printf("    slow solver: ARKODE_IMEX_MRI_SR21\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs, 1e-10);
-    abstol    = 1e-11;
+    reltol    = SUNMAX(hs * hs, SUN_RCONST(1.0e-10));
+    abstol    = SUN_RCONST(1.0e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (12):
     printf("    slow solver: ARKODE_IMEX_MRI_SR32\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs * hs, 1e-10);
-    abstol    = 1e-11;
+    reltol    = SUNMAX(hs * hs * hs, SUN_RCONST(1.0e-10));
+    abstol    = SUN_RCONST(1.0e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (13):
     printf("    slow solver: ARKODE_IMEX_MRI_SR43\n");
     imex_slow = SUNTRUE;
-    reltol    = SUNMAX(hs * hs * hs * hs, 1e-14);
-    abstol    = 1e-14;
+    reltol    = SUNMAX(hs * hs * hs * hs, SUN_RCONST(1.0e-14));
+    abstol    = SUN_RCONST(1.0e-14);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   }
@@ -348,8 +369,8 @@ int main(int argc, char* argv[])
   case (1):
     printf("    fast solver: esdirk-3-3\n");
     implicit_fast = SUNTRUE;
-    reltol        = SUNMAX(hs * hs * hs, 1e-10);
-    abstol        = 1e-11;
+    reltol        = SUNMAX(hs * hs * hs, SUN_RCONST(1.0e-10));
+    abstol        = SUN_RCONST(1.0e-11);
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
   case (2):
@@ -452,8 +473,8 @@ int main(int argc, char* argv[])
   case (1):
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
     if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
-    beta       = SUNRsqrt(SUN_RCONST(3.0)) / SUN_RCONST(6.0) + SUN_RCONST(0.5);
-    gamma      = (-ONE / SUN_RCONST(8.0)) * (SUNRsqrt(SUN_RCONST(3.0)) + ONE);
+    beta       = SQRT(SUN_RCONST(3.0)) / SUN_RCONST(6.0) + SUN_RCONST(0.5);
+    gamma      = (-ONE / SUN_RCONST(8.0)) * (SQRT(SUN_RCONST(3.0)) + ONE);
     B->A[1][0] = SUN_RCONST(4.0) * gamma + TWO * beta;
     B->A[1][1] = ONE - SUN_RCONST(4.0) * gamma - TWO * beta;
     B->A[2][0] = SUN_RCONST(0.5) - beta - gamma;
@@ -691,8 +712,8 @@ int main(int argc, char* argv[])
   fprintf(UFID,
           " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM " %.16" ESYM "\n",
           T0, NV_Ith_S(y, 0), NV_Ith_S(y, 1),
-          SUNRabs(NV_Ith_S(y, 0) - utrue(T0, rpar)),
-          SUNRabs(NV_Ith_S(y, 1) - vtrue(T0, rpar)));
+          FABS(NV_Ith_S(y, 0) - utrue(T0, rpar)),
+          FABS(NV_Ith_S(y, 1) - vtrue(T0, rpar)));
 
   /* Main time-stepping loop: calls ARKodeEvolve to perform the
      integration, then prints results. Stops when the final time
@@ -717,8 +738,8 @@ int main(int argc, char* argv[])
     if (check_retval(&retval, "ARKodeEvolve", 1)) { break; }
 
     /* access/print solution and error */
-    uerr = SUNRabs(NV_Ith_S(y, 0) - utrue(t, rpar));
-    verr = SUNRabs(NV_Ith_S(y, 1) - vtrue(t, rpar));
+    uerr = FABS(NV_Ith_S(y, 0) - utrue(t, rpar));
+    verr = FABS(NV_Ith_S(y, 1) - vtrue(t, rpar));
     printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM
            "  %.2" ESYM "\n",
            t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), uerr, verr);
@@ -733,9 +754,9 @@ int main(int argc, char* argv[])
     tout += dTout;
     tout = (tout > Tf) ? Tf : tout;
   }
-  uerrtot = SUNRsqrt(uerrtot / Nt);
-  verrtot = SUNRsqrt(verrtot / Nt);
-  errtot  = SUNRsqrt(errtot / Nt / 2);
+  uerrtot = SQRT(uerrtot / Nt);
+  verrtot = SQRT(verrtot / Nt);
+  errtot  = SQRT(errtot / Nt / 2);
   printf("   ------------------------------------------------------\n");
   fclose(UFID);
 
@@ -1015,34 +1036,34 @@ static int Jf(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 static sunrealtype r(sunrealtype t, void* user_data)
 {
-  return (SUN_RCONST(0.5) * cos(t));
+  return (SUN_RCONST(0.5) * COS(t));
 }
 
 static sunrealtype s(sunrealtype t, void* user_data)
 {
   sunrealtype* rpar = (sunrealtype*)user_data;
-  return (cos(rpar[1] * t));
+  return (COS(rpar[1] * t));
 }
 
 static sunrealtype rdot(sunrealtype t, void* user_data)
 {
-  return (-SUN_RCONST(0.5) * sin(t));
+  return (-SUN_RCONST(0.5) * SIN(t));
 }
 
 static sunrealtype sdot(sunrealtype t, void* user_data)
 {
   sunrealtype* rpar = (sunrealtype*)user_data;
-  return (-rpar[1] * sin(rpar[1] * t));
+  return (-rpar[1] * SIN(rpar[1] * t));
 }
 
 static sunrealtype utrue(sunrealtype t, void* user_data)
 {
-  return (SUNRsqrt(ONE + r(t, user_data)));
+  return (SQRT(ONE + r(t, user_data)));
 }
 
 static sunrealtype vtrue(sunrealtype t, void* user_data)
 {
-  return (SUNRsqrt(TWO + s(t, user_data)));
+  return (SQRT(TWO + s(t, user_data)));
 }
 
 static int Ytrue(sunrealtype t, N_Vector y, void* user_data)
