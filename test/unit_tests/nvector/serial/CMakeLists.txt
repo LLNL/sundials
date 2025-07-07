@@ -76,12 +76,6 @@ foreach(example_tuple ${nvector_serial_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ../test_nvector.c ../test_nvector.h
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
-  endif()
-
 endforeach(example_tuple ${nvector_serial_examples})
 
 # Add the build and install targets for each example
@@ -127,50 +121,3 @@ foreach(example_tuple ${nvector_serial_fortran_examples})
     NODIFF)
 
 endforeach(example_tuple ${nvector_serial_fortran_examples})
-
-if(EXAMPLES_INSTALL)
-
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_nvecserial")
-
-  examples2string(nvector_serial_examples EXAMPLES)
-  set(nvector_serial_dependencies test_nvector.c)
-  examples2string(nvector_serial_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then be used
-  # as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/serial/CMakeLists.txt @ONLY)
-
-  # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial)
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template for the
-  # user's own programs.
-  set(EXAMPLES_DEPENDENCIES)
-  set(nvector_serial_dependencies test_nvector)
-  examples2string(nvector_serial_dependencies EXAMPLES_DEPENDENCIES)
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/serial/Makefile_ex @ONLY)
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/serial/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/serial
-      RENAME Makefile)
-  endif()
-
-endif()

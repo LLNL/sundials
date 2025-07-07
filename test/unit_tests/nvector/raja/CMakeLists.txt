@@ -81,30 +81,3 @@ foreach(example_tuple ${examples_list})
     NODIFF)
 
 endforeach()
-
-if(EXAMPLES_INSTALL)
-
-  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"
-                                                ))
-    set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
-    set(_openmp_target OpenMP::OpenMP_CXX)
-  endif()
-
-  if(RAJA_NEEDS_THREADS)
-    set(EXAMPLES_FIND_PACKAGE
-        "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
-  endif()
-
-  sundials_install_examples(
-    nvec_raja examples_list
-    EXAMPLES_DEPENDENCIES test_nvector.c
-    EXTRA_FILES
-      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/nvector/test_nvector.c
-      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/nvector/test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/examples/utilities/${_custom_memhelper}
-    CMAKE_TEMPLATE cmakelists_${_lang}_ex.in
-    SUNDIALS_TARGETS generic nvecraja
-    OTHER_TARGETS ${_openmp_target}
-    DESTINATION nvector/raja)
-
-endif()

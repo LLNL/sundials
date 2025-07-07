@@ -76,12 +76,6 @@ foreach(example_tuple ${sunlinsol_pcg_examples})
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
-  # install example source files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ../../test_sunlinsol.h ../../test_sunlinsol.c
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/pcg/serial)
-  endif()
-
 endforeach(example_tuple ${sunlinsol_pcg_examples})
 
 # Add the build and install targets for each example
@@ -129,50 +123,3 @@ foreach(example_tuple ${sunlinsol_pcg_fortran_examples})
   endif()
 
 endforeach(example_tuple ${sunlinsol_pcg_fortran_examples})
-
-if(EXAMPLES_INSTALL)
-
-  # Install the README file
-  install(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/pcg/serial)
-
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  set(SOLVER_LIB "sundials_sunlinsolpcg")
-
-  examples2string(sunlinsol_pcg_examples EXAMPLES)
-  examples2string(sunlinsol_pcg_dependencies EXAMPLES_DEPENDENCIES)
-
-  # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then be used
-  # as a template for the user's own programs.
-
-  # generate CMakelists.txt in the binary directory
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/pcg/serial/CMakeLists.txt
-    @ONLY)
-
-  # install CMakelists.txt
-  install(
-    FILES
-      ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/pcg/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/pcg/serial)
-
-  # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template for the
-  # user's own programs.
-
-  if(UNIX)
-    # generate Makefile and place it in the binary dir
-    configure_file(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/pcg/serial/Makefile_ex
-      @ONLY)
-    # install the configured Makefile_ex as Makefile
-    install(
-      FILES
-        ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/pcg/serial/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/pcg/serial
-      RENAME Makefile)
-  endif()
-
-endif()

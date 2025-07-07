@@ -92,17 +92,3 @@ foreach(example_tuple ${nvector_hip_examples})
     NODIFF)
 
 endforeach(example_tuple ${nvector_hip_examples})
-
-if(EXAMPLES_INSTALL)
-
-  sundials_install_examples(
-    nvector nvector_hip_examples
-    SUNDIALS_TARGETS nvechip
-    EXAMPLES_DEPENDENCIES test_nvector.c
-    EXTRA_FILES
-      ../test_nvector.c ../test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_gpu.h
-    CMAKE_TEMPLATE cmakelists_HIP_ex.in
-    DESTINATION nvector/hip)
-
-endif(EXAMPLES_INSTALL)
