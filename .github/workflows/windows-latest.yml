@@ -1,7 +1,7 @@
 name: Build and Test - Windows/MSVC (short)
 
 on:
-  # pull_request:
+  pull_request:
   merge_group:
   workflow_dispatch:
 

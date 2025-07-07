@@ -2,7 +2,7 @@
 name: Build and Test - Ubuntu/gcc spack@develop (TPLs, no GPUs)
 
 on:
-  # pull_request:
+  pull_request:
   merge_group:
   workflow_dispatch:
   schedule:
