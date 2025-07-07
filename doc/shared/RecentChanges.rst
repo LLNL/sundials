@@ -21,4 +21,11 @@ Fixed a bug in MRIStep where a segfault would occur when an MRI coupling table
 is not explicitly set and an MRI integrator is nested inside another MRI
 integrator.
 
+Fixed a bug in MRIStep where MERK methods with unordered stage groups (MERK43
+and MERK54) would include stage right-hand side vectors that had not been
+computed yet in fast time scale forcing computations. These vectors were scaled
+by zero, so in most cases the extraneous computations would not impact results.
+However, in cases where these vectors contain ``inf`` or ``nan``, this would
+lead to erroneous forcing terms.
+
 **Deprecation Notices**
