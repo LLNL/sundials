@@ -91,7 +91,7 @@
 #include <sunlinsol/sunlinsol_dense.h> /* dense linear solver                  */
 #include <sunmatrix/sunmatrix_dense.h> /* dense matrix type, fcts., macros     */
 
-/* Convince macros for calling precision-specific math functions */
+/* Convenience macros for calling precision-specific math functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define CEIL(x) (ceil((x)))
 #define COS(x)  (cos((x)))
