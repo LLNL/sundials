@@ -30,34 +30,3 @@ sundials_add_examples_ginkgo(
   TARGETS test_sunmatrix_obj sundials_sunmatrixdense
   BACKENDS REF OMP CUDA HIP SYCL
   UNIT_TEST)
-
-# Install the targets
-if(EXAMPLES_INSTALL)
-
-  if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA")
-    list(APPEND vectors nveccuda)
-  endif()
-  if(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
-    list(APPEND vectors nvechip)
-  endif()
-  if(SUNDIALS_GINKGO_BACKENDS MATCHES "SYCL")
-    list(APPEND vectors nvecsycl)
-  endif()
-  if(SUNDIALS_GINKGO_BACKENDS MATCHES "OMP")
-    list(APPEND vectors nvecopenmp)
-  endif()
-  if(SUNDIALS_GINKGO_BACKENDS MATCHES "REF")
-    list(APPEND vectors nvecserial)
-  endif()
-
-  sundials_install_examples_ginkgo(
-    sunmatrix
-    CPU_GPU_EXAMPLES_VAR examples
-    SUNDIALS_COMPONENTS sunmatrixdense ${vectors}
-    SUNDIALS_TARGETS sunmatrixdense
-    DEPENDENCIES
-      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.c
-      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.h
-    DESTINATION sunmatrix/ginkgo)
-
-endif()
