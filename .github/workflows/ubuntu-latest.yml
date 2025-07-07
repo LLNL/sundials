@@ -25,24 +25,20 @@ jobs:
       max-parallel: 2
       matrix:
         indexsize: [32, 64]
-        # Disable extended tests until compiler warnings are addressed
-        # precision: ['single', 'double', 'extended']
-        # buildtype: ['Debug', 'Release', 'RelWithDebInfo']
-        # tpls: ['ON']
-        precision: ['extended']
-        buildtype: ['Debug']
-        tpls: ['OFF']
-        # exclude:
-        #   - buildtype: Debug
-        #     precision: single
-        #   - buildtype: Debug
-        #     precision: extended
-        #   - buildtype: Release
-        #     precision: single
-        #   - buildtype: Release
-        #     precision: extended
-        #   - buildtype: RelWithDebInfo
-        #     precision: double
+        precision: ['single', 'double', 'extended']
+        buildtype: ['Debug', 'Release', 'RelWithDebInfo']
+        tpls: ['ON']
+        exclude:
+          - buildtype: Debug
+            precision: single
+          - buildtype: Debug
+            precision: extended
+          - buildtype: Release
+            precision: single
+          - buildtype: Release
+            precision: extended
+          - buildtype: RelWithDebInfo
+            precision: double
 
     steps:
       - name: Checkout repository
