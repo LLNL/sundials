@@ -2871,9 +2871,22 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     SUNLogInfo(ARK_LOGGER, "begin-group", "group = %i", ig);
 
+    /* Find the lowest stage number in this group. The stages in a group are not
+       necessarily in increasing order e.g., in MERK43 stage 3 is before stage 2
+       in time. Since all the stages in a group share the same forcing vectors
+       and the tables must be lower triangular, only stages up to one less than
+       the lowest stage index in the group can be used in the forcing. Using the
+       lowest stage number in the group prevents unintentionally including stage
+       RHS values that have not been computed yet. */
+    int lowest_stage = step_mem->MRIC->group[ig][0];
+    for (int il = 1; il < step_mem->MRIC->stages; il++)
+    {
+      if (step_mem->MRIC->group[ig][il] < 0) { break; }
+      lowest_stage = SUNMIN(lowest_stage, step_mem->MRIC->group[ig][il]);
+    }
+
     /* Set up fast RHS for this stage group */
-    retval = mriStep_ComputeInnerForcing(ark_mem, step_mem,
-                                         step_mem->MRIC->group[ig][0],
+    retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, lowest_stage,
                                          ark_mem->tn, ark_mem->tn + ark_mem->h);
     if (retval != ARK_SUCCESS)
     {
