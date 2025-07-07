@@ -525,8 +525,8 @@ Runge--Kutta--Chebyshev (RKC), :cite:p:`VSH:04` and Runge--Kutta--Legendre (RKL)
 
 .. math::
    z_0 &= y_n,\\
-   z_1 &= z_0 + h \tilde{\mu}_1 f(t_n,z_0),\\
-   z_j &= (1-\mu_j-\nu_j)z_0 + \mu_j z_{j-1} + \nu_jz_{j-2} + h \tilde{\gamma}_j f(t_n,z_0) + h \tilde{\mu}_j f(t_n + c_{j-1}h, z_{j-1}) \\
+   z_1 &= z_0 + h_n \tilde{\mu}_1 f(t_n,z_0),\\
+   z_j &= (1-\mu_j-\nu_j)z_0 + \mu_j z_{j-1} + \nu_jz_{j-2} + h_n \tilde{\gamma}_j f(t_n,z_0) + h_n \tilde{\mu}_j f(t_n + c_{j-1}h, z_{j-1}) \\
    y_{n+1} &= z_s.
    :label: ARKODE_RKC_RKL
 
@@ -546,7 +546,7 @@ The SSPRK methods in ARKODE use the following Shu--Osher representation :cite:p:
 
 .. math::
    z_1 &= y_n,\\
-   z_i &= \sum_{j = 1}^{i-1} \left(\alpha_{i,j}y_j + \beta_{i,j}h f(t_n + c_jh, z_j)\right),\\
+   z_i &= \sum_{j = 1}^{i-1} \left(\alpha_{i,j}y_j + \beta_{i,j}h f(t_n + c_jh_n, z_j)\right),\\
    y_{n+1} &= z_s.
    :label: ARKODE_SSP
 
@@ -574,15 +574,15 @@ components:
 
 * :math:`f^E(t,y)` contains the "slow-nonstiff" components of the system
   (this will be integrated using an explicit method and a large time step
-  :math:`h^S`),
+  :math:`h^S_n`),
 
 * :math:`f^I(t,y)` contains the "slow-stiff" components of the system
   (this will be integrated using an implicit method and a large time step
-  :math:`h^S`), and
+  :math:`h^S_n`), and
 
 * :math:`f^F(t,y)` contains the "fast" components of the system (this will be
   integrated using a possibly different method than the slow time scale and a
-  small time step :math:`h^F \ll h^S`).
+  small time step :math:`h^F_n \ll h^S_n`).
 
 As with ERKStep, MRIStep currently requires that problems be posed with
 an identity mass matrix, :math:`M(t)=I`. The slow time scale may consist of only
@@ -626,10 +626,10 @@ algorithm for a single step:
    diagonally-implicit, or additive Runge--Kutta stage update,
 
    .. math::
-      z_i - \theta_{i,i} h^S f^I(t_{n,i}^S, z_i) = a_i.
+      z_i - \theta_{i,i} h^S_n f^I(t_{n,i}^S, z_i) = a_i.
       :label: MRI_implicit_solve
 
-   where :math:`t_{n,j}^S = t_{n-1} + h^S c^S_j`.
+   where :math:`t_{n,j}^S = t_{n-1} + h^S_n c^S_j`.
 
 #. Set :math:`y_{n} = z_{s}`.
 
@@ -645,7 +645,7 @@ algorithm for a single step:
    stage update,
 
    .. math::
-      \tilde{y}_n - \tilde{\theta} h^S f^I(t_n, \tilde{y}_n) = \tilde{a}.
+      \tilde{y}_n - \tilde{\theta} h^S_n f^I(t_n, \tilde{y}_n) = \tilde{a}.
       :label: MRI_embedding_implicit_solve
 
 Whether a fast IVP evolution or a stage update (or both) is needed depends on
@@ -684,7 +684,7 @@ given by
    + \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i \gamma_{i,j}(\tau) f^I(t_{n,j}^S, z_j)
 
 where :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`, :math:`\tau = (t -
-t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time, the coefficients
+t_{n,i-1}^S)/(h^S_n \Delta c_i^S)` is the normalized time, the coefficients
 :math:`\omega_{i,j}` and :math:`\gamma_{i,j}` are polynomials in time of degree
 :math:`k-1` given by
 
@@ -701,9 +701,9 @@ stage is computed as
 
 .. math::
    z_i = z_{i-1}
-   + h^S \sum_{j=1}^{i-1} \left(\sum_{\ell = 1}^{k}
+   + h^S_n \sum_{j=1}^{i-1} \left(\sum_{\ell = 1}^{k}
      \frac{\Omega_{i,j,\ell}}{\ell}\right) f^E(t_{n,j}^S, z_j)
-   + h^S \sum_{j=1}^i \left(\sum_{\ell = 1}^{k}
+   + h^S_n \sum_{j=1}^i \left(\sum_{\ell = 1}^{k}
      \frac{\Gamma_{i,j,\ell}}{\ell}\right) f^I(t_{n,j}^S, z_j).
    :label: ARKODE_MRI_delta_c_zero
 
@@ -747,7 +747,7 @@ given by
    r_i(t) = \frac{1}{c_i^S} \sum\limits_{j=1}^{i-1} \omega_{i,j}(\tau) \left( f^E(t_{n,j}^S, z_j) + f^I(t_{n,j}^S, z_j)\right),
    :label: IMEXMRISR_forcing
 
-where :math:`\tau = (t - t_n)/(h^S c_i^S)` is the normalized time, and the coefficients
+where :math:`\tau = (t - t_n)/(h^S_n c_i^S)` is the normalized time, and the coefficients
 :math:`\omega_{i,j}` are polynomials in time of degree :math:`k-1` that are also given by
 :eq:`ARKODE_MRI_coupling`.  The solution of these fast IVPs defines an intermediate stage
 solution, :math:`\tilde{z}_i`.
@@ -755,7 +755,7 @@ solution, :math:`\tilde{z}_i`.
 The implicit solve that follows each fast IVP must solve the algebraic equation for :math:`z_i`
 
 .. math::
-   z_i = \tilde{z}_i + h^S \sum_{j=1}^{i} \gamma_{i,j} f^I(t_{n,j}^S, z_j).
+   z_i = \tilde{z}_i + h^S_n \sum_{j=1}^{i} \gamma_{i,j} f^I(t_{n,j}^S, z_j).
    :label: ARKODE_MRISR_implicit
 
 We note that IMEX-MRI-SR methods are solve-decoupled by construction, and thus the structure
@@ -798,10 +798,10 @@ solutions at these times as the stages :math:`z_i`.  For example, the
 groups.  The fourth group contains stages 7, 8, 9, and the embedding, corresponding to
 the :math:`c_i^S` values :math:`7/10`, :math:`1/2`, :math:`2/3`, and :math:`1`.
 Sorting these, a single fast IVP for this group must be evolved over the interval
-:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`, first pausing at :math:`t_{n-1}+\frac12 h^S`
-to store :math:`z_8`, then pausing at :math:`t_{n-1}+\frac{2}{3} h^S` to store
-:math:`z_9`, then pausing at :math:`t_{n-1}+\frac{7}{10} h^S` to store :math:`z_7`,
-and finally finishing the IVP solve to :math:`t_{n-1}+h^S` to obtain :math:`\tilde{y}_n`.
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`, first pausing at :math:`t_{n-1}+\frac12 h^S_n`
+to store :math:`z_8`, then pausing at :math:`t_{n-1}+\frac{2}{3} h^S_n` to store
+:math:`z_9`, then pausing at :math:`t_{n-1}+\frac{7}{10} h^S_n` to store :math:`z_7`,
+and finally finishing the IVP solve to :math:`t_{n-1}+h^S_n` to obtain :math:`\tilde{y}_n`.
 
 .. note::
 
@@ -1257,8 +1257,8 @@ Multirate time step adaptivity (MRIStep)
 
 Since multirate applications evolve on multiple time scales,
 MRIStep supports additional forms of temporal adaptivity.  Specifically,
-we consider time steps at two adjacent levels, :math:`h^S > h^F`, where
-:math:`h^S` is the step size used by MRIStep, and :math:`h^F` is the
+we consider time steps at two adjacent levels, :math:`h^S_n > h^F_n`, where
+:math:`h^S_n` is the step size used by MRIStep, and :math:`h^F_n` is the
 step size used to solve the corresponding fast-time-scale IVPs in
 MRIStep, :eq:`MRI_fast_IVP` and :eq:`MRI_embedding_fast_IVP`.
 
@@ -1271,8 +1271,8 @@ Multirate temporal controls
 We consider two categories of temporal controllers that may be used within MRI
 methods.  The first (and simplest), are "decoupled" controllers, that consist of
 two separate single-rate temporal controllers: one that adapts the slow time scale
-step size, :math:`h^S`, and the other that adapts the fast time scale step size,
-:math:`h^F`.  As these ignore any coupling between the two time scales, these
+step size, :math:`h^S_n`, and the other that adapts the fast time scale step size,
+:math:`h^F_n`.  As these ignore any coupling between the two time scales, these
 methods should work well for multirate problems where the time scales are somewhat
 decoupled, and that errors introduced at one scale do not "pollute" the other.
 
@@ -1319,7 +1319,7 @@ adaptivity controllers:
 * scontrol-Tol -- this is a single-rate controller that adapts :math:`\text{RTOL}^F_n`
   using the strategy described above.
 
-* fcontrol -- this adapts time steps :math:`h^F` within the fast integrator to achieve
+* fcontrol -- this adapts time steps :math:`h^F_n` within the fast integrator to achieve
   the current tolerance, :math:`\text{RTOL}^F_n`.
 
 We note that both the decoupled and :math:`h^S`-:math:`Tol` controller families may be used in
@@ -1670,26 +1670,26 @@ differently based on the type of mass-matrix supplied by the user.
   have the residual
 
   .. math::
-     G(z_i) \equiv z_i - h^S \left(\sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}\right)
+     G(z_i) \equiv z_i - h^S_n \left(\sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}\right)
      f^I(t_{n,i}^S, z_i) - a_i = 0
      :label: ARKODE_IMEX-MRI-GARK_Residual
 
   where
 
   .. math::
-     a_i \equiv z_{i-1} + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 1}
+     a_i \equiv z_{i-1} + h^S_n \sum_{j=1}^{i-1} \left(\sum_{k\geq 1}
      \frac{\Gamma_{i,j,k}}{k}\right)f^I(t_{n,j}^S, z_j).
 
   IMEX-MRI-SR methods have the residual
 
   .. math::
-     G(z_i) \equiv z_i - h^S \Gamma_{i,i} f^I(t_{n,i}^S, z_i) - a_i = 0
+     G(z_i) \equiv z_i - h^S_n \Gamma_{i,i} f^I(t_{n,i}^S, z_i) - a_i = 0
      :label: ARKODE_IMEX-MRI-SR_Residual
 
   where
 
   .. math::
-     a_i \equiv z_{i-1} + h^S \sum_{j=1}^{i-1} \Gamma_{i,j} f^I(t_{n,j}^S, z_j).
+     a_i \equiv z_{i-1} + h^S_n \sum_{j=1}^{i-1} \Gamma_{i,j} f^I(t_{n,j}^S, z_j).
 
 
 Upon solving for :math:`z_i`, method stages must store
@@ -1748,7 +1748,7 @@ within ARKStep, or
 .. math::
    {\mathcal A}(t,z) \approx I - \gamma J(t,z), \quad
    J(t,z) = \frac{\partial f^I(t,z)}{\partial z}, \quad\text{and}\quad
-   \gamma = h^S \sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}
+   \gamma = h^S_n \sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}
    :label: ARKODE_NewtonMatrix_MRIStep
 
 within MRIStep.
