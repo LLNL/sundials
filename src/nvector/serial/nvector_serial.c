@@ -562,7 +562,7 @@ void N_VAbs_Serial(N_Vector x, N_Vector z)
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
 
-  for (i = 0; i < N; i++) { zd[i] = fabs(xd[i]); }
+  for (i = 0; i < N; i++) { zd[i] = SUNRabs(xd[i]); }
 
   return;
 }
