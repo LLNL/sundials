@@ -25,19 +25,18 @@ jobs:
       max-parallel: 2
       matrix:
         indexsize: [32, 64]
-        # Disable extended tests until compiler warnings are addressed
-        precision: ['single', 'double']
+        precision: ['single', 'double', 'extended']
         buildtype: ['Debug', 'Release', 'RelWithDebInfo']
         tpls: ['ON']
         exclude:
           - buildtype: Debug
             precision: single
-          # - buildtype: Debug
-          #   precision: extended
+          - buildtype: Debug
+            precision: extended
           - buildtype: Release
             precision: single
-          # - buildtype: Release
-          #   precision: extended
+          - buildtype: Release
+            precision: extended
           - buildtype: RelWithDebInfo
             precision: double
 
