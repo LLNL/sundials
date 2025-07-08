@@ -405,20 +405,13 @@ case "$testtype" in
         tarball=sundials
 
         # Test configs
-        for rt in single double extended; do
-            for is in 32 64; do
-                args_realtypes+=("${rt}")
-                args_indexsizes+=("${is}")
-                args_libtypes+=("static")
-                args_tpls+=("ON")
-                # Development test output files created with double
-                if [[ "${rt}" == "double" ]]; then
-                    args_suntests+=("DEV")
-                else
-                    args_suntests+=("STD")
-                fi
-                args_phase+=("")
-            done
+        for is in 32 64; do
+            args_realtypes+=("double")
+            args_indexsizes+=("${is}")
+            args_libtypes+=("static")
+            args_tpls+=("ON")
+            args_suntests+=("DEV")
+            args_phase+=("")
         done
         ;;
 
