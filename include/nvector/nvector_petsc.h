@@ -172,9 +172,6 @@ SUNDIALS_EXPORT SUNErrCode N_VBufSize_Petsc(N_Vector x, sunindextype* size);
 SUNDIALS_EXPORT SUNErrCode N_VBufPack_Petsc(N_Vector x, void* buf);
 SUNDIALS_EXPORT SUNErrCode N_VBufUnpack_Petsc(N_Vector x, void* buf);
 
-/* OPTIONAL fill vector with random values operation */
-SUNDIALS_EXPORT SUNErrCode N_VRandom_Petsc(N_Vector X);
-
 /*
  * -----------------------------------------------------------------
  * Enable / disable fused vector operations

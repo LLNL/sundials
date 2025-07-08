@@ -168,7 +168,6 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, sunindextype local_length,
   v->ops->nvinvtest      = N_VInvTest_Petsc;
   v->ops->nvconstrmask   = N_VConstrMask_Petsc;
   v->ops->nvminquotient  = N_VMinQuotient_Petsc;
-  v->ops->nvrandom       = N_VRandom_Petsc;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
@@ -866,15 +865,6 @@ sunrealtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
   (void)MPI_Allreduce(&minval, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN,
                       NV_COMM_PTC(num));
   return (gmin);
-}
-
-SUNErrCode N_VRandom_Petsc(N_Vector x)
-{
-  SUNFunctionBegin(x->sunctx);
-  Vec xv              = NV_PVEC_PTC(x);
-  PetscErrorCode ierr = VecSetRandom(xv, NULL);
-  CHKERRABORT(NV_COMM_PTC(x), ierr);
-  return SUN_SUCCESS;
 }
 
 /*

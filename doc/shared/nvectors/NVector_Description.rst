@@ -214,10 +214,6 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`N_VLinearCombinationVectorArray`
 
-   .. c:member:: SUNErrCode (*nvrandom)(N_Vector)
-
-      The function implementing :c:func:`N_VRandom`
-
    .. c:member:: sunrealtype (*nvdotprodlocal)(N_Vector, N_Vector)
 
       The function implementing :c:func:`N_VDotProdLocal`

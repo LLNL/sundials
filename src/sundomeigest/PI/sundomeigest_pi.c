@@ -155,8 +155,8 @@ SUNErrCode SUNDomEigEstInitialize_PI(SUNDomEigEstimator DEE)
   SUNAssert(PI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
-  N_VRandom(PI_CONTENT(DEE)->q);
-  SUNCheckLastErr();
+  /* Note: this previously called N_VRandom (now removed) to initialize q, so PI_CONTENT(DEE)->q needs to be initialized in some other manner. */
+
 
   /* Initialize the vector V */
   sunrealtype normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);

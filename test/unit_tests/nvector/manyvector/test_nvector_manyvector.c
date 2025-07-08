@@ -166,7 +166,6 @@ int main(int argc, char* argv[])
   fails += Test_N_VInvTest(X, Z, length, 0);
   fails += Test_N_VConstrMask(X, Y, Z, length, 0);
   fails += Test_N_VMinQuotient(X, Y, length, 0);
-  if (X->ops->nvrandom) { fails += Test_N_VRandom(X, 0); }
 
   /* Fused and vector array operations tests (disabled) */
   printf("\nTesting fused and vector array operations (disabled):\n\n");

@@ -184,9 +184,6 @@ SUNDIALS_EXPORT SUNErrCode N_VBufUnpack_Cuda(N_Vector x, void* buf);
 SUNDIALS_EXPORT void N_VPrint_Cuda(N_Vector v);
 SUNDIALS_EXPORT void N_VPrintFile_Cuda(N_Vector v, FILE* outfile);
 
-/* OPTIONAL fill vector with random values operation */
-SUNDIALS_EXPORT SUNErrCode N_VRandom_Cuda(N_Vector X);
-
 /*
  * -----------------------------------------------------------------
  * Enable / disable fused vector operations

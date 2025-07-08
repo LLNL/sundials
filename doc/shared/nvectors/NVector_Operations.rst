@@ -1040,25 +1040,6 @@ usage.
       flag = N_VBufUnpack(x, buf)
 
 
-.. _NVectors.Ops.Random:
-
-Random number operation
------------------------
-
-The following optional vector operation fills a vector data to be uniformly-distributed random numbers between 0 and 1.
-
-.. c:function:: SUNErrCode N_VRandom(N_Vector x)
-
-   This routine fills *x* with uniformly-distributed random numbers in the
-   interval :math:`[0,1]`.
-
-   Usage:
-
-   .. code-block:: c
-
-      flag = N_VRandom(x);
-
-
 .. _NVectors.Ops.Print:
 
 Output operations

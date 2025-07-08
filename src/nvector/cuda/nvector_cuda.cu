@@ -167,7 +167,6 @@ N_Vector N_VNewEmpty_Cuda(SUNContext sunctx)
   v->ops->nvwrmsnorm     = N_VWrmsNorm_Cuda;
   v->ops->nvwl2norm      = N_VWL2Norm_Cuda;
   v->ops->nvcompare      = N_VCompare_Cuda;
-  v->ops->nvrandom       = N_VRandom_Cuda;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
@@ -1355,23 +1354,6 @@ sunrealtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
   gpu_result = NVEC_CUDA_HBUFFERp(num)[0];
 
   return gpu_result;
-}
-
-SUNErrCode N_VRandom_Cuda(N_Vector X)
-{
-  size_t grid, block, shMemSize;
-  cudaStream_t stream;
-
-  if (GetKernelParameters(X, false, grid, block, shMemSize, stream))
-  {
-    SUNDIALS_DEBUG_PRINT(
-      "ERROR in N_VRandom_Cuda: GetKernelParameters returned nonzero\n");
-  }
-
-  randomKernel<<<grid, block, shMemSize, stream>>>(NVEC_CUDA_DDATAp(X),
-                                                   NVEC_CUDA_CONTENT(X)->length);
-  PostKernelLaunch();
-  return SUN_SUCCESS;
 }
 
 /*

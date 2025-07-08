@@ -98,7 +98,6 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
                        sunindextype local_length, int myid);
 int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM, sunindextype local_length,
                         int myid);
-int Test_N_VRandom(N_Vector X, int myid);
 
 /* Fused vector operation tests */
 int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid);

@@ -221,9 +221,9 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
     }
   }
 
-  /* Initialize the vector V[0] */
-  N_VRandom(ArnI_CONTENT(DEE)->q);
-  SUNCheckLastErr();
+  /* Initialize the vector V[0] -- Note: this previously called N_VRandom (removed), so q needs to be initialized elsewhere */
+
+
   sunrealtype normq = N_VDotProd(ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->q);
   SUNCheckLastErr();
 

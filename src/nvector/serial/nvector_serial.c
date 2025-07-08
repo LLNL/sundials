@@ -33,7 +33,6 @@
 #define ONEPT5 SUN_RCONST(1.5)
 
 /* Private functions for special cases of vector operations */
-static SUNErrCode N_VRandom_Serial(N_Vector x);
 static void VCopy_Serial(N_Vector x, N_Vector z);             /* z=x       */
 static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z);  /* z=x+y     */
 static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z); /* z=x-y     */
@@ -121,7 +120,6 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
   v->ops->nvinvtest      = N_VInvTest_Serial;
   v->ops->nvconstrmask   = N_VConstrMask_Serial;
   v->ops->nvminquotient  = N_VMinQuotient_Serial;
-  v->ops->nvrandom       = N_VRandom_Serial;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
@@ -160,9 +158,6 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
   content->length   = length;
   content->own_data = SUNFALSE;
   content->data     = NULL;
-
-  /* Seed random number generator to ensure reproducibility between runs */
-  srand(1);
 
   return (v);
 }
@@ -862,18 +857,6 @@ sunrealtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
   }
 
   return (min);
-}
-
-SUNErrCode N_VRandom_Serial(N_Vector x)
-{
-  SUNFunctionBegin(x->sunctx);
-  sunrealtype* xd = NULL;
-  xd              = NV_DATA_S(x);
-  for (int i = 0; i < NV_LENGTH_S(x); i++)
-  {
-    xd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
-  }
-  return SUN_SUCCESS;
 }
 
 /*

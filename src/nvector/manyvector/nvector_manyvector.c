@@ -67,7 +67,6 @@ static N_Vector ManyVectorClone(N_Vector w, sunbooleantype cloneempty);
 #ifdef MANYVECTOR_BUILD_WITH_MPI
 static int SubvectorMPIRank(N_Vector w);
 #endif
-static SUNErrCode MVAPPEND(N_VRandom)(N_Vector x);
 
 /* -----------------------------------------------------------------
    ManyVector API routines
@@ -230,25 +229,6 @@ N_Vector N_VMake_MPIManyVector(MPI_Comm comm, sunindextype num_subvectors,
                                       MPI_SUNINDEXTYPE, MPI_SUM, content->comm));
   }
   else { content->global_length = local_length; }
-
-  /* Only attach N_VRandom if it is supported by all subvectors */
-  v->ops->nvrandom = N_VRandom_MPIManyVector;
-  for (i = 0; i < num_subvectors; i++)
-  {
-    if (vec_array[i]->ops->nvrandom == NULL)
-    {
-      v->ops->nvrandom = NULL;
-      break;
-    }
-  }
-
-  /* Seed random number generator to ensure reproducibility between runs,
-     with different streams between MPI ranks */
-  if (v->ops->nvrandom)
-  {
-    rank = SubvectorMPIRank(vec_array[0]);
-    srand(rank + 1);
-  }
 
   return (v);
 }
@@ -434,20 +414,6 @@ N_Vector N_VNew_ManyVector(sunindextype num_subvectors, N_Vector* vec_array,
     SUNCheckLastErrNull();
   }
   content->global_length = local_length;
-
-  /* Only attach N_VRandom if it is supported by all subvectors */
-  v->ops->nvrandom = N_VRandom_ManyVector;
-  for (i = 0; i < num_subvectors; i++)
-  {
-    if (vec_array[i]->ops->nvrandom == NULL)
-    {
-      v->ops->nvrandom = NULL;
-      break;
-    }
-  }
-
-  /* Seed random number generator to ensure reproducibility between runs */
-  if (v->ops->nvrandom) { srand(1); }
 
   return (v);
 }
@@ -1495,17 +1461,6 @@ SUNErrCode N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x,
   return SUN_SUCCESS;
 }
 #endif
-
-SUNErrCode MVAPPEND(N_VRandom)(N_Vector x)
-{
-  SUNFunctionBegin(x->sunctx);
-  sunindextype i;
-  for (i = 0; i < MANYVECTOR_NUM_SUBVECS(x); i++)
-  {
-    SUNCheckCall(N_VRandom(MANYVECTOR_SUBVEC(x, i)));
-  }
-  return SUN_SUCCESS;
-}
 
 /* -----------------------------------------------------------------
    Fused vector operations

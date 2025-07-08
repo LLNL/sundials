@@ -21,11 +21,10 @@ The SUNDomEigEst_PI implementation of the ``SUNDomEigEstimator`` class performs
 the Power Iteration (PI) method :cite:p:`vonmises29`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
-:c:func:`N_VRandom()`, :c:func:`N_VDotProd()`,  :c:func:`N_VScale()`, and
-:c:func:`N_VDestroy()`).
+:c:func:`N_VDotProd()`,  :c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
 
 PI is particularly effective for large, sparse matrices where only the dominant
-eigenvalue is needed.  The algorithm starts with a random non-zero vector
+eigenvalue is needed.  The algorithm starts with a non-zero vector
 :math:`\mathbf{v}_{0}`.  It then iteratively updates to obtain
 
 .. math::
@@ -159,7 +158,7 @@ This estimator is constructed to perform the following operations:
 * In the "initialize" call, the estimator parameters are checked
   for validity and PI estimator memory is allocated.
 
-* In the "preprocess" call, the initial random vector :math:`q_0` is warmed up
+* In the "preprocess" call, the initial vector :math:`q_0` is warmed up
   :math:`k=` ``numwarmups`` times as
 
 .. math::

@@ -18,7 +18,6 @@
 #define _NVECTOR_KOKKOS_HPP
 
 #include <Kokkos_Core.hpp>
-#include <Kokkos_Random.hpp>
 #include <memory>
 #include <sundials/sundials_nvector.hpp>
 
@@ -411,16 +410,6 @@ sunrealtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
 }
 
 template<class VectorType>
-SUNErrCode N_VRandom_Kokkos(N_Vector x)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  Kokkos::Random_XorShift64_Pool<> random_pool{};
-  Kokkos::fill_random(xdata, random_pool, SUN_RCONST(0.0), SUN_RCONST(1.0));
-  return SUN_SUCCESS;
-}
-
-template<class VectorType>
 void N_VProd_Kokkos(N_Vector x, N_Vector y, N_Vector z)
 {
   auto xvec{GetVec<VectorType>(x)};
@@ -622,7 +611,6 @@ private:
     this->object_->ops->nvwl2norm     = impl::N_VWL2Norm_Kokkos<this_type>;
     this->object_->ops->nvwrmsnorm    = impl::N_VWrmsNorm_Kokkos<this_type>;
     this->object_->ops->nvwrmsnormmask = impl::N_VWrmsNormMask_Kokkos<this_type>;
-    this->object_->ops->nvrandom = impl::N_VRandom_Kokkos<this_type>;
 
     /* local reduction operations */
     this->object_->ops->nvconstrmasklocal = impl::N_VConstrMask_Kokkos<this_type>;

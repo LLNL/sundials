@@ -21,9 +21,8 @@ The SUNDomEigEst_ARNI implementation of the ``SUNDomEigEstimator`` class perform
 the Arnoldi Iteration (ArnI) method :cite:p:`arnoldi51`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
-:c:func:`N_VCloneVectorArray()`, :c:func:`N_VRandom()`, :c:func:`N_VDotProd()`,
-:c:func:`N_VLinearSum()`, :c:func:`N_VScale()`, :c:func:`N_VDestroy()`, and
-:c:func:`N_VDestroyVectorArray()`).
+:c:func:`N_VCloneVectorArray()`, :c:func:`N_VDotProd()`, :c:func:`N_VLinearSum()`,
+:c:func:`N_VScale()`, :c:func:`N_VDestroy()`, and :c:func:`N_VDestroyVectorArray()`).
 
 ArnI is particularly effective for large, sparse matrices where only the dominant
 eigenvalue is needed.  It constructs an orthonormal basis of the Krylov subspace
@@ -152,7 +151,7 @@ This estimator is constructed to perform the following operations:
 * In the "initialize" call, the estimator parameters are checked
   for validity and ARNI estimator memory is allocated.
 
-* In the "preprocess" call, the initial random vector :math:`q_0` is warmed up
+* In the "preprocess" call, the initial nonzero vector :math:`q_0` is warmed up
   :math:`k=` ``numwarmups`` times as
 
 .. math::

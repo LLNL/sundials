@@ -166,9 +166,6 @@ struct _generic_N_Vector_Ops
    * OPTIONAL operations with no default implementation.
    */
 
-  /* Fill the vector with uniformly-distributed random numbers from 0 to 1 */
-  SUNErrCode (*nvrandom)(N_Vector);
-
   /* Local reduction kernels (no parallel communication) */
   sunrealtype (*nvdotprodlocal)(N_Vector, N_Vector);
   sunrealtype (*nvmaxnormlocal)(N_Vector);
@@ -300,8 +297,6 @@ SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
 /*
  * OPTIONAL operations with no default implementation.
  */
-
-SUNDIALS_EXPORT SUNErrCode N_VRandom(N_Vector x);
 
 /* local reduction kernels (no parallel communication) */
 SUNDIALS_EXPORT sunrealtype N_VDotProdLocal(N_Vector x, N_Vector y);

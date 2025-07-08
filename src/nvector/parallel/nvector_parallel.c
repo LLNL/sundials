@@ -46,7 +46,6 @@ static void VLin2_Parallel(sunrealtype a, N_Vector x, N_Vector y,
                            N_Vector z); /* z=ax-y    */
 static void Vaxpy_Parallel(sunrealtype a, N_Vector x, N_Vector y); /* y <- ax+y */
 static void VScaleBy_Parallel(sunrealtype a, N_Vector x); /* x <- ax   */
-static SUNErrCode N_VRandom_Parallel(N_Vector x);
 
 /* Private functions for special cases of vector array operations */
 static void VSumVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* Y,
@@ -138,7 +137,6 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, sunindextype local_length,
   v->ops->nvinvtest      = N_VInvTest_Parallel;
   v->ops->nvconstrmask   = N_VConstrMask_Parallel;
   v->ops->nvminquotient  = N_VMinQuotient_Parallel;
-  v->ops->nvrandom       = N_VRandom_Parallel;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
@@ -180,10 +178,6 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, sunindextype local_length,
   content->comm          = comm;
   content->own_data      = SUNFALSE;
   content->data          = NULL;
-
-  /* Seed random number generator with MPI rank ID to ensure distinct streams */
-  SUNCheckMPICallNull(MPI_Comm_rank(comm, &myid));
-  srand(myid + 1);
 
   return (v);
 }
@@ -974,18 +968,6 @@ sunrealtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
   SUNCheckMPICallNoRet(
     MPI_Allreduce(&lmin, &gmin, 1, MPI_SUNREALTYPE, MPI_MIN, NV_COMM_P(num)));
   return (gmin);
-}
-
-SUNErrCode N_VRandom_Parallel(N_Vector x)
-{
-  SUNFunctionBegin(x->sunctx);
-  sunrealtype* xd = NULL;
-  xd              = NV_DATA_P(x);
-  for (int i = 0; i < NV_LOCLENGTH_P(x); i++)
-  {
-    xd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
-  }
-  return SUN_SUCCESS;
 }
 
 /*
