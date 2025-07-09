@@ -26,11 +26,12 @@
  * -----------------------------------------------------------------
  */
 
-#include <kinsol/kinsol.h> /* access to KINSOL func., consts. */
 #include <math.h>
-#include <nvector/nvector_serial.h> /* access to serial N_Vector       */
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <kinsol/kinsol.h> /* access to KINSOL func., consts. */
+#include <nvector/nvector_serial.h> /* access to serial N_Vector       */
 #include <sundials/sundials_math.h>    /* access to SUNRexp               */
 #include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver */
@@ -43,7 +44,12 @@
 
 #define SKIP 3 /* no. of points skipped for printing */
 
-#define FTOL SUN_RCONST(1.e-12) /* function tolerance */
+/* function tolerance */
+#if defined(SUNDIALS_SINGLE_PRECISION)
+#define FTOL SUN_RCONST(1.e-4)
+#else
+#define FTOL SUN_RCONST(1.e-12)
+#endif
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -83,7 +89,6 @@ int main(void)
   int retval;
   void* kmem;
   SUNLinearSolver LS;
-  FILE* infofp;
 
   y = scale = NULL;
   kmem      = NULL;
@@ -141,10 +146,6 @@ int main(void)
   fnormtol = FTOL;
   retval   = KINSetFuncNormTol(kmem, fnormtol);
   if (check_retval(&retval, "KINSetFuncNormTol", 1)) { return (1); }
-
-  /* Set information file */
-
-  infofp = fopen("KINSOL.log", "w");
 
   /* ----------------------
    * Create SUNLinearSolver
@@ -211,7 +212,6 @@ int main(void)
    * Free memory
    * ----------- */
 
-  fclose(infofp);
   N_VDestroy(y);
   N_VDestroy(scale);
   KINFree(&kmem);
