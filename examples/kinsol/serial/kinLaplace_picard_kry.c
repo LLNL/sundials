@@ -30,8 +30,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <kinsol/kinsol.h> /* access to KINSOL func., consts. */
-#include <nvector/nvector_serial.h> /* access to serial N_Vector       */
+#include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
 #include <sundials/sundials_math.h>    /* access to SUNRexp               */
 #include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver */

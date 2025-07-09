@@ -176,11 +176,11 @@ typedef struct KINMemRec
   N_Vector* kin_q_aa;      /* vector array needed for AA                      */
   sunrealtype kin_beta_aa; /* beta damping parameter for AA                   */
   sunrealtype* kin_gamma_aa; /* array of size maa used in AA                    */
-  sunrealtype* kin_R_aa; /* array of size maa*maa used in AA                */
-  sunrealtype* kin_T_aa; /* array of size maa*maa used in AA with ICWY MGS  */
-  long int kin_m_aa;     /* parameter for AA, Broyden or NLEN               */
+  sunrealtype* kin_R_aa;   /* array of size maa*maa used in AA                */
+  sunrealtype* kin_T_aa;   /* array of size maa*maa used in AA with ICWY MGS  */
+  long int kin_m_aa;       /* parameter for AA, Broyden or NLEN               */
   long int kin_m_aa_alloc; /* depth (m) used for AA memory allocations */
-  long int kin_delay_aa; /* number of iterations to delay AA */
+  long int kin_delay_aa;   /* number of iterations to delay AA */
   long int kin_current_depth;  /* current Anderson acceleration space size */
   KINDampingFn kin_damping_fn; /* function to determine the damping factor */
   KINDepthFn kin_depth_fn;     /* function to determine the depth with AA */
