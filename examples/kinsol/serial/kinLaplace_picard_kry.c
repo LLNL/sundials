@@ -382,7 +382,6 @@ static void PrintOutput(N_Vector u)
 static void PrintFinalStats(void* kmem)
 {
   long int nni, nfe, nli, npe, nps, ncfl, nfeLS, njvevals;
-  long int lenrw, leniw, lenrwLS, leniwLS;
   int retval;
 
   /* Main solver statistics */
@@ -407,23 +406,10 @@ static void PrintFinalStats(void* kmem)
   retval = KINGetNumPrecSolves(kmem, &nps);
   check_retval(&retval, "KINGetNumPrecSolves", 1);
 
-  /* Main solver workspace size */
-
-  retval = KINGetWorkSpace(kmem, &lenrw, &leniw);
-  check_retval(&retval, "KINGetWorkSpace", 1);
-
-  /* Linear solver workspace size */
-
-  retval = KINGetLinWorkSpace(kmem, &lenrwLS, &leniwLS);
-  check_retval(&retval, "KINGetLinWorkSpace", 1);
-
   printf("\nFinal Statistics.. \n\n");
   printf("nni = %6ld  nli   = %6ld  ncfl = %6ld\n", nni, nli, ncfl);
   printf("nfe = %6ld  nfeLS = %6ld  njt  = %6ld\n", nfe, nfeLS, njvevals);
-  printf("npe = %6ld  nps   = %6ld\n", npe, nps);
-  printf("\n");
-  printf("lenrw   = %6ld  leniw   = %6ld\n", lenrw, leniw);
-  printf("lenrwLS = %6ld  leniwLS = %6ld\n", lenrwLS, leniwLS);
+  printf("npe = %6ld  nps   = %6ld", npe, nps);
 }
 
 /*
