@@ -21,6 +21,12 @@
 
 int KINInitAA(KINMem kin_mem)
 {
+  // Limit the acceleration space size
+  if (kin_mem->kin_m_aa >= kin_mem->kin_mxiter)
+  {
+    kin_mem->kin_m_aa = kin_mem->kin_mxiter - 1;
+  }
+
   // Do we need to (re)allocate the AA workspace?
   sunbooleantype allocate = kin_mem->kin_m_aa > kin_mem->kin_m_aa_alloc;
 
