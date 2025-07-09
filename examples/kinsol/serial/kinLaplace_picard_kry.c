@@ -124,16 +124,17 @@ int main(void)
 
   /* y is used as a template */
 
-  /* Use acceleration with up to 3 prior residuals */
-  retval = KINSetMAA(kmem, 3);
-  if (check_retval(&retval, "KINSetMAA", 1)) { return (1); }
-
   retval = KINInit(kmem, func, y);
   if (check_retval(&retval, "KINInit", 1)) { return (1); }
 
   /* -------------------
    * Set optional inputs
    * ------------------- */
+
+  /* Use acceleration with up to 3 prior residuals */
+
+  retval = KINSetMAA(kmem, 3);
+  if (check_retval(&retval, "KINSetMAA", 1)) { return (1); }
 
   /* Specify stopping tolerance based on residual */
 

@@ -215,6 +215,10 @@ int main(int argc, char* argv[])
     void* kin_mem = KINCreate(sunctx);
     if (check_retval((void*)kin_mem, "KINCreate", 0)) { return 1; }
 
+    // Set Fixed Point Function
+    retval = KINInit(kin_mem, FPFunction, u);
+    if (check_retval(&retval, "KINInit", 1)) { return 1; }
+
     // Set number of prior residuals used in Anderson Acceleration
     retval = KINSetMAA(kin_mem, udata->maa);
     if (check_retval(&retval, "KINSetMAA", 0)) { return 1; }
@@ -222,10 +226,6 @@ int main(int argc, char* argv[])
     // Set orthogonlization routine used in Anderson Acceleration
     retval = KINSetOrthAA(kin_mem, udata->orthaa);
     if (check_retval(&retval, "KINSetOrthAA", 0)) { return 1; }
-
-    // Set Fixed Point Function
-    retval = KINInit(kin_mem, FPFunction, u);
-    if (check_retval(&retval, "KINInit", 1)) { return 1; }
 
     // Specify tolerances
     retval = KINSetFuncNormTol(kin_mem, udata->rtol);
