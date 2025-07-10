@@ -1012,12 +1012,12 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
    size (depth) in the Picard or fixed-point iteration.
 
    The default depth is 0, indicating no acceleration. Providing a value
-   :math:`> 0` will enable acceleration. The input value of ``maa`` must less
-   than the maximum number of iterations allowed, ``mxiter`` (see
+   :math:`> 0` will enable acceleration. The input ``maa`` must be less than the
+   maximum number of iterations allowed, ``mxiter`` (see
    :c:func:`KINSetNumMaxIters`). This limit is enforced within :c:func:`KINSol`,
    so :c:func:`KINSetMAA` and :c:func:`KINSetNumMaxIters` may be called in any
-   order. If ``maa`` is greater than ``mxiter``, it is set to the maximum
-   possible depth, ``maa = mxiter - 1``.
+   order. If ``maa`` is greater than or equal to ``mxiter``, it is set to the
+   maximum possible depth, ``maa = mxiter - 1``.
 
    **Arguments:**
      * ``kin_mem`` -- pointer to the KINSOL memory block.
