@@ -185,7 +185,7 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_DEE_FAIL* if ``dom_eig = NULL`` and DEE failed.
 
    .. note:: *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).  These errors
@@ -200,13 +200,13 @@ Allowable Method Families
       works in many cases, we recommend explicitly creating a DEE using the :c:func:`LSRKStepDomEigEstCreate`
       creator function. This function returns a pointer to the DEE, which can then be used with the
       associated set/get routines. An example use case can be found in following example file:
-      /examples/arkode/CXX_serial/ark_heat2D_lsrk_internal_domeig.cpp
+      ``/examples/arkode/CXX_serial/ark_heat2D_lsrk_internal_domeig.cpp``
 
-      Although, a DEE creation routine requires :c:func:`SUNDomEigEstSetATimes` with a valid
+      Note that although a DEE creation routine requires :c:func:`SUNDomEigEstSetATimes` with a valid
       matrix-vector product function pointer, creating a DEE with :c:func:`LSRKStepSetDomEigFn`
       uses an internal Jacobian-vector product estimation that is passed with the *arkode_mem* pointer.
-      Similarly, it estimates the eigenvalue as needed internally without requiring user to call
-      :c:func:`SUNDomEigEstimate` function.
+      Similarly, it estimates the eigenvalue as needed internally without requiring a call to
+      :c:func:`SUNDomEigEstimate`.
 
 
 .. c:function:: int LSRKStepDomEigEstCreate(void* arkode_mem, SUNDomEigEstimator_ID DEE_id, SUNDomEigEstimator* DEE);
@@ -221,7 +221,7 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_DEE_FAIL* if DEE failed.
 
    .. note:: *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).  These errors
@@ -230,11 +230,11 @@ Allowable Method Families
       Either this function or the user-supplied dominant eigenvalue estimator set function,
       :c:func:`LSRKStepSetDomEigFn` is required when either the RKC or RKL methods are used.
 
-      Although, a DEE creation routine requires :c:func:`SUNDomEigEstSetATimes` with a valid
+      Note that although a DEE creation routine requires :c:func:`SUNDomEigEstSetATimes` with a valid
       matrix-vector product function pointer, creating a DEE with :c:func:`LSRKStepDomEigEstCreate`
       uses an internal Jacobian-vector product estimation that is passed with the *arkode_mem* pointer.
-      Similarly, it estimates the eigenvalue as needed internally without requiring user to call
-      :c:func:`SUNDomEigEstimate` function.
+      Similarly, it estimates the eigenvalue as needed internally without requiring a call to
+      :c:func:`SUNDomEigEstimate`.
 
 
 .. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps);
@@ -362,8 +362,8 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
       * *ARK_ILL_INPUT* if ``nfeDQ`` is illegal
 
-.. note:: Internal SUNDIALS dominant eigenvalue estimatior (DEE) needs this approximation.
-   Therefore, it returns 0 if DEE is not created at all.
+.. note:: The internal SUNDIALS dominant eigenvalue estimator (DEE) uses this approximation.
+   Therefore, it returns 0 if DEE the was not created.
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:

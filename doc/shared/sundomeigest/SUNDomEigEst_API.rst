@@ -31,7 +31,7 @@ the header file ``sundials/sundials_domeigestimator.h``.
 SUNDomEigEstimator core functions
 -----------------------------------------------------
 
-The core dominant eigenvalue estimatimator functions consist of several **required**
+The core dominant eigenvalue estimator functions consist of several **required**
 functions: :c:func:`SUNDomEigEstSetATimes` provides a :c:type:`SUNATimesFn` function pointer,
 as well as a ``void*`` pointer to a data structure used by this routine,
 :c:func:`SUNDomEigEstInitialize` initializes the estimator object once all estimator-specific
@@ -49,7 +49,7 @@ a more appropriate initial vector before starting iterations.
    *Required.*
 
    Provides a :c:type:`SUNATimesFn` function pointer, as well as a ``void*`` pointer to a
-   data structure used by this routine, to the dominant eigenvalue estimatimator object
+   data structure used by this routine, to the dominant eigenvalue estimator object
    *DEE*.  SUNDIALS packages call this function to set the matrix-vector product function
    to either an estimator-provided difference-quotient via vector operations or a user-supplied
    estimator-specific routine.
@@ -75,7 +75,7 @@ a more appropriate initial vector before starting iterations.
 
    *Required.*
 
-   Performs dominant eigenvalue estimatimator initialization (assuming that all
+   Performs dominant eigenvalue estimator initialization (assuming that all
    estimator-specific options have been set).
 
    **Arguments:**
@@ -128,7 +128,7 @@ a more appropriate initial vector before starting iterations.
 .. c:function:: SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
 
    This *required* function estimates the dominant eigenvalue,
-   :math:`\lambda_{\max} = \lambda` such that
+   :math:`\lambda_{\max} = \lambda_{R} + \lambda_{I}i` such that
    :math:`|\lambda| = \max\{|\lambda_i| : A \vec{v_i} = \lambda_i \vec{v_i}, \ \vec{v_i} \neq \vec{0} \}`.
 
    **Arguments:**
@@ -139,10 +139,8 @@ a more appropriate initial vector before starting iterations.
 
    **Return value:**
 
-      Zero for a successful call, a positive value for a recoverable failure,
-      and a negative value for an unrecoverable failure.  Ideally this should
-      return one of the generic error codes listed in
-      :numref:`SUNDomEigEst.ErrorCodes`.
+      `SUN_SUCCESS` for a successful call, or a relevant error code from
+      :numref:`SUNDomEigEst.ErrorCodes` upon failure.
 
    **Usage:**
 
@@ -172,7 +170,7 @@ a more appropriate initial vector before starting iterations.
 SUNDomEigEstimator "set" functions
 -------------------------------------
 
-The following functions supply dominant eigenvalue estimatimator modules with
+The following functions supply dominant eigenvalue estimator modules with
 functions defined by the SUNDIALS packages and modify estimator parameters.
 Only the routine for setting the matrix-vector product routine is required.
 Otherwise, all other set functions are optional.  SUNDomEigEst implementations
@@ -180,7 +178,7 @@ that do not provide the functionality for any optional routine should leave the 
 function pointer ``NULL`` instead of supplying a dummy routine.
 
 
-.. c:function:: SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, sunindextype numofperprocess)
+.. c:function:: SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, sunindextype numpreprocess)
 
    This *optional* routine should set the number of "warm-up" matrix-vector multiplications,
    which then should be executed by :c:func:`SUNDomEigEstPreProcess`.
@@ -188,11 +186,11 @@ function pointer ``NULL`` instead of supplying a dummy routine.
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEst object,
-      * *numofperprocess* -- the number of preprocess.
+      * *numperprocess* -- the number of preprocess.
 
    **Return value:**
 
-      A :c:type:`SUNErrCode`.
+      * *numpreprocess* -- the number of preprocessing iterations (power method). 
 
    **Usage:**
 
@@ -208,11 +206,11 @@ function pointer ``NULL`` instead of supplying a dummy routine.
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEst object,
-      * *tol* -- the tolerance of estimator.
+      * *tol* -- the requested eigenvalue accuracy.
 
    **Return value:**
 
-      A :c:type:`SUNErrCode`.
+      * *tol* -- the requested eigenvalue accuracy.
 
    **Usage:**
 
@@ -223,7 +221,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
 .. c:function:: SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, sunindextype max_powiter)
 
-   This *optional* routine sets the number of max power iterations.
+   This *optional* routine sets the maximum number of power iterations.
 
    **Arguments:**
 
@@ -267,7 +265,7 @@ SUNDomEigEstimator "get" functions
 ----------------------------------
 
 The following functions allow SUNDIALS packages to retrieve results from a
-dominant eigenvalue estimatimate.  *All routines are optional.*
+dominant eigenvalue estimator.  *All routines are optional.*
 
 
 .. c:function:: SUNDomEigEstimator_ID SUNDomEigEstGetID(SUNDomEigEstimator DEE)
@@ -291,11 +289,6 @@ dominant eigenvalue estimatimate.  *All routines are optional.*
       .. code-block:: c
 
          id = SUNDomEigEstGetID(DEE);
-
-   .. note::
-
-      It is recommended that a user-supplied ``SUNDomEigEstimator`` return the
-      ``SUNDSOMEIGESTIMATOR_CUSTOM`` identifier.
 
 
 .. c:function:: SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, int* niter)
@@ -351,7 +344,7 @@ Functions provided by SUNDIALS packages
 
 To interface with SUNDomEigEst modules, the SUNDIALS packages supply a routine
 :c:type:`SUNATimesFn` for evaluating the matrix-vector product.  This package-provided
-routine translate between the user-supplied ODE, DAE, or linear and nonlinear
+routine translates between the user-supplied ODE, DAE, or linear and nonlinear
 systems and the generic dominant eigenvalue estimatimator API.  The function types
 for these routines are defined in the header file ``sundials/sundials_iterative.h``.
 
@@ -363,15 +356,6 @@ SUNDomEigEstimator return codes
 The functions provided to SUNDomEigEst modules by each SUNDIALS package,
 and functions within the SUNDIALS-provided SUNDomEigEst implementations,
 utilize a common set of return codes, listed in :numref:`SUNDomEigEst.ErrorCodes`.
-These adhere to a common pattern:
-
-* 0 indicates success
-* a positive value corresponds to a recoverable failure, and
-* a negative value indicates a non-recoverable failure.
-
-Aside from this pattern, the actual values of each error code
-provide additional information to the user in case of an estimator
-failure.
 
 
 .. _SUNDomEigEst.ErrorCodes:
@@ -458,7 +442,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEstSetMaxPowerIter`
 
-   .. c:member:: SUNErrCode (*setnumofperprocess)(SUNDomEigEstimator, sunindextype)
+   .. c:member:: SUNErrCode (*setnumpreprocess)(SUNDomEigEstimator, sunindextype)
 
       The function implementing :c:func:`SUNDomEigEstSetNumPreProcess`
 
@@ -482,7 +466,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEstimate`
 
-   .. c:member:: sunindextype (*getnumofiters)(SUNDomEigEstimator)
+   .. c:member:: sunindextype (*getnumiters)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEstNumIters`
 
@@ -597,9 +581,7 @@ Additionally, a ``SUNDomEigEstimator`` implementation *may* do the following:
 .. c:enum:: SUNDomEigEstimator_ID
 
    Each SUNDomEigEst implementation included in SUNDIALS has a unique identifier
-   specified in enumeration and shown in :numref:`SUNDomEigEst.API.IDs`.  It is
-   recommended that a user-supplied SUNDomEigEst implementation use the
-   ``SUNDSOMEIGESTIMATOR_CUSTOM`` identifier.
+   specified in enumeration and shown in :numref:`SUNDomEigEst.API.IDs`.
 
 .. _SUNDomEigEst.API.IDs:
 .. table:: Identifiers associated with :c:type:`SUNDomEigEstimator`
@@ -611,5 +593,4 @@ Additionally, a ``SUNDomEigEstimator`` implementation *may* do the following:
    ==================================  =======================================================  ============
    SUNDSOMEIGESTIMATOR_POWER           Power Iteration (internal)                                 0
    SUNDSOMEIGESTIMATOR_ARNOLDI         Arnoldi Iteration (internal)                               1
-   SUNDSOMEIGESTIMATOR_CUSTOM          User-provided custom dominant eigenvalue estimator        15
    ==================================  =======================================================  ============

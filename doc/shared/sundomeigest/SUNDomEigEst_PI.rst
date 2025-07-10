@@ -23,9 +23,9 @@ eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
 :c:func:`N_VDotProd()`,  :c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
 
-PI is particularly effective for large, sparse matrices where only the dominant
-eigenvalue is needed.  The algorithm starts with a non-zero vector
-:math:`\mathbf{v}_{0}`.  It then iteratively updates to obtain
+PI is useful for large, sparse matrices whose dominant eigenvalue  is real-valued 
+and has algebraic multiplicity one. The algorithm starts with a non-zero vector 
+:math:`\mathbf{v}_{0}`.  It then  iteratively updates this via
 
 .. math::
 
@@ -39,8 +39,9 @@ can be approximated using the Rayleigh quotient
 .. math::
 
     \lambda_k = \frac{\mathbf{v}_k^T A \mathbf{v}_k}{\|\mathbf{v}_k\|^2}.
-
-The iteration continues until the two successive eigenvalues are relatively close
+The iteration continues until the two successive eigenvalue approximations are
+relatively close enough to one another.  That is, for some relative tolerance
+:math:`\tau`,
 enough to one another.  That is, for some relative tolerance :math:`\tau`,
 
 .. math::
@@ -51,9 +52,9 @@ PI works for the matrices that have a **real** dominant eigenvalue.  If it is st
 greater than all others (in magnitude), convergence is guaranteed.  The speed of convergence
 depends on the ratios of the magnitude of the first two dominant eigenvalues.
 
-The matrix :math:`A` is not required explicitly; only routines that provide
-:math:`A` as operator is required.  Also, it requires a fixed amount of memory
-regardless of the number of iterations.
+The matrix :math:`A` is not required explicitly; only a routine that provides  
+the matrix-vector product :math:`Av` is required.  Also, PI requires a fixed 
+amount of memory regardless of the number of iterations.  
 
 
 .. _SUNDomEigEst.PI.Usage:
@@ -125,7 +126,7 @@ The SUNDomEigEst_PI module defines the *content* field of a
 These entries of the *content* field contain the following
 information:
 
-* ``ATimes`` - function pointer to perform :math:`Av` product,
+* ``ATimes`` - function pointer to perform the product :math:`Av`,
 
 * ``ATData`` - pointer to structure for ``ATimes``,
 
@@ -153,7 +154,7 @@ This estimator is constructed to perform the following operations:
 
 * An additional "set" routine must be called by the SUNDIALS estimator
   that interfaces with SUNDomEigEst_PI to supply the ``ATimes``
-  function pointers and the related data ``ATData``.
+  function pointer and the related data ``ATData``.
 
 * In the "initialize" call, the estimator parameters are checked
   for validity and PI estimator memory is allocated.

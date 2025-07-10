@@ -20,7 +20,7 @@ SUNDomEigEstimator Examples
 There are ``SUNDomEigEstimator`` examples that may be installed for each
 implementation; these make use of the functions in ``test_sundomeigest.c``.
 These example functions show simple usage of the ``SUNDomEigEstimator`` family
-of modules.  The inputs to the examples depend on the estimator type,
+of modules.  The command-line inputs to the examples depend on the estimator type,
 and are output to ``stdout`` if the example is run without the
 appropriate number of command-line arguments.
 
@@ -64,8 +64,8 @@ The following is a list of the example functions in ``test_sundomeigest.c``:
   A failure flag returns otherwise.
 
 * ``Test_SUNDomEigEstimate``: Verifies that ``SUNDomEigEstimate``
-  can be called and returns successfully.  Estimated dominant eigenvalue is
-  :math:`\lambda_{\max} = \lambda` such that
+  can be called and returns successfully.  The estimated dominant eigenvalue is
+  :math:`\lambda_{\max} = \lambda_R + \lambda_I i` such that
   :math:`|\lambda| = \max\{|\lambda_i| : A \vec{v_i} = \lambda_i \vec{v_i}, \ \vec{v_i} \neq \vec{0} \}`.
   This test compares the estimated dominant eigenvalue to the known value
   and returns a passing flag if the estimation is within a specified relative

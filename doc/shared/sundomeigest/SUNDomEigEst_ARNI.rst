@@ -36,15 +36,15 @@ to form a small upper Hessenberg matrix :math:`H_m`.  The eigenvalues of :math:`
 approximate some of the eigenvalues of :math:`A`; the dominant eigenvalue of :math:`A` is
 well-approximated by the dominant eigenvalue of :math:`H_m`.
 
-ArnI works for the matrices that have a **complex** dominant eigenvalue.  It supports
-estimations with a user specified fixed dimension of Krylov subspaces, at least 3.  While
-these choice requires a prefixed amount of memory (depending on the dimension), it strictly
-determines how good an estimation is.  To improve the estimation accuracy, we found preprocessing
-with :c:func:`SUNDomEigEstPreProcess` particularly useful.  This operation is free from any
-additional memory requirement and explained below.
+ArnI works for matrices with both real and complex eigenvalues.  It supports
+estimations with a user-specified fixed Krylov subspace dimension (at least 3).  While
+the choice of dimension results in a prefixed amount of memory, it strictly
+determines how good an estimation is.  To improve the estimation accuracy, we have found that preprocessing
+with :c:func:`SUNDomEigEstPreProcess` is particularly useful.  This operation is free from any
+additional memory requirement and is further explained below.
 
-The matrix :math:`A` is not required explicitly; only routines that provide :math:`A`
-as operator is required.
+The matrix :math:`A` is not required explicitly; only a routine that provides an 
+approximation of the matrix-vector product, :math:`Av`, is required.
 
 
 .. _SUNDomEigEst.ARNI.Usage:
@@ -52,15 +52,15 @@ as operator is required.
 SUNDomEigEst_ARNI Usage
 -----------------------
 
-The header file to be included when using this module is ``sundomeigest/sundomeigest_pi.h``.
-The SUNDomEigEst_PI module is accessible from all SUNDIALS solvers *without* linking to the
-``libsundials_sundomeigestpi`` module library.
+The header file to be included when using this module is ``sundomeigest/sundomeigest_arni.h``.
+The SUNDomEigEst_ARNI module is accessible from all SUNDIALS solvers *without* linking to the
+``libsundials_sundomeigestarni`` module library.
 
 The header file to be included when using this module is ``sundomeigest/sundomeigest_arni.h``.
 The SUNDomEigEst_ARNI module is accessible from all SUNDIALS solvers *without* linking to the
-``libsundials_sundomeigestarni`` module library after enabling LAPACK package.
-This LAPACK dependence is limited to the eigenvalue estimation of the Hessenberg matrix with
-``dgeev_/sgeev_`` functions.
+``libsundials_sundomeigestarni`` module library after enabling SUNDIALS interfaces to the LAPACK library.
+This LAPACK dependence is limited to the eigenvalue estimation of the Hessenberg matrix using the 
+``dgeev``` and/or ``sgeev`` functions.
 
 The module SUNDomEigEst_ARNI provides the following user-callable routines:
 
@@ -118,7 +118,7 @@ The SUNDomEigEst_ARNI module defines the *content* field of a
 These entries of the *content* field contain the following
 information:
 
-* ``ATimes`` - function pointer to perform :math:`Av` product,
+* ``ATimes`` - function pointer to perform the product :math:`Av`,  
 
 * ``ATData`` - pointer to structure for ``ATimes``,
 
@@ -146,8 +146,7 @@ This estimator is constructed to perform the following operations:
 
 * An additional "set" routine must be called by the SUNDIALS estimator
   that interfaces with SUNDomEigEst_ARNI to supply the ``ATimes``
-  function pointers and the related data ``ATData``.
-
+  function pointer and the related data ``ATData``.
 * In the "initialize" call, the estimator parameters are checked
   for validity and ARNI estimator memory is allocated.
 
