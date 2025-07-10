@@ -15,6 +15,11 @@ enabling the LAPACK library, while PI is available without any additional flags.
 
 ### New Features and Enhancements
 
+The functions `KINSetMAA` and `KINSetOrthAA` have been updated to allow for
+setting the Anderson acceleration depth and orthogonalization method after
+`KINInit`. Additionally, `KINSetMAA` and `KINSetNumMaxIters` may now be called
+in any order.
+
 ### Bug Fixes
 
 The shared library version numbers for the oneMKL dense linear solver and
