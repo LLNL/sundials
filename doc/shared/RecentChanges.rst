@@ -5,9 +5,10 @@
 
 **New Features and Enhancements**
 
-A new SUNLinearSolver module, SUNLINEARSOLVER_GINKGOBLOCK, for block/batched systems is included.
-A corresponding SUNMatrix module, SUNMATRIX_GINKGOBLOCK, was also added.
-These new modules use the `Ginkgo linear solver library <https://ginkgo-project.github.io/>`__.
+A new SUNLinearSolver, SUNLINEARSOLVER_GINKGOBLOCK, and corresponding SUNMatrix,
+SUNMATRIX_GINKGOBLOCK, were added for solving block/batched linear systems with
+the `Ginkgo linear solver library <https://ginkgo-project.github.io/>`__. As a
+result, Ginkgo 1.9.0 or newer is now required when enabling Ginkgo support.
 
 The functions :c:func:`KINSetMAA` and :c:func:`KINSetOrthAA` have been updated
 to allow for setting the Anderson acceleration depth and orthogonalization
