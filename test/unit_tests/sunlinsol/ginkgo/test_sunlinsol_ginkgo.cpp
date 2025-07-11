@@ -404,7 +404,7 @@ int main(int argc, char* argv[])
   }
   const auto matrows{matcols};
 
-  const auto matcond{SUNStrToReal(argv[++argi].c_str())};
+  const auto matcond{SUNStrToReal(argv[++argi])};
   if (matcond < 0)
   {
     std::cerr << "ERROR: matrix condition number must be positive or 0 "
