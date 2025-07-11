@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  const auto matcond{static_cast<sunrealtype>(atof(argv[++argi]))};
+  const auto matcond{SUNStrToReal(argv[++argi].c_str())};
   if (matcond < 0)
   {
     std::cerr << "ERROR: matrix condition number must be positive or 0 "
