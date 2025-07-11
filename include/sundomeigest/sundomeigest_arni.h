@@ -20,8 +20,8 @@
  * -----------------------------------------------------------------
  */
 
-#ifndef _DOMEIGEST_ARNI_H
-#define _DOMEIGEST_ARNI_H
+#ifndef _SUNDOMEIGEST_ARNOLDI_H
+#define _SUNDOMEIGEST_ARNOLDI_H
 
 #include <sundials/priv/sundials_domeigestimator_impl.h>
 #include <sundials/sundials_domeigestimator.h>
@@ -63,28 +63,28 @@ SUNDIALS_EXPORT
 SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator_ID SUNDomEigEst_ArnIGetID(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEst_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,  
+                                          SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
-                                      SUNATimesFn ATimes);
+SUNErrCode SUNDomEigEst_SetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
+                                             int numpreprocess);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
-                                             int numofperprocess);
+SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEst_PreProcess_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEst_ComputeHess_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                                   sunrealtype* lambdaI);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEst_PrintStats_ArnI(SUNDomEigEstimator DEE, FILE* outfile);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE);

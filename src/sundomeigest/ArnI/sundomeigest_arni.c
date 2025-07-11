@@ -74,21 +74,23 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
 
   /* Create dominant eigenvalue estimator */
   DEE = NULL;
-  DEE = SUNDomEigEstNewEmpty(sunctx);
+  DEE = SUNDomEigEst_NewEmpty(sunctx);
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->getid              = SUNDomEigEst_ArnIGetID;
-  DEE->ops->setatimes          = SUNDomEigEstSetATimes_ArnI;
-  DEE->ops->setmaxpoweriter    = NULL;
+  DEE->ops->setatimes          = SUNDomEigEst_SetATimes_ArnI;
+  DEE->ops->setmaxiters        = NULL;
   DEE->ops->settol             = NULL;
-  DEE->ops->setnumofperprocess = SUNDomEigEstSetNumPreProcess_ArnI;
-  DEE->ops->initialize         = SUNDomEigEstInitialize_ArnI;
-  DEE->ops->preprocess         = SUNDomEigEstPreProcess_ArnI;
-  DEE->ops->computehess        = SUNDomEigEstComputeHess_ArnI;
-  DEE->ops->estimate           = SUNDomEigEstimate_ArnI;
+  DEE->ops->setnumpreprocess   = SUNDomEigEst_SetNumPreProcess_ArnI;
+  DEE->ops->initialize         = SUNDomEigEst_Initialize_ArnI;
+  DEE->ops->preprocess         = SUNDomEigEst_PreProcess_ArnI;
+  DEE->ops->computehess        = SUNDomEigEst_ComputeHess_ArnI;
+  DEE->ops->estimate           = SUNDomEig_Estimate_ArnI;
   DEE->ops->getnumofiters      = NULL;
+  DEE->ops->getmaxnumofiters   = NULL;
+  DEE->ops->getminnumofiters   = NULL;
   DEE->ops->getres             = NULL;
+  DEE->ops->printstats         = SUNDomEigEst_PrintStats_ArnI;
   DEE->ops->free               = SUNDomEigEstFree_ArnI;
 
   /* Create content */
@@ -129,13 +131,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
  * -----------------------------------------------------------------
  */
 
-SUNDomEigEstimator_ID SUNDomEigEst_ArnIGetID(
-  SUNDIALS_MAYBE_UNUSED SUNDomEigEstimator DEE)
-{
-  return (SUNDSOMEIGESTIMATOR_ARNOLDI);
-}
-
-SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
+SUNErrCode SUNDomEigEst_SetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
                                       SUNATimesFn ATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
@@ -147,7 +143,7 @@ SUNErrCode SUNDomEigEstSetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -235,17 +231,17 @@ SUNErrCode SUNDomEigEstInitialize_ArnI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstSetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
-                                             int numofperprocess)
+SUNErrCode SUNDomEigEst_SetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
+                                              int numpreprocess)
 {
   SUNFunctionBegin(DEE->sunctx);
 
   /* set the number of warmups */
-  ArnI_CONTENT(DEE)->numwarmups = numofperprocess;
+  ArnI_CONTENT(DEE)->numwarmups = numpreprocess;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEigEst_PreProcess_ArnI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -278,7 +274,7 @@ SUNErrCode SUNDomEigEstPreProcess_ArnI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEigEst_ComputeHess_ArnI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -322,7 +318,7 @@ SUNErrCode SUNDomEigEstComputeHess_ArnI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                                   sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
@@ -395,6 +391,20 @@ SUNErrCode SUNDomEigEstimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
 
   return SUN_SUCCESS;
 }
+
+SUNErrCode SUNDomEigEst_PrintStats_ArnI(SUNDomEigEstimator DEE, FILE* outfile)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  if (DEE == NULL || outfile == NULL) { return SUN_ERR_ARG_CORRUPT; }
+
+  fprintf(outfile, "Arnoldi DEE Statistics:\n");
+  fprintf(outfile, "Krylov Dimension: %d\n", ArnI_CONTENT(DEE)->krydim);
+  fprintf(outfile, "Number of Warmups: %d\n", ArnI_CONTENT(DEE)->numwarmups);
+
+  return SUN_SUCCESS;
+}
+
 
 SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
 {

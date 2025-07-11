@@ -24,9 +24,8 @@
  output           = 1
  max steps        = 0
  ------------------------------------
- dee ID           = 1
  dee numofpreproc = 20
- dee_max_powiter  = 100
+ dee_max_iters    = 100
  dee_tol          = 0.01
  ------------------------------------
 

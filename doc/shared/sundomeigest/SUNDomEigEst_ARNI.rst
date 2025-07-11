@@ -40,7 +40,7 @@ ArnI works for matrices with both real and complex eigenvalues.  It supports
 estimations with a user-specified fixed Krylov subspace dimension (at least 3).  While
 the choice of dimension results in a prefixed amount of memory, it strictly
 determines how good an estimation is.  To improve the estimation accuracy, we have found that preprocessing
-with :c:func:`SUNDomEigEstPreProcess` is particularly useful.  This operation is free from any
+with :c:func:`SUNDomEigEst_PreProcess` is particularly useful.  This operation is free from any
 additional memory requirement and is further explained below.
 
 The matrix :math:`A` is not required explicitly; only a routine that provides an 
@@ -163,18 +163,16 @@ The SUNDomEigEst_ARNI module defines implementations of all
 dominant eigenvalue estimator operations listed in
 :numref:`SUNDomEigEst.API`:
 
-* ``SUNDomEigEst_ArnIGetID``
+* ``SUNDomEigEst_SetATimes_ArnI``
 
-* ``SUNDomEigEstSetATimes_ArnI``
+* ``SUNDomEigEst_Initialize_ArnI``
 
-* ``SUNDomEigEstInitialize_ArnI``
+* ``SUNDomEigEst_SetNumPreProcess_ArnI``
 
-* ``SUNDomEigEstSetNumPreProcess_ArnI``
+* ``SUNDomEigEst_PreProcess_ArnI``
 
-* ``SUNDomEigEstPreProcess_ArnI``
+* ``SUNDomEigEst_ComputeHess_ArnI``
 
-* ``SUNDomEigEstComputeHess_ArnI``
-
-* ``SUNDomEigEstimate_ArnI``
+* ``SUNDomEig_Estimate_ArnI``
 
 * ``SUNDomEigEstFree_ArnI``

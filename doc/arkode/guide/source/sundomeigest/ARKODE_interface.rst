@@ -19,14 +19,13 @@ ARKODE SUNDomEigEstimator interface
 
 In :numref:`SUNDomEigEst.ARKODE.Usage`, we list the SUNDomEigEst module functions used
 within the ARKDEE interface.  We emphasize that the ARKODE user does not need to know
-detailed usage of dominant eigenvalue estomator functions by the ARKODE code modules
+detailed usage of dominant eigenvalue estimator functions by the ARKODE code modules
 in order to use ARKODE. The information is presented as an implementation detail for
 the interested reader.
 
 .. _SUNDomEigEst.ARKODE.Usage:
 .. table:: List of SUNDomEigEst functions called by the ARKODE dominant eigenvalue
-           estimator interface, depending on the self-identified "id" reported from
-           :c:func:`SUNDomEigEstGetID`.  Functions marked with "X" are required;
+           estimator interface.  Functions marked with "X" are required;
            functions marked with "O" are only called if they are non-``NULL`` and
            functions marked with "N/A" are not applicable in the ``SUNDomEigEstimator``
            implementation that is being used.
@@ -36,27 +35,25 @@ the interested reader.
    | Routine                                            |   POWER ITERATION   |  ARNOLDI ITERATION  |
    |                                                    |                     |                     |
    +====================================================+=====================+=====================+
-   | :c:func:`SUNDomEigEstGetID`                        |          O          |          O          |
+   | :c:func:`SUNDomEigEst_SetATimes`                   |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstSetATimes`                    |          X          |          X          |
+   | :c:func:`SUNDomEigEst_SetMaxIters`\ :sup:`1`       |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstSetMaxPowerIter`\ :sup:`1`    |          O          |         N/A         |
+   | :c:func:`SUNDomEigEst_SetNumPreProcess`            |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstSetNumPreProcess`             |          O          |          O          |
+   | :c:func:`SUNDomEigEst_SetTol`\ :sup:`2`            |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstSetTol`\ :sup:`2`             |          O          |         N/A         |
+   | :c:func:`SUNDomEigEst_Initialize`                  |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstInitialize`                   |          X          |          X          |
+   | :c:func:`SUNDomEigEst_PreProcess`                  |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstPreProcess`                   |          O          |          O          |
+   | :c:func:`SUNDomEigEst_ComputeHess`\ :sup:`3`       |         N/A         |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstComputeHess`\ :sup:`3`        |         N/A         |          X          |
+   | :c:func:`SUNDomEig_Estimate`                       |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstimate`                        |          X          |          X          |
+   | :c:func:`SUNDomEigEst_GetNumIters`\ :sup:`4`       |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstNumIters`\ :sup:`4`           |          O          |         N/A         |
-   +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstRes`\ :sup:`5`                |          O          |         N/A         |
+   | :c:func:`SUNDomEigEst_GetRes`\ :sup:`5`            |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstFree`\ :sup:`6`               |                     |                     |
    +----------------------------------------------------+---------------------+---------------------+
@@ -64,24 +61,24 @@ the interested reader.
 
 Notes:
 
-1. :c:func:`SUNDomEigEstSetMaxPowerIter()` might or might not be required depending on
+1. :c:func:`SUNDomEigEst_SetMaxIters()` might or might not be required depending on
    ``SUNDomEigEstimator`` implementation that is being used. This flag must be left
    ``NULL`` if it is not applicable for an estimator.
 
-2. :c:func:`SUNDomEigEstSetTol()` might or might not be required depending on
+2. :c:func:`SUNDomEigEst_SetTol()` might or might not be required depending on
    ``SUNDomEigEstimator`` implementation that is being used. This flag must be left
    ``NULL`` if it is not applicable for an estimator.
 
-3. :c:func:`SUNDomEigEstComputeHess()` might or might not be required depending on
+3. :c:func:`SUNDomEigEst_ComputeHess()` might or might not be required depending on
    ``SUNDomEigEstimator`` implementation that is being used. This flag must be left
    ``NULL`` if it is not applicable for an estimator.
 
-4. :c:func:`SUNDomEigEstNumIters()` is only used to accumulate overall
+4. :c:func:`SUNDomEigEst_GetNumIters()` is only used to accumulate overall
    iterative estimator statistics.  If it is not implemented by
    the ``SUNDomEigEstimator`` module, then ARKDEE will consider all
    estimates as requiring zero iterations.
 
-5. Although :c:func:`SUNDomEigEstRes()` is optional, if it is not
+5. Although :c:func:`SUNDomEigEst_GetRes()` is optional, if it is not
    implemented by the ``SUNDomEigEstimator`` then ARKDEE will consider all
    estimates a being *exact*.
 

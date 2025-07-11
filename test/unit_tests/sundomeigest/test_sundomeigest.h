@@ -26,26 +26,25 @@
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
-/* Forward declarations for implementation specific utility functions */
-// void sync_device(void);
 
 /* Test function declarations */
-int Test_SUNDomEigEstGetID(SUNDomEigEstimator DEE,
-                           SUNDomEigEstimator_ID suntype, int myid);
-int Test_SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* ATdata,
+int Test_SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* ATdata,
                                SUNATimesFn ATimes, int myid);
-int Test_SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE,
-                                     sunindextype max_powiter, int myid);
-int Test_SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
-                                      int myid);
-int Test_SUNDomEigEstSetTol(SUNDomEigEstimator DEE, sunrealtype tol, int myid);
-int Test_SUNDomEigEstInitialize(SUNDomEigEstimator DEE, int myid);
-int Test_SUNDomEigEstPreProcess(SUNDomEigEstimator DEE, int myid);
-int Test_SUNDomEigEstComputeHess(SUNDomEigEstimator DEE, int myid);
-int Test_SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE,
+                                 sunindextype max_iters, int myid);
+int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
+                                       int myid);
+int Test_SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol, int myid);
+int Test_SUNDomEigEst_Initialize(SUNDomEigEstimator DEE, int myid);
+int Test_SUNDomEigEst_PreProcess(SUNDomEigEstimator DEE, int myid);
+int Test_SUNDomEigEst_ComputeHess(SUNDomEigEstimator DEE, int myid);
+int Test_SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                            sunrealtype* lambdaI, int myid);
-int Test_SUNDomEigEstNumIters(SUNDomEigEstimator DEE, int* niter, int myid);
-int Test_SUNDomEigEstRes(SUNDomEigEstimator DEE, sunrealtype* res, int myid);
+int Test_SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, int* niter, int myid);
+int Test_SUNDomEigEstGetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter, int myid);
+int Test_SUNDomEigEstGetMinNumIters(SUNDomEigEstimator DEE, int* minniter, int myid);
+int Test_SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* res, int myid);
+int Test_SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, int myid);
 
 /* Timing function */
 void SetTiming(int onoff);

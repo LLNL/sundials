@@ -126,9 +126,8 @@ struct UserData
   N_Vector e;    // error vector
 
   // DEE options
-  SUNDomEigEstimator_ID dee_id; // DEE id
   int dee_numofpreprocess;      // number of DEE preprocessings
-  int dee_max_powiter;          // max number of power iterations
+  int dee_max_iters;            // max number of iterations
   double dee_tol;               // tolerance
 
   // Timing variables
@@ -274,21 +273,20 @@ int main(int argc, char* argv[])
 
   // Specify and create an internal dominant eigenvalue estimator (DEE)
   SUNDomEigEstimator DEE = NULL;
-  flag = LSRKStepDomEigEstCreate(arkode_mem, udata->dee_id, &DEE);
+  flag = LSRKStepDomEigEstCreate(arkode_mem, XXX, &DEE);
   flag = (int)(DEE == NULL || flag != 0);
   if (check_flag(&flag, "LSRKStepDomEigEstCreate", 2)) { return 1; }
 
-  flag = SUNDomEigEstSetNumPreProcess(DEE, udata->dee_numofpreprocess);
-  if (check_flag(&flag, "SUNDomEigEstSetNumPreProcess", 2)) { return 1; }
+  flag = SUNDomEigEst_SetNumPreProcess(DEE, udata->dee_numofpreprocess);
+  if (check_flag(&flag, "SUNDomEigEst_SetNumPreProcess", 2)) { return 1; }
 
-  if (udata->dee_id == 0)
-  {
-    flag = SUNDomEigEstSetMaxPowerIter(DEE, udata->dee_max_powiter);
-    if (check_flag(&flag, "SUNDomEigEstSetMaxPowerIter", 2)) { return 1; }
+  flag = SUNDomEigEst_SetMaxIters(DEE, udata->dee_max_iters);
+  if (check_flag(&flag, "SUNDomEigEst_SetMaxIters", 2)) { return 1; }
 
-    flag = SUNDomEigEstSetTol(DEE, udata->dee_tol);
-    if (check_flag(&flag, "SUNDomEigEstSetTol", 2)) { return 1; }
-  }
+  flag = SUNDomEigEst_SetTol(DEE, udata->dee_tol);
+  if (check_flag(&flag, "SUNDomEigEst_SetTol", 2)) { return 1; }
+
+  // TODO: Add new functions to set the DEE options
 
   flag = LSRKStepSetDomEigFrequency(arkode_mem, udata->eigfrequency);
   if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
@@ -551,9 +549,8 @@ static int InitUserData(UserData* udata)
   udata->e      = NULL;
 
   // DEE options
-  udata->dee_id              = SUNDSOMEIGESTIMATOR_ARNOLDI;
   udata->dee_numofpreprocess = 20;
-  udata->dee_max_powiter     = 100;
+  udata->dee_max_iters       = 100;
   udata->dee_tol             = 0.01;
 
   // Timing variables
@@ -641,17 +638,13 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
       udata->maxsteps = stoi((*argv)[arg_idx++]);
     }
     // DEE options
-    else if (arg == "--dee_id")
-    {
-      udata->dee_id = (SUNDomEigEstimator_ID)stoi((*argv)[arg_idx++]);
-    }
     else if (arg == "--dee_numofpreprocess")
     {
       udata->dee_numofpreprocess = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--dee_max_powiter")
+    else if (arg == "--dee_max_iters")
     {
-      udata->dee_max_powiter = stoi((*argv)[arg_idx++]);
+      udata->dee_max_iters = stoi((*argv)[arg_idx++]);
     }
     else if (arg == "--dee_tol") { udata->dee_tol = stod((*argv)[arg_idx++]); }
     else if (arg == "--timing") { udata->timing = true; }
@@ -762,9 +755,8 @@ static void InputHelp()
   cout << "  --output <level>            : output level" << endl;
   cout << "  --nout <nout>               : number of outputs" << endl;
   cout << "  --maxsteps <steps>          : max steps between outputs" << endl;
-  cout << "  --dee_id <id>               : DomEig Estimator (DEE) id" << endl;
   cout << "  --dee_numofpreprocess <num> : number of DEE preprocesses" << endl;
-  cout << "  --dee_max_powiter <num>     : max power iterations in DEE" << endl;
+  cout << "  --dee_max_iters <num>       : max iterations in DEE" << endl;
   cout << "  --dee_tol <tol>             : DEE tolerance" << endl;
   cout << "  --timing                    : print timing data" << endl;
   cout << "  --help                      : print this message and exit" << endl;
@@ -799,9 +791,8 @@ static int PrintUserData(UserData* udata)
   cout << " output           = " << udata->output << endl;
   cout << " max steps        = " << udata->maxsteps << endl;
   cout << " ------------------------------------ " << endl;
-  cout << " dee ID           = " << udata->dee_id << endl;
   cout << " dee numofpreproc = " << udata->dee_numofpreprocess << endl;
-  cout << " dee_max_powiter  = " << udata->dee_max_powiter << endl;
+  cout << " dee_max_iters    = " << udata->dee_max_iters << endl;
   cout << " dee_tol          = " << udata->dee_tol << endl;
   cout << " ------------------------------------ " << endl;
   cout << endl;

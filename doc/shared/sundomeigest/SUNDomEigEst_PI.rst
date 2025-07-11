@@ -69,14 +69,14 @@ The SUNDomEigEst_PI module is accessible from all SUNDIALS solvers *without* lin
 The module SUNDomEigEst_PI provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_powiter, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_iters, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a PI
    ``SUNDomEigEstimator``.
 
    **Arguments:**
       * *q* -- a template vector.
-      * *max_powiter* -- maximum number of power iterations.
+      * *max_iters* -- maximum number of iterations.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
@@ -88,7 +88,7 @@ The module SUNDomEigEst_PI provides the following user-callable routines:
       called with a consistent ``N_Vector`` implementation (i.e.  that it
       supplies the requisite vector operations).
 
-      A ``max_powiter`` argument that is :math:`\le0` will result in the default
+      A ``max_iters`` argument that is :math:`\le0` will result in the default
       value (100).
 
       Although this default number is not high for large martices,
@@ -116,8 +116,8 @@ The SUNDomEigEst_PI module defines the *content* field of a
      N_Vector* V;
      N_Vector q;
      int numwarmups;
-     int max_powiter;
-     int numiters;
+     int max_iters;
+     int curnumiters;
      sunrealtype powiter_tol;
      sunrealtype res;
    };
@@ -134,9 +134,9 @@ information:
 
 * ``numwarmups`` - number of preprocessing warmups (default is 0),
 
-* ``max_powiter`` - maximum number of power iterations (default is 100),
+* ``max_iters`` - maximum number of iterations (default is 100),
 
-* ``numiters`` - current number of power iterations,
+* ``curnumiters`` - current number of power iterations,
 
 * ``powiter_tol`` - convergence criteria for the power iteration (default is 0.01),
 
@@ -172,24 +172,22 @@ The SUNDomEigEst_PI module defines implementations of all dominant
 eigenvalue estimator operations listed in
 :numref:`SUNDomEigEst.API`:
 
-* ``SUNDomEigEst_PIGetID``
+* ``SUNDomEigEst_SetATimes_PI``
 
-* ``SUNDomEigEstSetATimes_PI``
+* ``SUNDomEigEst_Initialize_PI``
 
-* ``SUNDomEigEstInitialize_PI``
+* ``SUNDomEigEst_SetNumPreProcess_PI``
 
-* ``SUNDomEigEstSetNumPreProcess_PI``
+* ``SUNDomEigEst_SetTol_PI``
 
-* ``SUNDomEigEstSetTol_PI``
+* ``SUNDomEigEst_SetMaxIters_PI``
 
-* ``SUNDomEigEstSetMaxPowerIter_PI``
+* ``SUNDomEigEst_PreProcess_PI``
 
-* ``SUNDomEigEstPreProcess_PI``
+* ``SUNDomEig_Estimate_PI``
 
-* ``SUNDomEigEstimate_PI``
+* ``SUNDomEigEst_GetNumIters_PI``
 
-* ``SUNDomEigEstNumIters_PI``
-
-* ``SUNDomEigEstRes_PI``
+* ``SUNDomEigEst_GetRes_PI``
 
 * ``SUNDomEigEstFree_PI``

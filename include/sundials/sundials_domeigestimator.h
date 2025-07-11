@@ -14,8 +14,8 @@
  * This is the header file for a generic SUNDomEigEst package.
  * -----------------------------------------------------------------*/
 
-#ifndef _DOMEIGEST_H
-#define _DOMEIGEST_H
+#ifndef _SUNDOMEIGEST_H
+#define _SUNDOMEIGEST_H
 
 /* TODO: Check to see if they are all required */
 #include <sundials/priv/sundials_errors_impl.h>
@@ -43,16 +43,6 @@ extern "C" {
 //#define DEE_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
 
 /* -----------------------------------------------------------------
- * Implemented SUNDomEigEstimator types
- * ----------------------------------------------------------------- */
-
-typedef enum
-{
-  SUNDSOMEIGESTIMATOR_POWER,
-  SUNDSOMEIGESTIMATOR_ARNOLDI
-} SUNDomEigEstimator_ID;
-
-/* -----------------------------------------------------------------
  * Generic definition of SUNDomEigEstimator (DEE)
  * ----------------------------------------------------------------- */
 
@@ -65,17 +55,19 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNDomEigEstimator* SUNDomEigEstimator;
 /* Structure containing function pointers to estimator operations */
 struct _generic_SUNDomEigEstimator_Ops
 {
-  SUNDomEigEstimator_ID (*getid)(SUNDomEigEstimator);
   SUNErrCode (*setatimes)(SUNDomEigEstimator, void*, SUNATimesFn);
-  SUNErrCode (*setmaxpoweriter)(SUNDomEigEstimator, int);
-  SUNErrCode (*setnumofperprocess)(SUNDomEigEstimator, int);
+  SUNErrCode (*setmaxiters)(SUNDomEigEstimator, int);
+  SUNErrCode (*setnumpreprocess)(SUNDomEigEstimator, int);
   SUNErrCode (*settol)(SUNDomEigEstimator, sunrealtype);
   SUNErrCode (*initialize)(SUNDomEigEstimator);
   SUNErrCode (*preprocess)(SUNDomEigEstimator);
   SUNErrCode (*computehess)(SUNDomEigEstimator);
   SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*);
   SUNErrCode (*getnumofiters)(SUNDomEigEstimator, int*);
+  SUNErrCode (*getmaxnumofiters)(SUNDomEigEstimator, int*);
+  SUNErrCode (*getminnumofiters)(SUNDomEigEstimator, int*);
   SUNErrCode (*getres)(SUNDomEigEstimator, sunrealtype*);
+  SUNErrCode (*printstats)(SUNDomEigEstimator, FILE*);
   SUNErrCode (*free)(SUNDomEigEstimator);
 };
 
@@ -94,46 +86,46 @@ struct _generic_SUNDomEigEstimator
  * ----------------------------------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEstNewEmpty(SUNContext sunctx);
+SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-void SUNDomEigEstFreeEmpty(SUNDomEigEstimator DEE);
+void SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE); 
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator_ID SUNDomEigEstGetID(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data,
+                                  SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetATimes(SUNDomEigEstimator DEE, void* A_data,
-                                 SUNATimesFn ATimes);
+SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, int max_iters);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetMaxPowerIter(SUNDomEigEstimator DEE, int max_powiter);
+SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE,
+                                         int numpreprocess);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetNumPreProcess(SUNDomEigEstimator DEE,
-                                        int numofperprocess);
+SUNErrCode SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstSetTol(SUNDomEigEstimator DEE, sunrealtype tol);
+SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstInitialize(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEst_PreProcess(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstPreProcess(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEst_ComputeHess(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstComputeHess(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                              sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                             sunrealtype* lambdaI);
+SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, int* niter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstNumIters(SUNDomEigEstimator DEE, int* niter);
+SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstRes(SUNDomEigEstimator DEE, sunrealtype* res);
+SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstFree(SUNDomEigEstimator DEE);

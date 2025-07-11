@@ -23,9 +23,9 @@
 /* constants */
 #define ZERO SUN_RCONST(0.0)
 
-#define factor      (-100.0)
-#define diagonal    (-30000.0)
-#define nondiagonal (-10000.0)
+#define factor      SUN_RCONST(-100.0)  
+#define diagonal    SUN_RCONST(-30000.0)  
+#define nondiagonal SUN_RCONST(-10000.0)
 
 /* user data structure */
 typedef struct
@@ -52,14 +52,16 @@ int main(int argc, char* argv[])
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
   UserData ProbData;              /* problem data structure     */
   int numwarmups;                 /* Number of the preprocessing warmups */
-  int max_powiter;                /* max power iteration        */
+  int max_iters;                  /* max power iteration        */
   int niter;                      /* number of iterations       */
+  int maxniter;                   /* max number of iterations   */
+  int minniter;                   /* min number of iterations   */
   int print_timing;               /* timing output flag         */
   sunrealtype res;                /* current residual           */
   sunrealtype lambdaR, lambdaI;   /* computed domeig parts      */
   sunrealtype tlambdaR, tlambdaI; /* true domeig parts          */
   SUNContext sunctx;
-  sunrealtype rel_tol = 1.0e-2; /* relative tol for pass/fail */
+  sunrealtype rel_tol = SUN_RCONST(1.0e-2); /* relative tol for pass/fail */
   sunrealtype rel_error;
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
@@ -68,13 +70,14 @@ int main(int argc, char* argv[])
     return (-1);
   }
 
-  /* check inputs: local problem size, timing flag */
+  /* check inputs: local problem size, max iters, num preprocessing, timing flag */
   if (argc < 5)
   {
     printf("ERROR: FOUR (4) Inputs required:\n");
     printf("  Problem size should be >= 2\n");
     printf("  Maximum number of power iterations should be >0\n");
     printf("  Number of preprocessing should be >= 0\n");
+    printf("  Include timers for calculation (0=off, 1=on)\n");
     return 1;
   }
   ProbData.N = (sunindextype)atol(argv[1]);
@@ -83,8 +86,8 @@ int main(int argc, char* argv[])
     printf("ERROR: Problem size must be a positive integer\n");
     return 1;
   }
-  max_powiter = atoi(argv[2]);
-  if (max_powiter <= 0)
+  max_iters = atoi(argv[2]);
+  if (max_iters <= 0)
   {
     printf(
       "ERROR: Maximum number of power iterations must be a positive integer\n");
@@ -101,7 +104,7 @@ int main(int argc, char* argv[])
 
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
-  printf("  Number of power iterations = %i\n", max_powiter);
+  printf("  Number of power iterations = %i\n", max_iters);
   printf("  Number of preprocessing = %i\n", numwarmups);
   printf("  Timing output flag = %i\n\n", print_timing);
 
@@ -118,40 +121,51 @@ int main(int argc, char* argv[])
   // based on the "factor" and the problem dimension N.
   // 2x2 block has eigenvalues A11 + A12 and A11 - A12
   sunrealtype* v = N_VGetArrayPointer(ProbData.diag);
-  int i;
-  for (i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
+  for (int i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
 
   // Set the problem data corresponding to 2x2 block matrix
   ProbData.A11 = diagonal;
   ProbData.A12 = nondiagonal;
 
   /* Create Arnoldi DomEig estimator*/
-  DEE = SUNDomEigEst_PI(ProbData.diag, max_powiter, sunctx);
+  DEE = SUNDomEigEst_PI(ProbData.diag, max_iters, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
 
-  fails += Test_SUNDomEigEstGetID(DEE, SUNDSOMEIGESTIMATOR_POWER, 0);
-  fails += Test_SUNDomEigEstSetATimes(DEE, &ProbData, ATimes, 0);
-  fails += Test_SUNDomEigEstSetMaxPowerIter(DEE, max_powiter, 0);
-  fails += Test_SUNDomEigEstSetNumPreProcess(DEE, numwarmups, 0);
-  fails += Test_SUNDomEigEstSetTol(DEE, rel_tol, 0);
-  fails += Test_SUNDomEigEstInitialize(DEE, 0);
-  fails += Test_SUNDomEigEstPreProcess(DEE, 0);
-  // Test_SUNDomEigEstComputeHess is not an option for power iteration.
+  fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
+  fails += Test_SUNDomEigEst_SetMaxIters(DEE, max_iters, 0);
+  fails += Test_SUNDomEigEst_SetNumPreProcess(DEE, numwarmups, 0);
+  fails += Test_SUNDomEigEst_SetTol(DEE, rel_tol, 0);
+  fails += Test_SUNDomEigEst_Initialize(DEE, 0);
+  fails += Test_SUNDomEigEst_PreProcess(DEE, 0);
+  // Test_SUNDomEigEst_ComputeHess is not an option for power iteration.
   // It should return with SUN_SUCCESS
-  fails += Test_SUNDomEigEstComputeHess(DEE, 0);
-  fails += Test_SUNDomEigEstimate(DEE, &lambdaR, &lambdaI, 0);
-  fails += Test_SUNDomEigEstNumIters(DEE, &niter, 0);
+  fails += Test_SUNDomEigEst_ComputeHess(DEE, 0);
+  fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
+  fails += Test_SUNDomEigEst_GetNumIters(DEE, &niter, 0);
   if (niter <= 0)
   {
-    printf("    >>> FAILED test -- SUNDomEigEstNumIters return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEst_GetNumIters return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEstRes(DEE, &res, 0);
+  fails += Test_SUNDomEigEstGetMaxNumIters(DEE, &maxniter, 0);
+  if (maxniter <= 0)
+  {
+    printf("    >>> FAILED test -- SUNDomEigEstGetMaxNumIters return value\n");
+    fails++;
+  }
+  fails += Test_SUNDomEigEstGetMinNumIters(DEE, &minniter, 0);
+  if (minniter <= 0)
+  {
+    printf("    >>> FAILED test -- SUNDomEigEstGetMinNumIters return value\n");
+    fails++;
+  }
+  fails += Test_SUNDomEigEst_GetRes(DEE, &res, 0);
   if (res < SUN_SMALL_REAL)
   {
-    printf("    >>> FAILED test -- SUNDomEigEstRes return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEst_GetRes return value\n");
     fails++;
   }
+  fails += Test_SUNDomEigEst_PrintStats(DEE, 0);
 
   if (fails)
   {
@@ -179,7 +193,7 @@ int main(int argc, char* argv[])
   // factor*ProbData.N; otherwise.
 
   /* Identify true_dom_eig based on given parameters*/
-  if (fabs(diagonal + nondiagonal) < fabs(factor * ProbData.N))
+  if (SUNRabs(diagonal + nondiagonal) < SUNRabs(factor * ProbData.N))
   {
     tlambdaR = factor * ProbData.N;
     tlambdaI = ZERO;

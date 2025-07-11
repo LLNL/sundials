@@ -160,7 +160,6 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
-  SUNDomEigEstimator_ID DDE_ID; /* DEE ID */
   SUNDomEigEstimator DEE;       /* DomEig estimator*/
   int dee_krydim;               /* Krylov subspace dimension */
   int dee_numwarmups; /* Power of A in the preprocessing; initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */

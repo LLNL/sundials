@@ -330,7 +330,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
     ark_mem->e_data    = ark_mem;
   }
 
-  /* Check if user has provided dom_eig_fn */
+  /* Check if user has provided dom_eig_fn or DEE */
   if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL && step_mem->DEE == NULL)
   {
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
@@ -2010,8 +2010,6 @@ void lsrkStep_Free(ARKodeMem ark_mem)
       step_mem->Xvecs = NULL;
       ark_mem->liw -= step_mem->nfusedopvecs;
     }
-    /* free DEE */
-    if (step_mem->DEE != NULL) { step_mem->DEE->ops->free(step_mem->DEE); }
 
     /* free the time stepper module itself */
     free(ark_mem->step_mem);
@@ -2393,9 +2391,9 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   }
 
   /* Set Max Power Itetations*/
-  if (DEE->ops->setmaxpoweriter != NULL)
+  if (DEE->ops->setmaxiters != NULL)
   {
-    retval = DEE->ops->setmaxpoweriter(DEE, step_mem->dee_maxiters);
+    retval = DEE->ops->setmaxiters(DEE, step_mem->dee_maxiters);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
@@ -2414,9 +2412,9 @@ SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem)
   }
 
   /* Set the number of preprocessings */
-  if (DEE->ops->setnumofperprocess != NULL)
+  if (DEE->ops->setnumpreprocess != NULL)
   {
-    retval = DEE->ops->setnumofperprocess(DEE, step_mem->dee_numwarmups);
+    retval = DEE->ops->setnumpreprocess(DEE, step_mem->dee_numwarmups);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
@@ -2499,9 +2497,9 @@ int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
     step_mem->dee_numwarmups =
       ((SUNDomEigEstimatorContent_PI)(DEE->content))->numwarmups;
     step_mem->dee_maxiters =
-      ((SUNDomEigEstimatorContent_PI)(DEE->content))->max_powiter;
+      ((SUNDomEigEstimatorContent_PI)(DEE->content))->max_iters;
     step_mem->dee_curniter =
-      ((SUNDomEigEstimatorContent_PI)(DEE->content))->numiters;
+      ((SUNDomEigEstimatorContent_PI)(DEE->content))->curnumiters;
     step_mem->dee_tol =
       ((SUNDomEigEstimatorContent_PI)(DEE->content))->powiter_tol;
     step_mem->dee_res = ((SUNDomEigEstimatorContent_PI)(DEE->content))->res;

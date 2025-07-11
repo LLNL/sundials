@@ -23,9 +23,9 @@
 /* constants */
 #define ZERO SUN_RCONST(0.0)
 
-#define factor   (-100.0)
-#define realpart (-30000.0)
-#define imagpart (+40000.0)
+#define factor   SUN_RCONST(-100.0)
+#define realpart SUN_RCONST(-30000.0)
+#define imagpart SUN_RCONST(+40000.0)
 
 /* user data structure */
 typedef struct
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
   UserData ProbData;              /* problem data structure     */
   int numwarmups;                 /* Number of the preprocessing warmups */
-  int max_powiter;                /* max power iteration        */
+  int max_iters;                  /* max power iteration        */
   int krydim;                     /* Krylov subspace dimension  */
   int niter;                      /* number of iterations       */
   int print_timing;               /* timing output flag         */
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   sunrealtype lambdaR, lambdaI;   /* computed domeig parts      */
   sunrealtype tlambdaR, tlambdaI; /* true domeig parts          */
   SUNContext sunctx;
-  sunrealtype rel_tol = 1.0e-2; /* relative tol for pass/fail */
+  sunrealtype rel_tol = SUN_RCONST(1.0e-2); /* relative tol for pass/fail */
   sunrealtype rel_error;
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
@@ -71,13 +71,14 @@ int main(int argc, char* argv[])
     return (-1);
   }
 
-  /* check inputs: local problem size, timing flag */
+  /* check inputs: local problem size, Krylov dimension, preprocessing items, timing flag */  
   if (argc < 5)
   {
     printf("ERROR: FOUR (4) Inputs required:\n");
     printf("  Problem size should be >= 2\n");
     printf("  Krylov subspace dimension should be >0\n");
     printf("  Number of preprocessing should be >= 0\n");
+    printf("  Include timers for calculation (0=off, 1=on)\n");
     return 1;
   }
   ProbData.N = (sunindextype)atol(argv[1]);
@@ -120,8 +121,7 @@ int main(int argc, char* argv[])
   // This setup allows two types of dominant eigenvalues (real and complex)
   // based on the "factor" and the problem dimension N.
   sunrealtype* v = N_VGetArrayPointer(ProbData.diag);
-  int i;
-  for (i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
+  for (int i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
   // Set the problem data corresponding to 2x2 block matrix
   ProbData.real_part = realpart;
   ProbData.imag_part = imagpart;
@@ -130,33 +130,46 @@ int main(int argc, char* argv[])
   DEE = SUNDomEigEst_ArnI(ProbData.diag, krydim, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_ArnI", 0)) { return 1; }
 
-  fails += Test_SUNDomEigEstGetID(DEE, SUNDSOMEIGESTIMATOR_ARNOLDI, 0);
-  fails += Test_SUNDomEigEstSetATimes(DEE, &ProbData, ATimes, 0);
-  // SUNDomEigEstSetMaxPowerIter is not an option for Arnoldi iteration.
+  fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
+  // SUNDomEigEst_SetMaxIters is not an option for Arnoldi iteration.
   // It should return with SUN_SUCCESS
-  max_powiter = krydim;
-  fails += Test_SUNDomEigEstSetMaxPowerIter(DEE, max_powiter, 0);
-  fails += Test_SUNDomEigEstSetNumPreProcess(DEE, numwarmups, 0);
-  fails += Test_SUNDomEigEstSetTol(DEE, rel_tol, 0);
-  fails += Test_SUNDomEigEstInitialize(DEE, 0);
-  fails += Test_SUNDomEigEstPreProcess(DEE, 0);
-  fails += Test_SUNDomEigEstComputeHess(DEE, 0);
-  fails += Test_SUNDomEigEstimate(DEE, &lambdaR, &lambdaI, 0);
-  // SUNDomEigEstNumIters and SUNDomEigEstRes are not options for
-  // Arnoldi iteration. They should return with 0
-  fails += Test_SUNDomEigEstNumIters(DEE, &niter, 0);
+  max_iters = krydim;
+  fails += Test_SUNDomEigEst_SetMaxIters(DEE, max_iters, 0);
+  fails += Test_SUNDomEigEst_SetNumPreProcess(DEE, numwarmups, 0);
+  fails += Test_SUNDomEigEst_SetTol(DEE, rel_tol, 0);
+  fails += Test_SUNDomEigEst_Initialize(DEE, 0);
+  fails += Test_SUNDomEigEst_PreProcess(DEE, 0);
+  fails += Test_SUNDomEigEst_ComputeHess(DEE, 0);
+  fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
+  // SUNDomEigEst_GetNumIters, SUNDomEigEstGetMaxNumIters, SUNDomEigEstGetMinNumIters
+  // and SUNDomEigEst_GetRes are not options for Arnoldi iteration. 
+  // They should return with 0.
+  fails += Test_SUNDomEigEst_GetNumIters(DEE, &niter, 0);
   if (niter != 0)
   {
-    printf("    >>> FAILED test -- SUNDomEigEstNumIters return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEst_GetNumIters return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEstRes(DEE, &res, 0);
+  fails += Test_SUNDomEigEstGetMaxNumIters(DEE, &maxniter, 0);
+  if (maxniter != 0)
+  {
+    printf("    >>> FAILED test -- SUNDomEigEstGetMaxNumIters return  value\n");
+    fails++;
+  }
+  fails += Test_SUNDomEigEstGetMinNumIters(DEE, &minniter, 0);
+  if (minniter != 0)
+  {
+    printf("    >>> FAILED test -- SUNDomEigEstGetMinNumIters return value\n");
+    fails++;
+  }
+  fails += Test_SUNDomEigEst_GetRes(DEE, &res, 0);
   if (res > SUN_SMALL_REAL)
   {
-    printf("    >>> FAILED test -- SUNDomEigEstRes return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEst_GetRes return value\n");
     fails++;
   }
-
+  fails += Test_SUNDomEigEst_PrintStats(DEE, 0);
+  
   if (fails)
   {
     printf("FAIL: SUNDomEigEst_ArnI module failed %i initialization tests\n\n",

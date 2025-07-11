@@ -26,44 +26,41 @@ appropriate number of command-line arguments.
 
 The following is a list of the example functions in ``test_sundomeigest.c``:
 
-* ``Test_SUNDomEigEstGetID``: Verifies the returned estimator identifier against
-  the value that should be returned.
-
-* ``Test_SUNDomEigEstSetATimes`` Verifies that ``SUNDomEigEstSetATimes`` can
+* ``Test_SUNDomEigEst_SetATimes`` Verifies that ``SUNDomEigEst_SetATimes`` can
   be called and returns successfully.
 
-* ``Test_SUNDomEigEstSetMaxPowerIter`` Verifies that
-  ``SUNDomEigEstSetMaxPowerIter`` can be called and returns successfully.
+* ``Test_SUNDomEigEst_SetMaxIters`` Verifies that
+  ``SUNDomEigEst_SetMaxIters`` can be called and returns successfully.
 
 
-  ``SUNDomEigEstSetMaxPowerIter`` is not an option for some estimators, e.g.,
+  ``SUNDomEigEst_SetMaxIters`` is not an option for some estimators, e.g.,
   Arnoldi iteration.  In this case, it should return with SUN_SUCCESS.
 
-* ``Test_SUNDomEigEstSetNumPreProcess`` Verifies that
-  ``SUNDomEigEstSetNumPreProcess`` can be called and returns successfully.
+* ``Test_SUNDomEigEst_SetNumPreProcess`` Verifies that
+  ``SUNDomEigEst_SetNumPreProcess`` can be called and returns successfully.
 
-* ``Test_SUNDomEigEstSetTol`` Verifies that
-  ``SUNDomEigEstSetTol`` can be called and returns successfully.
+* ``Test_SUNDomEigEst_SetTol`` Verifies that
+  ``SUNDomEigEst_SetTol`` can be called and returns successfully.
 
 
-  ``SUNDomEigEstSetTol`` is not an option for some estimators, e.g.,
+  ``SUNDomEigEst_SetTol`` is not an option for some estimators, e.g.,
   Arnoldi iteration.  In this case, it should return with SUN_SUCCESS.
 
-* ``Test_SUNDomEigEstInitialize``: Verifies that ``SUNDomEigEstInitialize``
+* ``Test_SUNDomEigEst_Initialize``: Verifies that ``SUNDomEigEst_Initialize``
   can be called and returns successfully.
 
-* ``Test_SUNDomEigEstPreProcess``: Verifies that ``SUNDomEigEstPreProcess``
+* ``Test_SUNDomEigEst_PreProcess``: Verifies that ``SUNDomEigEst_PreProcess``
   can be called and returns successfully.
 
-* ``Test_SUNDomEigEstComputeHess``: Verifies that ``SUNDomEigEstComputeHess``
+* ``Test_SUNDomEigEst_ComputeHess``: Verifies that ``SUNDomEigEst_ComputeHess``
   can be called and returns successfully.
 
 
-  ``SUNDomEigEstComputeHess`` is not an option for some estimators, e.g.,
+  ``SUNDomEigEst_ComputeHess`` is not an option for some estimators, e.g.,
   Power iteration.  In this case, it should return with SUN_SUCCESS.
   A failure flag returns otherwise.
 
-* ``Test_SUNDomEigEstimate``: Verifies that ``SUNDomEigEstimate``
+* ``Test_SUNDomEig_Estimate``: Verifies that ``SUNDomEig_Estimate``
   can be called and returns successfully.  The estimated dominant eigenvalue is
   :math:`\lambda_{\max} = \lambda_R + \lambda_I i` such that
   :math:`|\lambda| = \max\{|\lambda_i| : A \vec{v_i} = \lambda_i \vec{v_i}, \ \vec{v_i} \neq \vec{0} \}`.
@@ -71,31 +68,31 @@ The following is a list of the example functions in ``test_sundomeigest.c``:
   and returns a passing flag if the estimation is within a specified relative
   tolerance; otherwise, it returns a failure flag.
 
-* ``Test_SUNDomEigEstNumIters`` Verifies that
-  ``SUNDomEigEstNumIters`` can be called and returns successfully.
+* ``Test_SUNDomEigEst_GetNumIters`` Verifies that
+  ``SUNDomEigEst_GetNumIters`` can be called and returns successfully.
 
 
-  ``SUNDomEigEstNumIters`` is not an option for some estimators, e.g.,
+  ``SUNDomEigEst_GetNumIters`` is not an option for some estimators, e.g.,
   Arnoldi iteration.  In this case, it should return with SUN_SUCCESS
   and `niter = 0`.  A failure flag returns otherwise.
 
-* ``Test_SUNDomEigEstRes`` Verifies that
-  ``SUNDomEigEstRes`` can be called and returns successfully.
+* ``Test_SUNDomEigEst_GetRes`` Verifies that
+  ``SUNDomEigEst_GetRes`` can be called and returns successfully.
 
 
-  ``SUNDomEigEstRes`` is not an option for some estimators, e.g.,
+  ``SUNDomEigEst_GetRes`` is not an option for some estimators, e.g.,
   Arnoldi iteration.  In this case, it should return with SUN_SUCCESS
   and `res = 0`.  A failure flag returns otherwise.
 
 We'll note that these tests should be performed in a particular
 order.  For all estimators,
-``SUNDomEigEstSetATimes`` must be called
-before other set routines e.g., ``SUNDomEigEstSetMaxPowerIter``,
-``SUNDomEigEstSetNumPreProcess``, ``SUNDomEigEstSetTol`` (if applicable).
-Then, ``Test_SUNDomEigEstInitialize`` must be called before
-``Test_SUNDomEigEstPreProcess`` (if applicable).
-``Test_SUNDomEigEstComputeHess`` (if the estimator requires)
-must be called next and before ``Test_SUNDomEigEstimate``.
-For the estimator stats ``Test_SUNDomEigEstNumIters`` and ``Test_SUNDomEigEstRes``
-should be called after ``Test_SUNDomEigEstimate``.
+``SUNDomEigEst_SetATimes`` must be called before other set routines e.g., 
+``SUNDomEigEst_SetMaxIters``, ``SUNDomEigEst_SetNumPreProcess``, 
+``SUNDomEigEst_SetTol`` (if applicable).
+Then, ``Test_SUNDomEigEst_Initialize`` must be called before
+``Test_SUNDomEigEst_PreProcess`` (if applicable).
+``Test_SUNDomEigEst_ComputeHess`` (if the estimator requires)
+must be called next and before ``Test_SUNDomEig_Estimate``.
+For the estimator stats ``Test_SUNDomEigEst_GetNumIters`` and ``Test_SUNDomEigEst_GetRes``
+should be called after ``Test_SUNDomEig_Estimate``.
 These are called in the appropriate order in all of the example problems.
