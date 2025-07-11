@@ -6,10 +6,10 @@ on:
 jobs:
   build_llvm_container:
     runs-on: ubuntu-22.04
-    steps:    
+    steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      
+
       - name: Free up disk space
         uses: ./.github/actions/free-space-ubuntu
 
@@ -27,11 +27,11 @@ jobs:
         run: |
           spack mirror add v0.21.0 https://binaries.spack.io/v0.21.0
           spack mirror add --oci-username ${{ github.actor }} --oci-password ${{ secrets.OCI_TOKEN }} sundials_spack_cache oci://ghcr.io/LLNL/sundials_spack_cache
-          spack buildcache keys --install --trust 
+          spack buildcache keys --install --trust
 
       - name: Install llvm@17.0.4
         run: spack install --no-check-signature llvm@17.0.4
-      
+
       - name: Push to buildcache
         if: ${{ !cancelled() }}
         run: |
