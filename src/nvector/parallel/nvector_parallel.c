@@ -81,7 +81,6 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm, sunindextype local_length,
   N_Vector v;
   N_VectorContent_Parallel content;
   sunindextype n, Nsum;
-  int myid;
 
   SUNAssertNull(local_length >= 0, SUN_ERR_ARG_OUTOFRANGE);
   SUNAssertNull(global_length >= 0, SUN_ERR_ARG_OUTOFRANGE);

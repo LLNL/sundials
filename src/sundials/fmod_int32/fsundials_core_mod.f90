@@ -233,7 +233,6 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: nvwrmsnormmaskvectorarray
   type(C_FUNPTR), public :: nvscaleaddmultivectorarray
   type(C_FUNPTR), public :: nvlinearcombinationvectorarray
-  type(C_FUNPTR), public :: nvrandom
   type(C_FUNPTR), public :: nvdotprodlocal
   type(C_FUNPTR), public :: nvmaxnormlocal
   type(C_FUNPTR), public :: nvminlocal
@@ -296,7 +295,6 @@ module fsundials_core_mod
  public :: FN_VConstVectorArray
  public :: FN_VWrmsNormVectorArray
  public :: FN_VWrmsNormMaskVectorArray
- public :: FN_VRandom
  public :: FN_VDotProdLocal
  public :: FN_VMaxNormLocal
  public :: FN_VMinLocal
@@ -1347,14 +1345,6 @@ type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
-integer(C_INT) :: fresult
-end function
-
-function swigc_FN_VRandom(farg1) &
-bind(C, name="_wrap_FN_VRandom") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -4096,19 +4086,6 @@ farg3 = w
 farg4 = c_loc(id)
 farg5 = c_loc(nrm(1))
 fresult = swigc_FN_VWrmsNormMaskVectorArray(farg1, farg2, farg3, farg4, farg5)
-swig_result = fresult
-end function
-
-function FN_VRandom(x) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(N_Vector), target, intent(inout) :: x
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-
-farg1 = c_loc(x)
-fresult = swigc_FN_VRandom(farg1)
 swig_result = fresult
 end function
 

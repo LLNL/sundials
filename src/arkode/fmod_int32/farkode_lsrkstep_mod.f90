@@ -57,13 +57,10 @@ module farkode_lsrkstep_mod
   type(C_PTR), public :: cptr = C_NULL_PTR
   integer(C_INT), public :: cmemflags = 0
  end type
- type, public :: SWIGTYPE_p_SUNDomEigEstimator_ID
-  type(SwigClassWrapper), public :: swigdata
- end type
  type, public :: SWIGTYPE_p_SUNDomEigEstimator
   type(SwigClassWrapper), public :: swigdata
  end type
- public :: FLSRKStepDomEigEstCreate
+ public :: FLSRKStepSetDomEigEstimator
  public :: FLSRKStepSetDomEigFrequency
  public :: FLSRKStepSetMaxNumStages
  public :: FLSRKStepSetDomEigSafetyFactor
@@ -165,14 +162,13 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FLSRKStepDomEigEstCreate(farg1, farg2, farg3) &
-bind(C, name="_wrap_FLSRKStepDomEigEstCreate") &
+function swigc_FLSRKStepSetDomEigEstimator(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetDomEigEstimator") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(SwigClassWrapper) :: farg2
-type(SwigClassWrapper) :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -432,22 +428,19 @@ fresult = swigc_FLSRKStepSetDomEigFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepDomEigEstCreate(arkode_mem, dee_id, dee) &
+function FLSRKStepSetDomEigEstimator(arkode_mem, dee) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-type(SWIGTYPE_p_SUNDomEigEstimator_ID), intent(in) :: dee_id
-class(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
+type(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(SwigClassWrapper) :: farg2 
-type(SwigClassWrapper) :: farg3 
 
 farg1 = arkode_mem
-farg2 = dee_id%swigdata
-farg3 = dee%swigdata
-fresult = swigc_FLSRKStepDomEigEstCreate(farg1, farg2, farg3)
+farg2 = dee%swigdata
+fresult = swigc_FLSRKStepSetDomEigEstimator(farg1, farg2)
 swig_result = fresult
 end function
 

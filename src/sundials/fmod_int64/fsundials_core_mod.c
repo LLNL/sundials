@@ -1367,18 +1367,6 @@ SWIGEXPORT int _wrap_FN_VWrmsNormMaskVectorArray(int const *farg1, void *farg2, 
 }
 
 
-SWIGEXPORT int _wrap_FN_VRandom(N_Vector farg1) {
-  int fresult ;
-  N_Vector arg1 = (N_Vector) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (N_Vector)(farg1);
-  result = (SUNErrCode)N_VRandom(arg1);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT double _wrap_FN_VDotProdLocal(N_Vector farg1, N_Vector farg2) {
   double fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
