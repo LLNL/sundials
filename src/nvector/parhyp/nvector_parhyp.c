@@ -153,7 +153,6 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
   SUNFunctionBegin(sunctx);
   N_Vector v;
   N_VectorContent_ParHyp content;
-  int myid;
 
   /* Create an empty vector object */
   v = NULL;

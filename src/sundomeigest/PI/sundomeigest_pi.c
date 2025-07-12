@@ -108,7 +108,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
   
   /* Allocate content */
   N_VScale(ONE, q, content->q);
-  SUNCheckLastErr();
+  SUNCheckLastErrNull();
 
   content->V = N_VClone(q);
   SUNCheckLastErrNull();
@@ -366,8 +366,8 @@ SUNErrCode SUNDomEigEst_PrintStats_PI(SUNDomEigEstimator DEE, FILE* outfile)
   fprintf(outfile, "Power Iteration DEE Statistics:\n");
   fprintf(outfile, "Maximum number of allowed iterations: %d\n", PI_CONTENT(DEE)->max_iters);
   fprintf(outfile, "Number of warmups: %d\n", PI_CONTENT(DEE)->numwarmups);
-  fprintf(outfile, "Power iteration tolerance: %g\n", PI_CONTENT(DEE)->powiter_tol);
-  fprintf(outfile, "Current residual: %g\n", PI_CONTENT(DEE)->curres);
+  fprintf(outfile, "Power iteration tolerance: " SUN_FORMAT_G "\n", PI_CONTENT(DEE)->powiter_tol);
+  fprintf(outfile, "Current residual: " SUN_FORMAT_G "\n", PI_CONTENT(DEE)->curres);
   fprintf(outfile, "Current number of power iterations: %d\n", PI_CONTENT(DEE)->curnumiters);
   fprintf(outfile, "Maximum number of power iterations: %d\n", PI_CONTENT(DEE)->maxnumiters);
   fprintf(outfile, "Minimum number of power iterations: %d\n", PI_CONTENT(DEE)->minnumiters);
