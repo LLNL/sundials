@@ -200,7 +200,6 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
-
   int retval;
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
@@ -208,7 +207,7 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  /* set the dom_eig routine pointer, or create internal dom_eig memory */
+  /* set the dom_eig routine pointer, and update relevant flags */
   if (dom_eig != NULL)
   {
     step_mem->dom_eig_fn = dom_eig;
@@ -217,73 +216,12 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   }
   else
   {
-    /* Set the default internal dominant eigenvalue estimator type */
-    if (step_mem->DDE_ID != SUNDSOMEIGESTIMATOR_ARNOLDI)
-    {
-      step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_POWER;
-    }
+    step_mem->dom_eig_fn = NULL;
 
-    /* Create an internal dominant eigenvalue estimator */
-    step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
-    if (step_mem->DEE == NULL)
-    {
-      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__,
-                      __FILE__, "ARKODE failed to create a DDE: Creation routine returned NULL DDE");
-      return ARK_DEE_FAIL;
-    }
-
-    return ARK_SUCCESS;
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Null dom_eig pointer");
+    return ARK_ILL_INPUT;
   }
-}
-
-/*---------------------------------------------------------------
-  LSRKStepDomEigEstCreate creates DomEigEst with ID.
-  ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int LSRKStepDomEigEstCreate(void* arkode_mem,
-                                            SUNDomEigEstimator_ID DEE_id,
-                                            SUNDomEigEstimator* DEE)
-{
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return retval; }
-
-  if (DEE_id == SUNDSOMEIGESTIMATOR_POWER)
-  {
-    step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_POWER;
-    /* Create internal dominant eigenvalue estimator -- PI */
-    if (step_mem->DEE == NULL)
-    {
-      step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem);
-    }
-  }
-  /*   else if (DEE_id == SUNDSOMEIGESTIMATOR_ARNOLDI) */
-  /*   { */
-  /* #ifdef SUNDIALS_BLAS_LAPACK_ENABLED */
-  /*     step_mem->DDE_ID = SUNDSOMEIGESTIMATOR_ARNOLDI; */
-  /*     /\* Create an internal dominant eigenvalue estimator -- ArnI*\/ */
-  /*     if (step_mem->DEE == NULL) */
-  /*     { */
-  /*       step_mem->DEE = lsrkStep_DomEigCreate(arkode_mem); */
-  /*     } */
-  /* #else */
-  /*     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__, */
-  /*                     "Sundials Arnoldi DDE requires LAPACK package"); */
-  /*     return ARK_DEE_FAIL; */
-  /* #endif */
-  /*   } */
-  else
-  {
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                    "Attempted to set a DDE with an unknown type");
-    return ARK_DEE_FAIL;
-  }
-  *DEE = step_mem->DEE;
-  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -487,6 +425,112 @@ int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages)
   return ARK_SUCCESS;
 }
 
+/*---------------------------------------------------------------
+  LSRKStepSetDomEigEstimator:
+
+  This routine sets the dominant eigenvalue estimator DEE.
+  ---------------------------------------------------------------*/
+int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+
+  int retval;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+
+  if (DEE == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Null DEE pointer");
+    return ARK_ILL_INPUT;
+  }
+
+  if (DEE->ops == NULL || DEE->content == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Null DEE ops or content pointer");
+    return ARK_ILL_INPUT;
+  }
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (ark_mem->sunctx == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_SUNCTX);
+    return ARK_ILL_INPUT;
+  }
+
+  /* Attach the DEE pointer to the step memory */
+  if(step_mem->DEE != NULL)
+  {
+    step_mem->nfeDQ = 0; // TODO: Get opinions on what to do in this case?
+  }
+  step_mem->DEE = DEE;
+
+  // Set the ATimes function for the DEE with A_data = arkode_mem
+  if(step_mem->DEE->ops->setatimes != NULL)
+  {
+    retval = step_mem->DEE->ops->setatimes(DEE, arkode_mem, lsrkStep_DQJtimes);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
+      return ARK_DEE_FAIL;
+    }
+  }
+  else
+  {
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                    "Null DEE setatimes pointer");
+
+    return ARK_DEE_FAIL;
+  }
+
+  /* Initialize the DEE */
+  if(step_mem->DEE->ops->initialize != NULL)
+  {
+    retval = step_mem->DEE->ops->initialize(step_mem->DEE);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
+      return ARK_DEE_FAIL;
+    }
+  }
+  else
+  {
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                    "Null DEE initialize pointer");
+
+    return ARK_DEE_FAIL;
+  }
+
+  /* Preprocess the DEE */
+  /* Set the initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
+  if (DEE->ops->preprocess != NULL)
+  {
+    retval = DEE->ops->preprocess(DEE);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
+
+      return ARK_DEE_FAIL;
+    }
+  }
+
+  return ARK_SUCCESS;
+}
+
 /*===============================================================
   Exported optional output functions.
   ===============================================================*/
@@ -610,8 +654,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->spectral_radius_min = ZERO;
   step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
   step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
-  step_mem->dee_krydim          = DEE_KRYLOV_DIM_DEFAULT;
-  step_mem->dee_numwarmups      = DEE_NUM_OF_WARMUPS_DEFAULT;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;
@@ -652,28 +694,6 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
                     step_mem->dom_eig_num_evals);
     if (step_mem->DEE != NULL)
     {
-      sunfprintf_long(outfile, fmt, SUNFALSE, "Number of warmups in DEE",
-                      step_mem->dee_numwarmups);
-#ifdef SUNDIALS_BLAS_LAPACK_ENABLED
-      if (step_mem->DDE_ID == 1) // SUNDSOMEIGESTIMATOR_ARNOLDI
-      {
-        sunfprintf_long(outfile, fmt, SUNFALSE, "Krylov subspace dim. in DEE",
-                        step_mem->dee_krydim);
-      }
-#endif
-      if (step_mem->DDE_ID == 0) // SUNDSOMEIGESTIMATOR_POWER
-      {
-        sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of iters in DEE",
-                        step_mem->dee_maxiters);
-        sunfprintf_long(outfile, fmt, SUNFALSE, "Num. of current iters in DEE",
-                        step_mem->dee_curniter);
-        sunfprintf_long(outfile, fmt, SUNFALSE, "Num. of total iters in DEE",
-                        step_mem->dee_niters);
-        sunfprintf_real(outfile, fmt, SUNFALSE, "Tolerance in DEE",
-                        step_mem->dee_tol);
-        sunfprintf_real(outfile, fmt, SUNFALSE, "Current residual in DEE",
-                        step_mem->dee_res);
-      }
       sunfprintf_long(outfile, fmt, SUNFALSE, "Number of fe calls for DEE",
                       step_mem->nfeDQ);
     }
@@ -741,31 +761,10 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   case SUNFALSE:
     fprintf(fp, "  Maximum number of stages allowed = %i\n",
             step_mem->stage_max_limit);
-
     if (step_mem->DEE != NULL)
     {
       fprintf(fp, "  Number of fe calls for DEE = %li\n", step_mem->nfeDQ);
-      fprintf(fp, "  Number of warmups in DEE = %i\n", step_mem->dee_numwarmups);
-
-#ifdef SUNDIALS_BLAS_LAPACK_ENABLED
-      if (step_mem->DDE_ID == 1) // SUNDSOMEIGESTIMATOR_ARNOLDI
-      {
-        fprintf(fp, "  Krylov subspace dimension in DEE = %i\n",
-                step_mem->dee_krydim);
-      }
-#endif
-      if (step_mem->DDE_ID == 0) // SUNDSOMEIGESTIMATOR_POWER
-      {
-        fprintf(fp, "  Max. num. of iters in DEE = %i\n", step_mem->dee_maxiters);
-        fprintf(fp, "  Num. of cur. iters in DEE = %i\n", step_mem->dee_curniter);
-        fprintf(fp, "  Num. of tot. iters in DEE = %li\n", step_mem->dee_niters);
-        fprintf(fp, "           Tolerance in DEE = " SUN_FORMAT_G "\n",
-                step_mem->dee_tol);
-        fprintf(fp, "    Current residual in DEE = " SUN_FORMAT_G "\n",
-                step_mem->dee_res);
-      }
     }
-
     fprintf(fp, "  Current spectral radius = " SUN_FORMAT_G "\n",
             step_mem->spectral_radius);
     fprintf(fp, "  Safety factor for the dom eig = " SUN_FORMAT_G "\n",

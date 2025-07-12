@@ -47,8 +47,10 @@ struct _SUNDomEigEstimatorContent_PI
   int maxnumiters; /* Maximum number of power iterations so far */
   int minnumiters; /* Minimum number of power iterations so far */
 
+  long int nATimes; /* Number of ATimes calls */
+
   sunrealtype powiter_tol; /* Convergence criteria for the power iteration */
-  sunrealtype res;         /* Current residual of power iterations */
+  sunrealtype curres;      /* Current residual of power iterations */
 };
 
 typedef struct _SUNDomEigEstimatorContent_PI* SUNDomEigEstimatorContent_PI;
@@ -62,8 +64,8 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters,
                                    SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetATimes_Power(SUNDomEigEstimator DEE, void* A_data,  
-                                        SUNATimesFn ATimes);
+SUNErrCode SUNDomEigEst_SetATimes_PI(SUNDomEigEstimator DEE, void* A_data,  
+                                     SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetMaxIters_PI(SUNDomEigEstimator DEE,
@@ -87,16 +89,19 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                                 sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetNumIters_PI(SUNDomEigEstimator DEE, int* niter);
+SUNErrCode SUNDomEigEst_GetCurRes_PI(SUNDomEigEstimator DEE, sunrealtype* curres);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstGetMaxNumIters_PI(SUNDomEigEstimator DEE, int* maxniter);
+SUNErrCode SUNDomEigEst_GetCurNumIters_PI(SUNDomEigEstimator DEE, int* curniter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstGetMinNumIters_PI(SUNDomEigEstimator DEE, int* minniter);
+SUNErrCode SUNDomEigEst_GetMaxNumIters_PI(SUNDomEigEstimator DEE, int* maxniter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetRes_PI(SUNDomEigEstimator DEE, sunrealtype* res);
+SUNErrCode SUNDomEigEst_GetMinNumIters_PI(SUNDomEigEstimator DEE, int* minniter);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEst_GetNumATimesCalls_PI(SUNDomEigEstimator DEE, long int* nATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats_PI(SUNDomEigEstimator DEE, FILE* outfile);

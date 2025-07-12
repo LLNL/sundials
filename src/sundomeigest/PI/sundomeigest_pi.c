@@ -76,10 +76,11 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
   DEE->ops->preprocess         = SUNDomEigEst_PreProcess_PI;
   DEE->ops->computehess        = NULL;
   DEE->ops->estimate           = SUNDomEig_Estimate_PI;
-  DEE->ops->getnumofiters      = SUNDomEigEst_GetNumIters_PI;
-  DEE->ops->getmaxnumofiters   = SUNDomEigEstGetMaxNumIters_PI;
-  DEE->ops->getminnumofiters   = SUNDomEigEstGetMinNumIters_PI;
-  DEE->ops->getres             = SUNDomEigEst_GetRes_PI;
+  DEE->ops->getcurres          = SUNDomEigEst_GetCurRes_PI;
+  DEE->ops->getcurniters       = SUNDomEigEst_GetCurNumIters_PI;
+  DEE->ops->getmaxniters       = SUNDomEigEst_GetMaxNumIters_PI;
+  DEE->ops->getminniters       = SUNDomEigEst_GetMinNumIters_PI;
+  DEE->ops->getnumatimescalls  = SUNDomEigEst_GetNumATimesCalls_PI;
   DEE->ops->printstats         = SUNDomEigEst_PrintStats_PI;
   DEE->ops->free               = SUNDomEigEstFree_PI;
 
@@ -97,16 +98,17 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
   content->V           = NULL;
   content->q           = NULL;
   content->numwarmups  = 0;
+  content->max_iters   = max_iters;
   content->powiter_tol = ZERO;
-  content->res         = ZERO;
-  content->max_iters = max_iters;
-  content->curnumiters    = 0;
+  content->curres      = ZERO;
+  content->curnumiters = 0;
   content->maxnumiters = 0;
   content->minnumiters = 0;
-
+  content->nATimes     = 0;
+  
   /* Allocate content */
-  content->q = N_VClone(q);
-  SUNCheckLastErrNull();
+  N_VScale(ONE, q, content->q);
+  SUNCheckLastErr();
 
   content->V = N_VClone(q);
   SUNCheckLastErrNull();
@@ -149,12 +151,9 @@ SUNErrCode SUNDomEigEst_Initialize_PI(SUNDomEigEstimator DEE)
     PI_CONTENT(DEE)->max_iters = DEE_MAX_ITER_DEFAULT;
   }
 
-  SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
   SUNAssert(PI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
-
-  /* Note: this previously called N_VRandom (now removed) to initialize q, so PI_CONTENT(DEE)->q needs to be initialized in some other manner. */
-
 
   /* Initialize the vector V */
   sunrealtype normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);
@@ -203,7 +202,7 @@ SUNErrCode SUNDomEigEst_PreProcess_PI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
   SUNAssert(PI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
@@ -215,11 +214,13 @@ SUNErrCode SUNDomEigEst_PreProcess_PI(SUNDomEigEstimator DEE)
   {
     retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
                                      PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
+    PI_CONTENT(DEE)->nATimes++;
     if (retval != 0)
     {
       if (retval < 0) { return SUN_ERR_DEE_ATIMES_FAIL_UNREC; }
       else { return SUN_ERR_DEE_ATIMES_FAIL_REC; }
     }
+
     normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);
     SUNCheckLastErr();
 
@@ -253,6 +254,7 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   {
     retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
                                      PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
+    PI_CONTENT(DEE)->nATimes++;
     if (retval != 0)
     {
       if (retval < 0) { return SUN_ERR_DEE_ATIMES_FAIL_UNREC; }
@@ -263,9 +265,9 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                             PI_CONTENT(DEE)->q); //Rayleigh quotient
     SUNCheckLastErr();
 
-    PI_CONTENT(DEE)->res = SUNRabs(newlambdaR - oldlambdaR);
+    PI_CONTENT(DEE)->curres = SUNRabs(newlambdaR - oldlambdaR);
 
-    if (PI_CONTENT(DEE)->res < PI_CONTENT(DEE)->powiter_tol) { break; }
+    if (PI_CONTENT(DEE)->curres < PI_CONTENT(DEE)->powiter_tol) { break; }
 
     normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);
     SUNCheckLastErr();
@@ -288,46 +290,68 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_GetNumIters_PI(SUNDomEigEstimator DEE, int* niter)
+SUNErrCode SUNDomEigEst_GetCurRes_PI(SUNDomEigEstimator DEE, sunrealtype* curres)
 {
   SUNFunctionBegin(DEE->sunctx);
+
   SUNAssert(DEE, SUN_ERR_DEE_NULL_MEM);
   SUNAssert(PI_CONTENT(DEE), SUN_ERR_DEE_NULL_CONTENT);
+  SUNAssert(curres, SUN_ERR_ARG_CORRUPT);
 
-  *niter = PI_CONTENT(DEE)->curnumiters;
+  *curres = PI_CONTENT(DEE)->curres;
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstGetMaxNumIters_PI(SUNDomEigEstimator DEE, int* maxniter)
+SUNErrCode SUNDomEigEst_GetCurNumIters_PI(SUNDomEigEstimator DEE, int* curniter)
 {
   SUNFunctionBegin(DEE->sunctx);
+
   SUNAssert(DEE, SUN_ERR_DEE_NULL_MEM);
   SUNAssert(PI_CONTENT(DEE), SUN_ERR_DEE_NULL_CONTENT);
+  SUNAssert(curniter, SUN_ERR_ARG_CORRUPT);
+
+  *curniter = PI_CONTENT(DEE)->curnumiters;
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNDomEigEst_GetMaxNumIters_PI(SUNDomEigEstimator DEE, int* maxniter)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  SUNAssert(DEE, SUN_ERR_DEE_NULL_MEM);
+  SUNAssert(PI_CONTENT(DEE), SUN_ERR_DEE_NULL_CONTENT);
+  SUNAssert(maxniter, SUN_ERR_ARG_CORRUPT);
 
   *maxniter = PI_CONTENT(DEE)->maxnumiters;
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstGetMinNumIters_PI(SUNDomEigEstimator DEE, int* minniter)
+SUNErrCode SUNDomEigEst_GetMinNumIters_PI(SUNDomEigEstimator DEE, int* minniter)
 {
   SUNFunctionBegin(DEE->sunctx);
+
   SUNAssert(DEE, SUN_ERR_DEE_NULL_MEM);
   SUNAssert(PI_CONTENT(DEE), SUN_ERR_DEE_NULL_CONTENT);
+  SUNAssert(minniter, SUN_ERR_ARG_CORRUPT);
 
   *minniter = PI_CONTENT(DEE)->minnumiters;
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_GetRes_PI(SUNDomEigEstimator DEE, sunrealtype* res)
+SUNErrCode SUNDomEigEst_GetNumATimesCalls_PI(SUNDomEigEstimator DEE,
+                                            long int* nATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
+
   SUNAssert(DEE, SUN_ERR_DEE_NULL_MEM);
   SUNAssert(PI_CONTENT(DEE), SUN_ERR_DEE_NULL_CONTENT);
+  SUNAssert(nATimes, SUN_ERR_ARG_CORRUPT);
 
-  *res = PI_CONTENT(DEE)->res;
+  *nATimes = PI_CONTENT(DEE)->nATimes;
 
   return SUN_SUCCESS;
 }
@@ -340,13 +364,14 @@ SUNErrCode SUNDomEigEst_PrintStats_PI(SUNDomEigEstimator DEE, FILE* outfile)
 
   // TODO: update each stat in the corresponding function
   fprintf(outfile, "Power Iteration DEE Statistics:\n");
-  fprintf(outfile, "Max. num. of allowed iterations: %d\n", PI_CONTENT(DEE)->max_iters);
+  fprintf(outfile, "Maximum number of allowed iterations: %d\n", PI_CONTENT(DEE)->max_iters);
   fprintf(outfile, "Number of warmups: %d\n", PI_CONTENT(DEE)->numwarmups);
   fprintf(outfile, "Power iteration tolerance: %g\n", PI_CONTENT(DEE)->powiter_tol);
-  fprintf(outfile, "Current num. of power iterations: %d\n", PI_CONTENT(DEE)->curnumiters);
-  fprintf(outfile, "Current residual: %g\n", PI_CONTENT(DEE)->res);
-  fprintf(outfile, "Max. Num. of power iterations: %d\n", PI_CONTENT(DEE)->maxnumiters);
-  fprintf(outfile, "Min. Num. of power iterations: %d\n", PI_CONTENT(DEE)->minnumiters);
+  fprintf(outfile, "Current residual: %g\n", PI_CONTENT(DEE)->curres);
+  fprintf(outfile, "Current number of power iterations: %d\n", PI_CONTENT(DEE)->curnumiters);
+  fprintf(outfile, "Maximum number of power iterations: %d\n", PI_CONTENT(DEE)->maxnumiters);
+  fprintf(outfile, "Minimum number of power iterations: %d\n", PI_CONTENT(DEE)->minnumiters);
+  fprintf(outfile, "Number of ATimes calls: %ld\n", PI_CONTENT(DEE)->nATimes);
 
   return SUN_SUCCESS;
 }

@@ -68,21 +68,41 @@ The following is a list of the example functions in ``test_sundomeigest.c``:
   and returns a passing flag if the estimation is within a specified relative
   tolerance; otherwise, it returns a failure flag.
 
-* ``Test_SUNDomEigEst_GetNumIters`` Verifies that
-  ``SUNDomEigEst_GetNumIters`` can be called and returns successfully.
+* ``Test_SUNDomEigEst_GetCurRes`` Verifies that
+  ``SUNDomEigEst_GetCurRes`` can be called and returns successfully.
 
 
-  ``SUNDomEigEst_GetNumIters`` is not an option for some estimators, e.g.,
+  ``SUNDomEigEst_GetCurRes`` is not an option for some estimators, e.g.,
   Arnoldi iteration.  In this case, it should return with SUN_SUCCESS
-  and `niter = 0`.  A failure flag returns otherwise.
+  and `curres = 0`.  A failure flag returns otherwise.
 
-* ``Test_SUNDomEigEst_GetRes`` Verifies that
-  ``SUNDomEigEst_GetRes`` can be called and returns successfully.
+* ``Test_SUNDomEigEst_GetCurNumIters`` Verifies that
+  ``SUNDomEigEst_GetCurNumIters`` can be called and returns successfully.
 
 
-  ``SUNDomEigEst_GetRes`` is not an option for some estimators, e.g.,
+  ``SUNDomEigEst_GetCurNumIters`` is not an option for some estimators, e.g.,
   Arnoldi iteration.  In this case, it should return with SUN_SUCCESS
-  and `res = 0`.  A failure flag returns otherwise.
+  and `curniter = 0`.  A failure flag returns otherwise.
+
+* ``Test_SUNDomEigEst_GetMaxNumIters`` Verifies that
+  ``SUNDomEigEst_GetMaxNumIters`` can be called and returns successfully.
+
+  ``SUNDomEigEst_GetMaxNumIters`` is not an option for some estimators, e.g.,
+  Arnoldi iteration.  In this case, it should return with SUN_SUCCESS
+  and `max_niter = 0`.  A failure flag returns otherwise.
+
+* ``Test_SUNDomEigEst_GetMinNumIters`` Verifies that
+  ``SUNDomEigEst_GetMinNumIters`` can be called and returns successfully.
+
+  ``SUNDomEigEst_GetMinNumIters`` is not an option for some estimators, e.g.,
+  Arnoldi iteration.  In this case, it should return with SUN_SUCCESS
+  and `min_niter = 0`.  A failure flag returns otherwise.
+
+* ``Test_SUNDomEigEst_GetNumATimesCalls`` Verifies that
+  ``SUNDomEigEst_GetNumATimesCalls`` can be called and returns successfully.
+
+* ``Test_SUNDomEigEst_PrintStats`` Verifies that
+  ``SUNDomEigEst_PrintStats`` can be called and returns successfully.
 
 We'll note that these tests should be performed in a particular
 order.  For all estimators,
@@ -93,6 +113,8 @@ Then, ``Test_SUNDomEigEst_Initialize`` must be called before
 ``Test_SUNDomEigEst_PreProcess`` (if applicable).
 ``Test_SUNDomEigEst_ComputeHess`` (if the estimator requires)
 must be called next and before ``Test_SUNDomEig_Estimate``.
-For the estimator stats ``Test_SUNDomEigEst_GetNumIters`` and ``Test_SUNDomEigEst_GetRes``
-should be called after ``Test_SUNDomEig_Estimate``.
+For the estimator stats ``Test_SUNDomEigEst_GetCurRes``, ``Test_SUNDomEigEst_GetCurNumIters``,
+``Test_SUNDomEigEst_GetMaxNumIters``, ``Test_SUNDomEigEst_GetMinNumIters``, 
+``SUNDomEigEst_PrintStats`` and ``SUNDomEigEst_GetNumATimesCalls`` should be called after 
+``Test_SUNDomEig_Estimate``.
 These are called in the appropriate order in all of the example problems.

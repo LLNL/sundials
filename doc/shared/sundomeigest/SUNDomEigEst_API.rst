@@ -39,9 +39,8 @@ options have been set, :c:func:`SUNDomEigEst_ComputeHess` computes Hessenberg ma
 (if the estimator requires), :c:func:`SUNDomEig_Estimate` estimates the dominant eigenvalue, and
 :c:func:`SUNDomEigEstFree` destroys an estimator object.
 
-The remaining **optional** functions preprocesses the estimator object 
-:c:func:`SUNDomEigEst_PreProcess` to "warm-up" the estimator for a more appropriate initial 
-vector before starting iterations.
+The remaining **optional** function, :c:func:`SUNDomEigEst_PreProcess` preprocesses the estimator object 
+to "warm-up" the estimator for a more appropriate initial vector before starting iterations.
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
 
@@ -266,30 +265,7 @@ SUNDomEigEstimator "get" functions
 The following functions allow SUNDIALS packages to retrieve results from a
 dominant eigenvalue estimator.  *All routines are optional.*
 
-
-.. c:function:: SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, int* niter)
-
-   This *optional* routine should return the number of estimator
-   iterations performed in the most-recent "estimator" call.
-
-   **Arguments:**
-
-      * *DEE* -- a SUNDomEigEst object,
-      * *niter* -- the number of iterations.
-
-   **Return value:**
-
-      A :c:type:`SUNErrCode`.
-
-   **Usage:**
-
-      .. code-block:: c
-
-         int niter;
-         retval = SUNDomEigEst_GetNumIters(DEE, &niter);
-
-
-.. c:function:: SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* res)
+.. c:function:: SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* curres)
 
    This *optional* routine should return the final residual from
    the most-recent "estimator" call.
@@ -297,7 +273,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEst object.
-      * *res* -- the residual
+      * *curres* -- the current residual
 
    **Return value:**
 
@@ -307,8 +283,115 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       .. code-block:: c
 
-         sunrealtype res;
-         retval = SUNDomEigEst_GetRes(DEE, &res);
+         sunrealtype curres;
+         retval = SUNDomEigEst_GetCurRes(DEE, &curres);
+
+
+.. c:function:: SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter)
+
+   This *optional* routine should return the number of estimator
+   iterations performed in the most-recent "estimator" call.
+
+   **Arguments:**
+
+      * *DEE* -- a SUNDomEigEst object,
+      * *curniter* -- the current number of iterations.
+
+   **Return value:**
+
+      A :c:type:`SUNErrCode`.
+
+   **Usage:**
+
+      .. code-block:: c
+
+         int curniter;
+         retval = SUNDomEigEst_GetCurNumIters(DEE, &curniter);
+
+
+.. c:function:: SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter)
+
+   This *optional* routine should return the maximum number of iterations
+   performed in all "estimator" calls so far.
+
+   **Arguments:**
+
+      * *DEE* -- a SUNDomEigEst object,
+      * *maxniter* -- the maximum number of iterations.
+
+   **Return value:**
+
+      A :c:type:`SUNErrCode`.
+
+   **Usage:**
+
+      .. code-block:: c
+
+         int maxniter;
+         retval = SUNDomEigEst_GetMaxNumIters(DEE, &maxniter);
+
+
+.. c:function:: SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter)
+
+   This *optional* routine should return the minimum number of iterations
+   performed in all "estimator" calls so far.
+
+   **Arguments:**
+
+      * *DEE* -- a SUNDomEigEst object,
+      * *minniter* -- the minimum number of iterations.
+
+   **Return value:**
+
+      A :c:type:`SUNErrCode`.
+
+   **Usage:**
+
+      .. code-block:: c
+
+         int minniter;
+         retval = SUNDomEigEst_GetMinNumIters(DEE, &minniter);
+
+.. c:function:: SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* nATimes)
+
+   This *optional* routine should return the number of calls to the :c:type:`SUNATimesFn` function.
+
+   **Arguments:**
+
+      * *DEE* -- a SUNDomEigEst object,
+      * *nATimes* -- the number of calls to the ``Atimes`` function.
+
+   **Return value:**
+
+      A :c:type:`SUNErrCode`.
+
+   **Usage:**
+
+      .. code-block:: c
+
+         long int nATimes;
+         retval = SUNDomEigEst_GetNumATimesCalls(DEE, &nATimes);
+
+
+.. c:function:: SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile)
+
+   This *optional* routine prints the dominant eigenvalue estimator statistics
+   to the output stream *outfile*.
+
+   **Arguments:**
+
+      * *DEE* -- a SUNDomEigEst object,
+      * *outfile* -- the output stream.
+
+   **Return value:**
+
+      A :c:type:`SUNErrCode`.
+
+   **Usage:**
+
+      .. code-block:: c
+
+         retval = SUNDomEigEst_PrintStats(DEE, stdout);
 
 
 .. _SUNDomEigEst.SUNSuppliedFn:
@@ -436,14 +519,30 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEig_Estimate`
 
-   .. c:member:: sunindextype (*getnumiters)(SUNDomEigEstimator)
+   .. c:member:: sunrealtype (*getcurres)(SUNDomEigEstimator)
 
-      The function implementing :c:func:`SUNDomEigEst_GetNumIters`
+      The function implementing :c:func:`SUNDomEigEst_GetCurRes`
 
-   .. c:member:: sunrealtype (*getres)(SUNDomEigEstimator)
+   .. c:member:: sunindextype (*getcurniters)(SUNDomEigEstimator)
 
-      The function implementing :c:func:`SUNDomEigEst_GetRes`
+      The function implementing :c:func:`SUNDomEigEst_GetCurNumIters`
 
+   .. c:member:: sunindextype (*getmaxniters)(SUNDomEigEstimator)
+
+      The function implementing :c:func:`SUNDomEigEst_GetMaxNumIters`
+
+   .. c:member:: sunindextype (*getminniters)(SUNDomEigEstimator)
+
+      The function implementing :c:func:`SUNDomEigEst_GetMinNumIters`
+
+   .. c:member:: long int (*getnumatimescalls)(SUNDomEigEstimator)
+
+      The function implementing :c:func:`SUNDomEigEst_GetNumATimesCalls`
+      
+   .. c:member:: SUNErrCode (*printstats)(SUNDomEigEstimator, FILE*)
+
+      The function implementing :c:func:`SUNDomEigEst_PrintStats`
+      
    .. c:member:: SUNErrCode (*free)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEstFree`

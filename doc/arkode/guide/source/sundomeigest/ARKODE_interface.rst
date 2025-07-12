@@ -25,7 +25,7 @@ the interested reader.
 
 .. _SUNDomEigEst.ARKODE.Usage:
 .. table:: List of SUNDomEigEst functions called by the ARKODE dominant eigenvalue
-           estimator interface.  Functions marked with "X" are required;
+           estimator interfaces.  Functions marked with "X" are required;
            functions marked with "O" are only called if they are non-``NULL`` and
            functions marked with "N/A" are not applicable in the ``SUNDomEigEstimator``
            implementation that is being used.
@@ -41,47 +41,48 @@ the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_SetNumPreProcess`            |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_SetTol`\ :sup:`2`            |          O          |         N/A         |
+   | :c:func:`SUNDomEigEst_SetTol`\ :sup:`1`            |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_Initialize`                  |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_PreProcess`                  |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_ComputeHess`\ :sup:`3`       |         N/A         |          X          |
+   | :c:func:`SUNDomEigEst_ComputeHess`\ :sup:`1`       |         N/A         |          X          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEig_Estimate`                       |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetNumIters`\ :sup:`4`       |          O          |         N/A         |
+   | :c:func:`SUNDomEigEst_GetCurRes`\ :sup:`2`         |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetRes`\ :sup:`5`            |          O          |         N/A         |
+   | :c:func:`SUNDomEigEst_GetCurNumIters`\ :sup:`3`    |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstFree`\ :sup:`6`               |                     |                     |
+   | :c:func:`SUNDomEigEst_GetMaxNumIters`\ :sup:`3`    |          O          |         N/A         |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_GetMinNumIters`\ :sup:`3`    |          O          |         N/A         |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_GetNumATimesCalls`           |          O          |          O          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_PrintStats`                  |          O          |          O          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEstFree`\ :sup:`4`               |                     |                     |
    +----------------------------------------------------+---------------------+---------------------+
 
 
 Notes:
 
-1. :c:func:`SUNDomEigEst_SetMaxIters()` might or might not be required depending on
-   ``SUNDomEigEstimator`` implementation that is being used. This flag must be left
+1. :c:func:`SUNDomEigEst_SetMaxIters()`, :c:func:`SUNDomEigEst_SetTol()` and 
+   :c:func:`SUNDomEigEst_ComputeHess()` might or might not be required depending on
+   ``SUNDomEigEstimator`` implementation that is being used. These flags must be left
    ``NULL`` if it is not applicable for an estimator.
 
-2. :c:func:`SUNDomEigEst_SetTol()` might or might not be required depending on
-   ``SUNDomEigEstimator`` implementation that is being used. This flag must be left
-   ``NULL`` if it is not applicable for an estimator.
-
-3. :c:func:`SUNDomEigEst_ComputeHess()` might or might not be required depending on
-   ``SUNDomEigEstimator`` implementation that is being used. This flag must be left
-   ``NULL`` if it is not applicable for an estimator.
-
-4. :c:func:`SUNDomEigEst_GetNumIters()` is only used to accumulate overall
-   iterative estimator statistics.  If it is not implemented by
-   the ``SUNDomEigEstimator`` module, then ARKDEE will consider all
-   estimates as requiring zero iterations.
-
-5. Although :c:func:`SUNDomEigEst_GetRes()` is optional, if it is not
+2. Although :c:func:`SUNDomEigEst_GetCurRes()` is optional, if it is not
    implemented by the ``SUNDomEigEstimator`` then ARKDEE will consider all
    estimates a being *exact*.
 
-6. Although ARKDEE does not call :c:func:`SUNDomEigEstFree()`
+3. :c:func:`SUNDomEigEst_GetCurNumIters()`, :c:func:`SUNDomEigEst_GetMaxNumIters()`
+   and :c:func:`SUNDomEigEst_GetMinNumIters()` are optional, if they are not
+   implemented by the ``SUNDomEigEstimator`` then ARKDEE will consider all
+   estimates as requiring zero iterations.
+
+4. Although ARKDEE does not call :c:func:`SUNDomEigEstFree()`
    directly, this routine should be available for users to call when
    cleaning up from a simulation.

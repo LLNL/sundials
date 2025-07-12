@@ -53,12 +53,15 @@ int main(int argc, char* argv[])
   int passfail           = 0;     /* overall pass/fail flag     */
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
   UserData ProbData;              /* problem data structure     */
-  int numwarmups;                 /* Number of the preprocessing warmups */
+  int numwarmups;                 /* number of the preprocessing warmups */
   int max_iters;                  /* max power iteration        */
   int krydim;                     /* Krylov subspace dimension  */
-  int niter;                      /* number of iterations       */
+  int curniter;                   /* cur. number of iterations  */
+  int maxniter;                   /* max. number of iterations  */
+  int minniter;                   /* min. number of iterations  */
+  long int nATimes;               /* number of ATimes calls     */
   int print_timing;               /* timing output flag         */
-  sunrealtype res;                /* current residual           */
+  sunrealtype curres;             /* current residual           */
   sunrealtype lambdaR, lambdaI;   /* computed domeig parts      */
   sunrealtype tlambdaR, tlambdaI; /* true domeig parts          */
   SUNContext sunctx;
@@ -141,33 +144,34 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEst_PreProcess(DEE, 0);
   fails += Test_SUNDomEigEst_ComputeHess(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
-  // SUNDomEigEst_GetNumIters, SUNDomEigEstGetMaxNumIters, SUNDomEigEstGetMinNumIters
-  // and SUNDomEigEst_GetRes are not options for Arnoldi iteration. 
+  // SUNDomEigEst_GetCurRes, SUNDomEigEst_GetCurNumIters, SUNDomEigEst_GetMaxNumIters
+  // and SUNDomEigEst_GetMinNumIters are not options for Arnoldi iteration. 
   // They should return with 0.
-  fails += Test_SUNDomEigEst_GetNumIters(DEE, &niter, 0);
-  if (niter != 0)
+  fails += Test_SUNDomEigEst_GetCurRes(DEE, &curres, 0);
+  if (curres > SUN_SMALL_REAL)
   {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetNumIters return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEst_GetCurRes return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEstGetMaxNumIters(DEE, &maxniter, 0);
+  fails += Test_SUNDomEigEst_GetCurNumIters(DEE, &curniter, 0);
+  if (curniter != 0)
+  {
+    printf("    >>> FAILED test -- SUNDomEigEst_GetCurNumIters return value\n");
+    fails++;
+  }
+  fails += Test_SUNDomEigEst_GetMaxNumIters(DEE, &maxniter, 0);
   if (maxniter != 0)
   {
-    printf("    >>> FAILED test -- SUNDomEigEstGetMaxNumIters return  value\n");
+    printf("    >>> FAILED test -- SUNDomEigEst_GetMaxNumIters return  value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEstGetMinNumIters(DEE, &minniter, 0);
+  fails += Test_SUNDomEigEst_GetMinNumIters(DEE, &minniter, 0);
   if (minniter != 0)
   {
-    printf("    >>> FAILED test -- SUNDomEigEstGetMinNumIters return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEst_GetMinNumIters return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEst_GetRes(DEE, &res, 0);
-  if (res > SUN_SMALL_REAL)
-  {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetRes return value\n");
-    fails++;
-  }
+  fails += Test_SUNDomEigEst_GetNumATimesCalls(DEE, &nATimes, 0);
   fails += Test_SUNDomEigEst_PrintStats(DEE, 0);
   
   if (fails)

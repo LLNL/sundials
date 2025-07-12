@@ -161,13 +161,6 @@ typedef struct ARKodeLSRKStepMemRec
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
   SUNDomEigEstimator DEE;       /* DomEig estimator*/
-  int dee_krydim;               /* Krylov subspace dimension */
-  int dee_numwarmups; /* Power of A in the preprocessing; initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
-  int dee_maxiters;   /* Max number of Power Iterations */
-  int dee_curniter;   /* Current number of iterations */
-  long int dee_niters; /* Total number of iterations */
-  sunrealtype dee_tol; /* Tolerance of the DEE*/
-  sunrealtype dee_res; /* Current residual of the DEE*/
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */
@@ -218,9 +211,6 @@ int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
-SUNDomEigEstimator lsrkStep_DomEigCreate(void* arkode_mem);
-int lsrkStep_DomEigEstimate(void* arkode_mem, SUNDomEigEstimator DEE,
-                            sunrealtype* lambdaR, sunrealtype* lambdaI);
 int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv);
 
 /*===============================================================

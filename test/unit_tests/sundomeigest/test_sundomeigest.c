@@ -274,28 +274,55 @@ int Test_SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
 }
 
 /* ----------------------------------------------------------------------
- * SUNDomEigEst_GetNumIters Test
+ * SUNDomEigEst_GetCurRes Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, int* niter, int myid)
+int Test_SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* curres, int myid)
 {
   int failure;
   double start_time, stop_time;
 
   start_time = get_time();
-  failure    = SUNDomEigEst_GetNumIters(DEE, niter);
+  failure    = SUNDomEigEst_GetCurRes(DEE, curres);
   stop_time = get_time();
 
   if (failure)
   {
-    printf(">>> FAILED test -- SUNDomEigEst_GetNumIters check, Proc %d \n", myid);
-    PRINT_TIME("    SUNDomEigEst_GetNumIters Time: %22.15e \n \n",
+    printf(">>> FAILED test -- SUNDomEigEst_GetCurRes check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEst_GetCurRes Time: %22.15e \n \n", stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEst_GetCurRes \n");
+    PRINT_TIME("    SUNDomEigEst_GetCurRes Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
+ * SUNDomEigEst_GetCurNumIters Test
+ * --------------------------------------------------------------------*/
+int Test_SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter, int myid)
+{
+  int failure;
+  double start_time, stop_time;
+
+  start_time = get_time();
+  failure    = SUNDomEigEst_GetCurNumIters(DEE, curniter);
+  stop_time = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEst_GetCurNumIters check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEst_GetCurNumIters Time: %22.15e \n \n",
                stop_time - start_time);
     return (1);
   }
   else if (myid == 0)
   {
-    printf("    PASSED test -- SUNDomEigEst_GetNumIters \n");
-    PRINT_TIME("    SUNDomEigEst_GetNumIters Time: %22.15e \n \n",
+    printf("    PASSED test -- SUNDomEigEst_GetCurNumIters \n");
+    PRINT_TIME("    SUNDomEigEst_GetCurNumIters Time: %22.15e \n \n",
                stop_time - start_time);
   }
 
@@ -303,83 +330,84 @@ int Test_SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, int* niter, int myid)
 }
 
 /* ----------------------------------------------------------------------
- * SUNDomEigEstGetMaxNumIters Test
+ * SUNDomEigEst_GetMaxNumIters Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstGetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter, int myid)
+int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter, int myid)
 {
   int failure;
   double start_time, stop_time;
 
   start_time = get_time();
-  failure    = SUNDomEigEstGetMaxNumIters(DEE, maxniter);
+  failure    = SUNDomEigEst_GetMaxNumIters(DEE, maxniter);
   stop_time = get_time();
 
   if (failure)
   {
-    printf(">>> FAILED test -- SUNDomEigEstGetMaxNumIters check, Proc %d \n", myid);
-    PRINT_TIME("    SUNDomEigEstGetMaxNumIters Time: %22.15e \n \n", stop_time - start_time);
+    printf(">>> FAILED test -- SUNDomEigEst_GetMaxNumIters check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEst_GetMaxNumIters Time: %22.15e \n \n", stop_time - start_time);
     return (1);
   }
   else if (myid == 0)
   {
-    printf("    PASSED test -- SUNDomEigEstGetMaxNumIters \n");
-    PRINT_TIME("    SUNDomEigEstGetMaxNumIters Time: %22.15e \n \n", stop_time - start_time);
+    printf("    PASSED test -- SUNDomEigEst_GetMaxNumIters \n");
+    PRINT_TIME("    SUNDomEigEst_GetMaxNumIters Time: %22.15e \n \n", stop_time - start_time);
   }
 
   return (0);
 }
 
 /* ----------------------------------------------------------------------
- * SUNDomEigEstGetMinNumIters Test
+ * SUNDomEigEst_GetMinNumIters Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEstGetMinNumIters(SUNDomEigEstimator DEE, int* minniter, int myid)
+int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter, int myid)
 {
   int failure;
   double start_time, stop_time;
 
   start_time = get_time();
-  failure    = SUNDomEigEstGetMinNumIters(DEE, minniter);
-  stop_time = get_time();
+  failure    = SUNDomEigEst_GetMinNumIters(DEE, minniter);
+  stop_time  = get_time();
 
   if (failure)
   {
-    printf(">>> FAILED test -- SUNDomEigEstGetMinNumIters check, Proc %d \n", myid);
-    PRINT_TIME("    SUNDomEigEstGetMinNumIters Time: %22.15e \n \n", stop_time - start_time);
+    printf(">>> FAILED test -- SUNDomEigEst_GetMinNumIters check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEst_GetMinNumIters Time: %22.15e \n \n", stop_time - start_time);
     return (1);
   }
   else if (myid == 0)
   {
-    printf("    PASSED test -- SUNDomEigEstGetMinNumIters \n");
-    PRINT_TIME("    SUNDomEigEstGetMinNumIters Time: %22.15e \n \n", stop_time - start_time);
+    printf("    PASSED test -- SUNDomEigEst_GetMinNumIters \n");
+    PRINT_TIME("    SUNDomEigEst_GetMinNumIters Time: %22.15e \n \n", stop_time - start_time);
   }
 
   return (0);
 }
 
 /* ----------------------------------------------------------------------
- * SUNDomEigEst_GetRes Test
+ * SUNDomEigEst_GetNumATimesCalls Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* res, int myid)
+int Test_SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* nATimes, int myid)
 {
   int failure;
   double start_time, stop_time;
 
   start_time = get_time();
-  failure    = SUNDomEigEst_GetRes(DEE, res);
-  stop_time = get_time();
-
+  failure    = SUNDomEigEst_GetNumATimesCalls(DEE, nATimes);
+  stop_time  = get_time();
   if (failure)
   {
-    printf(">>> FAILED test -- SUNDomEigEst_GetRes check, Proc %d \n", myid);
-    PRINT_TIME("    SUNDomEigEst_GetRes Time: %22.15e \n \n", stop_time - start_time);
+    printf(">>> FAILED test -- SUNDomEigEst_GetNumATimesCalls check, Proc %d \n", myid);
+    PRINT_TIME("    SUNDomEigEst_GetNumATimesCalls Time: %22.15e \n \n",
+               stop_time - start_time);
     return (1);
   }
   else if (myid == 0)
   {
-    printf("    PASSED test -- SUNDomEigEst_GetRes \n");
-    PRINT_TIME("    SUNDomEigEst_GetRes Time: %22.15e \n \n", stop_time - start_time);
+    printf("    PASSED test -- SUNDomEigEst_GetNumATimesCalls \n");
+    PRINT_TIME("    SUNDomEigEst_GetNumATimesCalls Time: %22.15e \n \n",
+               stop_time - start_time);
   }
-
+  
   return (0);
 }
 

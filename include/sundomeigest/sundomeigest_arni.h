@@ -44,6 +44,8 @@ struct _SUNDomEigEstimatorContent_ArnI
   sunindextype krydim; /* Krylov subspace dimension */
   int numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
 
+  long int nATimes; /* Number of ATimes calls */
+
   sunrealtype* LAPACK_A; /* The vector which holds rows of the Hessenberg matrix in the given order */
   sunrealtype* LAPACK_wr;   /* Real parts of eigenvalues */
   sunrealtype* LAPACK_wi;   /* Imaginary parts of eigenvalues */
@@ -63,8 +65,8 @@ SUNDIALS_EXPORT
 SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,  
-                                          SUNATimesFn ATimes);
+SUNErrCode SUNDomEigEst_SetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,  
+                                       SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
@@ -82,6 +84,9 @@ SUNErrCode SUNDomEigEst_ComputeHess_ArnI(SUNDomEigEstimator DEE);
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                                   sunrealtype* lambdaI);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEst_GetNumATimesCalls_ArnI(SUNDomEigEstimator DEE, long int* nATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats_ArnI(SUNDomEigEstimator DEE, FILE* outfile);

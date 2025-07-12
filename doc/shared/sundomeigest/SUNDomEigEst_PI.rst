@@ -118,8 +118,11 @@ The SUNDomEigEst_PI module defines the *content* field of a
      int numwarmups;
      int max_iters;
      int curnumiters;
+     int maxnumiters;
+     int minnumiters;
+     long int nATimes;
      sunrealtype powiter_tol;
-     sunrealtype res;
+     sunrealtype curres;
    };
 
 
@@ -138,9 +141,15 @@ information:
 
 * ``curnumiters`` - current number of power iterations,
 
+* ``maxnumiters`` - maximum number of power iterations so far,
+
+* ``minnumiters`` - minimum number of power iterations so far,
+
+* ``nATimes`` - number of calls to the ``ATimes`` function,
+
 * ``powiter_tol`` - convergence criteria for the power iteration (default is 0.01),
 
-* ``res`` - current residual of power iterations.
+* ``curres`` - current residual of power iterations.
 
 
 This estimator is constructed to perform the following operations:
@@ -186,8 +195,16 @@ eigenvalue estimator operations listed in
 
 * ``SUNDomEig_Estimate_PI``
 
-* ``SUNDomEigEst_GetNumIters_PI``
+* ``SUNDomEigEst_GetCurRes_PI``
 
-* ``SUNDomEigEst_GetRes_PI``
+* ``SUNDomEigEst_GetCurNumIters_PI``
+
+* ``SUNDomEigEst_GetMaxNumIters_PI``
+
+* ``SUNDomEigEst_GetMinNumIters_PI``
+
+* ``SUNDomEigEst_GetNumATimesCalls_PI``
+
+* ``SUNDomEigEst_PrintStats_PI``
 
 * ``SUNDomEigEstFree_PI``

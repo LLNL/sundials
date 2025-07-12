@@ -63,10 +63,11 @@ struct _generic_SUNDomEigEstimator_Ops
   SUNErrCode (*preprocess)(SUNDomEigEstimator);
   SUNErrCode (*computehess)(SUNDomEigEstimator);
   SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*);
-  SUNErrCode (*getnumofiters)(SUNDomEigEstimator, int*);
-  SUNErrCode (*getmaxnumofiters)(SUNDomEigEstimator, int*);
-  SUNErrCode (*getminnumofiters)(SUNDomEigEstimator, int*);
-  SUNErrCode (*getres)(SUNDomEigEstimator, sunrealtype*);
+  SUNErrCode (*getcurres)(SUNDomEigEstimator, sunrealtype*);
+  SUNErrCode (*getcurniters)(SUNDomEigEstimator, int*);
+  SUNErrCode (*getmaxniters)(SUNDomEigEstimator, int*);
+  SUNErrCode (*getminniters)(SUNDomEigEstimator, int*);
+  SUNErrCode (*getnumatimescalls)(SUNDomEigEstimator, long int*);
   SUNErrCode (*printstats)(SUNDomEigEstimator, FILE*);
   SUNErrCode (*free)(SUNDomEigEstimator);
 };
@@ -119,10 +120,19 @@ SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                               sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, int* niter);
+SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* curres);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* res);
+SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* nATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile);
