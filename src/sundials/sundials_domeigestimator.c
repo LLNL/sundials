@@ -20,7 +20,6 @@
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 
-#include <sundials/priv/sundials_domeigestimator_impl.h>
 #include <sundials/sundials_domeigestimator.h>
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)

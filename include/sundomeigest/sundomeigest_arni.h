@@ -23,7 +23,6 @@
 #ifndef _SUNDOMEIGEST_ARNOLDI_H
 #define _SUNDOMEIGEST_ARNOLDI_H
 
-#include <sundials/priv/sundials_domeigestimator_impl.h>
 #include <sundials/sundials_domeigestimator.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

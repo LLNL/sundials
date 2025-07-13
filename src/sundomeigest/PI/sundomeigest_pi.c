@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sundials/priv/sundials_domeigestimator_impl.h>
 #include <sundomeigest/sundomeigest_pi.h>
 
 #include "sundials_logger_impl.h"
