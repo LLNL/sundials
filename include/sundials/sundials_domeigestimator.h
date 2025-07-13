@@ -91,7 +91,7 @@ SUNDIALS_EXPORT
 SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx);
 
 SUNDIALS_EXPORT
-void SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE); 
+void SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data,
@@ -133,7 +133,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* nATimes);
+SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
+                                          long int* nATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile);

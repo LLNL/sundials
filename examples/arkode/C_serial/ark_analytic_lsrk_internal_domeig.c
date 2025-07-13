@@ -122,11 +122,11 @@ int main(void)
   sunrealtype t, tout;
 
   /* Dominant Eigenvalue Estimator (DEE) pointers and variables */
-  SUNDomEigEstimator DEE = NULL;  /* domeig estimator object */
-  sunindextype max_iters = 100;   /* max number of power iterations (PI)*/
-  sunindextype numwarmup = 10;    /* number of preprocessing warmups */
-  sunrealtype rel_tol = SUN_RCONST(1.0e-2); /* relative error for PI*/
-  N_Vector q = NULL; /* random initial eigenvector */
+  SUNDomEigEstimator DEE = NULL; /* domeig estimator object */
+  sunindextype max_iters = 100;  /* max number of power iterations (PI)*/
+  sunindextype numwarmup = 10;   /* number of preprocessing warmups */
+  sunrealtype rel_tol    = SUN_RCONST(1.0e-2); /* relative error for PI*/
+  N_Vector q             = NULL;               /* random initial eigenvector */
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -166,7 +166,7 @@ int main(void)
   q = N_VClone(y);
   if (check_flag(q, "N_VClone", 0)) { return 1; }
 
-  sunrealtype *qd = N_VGetArrayPointer(q);
+  sunrealtype* qd = N_VGetArrayPointer(q);
   for (int i = 0; i < NEQ; i++)
   {
     qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
@@ -209,7 +209,7 @@ int main(void)
   performed after attaching the DEE by LSRKStep. */
   flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
   if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 1)) { return 1; }
-  
+
   /* Specify after how many successful steps dom_eig is recomputed */
   flag = LSRKStepSetDomEigFrequency(arkode_mem, 25);
   if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }

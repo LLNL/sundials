@@ -41,7 +41,7 @@ struct _SUNDomEigEstimatorContent_ArnI
 
   N_Vector *V, q; /* Krylov subspace vectors */
 
-  int krydim; /* Krylov subspace dimension */
+  int krydim;     /* Krylov subspace dimension */
   int numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
 
   long int nATimes; /* Number of ATimes calls */
@@ -65,12 +65,12 @@ SUNDIALS_EXPORT
 SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,  
+SUNErrCode SUNDomEigEst_SetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
                                        SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
-                                             int numpreprocess);
+                                              int numpreprocess);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE);
@@ -83,10 +83,11 @@ SUNErrCode SUNDomEigEst_ComputeHess_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                                  sunrealtype* lambdaI);
+                                   sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetNumATimesCalls_ArnI(SUNDomEigEstimator DEE, long int* nATimes);
+SUNErrCode SUNDomEigEst_GetNumATimesCalls_ArnI(SUNDomEigEstimator DEE,
+                                               long int* nATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats_ArnI(SUNDomEigEstimator DEE, FILE* outfile);

@@ -470,14 +470,14 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
   }
 
   /* Attach the DEE pointer to the step memory */
-  if(step_mem->DEE != NULL)
+  if (step_mem->DEE != NULL)
   {
     step_mem->nfeDQ = 0; // TODO: Get opinions on what to do in this case?
   }
   step_mem->DEE = DEE;
 
   // Set the ATimes function for the DEE with A_data = arkode_mem
-  if(step_mem->DEE->ops->setatimes != NULL)
+  if (step_mem->DEE->ops->setatimes != NULL)
   {
     retval = step_mem->DEE->ops->setatimes(DEE, arkode_mem, lsrkStep_DQJtimes);
     if (retval != ARK_SUCCESS)
@@ -496,7 +496,7 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
   }
 
   /* Initialize the DEE */
-  if(step_mem->DEE->ops->initialize != NULL)
+  if (step_mem->DEE->ops->initialize != NULL)
   {
     retval = step_mem->DEE->ops->initialize(step_mem->DEE);
     if (retval != ARK_SUCCESS)

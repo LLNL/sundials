@@ -78,21 +78,21 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->setatimes          = SUNDomEigEst_SetATimes_ArnI;
-  DEE->ops->setmaxiters        = NULL;
-  DEE->ops->settol             = NULL;
-  DEE->ops->setnumpreprocess   = SUNDomEigEst_SetNumPreProcess_ArnI;
-  DEE->ops->initialize         = SUNDomEigEst_Initialize_ArnI;
-  DEE->ops->preprocess         = SUNDomEigEst_PreProcess_ArnI;
-  DEE->ops->computehess        = SUNDomEigEst_ComputeHess_ArnI;
-  DEE->ops->estimate           = SUNDomEig_Estimate_ArnI;
-  DEE->ops->getcurres          = NULL;
-  DEE->ops->getcurniters       = NULL;
-  DEE->ops->getmaxniters       = NULL;
-  DEE->ops->getminniters       = NULL;
-  DEE->ops->getnumatimescalls  = SUNDomEigEst_GetNumATimesCalls_ArnI;
-  DEE->ops->printstats         = SUNDomEigEst_PrintStats_ArnI;
-  DEE->ops->free               = SUNDomEigEstFree_ArnI;
+  DEE->ops->setatimes         = SUNDomEigEst_SetATimes_ArnI;
+  DEE->ops->setmaxiters       = NULL;
+  DEE->ops->settol            = NULL;
+  DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreProcess_ArnI;
+  DEE->ops->initialize        = SUNDomEigEst_Initialize_ArnI;
+  DEE->ops->preprocess        = SUNDomEigEst_PreProcess_ArnI;
+  DEE->ops->computehess       = SUNDomEigEst_ComputeHess_ArnI;
+  DEE->ops->estimate          = SUNDomEig_Estimate_ArnI;
+  DEE->ops->getcurres         = NULL;
+  DEE->ops->getcurniters      = NULL;
+  DEE->ops->getmaxniters      = NULL;
+  DEE->ops->getminniters      = NULL;
+  DEE->ops->getnumatimescalls = SUNDomEigEst_GetNumATimesCalls_ArnI;
+  DEE->ops->printstats        = SUNDomEigEst_PrintStats_ArnI;
+  DEE->ops->free              = SUNDomEigEstFree_ArnI;
 
   /* Create content */
   content = NULL;
@@ -137,7 +137,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
  */
 
 SUNErrCode SUNDomEigEst_SetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
-                                      SUNATimesFn ATimes)
+                                       SUNATimesFn ATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -229,7 +229,7 @@ SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE)
 
   N_VScale(ONE / normq, ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->V[0]);
   SUNCheckLastErr();
-  
+
   return SUN_SUCCESS;
 }
 
@@ -266,7 +266,7 @@ SUNErrCode SUNDomEigEst_PreProcess_ArnI(SUNDomEigEstimator DEE)
       if (retval < 0) { return SUN_ERR_DEE_ATIMES_FAIL_UNREC; }
       else { return SUN_ERR_DEE_ATIMES_FAIL_REC; }
     }
-    
+
     normq = N_VDotProd(ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->q);
     SUNCheckLastErr();
 
@@ -324,7 +324,7 @@ SUNErrCode SUNDomEigEst_ComputeHess_ArnI(SUNDomEigEstimator DEE)
 }
 
 SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                                  sunrealtype* lambdaI)
+                                   sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -419,13 +419,15 @@ SUNErrCode SUNDomEigEst_PrintStats_ArnI(SUNDomEigEstimator DEE, FILE* outfile)
 
   fprintf(outfile, "\nArnoldi Iteration DEE Statistics:");
   fprintf(outfile, "\n------------------------------------------------\n");
-  fprintf(outfile, "Krylov dimensions             = %d\n", ArnI_CONTENT(DEE)->krydim);
-  fprintf(outfile, "Num. of warmups               = %d\n", ArnI_CONTENT(DEE)->numwarmups);
-  fprintf(outfile, "Num. of ATimes calls          = %ld\n", ArnI_CONTENT(DEE)->nATimes);
+  fprintf(outfile, "Krylov dimensions             = %d\n",
+          ArnI_CONTENT(DEE)->krydim);
+  fprintf(outfile, "Num. of warmups               = %d\n",
+          ArnI_CONTENT(DEE)->numwarmups);
+  fprintf(outfile, "Num. of ATimes calls          = %ld\n",
+          ArnI_CONTENT(DEE)->nATimes);
 
   return SUN_SUCCESS;
 }
-
 
 SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
 {

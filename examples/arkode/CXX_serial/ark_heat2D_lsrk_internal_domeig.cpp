@@ -126,9 +126,9 @@ struct UserData
   N_Vector e;    // error vector
 
   // DEE options
-  int dee_numofpreprocess;      // number of DEE preprocessings
-  int dee_max_iters;            // max number of iterations
-  double dee_tol;               // tolerance
+  int dee_numofpreprocess; // number of DEE preprocessings
+  int dee_max_iters;       // max number of iterations
+  double dee_tol;          // tolerance
 
   // Timing variables
   bool timing; // print timings
@@ -273,8 +273,8 @@ int main(int argc, char* argv[])
 
   // Specify and create an internal dominant eigenvalue estimator (DEE)
   SUNDomEigEstimator DEE = NULL;
-  flag = LSRKStepDomEigEstCreate(arkode_mem, XXX, &DEE);
-  flag = (int)(DEE == NULL || flag != 0);
+  flag                   = LSRKStepDomEigEstCreate(arkode_mem, XXX, &DEE);
+  flag                   = (int)(DEE == NULL || flag != 0);
   if (check_flag(&flag, "LSRKStepDomEigEstCreate", 2)) { return 1; }
 
   flag = SUNDomEigEst_SetNumPreProcess(DEE, udata->dee_numofpreprocess);

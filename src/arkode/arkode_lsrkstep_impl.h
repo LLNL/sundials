@@ -160,7 +160,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
-  SUNDomEigEstimator DEE;       /* DomEig estimator*/
+  SUNDomEigEstimator DEE; /* DomEig estimator*/
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */

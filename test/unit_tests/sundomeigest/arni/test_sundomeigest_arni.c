@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   SUNContext sunctx;
   sunrealtype rel_tol = SUN_RCONST(1.0e-2); /* relative tol for pass/fail */
   sunrealtype rel_error;
-  N_Vector q;                     /* random initial eigenvector */
+  N_Vector q; /* random initial eigenvector */
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
   {
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     return (-1);
   }
 
-  /* check inputs: local problem size, Krylov dimension, preprocessing items, timing flag */  
+  /* check inputs: local problem size, Krylov dimension, preprocessing items, timing flag */
   if (argc < 5)
   {
     printf("ERROR: FOUR (4) Inputs required:\n");
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
   q = N_VClone(ProbData.diag);
   if (check_flag(q, "N_VClone", 0)) { return 1; }
 
-  sunrealtype *qd = N_VGetArrayPointer(q);
+  sunrealtype* qd = N_VGetArrayPointer(q);
   for (int i = 0; i < ProbData.N; i++)
   {
     qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
@@ -150,12 +150,12 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEst_SetMaxIters(DEE, max_iters, 0);
   fails += Test_SUNDomEigEst_SetNumPreProcess(DEE, numwarmups, 0);
   fails += Test_SUNDomEigEst_SetTol(DEE, rel_tol, 0);
-  fails += Test_SUNDomEigEst_Initialize(DEE, 0); 
-  fails += Test_SUNDomEigEst_PreProcess(DEE, 0); 
+  fails += Test_SUNDomEigEst_Initialize(DEE, 0);
+  fails += Test_SUNDomEigEst_PreProcess(DEE, 0);
   fails += Test_SUNDomEigEst_ComputeHess(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
   // SUNDomEigEst_GetCurRes, SUNDomEigEst_GetCurNumIters, SUNDomEigEst_GetMaxNumIters
-  // and SUNDomEigEst_GetMinNumIters are not options for Arnoldi iteration. 
+  // and SUNDomEigEst_GetMinNumIters are not options for Arnoldi iteration.
   // They should return with 0.
   fails += Test_SUNDomEigEst_GetCurRes(DEE, &curres, 0);
   if (curres > SUN_SMALL_REAL)
@@ -172,7 +172,8 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEst_GetMaxNumIters(DEE, &maxniter, 0);
   if (maxniter != 0)
   {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetMaxNumIters return  value\n");
+    printf(
+      "    >>> FAILED test -- SUNDomEigEst_GetMaxNumIters return  value\n");
     fails++;
   }
   fails += Test_SUNDomEigEst_GetMinNumIters(DEE, &minniter, 0);
@@ -183,7 +184,7 @@ int main(int argc, char* argv[])
   }
   fails += Test_SUNDomEigEst_GetNumATimesCalls(DEE, &nATimes, 0);
   fails += Test_SUNDomEigEst_PrintStats(DEE, 0);
-  
+
   if (fails)
   {
     printf("FAIL: SUNDomEigEst_ArnI module failed %i initialization tests\n\n",
@@ -218,10 +219,12 @@ int main(int argc, char* argv[])
     tlambdaI = ZERO;
   }
 
-  printf("\ncomputed dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G " i\n", lambdaR,
-         lambdaI);
-  printf("    true dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G " i\n", tlambdaR,
-         tlambdaI);
+  printf("\ncomputed dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G
+         " i\n",
+         lambdaR, lambdaI);
+  printf("    true dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G
+         " i\n",
+         tlambdaR, tlambdaI);
 
   /* Compare the estimated dom_eig with the tlambdaR and tlambdaI*/
   rel_error = SUNRsqrt((lambdaR - tlambdaR) * (lambdaR - tlambdaR) +
@@ -242,6 +245,7 @@ int main(int argc, char* argv[])
   /* Free solver and vectors */
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
+  N_VDestroy(q);
   DEE->ops->free(DEE);
 
   return (passfail);

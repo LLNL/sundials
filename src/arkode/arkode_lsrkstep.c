@@ -2228,7 +2228,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       }
     }
 
-    if(step_mem->DEE->ops->computehess != NULL)
+    if (step_mem->DEE->ops->computehess != NULL)
     {
       retval = step_mem->DEE->ops->computehess(step_mem->DEE);
       if (retval != ARK_SUCCESS)
@@ -2239,9 +2239,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       }
     }
 
-    if(step_mem->DEE->ops->estimate != NULL)
+    if (step_mem->DEE->ops->estimate != NULL)
     {
-      retval = step_mem->DEE->ops->estimate(step_mem->DEE, &step_mem->lambdaR, 
+      retval = step_mem->DEE->ops->estimate(step_mem->DEE, &step_mem->lambdaR,
                                             &step_mem->lambdaI);
       step_mem->dom_eig_num_evals++;
       if (retval != ARK_SUCCESS)

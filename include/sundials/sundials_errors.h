@@ -71,7 +71,8 @@
                                      "and the stored time do not match")       \
                                                                                \
   ENTRY(SUN_ERR_DEE_BAD_NVECTOR, "Bad NVector")                                \
-  ENTRY(SUN_ERR_DEE_NULL_ATIMES, "ATimes is null: Either the user or the "     \
+  ENTRY(SUN_ERR_DEE_NULL_ATIMES,                                               \
+        "ATimes is null: Either the user or the "                              \
         "solver did not set it yet. The latter happens internallly - user "    \
         "needs to attach the estimator and call set routines only")            \
   ENTRY(SUN_ERR_DEE_ATIMES_FAIL_REC, "Atimes recoverable failure")             \

@@ -29,9 +29,9 @@ extern "C" {
 
 /* Test function declarations */
 int Test_SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* ATdata,
-                               SUNATimesFn ATimes, int myid);
-int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE,
-                                 int max_iters, int myid);
+                                SUNATimesFn ATimes, int myid);
+int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, int max_iters,
+                                  int myid);
 int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
                                        int myid);
 int Test_SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol, int myid);
@@ -39,12 +39,17 @@ int Test_SUNDomEigEst_Initialize(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEst_PreProcess(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEigEst_ComputeHess(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                           sunrealtype* lambdaI, int myid);
-int Test_SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* curres, int myid);
-int Test_SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter, int myid);
-int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter, int myid);
-int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter, int myid);
-int Test_SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* nATimes, int myid);
+                            sunrealtype* lambdaI, int myid);
+int Test_SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* curres,
+                                int myid);
+int Test_SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter,
+                                     int myid);
+int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter,
+                                     int myid);
+int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter,
+                                     int myid);
+int Test_SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
+                                        long int* nATimes, int myid);
 int Test_SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, int myid);
 
 /* Timing function */

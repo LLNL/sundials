@@ -23,8 +23,8 @@
 /* constants */
 #define ZERO SUN_RCONST(0.0)
 
-#define factor      SUN_RCONST(-100.0)  
-#define diagonal    SUN_RCONST(-30000.0)  
+#define factor      SUN_RCONST(-100.0)
+#define diagonal    SUN_RCONST(-30000.0)
 #define nondiagonal SUN_RCONST(-10000.0)
 
 /* user data structure */
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
   SUNContext sunctx;
   sunrealtype rel_tol = SUN_RCONST(1.0e-2); /* relative tol for pass/fail */
   sunrealtype rel_error;
-  N_Vector q;                     /* random initial eigenvector */
+  N_Vector q; /* random initial eigenvector */
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
   {
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
   q = N_VClone(ProbData.diag);
   if (check_flag(q, "N_VClone", 0)) { return 1; }
 
-  sunrealtype *qd = N_VGetArrayPointer(q);
+  sunrealtype* qd = N_VGetArrayPointer(q);
   for (int i = 0; i < ProbData.N; i++)
   {
     qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
@@ -216,10 +216,12 @@ int main(int argc, char* argv[])
     tlambdaI = ZERO;
   }
 
-  printf("\ncomputed dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G " i\n", lambdaR,
-         lambdaI);
-  printf("    true dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G " i\n", tlambdaR,
-         tlambdaI);
+  printf("\ncomputed dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G
+         " i\n",
+         lambdaR, lambdaI);
+  printf("    true dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G
+         " i\n",
+         tlambdaR, tlambdaI);
 
   /* Compare the estimated dom_eig with the true_dom_eig*/
   rel_error = SUNRsqrt((lambdaR - tlambdaR) * (lambdaR - tlambdaR) +
@@ -227,7 +229,7 @@ int main(int argc, char* argv[])
 
   rel_error /= norm_of_dom_eig;
 
-  if (rel_error < SUN_RCONST(10.0)*rel_tol)
+  if (rel_error < SUN_RCONST(10.0) * rel_tol)
   {
     printf("\n\nPASS:   relative error = " SUN_FORMAT_G " \n\n", rel_error);
   }
@@ -240,6 +242,7 @@ int main(int argc, char* argv[])
   /* Free solver and vectors */
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
+  N_VDestroy(q);
   DEE->ops->free(DEE);
 
   return (passfail);
