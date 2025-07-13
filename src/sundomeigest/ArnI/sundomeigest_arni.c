@@ -48,6 +48,14 @@
 
 /*
  * -----------------------------------------------------------------
+ * ArnI module private function prototypes
+ * -----------------------------------------------------------------
+ */
+
+int sundomeigest_Compare(const void* a, const void* b);
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -335,7 +343,7 @@ SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
 
-  int n = ArnI_CONTENT(DEE)->krydim;
+  sunindextype n = ArnI_CONTENT(DEE)->krydim;
 
   /* Reshape the Hessenberg matrix as an input vector for the LAPACK dgeev_ function */
   int i, j, k = 0;

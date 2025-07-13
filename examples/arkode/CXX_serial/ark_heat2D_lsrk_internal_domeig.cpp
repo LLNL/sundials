@@ -62,9 +62,8 @@
 #include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
 
-#include <sundomeigest/sundomeigest_pi.h>   // access to Power Iteration module
 #include <sundomeigest/sundomeigest_arni.h> // access to Arnoldi Iteration module
-
+#include <sundomeigest/sundomeigest_pi.h>   // access to Power Iteration module
 
 // Macros for problem constants
 #define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
@@ -202,8 +201,8 @@ int main(int argc, char* argv[])
   void* arkode_mem = NULL; // ARKODE memory structure
 
   // Dominant Eigenvalue Estimator (DEE) pointers and variables
-  SUNDomEigEstimator DEE = NULL;  /* domeig estimator object */
-  N_Vector q             = NULL;  /* random initial eigenvector */
+  SUNDomEigEstimator DEE = NULL; /* domeig estimator object */
+  N_Vector q             = NULL; /* random initial eigenvector */
 
   // Timing variables
   chrono::time_point<chrono::steady_clock> t1;
@@ -292,7 +291,7 @@ int main(int argc, char* argv[])
     qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
   }
 
-  if(udata->dee_id == 0)
+  if (udata->dee_id == 0)
   {
     /* Create power iteration dominant eigenvalue estimator */
     DEE = SUNDomEigEst_PI(q, udata->dee_max_iters, ctx);
@@ -420,7 +419,7 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
   }
 
-  if(!udata->dee_nostats)
+  if (!udata->dee_nostats)
   {
     // Print DEE statistics
     cout << "Final DEE statistics:" << endl;
@@ -457,7 +456,7 @@ int main(int argc, char* argv[])
   SUNDomEigEstFree(DEE);   /* Free DEE object */
   FreeUserData(udata);     // Free user data
   delete udata;
-  SUNContext_Free(&ctx);   // Free context
+  SUNContext_Free(&ctx); // Free context
 
   return 0;
 }
@@ -604,12 +603,12 @@ static int InitUserData(UserData* udata)
   udata->e      = NULL;
 
   // DEE options
-  udata->dee_id              = 1;   // DEE ID (0 for PI and 1 for ArnI)
+  udata->dee_id              = 1; // DEE ID (0 for PI and 1 for ArnI)
   udata->dee_numofpreprocess = 20;
   udata->dee_max_iters       = 100;
   udata->dee_krylov_dim      = 3;
   udata->dee_reltol          = 0.01;
-  udata->dee_nostats         = false; 
+  udata->dee_nostats         = false;
 
   // Timing variables
   udata->timing     = false;
@@ -696,10 +695,7 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
       udata->maxsteps = stoi((*argv)[arg_idx++]);
     }
     // DEE options
-    else if (arg == "--dee_id")
-    {
-      udata->dee_id = stoi((*argv)[arg_idx++]);
-    }
+    else if (arg == "--dee_id") { udata->dee_id = stoi((*argv)[arg_idx++]); }
     else if (arg == "--dee_numofpreprocess")
     {
       udata->dee_numofpreprocess = stoi((*argv)[arg_idx++]);
@@ -712,7 +708,10 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
     {
       udata->dee_krylov_dim = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--dee_reltol") { udata->dee_reltol = stod((*argv)[arg_idx++]); }
+    else if (arg == "--dee_reltol")
+    {
+      udata->dee_reltol = stod((*argv)[arg_idx++]);
+    }
     else if (arg == "--dee_nostats") { udata->dee_nostats = true; }
     else if (arg == "--timing") { udata->timing = true; }
     // Help
@@ -822,7 +821,9 @@ static void InputHelp()
   cout << "  --output <level>            : output level" << endl;
   cout << "  --nout <nout>               : number of outputs" << endl;
   cout << "  --maxsteps <steps>          : max steps between outputs" << endl;
-  cout << "  --dee_id <id>               : DomEig Estimator (DEE) id (PI: 0, ArnI: 1)" << endl;
+  cout << "  --dee_id <id>               : DomEig Estimator (DEE) id (PI: 0, "
+          "ArnI: 1)"
+       << endl;
   cout << "  --dee_numofpreprocess <num> : number of DEE preprocesses" << endl;
   cout << "  --dee_max_iters <num>       : max iterations in DEE" << endl;
   cout << "  --dee_krylov_dim <dim>      : Krylov dimension for DEE" << endl;

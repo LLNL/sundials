@@ -283,7 +283,7 @@ int main(void)
   ARKodeFree(&arkode_mem); /* Free integrator memory */
   SUNDomEigEstFree(DEE);   /* Free DEE object */
   SUNContext_Free(&ctx);   /* Free context */
-  
+
   return flag;
 }
 
