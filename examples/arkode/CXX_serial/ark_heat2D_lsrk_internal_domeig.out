@@ -1,6 +1,6 @@
 
 2D Heat PDE test problem:
- ------------------------------------
+ ------------------------------------ 
  kx               = 10
  ky               = 10
  forcing          = 1
@@ -11,7 +11,7 @@
  ny               = 64
  dx               = 0.015873
  dy               = 0.015873
- ------------------------------------
+ ------------------------------------ 
  rtol             = 1e-05
  atol             = 1e-10
  fixed h          = 0
@@ -20,16 +20,18 @@
  eigfrequency     = 25
  stage_max_limit  = 1000
  eigsafety        = 1.01
- ------------------------------------
+ ------------------------------------ 
  output           = 1
  max steps        = 0
- ------------------------------------
+ ------------------------------------ 
+ dee ID           = 1
  dee numofpreproc = 20
  dee_max_iters    = 100
- dee_tol          = 0.01
- ------------------------------------
+ dee_krylov_dim   = 3
+ dee_reltol       = 0.01
+ ------------------------------------ 
 
-          t                     ||u||_rms                max error
+          t                     ||u||_rms                max error      
  -----------------------------------------------------------------------
  0.000000000000000e+00    3.691406250000004e-01    0.000000000000000e+00
  5.000000000000000e-02    3.604068358279098e-01    8.104220314431032e-04
@@ -68,11 +70,16 @@ Last step size                = 5.64422150136634e-05
 Current step size             = 5.64422150136634e-05
 RHS fn evals                  = 15639
 Number of dom_eig updates     = 23
-Number of warmups in DEE      = 20
-Krylov subspace dim. in DEE   = 3
 Number of fe calls for DEE    = 621
 Max. num. of stages used      = 63
 Max. num. of stages allowed   = 1000
 Max. spectral radius          = 320204.767273263
 Min. spectral radius          = 316783.771743622
+Final DEE statistics:
+
+Arnoldi Iteration DEE Statistics:
+------------------------------------------------
+Krylov dimensions             = 3
+Num. of warmups               = 20
+Num. of ATimes calls          = 529
   Max error = 8.280988651331311e-04

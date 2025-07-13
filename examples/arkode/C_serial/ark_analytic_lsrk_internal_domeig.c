@@ -205,7 +205,7 @@ int main(void)
   if (check_flag(&flag, "SUNDomEigEst_SetNumPreProcess", 1)) { return 1; }
 
   /* Attach the DEE to the LSRKStep module.
-  There is no need to set Atimes or initialize since this are all 
+  There is no need to set Atimes or initialize since these are all 
   performed after attaching the DEE by LSRKStep. */
   flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
   if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 1)) { return 1; }
@@ -281,9 +281,9 @@ int main(void)
   /* Clean up and return */
   N_VDestroy(y);           /* Free y vector */
   ARKodeFree(&arkode_mem); /* Free integrator memory */
-  SUNContext_Free(&ctx);   /* Free context */
   SUNDomEigEstFree(DEE);   /* Free DEE object */
-
+  SUNContext_Free(&ctx);   /* Free context */
+  
   return flag;
 }
 

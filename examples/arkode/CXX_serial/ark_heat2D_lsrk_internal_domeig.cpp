@@ -62,6 +62,10 @@
 #include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
 
+#include <sundomeigest/sundomeigest_pi.h>   // access to Power Iteration module
+#include <sundomeigest/sundomeigest_arni.h> // access to Arnoldi Iteration module
+
+
 // Macros for problem constants
 #define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
 #define ZERO SUN_RCONST(0.0)
@@ -126,9 +130,12 @@ struct UserData
   N_Vector e;    // error vector
 
   // DEE options
+  int dee_id;              // DEE ID
   int dee_numofpreprocess; // number of DEE preprocessings
   int dee_max_iters;       // max number of iterations
-  double dee_tol;          // tolerance
+  int dee_krylov_dim;      // Krylov dimension for DEE
+  double dee_reltol;       // tolerance
+  bool dee_nostats;        // DEE stats flag
 
   // Timing variables
   bool timing; // print timings
@@ -193,6 +200,10 @@ int main(int argc, char* argv[])
   UserData* udata  = NULL; // user data structure
   N_Vector u       = NULL; // vector for storing solution
   void* arkode_mem = NULL; // ARKODE memory structure
+
+  // Dominant Eigenvalue Estimator (DEE) pointers and variables
+  SUNDomEigEstimator DEE = NULL;  /* domeig estimator object */
+  N_Vector q             = NULL;  /* random initial eigenvector */
 
   // Timing variables
   chrono::time_point<chrono::steady_clock> t1;
@@ -271,22 +282,57 @@ int main(int argc, char* argv[])
   flag = LSRKStepSetSTSMethod(arkode_mem, udata->method);
   if (check_flag(&flag, "LSRKStepSetSTSMethod", 1)) { return 1; }
 
-  // Specify and create an internal dominant eigenvalue estimator (DEE)
-  SUNDomEigEstimator DEE = NULL;
-  flag                   = LSRKStepDomEigEstCreate(arkode_mem, XXX, &DEE);
-  flag                   = (int)(DEE == NULL || flag != 0);
-  if (check_flag(&flag, "LSRKStepDomEigEstCreate", 2)) { return 1; }
+  /* Set the initial random eigenvector for the DEE */
+  q = N_VClone(u);
+  if (check_flag(q, "N_VClone", 0)) { return 1; }
 
+  sunrealtype* qd = N_VGetArrayPointer(q);
+  for (int i = 0; i < udata->nodes; i++)
+  {
+    qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
+  }
+
+  if(udata->dee_id == 0)
+  {
+    /* Create power iteration dominant eigenvalue estimator */
+    DEE = SUNDomEigEst_PI(q, udata->dee_max_iters, ctx);
+    if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
+  }
+  else if (udata->dee_id == 1)
+  {
+    /* Create ArnI dominant eigenvalue estimator */
+    DEE = SUNDomEigEst_ArnI(q, udata->dee_krylov_dim, ctx);
+    if (check_flag(DEE, "SUNDomEigEst_ArnI", 0)) { return 1; }
+  }
+  else
+  {
+    cerr << "Invalid DEE ID: " << udata->dee_id << endl;
+    return 1;
+  }
+
+  /* After the DEE creation, random q vector is no longer needed.
+     It is used only to initialize the DEE */
+  N_VDestroy(q);
+
+  /* Specify the number of preprocessing warmups. */
   flag = SUNDomEigEst_SetNumPreProcess(DEE, udata->dee_numofpreprocess);
   if (check_flag(&flag, "SUNDomEigEst_SetNumPreProcess", 2)) { return 1; }
 
+  /* Specify the max number for PI iterations. 
+     This does nothing if DEE is ArnI */
   flag = SUNDomEigEst_SetMaxIters(DEE, udata->dee_max_iters);
   if (check_flag(&flag, "SUNDomEigEst_SetMaxIters", 2)) { return 1; }
 
-  flag = SUNDomEigEst_SetTol(DEE, udata->dee_tol);
+  /* Specify the relative tolerance for PI iterations. 
+     This does nothing if DEE is ArnI */
+  flag = SUNDomEigEst_SetTol(DEE, udata->dee_reltol);
   if (check_flag(&flag, "SUNDomEigEst_SetTol", 2)) { return 1; }
 
-  // TODO: Add new functions to set the DEE options
+  /* Attach the DEE to the LSRKStep module.
+  There is no need to set Atimes or initialize since these are all 
+  performed after attaching the DEE by LSRKStep. */
+  flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
+  if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 2)) { return 1; }
 
   flag = LSRKStepSetDomEigFrequency(arkode_mem, udata->eigfrequency);
   if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
@@ -374,6 +420,14 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
   }
 
+  if(!udata->dee_nostats)
+  {
+    // Print DEE statistics
+    cout << "Final DEE statistics:" << endl;
+    flag = SUNDomEigEst_PrintStats(DEE, stdout);
+    if (check_flag(&flag, "SUNDomEigEst_PrintStats", 1)) { return 1; }
+  }
+
   if (udata->forcing)
   {
     // Output final error
@@ -400,9 +454,10 @@ int main(int argc, char* argv[])
 
   ARKodeFree(&arkode_mem); // Free integrator memory
   N_VDestroy(u);           // Free vectors
+  SUNDomEigEstFree(DEE);   /* Free DEE object */
   FreeUserData(udata);     // Free user data
   delete udata;
-  SUNContext_Free(&ctx); // Free context
+  SUNContext_Free(&ctx);   // Free context
 
   return 0;
 }
@@ -549,9 +604,12 @@ static int InitUserData(UserData* udata)
   udata->e      = NULL;
 
   // DEE options
+  udata->dee_id              = 1;   // DEE ID (0 for PI and 1 for ArnI)
   udata->dee_numofpreprocess = 20;
   udata->dee_max_iters       = 100;
-  udata->dee_tol             = 0.01;
+  udata->dee_krylov_dim      = 3;
+  udata->dee_reltol          = 0.01;
+  udata->dee_nostats         = false; 
 
   // Timing variables
   udata->timing     = false;
@@ -638,6 +696,10 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
       udata->maxsteps = stoi((*argv)[arg_idx++]);
     }
     // DEE options
+    else if (arg == "--dee_id")
+    {
+      udata->dee_id = stoi((*argv)[arg_idx++]);
+    }
     else if (arg == "--dee_numofpreprocess")
     {
       udata->dee_numofpreprocess = stoi((*argv)[arg_idx++]);
@@ -646,7 +708,12 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
     {
       udata->dee_max_iters = stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--dee_tol") { udata->dee_tol = stod((*argv)[arg_idx++]); }
+    else if (arg == "--dee_krylov_dim")
+    {
+      udata->dee_krylov_dim = stoi((*argv)[arg_idx++]);
+    }
+    else if (arg == "--dee_reltol") { udata->dee_reltol = stod((*argv)[arg_idx++]); }
+    else if (arg == "--dee_nostats") { udata->dee_nostats = true; }
     else if (arg == "--timing") { udata->timing = true; }
     // Help
     else if (arg == "--help")
@@ -755,9 +822,12 @@ static void InputHelp()
   cout << "  --output <level>            : output level" << endl;
   cout << "  --nout <nout>               : number of outputs" << endl;
   cout << "  --maxsteps <steps>          : max steps between outputs" << endl;
+  cout << "  --dee_id <id>               : DomEig Estimator (DEE) id (PI: 0, ArnI: 1)" << endl;
   cout << "  --dee_numofpreprocess <num> : number of DEE preprocesses" << endl;
   cout << "  --dee_max_iters <num>       : max iterations in DEE" << endl;
-  cout << "  --dee_tol <tol>             : DEE tolerance" << endl;
+  cout << "  --dee_krylov_dim <dim>      : Krylov dimension for DEE" << endl;
+  cout << "  --dee_reltol <tol>          : DEE tolerance" << endl;
+  cout << "  --dee_nostats               : turn off DEE statistics" << endl;
   cout << "  --timing                    : print timing data" << endl;
   cout << "  --help                      : print this message and exit" << endl;
 }
@@ -791,9 +861,11 @@ static int PrintUserData(UserData* udata)
   cout << " output           = " << udata->output << endl;
   cout << " max steps        = " << udata->maxsteps << endl;
   cout << " ------------------------------------ " << endl;
+  cout << " dee ID           = " << udata->dee_id << endl;
   cout << " dee numofpreproc = " << udata->dee_numofpreprocess << endl;
   cout << " dee_max_iters    = " << udata->dee_max_iters << endl;
-  cout << " dee_tol          = " << udata->dee_tol << endl;
+  cout << " dee_krylov_dim   = " << udata->dee_krylov_dim << endl;
+  cout << " dee_reltol       = " << udata->dee_reltol << endl;
   cout << " ------------------------------------ " << endl;
   cout << endl;
 
