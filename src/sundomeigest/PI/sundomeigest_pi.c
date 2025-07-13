@@ -103,10 +103,13 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
   content->curres      = ZERO;
   content->curnumiters = 0;
   content->maxnumiters = 0;
-  content->minnumiters = 0;
+  content->minnumiters = max_iters;
   content->nATimes     = 0;
   
   /* Allocate content */
+  content->q = N_VClone(q);
+  SUNCheckLastErrNull();
+
   N_VScale(ONE, q, content->q);
   SUNCheckLastErrNull();
 

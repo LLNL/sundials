@@ -118,6 +118,9 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
   content->nATimes     = 0;
 
   /* Allocate content */
+  content->q = N_VClone(q);
+  SUNCheckLastErrNull();
+
   N_VScale(ONE, q, content->q);
   SUNCheckLastErrNull();
 

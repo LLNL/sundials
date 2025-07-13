@@ -54,20 +54,20 @@ SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
-  DEE->ops->setatimes        = NULL;
-  DEE->ops->setmaxiters      = NULL;
-  DEE->ops->settol           = NULL;
-  DEE->ops->setnumpreprocess = NULL;
-  DEE->ops->initialize       = NULL;
-  DEE->ops->preprocess       = NULL;
-  DEE->ops->computehess      = NULL;
-  DEE->ops->estimate         = NULL;
-  DEE->ops->getcurniters     = NULL;
-  DEE->ops->getmaxniters     = NULL;
-  DEE->ops->getminniters     = NULL;
-  DEE->ops->getcurres        = NULL;
-  DEE->ops->printstats       = NULL;
-  DEE->ops->free             = NULL;
+  ops->setatimes        = NULL;
+  ops->setmaxiters      = NULL;
+  ops->settol           = NULL;
+  ops->setnumpreprocess = NULL;
+  ops->initialize       = NULL;
+  ops->preprocess       = NULL;
+  ops->computehess      = NULL;
+  ops->estimate         = NULL;
+  ops->getcurniters     = NULL;
+  ops->getmaxniters     = NULL;
+  ops->getminniters     = NULL;
+  ops->getcurres        = NULL;
+  ops->printstats       = NULL;
+  ops->free             = NULL;
 
   /* attach ops and initialize content and context to NULL */
   DEE->ops     = ops;
