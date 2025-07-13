@@ -67,6 +67,7 @@ int main(int argc, char* argv[])
   SUNContext sunctx;
   sunrealtype rel_tol = SUN_RCONST(1.0e-2); /* relative tol for pass/fail */
   sunrealtype rel_error;
+  N_Vector q;                     /* random initial eigenvector */
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
   {
@@ -99,8 +100,7 @@ int main(int argc, char* argv[])
   numwarmups = atoi(argv[3]);
   if (numwarmups < 0)
   {
-    printf(
-      "ERROR: Number of preprocessing warmups must be a nonnegative integer\n");
+    printf("ERROR: Number of preprocessing must be a nonnegative integer\n");
     return 1;
   }
   print_timing = atoi(argv[4]);
@@ -116,6 +116,15 @@ int main(int argc, char* argv[])
   ProbData.diag = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.diag, "N_VNew_Serial", 0)) { return 1; }
 
+  q = N_VClone(ProbData.diag);
+  if (check_flag(q, "N_VClone", 0)) { return 1; }
+
+  sunrealtype *qd = N_VGetArrayPointer(q);
+  for (int i = 0; i < ProbData.N; i++)
+  {
+    qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
+  }
+
   /* Fill matrix diagonal and problem data */
   // real diag is [3 4 5 ... N 0 0]*factor
   // 2x2 block matrix attached to the last two diagonals is
@@ -125,12 +134,13 @@ int main(int argc, char* argv[])
   // based on the "factor" and the problem dimension N.
   sunrealtype* v = N_VGetArrayPointer(ProbData.diag);
   for (int i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
+
   // Set the problem data corresponding to 2x2 block matrix
   ProbData.real_part = realpart;
   ProbData.imag_part = imagpart;
 
-  /* Create Arnoldi DomEig estimator*/
-  DEE = SUNDomEigEst_ArnI(ProbData.diag, krydim, sunctx);
+  /* Create Arnoldi Iteration Dominant Eigvalue Estimator (DEE)*/
+  DEE = SUNDomEigEst_ArnI(q, krydim, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_ArnI", 0)) { return 1; }
 
   fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
@@ -140,8 +150,8 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEst_SetMaxIters(DEE, max_iters, 0);
   fails += Test_SUNDomEigEst_SetNumPreProcess(DEE, numwarmups, 0);
   fails += Test_SUNDomEigEst_SetTol(DEE, rel_tol, 0);
-  fails += Test_SUNDomEigEst_Initialize(DEE, 0);
-  fails += Test_SUNDomEigEst_PreProcess(DEE, 0);
+  fails += Test_SUNDomEigEst_Initialize(DEE, 0); 
+  fails += Test_SUNDomEigEst_PreProcess(DEE, 0); 
   fails += Test_SUNDomEigEst_ComputeHess(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
   // SUNDomEigEst_GetCurRes, SUNDomEigEst_GetCurNumIters, SUNDomEigEst_GetMaxNumIters
@@ -208,9 +218,9 @@ int main(int argc, char* argv[])
     tlambdaI = ZERO;
   }
 
-  printf("\ncomputed dominant eigenvalue = %20.4lf + %20.4lfi\n", lambdaR,
+  printf("\ncomputed dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G " i\n", lambdaR,
          lambdaI);
-  printf("    true dominant eigenvalue = %20.4lf + %20.4lfi\n", tlambdaR,
+  printf("    true dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G " i\n", tlambdaR,
          tlambdaI);
 
   /* Compare the estimated dom_eig with the tlambdaR and tlambdaI*/
@@ -221,11 +231,11 @@ int main(int argc, char* argv[])
 
   if (rel_error < rel_tol)
   {
-    printf("\n\nPASS:   relative error = %lf\n\n", rel_error);
+    printf("\n\nPASS:   relative error = " SUN_FORMAT_G " \n\n", rel_error);
   }
   else
   {
-    printf("\n\nFAIL:   relative error = %lf\n\n", rel_error);
+    printf("\n\nFAIL:   relative error = " SUN_FORMAT_G " \n\n", rel_error);
     passfail += 1;
   }
 

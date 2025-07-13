@@ -108,7 +108,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
   content->V           = NULL;
   content->q           = NULL;
   content->krydim      = krydim;
-  content->numwarmups  = 0;
+  content->numwarmups  = DEE_NUM_OF_WARMUPS_ARNI_DEFAULT;
   content->LAPACK_A    = NULL;
   content->LAPACK_wr   = NULL;
   content->LAPACK_wi   = NULL;
@@ -158,7 +158,7 @@ SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE)
   }
   if (ArnI_CONTENT(DEE)->numwarmups < 0)
   {
-    ArnI_CONTENT(DEE)->numwarmups = DEE_NUM_OF_WARMUPS_DEFAULT;
+    ArnI_CONTENT(DEE)->numwarmups = DEE_NUM_OF_WARMUPS_ARNI_DEFAULT;
   }
 
   SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
@@ -252,7 +252,7 @@ SUNErrCode SUNDomEigEst_PreProcess_ArnI(SUNDomEigEstimator DEE)
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
   sunrealtype normq;
-  sunindextype i, retval;
+  int i, retval;
 
   /* Set the initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
   for (i = 0; i < ArnI_CONTENT(DEE)->numwarmups; i++)
@@ -287,7 +287,7 @@ SUNErrCode SUNDomEigEst_ComputeHess_ArnI(SUNDomEigEstimator DEE)
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
 
-  sunindextype retval, i, j;
+  int retval, i, j;
   /* Initialize the Hessenberg matrix Hes with zeros */
   for (i = 0; i < ArnI_CONTENT(DEE)->krydim; i++)
   {
@@ -335,10 +335,10 @@ SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
 
-  sunindextype n = ArnI_CONTENT(DEE)->krydim;
+  int n = ArnI_CONTENT(DEE)->krydim;
 
   /* Reshape the Hessenberg matrix as an input vector for the LAPACK dgeev_ function */
-  sunindextype i, j, k = 0;
+  int i, j, k = 0;
   for (i = 0; i < n; i++)
   {
     for (j = 0; j < n; j++)
@@ -417,10 +417,11 @@ SUNErrCode SUNDomEigEst_PrintStats_ArnI(SUNDomEigEstimator DEE, FILE* outfile)
 
   if (DEE == NULL || outfile == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
-  fprintf(outfile, "Arnoldi DEE Statistics:\n");
-  fprintf(outfile, "Krylov dimensions: %d\n", ArnI_CONTENT(DEE)->krydim);
-  fprintf(outfile, "Number of warmups: %d\n", ArnI_CONTENT(DEE)->numwarmups);
-  fprintf(outfile, "Number of ATimes calls: %ld\n", ArnI_CONTENT(DEE)->nATimes);
+  fprintf(outfile, "\nArnoldi Iteration DEE Statistics:");
+  fprintf(outfile, "\n------------------------------------------------\n");
+  fprintf(outfile, "Krylov dimensions             = %d\n", ArnI_CONTENT(DEE)->krydim);
+  fprintf(outfile, "Num. of warmups               = %d\n", ArnI_CONTENT(DEE)->numwarmups);
+  fprintf(outfile, "Num. of ATimes calls          = %ld\n", ArnI_CONTENT(DEE)->nATimes);
 
   return SUN_SUCCESS;
 }

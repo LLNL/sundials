@@ -41,7 +41,7 @@ struct _SUNDomEigEstimatorContent_ArnI
 
   N_Vector *V, q; /* Krylov subspace vectors */
 
-  sunindextype krydim; /* Krylov subspace dimension */
+  int krydim; /* Krylov subspace dimension */
   int numwarmups; /* Power of A in the preprocessing; initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
 
   long int nATimes; /* Number of ATimes calls */

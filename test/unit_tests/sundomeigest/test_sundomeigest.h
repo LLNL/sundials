@@ -31,7 +31,7 @@ extern "C" {
 int Test_SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* ATdata,
                                SUNATimesFn ATimes, int myid);
 int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE,
-                                 sunindextype max_iters, int myid);
+                                 int max_iters, int myid);
 int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
                                        int myid);
 int Test_SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol, int myid);

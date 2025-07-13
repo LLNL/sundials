@@ -65,7 +65,7 @@ This LAPACK dependence is limited to the eigenvalue estimation of the Hessenberg
 The module SUNDomEigEst_ARNI provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, sunindextype krydim, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
 
    This constructor function creates and allocates memory for an ARNI
    ``SUNDomEigEstimator``.
@@ -104,8 +104,8 @@ The SUNDomEigEst_ARNI module defines the *content* field of a
      void* ATdata;
      N_Vector* V;
      N_Vector q;
-     sunindextype krydim;
-     sunindextype numwarmups;
+     int krydim;
+     int numwarmups;
      sunrealtype* LAPACK_A;
      sunrealtype* LAPACK_wr;
      sunrealtype* LAPACK_wi;

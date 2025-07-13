@@ -176,7 +176,7 @@ that do not provide the functionality for any optional routine should leave the 
 function pointer ``NULL`` instead of supplying a dummy routine.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, sunindextype numpreprocess)
+.. c:function:: SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numpreprocess)
 
    This *optional* routine should set the number of "warm-up" matrix-vector multiplications,
    which then should be executed by :c:func:`SUNDomEigEst_PreProcess`.
@@ -217,7 +217,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
          retval = SUNDomEigEst_SetTol(DEE, tol);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, sunindextype max_iters)
+.. c:function:: SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, int max_iters)
 
    This *optional* routine sets the maximum number of iterations.
 
@@ -491,11 +491,11 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEst_SetATimes`
 
-   .. c:member:: SUNErrCode (*setmaxiters)(SUNDomEigEstimator, sunindextype)
+   .. c:member:: SUNErrCode (*setmaxiters)(SUNDomEigEstimator, int)
 
       The function implementing :c:func:`SUNDomEigEst_SetMaxIters`
 
-   .. c:member:: SUNErrCode (*setnumpreprocess)(SUNDomEigEstimator, sunindextype)
+   .. c:member:: SUNErrCode (*setnumpreprocess)(SUNDomEigEstimator, int)
 
       The function implementing :c:func:`SUNDomEigEst_SetNumPreProcess`
 
@@ -523,15 +523,15 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEst_GetCurRes`
 
-   .. c:member:: sunindextype (*getcurniters)(SUNDomEigEstimator)
+   .. c:member:: int (*getcurniters)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEst_GetCurNumIters`
 
-   .. c:member:: sunindextype (*getmaxniters)(SUNDomEigEstimator)
+   .. c:member:: int (*getmaxniters)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEst_GetMaxNumIters`
 
-   .. c:member:: sunindextype (*getminniters)(SUNDomEigEstimator)
+   .. c:member:: int (*getminniters)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEst_GetMinNumIters`
 

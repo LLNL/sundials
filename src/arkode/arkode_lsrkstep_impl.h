@@ -167,6 +167,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunbooleantype const_Jac;      /* flag indicating Jacobian is constant */
   sunbooleantype dom_eig_is_current; /* SUNTRUE if dom_eig has been evaluated at tn */
   sunbooleantype is_SSP;             /* flag indicating SSP method*/
+  sunbooleantype warmedup;           /* flag indicating if DEE warmed-up*/
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;

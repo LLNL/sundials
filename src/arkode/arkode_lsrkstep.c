@@ -2210,6 +2210,24 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if (step_mem->DEE != NULL)
   {
+    /* Preprocess the DEE if it has not already warmup'ed yet */
+    /* Set the initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
+
+    /* TODO: As an alternative approach, we can attach DEE to the ark_mem and preprocess 
+    in arkInit. This way, it can be reused for other ARK solvers and won't require 
+    this check point eveytime. What do you think? */
+    if (!step_mem->warmedup && step_mem->DEE->ops->preprocess != NULL)
+    {
+      retval = step_mem->DEE->ops->preprocess(step_mem->DEE);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_DEE_FAIL);
+
+        return ARK_DEE_FAIL;
+      }
+    }
+
     if(step_mem->DEE->ops->computehess != NULL)
     {
       retval = step_mem->DEE->ops->computehess(step_mem->DEE);

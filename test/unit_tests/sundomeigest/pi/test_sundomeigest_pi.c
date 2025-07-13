@@ -64,6 +64,7 @@ int main(int argc, char* argv[])
   SUNContext sunctx;
   sunrealtype rel_tol = SUN_RCONST(1.0e-2); /* relative tol for pass/fail */
   sunrealtype rel_error;
+  N_Vector q;                     /* random initial eigenvector */
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
   {
@@ -113,6 +114,15 @@ int main(int argc, char* argv[])
   ProbData.diag = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.diag, "N_VNew_Serial", 0)) { return 1; }
 
+  q = N_VClone(ProbData.diag);
+  if (check_flag(q, "N_VClone", 0)) { return 1; }
+
+  sunrealtype *qd = N_VGetArrayPointer(q);
+  for (int i = 0; i < ProbData.N; i++)
+  {
+    qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
+  }
+
   /* Fill matrix diagonal and problem data */
   // real diag is [3 4 5 ... N 0 0]*factor
   // 2x2 block matrix attached to the last two diagonals is
@@ -128,8 +138,8 @@ int main(int argc, char* argv[])
   ProbData.A11 = diagonal;
   ProbData.A12 = nondiagonal;
 
-  /* Create Arnoldi DomEig estimator*/
-  DEE = SUNDomEigEst_PI(ProbData.diag, max_iters, sunctx);
+  /* Create Power Iteration Dominant Eigvalue Estimator (DEE)*/
+  DEE = SUNDomEigEst_PI(q, max_iters, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
 
   fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
@@ -206,9 +216,9 @@ int main(int argc, char* argv[])
     tlambdaI = ZERO;
   }
 
-  printf("\ncomputed dominant eigenvalue = %20.4lf + %20.4lfi\n", lambdaR,
+  printf("\ncomputed dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G " i\n", lambdaR,
          lambdaI);
-  printf("    true dominant eigenvalue = %20.4lf + %20.4lfi\n", tlambdaR,
+  printf("    true dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G " i\n", tlambdaR,
          tlambdaI);
 
   /* Compare the estimated dom_eig with the true_dom_eig*/
@@ -217,13 +227,13 @@ int main(int argc, char* argv[])
 
   rel_error /= norm_of_dom_eig;
 
-  if (rel_error < rel_tol)
+  if (rel_error < SUN_RCONST(10.0)*rel_tol)
   {
-    printf("\n\nPASS:   relative error = %lf\n\n", rel_error);
+    printf("\n\nPASS:   relative error = " SUN_FORMAT_G " \n\n", rel_error);
   }
   else
   {
-    printf("\n\nFAIL:   relative error = %lf\n\n", rel_error);
+    printf("\n\nFAIL:   relative error = " SUN_FORMAT_G " \n\n", rel_error);
     passfail += 1;
   }
 

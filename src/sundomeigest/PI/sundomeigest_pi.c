@@ -97,7 +97,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
   content->ATdata      = NULL;
   content->V           = NULL;
   content->q           = NULL;
-  content->numwarmups  = 0;
+  content->numwarmups  = DEE_NUM_OF_WARMUPS_PI_DEFAULT;
   content->max_iters   = max_iters;
   content->powiter_tol = ZERO;
   content->curres      = ZERO;
@@ -141,13 +141,13 @@ SUNErrCode SUNDomEigEst_Initialize_PI(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  if (PI_CONTENT(DEE)->powiter_tol <= 0)
+  if (PI_CONTENT(DEE)->powiter_tol < SUN_SMALL_REAL)
   {
     PI_CONTENT(DEE)->powiter_tol = DEE_TOL_DEFAULT;
   }
-  if (PI_CONTENT(DEE)->numwarmups <= 0)
+  if (PI_CONTENT(DEE)->numwarmups < 0)
   {
-    PI_CONTENT(DEE)->numwarmups = DEE_NUM_OF_WARMUPS_DEFAULT;
+    PI_CONTENT(DEE)->numwarmups = DEE_NUM_OF_WARMUPS_PI_DEFAULT;
   }
   if (PI_CONTENT(DEE)->max_iters <= 0)
   {
@@ -210,7 +210,7 @@ SUNErrCode SUNDomEigEst_PreProcess_PI(SUNDomEigEstimator DEE)
   SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
   sunrealtype normq;
-  sunindextype i, retval;
+  int i, retval;
 
   /* Set the initial q = A^{numwarmups}q/||A^{numwarmups}q|| */
   for (i = 0; i < PI_CONTENT(DEE)->numwarmups; i++)
@@ -250,7 +250,7 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   sunrealtype newlambdaR = ZERO;
   sunrealtype oldlambdaR = ZERO;
 
-  sunindextype retval, k;
+  int retval, k;
   sunrealtype normq;
 
   for (k = 0; k < PI_CONTENT(DEE)->max_iters; k++)
@@ -268,7 +268,7 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                             PI_CONTENT(DEE)->q); //Rayleigh quotient
     SUNCheckLastErr();
 
-    PI_CONTENT(DEE)->curres = SUNRabs(newlambdaR - oldlambdaR);
+    PI_CONTENT(DEE)->curres = SUNRabs(newlambdaR - oldlambdaR)/SUNRabs(newlambdaR);
 
     if (PI_CONTENT(DEE)->curres < PI_CONTENT(DEE)->powiter_tol) { break; }
 
@@ -282,6 +282,7 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
     oldlambdaR = newlambdaR;
   }
 
+  k++;
   *lambdaI                  = ZERO;
   *lambdaR                  = newlambdaR;
   PI_CONTENT(DEE)->curnumiters = k;
@@ -365,16 +366,16 @@ SUNErrCode SUNDomEigEst_PrintStats_PI(SUNDomEigEstimator DEE, FILE* outfile)
 
   if (DEE == NULL || outfile == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
-  // TODO: update each stat in the corresponding function
-  fprintf(outfile, "Power Iteration DEE Statistics:\n");
-  fprintf(outfile, "Maximum number of allowed iterations: %d\n", PI_CONTENT(DEE)->max_iters);
-  fprintf(outfile, "Number of warmups: %d\n", PI_CONTENT(DEE)->numwarmups);
-  fprintf(outfile, "Power iteration tolerance: " SUN_FORMAT_G "\n", PI_CONTENT(DEE)->powiter_tol);
-  fprintf(outfile, "Current residual: " SUN_FORMAT_G "\n", PI_CONTENT(DEE)->curres);
-  fprintf(outfile, "Current number of power iterations: %d\n", PI_CONTENT(DEE)->curnumiters);
-  fprintf(outfile, "Maximum number of power iterations: %d\n", PI_CONTENT(DEE)->maxnumiters);
-  fprintf(outfile, "Minimum number of power iterations: %d\n", PI_CONTENT(DEE)->minnumiters);
-  fprintf(outfile, "Number of ATimes calls: %ld\n", PI_CONTENT(DEE)->nATimes);
+  fprintf(outfile, "\nPower Iteration DEE Statistics:");
+  fprintf(outfile, "\n------------------------------------------------\n");
+  fprintf(outfile, "Max. num. of iters allowed    = %d\n", PI_CONTENT(DEE)->max_iters);
+  fprintf(outfile, "Num. of warmups               = %d\n", PI_CONTENT(DEE)->numwarmups);
+  fprintf(outfile, "Power iteration tolerance     = " SUN_FORMAT_G "\n", PI_CONTENT(DEE)->powiter_tol);
+  fprintf(outfile, "Cur. residual                 = " SUN_FORMAT_G "\n", PI_CONTENT(DEE)->curres);
+  fprintf(outfile, "Cur. num. of power iters      = %d\n", PI_CONTENT(DEE)->curnumiters);
+  fprintf(outfile, "Max. num. of power iters      = %d\n", PI_CONTENT(DEE)->maxnumiters);
+  fprintf(outfile, "Min. num. of power iters      = %d\n", PI_CONTENT(DEE)->minnumiters);
+  fprintf(outfile, "Num. of ATimes calls          = %ld\n", PI_CONTENT(DEE)->nATimes);
 
   return SUN_SUCCESS;
 }

@@ -69,7 +69,7 @@ The SUNDomEigEst_PI module is accessible from all SUNDIALS solvers *without* lin
 The module SUNDomEigEst_PI provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, sunindextype max_iters, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a PI
    ``SUNDomEigEstimator``.

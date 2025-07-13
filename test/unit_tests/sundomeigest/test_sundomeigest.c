@@ -68,7 +68,7 @@ int Test_SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* ATdata,
  * SUNDomEigEst_SetMaxIters Test
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE,
-                                 sunindextype max_iters, int myid)
+                                 int max_iters, int myid)
 {
   int failure;
   double start_time, stop_time;

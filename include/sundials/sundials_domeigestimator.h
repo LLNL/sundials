@@ -31,7 +31,8 @@ extern "C" {
 #endif
 
 /* Default estimator parameters */
-#define DEE_NUM_OF_WARMUPS_DEFAULT 0
+#define DEE_NUM_OF_WARMUPS_PI_DEFAULT   0
+#define DEE_NUM_OF_WARMUPS_ARNI_DEFAULT 100
 
 /* Default Power Iteration parameters */
 #define DEE_TOL_DEFAULT      SUN_RCONST(0.01)

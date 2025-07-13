@@ -514,20 +514,6 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
     return ARK_DEE_FAIL;
   }
 
-  /* Preprocess the DEE */
-  /* Set the initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
-  if (DEE->ops->preprocess != NULL)
-  {
-    retval = DEE->ops->preprocess(DEE);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_DEE_FAIL);
-
-      return ARK_DEE_FAIL;
-    }
-  }
-
   return ARK_SUCCESS;
 }
 
@@ -660,6 +646,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->const_Jac          = SUNFALSE;
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
+  step_mem->warmedup           = SUNFALSE;
 
   /* Load the default SUNAdaptController */
   retval = arkReplaceAdaptController(ark_mem, NULL, SUNTRUE);

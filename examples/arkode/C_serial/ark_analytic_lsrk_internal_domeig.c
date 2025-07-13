@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <sundials/sundials_math.h> /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
+#include <sundomeigest/sundomeigest_pi.h> /* access to Power Iteration module */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -120,6 +121,13 @@ int main(void)
   FILE *UFID, *FID;
   sunrealtype t, tout;
 
+  /* Dominant Eigenvalue Estimator (DEE) pointers and variables */
+  SUNDomEigEstimator DEE = NULL;  /* domeig estimator object */
+  sunindextype max_iters = 100;   /* max number of power iterations (PI)*/
+  sunindextype numwarmup = 10;    /* number of preprocessing warmups */
+  sunrealtype rel_tol = SUN_RCONST(1.0e-2); /* relative error for PI*/
+  N_Vector q = NULL; /* random initial eigenvector */
+
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
   flag = SUNContext_Create(SUN_COMM_NULL, &ctx);
@@ -154,19 +162,54 @@ int main(void)
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
-  /* LSRKStepSetDomEigFn expects a user-provided spectral radius function
-  pointer of type ARKDomEigFn. Alternatively, passing a NULL pointer for
-  this function does not return an error; instead, it triggers the creation
-  of an internal Dominant Eigenvalue Estimator (DEE). While this approach
-  works in many cases, we recommend explicitly creating a DEE using
-  the LSRKStepDomEigEstCreate function. This function returns a pointer
-  to the DEE, which can then be used with the associated set/get routines.
-  An example use case can be found in following example file:
-  /examples/arkode/CXX_serial/ark_heat2D_lsrk_internal_domeig.cpp
-  */
-  flag = LSRKStepSetDomEigFn(arkode_mem, NULL);
-  if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
+  /* Set the initial random eigenvector for the DEE */
+  q = N_VClone(y);
+  if (check_flag(q, "N_VClone", 0)) { return 1; }
 
+  sunrealtype *qd = N_VGetArrayPointer(q);
+  for (int i = 0; i < NEQ; i++)
+  {
+    qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
+  }
+
+  /* Create power iteration dominant eigenvalue estimator (DEE) */
+  DEE = SUNDomEigEst_PI(q, max_iters, ctx);
+  if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
+
+  /* After the DEE creation, random q vector is no longer needed.
+     It is used only to initialize the DEE */
+  N_VDestroy(q);
+
+  /* Specify max number of PI iterations.
+  This number is already set in the declaration of DEE.
+  Nevertheless, we call this function for illustration of the DEE
+  interface and to show how to set the max number of iterations 
+  in the DEE module. This function can be called anytime to change
+  the maximum allowed number of iterations. */
+  SUNDomEigEst_SetMaxIters(DEE, max_iters);
+
+  /* Set the relative tolerance for the DEE. 
+  This function can be called anytime to change
+  the relative tolerance. */
+  flag = SUNDomEigEst_SetTol(DEE, rel_tol);
+  if (check_flag(&flag, "SUNDomEigEst_SetTol", 1)) { return 1; }
+
+  /* Set the number of preprocessing warmups. The warmup
+  is used to compute a "better" initial eigenvector and so an initial
+  eigenvalue. The warmup is performed only once by the LSRKStep module 
+  internally. If needed be, this function can be called anytime to change
+  the number of warmups and triger new preprocessing. 
+  TODO: This comment should be modified if an alternative
+  option is followed to perform warmups in LSRKStep. */
+  flag = SUNDomEigEst_SetNumPreProcess(DEE, numwarmup);
+  if (check_flag(&flag, "SUNDomEigEst_SetNumPreProcess", 1)) { return 1; }
+
+  /* Attach the DEE to the LSRKStep module.
+  There is no need to set Atimes or initialize since this are all 
+  performed after attaching the DEE by LSRKStep. */
+  flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
+  if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 1)) { return 1; }
+  
   /* Specify after how many successful steps dom_eig is recomputed */
   flag = LSRKStepSetDomEigFrequency(arkode_mem, 25);
   if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
@@ -224,6 +267,7 @@ int main(void)
   /* Print final statistics */
   printf("\nFinal Statistics:\n");
   flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  flag = SUNDomEigEst_PrintStats(DEE, stdout);
 
   /* Print final statistics to a file in CSV format */
   FID  = fopen("ark_analytic_nonlin_stats.csv", "w");
@@ -238,6 +282,7 @@ int main(void)
   N_VDestroy(y);           /* Free y vector */
   ARKodeFree(&arkode_mem); /* Free integrator memory */
   SUNContext_Free(&ctx);   /* Free context */
+  SUNDomEigEstFree(DEE);   /* Free DEE object */
 
   return flag;
 }
