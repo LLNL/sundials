@@ -246,7 +246,7 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
 .. note:: If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps`` is set to :math:`25` as recommended in :cite:p:`VSH:04`.
    Calling this function with ``nsteps < 0`` resets the default value while ``nsteps = 0`` refers to constant dominant eigenvalue.
