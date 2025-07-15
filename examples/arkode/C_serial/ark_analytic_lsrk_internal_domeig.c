@@ -197,9 +197,7 @@ int main(void)
   /* Set the number of preprocessing warmups. The warmup
   is used to compute a "better" initial eigenvector and so an initial
   eigenvalue. The warmup is performed only once by the LSRKStep module 
-  internally. If needed be, this function can be called anytime to change
-  the number of warm-ups and triger new preprocessing. 
-  TODO: This comment should be modified if an alternative
+  internally. TODO: This comment should be modified if an alternative
   option is followed to perform warmups in LSRKStep. */
   flag = SUNDomEigEst_SetNumPreProcess(DEE, numwarmup);
   if (check_flag(&flag, "SUNDomEigEst_SetNumPreProcess", 1)) { return 1; }
