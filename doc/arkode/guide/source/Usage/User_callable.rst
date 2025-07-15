@@ -914,33 +914,70 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
 
 .. c:function:: int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc, char* argv[])
 
-   Passes command-line arguments to ARKODE to set options.
+   Sets ARKODE options from an array of strings.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param arkid: String to use as prefix for ARKODE command-line options.
-   :param argc: Number of command-line options provided to executable.
-   :param argv: Array of strings containing command-line options provided to executable.
+   :param arkid: the prefix for options to read. The default is "arkode".
+   :param argc: the number of options provided.
+   :param argv: an array of strings containing the options to set and their values.
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
    :retval other: error return value from relevant ARKODE "set" routine.
 
+   **Example usage:**
+
+      In a C or C++ program, the following will enable command-line processing:
+
+      .. code-block:: C
+
+         /* Create ARKODE memory block */
+         void* arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
+
+         /* Configure ARKODE as normal */
+         ...
+
+         /* Override settings with command-line options using default "arkode" prefix */
+         flag = ARKodeSetFromCommandLine(arkode_mem, NULL, argc, argv);
+
+      Then when running the program, the user can specify desired options, e.g.,
+
+      .. code-block:: console
+
+         $ ./a.out arkode.order 3 arkode.interpolant_type ARK_INTERP_LAGRANGE
+
    .. note::
 
-      The *argc* and *argv* arguments should typically be those supplied to the user's ``main`` routine.  These
-      are left unchanged by :c:func:`ARKodeSetFromCommandLine`.
+      The ``argc`` and ``argv`` arguments are typically those supplied to the user's
+      ``main`` routine however, this is not required. The inputs are left unchanged by
+      :c:func:`ARKodeSetFromCommandLine`.
 
-      If the *arkid* argument is ``NULL`` then ``arkode.`` will be used for all ARKODE command-line
-      options, e.g., to set the integrator order of accuracy the default command-line option would be "arkode.order".
-      When using a combination of ARKODE integrators (e.g., via MRIStep, SplittingStep or
-      ForcingStep), it is recommended that users call :c:func:`ARKodeSetFromCommandLine` for each
-      ARKODE integrator using distinct *arkid* inputs, so that each ARKODE integrator can be controlled
-      separately.
+      If the ``arkid`` argument is ``NULL``, then the default prefix, ``arkode``, must
+      be used for all ARKODE options. For example, the option ``arkode.order`` followed
+      by the value can be used to set the method order of accuracy.
 
-      ARKODE options set via command-line arguments to :c:func:`ARKodeSetFromCommandLine` will overwrite
+      When using a combination of ARKODE integrators (e.g., via MRIStep, SplittingStep,
+      or ForcingStep), it is recommended that users call
+      :c:func:`ARKodeSetFromCommandLine` for each ARKODE integrator using a distinct
+      ``arkid`` so they can be controlled separately. For example, "fast" and "slow"
+      option prefixes can be used to differentiate between options for the slow and
+      fast integrators in an MRI method (i.e., ``fast.order`` and ``slow.order``
+      followed by the desired values to set the method order for the fast and slow time
+      scales, respectively).
+
+      ARKODE options set via :c:func:`ARKodeSetFromCommandLine` will overwrite
       any previously-set values.
 
-      The supported command-line options are documented within each ARKODE "set" routine.
+      The supported option names are noted within the documentation for the
+      corresponding ARKODE "set" function.
+
+      One additional option is ``write_parameters`` -- after all ARKODE command-line
+      options have been processed, this will print all current ARKODE parameters to
+      the standard output stream.
+
+   .. warning::
+
+      This function is not available in the Fortran interface.
 
    .. versionadded:: x.y.z
 
@@ -1422,9 +1459,6 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
       this function must be made *before* any calls to
       :c:func:`ARKodeSetLinearSolver` and/or :c:func:`ARKodeSetMassLinearSolver`.
 
-      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
-      when using the command-line option "arkid.linear".
-
    .. versionadded:: 6.1.0
 
 
@@ -1566,8 +1600,8 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
    Currently, all ARKODE modules support compensated summation for accumulating time.
 
    SPRKStep also supports an alternative stepping algorithm based on compensated
-   summation which will be enabled/disabled by this function. This increases the 
-   computational cost by 2 extra vector operations per stage and an additional 
+   summation which will be enabled/disabled by this function. This increases the
+   computational cost by 2 extra vector operations per stage and an additional
    5 per time step. It also requires one extra vector to be stored. However, it
    is significantly more robust to roundoff error accumulation.
 
