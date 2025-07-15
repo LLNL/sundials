@@ -2315,9 +2315,6 @@ the projection when solving an IVP with constraints.
 
    **Notes:**
       This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eps_lin".
-
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
       when using the command-line option "cvid.eps_proj".
 
    .. versionadded:: 6.2.0

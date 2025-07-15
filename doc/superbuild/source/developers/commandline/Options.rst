@@ -22,7 +22,7 @@ routines through a set of data structures and utility routines that compare a gi
 command-line argument against a list of reserved keywords.  If the given argument is
 matched to a relevant key, then the associated "Set" routine is called with the
 argument(s) that follow the key on the command line.  This allows users to set SUNDIALS
-options at runtime, without needing to modify the source code or recompile the library.
+options at runtime, without needing to modify the source code.
 
 Prototypes for the SUNDIALS-provided infrastructure routines and corresponding data
 structures for command-line support are in the ``src/sundials/sundials_cli.h``
