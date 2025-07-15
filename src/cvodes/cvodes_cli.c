@@ -51,7 +51,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
      {"max_order", CVodeSetMaxOrd},
      {"stab_lim_det", CVodeSetStabLimDet},
      {"interpolate_stop_time", CVodeSetInterpolateStopTime},
-     {"num_efails_eta_max_err_fail", CVodeSetNumFailsEtaMaxErrFail},
+     {"num_fails_eta_max_err_fail", CVodeSetNumFailsEtaMaxErrFail},
      {"quad_err_con", CVodeSetQuadErrCon},
      {"sens_err_con", CVodeSetSensErrCon},
      {"sens_max_nonlin_iters", CVodeSetSensMaxNonlinIters},
@@ -70,7 +70,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
   static const struct sunKeyRealPair real_pairs[] =
-    {{"dgmax_lsetup", CVodeSetDeltaGammaMaxLSetup},
+    {{"delta_gamma_max_lsetup", CVodeSetDeltaGammaMaxLSetup},
      {"init_step", CVodeSetInitStep},
      {"max_step", CVodeSetMaxStep},
      {"min_step", CVodeSetMinStep},

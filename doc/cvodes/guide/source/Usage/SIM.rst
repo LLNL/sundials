@@ -1334,7 +1334,7 @@ using the current :math:`\gamma` value.
 
    **Notes:**
       This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.dgmax_lsetup".
+      when using the command-line option "cvid.delta_gamma_max_lsetup".
 
    .. versionadded:: 6.2.0
 
@@ -2126,7 +2126,7 @@ step size adaptivity.
       :c:func:`CVodeSetEtaMaxErrFail`.
 
       This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.num_efails_eta_max_err_fail".
+      when using the command-line option "cvid.num_fails_eta_max_err_fail".
 
    .. versionadded:: 6.2.0
 

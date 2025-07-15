@@ -153,7 +153,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
   for (idx = 1; idx < argc; idx++)
   {
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
-       else, skip command-line arguments that do not begin with "spbcgs." */
+       else, skip command-line arguments that do not begin with "pcg." */
     size_t offset;
     if (LSid != NULL)
     {

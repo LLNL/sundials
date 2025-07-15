@@ -589,7 +589,7 @@ this function are:
   Note that each module should specify a default string identifier, that would be
   used if the user specifies ``NULL`` for this argument.  However, users can supply
   non-default identifiers so that they can control multiple instances of the same module
-  to be independently (e.g., when using multiple ARKode integrators in the
+  independently (e.g., when using multiple ARKode integrators in the
   same program).
 * ``argc``: the number of command-line arguments.
 * ``argv``: the command-line argument vector.
@@ -599,6 +599,7 @@ for the corresponding "Set" routine should be defined (e.g., see the file
 ``src/arkode/arkode_cli.c``).
 
 .. note::
+
    When adding new "Set" routines to an existing SUNDIALS module, developers should
    attempt to add a corresponding entry in the appropriate key-value pair array, and note
    the new key in the module's documentation.

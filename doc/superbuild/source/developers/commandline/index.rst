@@ -14,7 +14,7 @@
 
 .. _CommandLineOptions:
 
-Setting SUNDIALS Options through the Command Line
+Command Line Options
 =================================================
 
 This chapter discusses how to enable command-line control over SUNDIALS options.

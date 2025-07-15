@@ -177,7 +177,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
   for (idx = 1; idx < argc; idx++)
   {
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
-       else, skip command-line arguments that do not begin with "spbcgs." */
+       else, skip command-line arguments that do not begin with "sptfqmr." */
     size_t offset;
     if (LSid != NULL)
     {

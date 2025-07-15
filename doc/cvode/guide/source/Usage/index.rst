@@ -1340,7 +1340,7 @@ difference approximation or a call to the :ref:`user-supplied Jacobian function
 
    **Notes:**
       This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.dgmax_lsetup".
+      when using the command-line option "cvid.delta_gamma_max_lsetup".
 
    .. versionadded:: 6.2.0
 
@@ -2133,6 +2133,9 @@ step size adaptivity.
 
       The factor :math:`\eta_{\mathrm{max\_ef}}` can be set with
       :c:func:`CVodeSetEtaMaxErrFail`.
+
+      This routine will be called by :c:func:`CVodeSetFromCommandLine`
+      when using the command-line option "cvid.num_fails_eta_max_err_fail".
 
    .. versionadded:: 6.2.0
 
