@@ -263,7 +263,7 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
 .. note:: If LSRKStepSetMaxNumStages routine is not called, then the default ``stage_max_limit`` is
    set to :math:`200`. Calling this function with ``stage_max_limit < 2`` resets the default value.
@@ -284,7 +284,7 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
 .. note:: If LSRKStepSetDomEigSafetyFactor routine is not called, then the default ``dom_eig_safety`` is
    set to :math:`1.01`. Calling this function with ``dom_eig_safety < 1`` resets the default value.
@@ -304,7 +304,7 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. SSP method is not declared)
 
 .. note:: If LSRKStepSetNumSSPStages routine is not called, then the default ``num_of_stages`` is

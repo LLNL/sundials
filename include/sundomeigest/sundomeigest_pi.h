@@ -106,7 +106,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats_PI(SUNDomEigEstimator DEE, FILE* outfile);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstFree_PI(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEst_Destroy_PI(SUNDomEigEstimator* DEEptr);
 
 #ifdef __cplusplus
 }

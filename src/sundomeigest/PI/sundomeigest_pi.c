@@ -81,7 +81,7 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
   DEE->ops->getminniters      = SUNDomEigEst_GetMinNumIters_PI;
   DEE->ops->getnumatimescalls = SUNDomEigEst_GetNumATimesCalls_PI;
   DEE->ops->printstats        = SUNDomEigEst_PrintStats_PI;
-  DEE->ops->free              = SUNDomEigEstFree_PI;
+  DEE->ops->free              = SUNDomEigEst_Destroy_PI;
 
   /* Create content */
   content = NULL;
@@ -388,11 +388,13 @@ SUNErrCode SUNDomEigEst_PrintStats_PI(SUNDomEigEstimator DEE, FILE* outfile)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstFree_PI(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEigEst_Destroy_PI(SUNDomEigEstimator* DEEptr)
 {
-  SUNFunctionBegin(DEE->sunctx);
+  SUNFunctionBegin((*DEEptr)->sunctx);
 
-  if (DEE == NULL) { return SUN_SUCCESS; }
+  if ((*DEEptr) == NULL) { return SUN_SUCCESS; }
+
+  SUNDomEigEstimator DEE = *DEEptr;
 
   if (DEE->content)
   {
@@ -417,6 +419,6 @@ SUNErrCode SUNDomEigEstFree_PI(SUNDomEigEstimator DEE)
     DEE->ops = NULL;
   }
   free(DEE);
-  DEE = NULL;
+  DEEptr = NULL;
   return SUN_SUCCESS;
 }

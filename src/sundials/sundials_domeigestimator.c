@@ -266,12 +266,19 @@ SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEstFree(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
 {
+  SUNDomEigEstimator DEE = *DEEptr;
+
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->free) { ier = DEE->ops->free(DEE); }
-  else { ier = SUN_ERR_DEE_NULL_FREE; }
-  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
+  if (DEE->ops->free) { ier = DEE->ops->free(&DEE); }
+  else 
+  {
+    SUNDomEigEst_FreeEmpty(DEE);
+    *DEEptr = NULL;
+    ier = SUN_SUCCESS; 
+  }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(*DEE));
   return (ier);
 }

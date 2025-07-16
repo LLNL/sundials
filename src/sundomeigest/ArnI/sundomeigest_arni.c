@@ -99,7 +99,7 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
   DEE->ops->getminniters      = NULL;
   DEE->ops->getnumatimescalls = SUNDomEigEst_GetNumATimesCalls_ArnI;
   DEE->ops->printstats        = SUNDomEigEst_PrintStats_ArnI;
-  DEE->ops->free              = SUNDomEigEstFree_ArnI;
+  DEE->ops->free              = SUNDomEigEst_Destroy_ArnI;
 
   /* Create content */
   content = NULL;
@@ -436,12 +436,14 @@ SUNErrCode SUNDomEigEst_PrintStats_ArnI(SUNDomEigEstimator DEE, FILE* outfile)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEigEst_Destroy_ArnI(SUNDomEigEstimator* DEEptr)
 {
-  SUNFunctionBegin(DEE->sunctx);
+  SUNFunctionBegin((*DEEptr)->sunctx);
 
-  if (DEE == NULL) { return SUN_SUCCESS; }
+  if ((*DEEptr) == NULL) { return SUN_SUCCESS; }
 
+  SUNDomEigEstimator DEE = *DEEptr;
+  
   if (DEE->content)
   {
     /* delete items from within the content structure */
@@ -507,7 +509,7 @@ SUNErrCode SUNDomEigEstFree_ArnI(SUNDomEigEstimator DEE)
     DEE->ops = NULL;
   }
   free(DEE);
-  DEE = NULL;
+  DEEptr = NULL;
   return SUN_SUCCESS;
 }
 

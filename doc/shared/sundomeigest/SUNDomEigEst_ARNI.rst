@@ -148,7 +148,8 @@ This estimator is constructed to perform the following operations:
   that interfaces with SUNDomEigEst_ARNI to supply the ``ATimes``
   function pointer and the related data ``ATData``.
 * In the "initialize" call, the estimator parameters are checked
-  for validity and ARNI estimator memory is allocated.
+  for validity and the remaining ARNI estimator memory such as LAPACK 
+  workspace is allocated.
 
 * In the "preprocess" call, the initial nonzero vector :math:`q_0` is warmed up
   :math:`k=` ``numwarmups`` times as
@@ -175,4 +176,4 @@ dominant eigenvalue estimator operations listed in
 
 * ``SUNDomEig_Estimate_ArnI``
 
-* ``SUNDomEigEstFree_ArnI``
+* ``SUNDomEigEst_Destroy_ArnI``

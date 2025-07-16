@@ -63,7 +63,7 @@ the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_PrintStats`                  |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstFree`\ :sup:`4`               |                     |                     |
+   | :c:func:`SUNDomEigEst_Destroy`\ :sup:`4`           |                     |                     |
    +----------------------------------------------------+---------------------+---------------------+
 
 
@@ -83,6 +83,6 @@ Notes:
    implemented by the ``SUNDomEigEstimator`` then ARKDEE will consider all
    estimates as requiring zero iterations.
 
-4. Although ARKDEE does not call :c:func:`SUNDomEigEstFree()`
+4. Although ARKDEE does not call :c:func:`SUNDomEigEst_Destroy()`
    directly, this routine should be available for users to call when
    cleaning up from a simulation.

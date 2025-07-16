@@ -277,10 +277,10 @@ int main(void)
   flag = compute_error(y, t);
 
   /* Clean up and return */
-  N_VDestroy(y);           /* Free y vector */
-  ARKodeFree(&arkode_mem); /* Free integrator memory */
-  SUNDomEigEstFree(DEE);   /* Free DEE object */
-  SUNContext_Free(&ctx);   /* Free context */
+  N_VDestroy(y);              /* Free y vector */
+  ARKodeFree(&arkode_mem);    /* Free integrator memory */
+  SUNDomEigEst_Destroy(&DEE); /* Free DEE object */
+  SUNContext_Free(&ctx);      /* Free context */
 
   return flag;
 }

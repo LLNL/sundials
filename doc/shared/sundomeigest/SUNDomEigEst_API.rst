@@ -32,15 +32,37 @@ SUNDomEigEstimator core functions
 -----------------------------------------------------
 
 The core dominant eigenvalue estimator functions consist of several **required**
-functions: :c:func:`SUNDomEigEst_SetATimes` provides a :c:type:`SUNATimesFn` function pointer,
+functions: :c:func:`SUNDomEigEst_NewEmpty` creates a new empty ``SUNDomEigEstimator`` 
+object, :c:func:`SUNDomEigEst_SetATimes` provides a :c:type:`SUNATimesFn` function pointer,
 as well as a ``void*`` pointer to a data structure used by this routine,
 :c:func:`SUNDomEigEst_Initialize` initializes the estimator object once all estimator-specific
 options have been set, :c:func:`SUNDomEigEst_ComputeHess` computes Hessenberg matrix
-(if the estimator requires), :c:func:`SUNDomEig_Estimate` estimates the dominant eigenvalue, and
-:c:func:`SUNDomEigEstFree` destroys an estimator object.
+(if the estimator requires), :c:func:`SUNDomEig_Estimate` estimates the dominant eigenvalue,
+:c:func:`SUNDomEigEst_FreeEmpty` an empty estimator and :c:func:`SUNDomEigEst_Destroy` destroys 
+an estimator object.
 
 The remaining **optional** function, :c:func:`SUNDomEigEst_PreProcess` preprocesses the estimator object 
 to "warm-up" the estimator for a more appropriate initial vector before starting iterations.
+
+
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
+
+   *Required.*
+
+   This function allocates a new ``SUNDomEigEstimator`` object and
+   initializes its content pointer and the function pointers in the operations
+   structure to ``NULL``.
+
+   **Arguments:**
+
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
+
+   **Return value:**
+
+      If successful, this function returns a ``SUNDomEigEstimator`` object.
+      If an error occurs when allocating the object, then this routine will
+      return ``NULL``.
+
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
 
@@ -104,10 +126,8 @@ to "warm-up" the estimator for a more appropriate initial vector before starting
 
    **Return value:**
 
-      Zero for a successful call, a positive value for a recoverable failure,
-      and a negative value for an unrecoverable failure.  Ideally this should
-      return one of the generic error codes listed in
-      :numref:`SUNDomEigEst.ErrorCodes`.
+      `SUN_SUCCESS` for a successful call, or a relevant error code from  
+      :numref:`SUNDomEigEst.ErrorCodes` upon failure.  
 
    **Usage:**
 
@@ -147,20 +167,36 @@ to "warm-up" the estimator for a more appropriate initial vector before starting
          retval = SUNDomEig_Estimate(DEE, dom_eig);
 
 
+.. c:function:: SUNErrCode SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE)
 
-.. c:function:: SUNErrCode SUNDomEigEstFree(SUNDomEigEstimator DEE)
+   This routine frees the ``SUNDomEigEstimator`` object, under the
+   assumption that any implementation-specific data that was allocated
+   within the underlying content structure has already been freed.
+   It will additionally test whether the ops pointer is ``NULL``,
+   and, if it is not, it will free it as well.
+
+   **Arguments:**
+
+      * *DEE* -- a SUNDomEigEstimator object
+
+   **Return value:**
+
+      A :c:type:`SUNErrCode`.
+
+
+.. c:function:: SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
 
    Frees memory allocated by the dominant eigenvalue estimatimator.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object.
+      * *DEEptr* -- a SUNDomEigEst object pointer.
 
    **Usage:**
 
       .. code-block:: c
 
-         retval = SUNDomEigEstFree(DEE);
+         retval = SUNDomEigEst_Destroy(&DEE);
 
 
 .. _SUNDomEigEst.SetFn:
@@ -199,7 +235,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol)
 
-   This *optional* routine sets the estimator tolerance.
+   This *optional* routine sets the estimator's :ref:`relative tolerance <pi_rel_tol>`.
 
    **Arguments:**
 
@@ -545,7 +581,7 @@ The virtual table structure is defined as
       
    .. c:member:: SUNErrCode (*free)(SUNDomEigEstimator)
 
-      The function implementing :c:func:`SUNDomEigEstFree`
+      The function implementing :c:func:`SUNDomEigEst_Destroy`
 
 The generic SUNDomEigEst class defines and implements the dominant eigenvalue estimator
 operations defined in :numref:`SUNDomEigEst.CoreFn` -- :numref:`SUNDomEigEst.GetFn`.
@@ -564,75 +600,6 @@ operation:
    {
      return (DEE->ops->initialize(DEE));
    }
-
-
-.. _SUNDomEigEst.API.Custom:
-
-Implementing a custom SUNDomEigEstimator module
---------------------------------------------------
-
-A particular implementation of the ``SUNDomEigEstimator`` module must:
-
-* Specify the *content* field of the SUNDomEigEst module.
-
-* Define and implement the required dominant eigenvalue estimator operations.
-
-  .. note::
-
-     The names of these routines should be unique to that
-     implementation in order to permit using more than one
-     SUNDomEigEst module (each with different ``SUNDomEigEstimator``
-     internal data representations) in the same code.
-
-* Define and implement user-callable constructor and destructor
-  routines to create and free a ``SUNDomEigEstimator`` with
-  the new *content* field and with *ops* pointing to the
-  new dominant eigenvalue estimator operations.
-
-We note that the function pointers for all unsupported optional
-routines should be set to ``NULL`` in the *ops* structure.  This
-allows the SUNDIALS package that is using the SUNDomEigEst object
-to know whether the associated functionality is supported.
-
-To aid in the creation of custom ``SUNDomEigEstimator`` modules the generic
-``SUNDomEigEstimator`` module provides the utility function
-:c:func:`SUNDomEigEst_NewEmpty`.  When used in custom ``SUNDomEigEstimator``
-constructors this function will ease the introduction of any new optional dominant
-eigenvalue estimator operations to the ``SUNDomEigEstimator`` API by ensuring that only required
-operations need to be set.
-
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
-
-   This function allocates a new generic ``SUNDomEigEstimator`` object and
-   initializes its content pointer and the function pointers in the operations
-   structure to ``NULL``.
-
-   **Arguments:**
-
-      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
-
-   **Return value:**
-
-      If successful, this function returns a ``SUNDomEigEstimator`` object.
-      If an error occurs when allocating the object, then this routine will
-      return ``NULL``.
-
-
-.. c:function:: SUNErrCode SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE)
-
-   This routine frees the generic ``SUNDomEigEstimator`` object, under the
-   assumption that any implementation-specific data that was allocated
-   within the underlying content structure has already been freed.
-   It will additionally test whether the ops pointer is ``NULL``,
-   and, if it is not, it will free it as well.
-
-   **Arguments:**
-
-      * *DEE* -- a SUNDomEigEstimator object
-
-   **Return value:**
-
-      A :c:type:`SUNErrCode`.
 
 
 Additionally, a ``SUNDomEigEstimator`` implementation *may* do the following:

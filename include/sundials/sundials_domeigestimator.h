@@ -17,7 +17,6 @@
 #ifndef _SUNDOMEIGEST_H
 #define _SUNDOMEIGEST_H
 
-/* TODO: Check to see if they are all required */
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
@@ -70,7 +69,7 @@ struct _generic_SUNDomEigEstimator_Ops
   SUNErrCode (*getminniters)(SUNDomEigEstimator, int*);
   SUNErrCode (*getnumatimescalls)(SUNDomEigEstimator, long int*);
   SUNErrCode (*printstats)(SUNDomEigEstimator, FILE*);
-  SUNErrCode (*free)(SUNDomEigEstimator);
+  SUNErrCode (*free)(SUNDomEigEstimator*);
 };
 
 /* An estimator is a structure with an implementation-dependent
@@ -140,7 +139,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstFree(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr);
 
 #ifdef __cplusplus
 }

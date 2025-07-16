@@ -39,11 +39,12 @@ provide their own ``N_Vector`` and/or ``SUNMatrix`` modules.
 While Krylov-based estimators preset the number of Krylov subspace
 dimensions, resulting in a tolerance-free estimation, SUNDIALS requires
 that iterative estimators stop when the residual meets a prescribed
-tolerance, i.e.,
+tolerance, :math:`\tau`,
 
 .. math::
-
-   ||\lambda_{k+1} - \lambda_k|| < \text{tol}.
+  :name: pi_rel_tol
+  
+  \frac{\left|\lambda_k - \lambda_{k-1}\right|}{\left|\lambda_k \right|} < \tau.
 
 For users interested in providing their own SUNDomEigEst module, the
 following section presents the SUNDomEigEst API and its implementation
@@ -53,11 +54,7 @@ the definition of functions supplied to an estimator implementation in
 :numref:`SUNDomEigEst.SUNSuppliedFn`. The estimator return codes are described
 in :numref:`SUNDomEigEst.ErrorCodes`. The ``SUNDomEigEstimator`` type and the
 generic SUNDomEigEst module are defined in :numref:`SUNDomEigEst.Generic`.
-:numref:`SUNDomEigEst.API.Custom` lists the requirements for supplying a custom
-SUNDomEigEst module and discusses some intended use cases. Users wishing to
-supply their own SUNDomEigEst module are encouraged to use the SUNDomEigEst
-implementations provided with SUNDIALS as a template for supplying custom
-dominant eigenvalue estimator modules. The section that then follows describes
+The section that then follows describes
 the SUNDomEigEst functions required by this SUNDIALS package, and provides
 additional package specific details. Then the remaining sections of this
 chapter present the SUNDomEigEst modules provided with SUNDIALS.

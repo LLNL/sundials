@@ -41,13 +41,7 @@ can be approximated using the Rayleigh quotient
     \lambda_k = \frac{\mathbf{v}_k^T A \mathbf{v}_k}{\|\mathbf{v}_k\|^2}.
 
 The iteration continues until the two successive eigenvalue approximations are
-relatively close enough to one another.  That is, for some relative tolerance
-:math:`\tau`,
-enough to one another.  That is, for some relative tolerance :math:`\tau`,
-
-.. math::
-
-    \frac{\left|\lambda_k - \lambda_{k-1}\right|}{\left|\lambda_k \right|} < \tau.
+relatively close enough to one another.  That is, for some :ref:`relative tolerance <pi_rel_tol>`.
 
 PI works for the matrices that have a **real** dominant eigenvalue.  If it is strictly
 greater than all others (in magnitude), convergence is guaranteed.  The speed of convergence
@@ -167,7 +161,7 @@ This estimator is constructed to perform the following operations:
   function pointer and the related data ``ATData``.
 
 * In the "initialize" call, the estimator parameters are checked
-  for validity and PI estimator memory is allocated.
+  for validity and the initial eigenvector is normalized.
 
 * In the "preprocess" call, the initial vector :math:`q_0` is warmed up
   :math:`k=` ``numwarmups`` times as
@@ -208,4 +202,4 @@ eigenvalue estimator operations listed in
 
 * ``SUNDomEigEst_PrintStats_PI``
 
-* ``SUNDomEigEstFree_PI``
+* ``SUNDomEigEst_Destroy_PI``

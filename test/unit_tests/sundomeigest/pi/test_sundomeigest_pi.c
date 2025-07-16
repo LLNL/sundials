@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
   N_VDestroy(q);
-  DEE->ops->free(DEE);
+  SUNDomEigEst_Destroy_PI(&DEE);
 
   return (passfail);
 }
