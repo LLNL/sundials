@@ -425,7 +425,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: setatimes
   type(C_FUNPTR), public :: setpreconditioner
   type(C_FUNPTR), public :: setscalingvectors
-  type(C_FUNPTR), public :: setfromcommandline
+  type(C_FUNPTR), public :: setoptions
   type(C_FUNPTR), public :: setzeroguess
   type(C_FUNPTR), public :: initialize
   type(C_FUNPTR), public :: setup
@@ -450,6 +450,18 @@ module fsundials_core_mod
  public :: FSUNLinSolSetATimes
  public :: FSUNLinSolSetPreconditioner
  public :: FSUNLinSolSetScalingVectors
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
+ type, public :: SWIGTYPE_p_p_char
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ public :: FSUNLinSolSetOptions
  public :: FSUNLinSolSetZeroGuess
  public :: FSUNLinSolInitialize
  public :: FSUNLinSolSetup
@@ -494,6 +506,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: setlsetupfn
   type(C_FUNPTR), public :: setlsolvefn
   type(C_FUNPTR), public :: setctestfn
+  type(C_FUNPTR), public :: setoptions
   type(C_FUNPTR), public :: setmaxiters
   type(C_FUNPTR), public :: getnumiters
   type(C_FUNPTR), public :: getcuriter
@@ -516,6 +529,7 @@ module fsundials_core_mod
  public :: FSUNNonlinSolSetLSetupFn
  public :: FSUNNonlinSolSetLSolveFn
  public :: FSUNNonlinSolSetConvTestFn
+ public :: FSUNNonlinSolSetOptions
  public :: FSUNNonlinSolSetMaxIters
  public :: FSUNNonlinSolGetNumIters
  public :: FSUNNonlinSolGetCurIter
@@ -537,7 +551,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: estimatesteptol
   type(C_FUNPTR), public :: destroy
   type(C_FUNPTR), public :: reset
-  type(C_FUNPTR), public :: setfromcommandline
+  type(C_FUNPTR), public :: setoptions
   type(C_FUNPTR), public :: setdefaults
   type(C_FUNPTR), public :: write
   type(C_FUNPTR), public :: seterrorbias
@@ -558,6 +572,7 @@ module fsundials_core_mod
  public :: FSUNAdaptController_EstimateStep
  public :: FSUNAdaptController_EstimateStepTol
  public :: FSUNAdaptController_Reset
+ public :: FSUNAdaptController_SetOptions
  public :: FSUNAdaptController_SetDefaults
  public :: FSUNAdaptController_Write
  public :: FSUNAdaptController_SetErrorBias
@@ -1853,6 +1868,20 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FSUNLinSolSetOptions(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSUNLinSolSetOptions") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigArrayWrapper) :: farg2
+type(SwigArrayWrapper) :: farg3
+integer(C_INT), intent(in) :: farg4
+type(SwigClassWrapper) :: farg5
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNLinSolSetZeroGuess(farg1, farg2) &
 bind(C, name="_wrap_FSUNLinSolSetZeroGuess") &
 result(fresult)
@@ -2040,6 +2069,20 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FSUNNonlinSolSetOptions(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSUNNonlinSolSetOptions") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigArrayWrapper) :: farg2
+type(SwigArrayWrapper) :: farg3
+integer(C_INT), intent(in) :: farg4
+type(SwigClassWrapper) :: farg5
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNNonlinSolSetMaxIters(farg1, farg2) &
 bind(C, name="_wrap_FSUNNonlinSolSetMaxIters") &
 result(fresult)
@@ -2138,6 +2181,20 @@ bind(C, name="_wrap_FSUNAdaptController_Reset") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdaptController_SetOptions(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSUNAdaptController_SetOptions") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigArrayWrapper) :: farg2
+type(SwigArrayWrapper) :: farg3
+integer(C_INT), intent(in) :: farg4
+type(SwigClassWrapper) :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -5031,6 +5088,33 @@ fresult = swigc_FSUNLinSolSetScalingVectors(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
+function FSUNLinSolSetOptions(s, lsid, file_name, argc, argv) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNLinearSolver), target, intent(inout) :: s
+character(kind=C_CHAR, len=*), target :: lsid
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+character(kind=C_CHAR, len=*), target :: file_name
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
+integer(C_INT), intent(in) :: argc
+class(SWIGTYPE_p_p_char), intent(in) :: argv
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(SwigArrayWrapper) :: farg3 
+integer(C_INT) :: farg4 
+type(SwigClassWrapper) :: farg5 
+
+farg1 = c_loc(s)
+call SWIG_string_to_chararray(lsid, farg2_chars, farg2)
+call SWIG_string_to_chararray(file_name, farg3_chars, farg3)
+farg4 = argc
+farg5 = argv%swigdata
+fresult = swigc_FSUNLinSolSetOptions(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
 function FSUNLinSolSetZeroGuess(s, onoff) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5363,6 +5447,33 @@ fresult = swigc_FSUNNonlinSolSetConvTestFn(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
+function FSUNNonlinSolSetOptions(nls, nlsid, file_name, argc, argv) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNNonlinearSolver), target, intent(inout) :: nls
+character(kind=C_CHAR, len=*), target :: nlsid
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+character(kind=C_CHAR, len=*), target :: file_name
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
+integer(C_INT), intent(in) :: argc
+class(SWIGTYPE_p_p_char), intent(in) :: argv
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(SwigArrayWrapper) :: farg3 
+integer(C_INT) :: farg4 
+type(SwigClassWrapper) :: farg5 
+
+farg1 = c_loc(nls)
+call SWIG_string_to_chararray(nlsid, farg2_chars, farg2)
+call SWIG_string_to_chararray(file_name, farg3_chars, farg3)
+farg4 = argc
+farg5 = argv%swigdata
+fresult = swigc_FSUNNonlinSolSetOptions(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
 function FSUNNonlinSolSetMaxIters(nls, maxiters) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5544,6 +5655,33 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_Reset(farg1)
+swig_result = fresult
+end function
+
+function FSUNAdaptController_SetOptions(c, cid, file_name, argc, argv) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNAdaptController), target, intent(inout) :: c
+character(kind=C_CHAR, len=*), target :: cid
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+character(kind=C_CHAR, len=*), target :: file_name
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
+integer(C_INT), intent(in) :: argc
+class(SWIGTYPE_p_p_char), intent(in) :: argv
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(SwigArrayWrapper) :: farg3 
+integer(C_INT) :: farg4 
+type(SwigClassWrapper) :: farg5 
+
+farg1 = c_loc(c)
+call SWIG_string_to_chararray(cid, farg2_chars, farg2)
+call SWIG_string_to_chararray(file_name, farg3_chars, farg3)
+farg4 = argc
+farg5 = argv%swigdata
+fresult = swigc_FSUNAdaptController_SetOptions(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 

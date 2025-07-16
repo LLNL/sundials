@@ -118,6 +118,22 @@ module farkode_mod
  end enum
  integer, parameter, public :: ARKAccumError = kind(ARK_ACCUMERROR_NONE)
  public :: ARK_ACCUMERROR_NONE, ARK_ACCUMERROR_MAX, ARK_ACCUMERROR_SUM, ARK_ACCUMERROR_AVG
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
+ type, public :: SWIGTYPE_p_p_char
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
+ public :: FARKodeSetOptions
  public :: FARKodeResize
  public :: FARKodeReset
  public :: FARKodeCreateMRIStepInnerStepper
@@ -159,10 +175,6 @@ module farkode_mod
  public :: FARKodeSetNonlinConvCoef
  public :: FARKodeSetStagePredictFn
  public :: FARKodeSetAdaptController
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
  public :: FARKodeSetAdaptControllerByName
  public :: FARKodeSetAdaptivityAdjustment
  public :: FARKodeSetCFLFraction
@@ -275,14 +287,6 @@ module farkode_mod
  public :: FARKBBDPrecReInit
  public :: FARKBBDPrecGetWorkSpace
  public :: FARKBBDPrecGetNumGfnEvals
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
  ! struct struct ARKodeButcherTableMem
  type, public :: ARKodeButcherTableMem
   type(SwigClassWrapper), public :: swigdata
@@ -489,6 +493,20 @@ module farkode_mod
 
 ! WRAPPER DECLARATIONS
 interface
+function swigc_FARKodeSetOptions(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FARKodeSetOptions") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigArrayWrapper) :: farg2
+type(SwigArrayWrapper) :: farg3
+integer(C_INT), intent(in) :: farg4
+type(SwigClassWrapper) :: farg5
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKodeResize(farg1, farg2, farg3, farg4, farg5, farg6) &
 bind(C, name="_wrap_FARKodeResize") &
 result(fresult)
@@ -2509,6 +2527,51 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
+
+subroutine SWIG_string_to_chararray(string, chars, wrap)
+  use, intrinsic :: ISO_C_BINDING
+  character(kind=C_CHAR, len=*), intent(IN) :: string
+  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
+  type(SwigArrayWrapper), intent(OUT) :: wrap
+  integer :: i
+
+  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
+  do i=1,len(string)
+    chars(i) = string(i:i)
+  end do
+  i = len(string) + 1
+  chars(i) = C_NULL_CHAR ! C string compatibility
+  wrap%data = c_loc(chars)
+  wrap%size = len(string)
+end subroutine
+
+function FARKodeSetOptions(arkode_mem, arkid, file_name, argc, argv) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+character(kind=C_CHAR, len=*), target :: arkid
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+character(kind=C_CHAR, len=*), target :: file_name
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
+integer(C_INT), intent(in) :: argc
+class(SWIGTYPE_p_p_char), intent(in) :: argv
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(SwigArrayWrapper) :: farg3 
+integer(C_INT) :: farg4 
+type(SwigClassWrapper) :: farg5 
+
+farg1 = arkode_mem
+call SWIG_string_to_chararray(arkid, farg2_chars, farg2)
+call SWIG_string_to_chararray(file_name, farg3_chars, farg3)
+farg4 = argc
+farg5 = argv%swigdata
+fresult = swigc_FARKodeSetOptions(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
 function FARKodeResize(arkode_mem, ynew, hscale, t0, resize, resize_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3176,24 +3239,6 @@ farg2 = c_loc(c)
 fresult = swigc_FARKodeSetAdaptController(farg1, farg2)
 swig_result = fresult
 end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
 
 function FARKodeSetAdaptControllerByName(arkode_mem, cname) &
 result(swig_result)

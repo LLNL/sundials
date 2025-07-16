@@ -193,6 +193,22 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
+enum {
+    SWIG_MEM_OWN = 0x01,
+    SWIG_MEM_RVALUE = 0x02,
+    SWIG_MEM_CONST = 0x04
+};
+
+
+#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
+        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+            "Cannot pass const " TYPENAME " (class " FNAME ") " \
+            "as a mutable reference", \
+            RETURNNULL); \
+    }
+
+
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -284,6 +300,20 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 #include "sundials/sundials_iterative.h"
 #include "sundials/sundials_linearsolver.h"
+
+
+typedef struct {
+    void* cptr;
+    int cmemflags;
+} SwigClassWrapper;
+
+
+SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+    SwigClassWrapper result;
+    result.cptr = NULL;
+    result.cmemflags = 0;
+    return result;
+}
 
 
 #include "sundials/sundials_nonlinearsolver.h"
@@ -2173,6 +2203,27 @@ SWIGEXPORT int _wrap_FSUNLinSolSetScalingVectors(SUNLinearSolver farg1, N_Vector
 }
 
 
+SWIGEXPORT int _wrap_FSUNLinSolSetOptions(SUNLinearSolver farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, int const *farg4, SwigClassWrapper const *farg5) {
+  int fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char **arg5 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (char *)(farg3->data);
+  arg4 = (int)(*farg4);
+  SWIG_check_mutable(*farg5, "char **", "SWIGTYPE_p_p_char", "SUNLinSolSetOptions(SUNLinearSolver,char const *,char const *,int,char *[])", return 0);
+  arg5 = (char **)(farg5->cptr);
+  result = (SUNErrCode)SUNLinSolSetOptions(arg1,(char const *)arg2,(char const *)arg3,arg4,arg5);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNLinSolSetZeroGuess(SUNLinearSolver farg1, int const *farg2) {
   int fresult ;
   SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
@@ -2463,6 +2514,27 @@ SWIGEXPORT int _wrap_FSUNNonlinSolSetConvTestFn(SUNNonlinearSolver farg1, SUNNon
 }
 
 
+SWIGEXPORT int _wrap_FSUNNonlinSolSetOptions(SUNNonlinearSolver farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, int const *farg4, SwigClassWrapper const *farg5) {
+  int fresult ;
+  SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char **arg5 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNNonlinearSolver)(farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (char *)(farg3->data);
+  arg4 = (int)(*farg4);
+  SWIG_check_mutable(*farg5, "char **", "SWIGTYPE_p_p_char", "SUNNonlinSolSetOptions(SUNNonlinearSolver,char const *,char const *,int,char *[])", return 0);
+  arg5 = (char **)(farg5->cptr);
+  result = (SUNErrCode)SUNNonlinSolSetOptions(arg1,(char const *)arg2,(char const *)arg3,arg4,arg5);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNNonlinSolSetMaxIters(SUNNonlinearSolver farg1, int const *farg2) {
   int fresult ;
   SUNNonlinearSolver arg1 = (SUNNonlinearSolver) 0 ;
@@ -2616,6 +2688,27 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Reset(SUNAdaptController farg1) {
   
   arg1 = (SUNAdaptController)(farg1);
   result = (SUNErrCode)SUNAdaptController_Reset(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNAdaptController_SetOptions(SUNAdaptController farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, int const *farg4, SwigClassWrapper const *farg5) {
+  int fresult ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char **arg5 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (char *)(farg3->data);
+  arg4 = (int)(*farg4);
+  SWIG_check_mutable(*farg5, "char **", "SWIGTYPE_p_p_char", "SUNAdaptController_SetOptions(SUNAdaptController,char const *,char const *,int,char *[])", return 0);
+  arg5 = (char **)(farg5->cptr);
+  result = (SUNErrCode)SUNAdaptController_SetOptions(arg1,(char const *)arg2,(char const *)arg3,arg4,arg5);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
