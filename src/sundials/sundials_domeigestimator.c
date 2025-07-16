@@ -269,9 +269,7 @@ SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile)
 SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
 {
   SUNDomEigEstimator DEE = *DEEptr;
-
   SUNErrCode ier;
-  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->free) { ier = DEE->ops->free(&DEE); }
   else 
   {
@@ -279,6 +277,5 @@ SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
     *DEEptr = NULL;
     ier = SUN_SUCCESS; 
   }
-  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(*DEE));
   return (ier);
 }
