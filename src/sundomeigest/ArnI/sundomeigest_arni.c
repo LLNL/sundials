@@ -443,7 +443,7 @@ SUNErrCode SUNDomEigEst_Destroy_ArnI(SUNDomEigEstimator* DEEptr)
   if ((*DEEptr) == NULL) { return SUN_SUCCESS; }
 
   SUNDomEigEstimator DEE = *DEEptr;
-  
+
   if (DEE->content)
   {
     /* delete items from within the content structure */

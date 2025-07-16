@@ -271,11 +271,11 @@ SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
   SUNDomEigEstimator DEE = *DEEptr;
   SUNErrCode ier;
   if (DEE->ops->free) { ier = DEE->ops->free(&DEE); }
-  else 
+  else
   {
     SUNDomEigEst_FreeEmpty(DEE);
     *DEEptr = NULL;
-    ier = SUN_SUCCESS; 
+    ier     = SUN_SUCCESS;
   }
   return (ier);
 }

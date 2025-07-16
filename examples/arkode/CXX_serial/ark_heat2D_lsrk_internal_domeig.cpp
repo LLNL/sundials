@@ -451,12 +451,12 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  ARKodeFree(&arkode_mem);   // Free integrator memory
-  N_VDestroy(u);             // Free vectors
+  ARKodeFree(&arkode_mem);    // Free integrator memory
+  N_VDestroy(u);              // Free vectors
   SUNDomEigEst_Destroy(&DEE); /* Free DEE object */
-  FreeUserData(udata);       // Free user data
+  FreeUserData(udata);        // Free user data
   delete udata;
-  SUNContext_Free(&ctx);     // Free context
+  SUNContext_Free(&ctx); // Free context
 
   return 0;
 }
