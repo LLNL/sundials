@@ -70,22 +70,6 @@ module fcvode_mod
  public :: FCVodeSStolerances
  public :: FCVodeSVtolerances
  public :: FCVodeWFtolerances
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_p_char
-  type(SwigClassWrapper), public :: swigdata
- end type
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
- public :: FCVodeSetOptions
  public :: FCVodeSetConstraints
  public :: FCVodeSetDeltaGammaMaxLSetup
  public :: FCVodeSetInitStep
@@ -152,6 +136,10 @@ module fcvode_mod
  public :: FCVodeGetNumStepSolveFails
  public :: FCVodeGetUserData
  public :: FCVodePrintAllStats
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
  public :: FCVodeGetReturnFlagName
  public :: FCVodeFree
  public :: FCVodeSetJacTimesRhsFn
@@ -290,20 +278,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FCVodeSetOptions(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FCVodeSetOptions") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
-type(SwigArrayWrapper) :: farg3
-integer(C_INT), intent(in) :: farg4
-type(SwigClassWrapper) :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -1525,51 +1499,6 @@ type(C_FUNPTR) :: farg2
 farg1 = cvode_mem
 farg2 = efun
 fresult = swigc_FCVodeWFtolerances(farg1, farg2)
-swig_result = fresult
-end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
-
-function FCVodeSetOptions(cvode_mem, cvid, file_name, argc, argv) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: cvode_mem
-character(kind=C_CHAR, len=*), target :: cvid
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-character(kind=C_CHAR, len=*), target :: file_name
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
-integer(C_INT), intent(in) :: argc
-class(SWIGTYPE_p_p_char), intent(in) :: argv
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-type(SwigArrayWrapper) :: farg3 
-integer(C_INT) :: farg4 
-type(SwigClassWrapper) :: farg5 
-
-farg1 = cvode_mem
-call SWIG_string_to_chararray(cvid, farg2_chars, farg2)
-call SWIG_string_to_chararray(file_name, farg3_chars, farg3)
-farg4 = argc
-farg5 = argv%swigdata
-fresult = swigc_FCVodeSetOptions(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 

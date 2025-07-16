@@ -93,22 +93,6 @@ module fidas_mod
  public :: FIDASVtolerances
  public :: FIDAWFtolerances
  public :: FIDACalcIC
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_p_char
-  type(SwigClassWrapper), public :: swigdata
- end type
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
- public :: FIDASetOptions
  public :: FIDASetNonlinConvCoefIC
  public :: FIDASetMaxNumStepsIC
  public :: FIDASetMaxNumJacsIC
@@ -181,6 +165,10 @@ module fidas_mod
  public :: FIDAGetNumStepSolveFails
  public :: FIDAGetUserData
  public :: FIDAPrintAllStats
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
  public :: FIDAGetReturnFlagName
  public :: FIDAFree
  public :: FIDASetJacTimesResFn
@@ -273,6 +261,14 @@ module fidas_mod
  public :: FIDAGetAdjIDABmem
  public :: FIDAGetConsistentICB
  public :: FIDAGetAdjY
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
  ! struct IDAadjCheckPointRec
  type, public :: IDAadjCheckPointRec
   type(SwigClassWrapper), public :: swigdata
@@ -425,20 +421,6 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FIDASetOptions(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FIDASetOptions") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
-type(SwigArrayWrapper) :: farg3
-integer(C_INT), intent(in) :: farg4
-type(SwigClassWrapper) :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -2771,51 +2753,6 @@ farg1 = ida_mem
 farg2 = icopt
 farg3 = tout1
 fresult = swigc_FIDACalcIC(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
-
-function FIDASetOptions(ida_mem, idaid, file_name, argc, argv) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: ida_mem
-character(kind=C_CHAR, len=*), target :: idaid
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-character(kind=C_CHAR, len=*), target :: file_name
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
-integer(C_INT), intent(in) :: argc
-class(SWIGTYPE_p_p_char), intent(in) :: argv
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-type(SwigArrayWrapper) :: farg3 
-integer(C_INT) :: farg4 
-type(SwigClassWrapper) :: farg5 
-
-farg1 = ida_mem
-call SWIG_string_to_chararray(idaid, farg2_chars, farg2)
-call SWIG_string_to_chararray(file_name, farg3_chars, farg3)
-farg4 = argc
-farg5 = argv%swigdata
-fresult = swigc_FIDASetOptions(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
