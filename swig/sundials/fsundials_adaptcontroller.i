@@ -15,7 +15,7 @@
 // ---------------------------------------------------------------
 
 // Ignore command-line processing functions since they are not supported in Fortran
-%ignore SUNAdaptController_SetFromCommandLine;
+%ignore SUNAdaptController_SetOptions;
 
 %{
 #include "sundials/sundials_adaptcontroller.h"

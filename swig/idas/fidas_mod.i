@@ -19,7 +19,7 @@
 %include "../sundials/fsundials.i"
 
 // Ignore command-line processing functions since they are not supported in Fortran
-%ignore IDASetFromCommandLine;
+%ignore IDASetOptions;
 
 %{
 #include "idas/idas.h"
