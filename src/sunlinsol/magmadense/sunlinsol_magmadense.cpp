@@ -65,9 +65,9 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
-                                                  const char* LSid, int argc,
-                                                  char* argv[]);
+static SUNErrCode setFromCommandLine_MagmaDense(SUNLinearSolver S,
+                                                const char* LSid, int argc,
+                                                char* argv[]);
 
 /*
  * ----------------------------------------------------------------------------
@@ -120,15 +120,15 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
   if (S == NULL) { return (NULL); }
 
   /* Attach operations */
-  S->ops->gettype            = SUNLinSolGetType_MagmaDense;
-  S->ops->getid              = SUNLinSolGetID_MagmaDense;
-  S->ops->initialize         = SUNLinSolInitialize_MagmaDense;
-  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_MagmaDense;
-  S->ops->setup              = SUNLinSolSetup_MagmaDense;
-  S->ops->solve              = SUNLinSolSolve_MagmaDense;
-  S->ops->lastflag           = SUNLinSolLastFlag_MagmaDense;
-  S->ops->space              = SUNLinSolSpace_MagmaDense;
-  S->ops->free               = SUNLinSolFree_MagmaDense;
+  S->ops->gettype    = SUNLinSolGetType_MagmaDense;
+  S->ops->getid      = SUNLinSolGetID_MagmaDense;
+  S->ops->initialize = SUNLinSolInitialize_MagmaDense;
+  S->ops->setoptions = SUNLinSolSetOptions_MagmaDense;
+  S->ops->setup      = SUNLinSolSetup_MagmaDense;
+  S->ops->solve      = SUNLinSolSolve_MagmaDense;
+  S->ops->lastflag   = SUNLinSolLastFlag_MagmaDense;
+  S->ops->space      = SUNLinSolSpace_MagmaDense;
+  S->ops->free       = SUNLinSolFree_MagmaDense;
 
   /* Create content */
   content = NULL;
@@ -247,9 +247,28 @@ SUNErrCode SUNLinSolInitialize_MagmaDense(SUNLinearSolver S)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
-                                                  const char* LSid, int argc,
-                                                  char* argv[])
+SUNErrCode SUNLinSolSetOptions_MagmaDense(SUNLinearSolver S, const char* LSid,
+                                          const char* file_name, int argc,
+                                          char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_MagmaDense(S, LSid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+static SUNErrCode setFromCommandLine_MagmaDense(SUNLinearSolver S,
+                                                const char* LSid, int argc,
+                                                char* argv[])
 {
   SUNErrCode retval;
   for (int idx = 1; idx < argc; idx++)
@@ -264,7 +283,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
     }
     else
     {
-      static const char* prefix = "magmadense.";
+      static const char* prefix = "sunlinsol.";
       if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }

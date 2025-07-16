@@ -49,8 +49,8 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_SPBCGS(SUNLinearSolver S, const char* LSid,
-                                              int argc, char* argv[]);
+static SUNErrCode setFromCommandLine_SPBCGS(SUNLinearSolver S, const char* LSid,
+                                            int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -89,22 +89,22 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  S->ops->gettype            = SUNLinSolGetType_SPBCGS;
-  S->ops->getid              = SUNLinSolGetID_SPBCGS;
-  S->ops->setatimes          = SUNLinSolSetATimes_SPBCGS;
-  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_SPBCGS;
-  S->ops->setpreconditioner  = SUNLinSolSetPreconditioner_SPBCGS;
-  S->ops->setscalingvectors  = SUNLinSolSetScalingVectors_SPBCGS;
-  S->ops->setzeroguess       = SUNLinSolSetZeroGuess_SPBCGS;
-  S->ops->initialize         = SUNLinSolInitialize_SPBCGS;
-  S->ops->setup              = SUNLinSolSetup_SPBCGS;
-  S->ops->solve              = SUNLinSolSolve_SPBCGS;
-  S->ops->numiters           = SUNLinSolNumIters_SPBCGS;
-  S->ops->resnorm            = SUNLinSolResNorm_SPBCGS;
-  S->ops->resid              = SUNLinSolResid_SPBCGS;
-  S->ops->lastflag           = SUNLinSolLastFlag_SPBCGS;
-  S->ops->space              = SUNLinSolSpace_SPBCGS;
-  S->ops->free               = SUNLinSolFree_SPBCGS;
+  S->ops->gettype           = SUNLinSolGetType_SPBCGS;
+  S->ops->getid             = SUNLinSolGetID_SPBCGS;
+  S->ops->setatimes         = SUNLinSolSetATimes_SPBCGS;
+  S->ops->setoptions        = SUNLinSolSetOptions_SPBCGS;
+  S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPBCGS;
+  S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPBCGS;
+  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_SPBCGS;
+  S->ops->initialize        = SUNLinSolInitialize_SPBCGS;
+  S->ops->setup             = SUNLinSolSetup_SPBCGS;
+  S->ops->solve             = SUNLinSolSolve_SPBCGS;
+  S->ops->numiters          = SUNLinSolNumIters_SPBCGS;
+  S->ops->resnorm           = SUNLinSolResNorm_SPBCGS;
+  S->ops->resid             = SUNLinSolResid_SPBCGS;
+  S->ops->lastflag          = SUNLinSolLastFlag_SPBCGS;
+  S->ops->space             = SUNLinSolSpace_SPBCGS;
+  S->ops->free              = SUNLinSolFree_SPBCGS;
 
   /* Create content */
   content = NULL;
@@ -162,11 +162,33 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl,
 }
 
 /* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNLinSolSetOptions_SPBCGS(SUNLinearSolver S, const char* LSid,
+                                      const char* file_name, int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_SPBCGS(S, LSid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+/* ----------------------------------------------------------------------------
  * Function to control set routines via the command line
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_SPBCGS(SUNLinearSolver S, const char* LSid,
-                                              int argc, char* argv[])
+static SUNErrCode setFromCommandLine_SPBCGS(SUNLinearSolver S, const char* LSid,
+                                            int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -177,14 +199,14 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPBCGS(SUNLinearSolver S, const char* LSi
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spbcgs." */
     size_t offset;
-    if (LSid != NULL)
+    if (LSid != NULL && strlen(LSid) > 0)
     {
       if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;
     }
     else
     {
-      static const char* prefix = "spbcgs.";
+      static const char* prefix = "sunlinearsolver.";
       if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }

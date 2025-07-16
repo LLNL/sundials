@@ -1255,8 +1255,8 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       pointers *fe* or *fi* passed to :c:func:`ARKStepCreate` are
       ``NULL``, but may be set directly by the user if desired.
 
-      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
-      when using the command-line option "arkid.set_imex".
+      This routine will be called by :c:func:`ARKodeSetOptions`
+      when using the key "arkid.imex".
 
 
 .. c:function:: int ARKStepSetExplicit(void* arkode_mem)
@@ -1281,8 +1281,8 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       f(t,y)`, then we recommend that the ERKStep time-stepper module be
       used instead.
 
-      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
-      when using the command-line option "arkid.set_explicit".
+      This routine will be called by :c:func:`ARKodeSetOptions`
+      when using the key "arkid.explicit".
 
 .. c:function:: int ARKStepSetImplicit(void* arkode_mem)
 
@@ -1302,8 +1302,8 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       passed to :c:func:`ARKStepCreate` is ``NULL``, but may be set
       directly by the user if desired.
 
-      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
-      when using the command-line option "arkid.set_implicit".
+      This routine will be called by :c:func:`ARKodeSetOptions`
+      when using the key "arkid.implicit".
 
 
 
@@ -1444,8 +1444,8 @@ Set additive RK tables via their names    :c:func:`ARKStepSetTableName()`    int
       In all cases, error-checking is performed to ensure that the tables
       exist.
 
-      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
-      when using the command-line option "arkid.table_names".
+      This routine will be called by :c:func:`ARKodeSetOptions`
+      when using the key "arkid.table_names".
 
 
    **Warning:**
@@ -1634,7 +1634,7 @@ Optional inputs for time step adaptivity
    .. deprecated:: 5.7.0
 
       Use the SUNAdaptController infrastructure instead (see :numref:`SUNAdaptController.Description`).
-      
+
    .. versionchanged:: 6.3.0
 
       The default value was changed from 1.5 to 1.0
@@ -1660,7 +1660,7 @@ Optional inputs for time step adaptivity
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetFixedStepBounds` instead.
-      
+
    .. versionchanged:: 6.3.0
 
       The default upper bound was changed from 1.5 to 1.0
@@ -1804,7 +1804,7 @@ Optional inputs for time step adaptivity
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeSetSafetyFactor` instead.
-      
+
    .. versionchanged:: 6.3.0
 
       The default default was changed from 0.96 to 0.9. The maximum value is now

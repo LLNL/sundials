@@ -101,6 +101,12 @@ SUNErrCode SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS,
                                             void* ctest_data);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNNonlinSolSetOptions_Newton(SUNNonlinearSolver NLS,
+                                         const char* NLSid,
+                                         const char* file_name,
+                                         int argc, char* argv[]);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters);
 
 /* get functions */

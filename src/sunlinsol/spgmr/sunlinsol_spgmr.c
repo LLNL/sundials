@@ -47,8 +47,8 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
-                                             int argc, char* argv[]);
+static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
+                                           int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -87,22 +87,22 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  S->ops->gettype            = SUNLinSolGetType_SPGMR;
-  S->ops->getid              = SUNLinSolGetID_SPGMR;
-  S->ops->setatimes          = SUNLinSolSetATimes_SPGMR;
-  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_SPGMR;
-  S->ops->setpreconditioner  = SUNLinSolSetPreconditioner_SPGMR;
-  S->ops->setscalingvectors  = SUNLinSolSetScalingVectors_SPGMR;
-  S->ops->setzeroguess       = SUNLinSolSetZeroGuess_SPGMR;
-  S->ops->initialize         = SUNLinSolInitialize_SPGMR;
-  S->ops->setup              = SUNLinSolSetup_SPGMR;
-  S->ops->solve              = SUNLinSolSolve_SPGMR;
-  S->ops->numiters           = SUNLinSolNumIters_SPGMR;
-  S->ops->resnorm            = SUNLinSolResNorm_SPGMR;
-  S->ops->resid              = SUNLinSolResid_SPGMR;
-  S->ops->lastflag           = SUNLinSolLastFlag_SPGMR;
-  S->ops->space              = SUNLinSolSpace_SPGMR;
-  S->ops->free               = SUNLinSolFree_SPGMR;
+  S->ops->gettype           = SUNLinSolGetType_SPGMR;
+  S->ops->getid             = SUNLinSolGetID_SPGMR;
+  S->ops->setatimes         = SUNLinSolSetATimes_SPGMR;
+  S->ops->setoptions        = SUNLinSolSetOptions_SPGMR;
+  S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPGMR;
+  S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPGMR;
+  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_SPGMR;
+  S->ops->initialize        = SUNLinSolInitialize_SPGMR;
+  S->ops->setup             = SUNLinSolSetup_SPGMR;
+  S->ops->solve             = SUNLinSolSolve_SPGMR;
+  S->ops->numiters          = SUNLinSolNumIters_SPGMR;
+  S->ops->resnorm           = SUNLinSolResNorm_SPGMR;
+  S->ops->resid             = SUNLinSolResid_SPGMR;
+  S->ops->lastflag          = SUNLinSolLastFlag_SPGMR;
+  S->ops->space             = SUNLinSolSpace_SPGMR;
+  S->ops->free              = SUNLinSolFree_SPGMR;
 
   /* Create content */
   content = NULL;
@@ -147,11 +147,33 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl,
 }
 
 /* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNLinSolSetOptions_SPGMR(SUNLinearSolver S, const char* LSid,
+                                     const char* file_name, int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_SPGMR(S, LSid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+/* ----------------------------------------------------------------------------
  * Function to control set routines via the command line
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
-                                             int argc, char* argv[])
+static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
+                                           int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -162,14 +184,14 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spgmr." */
     size_t offset;
-    if (LSid != NULL)
+    if (LSid != NULL && strlen(LSid) > 0)
     {
       if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;
     }
     else
     {
-      static const char* prefix = "spgmr.";
+      static const char* prefix = "sunlinearsolver.";
       if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }

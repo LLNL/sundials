@@ -135,10 +135,6 @@ The module SUNLinSol_PCG provides the following user-callable routines:
       preconditioning should work appropriately even for packages
       designed with one-sided preconditioning in mind.
 
-      This SUNLinearSolver implementation sets the default prefix for command-line
-      arguments processed by :c:func:`SUNLinSolSetFromCommandLine`
-      to be "pcg".
-
 
 .. c:function:: SUNErrCode SUNLinSol_PCGSetPrecType(SUNLinearSolver S, int pretype)
 
@@ -161,8 +157,8 @@ The module SUNLinSol_PCG provides the following user-callable routines:
       ``SUN_PREC_RIGHT``, or ``SUN_PREC_BOTH`` will enable
       preconditioning; ``SUN_PREC_NONE`` disables preconditioning.
 
-      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
-      when using the command-line option "LSid.prec_type".
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.prec_type".
 
 
 .. c:function:: SUNErrCode SUNLinSol_PCGSetMaxl(SUNLinearSolver S, int maxl)
@@ -179,8 +175,8 @@ The module SUNLinSol_PCG provides the following user-callable routines:
 
    **Notes:**
 
-      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
-      when using the command-line option "LSid.maxl".
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.maxl".
 
 
 .. _SUNLinSol.PCG.Description:

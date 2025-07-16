@@ -25,14 +25,41 @@
 #include "cvode_impl.h"
 #include "sundials_cli.h"
 
-/*---------------------------------------------------------------
-  CVodeSetFromCommandLine:
+static int cvSetFromCommandLine(void* cvode_mem, const char* cvid,
+                                int argc, char* argv[]);
 
-  Parses the command line to control scalar-valued CVODE options.
+/*---------------------------------------------------------------
+  CVodeSetOptions:
+
+  Sets CVODE options using strings.
   ---------------------------------------------------------------*/
 
-int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
-                            char* argv[])
+int CVodeSetOptions(void* cvode_mem, const char* cvid,
+                    const char* file_name, int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+      int retval = CV_ILL_INPUT;
+      cvProcessError(cvode_mem, retval, __LINE__, __func__, __FILE__,
+                     "file-based options are not currently supported.");
+      return retval;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = cvSetFromCommandLine(cvode_mem, cvid, argc, argv);
+    if (retval != CV_SUCCESS) { return retval; }
+  }
+
+  return CV_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to control CVODE options from the command line
+ */
+
+static int cvSetFromCommandLine(void* cvode_mem, const char* cvid,
+                                int argc, char* argv[])
 {
   CVodeMem cv_mem;
   if (cvode_mem == NULL)
@@ -108,7 +135,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* if cvid is supplied, skip command-line arguments that do not begin with cvid;
        else, skip command-line arguments that do not begin with "cvode." */
     size_t offset;
-    if (cvid != NULL)
+    if (cvid != NULL && strlen(cvid) > 0)
     {
       if (strncmp(argv[idx], cvid, strlen(cvid)) != 0) { continue; }
       offset = strlen(cvid) + 1;
@@ -127,7 +154,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting command-line argument: %s", int_pairs[j].key);
+                     "error setting key: %s", int_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -139,7 +166,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting command-line argument: %s",
+                     "error setting key: %s",
                      long_pairs[j].key);
       return retval;
     }
@@ -152,7 +179,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting command-line argument: %s",
+                     "error setting key: %s",
                      real_pairs[j].key);
       return retval;
     }
@@ -166,7 +193,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting command-line argument: %s",
+                     "error setting key: %s",
                      tworeal_pairs[j].key);
       return retval;
     }
@@ -180,7 +207,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting command-line argument: %s",
+                     "error setting key: %s",
                      action_pairs[j].key);
       return retval;
     }
@@ -188,7 +215,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
 
     /* warn for uninterpreted cvid.X arguments */
     cvProcessError(cv_mem, CV_WARNING, __LINE__, __func__, __FILE__,
-                   "WARNING: argument %s was not handled\n", argv[idx]);
+                   "WARNING: key %s was not handled\n", argv[idx]);
   }
 
   return (CV_SUCCESS);

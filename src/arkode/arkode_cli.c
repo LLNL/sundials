@@ -24,14 +24,42 @@
 #include "arkode_impl.h"
 #include "sundials_cli.h"
 
-/*---------------------------------------------------------------
-  ARKodeSetFromCommandLine:
+static int arkSetFromCommandLine(void* arkode_mem, const char* arkid,
+                                 int argc, char* argv[]);
 
-  Parses the command line to control scalar-valued ARKODE options.
+
+/*---------------------------------------------------------------
+  ARKodeSetOptions:
+
+  Sets ARKODE options using strings.
   ---------------------------------------------------------------*/
 
-int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
-                             char* argv[])
+int ARKodeSetOptions(void* arkode_mem, const char* arkid,
+                     const char* file_name, int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+      int retval = ARK_ILL_INPUT;
+      arkProcessError(arkode_mem, retval, __LINE__, __func__, __FILE__,
+                      "file-based options are not currently supported.");
+      return retval;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = arkSetFromCommandLine(arkode_mem, arkid, argc, argv);
+    if (retval != ARK_SUCCESS) { return retval; }
+  }
+
+  return ARK_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to control ARKODE options from the command line
+ */
+
+static int arkSetFromCommandLine(void* arkode_mem, const char* arkid,
+                                 int argc, char* argv[])
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -116,7 +144,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* if arkid is supplied, skip command-line arguments that do not begin with arkid;
        else, skip command-line arguments that do not begin with "arkode." */
     size_t offset;
-    if (arkid != NULL)
+    if (arkid != NULL && strlen(arkid) > 0)
     {
       if (strncmp(argv[idx], arkid, strlen(arkid)) != 0) { continue; }
       offset = strlen(arkid) + 1;
@@ -135,7 +163,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     {
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
+                      "error setting key: %s",
                       int_pairs[j].key);
       return retval;
     }
@@ -148,7 +176,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     {
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
+                      "error setting key: %s",
                       long_pairs[j].key);
       return retval;
     }
@@ -161,7 +189,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     {
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
+                      "error setting key: %s",
                       real_pairs[j].key);
       return retval;
     }
@@ -175,7 +203,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     {
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
+                      "error setting key: %s",
                       tworeal_pairs[j].key);
       return retval;
     }
@@ -189,7 +217,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     {
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
+                      "error setting key: %s",
                       action_pairs[j].key);
       return retval;
     }
@@ -216,7 +244,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       if (retval != ARK_SUCCESS)
       {
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s %s",
+                        "error setting key: %s %s",
                         argv[idx - 1], argv[idx]);
         return retval;
       }
@@ -224,7 +252,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       continue;
     }
 
-    if (strcmp(argv[idx] + offset, "accum_error_type") == 0)
+    if (strcmp(argv[idx] + offset, "accumulated_error_type") == 0)
     {
       idx++;
       retval = ARK_ILL_INPUT;
@@ -247,7 +275,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       if (retval != ARK_SUCCESS)
       {
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s %s",
+                        "error setting key: %s %s",
                         argv[idx - 1], argv[idx]);
         return retval;
       }
@@ -264,17 +292,16 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
 
     /* Call stepper-specific SetFromCommandLine routine (if supplied) to
        process this command-line argument */
-    if (ark_mem->step_setfromcommandline)
+    if (ark_mem->step_setoption)
     {
-      retval = ark_mem->step_setfromcommandline(ark_mem, &idx, argv, offset,
-                                                &arg_used);
+      retval = ark_mem->step_setoption(ark_mem, &idx, argv, offset, &arg_used);
       if (retval != ARK_SUCCESS) { return retval; }
       if (arg_used) { continue; }
     }
 
     /* warn for uninterpreted arkid.X arguments */
     arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
-                    "WARNING: argument %s was not handled\n", argv[idx]);
+                    "WARNING: key %s was not handled\n", argv[idx]);
   }
 
   /* Call ARKodeWriteParameters (if requested) now that all

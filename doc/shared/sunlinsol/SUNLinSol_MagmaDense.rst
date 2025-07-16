@@ -83,11 +83,6 @@ In addition, the module provides the following user-callable routines:
       the input matrix and vector to determine the linear system size and to
       assess compatibility with the solver.
 
-   **Notes:**
-      This SUNLinearSolver implementation sets the default prefix for command-line
-      arguments processed by :c:func:`SUNLinSolSetFromCommandLine`
-      to be "magmadense".
-
 .. c:function:: SUNErrCode SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver LS, sunbooleantype onoff)
 
    This function can be used to toggle the linear solver between asynchronous
@@ -104,8 +99,8 @@ In addition, the module provides the following user-callable routines:
 
    **Notes:**
 
-      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
-      when using the command-line option "LSid.async".
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.async".
 
 
 SUNLinearSolver_MagmaDense Content

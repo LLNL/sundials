@@ -40,6 +40,16 @@ static void FreeContent(SUNNonlinearSolver NLS);
 #define ONE  SUN_RCONST(1.0)
 #define ZERO SUN_RCONST(0.0)
 
+/*
+ * -----------------------------------------------------------------
+ * unexported functions
+ * -----------------------------------------------------------------
+ */
+
+static SUNErrCode setFromCommandLine_FixedPoint(SUNNonlinearSolver NLS,
+                                                const char* NLSid,
+                                                int argc, char* argv[]);
+
 /*==============================================================================
   Constructor to create a new fixed point solver
   ============================================================================*/
@@ -66,6 +76,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m, SUNContext sunctx)
   NLS->ops->free            = SUNNonlinSolFree_FixedPoint;
   NLS->ops->setsysfn        = SUNNonlinSolSetSysFn_FixedPoint;
   NLS->ops->setctestfn      = SUNNonlinSolSetConvTestFn_FixedPoint;
+  NLS->ops->setoptions      = SUNNonlinSolSetOptions_FixedPoint;
   NLS->ops->setmaxiters     = SUNNonlinSolSetMaxIters_FixedPoint;
   NLS->ops->getnumiters     = SUNNonlinSolGetNumIters_FixedPoint;
   NLS->ops->getcuriter      = SUNNonlinSolGetCurIter_FixedPoint;
@@ -330,6 +341,63 @@ SUNErrCode SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
   /* attach convergence test data */
   FP_CONTENT(NLS)->ctest_data = ctest_data;
 
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNNonlinSolSetOptions_FixedPoint(SUNNonlinearSolver NLS,
+                                             const char* NLSid,
+                                             const char* file_name,
+                                             int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_FixedPoint(NLS, NLSid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+static SUNErrCode setFromCommandLine_FixedPoint(SUNNonlinearSolver NLS, const char* NLSid,
+                                                int argc, char* argv[])
+{
+  SUNFunctionBegin(NLS->sunctx);
+
+  int idx;
+  SUNErrCode retval;
+  for (idx = 1; idx < argc; idx++)
+  {
+    /* if NLSid is supplied, skip command-line arguments that do not begin with NLSid;
+       else, skip command-line arguments that do not begin with "sunnonlinearsolver." */
+    size_t offset;
+    if (NLSid != NULL && strlen(NLSid) > 0)
+    {
+      if (strncmp(argv[idx], NLSid, strlen(NLSid)) != 0) { continue; }
+      offset = strlen(NLSid) + 1;
+    }
+    else
+    {
+      static const char* prefix = "sunnonlinearsolver.";
+      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
+      offset = strlen(prefix);
+    }
+
+    /* control over MaxIters function */
+    if (strcmp(argv[idx] + offset, "max_iters") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNNonlinSolSetMaxIters_FixedPoint(NLS, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      continue;
+    }
+  }
   return SUN_SUCCESS;
 }
 

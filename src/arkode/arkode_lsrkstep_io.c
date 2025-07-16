@@ -493,17 +493,17 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  lsrkStep_SetFromCommandLine:
+  lsrkStep_SetOption:
 
-  Provides command-line control over LSRKStep-specific "set" routines.
+  Provides string-based control over LSRKStep-specific "set" routines.
   ---------------------------------------------------------------*/
-int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
-                                size_t offset, sunbooleantype* arg_used)
+int lsrkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used)
 {
-  /* Set lists of command-line arguments, and the corresponding set routines */
+  /* Set lists of keys, and the corresponding set routines */
   static const struct sunKeyCharPair char_pairs[] =
-    {{"sts_method", LSRKStepSetSTSMethodByName},
-     {"ssp_method", LSRKStepSetSSPMethodByName}};
+    {{"sts_method_name", LSRKStepSetSTSMethodByName},
+     {"ssp_method_name", LSRKStepSetSSPMethodByName}};
   static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
 
   static const struct sunKeyLongPair long_pairs[] = {
@@ -520,47 +520,47 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
     {"dom_eig_safety_factor", LSRKStepSetDomEigSafetyFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  /* check all "char" command-line options */
+  /* check all "char" keys */
   int j, retval;
   retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
                                   char_pairs, num_char_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s", char_pairs[j].key);
+                    "error setting key: %s", char_pairs[j].key);
     return retval;
   }
   if (*arg_used) { return ARK_SUCCESS; }
 
-  /* check all "long int" command-line options */
+  /* check all "long int" keys */
   retval = sunCheckAndSetLongArgs((void*)ark_mem, argidx, argv, offset,
                                   long_pairs, num_long_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s", long_pairs[j].key);
+                    "error setting key: %s", long_pairs[j].key);
     return retval;
   }
   if (*arg_used) { return ARK_SUCCESS; }
 
-  /* check all "int" command-line options */
+  /* check all "int" keys */
   retval = sunCheckAndSetIntArgs((void*)ark_mem, argidx, argv, offset,
                                  int_pairs, num_int_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s", int_pairs[j].key);
+                    "error setting key: %s", int_pairs[j].key);
     return retval;
   }
   if (*arg_used) { return ARK_SUCCESS; }
 
-  /* check all "real" command-line options */
+  /* check all "real" keys */
   retval = sunCheckAndSetRealArgs((void*)ark_mem, argidx, argv, offset,
                                   real_pairs, num_real_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s", real_pairs[j].key);
+                    "error setting key: %s", real_pairs[j].key);
     return retval;
   }
 

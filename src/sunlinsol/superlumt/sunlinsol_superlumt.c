@@ -62,9 +62,8 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_SuperLUMT(SUNLinearSolver S,
-                                                 const char* LSid, int argc,
-                                                 char* argv[]);
+SUNErrCode setFromCommandLine_SuperLUMT(SUNLinearSolver S, const char* LSid,
+                                        int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -104,15 +103,15 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads,
   if (S == NULL) { return (NULL); }
 
   /* Attach operations */
-  S->ops->gettype            = SUNLinSolGetType_SuperLUMT;
-  S->ops->getid              = SUNLinSolGetID_SuperLUMT;
-  S->ops->initialize         = SUNLinSolInitialize_SuperLUMT;
-  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_SuperLUMT;
-  S->ops->setup              = SUNLinSolSetup_SuperLUMT;
-  S->ops->solve              = SUNLinSolSolve_SuperLUMT;
-  S->ops->lastflag           = SUNLinSolLastFlag_SuperLUMT;
-  S->ops->space              = SUNLinSolSpace_SuperLUMT;
-  S->ops->free               = SUNLinSolFree_SuperLUMT;
+  S->ops->gettype    = SUNLinSolGetType_SuperLUMT;
+  S->ops->getid      = SUNLinSolGetID_SuperLUMT;
+  S->ops->initialize = SUNLinSolInitialize_SuperLUMT;
+  S->ops->setoptions = SUNLinSolSetOptions_SuperLUMT;
+  S->ops->setup      = SUNLinSolSetup_SuperLUMT;
+  S->ops->solve      = SUNLinSolSolve_SuperLUMT;
+  S->ops->lastflag   = SUNLinSolLastFlag_SuperLUMT;
+  S->ops->space      = SUNLinSolSpace_SuperLUMT;
+  S->ops->free       = SUNLinSolFree_SuperLUMT;
 
   /* Create content */
   content = NULL;
@@ -218,12 +217,34 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads,
 }
 
 /* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNLinSolSetOptions_SuperLUMT(SUNLinearSolver S, const char* LSid,
+                                         const char* file_name, int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_SuperLUMT(S, LSid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+/* ----------------------------------------------------------------------------
  * Function to control set routines via the command line
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_SuperLUMT(SUNLinearSolver S,
-                                                 const char* LSid, int argc,
-                                                 char* argv[])
+static SUNErrCode setFromCommandLine_SuperLUMT(SUNLinearSolver S,
+                                               const char* LSid, int argc,
+                                               char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -234,19 +255,19 @@ SUNErrCode SUNLinSolSetFromCommandLine_SuperLUMT(SUNLinearSolver S,
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "superlumt." */
     size_t offset;
-    if (LSid != NULL)
+    if (LSid != NULL && strlen(LSid) > 0)
     {
       if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;
     }
     else
     {
-      static const char* prefix = "superlumt.";
+      static const char* prefix = "sunlinearsolver.";
       if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }
 
-    /* control over PrecType function */
+    /* control over SetOrdering function */
     if (strcmp(argv[idx] + offset, "ordering") == 0)
     {
       idx += 1;

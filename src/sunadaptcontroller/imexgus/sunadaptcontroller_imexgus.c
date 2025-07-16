@@ -57,9 +57,9 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNErrCode SUNAdaptController_SetFromCommandLine_ImExGus(SUNAdaptController C,
-                                                         const char* Cid,
-                                                         int argc, char* argv[]);
+static SUNErrCode setFromCommandLine_ImExGus(SUNAdaptController C,
+                                             const char* Cid,
+                                             int argc, char* argv[]);
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -82,15 +82,15 @@ SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  C->ops->gettype            = SUNAdaptController_GetType_ImExGus;
-  C->ops->estimatestep       = SUNAdaptController_EstimateStep_ImExGus;
-  C->ops->reset              = SUNAdaptController_Reset_ImExGus;
-  C->ops->setfromcommandline = SUNAdaptController_SetFromCommandLine_ImExGus;
-  C->ops->setdefaults        = SUNAdaptController_SetDefaults_ImExGus;
-  C->ops->write              = SUNAdaptController_Write_ImExGus;
-  C->ops->seterrorbias       = SUNAdaptController_SetErrorBias_ImExGus;
-  C->ops->updateh            = SUNAdaptController_UpdateH_ImExGus;
-  C->ops->space              = SUNAdaptController_Space_ImExGus;
+  C->ops->gettype      = SUNAdaptController_GetType_ImExGus;
+  C->ops->estimatestep = SUNAdaptController_EstimateStep_ImExGus;
+  C->ops->reset        = SUNAdaptController_Reset_ImExGus;
+  C->ops->setoptions   = SUNAdaptController_SetOptions_ImExGus;
+  C->ops->setdefaults  = SUNAdaptController_SetDefaults_ImExGus;
+  C->ops->write        = SUNAdaptController_Write_ImExGus;
+  C->ops->seterrorbias = SUNAdaptController_SetErrorBias_ImExGus;
+  C->ops->updateh      = SUNAdaptController_UpdateH_ImExGus;
+  C->ops->space        = SUNAdaptController_Space_ImExGus;
 
   /* Create content */
   content = NULL;
@@ -107,13 +107,37 @@ SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
   return (C);
 }
 
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNAdaptController_SetOptions_ImExGus(SUNAdaptController C,
+                                                 const char* Cid,
+                                                 const char* file_name,
+                                                 int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_ImExGus(C, Cid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
 /* -----------------------------------------------------------------
  * Function to control ImExGus parameters from the command line
  */
 
-SUNErrCode SUNAdaptController_SetFromCommandLine_ImExGus(SUNAdaptController C,
-                                                         const char* Cid,
-                                                         int argc, char* argv[])
+static SUNErrCode setFromCommandLine_ImExGus(SUNAdaptController C,
+                                             const char* Cid,
+                                             int argc, char* argv[])
 {
   SUNFunctionBegin(C->sunctx);
 
@@ -125,14 +149,14 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_ImExGus(SUNAdaptController C,
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
     size_t offset;
-    if (Cid != NULL)
+    if (Cid != NULL && strlen(Cid) > 0)
     {
       if (strncmp(argv[idx], Cid, strlen(Cid)) != 0) { continue; }
       offset = strlen(Cid) + 1;
     }
     else
     {
-      static const char* prefix = "sunadaptcontroller_imexgus.";
+      static const char* prefix = "sunadaptcontroller.";
       if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }

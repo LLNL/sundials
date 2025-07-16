@@ -353,8 +353,8 @@ function is provided:
       Since sensitivity-related memory is not deallocated, sensitivities can  be
       reactivated at a later time (using :c:func:`IDASensReInit`).
 
-      This routine will be called by :c:func:`IDASetFromCommandLine`
-      when using the command-line option "idaid.sens_toggle_off".
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.sens_toggle_off".
 
 
 Forward sensitivity tolerance specification functions
@@ -757,8 +757,8 @@ time and, if successful, takes effect immediately.
       The default value are ``DQtype == IDA_CENTERED`` and
       ``DQrhomax``:math:`=0.0`.
 
-      This routine will be called by :c:func:`IDASetFromCommandLine`
-      when using the command-line option "idaid.sens_dq_method".
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.sens_dq_method".
 
 
 .. c:function:: int IDASetSensErrCon(void * ida_mem, sunbooleantype errconS)
@@ -781,8 +781,8 @@ time and, if successful, takes effect immediately.
       variables are excluded from the  error tests. Note that, in any event, all
       variables are considered in the convergence  tests.
 
-      This routine will be called by :c:func:`IDASetFromCommandLine`
-      when using the command-line option "idas.sens_err_con".
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idas.sens_err_con".
 
 
 .. c:function:: int IDASetSensMaxNonlinIters(void * ida_mem, int maxcorS)
@@ -802,8 +802,8 @@ time and, if successful, takes effect immediately.
    **Notes:**
       The default value is 3.
 
-      This routine will be called by :c:func:`IDASetFromCommandLine`
-      when using the command-line option "idas.sens_max_nonlin_iters".
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idas.sens_max_nonlin_iters".
 
 
 .. _IDAS.Usage.FSA.user_callable.optional_output:
@@ -1441,8 +1441,8 @@ of sensitivity-dependent quadrature equations.
    **Notes:**
       By default, ``errconQS`` is set to ``SUNFALSE``.
 
-      This routine will be called by :c:func:`IDASetFromCommandLine`
-      when using the command-line option "idas.quad_sens_err_con".
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idas.quad_sens_err_con".
 
       .. warning::
          It is illegal to call :c:func:`IDASetQuadSensErrCon` before a call  to :c:func:`IDAQuadSensInit`.

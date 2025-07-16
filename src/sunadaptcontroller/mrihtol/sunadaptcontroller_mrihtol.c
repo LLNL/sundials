@@ -55,9 +55,9 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
-                                                         const char* Cid,
-                                                         int argc, char* argv[]);
+static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
+                                             const char* Cid,
+                                             int argc, char* argv[]);
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -88,15 +88,15 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  C->ops->gettype            = SUNAdaptController_GetType_MRIHTol;
-  C->ops->estimatesteptol    = SUNAdaptController_EstimateStepTol_MRIHTol;
-  C->ops->reset              = SUNAdaptController_Reset_MRIHTol;
-  C->ops->setfromcommandline = SUNAdaptController_SetFromCommandLine_MRIHTol;
-  C->ops->setdefaults        = SUNAdaptController_SetDefaults_MRIHTol;
-  C->ops->write              = SUNAdaptController_Write_MRIHTol;
-  C->ops->seterrorbias       = SUNAdaptController_SetErrorBias_MRIHTol;
-  C->ops->updatemrihtol      = SUNAdaptController_UpdateMRIHTol_MRIHTol;
-  C->ops->space              = SUNAdaptController_Space_MRIHTol;
+  C->ops->gettype         = SUNAdaptController_GetType_MRIHTol;
+  C->ops->estimatesteptol = SUNAdaptController_EstimateStepTol_MRIHTol;
+  C->ops->reset           = SUNAdaptController_Reset_MRIHTol;
+  C->ops->setoptions      = SUNAdaptController_SetOptions_MRIHTol;
+  C->ops->setdefaults     = SUNAdaptController_SetDefaults_MRIHTol;
+  C->ops->write           = SUNAdaptController_Write_MRIHTol;
+  C->ops->seterrorbias    = SUNAdaptController_SetErrorBias_MRIHTol;
+  C->ops->updatemrihtol   = SUNAdaptController_UpdateMRIHTol_MRIHTol;
+  C->ops->space           = SUNAdaptController_Space_MRIHTol;
 
   /* Create content */
   content = NULL;
@@ -118,13 +118,37 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
   return C;
 }
 
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNAdaptController_SetOptions_MRIHTol(SUNAdaptController C,
+                                                 const char* Cid,
+                                                 const char* file_name,
+                                                 int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_MRIHTol(C, Cid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
 /* -----------------------------------------------------------------
  * Function to control MRIHTol parameters from the command line
  */
 
-SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
-                                                         const char* Cid,
-                                                         int argc, char* argv[])
+static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
+                                             const char* Cid,
+                                             int argc, char* argv[])
 {
   SUNFunctionBegin(C->sunctx);
 
@@ -136,14 +160,14 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
     size_t offset;
-    if (Cid != NULL)
+    if (Cid != NULL && strlen(Cid) > 0)
     {
       if (strncmp(argv[idx], Cid, strlen(Cid)) != 0) { continue; }
       offset = strlen(Cid) + 1;
     }
     else
     {
-      static const char* prefix = "sunadaptcontroller_mrihtol.";
+      static const char* prefix = "sunadaptcontroller.";
       if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }

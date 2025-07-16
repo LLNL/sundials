@@ -93,9 +93,9 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNAdaptController_Reset`
 
-   .. c:member:: SUNErrCode (*setfromcommandline)(SUNAdaptController C, const char* Cid, int argc, char* argv[])
+   .. c:member:: SUNErrCode (*setoptions)(SUNAdaptController C, const char* Cid, const char* file_name, int argc, char* argv[])
 
-      The function implementing :c:func:`SUNAdaptController_SetFromCommandLine`
+      The function implementing :c:func:`SUNAdaptController_SetOptions`
 
       .. versionadded:: x.y.z
 
@@ -267,31 +267,43 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNAdaptController_SetFromCommandLine(SUNAdaptController C, const char* Cid, int argc, char* argv[])
+.. c:function:: SUNErrCode SUNAdaptController_SetOptions(SUNAdaptController C, const char* Cid, const char* file_name, int argc, char* argv[])
 
-   Passes command-line arguments to SUNAdaptController implementations.
+   Sets SUNAdaptController options from an array of strings or a file.
 
    :param C: the :c:type:`SUNAdaptController` object.
-   :param Cid: String to use as prefix for command-line options.
-   :param argc: Number of command-line options provided to executable.
-   :param argv: Array of strings containing command-line options provided to executable.
+   :param Cid: the prefix for options to read. The default is "sunadaptcontroller".
+   :param file_name: the name of a file containing options to read. If this is
+                     ``NULL`` or an empty string, ``""``, then no file is read.
+   :param argc: number of command-line arguments passed to executable.
+   :param argv: an array of strings containing the options to set and their values.
 
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
    .. note::
 
-      The *argc* and *argv* arguments should typically be those supplied to the user's ``main`` routine.  These
-      are left unchanged by :c:func:`SUNAdaptController_SetFromCommandLine`.
+      The ``argc`` and ``argv`` arguments are typically those supplied to the user's
+      ``main`` routine however, this is not required.  The inputs are left unchanged by
+      :c:func:`SUNAdaptController_SetOptions`.
 
-      If the *Cid* argument is ``NULL`` then an implementation-specific prefix will be used for the
-      relevant command-line options -- see each implementation for its default prefix value.
-      When using a combination of SUNAdaptController objects (e.g., within MRIStep, SplittingStep or
-      ForcingStep), it is recommended that users call :c:func:`SUNAdaptController_SetFromCommandLine`
-      for each controller using distinct *Cid* inputs, so that each controller can be configured
-      separately.
+      If the ``Cid`` argument is ``NULL`` then the default prefix, ``sunadaptcontroller``, must
+      be used for all SUNAdaptController options.  When using a combination of SUNAdaptController
+      objects (e.g., within MRIStep, SplittingStep or ForcingStep), it is recommended that users
+      call :c:func:`SUNAdaptController_SetOptions` for each controller using distinct *Cid* inputs,
+      so that each controller can be configured separately.
 
-      SUNAdaptController options set via command-line arguments to
-      :c:func:`SUNAdaptController_SetFromCommandLine` will overwrite any previously-set values.
+      SUNAdaptController options set via :c:func:`SUNAdaptController_SetOptions` will overwrite
+      any previously-set values.
+
+      The supported option names are noted within the documentation for the
+      corresponding SUNAdaptController functions.
+
+   .. warning::
+
+      This function is not available in the Fortran interface.
+
+      File-based options are not yet implemented, so the *file_name* argument
+      should be set to either ``NULL`` or the empty string ``""``.
 
    .. versionadded:: x.y.z
 
@@ -305,8 +317,8 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    .. note::
 
-      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
-      when using the command-line option "Cid.defaults".
+      This routine will be called by :c:func:`SUNAdaptController_SetOptions`
+      when using the key "Cid.defaults".
 
 
 .. c:function:: SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
@@ -319,8 +331,8 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    .. note::
 
-      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
-      when using the command-line option "Cid.write_parameters".
+      This routine will be called by :c:func:`SUNAdaptController_SetOptions`
+      when using the key "Cid.write_parameters".
 
 
 .. c:function:: SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
@@ -336,8 +348,8 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    .. note::
 
-      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
-      when using the command-line option "Cid.error_bias".
+      This routine will be called by :c:func:`SUNAdaptController_SetOptions`
+      when using the key "Cid.error_bias".
 
 
 .. c:function:: SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm)

@@ -481,8 +481,8 @@ Optional inputs for IVP method selection
 
    .. note::
 
-      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
-      when using the command-line option "arkid.method_name".
+      This routine will be called by :c:func:`ARKodeSetOptions`
+      when using the key "arkid.method_name".
 
    .. warning::
 
@@ -508,8 +508,8 @@ Optional inputs for IVP method selection
 
    .. note::
 
-      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
-      when using the command-line option "arkid.use_compensated_sums".
+      This routine will be called by :c:func:`ARKodeSetOptions`
+      when using the key "arkid.use_compensated_sums".
 
    .. deprecated:: 6.4.0
 

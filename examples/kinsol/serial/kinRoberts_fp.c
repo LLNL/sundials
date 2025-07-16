@@ -149,8 +149,8 @@ int main(int argc, char* argv[])
 
   /* Override any current settings with command-line options */
 
-  retval = KINSetFromCommandLine(kmem, NULL, argc, argv);
-  if (check_retval(&retval, "KINSetFromCommandLine", 1)) { return (1); }
+  retval = KINSetOptions(kmem, NULL, NULL, argc, argv);
+  if (check_retval(&retval, "KINSetOptions", 1)) { return (1); }
 
   /* -------------
    * Initial guess

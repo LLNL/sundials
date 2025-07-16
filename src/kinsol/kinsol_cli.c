@@ -24,13 +24,41 @@
 #include "kinsol_impl.h"
 #include "sundials_cli.h"
 
-/*---------------------------------------------------------------
-  KINSetFromCommandLine:
+static int kinSetFromCommandLine(void* kinmem, const char* kinid,
+                                 int argc, char* argv[]);
 
-  Parses the command line to control scalar-valued KINSOL options.
+/*---------------------------------------------------------------
+  KINSetOptions:
+
+  Sets KINSOL options using strings.
   ---------------------------------------------------------------*/
 
-int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[])
+int KINSetOptions(void* kinmem, const char* kinid, const char* file_name,
+                  int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+      int retval = KIN_ILL_INPUT;
+      KINProcessError(kinmem, retval, __LINE__, __func__, __FILE__,
+                      "file-based options are not currently supported.");
+      return retval;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = kinSetFromCommandLine(kinmem, kinid, argc, argv);
+    if (retval != KIN_SUCCESS) { return retval; }
+  }
+
+  return KIN_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to control KINSOL options from the command line
+ */
+
+static int kinSetFromCommandLine(void* kinmem, const char* kinid,
+                                 int argc, char* argv[])
 {
   KINMem kin_mem;
   if (kinmem == NULL)
@@ -84,7 +112,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     /* if kinid is supplied, skip command-line arguments that do not begin with kinid;
        else, skip command-line arguments that do not begin with "kinsol." */
     size_t offset;
-    if (kinid != NULL)
+    if (kinid != NULL && strlen(kinid) > 0)
     {
       if (strncmp(argv[idx], kinid, strlen(kinid)) != 0) { continue; }
       offset = strlen(kinid) + 1;
@@ -103,7 +131,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     {
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
+                      "error setting key: %s",
                       int_pairs[j].key);
       return retval;
     }
@@ -116,7 +144,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     {
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
+                      "error setting key: %s",
                       long_pairs[j].key);
       return retval;
     }
@@ -129,7 +157,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     {
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
+                      "error setting key: %s",
                       real_pairs[j].key);
       return retval;
     }
@@ -143,7 +171,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
     {
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s",
+                      "error setting key: %s",
                       tworeal_pairs[j].key);
       return retval;
     }
@@ -151,7 +179,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
 
     /* warn for uninterpreted kinid.X arguments */
     KINProcessError(kin_mem, KIN_WARNING, __LINE__, __func__, __FILE__,
-                    "WARNING: argument %s was not handled\n", argv[idx]);
+                    "WARNING: key %s was not handled\n", argv[idx]);
   }
 
   return (KIN_SUCCESS);

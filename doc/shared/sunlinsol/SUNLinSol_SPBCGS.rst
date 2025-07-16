@@ -82,10 +82,6 @@ user-callable routines:
       With ``SUN_PREC_RIGHT`` or ``SUN_PREC_BOTH`` the initial guess must be zero (use
       :c:func:`SUNLinSolSetZeroGuess` to indicate the initial guess is zero).
 
-      This SUNLinearSolver implementation sets the default prefix for command-line
-      arguments processed by :c:func:`SUNLinSolSetFromCommandLine`
-      to be "spbcgs".
-
 
 .. c:function:: SUNErrCode SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S, int pretype)
 
@@ -105,8 +101,8 @@ user-callable routines:
 
    **Notes:**
 
-      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
-      when using the command-line option "LSid.prec_type".
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.prec_type".
 
 
 .. c:function:: SUNErrCode SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl)
@@ -123,8 +119,8 @@ user-callable routines:
 
    **Notes:**
 
-      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
-      when using the command-line option "LSid.maxl".
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.maxl".
 
 
 

@@ -57,22 +57,22 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
-  ops->gettype            = NULL;
-  ops->getid              = NULL;
-  ops->setatimes          = NULL;
-  ops->setpreconditioner  = NULL;
-  ops->setscalingvectors  = NULL;
-  ops->setfromcommandline = NULL;
-  ops->setzeroguess       = NULL;
-  ops->initialize         = NULL;
-  ops->setup              = NULL;
-  ops->solve              = NULL;
-  ops->numiters           = NULL;
-  ops->resnorm            = NULL;
-  ops->resid              = NULL;
-  ops->lastflag           = NULL;
-  ops->space              = NULL;
-  ops->free               = NULL;
+  ops->gettype           = NULL;
+  ops->getid             = NULL;
+  ops->setatimes         = NULL;
+  ops->setpreconditioner = NULL;
+  ops->setscalingvectors = NULL;
+  ops->setoptions        = NULL;
+  ops->setzeroguess      = NULL;
+  ops->initialize        = NULL;
+  ops->setup             = NULL;
+  ops->solve             = NULL;
+  ops->numiters          = NULL;
+  ops->resnorm           = NULL;
+  ops->resid             = NULL;
+  ops->lastflag          = NULL;
+  ops->space             = NULL;
+  ops->free              = NULL;
 
   /* attach ops and initialize content and context to NULL */
   LS->ops     = ops;
@@ -148,16 +148,16 @@ SUNErrCode SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s
   return (ier);
 }
 
-SUNErrCode SUNLinSolSetFromCommandLine(SUNLinearSolver S, const char* LSid,
-                                       int argc, char* argv[])
+SUNErrCode SUNLinSolSetOptions(SUNLinearSolver S, const char* LSid,
+                               const char* file_name, int argc, char* argv[])
 {
   SUNErrCode ier = SUN_SUCCESS;
-  if (S == NULL) { return SUN_ERR_ARG_CORRUPT; }
-  SUNFunctionBegin(S->sunctx);
-  if (S->ops->setfromcommandline)
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
+  if (S->ops->setoptions)
   {
-    return (S->ops->setfromcommandline(S, LSid, argc, argv));
+    return (S->ops->setoptions(S, LSid, file_name, argc, argv));
   }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
   return (ier);
 }
 

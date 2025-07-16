@@ -52,8 +52,8 @@
  * ----------------------------------------------------------------------------
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
-                                           int argc, char* argv[]);
+static SUNErrCode setFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
+                                         int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -91,15 +91,15 @@ SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A, SUNContext sunctx)
   if (S == NULL) { return (NULL); }
 
   /* Attach operations */
-  S->ops->gettype            = SUNLinSolGetType_KLU;
-  S->ops->getid              = SUNLinSolGetID_KLU;
-  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_KLU;
-  S->ops->initialize         = SUNLinSolInitialize_KLU;
-  S->ops->setup              = SUNLinSolSetup_KLU;
-  S->ops->solve              = SUNLinSolSolve_KLU;
-  S->ops->lastflag           = SUNLinSolLastFlag_KLU;
-  S->ops->space              = SUNLinSolSpace_KLU;
-  S->ops->free               = SUNLinSolFree_KLU;
+  S->ops->gettype    = SUNLinSolGetType_KLU;
+  S->ops->getid      = SUNLinSolGetID_KLU;
+  S->ops->setoptions = SUNLinSolSetOptions_KLU;
+  S->ops->initialize = SUNLinSolInitialize_KLU;
+  S->ops->setup      = SUNLinSolSetup_KLU;
+  S->ops->solve      = SUNLinSolSolve_KLU;
+  S->ops->lastflag   = SUNLinSolLastFlag_KLU;
+  S->ops->space      = SUNLinSolSpace_KLU;
+  S->ops->free       = SUNLinSolFree_KLU;
 
   /* Create content */
   content = NULL;
@@ -182,11 +182,33 @@ SUNErrCode SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
 }
 
 /* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNLinSolSetOptions_KLU(SUNLinearSolver S, const char* LSid,
+                                   const char* file_name, int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_KLU(S, LSid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+/* ----------------------------------------------------------------------------
  * Function to control set routines via the command line
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
-                                           int argc, char* argv[])
+static SUNErrCode setFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
+                                         int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -197,14 +219,14 @@ SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "klu." */
     size_t offset;
-    if (LSid != NULL)
+    if (LSid != NULL && strlen(LSid) > 0)
     {
       if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;
     }
     else
     {
-      static const char* prefix = "klu.";
+      static const char* prefix = "sunlinearsolver.";
       if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }

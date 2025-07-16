@@ -257,26 +257,26 @@ int ERKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  erkStep_SetFromCommandLine:
+  erkStep_SetOption:
 
-  Provides command-line control over ERKStep-specific "set" routines.
+  Provides string-based control over ERKStep-specific "set" routines.
   ---------------------------------------------------------------*/
-int erkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
-                               size_t offset, sunbooleantype* arg_used)
+int erkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
+                      size_t offset, sunbooleantype* arg_used)
 {
-  /* Set lists of command-line arguments, and the corresponding set routines */
+  /* Set lists of keys, and the corresponding set routines */
   static const struct sunKeyCharPair char_pairs[] = {
     {"table_name", ERKStepSetTableName}};
   static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
 
-  /* check all "char" command-line options */
+  /* check all "char" keys */
   int j, retval;
   retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
                                   char_pairs, num_char_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s", char_pairs[j].key);
+                    "error setting key: %s", char_pairs[j].key);
     return retval;
   }
 

@@ -114,7 +114,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_printmem                  = arkStep_PrintMem;
   ark_mem->step_setdefaults               = arkStep_SetDefaults;
   ark_mem->step_computestate              = arkStep_ComputeState;
-  ark_mem->step_setfromcommandline        = arkStep_SetFromCommandLine;
+  ark_mem->step_setoption                 = arkStep_SetOption;
   ark_mem->step_setrelaxfn                = arkStep_SetRelaxFn;
   ark_mem->step_setorder                  = arkStep_SetOrder;
   ark_mem->step_setnonlinearsolver        = arkStep_SetNonlinearSolver;

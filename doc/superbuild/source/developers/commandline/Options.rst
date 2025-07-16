@@ -57,10 +57,14 @@ One ``int`` argument
 
    These functions set a single integer option for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the integer value to set.
+   **Parameters:**
 
-   :return: An *sunIntSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the integer value to set.
+
+   **Returns:**
+
+     A :c:type:`sunIntSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -88,8 +92,8 @@ One ``int`` argument
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -104,11 +108,15 @@ Two ``int`` arguments
 
    These functions set two integer options for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the first integer value to set.
-   :param arg2: the second integer value to set.
+   **Parameters:**
 
-   :return: An *sunTwoIntSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the first integer value to set.
+   * **arg2** -- the second integer value to set.
+
+   **Returns:**
+
+     A :c:type:`sunTwoIntSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -136,8 +144,8 @@ Two ``int`` arguments
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -152,10 +160,14 @@ One ``long int`` argument
 
    These functions set a single long integer option for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the long integer value to set.
+   **Parameters:**
 
-   :return: An *sunLongSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the long integer value to set.
+
+   **Returns:**
+
+     A :c:type:`sunLongSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -183,8 +195,8 @@ One ``long int`` argument
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -199,11 +211,15 @@ One ``int`` and one ``sunrealtype`` argument
 
    These functions set a single integer option and a single real option for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the integer value to set.
-   :param arg2: the real value to set.
+   **Parameters:**
 
-   :return: An *sunIntRealSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the integer value to set.
+   * **arg2** -- the real value to set.
+
+   **Returns:**
+
+     A :c:type:`sunIntRealSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -231,8 +247,8 @@ One ``int`` and one ``sunrealtype`` argument
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -247,12 +263,16 @@ One ``int`` and two ``sunrealtype`` arguments
 
    These functions set a single integer option and two real options for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the integer value to set.
-   :param arg2: the first real value to set.
-   :param arg3: the second real value to set.
+   **Parameters:**
 
-   :return: An *sunIntRealRealSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the integer value to set.
+   * **arg2** -- the first real value to set.
+   * **arg3** -- the second real value to set.
+
+   **Returns:**
+
+     A :c:type:`sunIntRealRealSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -280,8 +300,8 @@ One ``int`` and two ``sunrealtype`` arguments
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -296,11 +316,15 @@ One ``int`` and one ``long int`` argument
 
    These functions set a single integer option and a long integer option for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the integer value to set.
-   :param arg2: the long integer value to set.
+   **Parameters:**
 
-   :return: An *sunIntLongSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the integer value to set.
+   * **arg2** -- the long integer value to set.
+
+   **Returns:**
+
+     A :c:type:`sunIntLongSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -328,8 +352,8 @@ One ``int`` and one ``long int`` argument
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -344,10 +368,14 @@ One ``sunrealtype`` argument
 
    These functions set a single real option for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the real value to set.
+   **Parameters:**
 
-   :return: An *sunRealSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the real value to set.
+
+   **Returns:**
+
+     A :c:type:`sunRealSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -375,8 +403,8 @@ One ``sunrealtype`` argument
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -391,11 +419,15 @@ Two ``sunrealtype`` arguments
 
    These functions set two real options for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the first real value to set.
-   :param arg2: the second real value to set.
+   **Parameters:**
 
-   :return: An *sunTwoRealSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the first real value to set.
+   * **arg2** -- the second real value to set.
+
+   **Returns:**
+
+     A :c:type:`sunTwoRealSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -423,8 +455,8 @@ Two ``sunrealtype`` arguments
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -439,10 +471,14 @@ One ``char*`` argument
 
    These functions set a single string option for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the string value to set.
+   **Parameters:**
 
-   :return: An *sunCharSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the string value to set.
+
+   **Returns:**
+
+     A :c:type:`sunCharSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -470,8 +506,8 @@ One ``char*`` argument
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -486,11 +522,15 @@ Two ``char*`` arguments
 
    These functions set two string options for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
-   :param arg1: the first string value to set.
-   :param arg2: the second string value to set.
+   **Parameters:**
 
-   :return: An *sunTwoCharSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+   * **arg1** -- the first string value to set.
+   * **arg2** -- the second string value to set.
+
+   **Returns:**
+
+     A :c:type:`sunTwoCharSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -518,8 +558,8 @@ Two ``char*`` arguments
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -534,9 +574,13 @@ No arguments (action only)
 
    These functions set a single integer option for a SUNDIALS module.
 
-   :param mem: an opaque pointer to the SUNDIALS module.
+   **Parameters:**
 
-   :return: An *sunActionSetFn* should return 0 if successful, or a nonzero value on failure.
+   * **mem** -- an opaque pointer to the SUNDIALS module.
+
+   **Returns:**
+
+     A :c:type:`sunActionSetFn` function should return 0 if successful, or a nonzero value on failure.
 
    .. versionadded:: x.y.z
 
@@ -564,8 +608,8 @@ No arguments (action only)
    :param offset: the offset width to ignore (stores a module-specific prefix for the key).
    :param testpairs: an array of key-value pairs to test against.
    :param numpairs: the number of key-value pairs in ``testpairs``.
-   :param arg_used: a pointer to a boolean indicating if the argument was used.
-   :param failedarg: a pointer to an integer indicating the failed argument index (if any).
+   :param arg_used: a flag indicating if the argument was used.
+   :param failedarg: if an error occurs when setting an option, this is the index of the option in ``argv`` that resulted in an error.
 
    :return: SUN_SUCCESS if either the argument was not found, or if it was matched and set correctly.  If it was found but the set routine failed, then this returns the value emanating from the module-specific set routine.
 
@@ -578,21 +622,23 @@ Package-specific Command-line Support
 
 Each SUNDIALS module that wishes to support command-line options should provide a
 routine of the form
-``<module>SetFromCommandLine(void* mem, const char* moduleid, int argc, char* argv[])``.
+``<module>SetOptions(void* mem, const char* moduleid, const char* file_name, int argc, char* argv[])``.
 This routine can then be called by users to indicate that they wish to use
-command-line options to control the corresponding SUNDIALS module.  The arguments to
+command-line or input file options to control the corresponding SUNDIALS module.  The arguments to
 this function are:
 
 * ``mem``: an opaque pointer to the SUNDIALS module (e.g., the pointer returned by
   :c:func:`CVodeCreate`).
-* ``moduleid``: a desired string identifier for arguments to that module (e.g., "arkode").
+* ``moduleid``: a desired string identifier prefix for arguments to that module (e.g., "arkode").
   Note that each module should specify a default string identifier, that would be
   used if the user specifies ``NULL`` for this argument.  However, users can supply
   non-default identifiers so that they can control multiple instances of the same module
   independently (e.g., when using multiple ARKode integrators in the
   same program).
-* ``argc``: the number of command-line arguments.
-* ``argv``: the command-line argument vector.
+* ``file_name``: the name of a file containing options to read.  If this is ``NULL`` or an
+  empty string, ``""``, then no file is read.
+* ``argc``: the length of the ``argv`` array.
+* ``argv``: an array of strings containing the options to set and their values.
 
 Within this module-provided routine, arrays of key-value pairs having the correct type
 for the corresponding "Set" routine should be defined (e.g., see the file
@@ -600,9 +646,19 @@ for the corresponding "Set" routine should be defined (e.g., see the file
 
 .. note::
 
-   When adding new "Set" routines to an existing SUNDIALS module, developers should
-   attempt to add a corresponding entry in the appropriate key-value pair array, and note
-   the new key in the module's documentation.
+   When adding new "Set" routines to an existing SUNDIALS module, developers
+   should add a corresponding entry in the appropriate key-value pair array,
+   and note the new key in the module's documentation.  These keys should use
+   snake case, and should match the "set" function name with the "Set" prefix
+   removed (e.g., for the function :c:func:`ARKodeSetAccumulatedErrorType`, the
+   key would be "accumulated_error_type").  The keys should also be unique
+   within the module.  While exceptions to this rule exist, those were chosen
+   so that they keys were more descriptive, since their corresponding "Set"
+   routines employed "older" SUNDIALS styles for abbreviated "Set" function
+   names (e.g., :c:func:`ARKodeSStolerances` uses the key
+   "scalar_tolerances").  Since future "Set" functions should no longer use
+   abbreviations, their keys should uniformly follow the convention described
+   above.
 
 After defining the allowable command-line arguments (and their corresponding "Set"
 routines), the module-provided routine should loop over all ``argc`` command-line

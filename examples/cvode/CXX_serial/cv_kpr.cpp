@@ -111,8 +111,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
   // Override any current settings with command-line options
-  flag = CVodeSetFromCommandLine(cvode_mem, NULL, argc, argv);
-  if (check_flag(flag, "CVodeSetFromCommandLine")) { return 1; }
+  flag = CVodeSetOptions(cvode_mem, NULL, NULL, argc, argv);
+  if (check_flag(flag, "CVodeSetOptions")) { return 1; }
 
   // Initial time and fist output time
   sunrealtype tret = ZERO;

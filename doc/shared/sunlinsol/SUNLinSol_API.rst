@@ -240,31 +240,40 @@ the functionality for any optional routine should leave the corresponding
 function pointer ``NULL`` instead of supplying a dummy routine.
 
 
-.. c:function:: SUNErrCode SUNLinSolSetFromCommandLine(SUNLinearSolver S, const char* LSid, int argc, char* argv[])
+.. c:function:: SUNErrCode SUNLinSolSetOptions(SUNLinearSolver S, const char* LSid, const char* file_name, int argc, char* argv[])
 
-   This *optional* routine allows command-line control over various options within a SUNLinearSolver implementation.
+   This *optional* routine sets SUNLinearSolver options from an array of strings or a file.
 
    :param S: the :c:type:`SUNLinearSolver` object.
-   :param LSid: String to use as prefix for command-line options.
-   :param argc: Number of command-line options provided to executable.
-   :param argv: Array of strings containing command-line options provided to executable.
+   :param LSid: the prefix for options to read. The default is "sunlinearsolver".
+   :param file_name: the name of a file containing options to read. If this is
+                     ``NULL`` or an empty string, ``""``, then no file is read.
+   :param argc: length of the ``argv`` array.
+   :param argv: an array of strings containing the options to set and their values.
 
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
    .. note::
 
-      The *argc* and *argv* arguments should typically be those supplied to the user's ``main`` routine.  These
-      are left unchanged by :c:func:`SUNLinSolSetFromCommandLine`.
+      The ``argc`` and ``argv`` arguments are typically those supplied to the user's
+      ``main`` routine however, this is not required. The inputs are left unchanged by
+      :c:func:`SUNLinSolSetOptions`.
 
-      If the *LSid* argument is ``NULL`` then an implementation-specific prefix will be used for the
-      relevant command-line options -- see each implementation for its default prefix value.
+      If the ``LSid`` argument is ``NULL`` then an implementation-specific prefix will be used for the
+      relevant options -- see each implementation for its default prefix value.
       When using a combination of SUNLinearSolver objects (e.g., for system and mass matrices within
-      ARKStep), it is recommended that users call :c:func:`SUNLinSolSetFromCommandLine`
-      for each controller using distinct *LSid* inputs, so that each solver can be configured
-      separately.
+      ARKStep), it is recommended that users call :c:func:`SUNLinSolSetOptions` for each linear solver
+      using distinct *LSid* inputs, so that each solver can be configured separately.
 
       SUNLinearSolver options set via command-line arguments to
-      :c:func:`SUNLinSolSetFromCommandLine` will overwrite any previously-set values.
+      :c:func:`SUNLinSolSetOptions` will overwrite any previously-set values.
+
+   .. warning::
+
+      This function is not available in the Fortran interface.
+
+      File-based options are not yet implemented, so the *file_name* argument
+      should be set to either ``NULL`` or the empty string ``""``.
 
    .. versionadded:: x.y.z
 
@@ -356,9 +365,8 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       each of the SUNDIALS packages call :c:func:`SUNLinSolSetZeroGuess` prior to
       each call to :c:func:`SUNLinSolSolve`.
 
-
       If supported by the SUNLinearSolver implementation, this routine will be called
-      by :c:func:`SUNLinSolSetFromCommandLine` when using the command-line option
+      by :c:func:`SUNLinSolSetOptions` when using the key
       "LSid.zero_guess".
 
 
@@ -658,6 +666,10 @@ The virtual table structure is defined as
    .. c:member:: SUNErrCode (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector)
 
       The function implementing :c:func:`SUNLinSolSetScalingVectors`
+
+   .. c:member:: SUNErrCode (*setoptions)(SUNLinearSolver, const char* LSid, const char* file_name, int argc, char* argv[])
+
+      The function implementing :c:func:`SUNLinSolSetOptions`
 
    .. c:member:: SUNErrCode (*setzeroguess)(SUNLinearSolver, sunbooleantype)
 

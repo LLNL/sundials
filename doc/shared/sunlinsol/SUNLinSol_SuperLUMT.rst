@@ -72,10 +72,6 @@ The module SUNLinSol_SuperLUMT provides the following user-callable routines:
       The ``num_threads`` argument is not checked
       and is passed directly to SuperLU_MT routines.
 
-      This SUNLinearSolver implementation sets the default prefix for command-line
-      arguments processed by :c:func:`SUNLinSolSetFromCommandLine`
-      to be "superlumt".
-
 
 .. c:function:: SUNErrCode SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
 
@@ -101,8 +97,8 @@ The module SUNLinSol_SuperLUMT provides the following user-callable routines:
 
    **Notes:**
 
-      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
-      when using the command-line option "LSid.ordering".
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.ordering".
 
 
 .. _SUNLinSol.SuperLUMT.Description:

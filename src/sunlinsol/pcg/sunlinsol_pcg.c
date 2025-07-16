@@ -42,13 +42,13 @@
 #define LASTFLAG(S)    (PCG_CONTENT(S)->last_flag)
 
 /*
- * ----------------------------------------------------------------------------
- * Un-exported implementation specific routines
- * ----------------------------------------------------------------------------
+ * -----------------------------------------------------------------
+ * unexported functions
+ * -----------------------------------------------------------------
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
-                                           int argc, char* argv[]);
+static SUNErrCode setFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
+                                         int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -80,22 +80,22 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  S->ops->gettype            = SUNLinSolGetType_PCG;
-  S->ops->getid              = SUNLinSolGetID_PCG;
-  S->ops->setatimes          = SUNLinSolSetATimes_PCG;
-  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_PCG;
-  S->ops->setpreconditioner  = SUNLinSolSetPreconditioner_PCG;
-  S->ops->setscalingvectors  = SUNLinSolSetScalingVectors_PCG;
-  S->ops->setzeroguess       = SUNLinSolSetZeroGuess_PCG;
-  S->ops->initialize         = SUNLinSolInitialize_PCG;
-  S->ops->setup              = SUNLinSolSetup_PCG;
-  S->ops->solve              = SUNLinSolSolve_PCG;
-  S->ops->numiters           = SUNLinSolNumIters_PCG;
-  S->ops->resnorm            = SUNLinSolResNorm_PCG;
-  S->ops->resid              = SUNLinSolResid_PCG;
-  S->ops->lastflag           = SUNLinSolLastFlag_PCG;
-  S->ops->space              = SUNLinSolSpace_PCG;
-  S->ops->free               = SUNLinSolFree_PCG;
+  S->ops->gettype           = SUNLinSolGetType_PCG;
+  S->ops->getid             = SUNLinSolGetID_PCG;
+  S->ops->setatimes         = SUNLinSolSetATimes_PCG;
+  S->ops->setoptions        = SUNLinSolSetOptions_PCG;
+  S->ops->setpreconditioner = SUNLinSolSetPreconditioner_PCG;
+  S->ops->setscalingvectors = SUNLinSolSetScalingVectors_PCG;
+  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_PCG;
+  S->ops->initialize        = SUNLinSolInitialize_PCG;
+  S->ops->setup             = SUNLinSolSetup_PCG;
+  S->ops->solve             = SUNLinSolSolve_PCG;
+  S->ops->numiters          = SUNLinSolNumIters_PCG;
+  S->ops->resnorm           = SUNLinSolResNorm_PCG;
+  S->ops->resid             = SUNLinSolResid_PCG;
+  S->ops->lastflag          = SUNLinSolLastFlag_PCG;
+  S->ops->space             = SUNLinSolSpace_PCG;
+  S->ops->free              = SUNLinSolFree_PCG;
 
   /* Create content */
   content = NULL;
@@ -140,11 +140,33 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
 }
 
 /* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNLinSolSetOptions_PCG(SUNLinearSolver S, const char* LSid,
+                                   const char* file_name, int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_PCG(S, LSid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+/* ----------------------------------------------------------------------------
  * Function to control set routines via the command line
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
-                                           int argc, char* argv[])
+static SUNErrCode setFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
+                                         int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -153,16 +175,16 @@ SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
   for (idx = 1; idx < argc; idx++)
   {
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
-       else, skip command-line arguments that do not begin with "pcg." */
+       else, skip command-line arguments that do not begin with "sunlinearsolver." */
     size_t offset;
-    if (LSid != NULL)
+    if (LSid != NULL && strlen(LSid) > 0)
     {
       if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
       offset = strlen(LSid) + 1;
     }
     else
     {
-      static const char* prefix = "pcg.";
+      static const char* prefix = "sunlinearsolver.";
       if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }

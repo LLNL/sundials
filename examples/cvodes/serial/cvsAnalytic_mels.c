@@ -128,8 +128,8 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
   /* Override any current settings with command-line options */
-  retval = CVodeSetFromCommandLine(cvode_mem, NULL, argc, argv);
-  if (check_retval(&retval, "CVodeSetFromCommandLine", 1)) { return (1); }
+  retval = CVodeSetOptions(cvode_mem, NULL, NULL, argc, argv);
+  if (check_retval(&retval, "CVodeSetOptions", 1)) { return (1); }
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */

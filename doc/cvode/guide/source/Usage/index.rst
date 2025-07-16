@@ -387,8 +387,8 @@ the call to :c:func:`CVodeInit`
      * ``CV_ILL_INPUT`` -- One of the input tolerances was negative.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.scalar_tolerances".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.scalar_tolerances".
 
 .. c:function:: int CVodeSVtolerances(void* cvode_mem, sunrealtype reltol, N_Vector abstol)
 
@@ -829,8 +829,8 @@ Main solver optional input functions
    +-------------------------------+---------------------------------------------+----------------+
    |      **Optional input**       |              **Function name**              |  **Default**   |
    +===============================+=============================================+================+
-   | Set CVODE optional inputs     | :c:func:`CVodeSetFromCommandLine`           |                |
-   | from the command line         |                                             |                |
+   | Set CVODE options from the    | :c:func:`CVodeSetOptions`.                  |                |
+   | command line or file          |                                             |                |
    +-------------------------------+---------------------------------------------+----------------+
    | User data                     | :c:func:`CVodeSetUserData`                  | ``NULL``       |
    +-------------------------------+---------------------------------------------+----------------+
@@ -872,32 +872,64 @@ Main solver optional input functions
    +-------------------------------+---------------------------------------------+----------------+
 
 
-.. c:function:: int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc, char* argv[])
+.. c:function:: int CVodeSetOptions(void* cvode_mem, const char* cvid, const char* file_name, int argc, char* argv[])
 
-   Passes command-line arguments to CVODE to set options.
+   Sets CVODE options from an array of strings or a file.
 
    :param cvode_mem: pointer to the CVODE memory block.
-   :param cvid: String to use as prefix for CVODE command-line options.
-   :param argc: Number of command-line options provided to executable.
-   :param argv: Array of strings containing command-line options provided to executable.
+   :param cvid: the prefix for options to read. The default is "cvode".
+   :param file_name: the name of a file containing options to read. If this is
+                     ``NULL`` or an empty string, ``""``, then no file is read.
+   :param argc: number of command-line arguments passed to executable.
+   :param argv: an array of strings containing the options to set and their values.
 
    :retval CV_SUCCESS: the function exited successfully.
    :retval CV_MEM_NULL: ``cvode_mem`` was ``NULL``.
    :retval other: error return value from relevant CVODE "set" routine.
 
+   **Example usage:**
+
+      In a C or C++ program, the following will enable command-line processing:
+
+      .. code-block:: C
+
+         /* Create CVODE memory block */
+         void* cvode_mem = CVodeCreate(CV_BDF, ctx);
+
+         /* Configure CVODE as normal */
+         ...
+
+         /* Override settings with command-line options using default "cvode" prefix */
+         flag = CVodeSetOptions(cvode_mem, NULL, NULL, argc, argv);
+
+      Then when running the program, the user can specify desired options, e.g.,
+
+      .. code-block:: console
+
+         $ ./a.out cvode.max_order 3 cvode.max_num_steps 10000
+
    .. note::
 
-      The *argc* and *argv* arguments should typically be those supplied to the user's ``main`` routine.
-      These are left unchanged by :c:func:`CVodeSetFromCommandLine`.
+      The ``argc`` and ``argv`` arguments are typically those supplied to the user's
+      ``main`` routine however, this is not required. The inputs are left unchanged by
+      :c:func:`CVodeSetOptions`.
 
-      If the *cvid* argument is ``NULL`` then ``cvode.`` will be used for all CVODE command-line
-      options, e.g., to set the maximum order of accuracy the default command-line option would
-      be "cvode.max_order".
+      If the ``cvid`` argument is ``NULL``, then the default prefix, ``cvode``, must
+      be used for all CVODE options. For example, the option ``cvode.max_order`` followed
+      by the value can be used to set the maximum method order of accuracy.
 
-      CVODE options set via command-line arguments to :c:func:`CVodeSetFromCommandLine` will
-      overwrite any previously-set values.
+      CVODE options set via :c:func:`CVodeSetOptions` will overwrite
+      any previously-set values.
 
-      The supported command-line options are documented within each CVODE "set" routine.
+      The supported option names are noted within the documentation for the
+      corresponding CVODE "set" function.
+
+   .. warning::
+
+      This function is not available in the Fortran interface.
+
+      File-based options are not yet implemented, so the *file_name* argument
+      should be set to either ``NULL`` or the empty string ``""``.
 
    .. versionadded:: x.y.z
 
@@ -954,8 +986,8 @@ Main solver optional input functions
    **Notes:**
       The monitor function that will be called can be set with  ``CVodeSetMonitorFn``.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.monitor_frequency".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.monitor_frequency".
 
       .. warning::
 
@@ -979,8 +1011,8 @@ Main solver optional input functions
 
       An input value greater than the default will result in the default value.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.max_order".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.max_order".
 
 .. c:function:: int CVodeSetMaxNumSteps(void* cvode_mem, long int mxsteps)
 
@@ -999,8 +1031,8 @@ Main solver optional input functions
 
       Passing ``mxsteps`` < 0 disables the test (not recommended).
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.max_num_steps".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.max_num_steps".
 
 .. c:function:: int CVodeSetMaxHnilWarns(void* cvode_mem, int mxhnil)
 
@@ -1017,8 +1049,8 @@ Main solver optional input functions
    **Notes:**
       The default value is 10.  A negative value for ``mxhnil`` indicates that no warning messages should  be issued.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.max_hnil_warns".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.max_hnil_warns".
 
 .. c:function:: int CVodeSetStabLimDet(void* cvode_mem, sunbooleantype stldet)
 
@@ -1036,8 +1068,8 @@ Main solver optional input functions
    **Notes:**
       The default value is ``SUNFALSE``. If ``stldet = SUNTRUE`` when BDF is used  and the method order is greater than or equal to 3, then an internal function, ``CVsldet``,  is called to detect a possible stability limit. If such a limit is detected, then the order is  reduced.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.stab_lim_det".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.stab_lim_det".
 
 .. c:function:: int CVodeSetInitStep(void* cvode_mem, sunrealtype hin)
 
@@ -1054,8 +1086,8 @@ Main solver optional input functions
    **Notes:**
       By default, CVODE estimates the initial step size to be the solution :math:`h` of the equation :math:`0.5 h^2 \ddot{y} = 1`,  where :math:`\ddot{y}` is an estimated second derivative of the solution at :math:`t_0`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.init_step".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.init_step".
 
 .. c:function:: int CVodeSetMinStep(void* cvode_mem, sunrealtype hmin)
 
@@ -1073,8 +1105,8 @@ Main solver optional input functions
    **Notes:**
       The default value is 0.0.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.min_step".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.min_step".
 
 .. c:function:: int CVodeSetMaxStep(void* cvode_mem, sunrealtype hmax)
 
@@ -1092,8 +1124,8 @@ Main solver optional input functions
    **Notes:**
       Pass ``hmax`` = 0.0 to obtain the default value :math:`\infty`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.max_step".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.max_step".
 
 .. c:function:: int CVodeSetStopTime(void* cvode_mem, sunrealtype tstop)
 
@@ -1116,8 +1148,8 @@ Main solver optional input functions
       A stop time not reached before a call to :c:func:`CVodeReInit` will
       remain active but can be disabled by calling :c:func:`CVodeClearStopTime`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.stop_time".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.stop_time".
 
 .. c:function:: int CVodeSetInterpolateStopTime(void* cvode_mem, sunbooleantype interp)
 
@@ -1134,8 +1166,8 @@ Main solver optional input functions
      * ``CV_MEM_NULL`` -- The CVODES memory block was not initialized through a previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.interpolate_stop_time".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.interpolate_stop_time".
 
 
    .. versionadded:: 6.6.0
@@ -1155,8 +1187,8 @@ Main solver optional input functions
       The stop time can be re-enabled though a new call to
       :c:func:`CVodeSetStopTime`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.clear_stop_time".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.clear_stop_time".
 
    .. versionadded:: 6.5.1
 
@@ -1175,8 +1207,8 @@ Main solver optional input functions
    **Notes:**
       The default value is 7.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.max_err_test_fails".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.max_err_test_fails".
 
 .. c:function:: int CVodeSetConstraints(void* cvode_mem, N_Vector constraints)
 
@@ -1217,8 +1249,8 @@ Main solver optional input functions
       ``ON`` when SUNDIALS is compiled. See the entry for this option in :numref:`Installation.Options` for more information.
       Currently, the fused kernels are only supported when using CVODE with the :ref:`NVECTOR_CUDA <NVectors.CUDA>` and :ref:`NVECTOR_HIP <NVectors.Hip>` implementations of the ``N_Vector``.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.use_integrator_fused_kernels".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.use_integrator_fused_kernels".
 
 .. _CVODE.Usage.CC.optional_input.optin_ls:
 
@@ -1339,8 +1371,8 @@ difference approximation or a call to the :ref:`user-supplied Jacobian function
        previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.delta_gamma_max_lsetup".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.delta_gamma_max_lsetup".
 
    .. versionadded:: 6.2.0
 
@@ -1364,8 +1396,8 @@ difference approximation or a call to the :ref:`user-supplied Jacobian function
        previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.delta_gamma_max_bad_jac".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.delta_gamma_max_bad_jac".
 
    .. versionadded:: 6.2.0
 
@@ -1385,8 +1417,8 @@ difference approximation or a call to the :ref:`user-supplied Jacobian function
    **Notes:**
       Positive values of ``msbp`` specify the linear solver setup frequency. For  example, an input of ``1`` means the setup function will be called every time  step while an input of ``2`` means it will be called called every other time  step. If ``msbp = 0``, the default value of 20 will be used. Otherwise an  error is returned.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.lsetup_frequency".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.lsetup_frequency".
 
 .. c:function:: int CVodeSetJacEvalFrequency(void* cvode_mem, long int msbj)
 
@@ -1422,8 +1454,8 @@ difference approximation or a call to the :ref:`user-supplied Jacobian function
       This function must be called after  the CVLS linear solver interface has
       been initialized through a call to :c:func:`CVodeSetLinearSolver`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.jac_eval_frequency".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.jac_eval_frequency".
 
 When using matrix-based linear solver modules, the CVLS solver interface
 needs a function to compute an approximation to the Jacobian matrix :math:`J(t,y)` or
@@ -1526,8 +1558,8 @@ using the current :math:`\gamma` as part of the solve.
 
       By default scaling is enabled with matrix-based linear solvers when using BDF  methods.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.linear_solution_scaling".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.linear_solution_scaling".
 
 When using matrix-free linear solver modules, the CVLS solver
 interface requires a function to compute an approximation to the
@@ -1684,8 +1716,8 @@ the :c:func:`CVodeSetEpsLin` function.
 
       If ``eplifac`` = 0.0 is passed, the default value is used.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eps_lin".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eps_lin".
 
    .. versionadded:: 4.0.0
 
@@ -1713,8 +1745,8 @@ the :c:func:`CVodeSetEpsLin` function.
 
       Prior to the introduction of ``N_VGetLength`` in SUNDIALS v5.0.0  (CVODE v5.0.0) the value of ``nrmfac`` was computed using the vector  dot product i.e., the ``nrmfac < 0`` case.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.ls_norm_factor".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.ls_norm_factor".
 
 
 .. _CVODE.Usage.CC.optional_input.optin_nls:
@@ -1761,8 +1793,8 @@ nonlinear solver.
    **Notes:**
       The default value is 3.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.max_nonlin_iters".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.max_nonlin_iters".
 
 .. c:function:: int CVodeSetMaxConvFails(void* cvode_mem, int maxncf)
 
@@ -1779,8 +1811,8 @@ nonlinear solver.
    **Notes:**
       The default value is 10.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.max_conv_fails".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.max_conv_fails".
 
 .. c:function:: int CVodeSetNonlinConvCoef(void* cvode_mem, sunrealtype nlscoef)
 
@@ -1797,8 +1829,8 @@ nonlinear solver.
    **Notes:**
       The default value is 0.1.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.nonlin_conv_coef".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.nonlin_conv_coef".
 
 .. c:function:: int CVodeSetNlsRhsFn(void* cvode_mem, CVRhsFn f)
 
@@ -1908,8 +1940,8 @@ step size adaptivity.
        previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eta_fixed_step_bounds".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eta_fixed_step_bounds".
 
    .. versionadded:: 6.2.0
 
@@ -1935,8 +1967,8 @@ step size adaptivity.
        previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eta_max_first_step".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eta_max_first_step".
 
    .. versionadded:: 6.2.0
 
@@ -1968,8 +2000,8 @@ step size adaptivity.
       factor :math:`\eta_{\mathrm{max\_es}}` can be set with
       :c:func:`CVodeSetNumStepsEtaMaxEarlyStep`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eta_max_early_step".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eta_max_early_step".
 
    .. versionadded:: 6.2.0
 
@@ -1998,8 +2030,8 @@ step size adaptivity.
       The factor :math:`\eta_{\mathrm{max\_es}}` can be set with
       :c:func:`CVodeSetEtaMaxEarlyStep`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.num_steps_eta_max_early_step".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.num_steps_eta_max_early_step".
 
    .. versionadded:: 6.2.0
 
@@ -2028,8 +2060,8 @@ step size adaptivity.
       The factor for steps early in the integration is set by
       :c:func:`CVodeSetEtaMaxEarlyStep`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eta_max".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eta_max".
 
    .. versionadded:: 6.2.0
 
@@ -2051,8 +2083,8 @@ step size adaptivity.
        previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eta_min".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eta_min".
 
    .. versionadded:: 6.2.0
 
@@ -2075,8 +2107,8 @@ step size adaptivity.
        previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eta_min_err_fail".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eta_min_err_fail".
 
    .. versionadded:: 6.2.0
 
@@ -2104,8 +2136,8 @@ step size adaptivity.
       size factor :math:`\eta_{\mathrm{min\_ef}}` can be set with
       :c:func:`CVodeSetNumFailsEtaMaxErrFail`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eta_max_err_fail".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eta_max_err_fail".
 
    .. versionadded:: 6.2.0
 
@@ -2134,8 +2166,8 @@ step size adaptivity.
       The factor :math:`\eta_{\mathrm{max\_ef}}` can be set with
       :c:func:`CVodeSetEtaMaxErrFail`.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.num_fails_eta_max_err_fail".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.num_fails_eta_max_err_fail".
 
    .. versionadded:: 6.2.0
 
@@ -2158,8 +2190,8 @@ step size adaptivity.
        previous call to :c:func:`CVodeCreate`.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eta_conv_fail".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eta_conv_fail".
 
    .. versionadded:: 6.2.0
 
@@ -2215,8 +2247,8 @@ the rootfinding algorithm.
    **Notes:**
       CVODE will not report the initial conditions as a possible zero-crossing  (assuming that one or more components :math:`g_i` are zero at the initial time).  However, if it appears that some :math:`g_i` is identically zero at the initial  time (i.e., :math:`g_i` is zero at the initial time and after the first step),  CVODE will issue a warning which can be disabled with this optional input  function.
 
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.no_inactive_root_warn".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.no_inactive_root_warn".
 
 
 .. _CVODE.Usage.CC.optional_input.optin_proj:
@@ -2262,8 +2294,8 @@ the projection when solving an IVP with constraints.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.proj_err_est".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.proj_err_est".
 
    .. versionadded:: 5.3.0
 
@@ -2281,8 +2313,8 @@ the projection when solving an IVP with constraints.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.proj_frequency".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.proj_frequency".
 
    .. versionadded:: 5.3.0
 
@@ -2300,8 +2332,8 @@ the projection when solving an IVP with constraints.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.max_num_proj_fails".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.max_num_proj_fails".
 
    .. versionadded:: 5.3.0
 
@@ -2319,8 +2351,8 @@ the projection when solving an IVP with constraints.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.eps_proj".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.eps_proj".
 
    .. versionadded:: 5.3.0
 
@@ -2338,8 +2370,8 @@ the projection when solving an IVP with constraints.
      * ``CV_PROJ_MEM_NULL`` -- The projection memory is ``NULL`` i.e., the projection functionality has not been enabled.
 
    **Notes:**
-      This routine will be called by :c:func:`CVodeSetFromCommandLine`
-      when using the command-line option "cvid.proj_fail_eta".
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.proj_fail_eta".
 
    .. versionadded:: 5.3.0
 

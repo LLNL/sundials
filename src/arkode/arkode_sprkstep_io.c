@@ -196,14 +196,15 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  sprkStep_SetFromCommandLine:
+  sprkStep_SetOption:
 
-  Provides command-line control over SPRKStep-specific "set" routines.
+  Provides string-based control over SPRKStep-specific "set"
+  routines.
   ---------------------------------------------------------------*/
-int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
-                                size_t offset, sunbooleantype* arg_used)
+int sprkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used)
 {
-  /* Set lists of command-line arguments, and the corresponding set routines */
+  /* Set lists of keys, and the corresponding set routines */
   static const struct sunKeyCharPair char_pairs[] = {
     {"method_name", SPRKStepSetMethodName}};
   static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
@@ -212,25 +213,25 @@ int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* argidx, char* argv[],
     {"use_compensated_sums", SPRKStepSetUseCompensatedSums}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  /* check all "char" command-line options */
+  /* check all "char" keys */
   int j, retval;
   retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
                                   char_pairs, num_char_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s", char_pairs[j].key);
+                    "error setting key: %s", char_pairs[j].key);
     return retval;
   }
   if (*arg_used) { return ARK_SUCCESS; }
 
-  /* check all "int" command-line options */
+  /* check all "int" keys */
   retval = sunCheckAndSetIntArgs((void*)ark_mem, argidx, argv, offset,
                                  int_pairs, num_int_keys, arg_used, &j);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting command-line argument: %s", int_pairs[j].key);
+                    "error setting key: %s", int_pairs[j].key);
     return retval;
   }
 
