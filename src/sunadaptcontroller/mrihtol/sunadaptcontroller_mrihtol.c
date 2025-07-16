@@ -56,8 +56,8 @@
  */
 
 static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
-                                             const char* Cid,
-                                             int argc, char* argv[]);
+                                             const char* Cid, int argc,
+                                             char* argv[]);
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -147,8 +147,8 @@ SUNErrCode SUNAdaptController_SetOptions_MRIHTol(SUNAdaptController C,
  */
 
 static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
-                                             const char* Cid,
-                                             int argc, char* argv[])
+                                             const char* Cid, int argc,
+                                             char* argv[])
 {
   SUNFunctionBegin(C->sunctx);
 

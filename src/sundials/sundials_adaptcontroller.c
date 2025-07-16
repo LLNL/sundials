@@ -173,10 +173,9 @@ SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
   return (ier);
 }
 
-SUNErrCode SUNAdaptController_SetOptions(SUNAdaptController C,
-                                        const char* Cid,
-                                        const char* file_name,
-                                        int argc, char* argv[])
+SUNErrCode SUNAdaptController_SetOptions(SUNAdaptController C, const char* Cid,
+                                         const char* file_name, int argc,
+                                         char* argv[])
 {
   SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }

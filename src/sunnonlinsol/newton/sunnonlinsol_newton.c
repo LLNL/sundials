@@ -41,8 +41,8 @@
  */
 
 static SUNErrCode setFromCommandLine_Newton(SUNNonlinearSolver NLS,
-                                            const char* NLSid,
-                                            int argc, char* argv[]);
+                                            const char* NLSid, int argc,
+                                            char* argv[]);
 
 /*==============================================================================
   Constructor to create a new Newton solver
@@ -409,8 +409,7 @@ SUNErrCode SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS,
 }
 
 SUNErrCode SUNNonlinSolSetOptions_Newton(SUNNonlinearSolver NLS,
-                                         const char* NLSid,
-                                         const char* file_name,
+                                         const char* NLSid, const char* file_name,
                                          int argc, char* argv[])
 {
   if (file_name != NULL && strlen(file_name) > 0)
@@ -428,8 +427,9 @@ SUNErrCode SUNNonlinSolSetOptions_Newton(SUNNonlinearSolver NLS,
   return SUN_SUCCESS;
 }
 
-static SUNErrCode setFromCommandLine_Newton(SUNNonlinearSolver NLS, const char* NLSid,
-                                            int argc, char* argv[])
+static SUNErrCode setFromCommandLine_Newton(SUNNonlinearSolver NLS,
+                                            const char* NLSid, int argc,
+                                            char* argv[])
 {
   SUNFunctionBegin(NLS->sunctx);
 

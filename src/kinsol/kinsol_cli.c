@@ -24,8 +24,8 @@
 #include "kinsol_impl.h"
 #include "sundials_cli.h"
 
-static int kinSetFromCommandLine(void* kinmem, const char* kinid,
-                                 int argc, char* argv[]);
+static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
+                                 char* argv[]);
 
 /*---------------------------------------------------------------
   KINSetOptions:
@@ -38,10 +38,10 @@ int KINSetOptions(void* kinmem, const char* kinid, const char* file_name,
 {
   if (file_name != NULL && strlen(file_name) > 0)
   {
-      int retval = KIN_ILL_INPUT;
-      KINProcessError(kinmem, retval, __LINE__, __func__, __FILE__,
-                      "file-based options are not currently supported.");
-      return retval;
+    int retval = KIN_ILL_INPUT;
+    KINProcessError(kinmem, retval, __LINE__, __func__, __FILE__,
+                    "file-based options are not currently supported.");
+    return retval;
   }
 
   if (argc > 0 && argv != NULL)
@@ -57,8 +57,8 @@ int KINSetOptions(void* kinmem, const char* kinid, const char* file_name,
  * Function to control KINSOL options from the command line
  */
 
-static int kinSetFromCommandLine(void* kinmem, const char* kinid,
-                                 int argc, char* argv[])
+static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
+                                 char* argv[])
 {
   KINMem kin_mem;
   if (kinmem == NULL)
@@ -131,8 +131,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid,
     {
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting key: %s",
-                      int_pairs[j].key);
+                      "error setting key: %s", int_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -144,8 +143,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid,
     {
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting key: %s",
-                      long_pairs[j].key);
+                      "error setting key: %s", long_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -157,8 +155,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid,
     {
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting key: %s",
-                      real_pairs[j].key);
+                      "error setting key: %s", real_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -171,8 +168,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid,
     {
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting key: %s",
-                      tworeal_pairs[j].key);
+                      "error setting key: %s", tworeal_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;

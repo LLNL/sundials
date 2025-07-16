@@ -151,10 +151,9 @@ SUNErrCode SUNAdaptController_Reset(SUNAdaptController C);
 
 /* Function to update internal controller parameters from the command line. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_SetOptions(SUNAdaptController C,
-                                         const char* Cid,
-                                         const char* file_name,
-                                         int argc, char* argv[]);
+SUNErrCode SUNAdaptController_SetOptions(SUNAdaptController C, const char* Cid,
+                                         const char* file_name, int argc,
+                                         char* argv[]);
 
 /* Function to set the controller parameters to their default values. */
 SUNDIALS_EXPORT

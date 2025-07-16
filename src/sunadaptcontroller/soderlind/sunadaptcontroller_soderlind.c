@@ -73,8 +73,7 @@
  */
 
 static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
-                                               const char* Cid,
-                                               int argc,
+                                               const char* Cid, int argc,
                                                char* argv[]);
 
 /* -----------------------------------------------------------------
@@ -117,7 +116,6 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   return (C);
 }
 
-
 /* ----------------------------------------------------------------------------
  * Function to control set routines via the command line or file
  */
@@ -147,8 +145,8 @@ SUNErrCode SUNAdaptController_SetOptions_Soderlind(SUNAdaptController C,
  */
 
 static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
-                                               const char* Cid,
-                                               int argc, char* argv[])
+                                               const char* Cid, int argc,
+                                               char* argv[])
 {
   SUNFunctionBegin(C->sunctx);
 

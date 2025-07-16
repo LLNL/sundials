@@ -25,8 +25,8 @@
 #include "cvode_impl.h"
 #include "sundials_cli.h"
 
-static int cvSetFromCommandLine(void* cvode_mem, const char* cvid,
-                                int argc, char* argv[]);
+static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
+                                char* argv[]);
 
 /*---------------------------------------------------------------
   CVodeSetOptions:
@@ -34,15 +34,15 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid,
   Sets CVODE options using strings.
   ---------------------------------------------------------------*/
 
-int CVodeSetOptions(void* cvode_mem, const char* cvid,
-                    const char* file_name, int argc, char* argv[])
+int CVodeSetOptions(void* cvode_mem, const char* cvid, const char* file_name,
+                    int argc, char* argv[])
 {
   if (file_name != NULL && strlen(file_name) > 0)
   {
-      int retval = CV_ILL_INPUT;
-      cvProcessError(cvode_mem, retval, __LINE__, __func__, __FILE__,
-                     "file-based options are not currently supported.");
-      return retval;
+    int retval = CV_ILL_INPUT;
+    cvProcessError(cvode_mem, retval, __LINE__, __func__, __FILE__,
+                   "file-based options are not currently supported.");
+    return retval;
   }
 
   if (argc > 0 && argv != NULL)
@@ -58,8 +58,8 @@ int CVodeSetOptions(void* cvode_mem, const char* cvid,
  * Function to control CVODE options from the command line
  */
 
-static int cvSetFromCommandLine(void* cvode_mem, const char* cvid,
-                                int argc, char* argv[])
+static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
+                                char* argv[])
 {
   CVodeMem cv_mem;
   if (cvode_mem == NULL)
@@ -166,8 +166,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid,
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting key: %s",
-                     long_pairs[j].key);
+                     "error setting key: %s", long_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -179,8 +178,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid,
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting key: %s",
-                     real_pairs[j].key);
+                     "error setting key: %s", real_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -193,8 +191,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid,
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting key: %s",
-                     tworeal_pairs[j].key);
+                     "error setting key: %s", tworeal_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -207,8 +204,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid,
     {
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
-                     "error setting key: %s",
-                     action_pairs[j].key);
+                     "error setting key: %s", action_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;

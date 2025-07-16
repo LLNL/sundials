@@ -78,8 +78,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetOptions_Soderlind(SUNAdaptController C,
                                                    const char* Cid,
                                                    const char* file_name,
-                                                   int argc,
-                                                   char* argv[]);
+                                                   int argc, char* argv[]);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C);

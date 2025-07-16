@@ -166,7 +166,8 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl,
  */
 
 SUNErrCode SUNLinSolSetOptions_SPBCGS(SUNLinearSolver S, const char* LSid,
-                                      const char* file_name, int argc, char* argv[])
+                                      const char* file_name, int argc,
+                                      char* argv[])
 {
   if (file_name != NULL && strlen(file_name) > 0)
   {

@@ -46,9 +46,8 @@
  * ----------------------------------------------------------------------------
  */
 
-static SUNErrCode setFromCommandLine_SPTFQMR(SUNLinearSolver S,
-                                             const char* LSid, int argc,
-                                             char* argv[]);
+static SUNErrCode setFromCommandLine_SPTFQMR(SUNLinearSolver S, const char* LSid,
+                                             int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -167,7 +166,8 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl,
  */
 
 SUNErrCode SUNLinSolSetOptions_SPTFQMR(SUNLinearSolver S, const char* LSid,
-                                       const char* file_name, int argc, char* argv[])
+                                       const char* file_name, int argc,
+                                       char* argv[])
 {
   if (file_name != NULL && strlen(file_name) > 0)
   {
@@ -188,9 +188,8 @@ SUNErrCode SUNLinSolSetOptions_SPTFQMR(SUNLinearSolver S, const char* LSid,
  * Function to control set routines via the command line
  */
 
-static SUNErrCode setFromCommandLine_SPTFQMR(SUNLinearSolver S,
-                                             const char* LSid, int argc,
-                                             char* argv[])
+static SUNErrCode setFromCommandLine_SPTFQMR(SUNLinearSolver S, const char* LSid,
+                                             int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 

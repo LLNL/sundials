@@ -268,8 +268,8 @@ int mriStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
     MRIStepCoupling Coupling = MRIStepCoupling_LoadTableByName(argv[*argidx]);
     if (Coupling == NULL)
     {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "error setting key %s %s (invalid table name)",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "error setting key %s %s (invalid table name)",
                       argv[(*argidx) - 1], argv[*argidx]);
       return ARK_ILL_INPUT;
     }
@@ -277,8 +277,8 @@ int mriStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
     MRIStepCoupling_Free(Coupling);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, retval, __LINE__, __func__,
-                      __FILE__, "error setting key %s %s (SetCoupling failed)",
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting key %s %s (SetCoupling failed)",
                       argv[(*argidx) - 1], argv[*argidx]);
       return retval;
     }

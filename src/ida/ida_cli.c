@@ -24,8 +24,8 @@
 #include "ida_impl.h"
 #include "sundials_cli.h"
 
-static int idaSetFromCommandLine(void* ida_mem, const char* idaid,
-                                 int argc, char* argv[]);
+static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
+                                 char* argv[]);
 
 /*---------------------------------------------------------------
   IDASetOptions:
@@ -33,15 +33,15 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid,
   Sets IDA options using strings.
   ---------------------------------------------------------------*/
 
-int IDASetOptions(void* ida_mem, const char* idaid,
-                  const char* file_name, int argc, char* argv[])
+int IDASetOptions(void* ida_mem, const char* idaid, const char* file_name,
+                  int argc, char* argv[])
 {
   if (file_name != NULL && strlen(file_name) > 0)
   {
-      int retval = IDA_ILL_INPUT;
-      IDAProcessError(ida_mem, retval, __LINE__, __func__, __FILE__,
-                      "file-based options are not currently supported.");
-      return retval;
+    int retval = IDA_ILL_INPUT;
+    IDAProcessError(ida_mem, retval, __LINE__, __func__, __FILE__,
+                    "file-based options are not currently supported.");
+    return retval;
   }
 
   if (argc > 0 && argv != NULL)
@@ -57,8 +57,8 @@ int IDASetOptions(void* ida_mem, const char* idaid,
  * Function to control IDA options from the command line
  */
 
-static int idaSetFromCommandLine(void* ida_mem, const char* idaid,
-                                 int argc, char* argv[])
+static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
+                                 char* argv[])
 {
   IDAMem IDA_mem;
   if (ida_mem == NULL)
@@ -145,8 +145,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid,
     {
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting key: %s",
-                      int_pairs[j].key);
+                      "error setting key: %s", int_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -158,8 +157,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid,
     {
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting key: %s",
-                      long_pairs[j].key);
+                      "error setting key: %s", long_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -171,8 +169,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid,
     {
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting key: %s",
-                      real_pairs[j].key);
+                      "error setting key: %s", real_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -185,8 +182,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid,
     {
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting key: %s",
-                      tworeal_pairs[j].key);
+                      "error setting key: %s", tworeal_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;
@@ -199,8 +195,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid,
     {
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting key: %s",
-                      action_pairs[j].key);
+                      "error setting key: %s", action_pairs[j].key);
       return retval;
     }
     if (arg_used) continue;

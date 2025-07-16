@@ -221,7 +221,8 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads,
  */
 
 SUNErrCode SUNLinSolSetOptions_SuperLUMT(SUNLinearSolver S, const char* LSid,
-                                         const char* file_name, int argc, char* argv[])
+                                         const char* file_name, int argc,
+                                         char* argv[])
 {
   if (file_name != NULL && strlen(file_name) > 0)
   {
