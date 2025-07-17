@@ -270,23 +270,24 @@ static SUNErrCode setFromCommandLine_MagmaDense(SUNLinearSolver S,
                                                 const char* LSid, int argc,
                                                 char* argv[])
 {
-  SUNErrCode retval;
+  SUNFunctionBegin(S->sunctx);
+
+  /* Prefix for options to set */
+  const char* default_id = "sunlinearsolver";
+  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(LSid)+1,strlen(default_id)+1));
+  if (LSid != NULL && strlen(LSid) > 0) { strcpy(prefix, LSid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+  size_t offset = strlen(prefix);
+
   for (int idx = 1; idx < argc; idx++)
   {
-    /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
-       else, skip command-line arguments that do not begin with "magmadense." */
-    size_t offset;
-    if (LSid != NULL)
-    {
-      if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
-      offset = strlen(LSid) + 1;
-    }
-    else
-    {
-      static const char* prefix = "sunlinsol.";
-      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
-      offset = strlen(prefix);
-    }
+    SUNErrCode sunretval;
+    int j, retval;
+    sunbooleantype arg_used = SUNFALSE;
+
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* control over SetAsync function */
     if (strcmp(argv[idx] + offset, "async") == 0)
@@ -294,10 +295,11 @@ static SUNErrCode setFromCommandLine_MagmaDense(SUNLinearSolver S,
       idx += 1;
       int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_MagmaDense_SetAsync(S, iarg);
-      if (retval != SUN_SUCCESS) { return retval; }
+      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
       continue;
     }
   }
+  free(prefix);
   return SUN_SUCCESS;
 }
 

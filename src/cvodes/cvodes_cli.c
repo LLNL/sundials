@@ -91,6 +91,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
   static const struct sunKeyLongPair long_pairs[] =
     {{"lsetup_frequency", CVodeSetLSetupFrequency},
      {"max_num_steps", CVodeSetMaxNumSteps},
+     {"num_steps_eta_max_early_step", CVodeSetNumStepsEtaMaxEarlyStep},
      {"monitor_frequency", CVodeSetMonitorFrequency},
      {"jac_eval_frequency", CVodeSetJacEvalFrequency},
      {"proj_frequency", CVodeSetProjFrequency}};
@@ -158,26 +159,22 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
   static const int num_int_long_keys = sizeof(int_long_pairs) /
                                        sizeof(*int_long_pairs);
 
-  SUNErrCode sunretval;
-  int idx, j, retval;
-  for (idx = 1; idx < argc; idx++)
+/* Prefix for options to set */
+  const char* default_id = "cvodes";
+  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(cvid)+1,strlen(default_id)+1));
+  if (cvid != NULL && strlen(cvid) > 0) { strcpy(prefix, cvid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+  size_t offset = strlen(prefix);
+
+  for (int idx = 1; idx < argc; idx++)
   {
+    SUNErrCode sunretval;
+    int j, retval;
     sunbooleantype arg_used = SUNFALSE;
 
-    /* if cvid is supplied, skip command-line arguments that do not begin with cvid;
-       else, skip command-line arguments that do not begin with "cvodes." */
-    size_t offset;
-    if (cvid != NULL && strlen(cvid) > 0)
-    {
-      if (strncmp(argv[idx], cvid, strlen(cvid)) != 0) { continue; }
-      offset = strlen(cvid) + 1;
-    }
-    else
-    {
-      static const char* prefix = "cvodes.";
-      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
-      offset = strlen(prefix);
-    }
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* check all "int" command-line options */
     sunretval = sunCheckAndSetIntArgs(cvode_mem, &idx, argv, offset, int_pairs,
@@ -187,6 +184,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "error setting key: %s", int_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -199,6 +197,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "error setting key: %s", long_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -211,6 +210,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "error setting key: %s", real_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -224,6 +224,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "error setting key: %s", twoint_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -237,6 +238,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "error setting key: %s", tworeal_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -250,6 +252,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "error setting key: %s", action_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -263,6 +266,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "error setting key: %s", int_real_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -276,6 +280,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "error setting key: %s", int_long_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -290,6 +295,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
       retval = CV_ILL_INPUT;
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      "error setting key: %s", int_real_real_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -298,7 +304,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     cvProcessError(cv_mem, CV_WARNING, __LINE__, __func__, __FILE__,
                    "WARNING: key %s was not handled\n", argv[idx]);
   }
-
+  free(prefix);
   return (CV_SUCCESS);
 }
 

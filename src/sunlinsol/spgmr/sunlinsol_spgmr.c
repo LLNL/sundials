@@ -178,24 +178,22 @@ static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
 {
   SUNFunctionBegin(S->sunctx);
 
-  int idx;
-  SUNErrCode retval;
-  for (idx = 1; idx < argc; idx++)
+  /* Prefix for options to set */
+  const char* default_id = "sunlinearsolver";
+  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(LSid)+1,strlen(default_id)+1));
+  if (LSid != NULL && strlen(LSid) > 0) { strcpy(prefix, LSid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+  size_t offset = strlen(prefix);
+
+  for (int idx = 1; idx < argc; idx++)
   {
-    /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
-       else, skip command-line arguments that do not begin with "spgmr." */
-    size_t offset;
-    if (LSid != NULL && strlen(LSid) > 0)
-    {
-      if (strncmp(argv[idx], LSid, strlen(LSid)) != 0) { continue; }
-      offset = strlen(LSid) + 1;
-    }
-    else
-    {
-      static const char* prefix = "sunlinearsolver.";
-      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
-      offset = strlen(prefix);
-    }
+    SUNErrCode sunretval;
+    int j, retval;
+    sunbooleantype arg_used = SUNFALSE;
+
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* control over PrecType function */
     if (strcmp(argv[idx] + offset, "prec_type") == 0)
@@ -203,7 +201,7 @@ static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
       idx += 1;
       int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_SPGMRSetPrecType(S, iarg);
-      if (retval != SUN_SUCCESS) { return retval; }
+      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
       continue;
     }
 
@@ -213,7 +211,7 @@ static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
       idx += 1;
       int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_SPGMRSetGSType(S, iarg);
-      if (retval != SUN_SUCCESS) { return retval; }
+      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
       continue;
     }
 
@@ -223,7 +221,7 @@ static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
       idx += 1;
       int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_SPGMRSetMaxRestarts(S, iarg);
-      if (retval != SUN_SUCCESS) { return retval; }
+      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
       continue;
     }
 
@@ -233,10 +231,11 @@ static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
       idx += 1;
       int iarg = atoi(argv[idx]);
       retval   = SUNLinSolSetZeroGuess_SPGMR(S, iarg);
-      if (retval != SUN_SUCCESS) { return retval; }
+      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
       continue;
     }
   }
+  free(prefix);
   return SUN_SUCCESS;
 }
 

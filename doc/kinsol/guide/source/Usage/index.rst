@@ -702,6 +702,8 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       value of ``msbset`` should be a multiple of ``msbsetsub`` (see
       :c:func:`KINSetMaxSubSetupCalls`).
 
+      This routine will be called by :c:func:`KINSetOptions`
+      when using the key "kinid.max_setup_calls".
 
 .. c:function:: int KINSetMaxSubSetupCalls(void * kin_mem, long int msbsetsub)
 

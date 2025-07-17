@@ -133,27 +133,24 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"reset_accumulated_error", ARKodeResetAccumulatedError}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
-  int idx, j, retval;
-  SUNErrCode sunretval;
+  /* Prefix for options to set */
+  const char* default_id = "arkode";
+  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(arkid)+1,strlen(default_id)+1));
+  if (arkid != NULL && strlen(arkid) > 0) { strcpy(prefix, arkid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+  size_t offset = strlen(prefix);
+
   sunbooleantype write_parameters = SUNFALSE;
-  for (idx = 1; idx < argc; idx++)
+  int retval;
+  for (int idx = 1; idx < argc; idx++)
   {
+    SUNErrCode sunretval;
+    int j;
     sunbooleantype arg_used = SUNFALSE;
 
-    /* if arkid is supplied, skip command-line arguments that do not begin with arkid;
-       else, skip command-line arguments that do not begin with "arkode." */
-    size_t offset;
-    if (arkid != NULL && strlen(arkid) > 0)
-    {
-      if (strncmp(argv[idx], arkid, strlen(arkid)) != 0) { continue; }
-      offset = strlen(arkid) + 1;
-    }
-    else
-    {
-      static const char* prefix = "arkode.";
-      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
-      offset = strlen(prefix);
-    }
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* check all "int" command-line options */
     sunretval = sunCheckAndSetIntArgs(arkode_mem, &idx, argv, offset, int_pairs,
@@ -163,6 +160,7 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", int_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -175,6 +173,7 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", long_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -187,6 +186,7 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", real_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -200,6 +200,7 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", tworeal_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -213,6 +214,7 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", action_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -239,6 +241,7 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       {
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting key: %s %s", argv[idx - 1], argv[idx]);
+        free(prefix);
         return retval;
       }
       arg_used = SUNTRUE;
@@ -269,6 +272,7 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       {
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting key: %s %s", argv[idx - 1], argv[idx]);
+        free(prefix);
         return retval;
       }
       arg_used = SUNTRUE;
@@ -287,7 +291,7 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (ark_mem->step_setoption)
     {
       retval = ark_mem->step_setoption(ark_mem, &idx, argv, offset, &arg_used);
-      if (retval != ARK_SUCCESS) { return retval; }
+      if (retval != ARK_SUCCESS) { free(prefix); return retval; }
       if (arg_used) { continue; }
     }
 
@@ -307,10 +311,12 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error writing parameters to stdout");
+      free(prefix);
       return retval;
     }
   }
 
+  free(prefix);
   return (ARK_SUCCESS);
 }
 

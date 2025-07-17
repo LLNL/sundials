@@ -370,24 +370,22 @@ static SUNErrCode setFromCommandLine_FixedPoint(SUNNonlinearSolver NLS,
 {
   SUNFunctionBegin(NLS->sunctx);
 
-  int idx;
-  SUNErrCode retval;
-  for (idx = 1; idx < argc; idx++)
+  /* Prefix for options to set */
+  const char* default_id = "sunnonlinearsolver";
+  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(NLSid)+1,strlen(default_id)+1));
+  if (NLSid != NULL && strlen(NLSid) > 0) { strcpy(prefix, NLSid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+  size_t offset = strlen(prefix);
+
+  for (int idx = 1; idx < argc; idx++)
   {
-    /* if NLSid is supplied, skip command-line arguments that do not begin with NLSid;
-       else, skip command-line arguments that do not begin with "sunnonlinearsolver." */
-    size_t offset;
-    if (NLSid != NULL && strlen(NLSid) > 0)
-    {
-      if (strncmp(argv[idx], NLSid, strlen(NLSid)) != 0) { continue; }
-      offset = strlen(NLSid) + 1;
-    }
-    else
-    {
-      static const char* prefix = "sunnonlinearsolver.";
-      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
-      offset = strlen(prefix);
-    }
+    SUNErrCode sunretval;
+    int j, retval;
+    sunbooleantype arg_used = SUNFALSE;
+
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* control over MaxIters function */
     if (strcmp(argv[idx] + offset, "max_iters") == 0)
@@ -395,10 +393,11 @@ static SUNErrCode setFromCommandLine_FixedPoint(SUNNonlinearSolver NLS,
       idx += 1;
       int iarg = atoi(argv[idx]);
       retval   = SUNNonlinSolSetMaxIters_FixedPoint(NLS, iarg);
-      if (retval != SUN_SUCCESS) { return retval; }
+      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
       continue;
     }
   }
+  free(prefix);
   return SUN_SUCCESS;
 }
 

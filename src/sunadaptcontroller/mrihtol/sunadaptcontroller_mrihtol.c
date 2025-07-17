@@ -152,25 +152,24 @@ static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
 {
   SUNFunctionBegin(C->sunctx);
 
-  int idx;
-  SUNErrCode retval;
+  /* Prefix for options to set */
+  const char* default_id = "sunadaptcontroller";
+  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(Cid)+1,strlen(default_id)+1));
+  if (Cid != NULL && strlen(Cid) > 0) { strcpy(prefix, Cid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+  size_t offset = strlen(prefix);
+
+  int retval;
   sunbooleantype write_parameters = SUNFALSE;
-  for (idx = 1; idx < argc; idx++)
+  for (int idx = 1; idx < argc; idx++)
   {
-    /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
-       else, skip command-line arguments that do not begin with "sunadaptcontroller." */
-    size_t offset;
-    if (Cid != NULL && strlen(Cid) > 0)
-    {
-      if (strncmp(argv[idx], Cid, strlen(Cid)) != 0) { continue; }
-      offset = strlen(Cid) + 1;
-    }
-    else
-    {
-      static const char* prefix = "sunadaptcontroller.";
-      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
-      offset = strlen(prefix);
-    }
+    SUNErrCode sunretval;
+    int j;
+    sunbooleantype arg_used = SUNFALSE;
+
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* control over SetParams function */
     if (strcmp(argv[idx] + offset, "params") == 0)
@@ -182,7 +181,7 @@ static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
       idx += 1;
       sunrealtype rarg3 = SUNStrToReal(argv[idx]);
       retval = SUNAdaptController_SetParams_MRIHTol(C, rarg1, rarg2, rarg3);
-      if (retval != SUN_SUCCESS) { return retval; }
+      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
       continue;
     }
 
@@ -190,7 +189,7 @@ static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
     if (strcmp(argv[idx] + offset, "defaults") == 0)
     {
       retval = SUNAdaptController_SetDefaults_MRIHTol(C);
-      if (retval != SUN_SUCCESS) { return retval; }
+      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
       continue;
     }
 
@@ -200,7 +199,7 @@ static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
       idx += 1;
       sunrealtype rarg = SUNStrToReal(argv[idx]);
       retval           = SUNAdaptController_SetErrorBias_MRIHTol(C, rarg);
-      if (retval != SUN_SUCCESS) { return retval; }
+      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
       continue;
     }
 
@@ -219,9 +218,10 @@ static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
   if (write_parameters)
   {
     retval = SUNAdaptController_Write_MRIHTol(C, stdout);
-    if (retval != SUN_SUCCESS) { return retval; }
+    if (retval != SUN_SUCCESS) { free(prefix); return retval; }
   }
 
+  free(prefix);
   return SUN_SUCCESS;
 }
 

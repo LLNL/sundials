@@ -103,26 +103,22 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
   static const int num_tworeal_keys = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
-  SUNErrCode sunretval;
-  int idx, j, retval;
-  for (idx = 1; idx < argc; idx++)
+  /* Prefix for options to set */
+  const char* default_id = "kinsol";
+  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(kinid)+1,strlen(default_id)+1));
+  if (kinid != NULL && strlen(kinid) > 0) { strcpy(prefix, kinid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+  size_t offset = strlen(prefix);
+
+  for (int idx = 1; idx < argc; idx++)
   {
+    SUNErrCode sunretval;
+    int j, retval;
     sunbooleantype arg_used = SUNFALSE;
 
-    /* if kinid is supplied, skip command-line arguments that do not begin with kinid;
-       else, skip command-line arguments that do not begin with "kinsol." */
-    size_t offset;
-    if (kinid != NULL && strlen(kinid) > 0)
-    {
-      if (strncmp(argv[idx], kinid, strlen(kinid)) != 0) { continue; }
-      offset = strlen(kinid) + 1;
-    }
-    else
-    {
-      static const char* prefix = "kinsol.";
-      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
-      offset = strlen(prefix);
-    }
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* check all "int" command-line options */
     sunretval = sunCheckAndSetIntArgs(kinmem, &idx, argv, offset, int_pairs,
@@ -132,6 +128,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", int_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -144,6 +141,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", long_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -156,6 +154,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", real_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -169,6 +168,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
       retval = KIN_ILL_INPUT;
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", tworeal_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -177,7 +177,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
     KINProcessError(kin_mem, KIN_WARNING, __LINE__, __func__, __FILE__,
                     "WARNING: key %s was not handled\n", argv[idx]);
   }
-
+  free(prefix);
   return (KIN_SUCCESS);
 }
 

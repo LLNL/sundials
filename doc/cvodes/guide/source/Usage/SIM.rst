@@ -2023,6 +2023,9 @@ step size adaptivity.
       The factor :math:`\eta_{\mathrm{max\_es}}` can be set with
       :c:func:`CVodeSetEtaMaxEarlyStep`.
 
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.num_steps_eta_max_early_step".
+
    .. versionadded:: 6.2.0
 
 .. c:function:: int CVodeSetEtaMax(void* cvode_mem, sunrealtype eta_max_gs)

@@ -117,26 +117,22 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
      {"no_inactive_root_warn", IDASetNoInactiveRootWarn}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
-  SUNErrCode sunretval;
-  int idx, j, retval;
-  for (idx = 1; idx < argc; idx++)
+  /* Prefix for options to set */
+  const char* default_id = "ida";
+  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(idaid)+1,strlen(default_id)+1));
+  if (idaid != NULL && strlen(idaid) > 0) { strcpy(prefix, idaid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+  size_t offset = strlen(prefix);
+
+  for (int idx = 1; idx < argc; idx++)
   {
+    SUNErrCode sunretval;
+    int j, retval;
     sunbooleantype arg_used = SUNFALSE;
 
-    /* if idaid is supplied, skip command-line arguments that do not begin with idaid;
-       else, skip command-line arguments that do not begin with "ida." */
-    size_t offset;
-    if (idaid != NULL && strlen(idaid) > 0)
-    {
-      if (strncmp(argv[idx], idaid, strlen(idaid)) != 0) { continue; }
-      offset = strlen(idaid) + 1;
-    }
-    else
-    {
-      static const char* prefix = "ida.";
-      if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
-      offset = strlen(prefix);
-    }
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* check all "int" command-line options */
     sunretval = sunCheckAndSetIntArgs(ida_mem, &idx, argv, offset, int_pairs,
@@ -146,6 +142,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", int_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -158,6 +155,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", long_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -170,6 +168,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", real_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -183,6 +182,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", tworeal_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -196,6 +196,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
       retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", action_pairs[j].key);
+      free(prefix);
       return retval;
     }
     if (arg_used) continue;
@@ -204,7 +205,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     IDAProcessError(IDA_mem, IDA_WARNING, __LINE__, __func__, __FILE__,
                     "WARNING: key %s was not handled\n", argv[idx]);
   }
-
+  free(prefix);
   return (IDA_SUCCESS);
 }
 
