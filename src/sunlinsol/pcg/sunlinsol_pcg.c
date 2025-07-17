@@ -172,7 +172,8 @@ static SUNErrCode setFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
 
   /* Prefix for options to set */
   const char* default_id = "sunlinearsolver";
-  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(LSid)+1,strlen(default_id)+1));
+  char* prefix           = (char*)malloc(
+    sizeof(char) * SUNMAX(strlen(LSid) + 1, strlen(default_id) + 1));
   if (LSid != NULL && strlen(LSid) > 0) { strcpy(prefix, LSid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
@@ -193,7 +194,11 @@ static SUNErrCode setFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
       idx += 1;
       int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_PCGSetPrecType(S, iarg);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -203,7 +208,11 @@ static SUNErrCode setFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
       idx += 1;
       int iarg = atoi(argv[idx]);
       retval   = SUNLinSol_PCGSetMaxl(S, iarg);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -213,7 +222,11 @@ static SUNErrCode setFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
       idx += 1;
       int iarg = atoi(argv[idx]);
       retval   = SUNLinSolSetZeroGuess_PCG(S, iarg);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
   }

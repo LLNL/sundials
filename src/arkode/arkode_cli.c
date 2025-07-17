@@ -135,7 +135,8 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
 
   /* Prefix for options to set */
   const char* default_id = "arkode";
-  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(arkid)+1,strlen(default_id)+1));
+  char* prefix           = (char*)malloc(
+    sizeof(char) * SUNMAX(strlen(arkid) + 1, strlen(default_id) + 1));
   if (arkid != NULL && strlen(arkid) > 0) { strcpy(prefix, arkid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
@@ -291,7 +292,11 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (ark_mem->step_setoption)
     {
       retval = ark_mem->step_setoption(ark_mem, &idx, argv, offset, &arg_used);
-      if (retval != ARK_SUCCESS) { free(prefix); return retval; }
+      if (retval != ARK_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       if (arg_used) { continue; }
     }
 

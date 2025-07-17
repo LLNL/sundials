@@ -143,7 +143,8 @@ static SUNErrCode setFromCommandLine_ImExGus(SUNAdaptController C,
 
   /* Prefix for options to set */
   const char* default_id = "sunadaptcontroller";
-  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(Cid)+1,strlen(default_id)+1));
+  char* prefix           = (char*)malloc(sizeof(char) *
+                                         SUNMAX(strlen(Cid) + 1, strlen(default_id) + 1));
   if (Cid != NULL && strlen(Cid) > 0) { strcpy(prefix, Cid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
@@ -173,7 +174,11 @@ static SUNErrCode setFromCommandLine_ImExGus(SUNAdaptController C,
       sunrealtype rarg4 = SUNStrToReal(argv[idx]);
       retval = SUNAdaptController_SetParams_ImExGus(C, rarg1, rarg2, rarg3,
                                                     rarg4);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -181,7 +186,11 @@ static SUNErrCode setFromCommandLine_ImExGus(SUNAdaptController C,
     if (strcmp(argv[idx] + offset, "defaults") == 0)
     {
       retval = SUNAdaptController_SetDefaults_ImExGus(C);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -191,7 +200,11 @@ static SUNErrCode setFromCommandLine_ImExGus(SUNAdaptController C,
       idx += 1;
       sunrealtype rarg = SUNStrToReal(argv[idx]);
       retval           = SUNAdaptController_SetErrorBias_ImExGus(C, rarg);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -210,7 +223,11 @@ static SUNErrCode setFromCommandLine_ImExGus(SUNAdaptController C,
   if (write_parameters)
   {
     retval = SUNAdaptController_Write_ImExGus(C, stdout);
-    if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+    if (retval != SUN_SUCCESS)
+    {
+      free(prefix);
+      return retval;
+    }
   }
 
   free(prefix);

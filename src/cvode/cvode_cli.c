@@ -128,7 +128,8 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
 
   /* Prefix for options to set */
   const char* default_id = "cvode";
-  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(cvid)+1,strlen(default_id)+1));
+  char* prefix           = (char*)malloc(
+    sizeof(char) * SUNMAX(strlen(cvid) + 1, strlen(default_id) + 1));
   if (cvid != NULL && strlen(cvid) > 0) { strcpy(prefix, cvid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");

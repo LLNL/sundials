@@ -152,7 +152,8 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
 
   /* Prefix for options to set */
   const char* default_id = "sunadaptcontroller";
-  char* prefix = (char*) malloc(sizeof(char) * SUNMAX(strlen(Cid)+1,strlen(default_id)+1));
+  char* prefix           = (char*)malloc(sizeof(char) *
+                                         SUNMAX(strlen(Cid) + 1, strlen(default_id) + 1));
   if (Cid != NULL && strlen(Cid) > 0) { strcpy(prefix, Cid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
@@ -184,7 +185,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg5 = SUNStrToReal(argv[idx]);
       retval = SUNAdaptController_SetParams_Soderlind(C, rarg1, rarg2, rarg3,
                                                       rarg4, rarg5);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -198,7 +203,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
       idx += 1;
       sunrealtype rarg3 = SUNStrToReal(argv[idx]);
       retval = SUNAdaptController_SetParams_PID(C, rarg1, rarg2, rarg3);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -210,7 +219,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
       idx += 1;
       sunrealtype rarg2 = SUNStrToReal(argv[idx]);
       retval            = SUNAdaptController_SetParams_PI(C, rarg1, rarg2);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -220,7 +233,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
       idx += 1;
       sunrealtype rarg1 = SUNStrToReal(argv[idx]);
       retval            = SUNAdaptController_SetParams_I(C, rarg1);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -232,7 +249,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
       idx += 1;
       sunrealtype rarg2 = SUNStrToReal(argv[idx]);
       retval            = SUNAdaptController_SetParams_ExpGus(C, rarg1, rarg2);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -244,7 +265,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
       idx += 1;
       sunrealtype rarg2 = SUNStrToReal(argv[idx]);
       retval            = SUNAdaptController_SetParams_ImpGus(C, rarg1, rarg2);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -252,7 +277,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
     if (strcmp(argv[idx] + offset, "defaults") == 0)
     {
       retval = SUNAdaptController_SetDefaults_Soderlind(C);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -262,7 +291,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
       idx += 1;
       sunrealtype rarg = SUNStrToReal(argv[idx]);
       retval           = SUNAdaptController_SetErrorBias_Soderlind(C, rarg);
-      if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
       continue;
     }
 
@@ -281,7 +314,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
   if (write_parameters)
   {
     retval = SUNAdaptController_Write_Soderlind(C, stdout);
-    if (retval != SUN_SUCCESS) { free(prefix); return retval; }
+    if (retval != SUN_SUCCESS)
+    {
+      free(prefix);
+      return retval;
+    }
   }
 
   free(prefix);
