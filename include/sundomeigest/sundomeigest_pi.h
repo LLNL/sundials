@@ -41,7 +41,7 @@ struct _SUNDomEigEstimatorContent_PI
   N_Vector V, q; /* workspace vectors */
 
   int num_warmups; /* Power of A in the preprocessing; initial q = A^{num_warmups}q/||A^{num_warmups}q|| */
-  int max_iters;  /* Maximum number of power iterations */
+  int max_iters;   /* Maximum number of power iterations */
   int cur_num_iters; /* Current number of power iterations */
 
   int max_num_iters; /* Maximum number of power iterations so far */
@@ -50,7 +50,7 @@ struct _SUNDomEigEstimatorContent_PI
   long int num_ATimes; /* Number of ATimes calls */
 
   sunrealtype powiter_tol; /* Convergence criteria for the power iteration */
-  sunrealtype cur_res;      /* Current residual of power iterations */
+  sunrealtype cur_res;     /* Current residual of power iterations */
 };
 
 typedef struct _SUNDomEigEstimatorContent_PI* SUNDomEigEstimatorContent_PI;
@@ -87,7 +87,8 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                                  sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetCurRes_PI(SUNDomEigEstimator DEE, sunrealtype* cur_res);
+SUNErrCode SUNDomEigEst_GetCurRes_PI(SUNDomEigEstimator DEE,
+                                     sunrealtype* cur_res);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetCurNumIters_PI(SUNDomEigEstimator DEE, int* curniter);

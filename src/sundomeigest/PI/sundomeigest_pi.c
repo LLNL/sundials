@@ -28,12 +28,11 @@
 #define ONE  SUN_RCONST(1.0)
 
 /* Default estimator parameters */
-#define DEE_NUM_OF_WARMUPS_PI_DEFAULT   0
+#define DEE_NUM_OF_WARMUPS_PI_DEFAULT 0
 
 /* Default Power Iteration parameters */
 #define DEE_TOL_DEFAULT      SUN_RCONST(0.01)
 #define DEE_MAX_ITER_DEFAULT 100
-
 
 /*
  * -----------------------------------------------------------------
@@ -98,18 +97,18 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
   DEE->content = content;
 
   /* Fill content */
-  content->ATimes      = NULL;
-  content->ATdata      = NULL;
-  content->V           = NULL;
-  content->q           = NULL;
-  content->num_warmups  = DEE_NUM_OF_WARMUPS_PI_DEFAULT;
-  content->max_iters   = max_iters;
-  content->powiter_tol = ZERO;
-  content->cur_res      = ZERO;
+  content->ATimes        = NULL;
+  content->ATdata        = NULL;
+  content->V             = NULL;
+  content->q             = NULL;
+  content->num_warmups   = DEE_NUM_OF_WARMUPS_PI_DEFAULT;
+  content->max_iters     = max_iters;
+  content->powiter_tol   = ZERO;
+  content->cur_res       = ZERO;
   content->cur_num_iters = 0;
   content->max_num_iters = 0;
   content->min_num_iters = max_iters;
-  content->num_ATimes     = 0;
+  content->num_ATimes    = 0;
 
   /* Allocate content */
   content->q = N_VClone(q);
@@ -274,7 +273,7 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
     SUNCheckLastErr();
 
     PI_CONTENT(DEE)->cur_res = SUNRabs(newlambdaR - oldlambdaR) /
-                              SUNRabs(newlambdaR);
+                               SUNRabs(newlambdaR);
 
     if (PI_CONTENT(DEE)->cur_res < PI_CONTENT(DEE)->powiter_tol) { break; }
 
@@ -289,8 +288,8 @@ SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   }
 
   k++;
-  *lambdaI                     = ZERO;
-  *lambdaR                     = newlambdaR;
+  *lambdaI                       = ZERO;
+  *lambdaR                       = newlambdaR;
   PI_CONTENT(DEE)->cur_num_iters = k;
   PI_CONTENT(DEE)->max_num_iters =
     (k > PI_CONTENT(DEE)->max_num_iters) ? k : PI_CONTENT(DEE)->max_num_iters;

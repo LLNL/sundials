@@ -2231,9 +2231,10 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     /* After the first call to SUNDomEigEst_PreProcess, the number of warmups is set to
        num_succ_warmups, this allows the successive calls to
        SUNDomEigEst_PreProcess to use a diffirent number of warmups. */
-    if(step_mem->init_warmup)
+    if (step_mem->init_warmup)
     {
-      retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE, step_mem->num_succ_warmups);
+      retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
+                                             step_mem->num_succ_warmups);
       if (retval != SUN_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
@@ -2358,7 +2359,8 @@ int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv)
     step_mem->nfeDQ++;
     if (retval != ARK_SUCCESS)
     {
-      SUNLogExtraDebugVec(ARK_LOGGER, "DomEig JvTimes RHS", ark_mem->fn, "F_n(:) =");
+      SUNLogExtraDebugVec(ARK_LOGGER, "DomEig JvTimes RHS", ark_mem->fn,
+                          "F_n(:) =");
       SUNLogInfo(ARK_LOGGER, "DomEig JvTimes",
                  "status = failed rhs eval, retval = %i", retval);
       return (ARK_RHSFUNC_FAIL);

@@ -118,15 +118,15 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int kry_dim, SUNContext sunctx)
   content->ATdata      = NULL;
   content->V           = NULL;
   content->q           = NULL;
-  content->kry_dim      = kry_dim;
-  content->num_warmups  = DEE_NUM_OF_WARMUPS_ARNI_DEFAULT;
+  content->kry_dim     = kry_dim;
+  content->num_warmups = DEE_NUM_OF_WARMUPS_ARNI_DEFAULT;
   content->LAPACK_A    = NULL;
   content->LAPACK_wr   = NULL;
   content->LAPACK_wi   = NULL;
   content->LAPACK_work = NULL;
   content->LAPACK_arr  = NULL;
   content->Hes         = NULL;
-  content->num_ATimes     = 0;
+  content->num_ATimes  = 0;
 
   /* Allocate content */
   content->q = N_VClone(q);
@@ -177,7 +177,8 @@ SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE)
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
   ArnI_CONTENT(DEE)->LAPACK_A = (sunrealtype*)malloc(
-    (ArnI_CONTENT(DEE)->kry_dim * ArnI_CONTENT(DEE)->kry_dim) * sizeof(sunrealtype));
+    (ArnI_CONTENT(DEE)->kry_dim * ArnI_CONTENT(DEE)->kry_dim) *
+    sizeof(sunrealtype));
   SUNAssertNull(ArnI_CONTENT(DEE)->LAPACK_A, SUN_ERR_MALLOC_FAIL);
   ArnI_CONTENT(DEE)->LAPACK_wr =
     malloc(ArnI_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));

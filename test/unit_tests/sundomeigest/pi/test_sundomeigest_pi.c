@@ -51,14 +51,14 @@ int main(int argc, char* argv[])
   int passfail           = 0;     /* overall pass/fail flag     */
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
   UserData ProbData;              /* problem data structure     */
-  int num_warmups;                 /* number of the preprocessing warmups */
+  int num_warmups;                /* number of the preprocessing warmups */
   int max_iters;                  /* max power iteration        */
   int curniter;                   /* cur. number of iterations  */
-  int max_niter;                   /* max. number of iterations  */
-  int min_niter;                   /* min. number of iterations  */
-  long int num_ATimes;               /* number of ATimes calls     */
+  int max_niter;                  /* max. number of iterations  */
+  int min_niter;                  /* min. number of iterations  */
+  long int num_ATimes;            /* number of ATimes calls     */
   int print_timing;               /* timing output flag         */
-  sunrealtype cur_res;             /* current residual           */
+  sunrealtype cur_res;            /* current residual           */
   sunrealtype lambdaR, lambdaI;   /* computed domeig parts      */
   sunrealtype tlambdaR, tlambdaI; /* true domeig parts          */
   SUNContext sunctx;

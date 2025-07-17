@@ -292,7 +292,6 @@ __global__ void minQuotientKernel(const T MAX_VAL, const T* num, const T* den,
   GridReducer<T, op>{}(minimum, Id, min_quotient, device_count);
 }
 
-
 } // namespace impl
 } // namespace cuda
 } // namespace sundials

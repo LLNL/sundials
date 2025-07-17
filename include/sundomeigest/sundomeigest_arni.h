@@ -39,8 +39,8 @@ struct _SUNDomEigEstimatorContent_ArnI
   void* ATdata;       /* ATimes function data*/
 
   /* Krylov subspace vectors */
-  N_Vector *V; 
-  N_Vector  q;
+  N_Vector* V;
+  N_Vector q;
 
   int kry_dim;     /* Krylov subspace dimension */
   int num_warmups; /* Power of A in the preprocessing; initial q = A^{num_warmups}q/||A^{num_warmups}q|| */

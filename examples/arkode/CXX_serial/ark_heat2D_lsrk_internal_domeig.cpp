@@ -129,13 +129,13 @@ struct UserData
   N_Vector e;    // error vector
 
   // DEE options
-  int dee_id;              // DEE ID
-  int dee_num_init_wups;   // number of initial warmups before the first estimate
-  int dee_num_succ_wups;   // number of succeeding warmups before each estimate
-  int dee_max_iters;       // max number of iterations
-  int dee_krylov_dim;      // Krylov dimension for DEE
-  double dee_reltol;       // tolerance
-  bool dee_nostats;        // DEE stats flag
+  int dee_id;            // DEE ID
+  int dee_num_init_wups; // number of initial warmups before the first estimate
+  int dee_num_succ_wups; // number of succeeding warmups before each estimate
+  int dee_max_iters;     // max number of iterations
+  int dee_krylov_dim;    // Krylov dimension for DEE
+  double dee_reltol;     // tolerance
+  bool dee_nostats;      // DEE stats flag
 
   // Timing variables
   bool timing; // print timings
@@ -352,8 +352,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
   // Set the number of preprocessing warmups before each estimate call
-  flag = LSRKStepSetNumSucceedingWarmups(arkode_mem,
-                                         udata->dee_num_succ_wups);
+  flag = LSRKStepSetNumSucceedingWarmups(arkode_mem, udata->dee_num_succ_wups);
   if (check_flag(&flag, "LSRKStepSetNumSucceedingWarmups", 1)) { return 1; }
 
   // Set fixed step size or adaptivity method
@@ -615,13 +614,13 @@ static int InitUserData(UserData* udata)
   udata->e      = NULL;
 
   // DEE options
-  udata->dee_id              = 1; // DEE ID (0 for PI and 1 for ArnI)
-  udata->dee_num_init_wups   = 20;
-  udata->dee_num_succ_wups   = 5;
-  udata->dee_max_iters       = 100;
-  udata->dee_krylov_dim      = 3;
-  udata->dee_reltol          = 0.01;
-  udata->dee_nostats         = false;
+  udata->dee_id            = 1; // DEE ID (0 for PI and 1 for ArnI)
+  udata->dee_num_init_wups = 20;
+  udata->dee_num_succ_wups = 5;
+  udata->dee_max_iters     = 100;
+  udata->dee_krylov_dim    = 3;
+  udata->dee_reltol        = 0.01;
+  udata->dee_nostats       = false;
 
   // Timing variables
   udata->timing     = false;
@@ -841,8 +840,7 @@ static void InputHelp()
   cout << "  --dee_id <id>               : DomEig Estimator (DEE) id (PI: 0, "
           "ArnI: 1)"
        << endl;
-  cout << "  --dee_num_init_wups <num>   : number of DEE initial warmups"
-       << endl;
+  cout << "  --dee_num_init_wups <num>   : number of DEE initial warmups" << endl;
   cout << "  --dee_num_succ_wups <num>  : number of DEE succeeding warmups"
        << endl;
   cout << "  --dee_max_iters <num>       : max iterations in DEE" << endl;
