@@ -36,8 +36,7 @@ functions: :c:func:`SUNDomEigEst_NewEmpty` creates a new empty ``SUNDomEigEstima
 object, :c:func:`SUNDomEigEst_SetATimes` provides a :c:type:`SUNATimesFn` function pointer,
 as well as a ``void*`` pointer to a data structure used by this routine,
 :c:func:`SUNDomEigEst_Initialize` initializes the estimator object once all estimator-specific
-options have been set, :c:func:`SUNDomEigEst_ComputeHess` computes Hessenberg matrix
-(if the estimator requires), :c:func:`SUNDomEig_Estimate` estimates the dominant eigenvalue,
+options have been set, :c:func:`SUNDomEig_Estimate` estimates the dominant eigenvalue,
 :c:func:`SUNDomEigEst_FreeEmpty` an empty estimator and :c:func:`SUNDomEigEst_Destroy` destroys 
 an estimator object.
 
@@ -111,36 +110,6 @@ to "warm-up" the estimator for a more appropriate initial vector before starting
       .. code-block:: c
 
          retval = SUNDomEigEst_Initialize(DEE);
-
-
-.. c:function:: SUNErrCode SUNDomEigEst_ComputeHess(SUNDomEigEstimator DEE)
-
-   *Required* for some estimators (e.g., ARNOLDI) and *not applicable* for others (e.g., POWER)
-
-   Performs Hessenberg matrix computation (assuming that the estimator is
-   already initialized and preprocessed (if desired)).
-
-   **Arguments:**
-
-      * *DEE* -- a SUNDomEigEst object.
-
-   **Return value:**
-
-      `SUN_SUCCESS` for a successful call, or a relevant error code from  
-      :numref:`SUNDomEigEst.ErrorCodes` upon failure.  
-
-   **Usage:**
-
-      .. code-block:: c
-
-         retval = SUNDomEigEst_ComputeHess(DEE);
-
-   **Notes:**
-
-      This routine must be called after initialization with :c:func:`SUNDomEigEst_Initialize`.
-
-      Optional :c:func:`SUNDomEigEst_PreProcess` must be called (if requested) right after
-      the initialization and right before this function call.
 
 
 .. c:function:: SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
@@ -547,10 +516,6 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEst_PreProcess`
 
-   .. c:member:: SUNErrCode (*computehess)(SUNDomEigEstimator)
-
-      The function implementing :c:func:`SUNDomEigEst_ComputeHess`
-
    .. c:member:: SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*)
 
       The function implementing :c:func:`SUNDomEig_Estimate`
@@ -649,8 +614,6 @@ the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_PreProcess`                  |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_ComputeHess`\ :sup:`1`       |         N/A         |          X          |
-   +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEig_Estimate`                       |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_GetCurRes`\ :sup:`2`         |          O          |          O          |
@@ -671,10 +634,9 @@ the interested reader.
 
 Notes:
 
-1. :c:func:`SUNDomEigEst_SetMaxIters()`, :c:func:`SUNDomEigEst_SetTol()` and 
-   :c:func:`SUNDomEigEst_ComputeHess()` might or might not be required depending on
-   ``SUNDomEigEstimator`` implementation that is being used. These flags must be left
-   ``NULL`` if it is not applicable for an estimator.
+1. :c:func:`SUNDomEigEst_SetMaxIters()` and :c:func:`SUNDomEigEst_SetTol()` might or 
+   might not be required depending on ``SUNDomEigEstimator`` implementation that is being used. 
+   These flags must be left ``NULL`` if it is not applicable for an estimator.
 
 2. Although :c:func:`SUNDomEigEst_GetCurRes()` is optional, if it is not
    implemented by the ``SUNDomEigEstimator`` then the interface will consider all

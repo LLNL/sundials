@@ -95,7 +95,6 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int kry_dim, SUNContext sunctx)
   DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreProcess_ArnI;
   DEE->ops->initialize        = SUNDomEigEst_Initialize_ArnI;
   DEE->ops->preprocess        = SUNDomEigEst_PreProcess_ArnI;
-  DEE->ops->computehess       = SUNDomEigEst_ComputeHess_ArnI;
   DEE->ops->estimate          = SUNDomEig_Estimate_ArnI;
   DEE->ops->getcurres         = NULL;
   DEE->ops->getcurniters      = NULL;
@@ -179,13 +178,13 @@ SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE)
   ArnI_CONTENT(DEE)->LAPACK_A = (sunrealtype*)malloc(
     (ArnI_CONTENT(DEE)->kry_dim * ArnI_CONTENT(DEE)->kry_dim) *
     sizeof(sunrealtype));
-  SUNAssertNull(ArnI_CONTENT(DEE)->LAPACK_A, SUN_ERR_MALLOC_FAIL);
+  SUNAssert(ArnI_CONTENT(DEE)->LAPACK_A, SUN_ERR_MALLOC_FAIL);
   ArnI_CONTENT(DEE)->LAPACK_wr =
     malloc(ArnI_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
-  SUNAssertNull(ArnI_CONTENT(DEE)->LAPACK_wr, SUN_ERR_MALLOC_FAIL);
+  SUNAssert(ArnI_CONTENT(DEE)->LAPACK_wr, SUN_ERR_MALLOC_FAIL);
   ArnI_CONTENT(DEE)->LAPACK_wi =
     malloc(ArnI_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
-  SUNAssertNull(ArnI_CONTENT(DEE)->LAPACK_wi, SUN_ERR_MALLOC_FAIL);
+  SUNAssert(ArnI_CONTENT(DEE)->LAPACK_wi, SUN_ERR_MALLOC_FAIL);
 
   /* query the workspace size (call with lwork = -1) */
   char jobvl         = 'N';
@@ -217,16 +216,13 @@ SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE)
   }
 
   /* Hessenberg matrix Hes */
-  if (ArnI_CONTENT(DEE)->Hes == NULL)
-  {
-    ArnI_CONTENT(DEE)->Hes = (sunrealtype**)malloc(
-      (ArnI_CONTENT(DEE)->kry_dim + 1) * sizeof(sunrealtype*));
+  ArnI_CONTENT(DEE)->Hes = (sunrealtype**)malloc(
+    (ArnI_CONTENT(DEE)->kry_dim + 1) * sizeof(sunrealtype*));
 
-    for (int k = 0; k <= ArnI_CONTENT(DEE)->kry_dim; k++)
-    {
-      ArnI_CONTENT(DEE)->Hes[k] =
-        (sunrealtype*)malloc(ArnI_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
-    }
+  for (int k = 0; k <= ArnI_CONTENT(DEE)->kry_dim; k++)
+  {
+    ArnI_CONTENT(DEE)->Hes[k] =
+      (sunrealtype*)malloc(ArnI_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
   }
 
   sunrealtype normq = N_VDotProd(ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->q);
@@ -285,26 +281,31 @@ SUNErrCode SUNDomEigEst_PreProcess_ArnI(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_ComputeHess_ArnI(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                                   sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
+  SUNAssert(lambdaR, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(lambdaI, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
   SUNAssert(ArnI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
 
-  int retval, i, j;
+  int retval;
+  sunindextype n = ArnI_CONTENT(DEE)->kry_dim;
+
   /* Initialize the Hessenberg matrix Hes with zeros */
-  for (i = 0; i < ArnI_CONTENT(DEE)->kry_dim; i++)
+  for (int i = 0; i < n; i++)
   {
-    for (j = 0; j < ArnI_CONTENT(DEE)->kry_dim; j++)
+    for (int j = 0; j < n; j++)
     {
       ArnI_CONTENT(DEE)->Hes[i][j] = ZERO;
     }
   }
 
-  for (i = 0; i < ArnI_CONTENT(DEE)->kry_dim; i++)
+  for (int i = 0; i < n; i++)
   {
     /* Compute the next Krylov vector */
     retval = ArnI_CONTENT(DEE)->ATimes(ArnI_CONTENT(DEE)->ATdata,
@@ -318,7 +319,7 @@ SUNErrCode SUNDomEigEst_ComputeHess_ArnI(SUNDomEigEstimator DEE)
     }
 
     SUNCheckCall(SUNModifiedGS(ArnI_CONTENT(DEE)->V, ArnI_CONTENT(DEE)->Hes,
-                               i + 1, ArnI_CONTENT(DEE)->kry_dim,
+                               i + 1, (int)n,
                                &(ArnI_CONTENT(DEE)->Hes[i + 1][i])));
 
     /* Unitize the computed orthogonal vector */
@@ -326,23 +327,6 @@ SUNErrCode SUNDomEigEst_ComputeHess_ArnI(SUNDomEigEstimator DEE)
              ArnI_CONTENT(DEE)->V[i + 1], ArnI_CONTENT(DEE)->V[i + 1]);
     SUNCheckLastErr();
   }
-
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                                   sunrealtype* lambdaI)
-{
-  SUNFunctionBegin(DEE->sunctx);
-
-  SUNAssert(lambdaR, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(lambdaI, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
-  SUNAssert(ArnI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
-
-  sunindextype n = ArnI_CONTENT(DEE)->kry_dim;
 
   /* Reshape the Hessenberg matrix as an input vector for the LAPACK dgeev_ function */
   int k = 0;

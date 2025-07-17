@@ -172,8 +172,6 @@ dominant eigenvalue estimator operations listed in
 
 * ``SUNDomEigEst_PreProcess_ArnI``
 
-* ``SUNDomEigEst_ComputeHess_ArnI``
-
 * ``SUNDomEig_Estimate_ArnI``
 
 * ``SUNDomEigEst_Destroy_ArnI``

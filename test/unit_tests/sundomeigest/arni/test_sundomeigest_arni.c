@@ -152,7 +152,6 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEst_SetTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEst_Initialize(DEE, 0);
   fails += Test_SUNDomEigEst_PreProcess(DEE, 0);
-  fails += Test_SUNDomEigEst_ComputeHess(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
   // SUNDomEigEst_GetCurRes, SUNDomEigEst_GetCurNumIters, SUNDomEigEst_GetMaxNumIters
   // and SUNDomEigEst_GetMinNumIters are not options for Arnoldi iteration.

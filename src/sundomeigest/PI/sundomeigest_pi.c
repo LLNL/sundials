@@ -78,7 +78,6 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
   DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreProcess_PI;
   DEE->ops->initialize        = SUNDomEigEst_Initialize_PI;
   DEE->ops->preprocess        = SUNDomEigEst_PreProcess_PI;
-  DEE->ops->computehess       = NULL;
   DEE->ops->estimate          = SUNDomEig_Estimate_PI;
   DEE->ops->getcurres         = SUNDomEigEst_GetCurRes_PI;
   DEE->ops->getcurniters      = SUNDomEigEst_GetCurNumIters_PI;

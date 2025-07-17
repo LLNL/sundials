@@ -148,9 +148,6 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEst_SetTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEst_Initialize(DEE, 0);
   fails += Test_SUNDomEigEst_PreProcess(DEE, 0);
-  // Test_SUNDomEigEst_ComputeHess is not an option for power iteration.
-  // It should return with SUN_SUCCESS
-  fails += Test_SUNDomEigEst_ComputeHess(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
   fails += Test_SUNDomEigEst_GetCurRes(DEE, &cur_res, 0);
   if (cur_res < SUN_SMALL_REAL)

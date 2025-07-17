@@ -2244,17 +2244,6 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       step_mem->init_warmup = SUNFALSE;
     }
 
-    if (step_mem->DEE->ops->computehess != NULL)
-    {
-      retval = step_mem->DEE->ops->computehess(step_mem->DEE);
-      if (retval != SUN_SUCCESS)
-      {
-        arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_DEE_FAIL);
-        return ARK_DEE_FAIL;
-      }
-    }
-
     retval = SUNDomEig_Estimate(step_mem->DEE, &step_mem->lambdaR,
                                 &step_mem->lambdaI);
     step_mem->dom_eig_num_evals++;
