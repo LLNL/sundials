@@ -21,8 +21,8 @@ The SUNDomEigEst_ARNI implementation of the ``SUNDomEigEstimator`` class perform
 the Arnoldi Iteration (ArnI) method :cite:p:`arnoldi51`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
-:c:func:`N_VCloneVectorArray()`, :c:func:`N_VDotProd()`, :c:func:`N_VLinearSum()`,
-:c:func:`N_VScale()`, :c:func:`N_VDestroy()`, and :c:func:`N_VDestroyVectorArray()`).
+:c:func:`N_VCloneVectorArray()`, :c:func:`N_VDotProd()`, :c:func:`N_VScale()`, 
+:c:func:`N_VDestroy()`, and :c:func:`N_VDestroyVectorArray()`).
 
 ArnI is particularly effective for large, sparse matrices where only the dominant
 eigenvalue is needed.  It constructs an orthonormal basis of the Krylov subspace
@@ -65,14 +65,14 @@ This LAPACK dependence is limited to the eigenvalue estimation of the Hessenberg
 The module SUNDomEigEst_ARNI provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int krydim, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int kry_dim, SUNContext sunctx)
 
    This constructor function creates and allocates memory for an ARNI
    ``SUNDomEigEstimator``.
 
    **Arguments:**
       * *q* -- a template vector.
-      * *krydim* -- the dimension of the Krylov subspaces.
+      * *kry_dim* -- the dimension of the Krylov subspaces.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
@@ -84,7 +84,7 @@ The module SUNDomEigEst_ARNI provides the following user-callable routines:
       called with a consistent ``N_Vector`` implementation (i.e.  that it
       supplies the requisite vector operations).
 
-      A ``krydim`` argument that is :math:`\leq 2` will result in the default
+      A ``kry_dim`` argument that is :math:`\leq 2` will result in the default
       value (3).  This default value is particularly chosen to minimize the memory
       footprint.
 
@@ -104,8 +104,8 @@ The SUNDomEigEst_ARNI module defines the *content* field of a
      void* ATdata;
      N_Vector* V;
      N_Vector q;
-     int krydim;
-     int numwarmups;
+     int kry_dim;
+     int num_warmups;
      sunrealtype* LAPACK_A;
      sunrealtype* LAPACK_wr;
      sunrealtype* LAPACK_wi;
@@ -124,9 +124,9 @@ information:
 
 * ``V, q``   - ``N_Vector`` used for workspace by the ARNI algorithm.
 
-* ``krydim`` - dimension of Krylov subspaces (default is 3),
+* ``kry_dim`` - dimension of Krylov subspaces (default is 3),
 
-* ``numwarmups`` - number of preprocessing warmups (default is 0),
+* ``num_warmups`` - number of preprocessing warmups (default is 0),
 
 * ``LAPACK_A, LAPACK_wr, LAPACK_wi, LAPACK_work`` - ``sunrealtype`` used for workspace by LAPACK,
 
@@ -152,7 +152,7 @@ This estimator is constructed to perform the following operations:
   workspace is allocated.
 
 * In the "preprocess" call, the initial nonzero vector :math:`q_0` is warmed up
-  :math:`k=` ``numwarmups`` times as
+  :math:`k=` ``num_warmups`` times as
 
 .. math::
 

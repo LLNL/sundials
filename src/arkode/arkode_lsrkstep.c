@@ -331,8 +331,8 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL && step_mem->DEE == NULL)
   {
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                    "STS methods require either a user provided or an internal "
-                    "dominant eigenvalue estimation");
+                    "STS methods require either a user provided dominant "
+                    "eigenvalue function or a SUNDomEigEstimator");
     return ARK_DOMEIG_FAIL;
   }
 
@@ -2075,6 +2075,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->stage_max_limit);
     fprintf(outfile, "LSRKStep: dom_eig_freq          = %li\n",
             step_mem->dom_eig_freq);
+    fprintf(outfile, "LSRKStep: num_succ_warmups      = %i\n",
+            step_mem->num_succ_warmups);
 
     /* output long integer quantities */
     fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
@@ -2108,7 +2110,13 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
     if (step_mem->DEE != NULL)
     {
-      step_mem->DEE->ops->printstats(step_mem->DEE, outfile);
+      retval = SUNDomEigEst_PrintStats(step_mem->DEE, outfile);
+      if (retval != SUN_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_DEE_FAIL);
+        return;
+      }
     }
   }
   else
@@ -2210,28 +2218,35 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if (step_mem->DEE != NULL)
   {
-    /* Preprocess the DEE if it has not already warmup'ed yet */
+    /* Preprocess the DEE */
     /* Set the initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
-
-    /* TODO: As an alternative approach, we can attach DEE to the ark_mem and preprocess 
-    in arkInit. This way, it can be reused for other ARK solvers and won't require 
-    this check point eveytime. What do you think? */
-    if (!step_mem->warmedup && step_mem->DEE->ops->preprocess != NULL)
+    retval = SUNDomEigEst_PreProcess(step_mem->DEE);
+    if (retval != SUN_SUCCESS)
     {
-      retval = step_mem->DEE->ops->preprocess(step_mem->DEE);
-      if (retval != ARK_SUCCESS)
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
+      return ARK_DEE_FAIL;
+    }
+
+    /* After the first call to SUNDomEigEst_PreProcess, the number of warmups is set to
+       num_succ_warmups, this allows the successive calls to
+       SUNDomEigEst_PreProcess to use a diffirent number of warmups. */
+    if(step_mem->init_warmup)
+    {
+      retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE, step_mem->num_succ_warmups);
+      if (retval != SUN_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
                         MSG_ARK_DEE_FAIL);
-
         return ARK_DEE_FAIL;
       }
+      step_mem->init_warmup = SUNFALSE;
     }
 
     if (step_mem->DEE->ops->computehess != NULL)
     {
       retval = step_mem->DEE->ops->computehess(step_mem->DEE);
-      if (retval != ARK_SUCCESS)
+      if (retval != SUN_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
                         MSG_ARK_DEE_FAIL);
@@ -2239,24 +2254,14 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       }
     }
 
-    if (step_mem->DEE->ops->estimate != NULL)
+    retval = SUNDomEig_Estimate(step_mem->DEE, &step_mem->lambdaR,
+                                &step_mem->lambdaI);
+    step_mem->dom_eig_num_evals++;
+    if (retval != SUN_SUCCESS)
     {
-      retval = step_mem->DEE->ops->estimate(step_mem->DEE, &step_mem->lambdaR,
-                                            &step_mem->lambdaI);
-      step_mem->dom_eig_num_evals++;
-      if (retval != ARK_SUCCESS)
-      {
-        arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_DEE_FAIL);
-        return ARK_DEE_FAIL;
-      }
-    }
-    else
-    {
-      arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to estimate the dominant eigenvalue: "
-                      "SUNDIALS DEE does not support estimate operation");
-      return ARK_DOMEIG_FAIL;
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
+      return ARK_DEE_FAIL;
     }
   }
   else if (step_mem->dom_eig_fn != NULL)
@@ -2340,14 +2345,6 @@ int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  /* Check if ark_mem was allocated */
-  if (ark_mem->MallocDone == SUNFALSE)
-  {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MALLOC);
-    return ARK_NO_MALLOC;
-  }
-
   sunrealtype t = ark_mem->tn;
   N_Vector y    = ark_mem->yn;
   N_Vector work = ark_mem->tempv3;
@@ -2361,8 +2358,8 @@ int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv)
     step_mem->nfeDQ++;
     if (retval != ARK_SUCCESS)
     {
-      SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
-      SUNLogInfo(ARK_LOGGER, "end-stage",
+      SUNLogExtraDebugVec(ARK_LOGGER, "DomEig JvTimes RHS", ark_mem->fn, "F_n(:) =");
+      SUNLogInfo(ARK_LOGGER, "DomEig JvTimes",
                  "status = failed rhs eval, retval = %i", retval);
       return (ARK_RHSFUNC_FAIL);
     }

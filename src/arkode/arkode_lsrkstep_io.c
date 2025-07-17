@@ -320,6 +320,30 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 }
 
 /*---------------------------------------------------------------
+  LSRKStepSetNumSucceedingWarmups sets the number of the preprocessing
+  warmups before each estimate call succeeding the very first estimate call.
+  ---------------------------------------------------------------*/
+int LSRKStepSetNumSucceedingWarmups(void* arkode_mem, int num_succ_warmups)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (num_succ_warmups < 0)
+  {
+    step_mem->num_succ_warmups = DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT;
+  }
+  else { step_mem->num_succ_warmups = num_succ_warmups; }
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
   LSRKStepSetNumSSPStages sets the number of stages in the following
   SSP methods:
 
@@ -580,11 +604,11 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepGetNumRHSinDQ:
+  LSRKStepGetNumDomEigEstRhsEvals:
 
   Returns the number of RHS evals in DQ Jacobian computations
   ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int LSRKStepGetNumRHSinDQ(void* arkode_mem, long int* nfeDQ)
+int LSRKStepGetNumDomEigEstRhsEvals(void* arkode_mem, long int* nfeDQ)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -640,13 +664,14 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->spectral_radius_min = ZERO;
   step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
   step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
+  step_mem->num_succ_warmups    = DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;
   step_mem->const_Jac          = SUNFALSE;
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
-  step_mem->warmedup           = SUNFALSE;
+  step_mem->init_warmup        = SUNFALSE;
 
   /* Load the default SUNAdaptController */
   retval = arkReplaceAdaptController(ark_mem, NULL, SUNTRUE);
@@ -758,6 +783,8 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
             step_mem->dom_eig_safety);
     fprintf(fp, "  Max num of successful steps before new dom eig update = %li\n",
             step_mem->dom_eig_freq);
+    fprintf(fp, "  Number of succeeding preprocessing warmups = %i\n",
+            step_mem->num_succ_warmups);
     fprintf(fp, "  Flag to indicate Jacobian is constant = %d\n",
             step_mem->const_Jac);
     break;

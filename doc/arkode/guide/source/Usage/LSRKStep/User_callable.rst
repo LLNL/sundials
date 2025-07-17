@@ -290,6 +290,22 @@ Allowable Method Families
    set to :math:`1.01`. Calling this function with ``dom_eig_safety < 1`` resets the default value.
 
 
+.. c:function:: int LSRKStepSetNumSucceedingWarmups(void* arkode_mem, int num_succ_warmups);
+
+   Specifies the number of the preprocessing warmups before each estimate call succeeding the very first estimate call.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *num_succ_warmups* -- the number of succeeding warmups.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+
+.. note:: If LSRKStepSetNumSucceedingWarmups routine is not called, then the default ``num_succ_warmups`` is set to :math:`0`.
+   Calling this function with ``num_succ_warmups < 0`` resets the default.
+
+
 .. c:function:: int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods.
@@ -346,7 +362,7 @@ Optional output functions
       * *ARK_ILL_INPUT* if ``stage_max`` is illegal
 
 
-.. c:function:: int LSRKStepGetNumRHSinDQ(void* arkode_mem, long int* nfeDQ);
+.. c:function:: int LSRKStepGetNumDomEigEstRhsEvals(void* arkode_mem, long int* nfeDQ);
 
    Returns the number of RHS function evaluations used in the difference quotient
    Jacobian approximations (so far).

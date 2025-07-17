@@ -18,5 +18,4 @@
    :maxdepth: 1
 
    SUNDomEigEst_API_link.rst
-   SUNDomEigEst_package_links.rst
    SUNDomEigEst_links.rst

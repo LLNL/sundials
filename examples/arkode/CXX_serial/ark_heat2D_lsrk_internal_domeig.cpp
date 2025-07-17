@@ -130,7 +130,8 @@ struct UserData
 
   // DEE options
   int dee_id;              // DEE ID
-  int dee_numofpreprocess; // number of DEE preprocessings
+  int dee_num_init_wups;   // number of initial warmups before the first estimate
+  int dee_num_succ_wups;   // number of succeeding warmups before each estimate
   int dee_max_iters;       // max number of iterations
   int dee_krylov_dim;      // Krylov dimension for DEE
   double dee_reltol;       // tolerance
@@ -314,8 +315,14 @@ int main(int argc, char* argv[])
   N_VDestroy(q);
 
   /* Specify the number of preprocessing warmups. */
-  flag = SUNDomEigEst_SetNumPreProcess(DEE, udata->dee_numofpreprocess);
+  flag = SUNDomEigEst_SetNumPreProcess(DEE, udata->dee_num_init_wups);
   if (check_flag(&flag, "SUNDomEigEst_SetNumPreProcess", 2)) { return 1; }
+
+  /* Specify the succeeding warmups before each estimate call.
+     This is the number of warmups that will be performed after the first
+     estimate call and before each subsequent estimate calls. */
+  flag = LSRKStepSetNumSucceedingWarmups(arkode_mem, udata->dee_num_succ_wups);
+  if (check_flag(&flag, "LSRKStepSetNumSucceedingWarmups", 2)) { return 1; }
 
   /* Specify the max number for PI iterations. 
      This does nothing if DEE is ArnI */
@@ -343,6 +350,11 @@ int main(int argc, char* argv[])
   // Set spectral radius safety factor
   flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, udata->eigsafety);
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
+
+  // Set the number of preprocessing warmups before each estimate call
+  flag = LSRKStepSetNumSucceedingWarmups(arkode_mem,
+                                         udata->dee_num_succ_wups);
+  if (check_flag(&flag, "LSRKStepSetNumSucceedingWarmups", 1)) { return 1; }
 
   // Set fixed step size or adaptivity method
   if (udata->hfixed > ZERO)
@@ -604,7 +616,8 @@ static int InitUserData(UserData* udata)
 
   // DEE options
   udata->dee_id              = 1; // DEE ID (0 for PI and 1 for ArnI)
-  udata->dee_numofpreprocess = 20;
+  udata->dee_num_init_wups   = 20;
+  udata->dee_num_succ_wups   = 5;
   udata->dee_max_iters       = 100;
   udata->dee_krylov_dim      = 3;
   udata->dee_reltol          = 0.01;
@@ -696,9 +709,13 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
     }
     // DEE options
     else if (arg == "--dee_id") { udata->dee_id = stoi((*argv)[arg_idx++]); }
-    else if (arg == "--dee_numofpreprocess")
+    else if (arg == "--dee_num_init_wups")
     {
-      udata->dee_numofpreprocess = stoi((*argv)[arg_idx++]);
+      udata->dee_num_init_wups = stoi((*argv)[arg_idx++]);
+    }
+    else if (arg == "--dee_num_succ_wups")
+    {
+      udata->dee_num_succ_wups = stoi((*argv)[arg_idx++]);
     }
     else if (arg == "--dee_max_iters")
     {
@@ -824,7 +841,10 @@ static void InputHelp()
   cout << "  --dee_id <id>               : DomEig Estimator (DEE) id (PI: 0, "
           "ArnI: 1)"
        << endl;
-  cout << "  --dee_numofpreprocess <num> : number of DEE preprocesses" << endl;
+  cout << "  --dee_num_init_wups <num>   : number of DEE initial warmups"
+       << endl;
+  cout << "  --dee_num_succ_wups <num>  : number of DEE succeeding warmups"
+       << endl;
   cout << "  --dee_max_iters <num>       : max iterations in DEE" << endl;
   cout << "  --dee_krylov_dim <dim>      : Krylov dimension for DEE" << endl;
   cout << "  --dee_reltol <tol>          : DEE tolerance" << endl;
@@ -839,34 +859,35 @@ static int PrintUserData(UserData* udata)
   cout << endl;
   cout << "2D Heat PDE test problem:" << endl;
   cout << " ------------------------------------ " << endl;
-  cout << " kx               = " << udata->kx << endl;
-  cout << " ky               = " << udata->ky << endl;
-  cout << " forcing          = " << udata->forcing << endl;
-  cout << " tf               = " << udata->tf << endl;
-  cout << " xu               = " << udata->xu << endl;
-  cout << " yu               = " << udata->yu << endl;
-  cout << " nx               = " << udata->nx << endl;
-  cout << " ny               = " << udata->ny << endl;
-  cout << " dx               = " << udata->dx << endl;
-  cout << " dy               = " << udata->dy << endl;
+  cout << " kx                = " << udata->kx << endl;
+  cout << " ky                = " << udata->ky << endl;
+  cout << " forcing           = " << udata->forcing << endl;
+  cout << " tf                = " << udata->tf << endl;
+  cout << " xu                = " << udata->xu << endl;
+  cout << " yu                = " << udata->yu << endl;
+  cout << " nx                = " << udata->nx << endl;
+  cout << " ny                = " << udata->ny << endl;
+  cout << " dx                = " << udata->dx << endl;
+  cout << " dy                = " << udata->dy << endl;
   cout << " ------------------------------------ " << endl;
-  cout << " rtol             = " << udata->rtol << endl;
-  cout << " atol             = " << udata->atol << endl;
-  cout << " fixed h          = " << udata->hfixed << endl;
-  cout << " controller       = " << udata->controller << endl;
-  cout << " method           = " << udata->method << endl;
-  cout << " eigfrequency     = " << udata->eigfrequency << endl;
-  cout << " stage_max_limit  = " << udata->stage_max_limit << endl;
-  cout << " eigsafety        = " << udata->eigsafety << endl;
+  cout << " rtol              = " << udata->rtol << endl;
+  cout << " atol              = " << udata->atol << endl;
+  cout << " fixed h           = " << udata->hfixed << endl;
+  cout << " controller        = " << udata->controller << endl;
+  cout << " method            = " << udata->method << endl;
+  cout << " eigfrequency      = " << udata->eigfrequency << endl;
+  cout << " stage_max_limit   = " << udata->stage_max_limit << endl;
+  cout << " eigsafety         = " << udata->eigsafety << endl;
   cout << " ------------------------------------ " << endl;
-  cout << " output           = " << udata->output << endl;
-  cout << " max steps        = " << udata->maxsteps << endl;
+  cout << " output            = " << udata->output << endl;
+  cout << " max steps         = " << udata->maxsteps << endl;
   cout << " ------------------------------------ " << endl;
-  cout << " dee ID           = " << udata->dee_id << endl;
-  cout << " dee numofpreproc = " << udata->dee_numofpreprocess << endl;
-  cout << " dee_max_iters    = " << udata->dee_max_iters << endl;
-  cout << " dee_krylov_dim   = " << udata->dee_krylov_dim << endl;
-  cout << " dee_reltol       = " << udata->dee_reltol << endl;
+  cout << " dee ID            = " << udata->dee_id << endl;
+  cout << " dee num_init_wups = " << udata->dee_num_init_wups << endl;
+  cout << " dee num_succ_wups = " << udata->dee_num_succ_wups << endl;
+  cout << " dee_max_iters     = " << udata->dee_max_iters << endl;
+  cout << " dee_krylov_dim    = " << udata->dee_krylov_dim << endl;
+  cout << " dee_reltol        = " << udata->dee_reltol << endl;
   cout << " ------------------------------------ " << endl;
   cout << endl;
 

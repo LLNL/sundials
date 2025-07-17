@@ -224,6 +224,11 @@ int main(void)
   flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, SUN_RCONST(1.01));
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
+  /* Specify the number of preprocessing warmups before each estimate call
+     succeeding the very first estimate call. */
+  flag = LSRKStepSetNumSucceedingWarmups(arkode_mem, 0);
+  if (check_flag(&flag, "LSRKStepSetNumSucceedingWarmups", 1)) { return 1; }
+
   /* Specify the Runge--Kutta--Chebyshev LSRK method by name */
   flag = LSRKStepSetSTSMethodByName(arkode_mem, "ARKODE_LSRK_RKC_2");
   if (check_flag(&flag, "LSRKStepSetSTSMethodByName", 1)) { return 1; }

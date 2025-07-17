@@ -21,10 +21,6 @@
 #include <arkode/arkode_lsrkstep.h>
 #include <sundomeigest/sundomeigest_pi.h>
 
-#ifdef SUNDIALS_BLAS_LAPACK_ENABLED
-#include <sundomeigest/sundomeigest_arni.h>
-#endif
-
 #include "arkode_impl.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -34,6 +30,7 @@ extern "C" {
 #define STAGE_MAX_LIMIT_DEFAULT 200
 #define DOM_EIG_SAFETY_DEFAULT  SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT    25
+#define DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT 0
 
 /*===============================================================
   LSRK time step module private math function macros
@@ -159,6 +156,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype spectral_radius_min; /* min spectral radius*/
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
+  int num_succ_warmups;  /* number of warm-ups in succeeding DEE estimates */
 
   SUNDomEigEstimator DEE; /* DomEig estimator*/
 
@@ -167,7 +165,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunbooleantype const_Jac;      /* flag indicating Jacobian is constant */
   sunbooleantype dom_eig_is_current; /* SUNTRUE if dom_eig has been evaluated at tn */
   sunbooleantype is_SSP;             /* flag indicating SSP method*/
-  sunbooleantype warmedup;           /* flag indicating if DEE warmed-up*/
+  sunbooleantype init_warmup;        /* flag indicating initial warm-up*/
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;

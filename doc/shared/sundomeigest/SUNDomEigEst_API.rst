@@ -301,7 +301,7 @@ SUNDomEigEstimator "get" functions
 The following functions allow SUNDIALS packages to retrieve results from a
 dominant eigenvalue estimator.  *All routines are optional.*
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* curres)
+.. c:function:: SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
 
    This *optional* routine should return the final residual from
    the most-recent "estimator" call.
@@ -309,7 +309,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEst object.
-      * *curres* -- the current residual
+      * *cur_res* -- the current residual
 
    **Return value:**
 
@@ -319,8 +319,8 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       .. code-block:: c
 
-         sunrealtype curres;
-         retval = SUNDomEigEst_GetCurRes(DEE, &curres);
+         sunrealtype cur_res;
+         retval = SUNDomEigEst_GetCurRes(DEE, &cur_res);
 
 
 .. c:function:: SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter)
@@ -345,7 +345,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
          retval = SUNDomEigEst_GetCurNumIters(DEE, &curniter);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter)
+.. c:function:: SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* max_niter)
 
    This *optional* routine should return the maximum number of iterations
    performed in all "estimator" calls so far.
@@ -353,7 +353,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEst object,
-      * *maxniter* -- the maximum number of iterations.
+      * *max_niter* -- the maximum number of iterations.
 
    **Return value:**
 
@@ -363,11 +363,11 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       .. code-block:: c
 
-         int maxniter;
-         retval = SUNDomEigEst_GetMaxNumIters(DEE, &maxniter);
+         int max_niter;
+         retval = SUNDomEigEst_GetMaxNumIters(DEE, &max_niter);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter)
+.. c:function:: SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* min_niter)
 
    This *optional* routine should return the minimum number of iterations
    performed in all "estimator" calls so far.
@@ -375,7 +375,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEst object,
-      * *minniter* -- the minimum number of iterations.
+      * *min_niter* -- the minimum number of iterations.
 
    **Return value:**
 
@@ -385,17 +385,17 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       .. code-block:: c
 
-         int minniter;
-         retval = SUNDomEigEst_GetMinNumIters(DEE, &minniter);
+         int min_niter;
+         retval = SUNDomEigEst_GetMinNumIters(DEE, &min_niter);
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* nATimes)
+.. c:function:: SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* num_ATimes)
 
    This *optional* routine should return the number of calls to the :c:type:`SUNATimesFn` function.
 
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEst object,
-      * *nATimes* -- the number of calls to the ``Atimes`` function.
+      * *num_ATimes* -- the number of calls to the ``Atimes`` function.
 
    **Return value:**
 
@@ -405,8 +405,8 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       .. code-block:: c
 
-         long int nATimes;
-         retval = SUNDomEigEst_GetNumATimesCalls(DEE, &nATimes);
+         long int num_ATimes;
+         retval = SUNDomEigEst_GetNumATimesCalls(DEE, &num_ATimes);
 
 
 .. c:function:: SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile)
@@ -613,3 +613,78 @@ Additionally, a ``SUNDomEigEstimator`` implementation *may* do the following:
   ``SUNDomEigEstimator`` object, e.g., for returning various estimator
   statistics.
   
+
+.. _SUNDomEigEst.Intended:
+
+SUNDIALS modules SUNDomEigEstimator interface
+==============================================
+
+In :numref:`SUNDomEigEst.Intended.Usage`, we list the SUNDomEigEst module functions used
+within SUNDIALS modules.  We emphasize that the user does not need to know
+detailed usage of dominant eigenvalue estimator functions by a SUNDIALS module
+in order to use a module.  The information is presented as an implementation detail for
+the interested reader.
+
+.. _SUNDomEigEst.Intended.Usage:
+.. table:: List of SUNDomEigEst functions called by a SUNDIALS module dominant eigenvalue
+           estimator interface.  Functions marked with "X" are required;
+           functions marked with "O" are only called if they are non-``NULL`` and
+           functions marked with "N/A" are not applicable in the ``SUNDomEigEstimator``
+           implementation that is being used.
+   :align: center
+
+   +----------------------------------------------------+---------------------+---------------------+
+   | Routine                                            |   POWER ITERATION   |  ARNOLDI ITERATION  |
+   |                                                    |                     |                     |
+   +====================================================+=====================+=====================+
+   | :c:func:`SUNDomEigEst_SetATimes`                   |          X          |          X          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_SetMaxIters`\ :sup:`1`       |          O          |         N/A         |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_SetNumPreProcess`            |          O          |          O          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_SetTol`\ :sup:`1`            |          O          |         N/A         |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_Initialize`                  |          X          |          X          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_PreProcess`                  |          O          |          O          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_ComputeHess`\ :sup:`1`       |         N/A         |          X          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEig_Estimate`                       |          X          |          X          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_GetCurRes`\ :sup:`2`         |          O          |          O          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_GetCurNumIters`\ :sup:`3`    |          O          |         N/A         |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_GetMaxNumIters`\ :sup:`3`    |          O          |         N/A         |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_GetMinNumIters`\ :sup:`3`    |          O          |         N/A         |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_GetNumATimesCalls`           |          O          |          O          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_PrintStats`                  |          O          |          O          |
+   +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEst_Destroy`\ :sup:`4`           |                     |                     |
+   +----------------------------------------------------+---------------------+---------------------+
+
+
+Notes:
+
+1. :c:func:`SUNDomEigEst_SetMaxIters()`, :c:func:`SUNDomEigEst_SetTol()` and 
+   :c:func:`SUNDomEigEst_ComputeHess()` might or might not be required depending on
+   ``SUNDomEigEstimator`` implementation that is being used. These flags must be left
+   ``NULL`` if it is not applicable for an estimator.
+
+2. Although :c:func:`SUNDomEigEst_GetCurRes()` is optional, if it is not
+   implemented by the ``SUNDomEigEstimator`` then the interface will consider all
+   estimates a being *exact*.
+
+3. :c:func:`SUNDomEigEst_GetCurNumIters()`, :c:func:`SUNDomEigEst_GetMaxNumIters()`
+   and :c:func:`SUNDomEigEst_GetMinNumIters()` are optional, if they are not
+   implemented by the ``SUNDomEigEstimator`` then the interface will consider all
+   estimates as requiring zero iterations.
+
+4. Although the interface does not call :c:func:`SUNDomEigEst_Destroy()`
+   directly, this routine should be available for users to call when
+   cleaning up from a simulation.

@@ -74,7 +74,7 @@ The following is a list of the example functions in ``test_sundomeigest.c``:
 
   ``SUNDomEigEst_GetCurRes`` is not an option for some estimators, e.g.,
   Arnoldi iteration.  In this case, it should return with SUN_SUCCESS
-  and `curres = 0`.  A failure flag returns otherwise.
+  and `cur_res = 0`.  A failure flag returns otherwise.
 
 * ``Test_SUNDomEigEst_GetCurNumIters`` Verifies that
   ``SUNDomEigEst_GetCurNumIters`` can be called and returns successfully.

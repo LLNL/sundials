@@ -68,15 +68,10 @@ set(unit_tests
     "ark_test_adjoint_ark.cpp\;--check-freq 2 --dont-keep\;"
     "ark_test_adjoint_ark.cpp\;--check-freq 5 --dont-keep\;")
 
-# Add variable DOMEIG_OBJECT_LIBRARIES
+# Add SUNDomEigEst libraries
 set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
-
 if(ENABLE_LAPACK)
   list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
-  set(LAPACK_LIBRARY LAPACK::LAPACK)
-  if(CMAKE_VERSION VERSION_LESS 3.20)
-    list(APPEND LAPACK_LIBRARY BLAS::BLAS)
-  endif()
 endif()
 
 # Add the build and install targets for each test
@@ -112,8 +107,7 @@ foreach(test_tuple ${unit_tests})
     # their visibility in the installed libraries.
     target_link_libraries(
       ${test_target}
-      PRIVATE ${LAPACK_LIBRARY}
-              $<TARGET_OBJECTS:sundials_arkode_obj>
+      PRIVATE $<TARGET_OBJECTS:sundials_arkode_obj>
               sundials_sunmemsys_obj
               sundials_nvecserial_obj
               sundials_nvecmanyvector_obj

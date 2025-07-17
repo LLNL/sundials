@@ -97,7 +97,7 @@ int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, int max_iters, int myi
   return (0);
 }
 
-int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
+int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int num_warmups,
                                        int myid)
 {
   int failure;
@@ -105,7 +105,7 @@ int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numwarmups,
 
   /* try calling SUNDomEigEst_SetNumPreProcess routine: should pass/fail based on expected input */
   start_time = get_time();
-  failure    = SUNDomEigEst_SetNumPreProcess(DEE, numwarmups);
+  failure    = SUNDomEigEst_SetNumPreProcess(DEE, num_warmups);
   stop_time  = get_time();
 
   if (failure)
@@ -276,14 +276,14 @@ int Test_SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
 /* ----------------------------------------------------------------------
  * SUNDomEigEst_GetCurRes Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* curres,
+int Test_SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
                                 int myid)
 {
   int failure;
   double start_time, stop_time;
 
   start_time = get_time();
-  failure    = SUNDomEigEst_GetCurRes(DEE, curres);
+  failure    = SUNDomEigEst_GetCurRes(DEE, cur_res);
   stop_time  = get_time();
 
   if (failure)
@@ -337,14 +337,14 @@ int Test_SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter,
 /* ----------------------------------------------------------------------
  * SUNDomEigEst_GetMaxNumIters Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter,
+int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* max_niter,
                                      int myid)
 {
   int failure;
   double start_time, stop_time;
 
   start_time = get_time();
-  failure    = SUNDomEigEst_GetMaxNumIters(DEE, maxniter);
+  failure    = SUNDomEigEst_GetMaxNumIters(DEE, max_niter);
   stop_time  = get_time();
 
   if (failure)
@@ -368,14 +368,14 @@ int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter,
 /* ----------------------------------------------------------------------
  * SUNDomEigEst_GetMinNumIters Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter,
+int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* min_niter,
                                      int myid)
 {
   int failure;
   double start_time, stop_time;
 
   start_time = get_time();
-  failure    = SUNDomEigEst_GetMinNumIters(DEE, minniter);
+  failure    = SUNDomEigEst_GetMinNumIters(DEE, min_niter);
   stop_time  = get_time();
 
   if (failure)
@@ -400,13 +400,13 @@ int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter,
  * SUNDomEigEst_GetNumATimesCalls Test
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
-                                        long int* nATimes, int myid)
+                                        long int* num_ATimes, int myid)
 {
   int failure;
   double start_time, stop_time;
 
   start_time = get_time();
-  failure    = SUNDomEigEst_GetNumATimesCalls(DEE, nATimes);
+  failure    = SUNDomEigEst_GetNumATimesCalls(DEE, num_ATimes);
   stop_time  = get_time();
   if (failure)
   {

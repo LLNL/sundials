@@ -110,14 +110,14 @@ The SUNDomEigEst_PI module defines the *content* field of a
      void* ATdata;
      N_Vector* V;
      N_Vector q;
-     int numwarmups;
+     int num_warmups;
      int max_iters;
-     int curnumiters;
-     int maxnumiters;
-     int minnumiters;
-     long int nATimes;
+     int cur_num_iters;
+     int max_num_iters;
+     int min_num_iters;
+     long int num_ATimes;
      sunrealtype powiter_tol;
-     sunrealtype curres;
+     sunrealtype cur_res;
    };
 
 
@@ -130,21 +130,21 @@ information:
 
 * ``V, q``   - ``N_Vector`` used for workspace by the PI algorithm.
 
-* ``numwarmups`` - number of preprocessing warmups (default is 0),
+* ``num_warmups`` - number of preprocessing warmups (default is 0),
 
 * ``max_iters`` - maximum number of iterations (default is 100),
 
-* ``curnumiters`` - current number of power iterations,
+* ``cur_num_iters`` - current number of power iterations,
 
-* ``maxnumiters`` - maximum number of power iterations so far,
+* ``max_num_iters`` - maximum number of power iterations so far,
 
-* ``minnumiters`` - minimum number of power iterations so far,
+* ``min_num_iters`` - minimum number of power iterations so far,
 
-* ``nATimes`` - number of calls to the ``ATimes`` function,
+* ``num_ATimes`` - number of calls to the ``ATimes`` function,
 
 * ``powiter_tol`` - convergence criteria for the power iteration (default is 0.01),
 
-* ``curres`` - current residual of power iterations.
+* ``cur_res`` - current residual of power iterations.
 
 
 This estimator is constructed to perform the following operations:
@@ -164,7 +164,7 @@ This estimator is constructed to perform the following operations:
   for validity and the initial eigenvector is normalized.
 
 * In the "preprocess" call, the initial vector :math:`q_0` is warmed up
-  :math:`k=` ``numwarmups`` times as
+  :math:`k=` ``num_warmups`` times as
 
 .. math::
 

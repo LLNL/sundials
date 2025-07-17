@@ -18,6 +18,4 @@
    :maxdepth: 1
 
    SUNDomEigEst_API_link.rst
-   ARKODE_interface
    SUNDomEigEst_links.rst
-

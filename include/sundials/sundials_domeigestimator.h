@@ -29,17 +29,6 @@
 extern "C" {
 #endif
 
-/* Default estimator parameters */
-#define DEE_NUM_OF_WARMUPS_PI_DEFAULT   0
-#define DEE_NUM_OF_WARMUPS_ARNI_DEFAULT 100
-
-/* Default Power Iteration parameters */
-#define DEE_TOL_DEFAULT      SUN_RCONST(0.01)
-#define DEE_MAX_ITER_DEFAULT 100
-
-/* Default Arnoldi Iteration parameters */
-#define DEE_KRYLOV_DIM_DEFAULT 3
-
 //#define DEE_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
 
 /* -----------------------------------------------------------------
@@ -120,20 +109,20 @@ SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                               sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* curres);
+SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* maxniter);
+SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* max_niter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* minniter);
+SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* min_niter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
-                                          long int* nATimes);
+                                          long int* num_ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile);

@@ -67,7 +67,7 @@ module farkode_lsrkstep_mod
  public :: FLSRKStepSetNumSSPStages
  public :: FLSRKStepGetNumDomEigUpdates
  public :: FLSRKStepGetMaxNumStages
- public :: FLSRKStepGetNumRHSinDQ
+ public :: FLSRKStepGetNumDomEigEstRhsEvals
 
 ! WRAPPER DECLARATIONS
 interface
@@ -226,8 +226,8 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FLSRKStepGetNumRHSinDQ(farg1, farg2) &
-bind(C, name="_wrap_FLSRKStepGetNumRHSinDQ") &
+function swigc_FLSRKStepGetNumDomEigEstRhsEvals(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepGetNumDomEigEstRhsEvals") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -540,7 +540,7 @@ fresult = swigc_FLSRKStepGetMaxNumStages(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepGetNumRHSinDQ(arkode_mem, nfedq) &
+function FLSRKStepGetNumDomEigEstRhsEvals(arkode_mem, nfedq) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -552,7 +552,7 @@ type(C_PTR) :: farg2
 
 farg1 = arkode_mem
 farg2 = c_loc(nfedq(1))
-fresult = swigc_FLSRKStepGetNumRHSinDQ(farg1, farg2)
+fresult = swigc_FLSRKStepGetNumDomEigEstRhsEvals(farg1, farg2)
 swig_result = fresult
 end function
 
