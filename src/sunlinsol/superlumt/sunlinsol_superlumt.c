@@ -62,8 +62,9 @@
  * ----------------------------------------------------------------------------
  */
 
-static SUNErrCode setFromCommandLine_SuperLUMT(SUNLinearSolver S, const char* LSid,
-                                               int argc, char* argv[]);
+static SUNErrCode setFromCommandLine_SuperLUMT(SUNLinearSolver S,
+                                               const char* LSid, int argc,
+                                               char* argv[]);
 
 /*
  * -----------------------------------------------------------------
