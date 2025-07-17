@@ -204,9 +204,7 @@ static SUNErrCode setFromCommandLine_SPBCGS(SUNLinearSolver S, const char* LSid,
 
   for (int idx = 1; idx < argc; idx++)
   {
-    SUNErrCode sunretval;
-    int j, retval;
-    sunbooleantype arg_used = SUNFALSE;
+    int retval;
 
     /* skip command-line arguments that do not begin with correct prefix */
     if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }

@@ -381,9 +381,7 @@ static SUNErrCode setFromCommandLine_FixedPoint(SUNNonlinearSolver NLS,
 
   for (int idx = 1; idx < argc; idx++)
   {
-    SUNErrCode sunretval;
-    int j, retval;
-    sunbooleantype arg_used = SUNFALSE;
+    int retval;
 
     /* skip command-line arguments that do not begin with correct prefix */
     if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }

@@ -154,10 +154,6 @@ static SUNErrCode setFromCommandLine_ImExGus(SUNAdaptController C,
   sunbooleantype write_parameters = SUNFALSE;
   for (int idx = 1; idx < argc; idx++)
   {
-    SUNErrCode sunretval;
-    int j;
-    sunbooleantype arg_used = SUNFALSE;
-
     /* skip command-line arguments that do not begin with correct prefix */
     if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
