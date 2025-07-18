@@ -452,8 +452,8 @@ static int splittingStep_SetOrder(ARKodeMem ark_mem, int order)
 /*------------------------------------------------------------------------------
   Routine to set SplittingStep options
   ----------------------------------------------------------------------------*/
-int splittingStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
-                            size_t offset, sunbooleantype* arg_used)
+static int splittingStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
+                                   size_t offset, sunbooleantype* arg_used)
 {
   /* The only MRIStep-specific "Set" routine takes a custom MRIStepCoupling
      table; however, these may be specified by name, so here we'll support
