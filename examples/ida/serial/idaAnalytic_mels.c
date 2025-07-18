@@ -89,9 +89,7 @@ int main(int argc, char* argv[])
 
   /* Initial diagnostics output */
   printf("\nAnalytical DAE test problem:\n");
-  printf("    alpha = %" GSYM "\n", alpha);
-  printf("   reltol = %.1" ESYM "\n", reltol);
-  printf("   abstol = %.1" ESYM "\n\n", abstol);
+  printf("    alpha = %" GSYM "\n\n", alpha);
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
