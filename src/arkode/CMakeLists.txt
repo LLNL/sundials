@@ -73,7 +73,7 @@ set(arkode_HEADERS
 set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
 
 if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
+  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarnoldi_obj)
   set(LAPACK_LIBRARY LAPACK::LAPACK)
   if(CMAKE_VERSION VERSION_LESS 3.20)
     list(APPEND LAPACK_LIBRARY BLAS::BLAS)

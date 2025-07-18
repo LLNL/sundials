@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <sundials/sundials_math.h> /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
-#include <sundomeigest/sundomeigest_pi.h> /* access to Power Iteration module */
+#include <sundomeigest/sundomeigest_power.h> /* access to Power Iteration module */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -173,8 +173,8 @@ int main(void)
   }
 
   /* Create power iteration dominant eigenvalue estimator (DEE) */
-  DEE = SUNDomEigEst_PI(q, max_iters, ctx);
-  if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
+  DEE = SUNDomEigEst_Power(q, max_iters, ctx);
+  if (check_flag(DEE, "SUNDomEigEst_Power", 0)) { return 1; }
 
   /* After the DEE creation, random q vector is no longer needed.
      It is used only to initialize the DEE */

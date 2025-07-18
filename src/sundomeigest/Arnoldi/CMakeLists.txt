@@ -15,7 +15,7 @@
 # SUNDomEigEstimator library
 # ---------------------------------------------------------------
 
-install(CODE "MESSAGE(\"\nInstall SUNDOMEIGEST_ARNI\n\")")
+install(CODE "MESSAGE(\"\nInstall SUNDOMEIGEST_ARNOLDI\n\")")
 
 # Workaround bug in older versions of CMake where the BLAS::BLAS target, which
 # LAPACK::LAPACK depends on, is not picked up by LINK_LIBRARIES
@@ -24,16 +24,16 @@ if(CMAKE_VERSION VERSION_LESS 3.20)
   list(APPEND _lapack_targets BLAS::BLAS)
 endif()
 
-# Add the sundomeigest_arni library
+# Add the sundomeigest_arnoldi library
 sundials_add_library(
-  sundials_sundomeigestarni
-  SOURCES sundomeigest_arni.c
-  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sundomeigest/sundomeigest_arni.h
+  sundials_sundomeigestarnoldi
+  SOURCES sundomeigest_arnoldi.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sundomeigest/sundomeigest_arnoldi.h
   INCLUDE_SUBDIR sundomeigest
   LINK_LIBRARIES PUBLIC sundials_core ${_lapack_targets}
   OBJECT_LIBRARIES
-  OUTPUT_NAME sundials_sundomeigestarni
+  OUTPUT_NAME sundials_sundomeigestarnoldi
   VERSION ${sundomeigestlib_VERSION}
   SOVERSION ${sundomeigestlib_SOVERSION})
 
-message(STATUS "Added SUNDOMEIGEST_ARNI module")
+message(STATUS "Added SUNDOMEIGEST_ARNOLDI module")

@@ -12,20 +12,21 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNDomEigEst.ARNI:
+.. _SUNDomEigEst.ARNOLDI:
 
-The SUNDomEigEst_ARNI Module
+The SUNDomEigEst_ARNOLDI Module
 ======================================
 
-The SUNDomEigEst_ARNI implementation of the ``SUNDomEigEstimator`` class performs
-the Arnoldi Iteration (ArnI) method :cite:p:`arnoldi51`; this is an iterative dominant
+The SUNDomEigEst_ARNOLDI implementation of the ``SUNDomEigEstimator`` class performs
+the Arnoldi Iteration method :cite:p:`arnoldi51`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
 :c:func:`N_VCloneVectorArray()`, :c:func:`N_VDotProd()`, :c:func:`N_VScale()`, 
 :c:func:`N_VDestroy()`, and :c:func:`N_VDestroyVectorArray()`).
 
-ArnI is particularly effective for large, sparse matrices where only the dominant
-eigenvalue is needed.  It constructs an orthonormal basis of the Krylov subspace
+Arnoldi iteration is particularly effective for large, sparse matrices where only 
+the dominant eigenvalue is needed.  It constructs an orthonormal basis of the Krylov 
+subspace
 
 .. math::
 
@@ -36,7 +37,7 @@ to form a small upper Hessenberg matrix :math:`H_m`.  The eigenvalues of :math:`
 approximate some of the eigenvalues of :math:`A`; the dominant eigenvalue of :math:`A` is
 well-approximated by the dominant eigenvalue of :math:`H_m`.
 
-ArnI works for matrices with both real and complex eigenvalues.  It supports
+Arnoldi iteration works for matrices with both real and complex eigenvalues.  It supports
 estimations with a user-specified fixed Krylov subspace dimension (at least 3).  While
 the choice of dimension results in a prefixed amount of memory, it strictly
 determines how good an estimation is.  To improve the estimation accuracy, we have found that 
@@ -47,27 +48,27 @@ The matrix :math:`A` is not required explicitly; only a routine that provides an
 approximation of the matrix-vector product, :math:`Av`, is required.
 
 
-.. _SUNDomEigEst.ARNI.Usage:
+.. _SUNDomEigEst.ARNOLDI.Usage:
 
-SUNDomEigEst_ARNI Usage
+SUNDomEigEst_ARNOLDI Usage
 -----------------------
 
-The header file to be included when using this module is ``sundomeigest/sundomeigest_arni.h``.
-The SUNDomEigEst_ARNI module is accessible from all SUNDIALS solvers *without* linking to the
-``libsundials_sundomeigestarni`` module library.
+The header file to be included when using this module is ``sundomeigest/sundomeigest_arnoldi.h``.
+The SUNDomEigEst_ARNOLDI module is accessible from all SUNDIALS solvers *without* linking to the
+``libsundials_sundomeigestarnoldi`` module library.
 
-The header file to be included when using this module is ``sundomeigest/sundomeigest_arni.h``.
-The SUNDomEigEst_ARNI module is accessible from all SUNDIALS solvers *without* linking to the
-``libsundials_sundomeigestarni`` module library after enabling SUNDIALS interfaces to the LAPACK library.
+The header file to be included when using this module is ``sundomeigest/sundomeigest_arnoldi.h``.
+The SUNDomEigEst_ARNOLDI module is accessible from all SUNDIALS solvers *without* linking to the
+``libsundials_sundomeigestarnoldi`` module library after enabling SUNDIALS interfaces to the LAPACK library.
 This LAPACK dependence is limited to the eigenvalue estimation of the Hessenberg matrix using the 
 ``dgeev``` and/or ``sgeev`` functions.
 
-The module SUNDomEigEst_ARNI provides the following user-callable routines:
+The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int kry_dim, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx)
 
-   This constructor function creates and allocates memory for an ARNI
+   This constructor function creates and allocates memory for an Arnoldi
    ``SUNDomEigEstimator``.
 
    **Arguments:**
@@ -88,18 +89,18 @@ The module SUNDomEigEst_ARNI provides the following user-callable routines:
       value (3).  This default value is particularly chosen to minimize the memory
       footprint.
 
-.. _SUNDomEigEst.ARNI.Description:
+.. _SUNDomEigEst.ARNOLDI.Description:
 
-SUNDomEigEst_ARNI Description
+SUNDomEigEst_ARNOLDI Description
 -----------------------------
 
 
-The SUNDomEigEst_ARNI module defines the *content* field of a
+The SUNDomEigEst_ARNOLDI module defines the *content* field of a
 ``SUNDomEigEstimator`` to be the following structure:
 
 .. code-block:: c
 
-   struct _SUNDomEigEstimatorContent_ArnI {
+   struct _SUNDomEigEstimatorContent_Arnoldi {
      SUNATimesFn ATimes;
      void* ATdata;
      N_Vector* V;
@@ -122,7 +123,7 @@ information:
 
 * ``ATData`` - pointer to structure for ``ATimes``,
 
-* ``V, q``   - ``N_Vector`` used for workspace by the ARNI algorithm.
+* ``V, q``   - ``N_Vector`` used for workspace by the Arnoldi algorithm.
 
 * ``kry_dim`` - dimension of Krylov subspaces (default is 3),
 
@@ -145,32 +146,32 @@ This estimator is constructed to perform the following operations:
   estimator parameters.
 
 * An additional "set" routine must be called by the SUNDIALS estimator
-  that interfaces with SUNDomEigEst_ARNI to supply the ``ATimes``
+  that interfaces with SUNDomEigEst_ARNOLDI to supply the ``ATimes``
   function pointer and the related data ``ATData``.
 
 * In the "initialize" call, the estimator parameters are checked
-  for validity and the remaining ARNI estimator memory such as LAPACK 
+  for validity and the remaining Arnoldi estimator memory such as LAPACK 
   workspace is allocated.
 
 * In the "estimate" call, the initial nonzero vector :math:`q_0` is warmed up
   :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
   integrator such as by calling :c:func:`LSRKStepSetNumSucceedingWarmups`. 
-  Then, the ARNI estimator is performed.
+  Then, the Arnoldi estimator is performed.
 
 .. math::
 
     q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}.
 
-The SUNDomEigEst_ARNI module defines implementations of all
+The SUNDomEigEst_ARNOLDI module defines implementations of all
 dominant eigenvalue estimator operations listed in
 :numref:`SUNDomEigEst.API`:
 
-* ``SUNDomEigEst_SetATimes_ArnI``
+* ``SUNDomEigEst_SetATimes_Arnoldi``
 
-* ``SUNDomEigEst_Initialize_ArnI``
+* ``SUNDomEigEst_Initialize_Arnoldi``
 
-* ``SUNDomEigEst_SetNumPreProcess_ArnI``
+* ``SUNDomEigEst_SetNumPreProcess_Arnoldi``
 
-* ``SUNDomEig_Estimate_ArnI``
+* ``SUNDomEig_Estimate_Arnoldi``
 
-* ``SUNDomEigEst_Destroy_ArnI``
+* ``SUNDomEigEst_Destroy_Arnoldi``

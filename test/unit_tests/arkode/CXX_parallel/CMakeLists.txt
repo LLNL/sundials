@@ -23,7 +23,7 @@ endif()
 # Add SUNDomEigEst libraries
 set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
 if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
+  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarnoldi_obj)
 endif()
 
 # Add the build and install targets for each test

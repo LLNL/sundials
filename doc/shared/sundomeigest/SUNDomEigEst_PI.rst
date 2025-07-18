@@ -12,20 +12,20 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNDomEigEst.PI:
+.. _SUNDomEigEst.POWER:
 
-The SUNDomEigEst_PI Module
+The SUNDomEigEst_Power Module
 ======================================
 
-The SUNDomEigEst_PI implementation of the ``SUNDomEigEstimator`` class performs
+The SUNDomEigEst_Power implementation of the ``SUNDomEigEstimator`` class performs
 the Power Iteration (PI) method :cite:p:`vonmises29`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
 :c:func:`N_VDotProd()`,  :c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
 
-PI is useful for large, sparse matrices whose dominant eigenvalue  is real-valued 
-and has algebraic multiplicity one. The algorithm starts with a non-zero vector 
-:math:`\mathbf{v}_{0}`.  It then  iteratively updates this via
+Power iteration is useful for large, sparse matrices whose dominant eigenvalue  
+is real-valued and has algebraic multiplicity one. The algorithm starts with a non-zero 
+vector :math:`\mathbf{v}_{0}`.  It then  iteratively updates this via
 
 .. math::
 
@@ -43,28 +43,28 @@ can be approximated using the Rayleigh quotient
 The iteration continues until the two successive eigenvalue approximations are
 relatively close enough to one another.  That is, for some :ref:`relative tolerance <pi_rel_tol>`.
 
-PI works for the matrices that have a **real** dominant eigenvalue.  If it is strictly
-greater than all others (in magnitude), convergence is guaranteed.  The speed of convergence
-depends on the ratios of the magnitude of the first two dominant eigenvalues.
+Power iteration works for the matrices that have a **real** dominant eigenvalue.  
+If it is strictly greater than all others (in magnitude), convergence is guaranteed.  
+The speed of convergence depends on the ratios of the magnitude of the first two dominant eigenvalues.
 
 The matrix :math:`A` is not required explicitly; only a routine that provides  
 the matrix-vector product :math:`Av` is required.  Also, PI requires a fixed 
 amount of memory regardless of the number of iterations.  
 
 
-.. _SUNDomEigEst.PI.Usage:
+.. _SUNDomEigEst.POWER.Usage:
 
-SUNDomEigEst_PI Usage
+SUNDomEigEst_Power Usage
 ---------------------
 
-The header file to be included when using this module is ``sundomeigest/sundomeigest_pi.h``.
-The SUNDomEigEst_PI module is accessible from all SUNDIALS solvers *without* linking to the
+The header file to be included when using this module is ``sundomeigest/sundomeigest_power.h``.
+The SUNDomEigEst_Power module is accessible from all SUNDIALS solvers *without* linking to the
 ``libsundials_sundomeigestpi`` module library.
 
-The module SUNDomEigEst_PI provides the following user-callable routines:
+The module SUNDomEigEst_Power provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, int max_iters, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a PI
    ``SUNDomEigEstimator``.
@@ -94,18 +94,18 @@ The module SUNDomEigEst_PI provides the following user-callable routines:
       2.  an early (less costly) termination will be a good indicator if PI is compatible.
 
 
-.. _SUNDomEigEst.PI.Description:
+.. _SUNDomEigEst.POWER.Description:
 
-SUNDomEigEst_PI Description
+SUNDomEigEst_Power Description
 ---------------------------
 
 
-The SUNDomEigEst_PI module defines the *content* field of a
+The SUNDomEigEst_Power module defines the *content* field of a
 ``SUNDomEigEstimator`` to be the following structure:
 
 .. code-block:: c
 
-   struct _SUNDomEigEstimatorContent_PI {
+   struct _SUNDomEigEstimatorContent_Power {
      SUNATimesFn ATimes;
      void* ATdata;
      N_Vector* V;
@@ -157,7 +157,7 @@ This estimator is constructed to perform the following operations:
   estimator parameters.
 
 * An additional "set" routine must be called by the SUNDIALS estimator
-  that interfaces with SUNDomEigEst_PI to supply the ``ATimes``
+  that interfaces with SUNDomEigEst_Power to supply the ``ATimes``
   function pointer and the related data ``ATData``.
 
 * In the "initialize" call, the estimator parameters are checked
@@ -172,32 +172,32 @@ This estimator is constructed to perform the following operations:
 
     q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}.
 
-The SUNDomEigEst_PI module defines implementations of all dominant
+The SUNDomEigEst_Power module defines implementations of all dominant
 eigenvalue estimator operations listed in
 :numref:`SUNDomEigEst.API`:
 
-* ``SUNDomEigEst_SetATimes_PI``
+* ``SUNDomEigEst_SetATimes_Power``
 
-* ``SUNDomEigEst_Initialize_PI``
+* ``SUNDomEigEst_Initialize_Power``
 
-* ``SUNDomEigEst_SetNumPreProcess_PI``
+* ``SUNDomEigEst_SetNumPreProcess_Power``
 
-* ``SUNDomEigEst_SetTol_PI``
+* ``SUNDomEigEst_SetTol_Power``
 
-* ``SUNDomEigEst_SetMaxIters_PI``
+* ``SUNDomEigEst_SetMaxIters_Power``
 
-* ``SUNDomEig_Estimate_PI``
+* ``SUNDomEig_Estimate_Power``
 
-* ``SUNDomEigEst_GetCurRes_PI``
+* ``SUNDomEigEst_GetCurRes_Power``
 
-* ``SUNDomEigEst_GetCurNumIters_PI``
+* ``SUNDomEigEst_GetCurNumIters_Power``
 
-* ``SUNDomEigEst_GetMaxNumIters_PI``
+* ``SUNDomEigEst_GetMaxNumIters_Power``
 
-* ``SUNDomEigEst_GetMinNumIters_PI``
+* ``SUNDomEigEst_GetMinNumIters_Power``
 
-* ``SUNDomEigEst_GetNumATimesCalls_PI``
+* ``SUNDomEigEst_GetNumATimesCalls_Power``
 
-* ``SUNDomEigEst_PrintStats_PI``
+* ``SUNDomEigEst_PrintStats_Power``
 
-* ``SUNDomEigEst_Destroy_PI``
+* ``SUNDomEigEst_Destroy_Power``

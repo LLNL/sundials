@@ -62,8 +62,8 @@
 #include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
 
-#include <sundomeigest/sundomeigest_arni.h> // access to Arnoldi Iteration module
-#include <sundomeigest/sundomeigest_pi.h>   // access to Power Iteration module
+#include <sundomeigest/sundomeigest_arnoldi.h> // access to Arnoldi Iteration module
+#include <sundomeigest/sundomeigest_power.h>   // access to Power Iteration module
 
 // Macros for problem constants
 #define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
@@ -295,14 +295,14 @@ int main(int argc, char* argv[])
   if (udata->dee_id == 0)
   {
     /* Create power iteration dominant eigenvalue estimator */
-    DEE = SUNDomEigEst_PI(q, udata->dee_max_iters, ctx);
-    if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
+    DEE = SUNDomEigEst_Power(q, udata->dee_max_iters, ctx);
+    if (check_flag(DEE, "SUNDomEigEst_Power", 0)) { return 1; }
   }
   else if (udata->dee_id == 1)
   {
-    /* Create ArnI dominant eigenvalue estimator */
-    DEE = SUNDomEigEst_ArnI(q, udata->dee_krylov_dim, ctx);
-    if (check_flag(DEE, "SUNDomEigEst_ArnI", 0)) { return 1; }
+    /* Create Arnoldi dominant eigenvalue estimator */
+    DEE = SUNDomEigEst_Arnoldi(q, udata->dee_krylov_dim, ctx);
+    if (check_flag(DEE, "SUNDomEigEst_Arnoldi", 0)) { return 1; }
   }
   else
   {
@@ -325,12 +325,12 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "LSRKStepSetNumSucceedingWarmups", 2)) { return 1; }
 
   /* Specify the max number for PI iterations. 
-     This does nothing if DEE is ArnI */
+     This does nothing if DEE is Arnoldi */
   flag = SUNDomEigEst_SetMaxIters(DEE, udata->dee_max_iters);
   if (check_flag(&flag, "SUNDomEigEst_SetMaxIters", 2)) { return 1; }
 
   /* Specify the relative tolerance for PI iterations. 
-     This does nothing if DEE is ArnI */
+     This does nothing if DEE is Arnoldi */
   flag = SUNDomEigEst_SetTol(DEE, udata->dee_reltol);
   if (check_flag(&flag, "SUNDomEigEst_SetTol", 2)) { return 1; }
 
@@ -614,7 +614,7 @@ static int InitUserData(UserData* udata)
   udata->e      = NULL;
 
   // DEE options
-  udata->dee_id            = 1; // DEE ID (0 for PI and 1 for ArnI)
+  udata->dee_id            = 1; // DEE ID (0 for PI and 1 for Arnoldi)
   udata->dee_num_init_wups = 20;
   udata->dee_num_succ_wups = 5;
   udata->dee_max_iters     = 100;
@@ -838,7 +838,7 @@ static void InputHelp()
   cout << "  --nout <nout>               : number of outputs" << endl;
   cout << "  --maxsteps <steps>          : max steps between outputs" << endl;
   cout << "  --dee_id <id>               : DomEig Estimator (DEE) id (PI: 0, "
-          "ArnI: 1)"
+          "Arnoldi: 1)"
        << endl;
   cout << "  --dee_num_init_wups <num>   : number of DEE initial warmups" << endl;
   cout << "  --dee_num_succ_wups <num>  : number of DEE succeeding warmups"

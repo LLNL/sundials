@@ -22,7 +22,7 @@ target_include_directories(
 # Add variable SUNDomEigEst libraries
 set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
 if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarni_obj)
+  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarnoldi_obj)
 endif()
 
 # We explicitly choose which object libraries to link to and link in the ARKODE

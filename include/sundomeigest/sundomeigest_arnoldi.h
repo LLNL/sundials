@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the Arnoldi Iteration (ArnI)
+ * This is the header file for the Arnoldi Iteration
  * implementation of the SUNDomEigEst package.
  *
  * Note:
@@ -33,7 +33,7 @@ extern "C" {
  * Arnoldi Iteration Implementation of SUNDomEigEstimator
  * ----------------------------------------------------- */
 
-struct _SUNDomEigEstimatorContent_ArnI
+struct _SUNDomEigEstimatorContent_Arnoldi
 {
   SUNATimesFn ATimes; /* User provided ATimes function */
   void* ATdata;       /* ATimes function data*/
@@ -56,39 +56,39 @@ struct _SUNDomEigEstimatorContent_ArnI
   sunrealtype** Hes; /* Hessenberg matrix Hes */
 };
 
-typedef struct _SUNDomEigEstimatorContent_ArnI* SUNDomEigEstimatorContent_ArnI;
+typedef struct _SUNDomEigEstimatorContent_Arnoldi* SUNDomEigEstimatorContent_Arnoldi;
 
 /* ---------------------------------------
- * Exported Functions for SUNDOMEIGEST_ArnI
+ * Exported Functions for SUNDOMEIGEST_Arnoldi
  * --------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int kry_dim, SUNContext sunctx);
+SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetATimes_ArnI(SUNDomEigEstimator DEE, void* A_data,
+SUNErrCode SUNDomEigEst_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,
                                        SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEst_SetNumPreProcess_Arnoldi(SUNDomEigEstimator DEE,
                                               int numpreprocess);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                                    sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetNumATimesCalls_ArnI(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEst_GetNumATimesCalls_Arnoldi(SUNDomEigEstimator DEE,
                                                long int* num_ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_PrintStats_ArnI(SUNDomEigEstimator DEE, FILE* outfile);
+SUNErrCode SUNDomEigEst_PrintStats_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_Destroy_ArnI(SUNDomEigEstimator* DEEptr);
+SUNErrCode SUNDomEigEst_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr);
 
 #ifdef __cplusplus
 }

@@ -11,29 +11,31 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * These test functions check some components of Power Iteration
+ * These test functions check some components of Arnoldi Iteration
  * module implementation.
  * -----------------------------------------------------------------
  */
 
 #include <nvector/nvector_serial.h>
-#include <sundomeigest/sundomeigest_pi.h>
+#include <sundomeigest/sundomeigest_arnoldi.h>
 #include "../test_sundomeigest.h"
 
 /* constants */
 #define ZERO SUN_RCONST(0.0)
 
-#define factor      SUN_RCONST(-100.0)
-#define diagonal    SUN_RCONST(-30000.0)
-#define nondiagonal SUN_RCONST(-10000.0)
+#define factor   SUN_RCONST(-100.0)
+#define realpart SUN_RCONST(-30000.0)
+#define imagpart SUN_RCONST(+40000.0)
 
 /* user data structure */
 typedef struct
 {
-  sunindextype N;  /* problem size */
-  N_Vector diag;   /* matrix diagonal */
-  sunrealtype A11; /* diagonal entries of the matrix */
-  sunrealtype A12; /* nondiagonal entries of the matrix */
+  sunindextype N; /* problem size */
+  N_Vector diag;  /* matrix diagonal */
+
+  /* nondiagonal entries of the matrix that lead to the complex conjugate eigenvalues */
+  sunrealtype real_part;
+  sunrealtype imag_part;
 } UserData;
 
 /* private functions */
@@ -53,6 +55,7 @@ int main(int argc, char* argv[])
   UserData ProbData;              /* problem data structure     */
   int num_warmups;                /* number of the preprocessing warmups */
   int max_iters;                  /* max power iteration        */
+  int kry_dim;                    /* Krylov subspace dimension  */
   int curniter;                   /* cur. number of iterations  */
   int max_niter;                  /* max. number of iterations  */
   int min_niter;                  /* min. number of iterations  */
@@ -72,12 +75,12 @@ int main(int argc, char* argv[])
     return (-1);
   }
 
-  /* check inputs: local problem size, max iters, num preprocessing, timing flag */
+  /* check inputs: local problem size, Krylov dimension, preprocessing items, timing flag */
   if (argc < 5)
   {
     printf("ERROR: FOUR (4) Inputs required:\n");
     printf("  Problem size should be >= 2\n");
-    printf("  Maximum number of power iterations should be >0\n");
+    printf("  Krylov subspace dimension should be >0\n");
     printf("  Number of preprocessing should be >= 0\n");
     printf("  Include timers for calculation (0=off, 1=on)\n");
     return 1;
@@ -88,11 +91,10 @@ int main(int argc, char* argv[])
     printf("ERROR: Problem size must be a positive integer\n");
     return 1;
   }
-  max_iters = atoi(argv[2]);
-  if (max_iters <= 0)
+  kry_dim = atoi(argv[2]);
+  if (kry_dim <= 0)
   {
-    printf(
-      "ERROR: Maximum number of power iterations must be a positive integer\n");
+    printf("ERROR: Krylov subspace dimension must be a positive integer\n");
     return 1;
   }
   num_warmups = atoi(argv[3]);
@@ -106,7 +108,7 @@ int main(int argc, char* argv[])
 
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
-  printf("  Number of power iterations = %i\n", max_iters);
+  printf("  Krylov subspace dimension = %i\n", kry_dim);
   printf("  Number of preprocessing = %i\n", num_warmups);
   printf("  Timing output flag = %i\n\n", print_timing);
 
@@ -126,48 +128,54 @@ int main(int argc, char* argv[])
   /* Fill matrix diagonal and problem data */
   // real diag is [3 4 5 ... N 0 0]*factor
   // 2x2 block matrix attached to the last two diagonals is
-  // [ A11   A12 ]
-  // [ A12   A11 ]
-  // This setup allows two different dominant eigenvalues
+  // [ realpart   imagpart;
+  // [-imagpart   realpart]
+  // This setup allows two types of dominant eigenvalues (real and complex)
   // based on the "factor" and the problem dimension N.
-  // 2x2 block has eigenvalues A11 + A12 and A11 - A12
   sunrealtype* v = N_VGetArrayPointer(ProbData.diag);
   for (int i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
 
   // Set the problem data corresponding to 2x2 block matrix
-  ProbData.A11 = diagonal;
-  ProbData.A12 = nondiagonal;
+  ProbData.real_part = realpart;
+  ProbData.imag_part = imagpart;
 
-  /* Create Power Iteration Dominant Eigvalue Estimator (DEE)*/
-  DEE = SUNDomEigEst_PI(q, max_iters, sunctx);
-  if (check_flag(DEE, "SUNDomEigEst_PI", 0)) { return 1; }
+  /* Create Arnoldi Iteration Dominant Eigvalue Estimator (DEE)*/
+  DEE = SUNDomEigEst_Arnoldi(q, kry_dim, sunctx);
+  if (check_flag(DEE, "SUNDomEigEst_Arnoldi", 0)) { return 1; }
 
   fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
+  // SUNDomEigEst_SetMaxIters is not an option for Arnoldi iteration.
+  // It should return with SUN_SUCCESS
+  max_iters = kry_dim;
   fails += Test_SUNDomEigEst_SetMaxIters(DEE, max_iters, 0);
   fails += Test_SUNDomEigEst_SetNumPreProcess(DEE, num_warmups, 0);
   fails += Test_SUNDomEigEst_SetTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEst_Initialize(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
+  // SUNDomEigEst_GetCurRes, SUNDomEigEst_GetCurNumIters, SUNDomEigEst_GetMaxNumIters
+  // and SUNDomEigEst_GetMinNumIters are not options for Arnoldi iteration.
+  // They should return with 0.
   fails += Test_SUNDomEigEst_GetCurRes(DEE, &cur_res, 0);
-  if (cur_res < SUN_SMALL_REAL)
+  if (cur_res > SUN_SMALL_REAL)
   {
     printf("    >>> FAILED test -- SUNDomEigEst_GetCurRes return value\n");
     fails++;
   }
   fails += Test_SUNDomEigEst_GetCurNumIters(DEE, &curniter, 0);
-  if (curniter <= 0)
+  if (curniter != 0)
   {
     printf("    >>> FAILED test -- SUNDomEigEst_GetCurNumIters return value\n");
     fails++;
   }
   fails += Test_SUNDomEigEst_GetMaxNumIters(DEE, &max_niter, 0);
-  if (max_niter <= 0)
+  if (max_niter != 0)
   {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetMaxNumIters return value\n");
+    printf(
+      "    >>> FAILED test -- SUNDomEigEst_GetMaxNumIters return  value\n");
     fails++;
   }
   fails += Test_SUNDomEigEst_GetMinNumIters(DEE, &min_niter, 0);
-  if (min_niter <= 0)
+  if (min_niter != 0)
   {
     printf("    >>> FAILED test -- SUNDomEigEst_GetMinNumIters return value\n");
     fails++;
@@ -177,14 +185,14 @@ int main(int argc, char* argv[])
 
   if (fails)
   {
-    printf("FAIL: SUNDomEigEst_PI module failed %i initialization tests\n\n",
+    printf("FAIL: SUNDomEigEst_Arnoldi module failed %i initialization tests\n\n",
            fails);
     return 1;
   }
   else
   {
     printf(
-      "SUCCESS: SUNDomEigEst_PI module passed all initialization tests\n\n");
+      "SUCCESS: SUNDomEigEst_Arnoldi module passed all initialization tests\n\n");
   }
 
   /* First check if the computed eigenvalue has a nonzero magnitute */
@@ -195,20 +203,17 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  // We ensure real eigenvalues due to symmetry.
-  // If A11 + A12 is larger than factor*ProbData.N,
-  // the dominant eigenvalue must be A11 + A12,
-  // factor*ProbData.N; otherwise.
-
-  /* Identify true_dom_eig based on given parameters*/
-  if (SUNRabs(diagonal + nondiagonal) < SUNRabs(factor * ProbData.N))
+  /* Identify the tlambdaR and tlambdaI based on given parameters*/
+  if (SUNRsqrt(realpart * realpart + imagpart * imagpart) > -factor * ProbData.N)
   {
-    tlambdaR = factor * ProbData.N;
-    tlambdaI = ZERO;
+    /* Dominant eigenvalue corresponds to the 2x2 block matrix */
+    tlambdaR = realpart;
+    tlambdaI = imagpart;
   }
   else
   {
-    tlambdaR = diagonal + nondiagonal;
+    /* Dominant eigenvalue corresponds to the maximum real value at the diagonal */
+    tlambdaR = factor * ProbData.N;
     tlambdaI = ZERO;
   }
 
@@ -219,13 +224,13 @@ int main(int argc, char* argv[])
          " i\n",
          tlambdaR, tlambdaI);
 
-  /* Compare the estimated dom_eig with the true_dom_eig*/
+  /* Compare the estimated dom_eig with the tlambdaR and tlambdaI*/
   rel_error = SUNRsqrt((lambdaR - tlambdaR) * (lambdaR - tlambdaR) +
                        (lambdaI - tlambdaI) * (lambdaI - tlambdaI));
 
   rel_error /= norm_of_dom_eig;
 
-  if (rel_error < SUN_RCONST(10.0) * rel_tol)
+  if (rel_error < rel_tol)
   {
     printf("\n\nPASS:   relative error = " SUN_FORMAT_G " \n\n", rel_error);
   }
@@ -239,7 +244,7 @@ int main(int argc, char* argv[])
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
   N_VDestroy(q);
-  SUNDomEigEst_Destroy_PI(&DEE);
+  SUNDomEigEst_Destroy_Arnoldi(&DEE);
 
   return (passfail);
 }
@@ -252,7 +257,7 @@ int main(int argc, char* argv[])
 int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 {
   /* local variables */
-  sunrealtype *v, *z, *diag, a11, a12;
+  sunrealtype *v, *z, *diag, real_part, imag_part;
   sunindextype i, N;
   UserData* ProbData;
 
@@ -262,18 +267,18 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   if (check_flag(v, "N_VGetArrayPointer", 0)) { return 1; }
   z = N_VGetArrayPointer(z_vec);
   if (check_flag(z, "N_VGetArrayPointer", 0)) { return 1; }
-  N    = ProbData->N;
-  a11  = ProbData->A11;
-  a12  = ProbData->A12;
-  diag = N_VGetArrayPointer(ProbData->diag);
+  N         = ProbData->N;
+  real_part = ProbData->real_part;
+  imag_part = ProbData->imag_part;
+  diag      = N_VGetArrayPointer(ProbData->diag);
   if (check_flag(diag, "N_VGetArrayPointer", 0)) { return 1; }
 
   /* perform product on the diagonal part of the matrix */
   for (i = 0; i < N - 2; i++) { z[i] = diag[i] * v[i]; }
 
   /* perform product at the non-diagonal last two rows */
-  z[N - 2] = v[N - 2] * a11 + v[N - 1] * a12;
-  z[N - 1] = v[N - 1] * a11 + v[N - 2] * a12;
+  z[N - 2] = v[N - 2] * real_part + v[N - 1] * imag_part;
+  z[N - 1] = v[N - 1] * real_part - v[N - 2] * imag_part;
   /* return with success */
   return 0;
 }

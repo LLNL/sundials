@@ -19,7 +19,7 @@
 #define _ARKODE_LSRKSTEP_IMPL_H
 
 #include <arkode/arkode_lsrkstep.h>
-#include <sundomeigest/sundomeigest_pi.h>
+#include <sundomeigest/sundomeigest_power.h>
 
 #include "arkode_impl.h"
 

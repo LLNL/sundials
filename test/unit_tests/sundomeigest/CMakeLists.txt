@@ -22,11 +22,11 @@ endif()
 set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestpi)
 
 if(ENABLE_LAPACK)
-  set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestarni)
+  set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestarnoldi)
 endif()
 
 # Always add the power iteration examples
-add_subdirectory(pi)
+add_subdirectory(Power)
 
 # Build the sundials_sundomeigest test utilities
 add_library(test_sundomeigest_obj OBJECT test_sundomeigest.c)
@@ -40,12 +40,12 @@ target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpi)
 
 # Add the Arnoldi iteration examples if LAPACK is enabled
 if(ENABLE_LAPACK)
-  add_subdirectory(arni)
+  add_subdirectory(Arnoldi)
 
   if(BUILD_SHARED_LIBS)
     set_property(TARGET test_sundomeigest_obj PROPERTY POSITION_INDEPENDENT_CODE
                                                        TRUE)
   endif()
   target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpi
-                                                      sundials_sundomeigestarni)
+                                                      sundials_sundomeigestarnoldi)
 endif()
