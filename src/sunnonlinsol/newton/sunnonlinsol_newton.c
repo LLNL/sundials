@@ -435,12 +435,12 @@ static SUNErrCode setFromCommandLine_Newton(SUNNonlinearSolver NLS,
 
   /* Prefix for options to set */
   const char* default_id = "sunnonlinearsolver";
-  char* prefix           = (char*)malloc(
-    sizeof(char) * SUNMAX(strlen(NLSid) + 1, strlen(default_id) + 1));
+  size_t offset = strlen(default_id) + 1;
+  if (NLSid != NULL) { offset = SUNMAX(strlen(NLSid) + 1, offset); }
+  char* prefix = (char*)malloc(sizeof(char) * offset);
   if (NLSid != NULL && strlen(NLSid) > 0) { strcpy(prefix, NLSid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
-  size_t offset = strlen(prefix);
 
   for (int idx = 1; idx < argc; idx++)
   {

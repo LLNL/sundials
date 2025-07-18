@@ -135,12 +135,12 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
 
   /* Prefix for options to set */
   const char* default_id = "arkode";
-  char* prefix           = (char*)malloc(
-    sizeof(char) * SUNMAX(strlen(arkid) + 1, strlen(default_id) + 1));
+  size_t offset = strlen(default_id) + 1;
+  if (arkid != NULL) { offset = SUNMAX(strlen(arkid) + 1, offset); }
+  char* prefix = (char*)malloc(sizeof(char) * offset);
   if (arkid != NULL && strlen(arkid) > 0) { strcpy(prefix, arkid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
-  size_t offset = strlen(prefix);
 
   sunbooleantype write_parameters = SUNFALSE;
   int retval;

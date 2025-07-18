@@ -119,12 +119,12 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
 
   /* Prefix for options to set */
   const char* default_id = "ida";
-  char* prefix           = (char*)malloc(
-    sizeof(char) * SUNMAX(strlen(idaid) + 1, strlen(default_id) + 1));
+  size_t offset = strlen(default_id) + 1;
+  if (idaid != NULL) { offset = SUNMAX(strlen(idaid) + 1, offset); }
+  char* prefix = (char*)malloc(sizeof(char) * offset);
   if (idaid != NULL && strlen(idaid) > 0) { strcpy(prefix, idaid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
-  size_t offset = strlen(prefix);
 
   for (int idx = 1; idx < argc; idx++)
   {

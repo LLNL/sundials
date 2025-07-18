@@ -274,12 +274,12 @@ static SUNErrCode setFromCommandLine_MagmaDense(SUNLinearSolver S,
 
   /* Prefix for options to set */
   const char* default_id = "sunlinearsolver";
-  char* prefix           = (char*)malloc(
-    sizeof(char) * SUNMAX(strlen(LSid) + 1, strlen(default_id) + 1));
+  size_t offset = strlen(default_id) + 1;
+  if (LSid != NULL) { offset = SUNMAX(strlen(LSid) + 1, offset); }
+  char* prefix = (char*)malloc(sizeof(char) * offset);
   if (LSid != NULL && strlen(LSid) > 0) { strcpy(prefix, LSid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
-  size_t offset = strlen(prefix);
 
   for (int idx = 1; idx < argc; idx++)
   {

@@ -154,12 +154,12 @@ static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
 
   /* Prefix for options to set */
   const char* default_id = "sunadaptcontroller";
-  char* prefix           = (char*)malloc(sizeof(char) *
-                                         SUNMAX(strlen(Cid) + 1, strlen(default_id) + 1));
+  size_t offset = strlen(default_id) + 1;
+  if (Cid != NULL) { offset = SUNMAX(strlen(Cid) + 1, offset); }
+  char* prefix = (char*)malloc(sizeof(char) * offset);
   if (Cid != NULL && strlen(Cid) > 0) { strcpy(prefix, Cid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
-  size_t offset = strlen(prefix);
 
   int retval;
   sunbooleantype write_parameters = SUNFALSE;
