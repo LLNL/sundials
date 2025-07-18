@@ -299,10 +299,7 @@ SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   /* Initialize the Hessenberg matrix Hes with zeros */
   for (int i = 0; i < n; i++)
   {
-    for (int j = 0; j < n; j++)
-    {
-      ArnI_CONTENT(DEE)->Hes[i][j] = ZERO;
-    }
+    for (int j = 0; j < n; j++) { ArnI_CONTENT(DEE)->Hes[i][j] = ZERO; }
   }
 
   for (int i = 0; i < n; i++)
@@ -318,9 +315,8 @@ SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
       else { return SUN_ERR_DEE_ATIMES_FAIL_REC; }
     }
 
-    SUNCheckCall(SUNModifiedGS(ArnI_CONTENT(DEE)->V, ArnI_CONTENT(DEE)->Hes,
-                               i + 1, (int)n,
-                               &(ArnI_CONTENT(DEE)->Hes[i + 1][i])));
+    SUNCheckCall(SUNModifiedGS(ArnI_CONTENT(DEE)->V, ArnI_CONTENT(DEE)->Hes, i + 1,
+                               (int)n, &(ArnI_CONTENT(DEE)->Hes[i + 1][i])));
 
     /* Unitize the computed orthogonal vector */
     N_VScale(SUN_RCONST(1.0) / ArnI_CONTENT(DEE)->Hes[i + 1][i],

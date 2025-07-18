@@ -10,11 +10,10 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNDomEigEst:
+.. _SUNDomEigEst.Introduction:
 
-##############################
-Dominant Eigenvalue Estimators
-##############################
+Introduction to Dominant Eigenvalue Estimators
+==============================================
 
 For problems that require the dominant eigenvalue of a matrix (Jacobian),
 the SUNDIALS packages operate using generic dominant eigenvalue estimator modules

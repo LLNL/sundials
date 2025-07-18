@@ -12,10 +12,13 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. include:: ../../../shared/sundomeigest/SUNDomEigEst_Introduction.rst
+.. _SUNDomEigEst:
+
+##############################
+Dominant Eigenvalue Estimators
+##############################
 
 .. toctree::
    :maxdepth: 1
 
-   SUNDomEigEst_API_link.rst
    SUNDomEigEst_links.rst
