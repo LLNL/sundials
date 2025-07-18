@@ -20,6 +20,7 @@ Analytical DAE test problem:
 
 Final Solver Statistics: 
 
+Initial time step                  = 0.000010
 Number of steps                    = 345
 Number of residual evaluations     = 578
 Number of nonlinear iterations     = 578

@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   N_Vector yp        = NULL; /* empty vector for storing solution derivative */
   SUNLinearSolver LS = NULL; /* empty linear solver object */
   void* ida_mem      = NULL; /* empty IDA memory structure */
-  sunrealtype t, tout;
+  sunrealtype t, tout, h0;
   long int nst, nre, nni, netf, ncfn, nreLS;
 
   /* Initial diagnostics output */
@@ -154,6 +154,8 @@ int main(int argc, char* argv[])
   printf("   ----------------------------------\n");
 
   /* Get/print some final statistics on how the solve progressed */
+  retval = IDAGetActualInitStep(ida_mem, &h0);
+  check_retval(&retval, "IDAGetActualInitStep", 1);
   retval = IDAGetNumSteps(ida_mem, &nst);
   check_retval(&retval, "IDAGetNumSteps", 1);
   retval = IDAGetNumResEvals(ida_mem, &nre);
@@ -168,6 +170,7 @@ int main(int argc, char* argv[])
   check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
   printf("\nFinal Solver Statistics: \n\n");
+  printf("Initial time step                  = %8.6" FSYM "\n", h0);
   printf("Number of steps                    = %ld\n", nst);
   printf("Number of residual evaluations     = %ld\n", nre + nreLS);
   printf("Number of nonlinear iterations     = %ld\n", nni);
