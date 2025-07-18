@@ -68,7 +68,7 @@ int Test_SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* ATdata,
 /* ----------------------------------------------------------------------
  * SUNDomEigEst_SetMaxIters Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, int max_iters, int myid)
+int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters, int myid)
 {
   int failure;
   double start_time, stop_time;
@@ -248,7 +248,7 @@ int Test_SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
 /* ----------------------------------------------------------------------
  * SUNDomEigEst_GetCurNumIters Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter,
+int Test_SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, long int* curniter,
                                      int myid)
 {
   int failure;
@@ -279,7 +279,7 @@ int Test_SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter,
 /* ----------------------------------------------------------------------
  * SUNDomEigEst_GetMaxNumIters Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* max_niter,
+int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, long int* max_niter,
                                      int myid)
 {
   int failure;
@@ -310,7 +310,7 @@ int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* max_niter,
 /* ----------------------------------------------------------------------
  * SUNDomEigEst_GetMinNumIters Test
  * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* min_niter,
+int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, long int* min_niter,
                                      int myid)
 {
   int failure;

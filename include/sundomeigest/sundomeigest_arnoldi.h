@@ -63,7 +63,7 @@ typedef struct _SUNDomEigEstimatorContent_Arnoldi* SUNDomEigEstimatorContent_Arn
  * --------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim,
+SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, int num_warmups,
                                         SUNContext sunctx);
 
 SUNDIALS_EXPORT

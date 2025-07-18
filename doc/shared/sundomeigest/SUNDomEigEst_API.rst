@@ -218,7 +218,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
          retval = SUNDomEigEst_SetTol(DEE, tol);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, int max_iters)
+.. c:function:: SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters)
 
    This *optional* routine sets the maximum number of iterations.
 
@@ -268,7 +268,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
          retval = SUNDomEigEst_GetCurRes(DEE, &cur_res);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter)
+.. c:function:: SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, long int* curniter)
 
    This *optional* routine should return the number of estimator
    iterations performed in the most-recent "estimator" call.
@@ -286,11 +286,11 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       .. code-block:: c
 
-         int curniter;
+         long int curniter;
          retval = SUNDomEigEst_GetCurNumIters(DEE, &curniter);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* max_niter)
+.. c:function:: SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, long int* max_niter)
 
    This *optional* routine should return the maximum number of iterations
    performed in all "estimator" calls so far.
@@ -308,11 +308,11 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       .. code-block:: c
 
-         int max_niter;
+         long int max_niter;
          retval = SUNDomEigEst_GetMaxNumIters(DEE, &max_niter);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* min_niter)
+.. c:function:: SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, long int* min_niter)
 
    This *optional* routine should return the minimum number of iterations
    performed in all "estimator" calls so far.
@@ -330,7 +330,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       .. code-block:: c
 
-         int min_niter;
+         long int min_niter;
          retval = SUNDomEigEst_GetMinNumIters(DEE, &min_niter);
 
 .. c:function:: SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* num_ATimes)

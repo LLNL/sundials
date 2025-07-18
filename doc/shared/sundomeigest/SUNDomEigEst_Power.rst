@@ -64,7 +64,7 @@ The SUNDomEigEst_Power module is accessible from all SUNDIALS solvers *without* 
 The module SUNDomEigEst_Power provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, int max_iters, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters, int num_warmups, sunrealtype rel_tol, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a PI
    ``SUNDomEigEstimator``.
@@ -72,6 +72,8 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
    **Arguments:**
       * *q* -- a template vector.
       * *max_iters* -- maximum number of iterations.
+      * *num_warmups* -- number of preprocessing warmups.
+      * *rel_tol* -- relative tolerance for convergence check.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
@@ -93,6 +95,14 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
 
       2.  an early (less costly) termination will be a good indicator if PI is compatible.
 
+      Preprocessing warmups for power iteration refer to running power iteration without 
+      checking for convergence. This can help reduce some computational overhead.
+      A ``num_warmups`` argument that is :math:` < 0` will result in the default
+      value (0).  This default is chosen to minimize complexity for the general user.
+
+      A ``rel_tol`` argument that is :math:` < 0` will result in the default
+      value (0.01).  This default is found particularly small enough for many internal applications.
+
 
 .. _SUNDomEigEst.POWER.Description:
 
@@ -111,10 +121,10 @@ The SUNDomEigEst_Power module defines the *content* field of a
      N_Vector* V;
      N_Vector q;
      int num_warmups;
-     int max_iters;
-     int cur_num_iters;
-     int max_num_iters;
-     int min_num_iters;
+     long int max_iters;
+     long int cur_num_iters;
+     long int max_num_iters;
+     long int min_num_iters;
      long int num_ATimes;
      sunrealtype powiter_tol;
      sunrealtype cur_res;

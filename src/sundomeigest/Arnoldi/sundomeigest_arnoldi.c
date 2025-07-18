@@ -69,7 +69,8 @@ int sundomeigest_Compare(const void* a, const void* b);
  * Function to create a new Arnoldi estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, 
+                                        int num_warmups, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -77,6 +78,9 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunc
 
   /* Check if kry_dim >= 2 */
   if (kry_dim < 3) { kry_dim = DEE_KRYLOV_DIM_DEFAULT; }
+
+  /* Check if num_warmups >= 0 */
+  if (num_warmups < 0) { kry_dim = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT; }
 
   /* check for legal q; if illegal return NULL */
   SUNAssertNull(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
@@ -117,7 +121,7 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunc
   content->V           = NULL;
   content->q           = NULL;
   content->kry_dim     = kry_dim;
-  content->num_warmups = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT;
+  content->num_warmups = num_warmups;
   content->LAPACK_A    = NULL;
   content->LAPACK_wr   = NULL;
   content->LAPACK_wi   = NULL;

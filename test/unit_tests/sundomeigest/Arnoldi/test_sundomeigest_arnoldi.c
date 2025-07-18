@@ -54,11 +54,11 @@ int main(int argc, char* argv[])
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
   UserData ProbData;              /* problem data structure     */
   int num_warmups;                /* number of the preprocessing warmups */
-  int max_iters;                  /* max power iteration        */
+  long int max_iters;             /* max power iteration        */
   int kry_dim;                    /* Krylov subspace dimension  */
-  int curniter;                   /* cur. number of iterations  */
-  int max_niter;                  /* max. number of iterations  */
-  int min_niter;                  /* min. number of iterations  */
+  long int curniter;              /* cur. number of iterations  */
+  long int max_niter;             /* max. number of iterations  */
+  long int min_niter;             /* min. number of iterations  */
   long int num_ATimes;            /* number of ATimes calls     */
   int print_timing;               /* timing output flag         */
   sunrealtype cur_res;            /* current residual           */
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
   ProbData.imag_part = imagpart;
 
   /* Create Arnoldi Iteration Dominant Eigvalue Estimator (DEE)*/
-  DEE = SUNDomEigEst_Arnoldi(q, kry_dim, sunctx);
+  DEE = SUNDomEigEst_Arnoldi(q, kry_dim, num_warmups, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_Arnoldi", 0)) { return 1; }
 
   fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
   N_VDestroy(q);
-  SUNDomEigEst_Destroy_Arnoldi(&DEE);
+  SUNDomEigEst_Destroy(&DEE);
 
   return (passfail);
 }

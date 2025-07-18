@@ -52,7 +52,8 @@
  * Function to create a new PI estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, int max_iters, SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
+                                      int num_warmups, sunrealtype rel_tol, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -65,6 +66,12 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, int max_iters, SUNContext sunc
 
   /* check for max_iters values; if illegal use defaults */
   if (max_iters <= 0) { max_iters = DEE_MAX_ITER_DEFAULT; }
+
+  /* Check if num_warmups >= 0 */
+  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_PI_DEFAULT; }
+
+  /* Check if rel_tol > 0 */
+  if (rel_tol < SUN_SMALL_REAL) { rel_tol = DEE_TOL_DEFAULT; }
 
   /* Create dominant eigenvalue estimator */
   DEE = NULL;
@@ -99,9 +106,9 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, int max_iters, SUNContext sunc
   content->ATdata        = NULL;
   content->V             = NULL;
   content->q             = NULL;
-  content->num_warmups   = DEE_NUM_OF_WARMUPS_PI_DEFAULT;
   content->max_iters     = max_iters;
-  content->powiter_tol   = ZERO;
+  content->num_warmups   = num_warmups;
+  content->powiter_tol   = rel_tol;
   content->cur_res       = ZERO;
   content->cur_num_iters = 0;
   content->max_num_iters = 0;
@@ -186,12 +193,18 @@ SUNErrCode SUNDomEigEst_SetTol_Power(SUNDomEigEstimator DEE, sunrealtype tol)
 {
   SUNFunctionBegin(DEE->sunctx);
 
+  /* Check if rel_tol > 0 */
+  if(tol < SUN_SMALL_REAL)
+  {
+    tol = DEE_TOL_DEFAULT;
+  }
+
   /* set the tolerance */
   PI_CONTENT(DEE)->powiter_tol = tol;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE, int max_iters)
+SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE, long int max_iters)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -297,7 +310,7 @@ SUNErrCode SUNDomEigEst_GetCurRes_Power(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_GetCurNumIters_Power(SUNDomEigEstimator DEE, int* curniter)
+SUNErrCode SUNDomEigEst_GetCurNumIters_Power(SUNDomEigEstimator DEE, long int* curniter)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -311,7 +324,7 @@ SUNErrCode SUNDomEigEst_GetCurNumIters_Power(SUNDomEigEstimator DEE, int* curnit
 }
 
 SUNErrCode SUNDomEigEst_GetMaxNumIters_Power(SUNDomEigEstimator DEE,
-                                             int* max_niter)
+                                             long int* max_niter)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -325,7 +338,7 @@ SUNErrCode SUNDomEigEst_GetMaxNumIters_Power(SUNDomEigEstimator DEE,
 }
 
 SUNErrCode SUNDomEigEst_GetMinNumIters_Power(SUNDomEigEstimator DEE,
-                                             int* min_niter)
+                                             long int* min_niter)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -360,19 +373,19 @@ SUNErrCode SUNDomEigEst_PrintStats_Power(SUNDomEigEstimator DEE, FILE* outfile)
 
   fprintf(outfile, "\nPower Iteration DEE Statistics:");
   fprintf(outfile, "\n------------------------------------------------\n");
-  fprintf(outfile, "Max. num. of iters allowed    = %d\n",
+  fprintf(outfile, "Max. num. of iters allowed    = %ld\n",
           PI_CONTENT(DEE)->max_iters);
-  fprintf(outfile, "Num. of warmups               = %d\n",
+  fprintf(outfile, "Num. of warmups               = %ld\n",
           PI_CONTENT(DEE)->num_warmups);
   fprintf(outfile, "Power iteration tolerance     = " SUN_FORMAT_G "\n",
           PI_CONTENT(DEE)->powiter_tol);
   fprintf(outfile, "Cur. residual                 = " SUN_FORMAT_G "\n",
           PI_CONTENT(DEE)->cur_res);
-  fprintf(outfile, "Cur. num. of power iters      = %d\n",
+  fprintf(outfile, "Cur. num. of power iters      = %ld\n",
           PI_CONTENT(DEE)->cur_num_iters);
-  fprintf(outfile, "Max. num. of power iters      = %d\n",
+  fprintf(outfile, "Max. num. of power iters      = %ld\n",
           PI_CONTENT(DEE)->max_num_iters);
-  fprintf(outfile, "Min. num. of power iters      = %d\n",
+  fprintf(outfile, "Min. num. of power iters      = %ld\n",
           PI_CONTENT(DEE)->min_num_iters);
   fprintf(outfile, "Num. of ATimes calls          = %ld\n\n",
           PI_CONTENT(DEE)->num_ATimes);

@@ -279,13 +279,16 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
 
   /* Initialize all the counters, flags and stats */
   step_mem->nfe                 = 0;
+  step_mem->nfeDQ               = 0; // what should we do for DEE?
   step_mem->dom_eig_num_evals   = 0;
   step_mem->stage_max           = 0;
   step_mem->spectral_radius_max = 0;
   step_mem->spectral_radius_min = 0;
   step_mem->dom_eig_nst         = 0;
+  step_mem->num_succ_warmups    = DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT;
   step_mem->dom_eig_update      = SUNTRUE;
   step_mem->dom_eig_is_current  = SUNFALSE;
+  // step_mem->DEE_init = SUNTRUE; // Needs to be modified depending on the answer.
 
   return ARK_SUCCESS;
 }
@@ -334,6 +337,19 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
                     "STS methods require either a user provided dominant "
                     "eigenvalue function or a SUNDomEigEstimator");
     return ARK_DOMEIG_FAIL;
+  }
+
+  /* Initialize the DEE */
+  if(step_mem->DEE_init && step_mem->DEE != NULL)
+  {
+    retval = SUNDomEigEst_Initialize(step_mem->DEE);
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
+      return ARK_DEE_FAIL;
+    }
+    step_mem->DEE_init = SUNFALSE;
   }
 
   /* Allocate reusable arrays for fused vector interface */

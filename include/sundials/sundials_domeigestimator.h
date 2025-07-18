@@ -45,15 +45,15 @@ typedef _SUNDIALS_STRUCT_ _generic_SUNDomEigEstimator* SUNDomEigEstimator;
 struct _generic_SUNDomEigEstimator_Ops
 {
   SUNErrCode (*setatimes)(SUNDomEigEstimator, void*, SUNATimesFn);
-  SUNErrCode (*setmaxiters)(SUNDomEigEstimator, int);
+  SUNErrCode (*setmaxiters)(SUNDomEigEstimator, long int);
   SUNErrCode (*setnumpreprocess)(SUNDomEigEstimator, int);
   SUNErrCode (*settol)(SUNDomEigEstimator, sunrealtype);
   SUNErrCode (*initialize)(SUNDomEigEstimator);
   SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*);
   SUNErrCode (*getcurres)(SUNDomEigEstimator, sunrealtype*);
-  SUNErrCode (*getcurniters)(SUNDomEigEstimator, int*);
-  SUNErrCode (*getmaxniters)(SUNDomEigEstimator, int*);
-  SUNErrCode (*getminniters)(SUNDomEigEstimator, int*);
+  SUNErrCode (*getcurniters)(SUNDomEigEstimator, long int*);
+  SUNErrCode (*getmaxniters)(SUNDomEigEstimator, long int*);
+  SUNErrCode (*getminniters)(SUNDomEigEstimator, long int*);
   SUNErrCode (*getnumatimescalls)(SUNDomEigEstimator, long int*);
   SUNErrCode (*printstats)(SUNDomEigEstimator, FILE*);
   SUNErrCode (*free)(SUNDomEigEstimator*);
@@ -84,7 +84,7 @@ SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data,
                                   SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, int max_iters);
+SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE,
@@ -104,13 +104,13 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, int* curniter);
+SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, long int* curniter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, int* max_niter);
+SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, long int* max_niter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, int* min_niter);
+SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, long int* min_niter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,

@@ -295,13 +295,15 @@ int main(int argc, char* argv[])
   if (udata->dee_id == 0)
   {
     /* Create power iteration dominant eigenvalue estimator */
-    DEE = SUNDomEigEst_Power(q, udata->dee_max_iters, ctx);
+    DEE = SUNDomEigEst_Power(q, udata->dee_max_iters,
+                             udata->dee_num_init_wups, udata->dee_reltol, ctx);
     if (check_flag(DEE, "SUNDomEigEst_Power", 0)) { return 1; }
   }
   else if (udata->dee_id == 1)
   {
     /* Create Arnoldi dominant eigenvalue estimator */
-    DEE = SUNDomEigEst_Arnoldi(q, udata->dee_krylov_dim, ctx);
+    DEE = SUNDomEigEst_Arnoldi(q, udata->dee_krylov_dim, 
+                               udata->dee_num_init_wups, ctx);
     if (check_flag(DEE, "SUNDomEigEst_Arnoldi", 0)) { return 1; }
   }
   else

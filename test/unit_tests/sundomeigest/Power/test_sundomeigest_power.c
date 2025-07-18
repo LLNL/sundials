@@ -52,10 +52,10 @@ int main(int argc, char* argv[])
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
   UserData ProbData;              /* problem data structure     */
   int num_warmups;                /* number of the preprocessing warmups */
-  int max_iters;                  /* max power iteration        */
-  int curniter;                   /* cur. number of iterations  */
-  int max_niter;                  /* max. number of iterations  */
-  int min_niter;                  /* min. number of iterations  */
+  long int max_iters;             /* max power iteration        */
+  long int curniter;              /* cur. number of iterations  */
+  long int max_niter;             /* max. number of iterations  */
+  long int min_niter;             /* min. number of iterations  */
   long int num_ATimes;            /* number of ATimes calls     */
   int print_timing;               /* timing output flag         */
   sunrealtype cur_res;            /* current residual           */
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
-  printf("  Number of power iterations = %i\n", max_iters);
+  printf("  Number of power iterations = %ld\n", (long int)max_iters);
   printf("  Number of preprocessing = %i\n", num_warmups);
   printf("  Timing output flag = %i\n\n", print_timing);
 
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
   ProbData.A12 = nondiagonal;
 
   /* Create Power Iteration Dominant Eigvalue Estimator (DEE)*/
-  DEE = SUNDomEigEst_Power(q, max_iters, sunctx);
+  DEE = SUNDomEigEst_Power(q, max_iters, num_warmups, rel_tol, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_Power", 0)) { return 1; }
 
   fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
   N_VDestroy(q);
-  SUNDomEigEst_Destroy_Power(&DEE);
+  SUNDomEigEst_Destroy(&DEE);
 
   return (passfail);
 }

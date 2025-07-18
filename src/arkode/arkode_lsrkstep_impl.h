@@ -166,6 +166,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunbooleantype dom_eig_is_current; /* SUNTRUE if dom_eig has been evaluated at tn */
   sunbooleantype is_SSP;             /* flag indicating SSP method*/
   sunbooleantype init_warmup;        /* flag indicating initial warm-up*/
+  sunbooleantype DEE_init;           /* flag indicating DEE needs initialization */
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;

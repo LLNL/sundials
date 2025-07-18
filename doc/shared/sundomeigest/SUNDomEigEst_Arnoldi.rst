@@ -66,7 +66,7 @@ This LAPACK dependence is limited to the eigenvalue estimation of the Hessenberg
 The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, int num_warmups, SUNContext sunctx);
 
    This constructor function creates and allocates memory for an Arnoldi
    ``SUNDomEigEstimator``.
@@ -74,6 +74,7 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
    **Arguments:**
       * *q* -- a template vector.
       * *kry_dim* -- the dimension of the Krylov subspaces.
+      * *num_warmups* -- number of preprocessing warmups.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
@@ -88,6 +89,10 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
       A ``kry_dim`` argument that is :math:`\leq 2` will result in the default
       value (3).  This default value is particularly chosen to minimize the memory
       footprint.
+
+      A ``num_warmups`` argument that is :math:` < 0` will result in the default
+      value (100).  This default value is particularly chosen to minimize the memory
+      footprint by lowering the required ``kry_dim``.
 
 .. _SUNDomEigEst.ARNOLDI.Description:
 
