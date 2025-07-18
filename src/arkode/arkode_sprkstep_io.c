@@ -209,10 +209,6 @@ int sprkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
     {"method_name", SPRKStepSetMethodName}};
   static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
 
-  static const struct sunKeyIntPair int_pairs[] = {
-    {"use_compensated_sums", SPRKStepSetUseCompensatedSums}};
-  static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
-
   /* check all "char" keys */
   int j, retval;
   retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
@@ -224,16 +220,6 @@ int sprkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
     return retval;
   }
   if (*arg_used) { return ARK_SUCCESS; }
-
-  /* check all "int" keys */
-  retval = sunCheckAndSetIntArgs((void*)ark_mem, argidx, argv, offset,
-                                 int_pairs, num_int_keys, arg_used, &j);
-  if (retval != SUN_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "error setting key: %s", int_pairs[j].key);
-    return retval;
-  }
 
   return (ARK_SUCCESS);
 }

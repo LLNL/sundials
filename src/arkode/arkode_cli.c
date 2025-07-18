@@ -86,7 +86,8 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"small_num_efails", ARKodeSetSmallNumEFails},
      {"max_err_test_fails", ARKodeSetMaxErrTestFails},
      {"max_conv_fails", ARKodeSetMaxConvFails},
-     {"linear_solution_scaling", ARKodeSetLinearSolutionScaling}};
+     {"linear_solution_scaling", ARKodeSetLinearSolutionScaling},
+     {"use_compensated_sums", ARKodeSetUseCompensatedSums}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static const struct sunKeyLongPair long_pairs[] = {{"max_num_steps",

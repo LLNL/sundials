@@ -506,11 +506,6 @@ Optional inputs for IVP method selection
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument had an illegal value
 
-   .. note::
-
-      This routine will be called by :c:func:`ARKodeSetOptions`
-      when using the key "arkid.use_compensated_sums".
-
    .. deprecated:: 6.4.0
 
       Use :c:func:`ARKodeSetUseCompensatedSums` instead.
