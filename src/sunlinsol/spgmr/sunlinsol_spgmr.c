@@ -180,7 +180,7 @@ static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
 
   /* Prefix for options to set */
   const char* default_id = "sunlinearsolver";
-  size_t offset = strlen(default_id) + 1;
+  size_t offset          = strlen(default_id) + 1;
   if (LSid != NULL) { offset = SUNMAX(strlen(LSid) + 1, offset); }
   char* prefix = (char*)malloc(sizeof(char) * offset);
   if (LSid != NULL && strlen(LSid) > 0) { strcpy(prefix, LSid); }

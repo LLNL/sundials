@@ -105,7 +105,7 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
 
   /* Prefix for options to set */
   const char* default_id = "kinsol";
-  size_t offset = strlen(default_id) + 1;
+  size_t offset          = strlen(default_id) + 1;
   if (kinid != NULL) { offset = SUNMAX(strlen(kinid) + 1, offset); }
   char* prefix = (char*)malloc(sizeof(char) * offset);
   if (kinid != NULL && strlen(kinid) > 0) { strcpy(prefix, kinid); }
