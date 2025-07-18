@@ -53,7 +53,8 @@
  */
 
 SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
-                                      int num_warmups, sunrealtype rel_tol, SUNContext sunctx)
+                                      int num_warmups, sunrealtype rel_tol,
+                                      SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -194,17 +195,15 @@ SUNErrCode SUNDomEigEst_SetTol_Power(SUNDomEigEstimator DEE, sunrealtype tol)
   SUNFunctionBegin(DEE->sunctx);
 
   /* Check if rel_tol > 0 */
-  if(tol < SUN_SMALL_REAL)
-  {
-    tol = DEE_TOL_DEFAULT;
-  }
+  if (tol < SUN_SMALL_REAL) { tol = DEE_TOL_DEFAULT; }
 
   /* set the tolerance */
   PI_CONTENT(DEE)->powiter_tol = tol;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE, long int max_iters)
+SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE,
+                                          long int max_iters)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -310,7 +309,8 @@ SUNErrCode SUNDomEigEst_GetCurRes_Power(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_GetCurNumIters_Power(SUNDomEigEstimator DEE, long int* curniter)
+SUNErrCode SUNDomEigEst_GetCurNumIters_Power(SUNDomEigEstimator DEE,
+                                             long int* curniter)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -375,7 +375,7 @@ SUNErrCode SUNDomEigEst_PrintStats_Power(SUNDomEigEstimator DEE, FILE* outfile)
   fprintf(outfile, "\n------------------------------------------------\n");
   fprintf(outfile, "Max. num. of iters allowed    = %ld\n",
           PI_CONTENT(DEE)->max_iters);
-  fprintf(outfile, "Num. of warmups               = %ld\n",
+  fprintf(outfile, "Num. of warmups               = %d\n",
           PI_CONTENT(DEE)->num_warmups);
   fprintf(outfile, "Power iteration tolerance     = " SUN_FORMAT_G "\n",
           PI_CONTENT(DEE)->powiter_tol);

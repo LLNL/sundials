@@ -340,7 +340,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   }
 
   /* Initialize the DEE */
-  if(step_mem->DEE_init && step_mem->DEE != NULL)
+  if (step_mem->DEE_init && step_mem->DEE != NULL)
   {
     retval = SUNDomEigEst_Initialize(step_mem->DEE);
     if (retval != SUN_SUCCESS)

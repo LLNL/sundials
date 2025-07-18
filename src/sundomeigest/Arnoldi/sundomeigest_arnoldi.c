@@ -69,7 +69,7 @@ int sundomeigest_Compare(const void* a, const void* b);
  * Function to create a new Arnoldi estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, 
+SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim,
                                         int num_warmups, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);

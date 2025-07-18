@@ -42,10 +42,10 @@ int Test_SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
                                 int myid);
 int Test_SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, long int* curniter,
                                      int myid);
-int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, long int* max_niter,
-                                     int myid);
-int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, long int* min_niter,
-                                     int myid);
+int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE,
+                                     long int* max_niter, int myid);
+int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE,
+                                     long int* min_niter, int myid);
 int Test_SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
                                         long int* num_ATimes, int myid);
 int Test_SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, int myid);

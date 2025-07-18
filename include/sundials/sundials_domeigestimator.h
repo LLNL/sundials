@@ -104,13 +104,16 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, long int* curniter);
+SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE,
+                                       long int* curniter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, long int* max_niter);
+SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE,
+                                       long int* max_niter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, long int* min_niter);
+SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE,
+                                       long int* min_niter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,

@@ -41,7 +41,7 @@ struct _SUNDomEigEstimatorContent_Power
   N_Vector V, q; /* workspace vectors */
 
   int num_warmups; /* Power of A in the preprocessing; initial q = A^{num_warmups}q/||A^{num_warmups}q|| */
-  long int max_iters;   /* Maximum number of power iterations */
+  long int max_iters;     /* Maximum number of power iterations */
   long int cur_num_iters; /* Current number of power iterations */
 
   long int max_num_iters; /* Maximum number of power iterations so far */
@@ -61,14 +61,16 @@ typedef struct _SUNDomEigEstimatorContent_Power* SUNDomEigEstimatorContent_Power
 
 SUNDIALS_EXPORT
 SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
-                                      int num_warmups, sunrealtype rel_tol, SUNContext sunctx);
+                                      int num_warmups, sunrealtype rel_tol,
+                                      SUNContext sunctx);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetATimes_Power(SUNDomEigEstimator DEE, void* A_data,
                                         SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE, long int max_iters);
+SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE,
+                                          long int max_iters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetNumPreProcess_Power(SUNDomEigEstimator DEE,
