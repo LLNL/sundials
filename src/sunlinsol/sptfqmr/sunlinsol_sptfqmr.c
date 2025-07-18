@@ -197,7 +197,7 @@ static SUNErrCode setFromCommandLine_SPTFQMR(SUNLinearSolver S, const char* LSid
   const char* default_id = "sunlinearsolver";
   size_t offset          = strlen(default_id) + 1;
   if (LSid != NULL) { offset = SUNMAX(strlen(LSid) + 1, offset); }
-  char* prefix = (char*)malloc(sizeof(char) * (offset+1));
+  char* prefix = (char*)malloc(sizeof(char) * (offset + 1));
   if (LSid != NULL && strlen(LSid) > 0) { strcpy(prefix, LSid); }
   else { strcpy(prefix, default_id); }
   strcat(prefix, ".");
