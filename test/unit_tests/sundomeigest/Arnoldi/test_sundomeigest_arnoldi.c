@@ -185,14 +185,15 @@ int main(int argc, char* argv[])
 
   if (fails)
   {
-    printf("FAIL: SUNDomEigEst_Arnoldi module failed %i initialization tests\n\n",
+    printf("FAIL: SUNDomEigEst_Arnoldi module failed %i initialization "
+           "tests\n\n",
            fails);
     return 1;
   }
   else
   {
-    printf(
-      "SUCCESS: SUNDomEigEst_Arnoldi module passed all initialization tests\n\n");
+    printf("SUCCESS: SUNDomEigEst_Arnoldi module passed all initialization "
+           "tests\n\n");
   }
 
   /* First check if the computed eigenvalue has a nonzero magnitute */

@@ -77,4 +77,3 @@ foreach(example_tuple ${sundomeigest_arnoldi_examples})
     NODIFF)
 
 endforeach(example_tuple ${sundomeigest_arnoldi_examples})
-

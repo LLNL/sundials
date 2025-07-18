@@ -51,7 +51,7 @@ approximation of the matrix-vector product, :math:`Av`, is required.
 .. _SUNDomEigEst.ARNOLDI.Usage:
 
 SUNDomEigEst_ARNOLDI Usage
------------------------
+-------------------------------
 
 The header file to be included when using this module is ``sundomeigest/sundomeigest_arnoldi.h``.
 The SUNDomEigEst_ARNOLDI module is accessible from all SUNDIALS solvers *without* linking to the
@@ -92,7 +92,7 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
 .. _SUNDomEigEst.ARNOLDI.Description:
 
 SUNDomEigEst_ARNOLDI Description
------------------------------
+-------------------------------------
 
 
 The SUNDomEigEst_ARNOLDI module defines the *content* field of a

@@ -55,7 +55,7 @@ amount of memory regardless of the number of iterations.
 .. _SUNDomEigEst.POWER.Usage:
 
 SUNDomEigEst_Power Usage
----------------------
+-----------------------------
 
 The header file to be included when using this module is ``sundomeigest/sundomeigest_power.h``.
 The SUNDomEigEst_Power module is accessible from all SUNDIALS solvers *without* linking to the
@@ -97,7 +97,7 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
 .. _SUNDomEigEst.POWER.Description:
 
 SUNDomEigEst_Power Description
----------------------------
+--------------------------------
 
 
 The SUNDomEigEst_Power module defines the *content* field of a

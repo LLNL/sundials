@@ -128,7 +128,7 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, int max_iters, SUNContext sunc
  */
 
 SUNErrCode SUNDomEigEst_SetATimes_Power(SUNDomEigEstimator DEE, void* A_data,
-                                     SUNATimesFn ATimes)
+                                        SUNATimesFn ATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -173,7 +173,7 @@ SUNErrCode SUNDomEigEst_Initialize_Power(SUNDomEigEstimator DEE)
 }
 
 SUNErrCode SUNDomEigEst_SetNumPreProcess_Power(SUNDomEigEstimator DEE,
-                                            int numpreprocess)
+                                               int numpreprocess)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -203,8 +203,8 @@ SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE, int max_iters)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                                 sunrealtype* lambdaI)
+SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
+                                    sunrealtype* lambdaR, sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -283,7 +283,8 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE, sunrealtype* lambdaR
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_GetCurRes_Power(SUNDomEigEstimator DEE, sunrealtype* cur_res)
+SUNErrCode SUNDomEigEst_GetCurRes_Power(SUNDomEigEstimator DEE,
+                                        sunrealtype* cur_res)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -309,7 +310,8 @@ SUNErrCode SUNDomEigEst_GetCurNumIters_Power(SUNDomEigEstimator DEE, int* curnit
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_GetMaxNumIters_Power(SUNDomEigEstimator DEE, int* max_niter)
+SUNErrCode SUNDomEigEst_GetMaxNumIters_Power(SUNDomEigEstimator DEE,
+                                             int* max_niter)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -322,7 +324,8 @@ SUNErrCode SUNDomEigEst_GetMaxNumIters_Power(SUNDomEigEstimator DEE, int* max_ni
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_GetMinNumIters_Power(SUNDomEigEstimator DEE, int* min_niter)
+SUNErrCode SUNDomEigEst_GetMinNumIters_Power(SUNDomEigEstimator DEE,
+                                             int* min_niter)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -336,7 +339,7 @@ SUNErrCode SUNDomEigEst_GetMinNumIters_Power(SUNDomEigEstimator DEE, int* min_ni
 }
 
 SUNErrCode SUNDomEigEst_GetNumATimesCalls_Power(SUNDomEigEstimator DEE,
-                                             long int* num_ATimes)
+                                                long int* num_ATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
 

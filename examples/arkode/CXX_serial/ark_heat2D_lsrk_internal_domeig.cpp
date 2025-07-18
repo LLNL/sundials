@@ -63,7 +63,7 @@
 #include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
 
 #include <sundomeigest/sundomeigest_arnoldi.h> // access to Arnoldi Iteration module
-#include <sundomeigest/sundomeigest_power.h>   // access to Power Iteration module
+#include <sundomeigest/sundomeigest_power.h> // access to Power Iteration module
 
 // Macros for problem constants
 #define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)

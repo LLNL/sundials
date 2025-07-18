@@ -46,6 +46,7 @@ if(ENABLE_LAPACK)
     set_property(TARGET test_sundomeigest_obj PROPERTY POSITION_INDEPENDENT_CODE
                                                        TRUE)
   endif()
-  target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpi
-                                                      sundials_sundomeigestarnoldi)
+  target_link_libraries(
+    test_sundomeigest_obj PRIVATE sundials_sundomeigestpi
+                                  sundials_sundomeigestarnoldi)
 endif()

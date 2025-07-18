@@ -63,26 +63,27 @@ typedef struct _SUNDomEigEstimatorContent_Arnoldi* SUNDomEigEstimatorContent_Arn
  * --------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx);
+SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim,
+                                        SUNContext sunctx);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,
-                                       SUNATimesFn ATimes);
+                                          SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetNumPreProcess_Arnoldi(SUNDomEigEstimator DEE,
-                                              int numpreprocess);
+                                                 int numpreprocess);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                                   sunrealtype* lambdaI);
+SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
+                                      sunrealtype* lambdaR, sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumATimesCalls_Arnoldi(SUNDomEigEstimator DEE,
-                                               long int* num_ATimes);
+                                                  long int* num_ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile);

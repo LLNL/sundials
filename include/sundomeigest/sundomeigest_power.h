@@ -60,18 +60,19 @@ typedef struct _SUNDomEigEstimatorContent_Power* SUNDomEigEstimatorContent_Power
  * --------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, int max_iters, SUNContext sunctx);
+SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, int max_iters,
+                                      SUNContext sunctx);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetATimes_Power(SUNDomEigEstimator DEE, void* A_data,
-                                     SUNATimesFn ATimes);
+                                        SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE, int max_iters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetNumPreProcess_Power(SUNDomEigEstimator DEE,
-                                            int numpreprocess);
+                                               int numpreprocess);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetTol_Power(SUNDomEigEstimator DEE, sunrealtype tol);
@@ -80,25 +81,28 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Initialize_Power(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                                 sunrealtype* lambdaI);
+SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
+                                    sunrealtype* lambdaR, sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetCurRes_Power(SUNDomEigEstimator DEE,
-                                     sunrealtype* cur_res);
+                                        sunrealtype* cur_res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetCurNumIters_Power(SUNDomEigEstimator DEE, int* curniter);
+SUNErrCode SUNDomEigEst_GetCurNumIters_Power(SUNDomEigEstimator DEE,
+                                             int* curniter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMaxNumIters_Power(SUNDomEigEstimator DEE, int* max_niter);
+SUNErrCode SUNDomEigEst_GetMaxNumIters_Power(SUNDomEigEstimator DEE,
+                                             int* max_niter);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMinNumIters_Power(SUNDomEigEstimator DEE, int* min_niter);
+SUNErrCode SUNDomEigEst_GetMinNumIters_Power(SUNDomEigEstimator DEE,
+                                             int* min_niter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumATimesCalls_Power(SUNDomEigEstimator DEE,
-                                             long int* num_ATimes);
+                                                long int* num_ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_PrintStats_Power(SUNDomEigEstimator DEE, FILE* outfile);
