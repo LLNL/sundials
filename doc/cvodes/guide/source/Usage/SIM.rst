@@ -919,14 +919,16 @@ Main solver optional input functions
       ``main`` routine however, this is not required.  The inputs are left unchanged by
       These are left unchanged by :c:func:`CVodeSetOptions`.
 
-      If the *cvid* argument is ``NULL``, then the default prefix, ``cvodes``, must
-      be used for all CVODES options.  For example, the option ``cvodes.max_order`` can
-      be used to set the maximum order of accuracy.
+      If the ``cvid`` argument is ``NULL``, then the default prefix, ``cvodes``, must
+      be used for all CVODES options.  Whether ``cvid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``cvid``, the option ``cvodes.max_order`` followed by the value
+      can be used to set the maximum method order of accuracy.
 
       CVODES options set via command-line arguments to :c:func:`CVodeSetOptions` will
       overwrite any previously-set values.
 
-      The supported command-line options are documented within each CVODES "set" routine.
+      The supported options are documented within each CVODES "set" routine.
 
    .. warning::
 

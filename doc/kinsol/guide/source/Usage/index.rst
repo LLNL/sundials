@@ -568,7 +568,9 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       :c:func:`KINSetOptions`.
 
       If the ``kinid`` argument is ``NULL``, then the default prefix, ``kinsol``, must
-      be used for all KINSOL options. For example, the option ``kinsol.num_max_iters`` followed
+      be used for all KINSOL options. Whether ``kinid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``kinsol``, the option ``kinsol.num_max_iters`` followed
       by the value can be used to set the maximum number of nonlinear solver iterations.
 
       KINSOL options set via :c:func:`KINSetOptions` will

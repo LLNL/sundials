@@ -915,8 +915,10 @@ Main solver optional input functions
       :c:func:`CVodeSetOptions`.
 
       If the ``cvid`` argument is ``NULL``, then the default prefix, ``cvode``, must
-      be used for all CVODE options. For example, the option ``cvode.max_order`` followed
-      by the value can be used to set the maximum method order of accuracy.
+      be used for all CVODE options. Whether ``cvid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``cvid``, the option ``cvodes.max_order`` followed by the value
+      can be used to set the maximum method order of accuracy.
 
       CVODE options set via :c:func:`CVodeSetOptions` will overwrite
       any previously-set values.

@@ -259,14 +259,19 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       ``main`` routine however, this is not required. The inputs are left unchanged by
       :c:func:`SUNLinSolSetOptions`.
 
-      If the ``LSid`` argument is ``NULL`` then an implementation-specific prefix will be used for the
-      relevant options -- see each implementation for its default prefix value.
+      If the ``LSid`` argument is ``NULL``, then the default prefix, ``sunlinearsolver``, must
+      be used for all SUNLinearSolver options.  Whether ``LSid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``LSid``, the option ``sunlinearsolver.zero_guess``
+      can be used to inform an iterative linear solver to use a zero-valued initial guess.
       When using a combination of SUNLinearSolver objects (e.g., for system and mass matrices within
       ARKStep), it is recommended that users call :c:func:`SUNLinSolSetOptions` for each linear solver
-      using distinct *LSid* inputs, so that each solver can be configured separately.
+      using distinct ``LSid`` inputs, so that each solver object can be configured separately.
 
       SUNLinearSolver options set via command-line arguments to
       :c:func:`SUNLinSolSetOptions` will overwrite any previously-set values.
+
+      The supported options are documented within each SUNLinearSolver "set" routine.
 
    .. warning::
 

@@ -631,10 +631,11 @@ this function are:
   :c:func:`CVodeCreate`).
 * ``moduleid``: a desired string identifier prefix for arguments to that module (e.g., "arkode").
   Note that each module should specify a default string identifier, that would be
-  used if the user specifies ``NULL`` for this argument.  However, users can supply
+  used if the user specifies ``NULL`` or ``""``for this argument.  However, users can supply
   non-default identifiers so that they can control multiple instances of the same module
   independently (e.g., when using multiple ARKode integrators in the
-  same program).
+  same program).  Whatever identifier is used, it should be unique to the module, and should be
+  separated from the key by a period, e.g., "arkode.order" or "cvode.max_steps".
 * ``file_name``: the name of a file containing options to read.  If this is ``NULL`` or an
   empty string, ``""``, then no file is read.
 * ``argc``: the length of the ``argv`` array.

@@ -955,8 +955,10 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
       :c:func:`ARKodeSetOptions`.
 
       If the ``arkid`` argument is ``NULL``, then the default prefix, ``arkode``, must
-      be used for all ARKODE options. For example, the option ``arkode.order`` followed
-      by the value can be used to set the method order of accuracy.
+      be used for all ARKODE options. Whether ``arkid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``arkid``, the option ``arkode.order`` followed by the value
+      can be used to set the method order of accuracy.
 
       When using a combination of ARKODE integrators (e.g., via MRIStep, SplittingStep,
       or ForcingStep), it is recommended that users call

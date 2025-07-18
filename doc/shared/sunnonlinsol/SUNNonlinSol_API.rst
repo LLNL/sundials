@@ -173,11 +173,14 @@ parameters. Only the routine for setting the nonlinear system defining function
       ``main`` routine however, this is not required. The inputs are left unchanged by
       :c:func:`SUNNonlinSolSetOptions`.
 
-      If the ``LSid`` argument is ``NULL`` then an implementation-specific prefix will be used for the
-      relevant options -- see each implementation for its default prefix value.
+      If the ``NLSid`` argument is ``NULL``, then the default prefix, ``sunnonlinearsolver``, must
+      be used for all SUNNonlinearSolver options.  Whether ``NLSid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``NLSid``, the option ``sunnonlinearsolver.max_iters`` followed by the value
+      can be used to set the maximum number of nonlinear solver iterations.
       When using a combination of SUNNonlinearSolver objects (e.g., when using MRIStep), it is recommended
       that users call :c:func:`SUNNonlinSolSetOptions` for each nonlinear solver using distinct
-      *NLSid* inputs, so that each solver can be configured separately.
+      *NLSid* inputs, so that each solver object can be configured separately.
 
       SUNNonlinearSolver options set via command-line arguments to
       :c:func:`SUNNonlinSolSetOptions` will overwrite any previously-set values.

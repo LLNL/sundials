@@ -287,9 +287,12 @@ note these requirements below. Additionally, we note the behavior of the base SU
       :c:func:`SUNAdaptController_SetOptions`.
 
       If the ``Cid`` argument is ``NULL`` then the default prefix, ``sunadaptcontroller``, must
-      be used for all SUNAdaptController options.  When using a combination of SUNAdaptController
+      be used for all SUNAdaptController options.  Whether ``Cid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``Cid``, the option ``sunadaptcontroller.error_bias`` followed by the value
+      can be used to set the error bias factor.  When using a combination of SUNAdaptController
       objects (e.g., within MRIStep, SplittingStep or ForcingStep), it is recommended that users
-      call :c:func:`SUNAdaptController_SetOptions` for each controller using distinct *Cid* inputs,
+      call :c:func:`SUNAdaptController_SetOptions` for each controller using distinct ``Cid`` inputs,
       so that each controller can be configured separately.
 
       SUNAdaptController options set via :c:func:`SUNAdaptController_SetOptions` will overwrite

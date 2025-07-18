@@ -986,8 +986,10 @@ Main solver optional input functions
       :c:func:`IDASetOptions`.
 
       If the ``idaid`` argument is ``NULL``, then the default prefix, ``idas``, must
-      be used for all IDAS options. For example, the option ``idas.max_order`` followed
-      by the value can be used to set the maximum method order of accuracy.
+      be used for all IDAS options.  Whether ``idaid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``idaid``, the option ``idas.max_order`` followed by the value
+      can be used to set the maximum method order of accuracy.
 
       IDAS options set via :c:func:`IDASetOptions` will overwrite
       any previously-set values.
