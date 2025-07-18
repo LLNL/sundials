@@ -90,9 +90,7 @@ int main(int argc, char* argv[])
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
-  printf("   lambda = %" GSYM "\n", lambda);
-  printf("   reltol = %.1" ESYM "\n", reltol);
-  printf("   abstol = %.1" ESYM "\n\n", abstol);
+  printf("   lambda = %" GSYM "\n\n", lambda);
 
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx); /* Create serial vector for solution */
@@ -133,6 +131,10 @@ int main(int argc, char* argv[])
   /* Override any current settings with command-line options */
   flag = ARKodeSetOptions(arkode_mem, NULL, NULL, argc, argv);
   if (check_flag(&flag, "ARKodeSetOptions", 1)) { return 1; }
+
+  /* Output current ARKODE options */
+  flag = ARKodeWriteParameters(arkode_mem, stdout);
+  if (check_flag(&flag, "ARKodeWriteParameters", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
