@@ -39,9 +39,9 @@ well-approximated by the dominant eigenvalue of :math:`H_m`.
 ArnI works for matrices with both real and complex eigenvalues.  It supports
 estimations with a user-specified fixed Krylov subspace dimension (at least 3).  While
 the choice of dimension results in a prefixed amount of memory, it strictly
-determines how good an estimation is.  To improve the estimation accuracy, we have found that preprocessing
-with :c:func:`SUNDomEigEst_PreProcess` is particularly useful.  This operation is free from any
-additional memory requirement and is further explained below.
+determines how good an estimation is.  To improve the estimation accuracy, we have found that 
+preprocessing set by :c:func:`SUNDomEigEst_SetNumPreProcess` is particularly useful.  
+This operation is free from any additional memory requirement and is further explained below.
 
 The matrix :math:`A` is not required explicitly; only a routine that provides an 
 approximation of the matrix-vector product, :math:`Av`, is required.
@@ -147,18 +147,19 @@ This estimator is constructed to perform the following operations:
 * An additional "set" routine must be called by the SUNDIALS estimator
   that interfaces with SUNDomEigEst_ARNI to supply the ``ATimes``
   function pointer and the related data ``ATData``.
+
 * In the "initialize" call, the estimator parameters are checked
   for validity and the remaining ARNI estimator memory such as LAPACK 
   workspace is allocated.
 
-* In the "preprocess" call, the initial nonzero vector :math:`q_0` is warmed up
-  :math:`k=` ``num_warmups`` times as
+* In the "estimate" call, the initial nonzero vector :math:`q_0` is warmed up
+  :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
+  integrator such as by calling :c:func:`LSRKStepSetNumSucceedingWarmups`. 
+  Then, the ARNI estimator is performed.
 
 .. math::
 
     q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}.
-
-* In the "estimate" call the ARNI estimator is performed.
 
 The SUNDomEigEst_ARNI module defines implementations of all
 dominant eigenvalue estimator operations listed in
@@ -169,8 +170,6 @@ dominant eigenvalue estimator operations listed in
 * ``SUNDomEigEst_Initialize_ArnI``
 
 * ``SUNDomEigEst_SetNumPreProcess_ArnI``
-
-* ``SUNDomEigEst_PreProcess_ArnI``
 
 * ``SUNDomEig_Estimate_ArnI``
 

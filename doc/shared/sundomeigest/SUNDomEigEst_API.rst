@@ -40,10 +40,6 @@ options have been set, :c:func:`SUNDomEig_Estimate` estimates the dominant eigen
 :c:func:`SUNDomEigEst_FreeEmpty` an empty estimator and :c:func:`SUNDomEigEst_Destroy` destroys 
 an estimator object.
 
-The remaining **optional** function, :c:func:`SUNDomEigEst_PreProcess` preprocesses the estimator object 
-to "warm-up" the estimator for a more appropriate initial vector before starting iterations.
-
-
 .. c:function:: SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
 
    *Required.*
@@ -184,7 +180,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 .. c:function:: SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numpreprocess)
 
    This *optional* routine should set the number of "warm-up" matrix-vector multiplications,
-   which then should be executed by :c:func:`SUNDomEigEst_PreProcess`.
+   which is executed by :c:func:`SUNDomEig_Estimate` before each estimate.
 
    **Arguments:**
 
@@ -240,26 +236,6 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       .. code-block:: c
 
          retval = SUNDomEigEst_SetMaxIters(DEE, max_iters);
-
-
-.. c:function:: SUNErrCode SUNDomEigEst_PreProcess(SUNDomEigEstimator DEE)
-
-   This *optional* routine executes the "warm-up" matrix-vector multiplications,
-   whose number is set by :c:func:`SUNDomEigEst_SetNumPreProcess`.
-
-   **Arguments:**
-
-      * *DEE* -- a SUNDomEigEst object.
-
-   **Return value:**
-
-      A :c:type:`SUNErrCode`.
-
-   **Usage:**
-
-      .. code-block:: c
-
-         retval = SUNDomEigEst_PreProcess(DEE);
 
 
 .. _SUNDomEigEst.GetFn:
@@ -512,10 +488,6 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEst_Initialize`
 
-   .. c:member:: SUNErrCode (*preprocess)(SUNDomEigEstimator)
-
-      The function implementing :c:func:`SUNDomEigEst_PreProcess`
-
    .. c:member:: SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*)
 
       The function implementing :c:func:`SUNDomEig_Estimate`
@@ -611,8 +583,6 @@ the interested reader.
    | :c:func:`SUNDomEigEst_SetTol`\ :sup:`1`            |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_Initialize`                  |          X          |          X          |
-   +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_PreProcess`                  |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEig_Estimate`                       |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+

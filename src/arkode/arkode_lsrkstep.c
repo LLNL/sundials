@@ -2218,9 +2218,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if (step_mem->DEE != NULL)
   {
-    /* Preprocess the DEE */
-    /* Set the initial q = A^{dee_numwarmups}q/||A^{dee_numwarmups}q|| */
-    retval = SUNDomEigEst_PreProcess(step_mem->DEE);
+    retval = SUNDomEig_Estimate(step_mem->DEE, &step_mem->lambdaR,
+                                &step_mem->lambdaI);
+    step_mem->dom_eig_num_evals++;
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
@@ -2228,9 +2228,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       return ARK_DEE_FAIL;
     }
 
-    /* After the first call to SUNDomEigEst_PreProcess, the number of warmups is set to
+    /* After the first call to SUNDomEig_Estimate, the number of warmups is set to
        num_succ_warmups, this allows the successive calls to
-       SUNDomEigEst_PreProcess to use a diffirent number of warmups. */
+       SUNDomEig_Estimate to use a diffirent number of warmups. */
     if (step_mem->init_warmup)
     {
       retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
@@ -2242,16 +2242,6 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
         return ARK_DEE_FAIL;
       }
       step_mem->init_warmup = SUNFALSE;
-    }
-
-    retval = SUNDomEig_Estimate(step_mem->DEE, &step_mem->lambdaR,
-                                &step_mem->lambdaI);
-    step_mem->dom_eig_num_evals++;
-    if (retval != SUN_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_DEE_FAIL);
-      return ARK_DEE_FAIL;
     }
   }
   else if (step_mem->dom_eig_fn != NULL)

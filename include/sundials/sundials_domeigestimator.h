@@ -49,7 +49,6 @@ struct _generic_SUNDomEigEstimator_Ops
   SUNErrCode (*setnumpreprocess)(SUNDomEigEstimator, int);
   SUNErrCode (*settol)(SUNDomEigEstimator, sunrealtype);
   SUNErrCode (*initialize)(SUNDomEigEstimator);
-  SUNErrCode (*preprocess)(SUNDomEigEstimator);
   SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*);
   SUNErrCode (*getcurres)(SUNDomEigEstimator, sunrealtype*);
   SUNErrCode (*getcurniters)(SUNDomEigEstimator, int*);
@@ -96,9 +95,6 @@ SUNErrCode SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_PreProcess(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,

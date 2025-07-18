@@ -49,9 +49,6 @@ The following is a list of the example functions in ``test_sundomeigest.c``:
 * ``Test_SUNDomEigEst_Initialize``: Verifies that ``SUNDomEigEst_Initialize``
   can be called and returns successfully.
 
-* ``Test_SUNDomEigEst_PreProcess``: Verifies that ``SUNDomEigEst_PreProcess``
-  can be called and returns successfully.
-
 * ``Test_SUNDomEig_Estimate``: Verifies that ``SUNDomEig_Estimate``
   can be called and returns successfully.  The estimated dominant eigenvalue is
   :math:`\lambda_{\max} = \lambda_R + \lambda_I i` such that
@@ -102,7 +99,6 @@ order.  For all estimators,
 ``SUNDomEigEst_SetMaxIters``, ``SUNDomEigEst_SetNumPreProcess``, 
 ``SUNDomEigEst_SetTol`` (if applicable).
 Then, ``Test_SUNDomEigEst_Initialize`` must be called before
-``Test_SUNDomEigEst_PreProcess`` (if applicable) that is followed by 
 ``Test_SUNDomEig_Estimate``.
 For the estimator stats ``Test_SUNDomEigEst_GetCurRes``, ``Test_SUNDomEigEst_GetCurNumIters``,
 ``Test_SUNDomEigEst_GetMaxNumIters``, ``Test_SUNDomEigEst_GetMinNumIters``, 

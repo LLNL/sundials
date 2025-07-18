@@ -56,7 +56,6 @@ SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
   ops->settol           = NULL;
   ops->setnumpreprocess = NULL;
   ops->initialize       = NULL;
-  ops->preprocess       = NULL;
   ops->estimate         = NULL;
   ops->getcurniters     = NULL;
   ops->getmaxniters     = NULL;
@@ -143,16 +142,6 @@ SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE)
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->initialize) { ier = DEE->ops->initialize(DEE); }
-  else { ier = SUN_SUCCESS; }
-  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
-  return (ier);
-}
-
-SUNErrCode SUNDomEigEst_PreProcess(SUNDomEigEstimator DEE)
-{
-  SUNErrCode ier;
-  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->preprocess) { ier = DEE->ops->preprocess(DEE); }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);

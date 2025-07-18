@@ -94,7 +94,6 @@ SUNDomEigEstimator SUNDomEigEst_ArnI(N_Vector q, int kry_dim, SUNContext sunctx)
   DEE->ops->settol            = NULL;
   DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreProcess_ArnI;
   DEE->ops->initialize        = SUNDomEigEst_Initialize_ArnI;
-  DEE->ops->preprocess        = SUNDomEigEst_PreProcess_ArnI;
   DEE->ops->estimate          = SUNDomEig_Estimate_ArnI;
   DEE->ops->getcurres         = NULL;
   DEE->ops->getcurniters      = NULL;
@@ -246,19 +245,24 @@ SUNErrCode SUNDomEigEst_SetNumPreProcess_ArnI(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_PreProcess_ArnI(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                                   sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
+  SUNAssert(lambdaR, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(lambdaI, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
   SUNAssert(ArnI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
 
+  int retval;
+  sunindextype n = ArnI_CONTENT(DEE)->kry_dim;
   sunrealtype normq;
-  int i, retval;
 
   /* Set the initial q = A^{num_warmups}q/||A^{num_warmups}q|| */
-  for (i = 0; i < ArnI_CONTENT(DEE)->num_warmups; i++)
+  for (int i = 0; i < ArnI_CONTENT(DEE)->num_warmups; i++)
   {
     retval = ArnI_CONTENT(DEE)->ATimes(ArnI_CONTENT(DEE)->ATdata,
                                        ArnI_CONTENT(DEE)->V[0],
@@ -277,24 +281,6 @@ SUNErrCode SUNDomEigEst_PreProcess_ArnI(SUNDomEigEstimator DEE)
     N_VScale(ONE / normq, ArnI_CONTENT(DEE)->q, ArnI_CONTENT(DEE)->V[0]);
     SUNCheckLastErr();
   }
-
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                                   sunrealtype* lambdaI)
-{
-  SUNFunctionBegin(DEE->sunctx);
-
-  SUNAssert(lambdaR, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(lambdaI, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ArnI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
-  SUNAssert(ArnI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ArnI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ArnI_CONTENT(DEE)->Hes, SUN_ERR_DEE_NULL_HES);
-
-  int retval;
-  sunindextype n = ArnI_CONTENT(DEE)->kry_dim;
 
   /* Initialize the Hessenberg matrix Hes with zeros */
   for (int i = 0; i < n; i++)

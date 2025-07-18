@@ -77,9 +77,6 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Initialize_ArnI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_PreProcess_ArnI(SUNDomEigEstimator DEE);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNDomEig_Estimate_ArnI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                                    sunrealtype* lambdaI);
 

@@ -36,7 +36,6 @@ int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int num_warmups,
                                        int myid);
 int Test_SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol, int myid);
 int Test_SUNDomEigEst_Initialize(SUNDomEigEstimator DEE, int myid);
-int Test_SUNDomEigEst_PreProcess(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                             sunrealtype* lambdaI, int myid);
 int Test_SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,

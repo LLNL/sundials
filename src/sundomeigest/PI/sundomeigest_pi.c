@@ -77,7 +77,6 @@ SUNDomEigEstimator SUNDomEigEst_PI(N_Vector q, int max_iters, SUNContext sunctx)
   DEE->ops->settol            = SUNDomEigEst_SetTol_PI;
   DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreProcess_PI;
   DEE->ops->initialize        = SUNDomEigEst_Initialize_PI;
-  DEE->ops->preprocess        = SUNDomEigEst_PreProcess_PI;
   DEE->ops->estimate          = SUNDomEig_Estimate_PI;
   DEE->ops->getcurres         = SUNDomEigEst_GetCurRes_PI;
   DEE->ops->getcurniters      = SUNDomEigEst_GetCurNumIters_PI;
@@ -204,18 +203,24 @@ SUNErrCode SUNDomEigEst_SetMaxIters_PI(SUNDomEigEstimator DEE, int max_iters)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_PreProcess_PI(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                                 sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_DEE_NULL_ATIMES);
+  SUNAssert(lambdaR, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(lambdaI, SUN_ERR_ARG_CORRUPT); // Maybe NULL, should we allow?
+  SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
+  SUNAssert((PI_CONTENT(DEE)->max_iters >= 0), SUN_ERR_ARG_CORRUPT);
 
-  sunrealtype normq;
+  sunrealtype newlambdaR = ZERO;
+  sunrealtype oldlambdaR = ZERO;
+
   int retval;
+  sunrealtype normq;
 
-  /* Set the initial q = A^{num_warmups}q/||A^{num_warmups}q|| */
   for (int i = 0; i < PI_CONTENT(DEE)->num_warmups; i++)
   {
     retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
@@ -235,27 +240,7 @@ SUNErrCode SUNDomEigEst_PreProcess_PI(SUNDomEigEstimator DEE)
     SUNCheckLastErr();
   }
 
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                                 sunrealtype* lambdaI)
-{
-  SUNFunctionBegin(DEE->sunctx);
-
-  SUNAssert(lambdaR, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(lambdaI, SUN_ERR_ARG_CORRUPT); // Maybe NULL, should we allow?
-  SUNAssert(PI_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(PI_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(PI_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
-  SUNAssert((PI_CONTENT(DEE)->max_iters >= 0), SUN_ERR_ARG_CORRUPT);
-
-  sunrealtype newlambdaR = ZERO;
-  sunrealtype oldlambdaR = ZERO;
-
-  int k, retval;
-  sunrealtype normq;
-
+  int k; // k will be used out of the loop as a counter
   for (k = 0; k < PI_CONTENT(DEE)->max_iters; k++)
   {
     retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,

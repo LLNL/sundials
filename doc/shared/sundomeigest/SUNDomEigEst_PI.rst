@@ -163,14 +163,14 @@ This estimator is constructed to perform the following operations:
 * In the "initialize" call, the estimator parameters are checked
   for validity and the initial eigenvector is normalized.
 
-* In the "preprocess" call, the initial vector :math:`q_0` is warmed up
-  :math:`k=` ``num_warmups`` times as
+* In the "estimate" call, the initial nonzero vector :math:`q_0` is warmed up
+  :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
+  integrator such as by calling :c:func:`LSRKStepSetNumSucceedingWarmups`. 
+  Then, the PI estimator is performed.
 
 .. math::
 
     q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}.
-
-* In the "estimate" call the PI estimator is performed.
 
 The SUNDomEigEst_PI module defines implementations of all dominant
 eigenvalue estimator operations listed in
@@ -185,8 +185,6 @@ eigenvalue estimator operations listed in
 * ``SUNDomEigEst_SetTol_PI``
 
 * ``SUNDomEigEst_SetMaxIters_PI``
-
-* ``SUNDomEigEst_PreProcess_PI``
 
 * ``SUNDomEig_Estimate_PI``
 

@@ -80,9 +80,6 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Initialize_PI(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_PreProcess_PI(SUNDomEigEstimator DEE);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNDomEig_Estimate_PI(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                                  sunrealtype* lambdaI);
 

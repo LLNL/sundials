@@ -186,35 +186,6 @@ int Test_SUNDomEigEst_Initialize(SUNDomEigEstimator DEE, int myid)
 }
 
 /* ----------------------------------------------------------------------
- * SUNDomEigEst_PreProcess Test
- * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_PreProcess(SUNDomEigEstimator DEE, int myid)
-{
-  int failure;
-  double start_time, stop_time;
-
-  start_time = get_time();
-  failure    = SUNDomEigEst_PreProcess(DEE);
-  stop_time  = get_time();
-
-  if (failure)
-  {
-    printf(">>> FAILED test -- SUNDomEigEst_PreProcess check, Proc %d \n", myid);
-    PRINT_TIME("    SUNDomEigEst_PreProcess Time: %22.15e \n \n",
-               stop_time - start_time);
-    return (1);
-  }
-  else if (myid == 0)
-  {
-    printf("    PASSED test -- SUNDomEigEst_PreProcess \n");
-    PRINT_TIME("    SUNDomEigEst_PreProcess Time: %22.15e \n \n",
-               stop_time - start_time);
-  }
-
-  return (0);
-}
-
-/* ----------------------------------------------------------------------
  * SUNDomEig_Estimate Test
  * --------------------------------------------------------------------*/
 int Test_SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
