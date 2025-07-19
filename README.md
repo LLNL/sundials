@@ -8,8 +8,8 @@
 
 SUNDIALS is a family of software packages providing robust and efficient time
 integrators and nonlinear solvers that can easily be incorporated into existing
-simulation codes. The packages are designed to require minmal information from
-the user, allow users to supply their own data strucures underneath the
+simulation codes. The packages are designed to require minimal information from
+the user, allow users to supply their own data structures underneath the
 packages, and enable interfacing with user-supplied or third-party algebraic
 solvers and preconditioners.
 
