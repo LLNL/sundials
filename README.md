@@ -13,7 +13,7 @@ the user, allow users to supply their own data structures underneath the
 packages, and enable interfacing with user-supplied or third-party algebraic
 solvers and preconditioners.
 
-The SUNDIALS suite consists of the following packages for ordinary differential
+The SUNDIALS suite consists of the following packaes for ordinary differential
 equation (ODE) systems, differential-algebraic equation (DAE) systems, and
 nonlinear algebraic systems:
 
