@@ -195,8 +195,12 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   /* Set NULL for dom_eig_fn */
   step_mem->dom_eig_fn = NULL;
 
+  /* Set NULL for DEE */
+  step_mem->DEE = NULL;
+
   /* Initialize all the counters */
   step_mem->nfe               = 0;
+  step_mem->nfeDQ             = 0;
   step_mem->stage_max         = 0;
   step_mem->dom_eig_num_evals = 0;
   step_mem->stage_max_limit   = STAGE_MAX_LIMIT_DEFAULT;
@@ -275,13 +279,16 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
 
   /* Initialize all the counters, flags and stats */
   step_mem->nfe                 = 0;
+  step_mem->nfeDQ               = 0; // what should we do for DEE?
   step_mem->dom_eig_num_evals   = 0;
   step_mem->stage_max           = 0;
   step_mem->spectral_radius_max = 0;
   step_mem->spectral_radius_min = 0;
   step_mem->dom_eig_nst         = 0;
+  step_mem->num_succ_warmups    = DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT;
   step_mem->dom_eig_update      = SUNTRUE;
   step_mem->dom_eig_is_current  = SUNFALSE;
+  // step_mem->DEE_init = SUNTRUE; // Needs to be modified depending on the answer.
 
   return ARK_SUCCESS;
 }
@@ -323,12 +330,26 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
     ark_mem->e_data    = ark_mem;
   }
 
-  /* Check if user has provided dom_eig_fn */
-  if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL)
+  /* Check if user has provided dom_eig_fn or DEE */
+  if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL && step_mem->DEE == NULL)
   {
-    arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__,
-                    __FILE__, "STS methods require a user provided dominant eigenvalue function");
+    arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    "STS methods require either a user provided dominant "
+                    "eigenvalue function or a SUNDomEigEstimator");
     return ARK_DOMEIG_FAIL;
+  }
+
+  /* Initialize the DEE */
+  if (step_mem->DEE_init && step_mem->DEE != NULL)
+  {
+    retval = SUNDomEigEst_Initialize(step_mem->DEE);
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
+      return ARK_DEE_FAIL;
+    }
+    step_mem->DEE_init = SUNFALSE;
   }
 
   /* Allocate reusable arrays for fused vector interface */
@@ -2070,9 +2091,15 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->stage_max_limit);
     fprintf(outfile, "LSRKStep: dom_eig_freq          = %li\n",
             step_mem->dom_eig_freq);
+    fprintf(outfile, "LSRKStep: num_succ_warmups      = %i\n",
+            step_mem->num_succ_warmups);
 
     /* output long integer quantities */
     fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
+    if (step_mem->DEE != NULL)
+    {
+      fprintf(outfile, "LSRKStep: nfeDQ               = %li\n", step_mem->nfeDQ);
+    }
     fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
             step_mem->dom_eig_num_evals);
 
@@ -2096,6 +2123,17 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->dom_eig_update);
     fprintf(outfile, "LSRKStep: dom_eig_is_current    = %d\n",
             step_mem->dom_eig_is_current);
+
+    if (step_mem->DEE != NULL)
+    {
+      retval = SUNDomEigEst_PrintStats(step_mem->DEE, outfile);
+      if (retval != SUN_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_DEE_FAIL);
+        return;
+      }
+    }
   }
   else
   {
@@ -2194,15 +2232,53 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 {
   int retval = SUN_SUCCESS;
 
-  retval = step_mem->dom_eig_fn(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
-                                &step_mem->lambdaR, &step_mem->lambdaI,
-                                ark_mem->user_data, ark_mem->tempv1,
-                                ark_mem->tempv2, ark_mem->tempv3);
-  step_mem->dom_eig_num_evals++;
-  if (retval != ARK_SUCCESS)
+  if (step_mem->DEE != NULL)
+  {
+    retval = SUNDomEig_Estimate(step_mem->DEE, &step_mem->lambdaR,
+                                &step_mem->lambdaI);
+    step_mem->dom_eig_num_evals++;
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
+      return ARK_DEE_FAIL;
+    }
+
+    /* After the first call to SUNDomEig_Estimate, the number of warmups is set to
+       num_succ_warmups, this allows the successive calls to
+       SUNDomEig_Estimate to use a diffirent number of warmups. */
+    if (step_mem->init_warmup)
+    {
+      retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
+                                             step_mem->num_succ_warmups);
+      if (retval != SUN_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_DEE_FAIL);
+        return ARK_DEE_FAIL;
+      }
+      step_mem->init_warmup = SUNFALSE;
+    }
+  }
+  else if (step_mem->dom_eig_fn != NULL)
+  {
+    retval = step_mem->dom_eig_fn(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
+                                  &step_mem->lambdaR, &step_mem->lambdaI,
+                                  ark_mem->user_data, ark_mem->tempv1,
+                                  ark_mem->tempv2, ark_mem->tempv3);
+    step_mem->dom_eig_num_evals++;
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to estimate the dominant eigenvalue");
+      return ARK_DOMEIG_FAIL;
+    }
+  }
+  else
   {
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                    "Unable to estimate the dominant eigenvalue");
+                    "Unable to estimate the dominant eigenvalue: Either a user "
+                    "provided or a SUNDIALS DEE is required");
     return ARK_DOMEIG_FAIL;
   }
 
@@ -2242,6 +2318,78 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   step_mem->dom_eig_update = SUNFALSE;
 
   return retval;
+}
+
+/*---------------------------------------------------------------
+  lsrkStep_DQJtimes:
+
+  This routine generates a difference quotient approximation to
+  the Jacobian-vector product f_y(t,y) * v. The approximation is
+  Jv = [f(y + v*sig) - f(y)]/sig, where sig = 1 / ||v||_WRMS,
+  i.e. the WRMS norm of v*sig is 1.
+  ---------------------------------------------------------------*/
+int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+
+  sunrealtype sig, siginv;
+  int iter, retval;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  sunrealtype t = ark_mem->tn;
+  N_Vector y    = ark_mem->yn;
+  N_Vector work = ark_mem->tempv3;
+
+  /* Compute RHS function, if necessary. */
+  if ((!ark_mem->fn_is_current && ark_mem->initsetup) ||
+      (step_mem->step_nst != ark_mem->nst))
+  {
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                          ark_mem->user_data);
+    step_mem->nfeDQ++;
+    if (retval != ARK_SUCCESS)
+    {
+      SUNLogExtraDebugVec(ARK_LOGGER, "DomEig JvTimes RHS", ark_mem->fn,
+                          "F_n(:) =");
+      SUNLogInfo(ARK_LOGGER, "DomEig JvTimes",
+                 "status = failed rhs eval, retval = %i", retval);
+      return (ARK_RHSFUNC_FAIL);
+    }
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
+  /* Initialize perturbation to 1/||v|| */
+  sig = ONE / N_VWrmsNorm(v, ark_mem->ewt);
+
+  for (iter = 0; iter < MAX_DQITERS; iter++)
+  {
+    /* Set work = y + sig*v */
+    N_VLinearSum(sig, v, ONE, y, work);
+
+    /* Set Jv = f(tn, y+sig*v) */
+    //TODO:Needs to be update when LSRK Supports IMEX
+    retval = step_mem->fe(t, work, Jv, ark_mem->user_data);
+    step_mem->nfeDQ++;
+    if (retval == 0) { break; }
+    if (retval < 0) { return (-1); }
+
+    /* If f failed recoverably, shrink sig and retry */
+    sig *= SUN_RCONST(0.25);
+  }
+
+  /* If retval still isn't 0, return with a recoverable failure */
+  if (retval > 0) { return (+1); }
+
+  /* Replace Jv by (Jv - fn)/sig */
+  siginv = ONE / sig;
+  N_VLinearSum(siginv, Jv, -siginv, ark_mem->fn, Jv);
+
+  return ARK_SUCCESS;
 }
 
 /*===============================================================

@@ -68,6 +68,12 @@ set(unit_tests
     "ark_test_adjoint_ark.cpp\;--check-freq 2 --dont-keep\;"
     "ark_test_adjoint_ark.cpp\;--check-freq 5 --dont-keep\;")
 
+# Add SUNDomEigEst libraries
+set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
+if(ENABLE_LAPACK)
+  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarnoldi_obj)
+endif()
+
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
 
@@ -101,19 +107,20 @@ foreach(test_tuple ${unit_tests})
     # their visibility in the installed libraries.
     target_link_libraries(
       ${test_target}
-      $<TARGET_OBJECTS:sundials_arkode_obj>
-      sundials_sunmemsys_obj
-      sundials_nvecserial_obj
-      sundials_nvecmanyvector_obj
-      sundials_sunlinsolband_obj
-      sundials_sunlinsoldense_obj
-      sundials_sunnonlinsolnewton_obj
-      sundials_sunnonlinsolfixedpoint_obj
-      sundials_sunadaptcontrollerimexgus_obj
-      sundials_sunadaptcontrollersoderlind_obj
-      sundials_sunadaptcontrollermrihtol_obj
-      sundials_adjointcheckpointscheme_fixed_obj
-      ${EXE_EXTRA_LINK_LIBS})
+      PRIVATE $<TARGET_OBJECTS:sundials_arkode_obj>
+              sundials_sunmemsys_obj
+              sundials_nvecserial_obj
+              sundials_nvecmanyvector_obj
+              sundials_sunlinsolband_obj
+              sundials_sunlinsoldense_obj
+              sundials_sunnonlinsolnewton_obj
+              sundials_sunnonlinsolfixedpoint_obj
+              sundials_sunadaptcontrollerimexgus_obj
+              sundials_sunadaptcontrollersoderlind_obj
+              sundials_sunadaptcontrollermrihtol_obj
+              sundials_adjointcheckpointscheme_fixed_obj
+              ${DOMEIG_OBJECT_LIBRARIES}
+              ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick
     # that up from $<TARGET_OBJECTS:sundials_arkode_obj>.

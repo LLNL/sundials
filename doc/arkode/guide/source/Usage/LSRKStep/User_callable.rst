@@ -174,9 +174,10 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
-   Specifies the dominant eigenvalue approximation routine to
+   Specifies the user-supplied dominant eigenvalue approximation routine to
    be used for determining the number of stages that will be used by either the
-   RKC or RKL methods.
+   RKC or RKL methods.  ``dom_eig = NULL`` input creates internal SUNDIALS Dominant
+   Eigenvalue Estimator (DEE) to serve this goal.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -184,10 +185,56 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* ``dom_eig = NULL`` and LSRKStep does not currently estimate this internally.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_DEE_FAIL* if ``dom_eig = NULL`` and DEE failed.
 
    .. note:: This function is currently required when either the RKC or RKL methods are used.
+
+   .. note:: *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).  These errors
+      are handled by :c:type:`SUNErrCode`.
+
+      Either this function or the DEE creator function, :c:func:`LSRKStepSetDomEigEstimator` is required
+      when either the RKC or RKL methods are used.
+
+      :c:func:`LSRKStepSetDomEigFn` expects a user-provided spectral radius function pointer of type
+      :c:func:`ARKDomEigFn()`.
+
+      Note that although a DEE creation routine requires :c:func:`SUNDomEigEst_SetATimes` with a valid
+      matrix-vector product function pointer, creating a DEE with :c:func:`LSRKStepSetDomEigFn`
+      uses an internal Jacobian-vector product estimation that is passed with the *arkode_mem* pointer.
+      Similarly, it estimates the eigenvalue as needed internally without requiring a call to
+      :c:func:`SUNDomEig_Estimate`.
+
+
+.. c:function:: int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE);
+
+   Specifies the user-supplied dominant eigenvalue estimator (DEE) to be used for
+   determining the number of stages that will be used by either the RKC or RKL methods.
+   This function is an alternative to :c:func:`LSRKStepSetDomEigFn` and is used when a DEE
+   has already been created. TODO: Add extra information about how we implement this function 
+   after deciding on it by the group.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *DEE* -- pointer to the SUNDIALS Dominant Eigenvalue Estimator (of type :c:type:`SUNDomEigEstimator`).
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. DEE itself or some of the required options is ``NULL``)
+      * *ARK_DEE_FAIL* if DEE failed.
+
+   .. note:: *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).  These errors
+      are handled by :c:type:`SUNErrCode`.
+
+      Either this function or the user-supplied dominant eigenvalue estimator creator function,
+      :c:func:`LSRKStepSetDomEigFn` is required when either the RKC or RKL methods are used.
+
+      Note that although a DEE creation routine requires :c:func:`SUNDomEigEst_SetATimes` with a valid
+      matrix-vector product function pointer, setting a DEE with :c:func:`LSRKStepSetDomEigEstimator`
+      uses an internal Jacobian-vector product estimation that is passed with the *arkode_mem* pointer.
+      Similarly, it estimates the eigenvalue as needed internally without requiring a call to
+      :c:func:`SUNDomEig_Estimate`.
 
 
 .. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps);
@@ -201,7 +248,7 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
 .. note:: If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps`` is set to :math:`25` as recommended in :cite:p:`VSH:04`.
    Calling this function with ``nsteps < 0`` resets the default value while ``nsteps = 0`` refers to constant dominant eigenvalue.
@@ -218,7 +265,7 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
 .. note:: If LSRKStepSetMaxNumStages routine is not called, then the default ``stage_max_limit`` is
    set to :math:`200`. Calling this function with ``stage_max_limit < 2`` resets the default value.
@@ -239,10 +286,26 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
 .. note:: If LSRKStepSetDomEigSafetyFactor routine is not called, then the default ``dom_eig_safety`` is
    set to :math:`1.01`. Calling this function with ``dom_eig_safety < 1`` resets the default value.
+
+
+.. c:function:: int LSRKStepSetNumSucceedingWarmups(void* arkode_mem, int num_succ_warmups);
+
+   Specifies the number of the preprocessing warmups before each estimate call succeeding the very first estimate call.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *num_succ_warmups* -- the number of succeeding warmups.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+
+.. note:: If LSRKStepSetNumSucceedingWarmups routine is not called, then the default ``num_succ_warmups`` is set to :math:`0`.
+   Calling this function with ``num_succ_warmups < 0`` resets the default.
 
 
 .. c:function:: int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
@@ -259,7 +322,7 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. SSP method is not declared)
 
 .. note:: If LSRKStepSetNumSSPStages routine is not called, then the default ``num_of_stages`` is
@@ -298,6 +361,26 @@ Optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+      * *ARK_ILL_INPUT* if ``stage_max`` is illegal
+
+
+.. c:function:: int LSRKStepGetNumDomEigEstRhsEvals(void* arkode_mem, long int* nfeDQ);
+
+   Returns the number of RHS function evaluations used in the difference quotient
+   Jacobian approximations (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *nfeDQ* -- number of rhs calls.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+      * *ARK_ILL_INPUT* if ``nfeDQ`` is illegal
+
+.. note:: The internal SUNDIALS dominant eigenvalue estimator (DEE) uses this approximation.
+   Therefore, it returns 0 if DEE the was not created.
+
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:
 
