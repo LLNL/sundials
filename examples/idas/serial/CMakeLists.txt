@@ -23,6 +23,7 @@ set(IDAS_examples
     "idasAkzoNob_ASAi_dns\;\;exclude-single"
     "idasAkzoNob_dns\;\;exclude-single"
     "idasAnalytic_mels\;\;exclude-single"
+    "idasAnalytic_mels\;idas.init_step 1e-5\;exclude-single"
     "idasFoodWeb_bnd\;\;develop"
     "idasHeat2D_bnd\;\;exclude-single"
     "idasHeat2D_kry\;\;exclude-single"

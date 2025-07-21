@@ -240,6 +240,49 @@ the functionality for any optional routine should leave the corresponding
 function pointer ``NULL`` instead of supplying a dummy routine.
 
 
+.. c:function:: SUNErrCode SUNLinSolSetOptions(SUNLinearSolver S, const char* LSid, const char* file_name, int argc, char* argv[])
+
+   This *optional* routine sets SUNLinearSolver options from an array of strings or a file.
+
+   :param S: the :c:type:`SUNLinearSolver` object.
+   :param LSid: the prefix for options to read. The default is "sunlinearsolver".
+   :param file_name: the name of a file containing options to read. If this is
+                     ``NULL`` or an empty string, ``""``, then no file is read.
+   :param argc: length of the ``argv`` array.
+   :param argv: an array of strings containing the options to set and their values.
+
+   :return: :c:type:`SUNErrCode` indicating success or failure.
+
+   .. note::
+
+      The ``argc`` and ``argv`` arguments are typically those supplied to the user's
+      ``main`` routine however, this is not required. The inputs are left unchanged by
+      :c:func:`SUNLinSolSetOptions`.
+
+      If the ``LSid`` argument is ``NULL``, then the default prefix, ``sunlinearsolver``, must
+      be used for all SUNLinearSolver options.  Whether ``LSid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``LSid``, the option ``sunlinearsolver.zero_guess``
+      can be used to inform an iterative linear solver to use a zero-valued initial guess.
+      When using a combination of SUNLinearSolver objects (e.g., for system and mass matrices within
+      ARKStep), it is recommended that users call :c:func:`SUNLinSolSetOptions` for each linear solver
+      using distinct ``LSid`` inputs, so that each solver object can be configured separately.
+
+      SUNLinearSolver options set via command-line arguments to
+      :c:func:`SUNLinSolSetOptions` will overwrite any previously-set values.
+
+      The supported options are documented within each SUNLinearSolver "set" routine.
+
+   .. warning::
+
+      This function is not available in the Fortran interface.
+
+      File-based options are not yet implemented, so the *file_name* argument
+      should be set to either ``NULL`` or the empty string ``""``.
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: SUNErrCode SUNLinSolSetATimes(SUNLinearSolver LS, void* A_data, SUNATimesFn ATimes)
 
    *Required for matrix-free linear solvers* (otherwise optional).
@@ -326,6 +369,10 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       calls to :c:func:`SUNLinSolSolve`. As such, the linear solver interfaces in
       each of the SUNDIALS packages call :c:func:`SUNLinSolSetZeroGuess` prior to
       each call to :c:func:`SUNLinSolSolve`.
+
+      If supported by the SUNLinearSolver implementation, this routine will be called
+      by :c:func:`SUNLinSolSetOptions` when using the key
+      "LSid.zero_guess".
 
 
 .. _SUNLinSol.GetFn:
@@ -624,6 +671,10 @@ The virtual table structure is defined as
    .. c:member:: SUNErrCode (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector)
 
       The function implementing :c:func:`SUNLinSolSetScalingVectors`
+
+   .. c:member:: SUNErrCode (*setoptions)(SUNLinearSolver, const char* LSid, const char* file_name, int argc, char* argv[])
+
+      The function implementing :c:func:`SUNLinSolSetOptions`
 
    .. c:member:: SUNErrCode (*setzeroguess)(SUNLinearSolver, sunbooleantype)
 

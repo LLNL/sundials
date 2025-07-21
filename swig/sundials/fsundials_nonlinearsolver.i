@@ -14,6 +14,10 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore SUNNonlinSolSetOptions;
+
+// insert the include into the swig wrapper
 %{
 #include "sundials/sundials_nonlinearsolver.h"
 %}

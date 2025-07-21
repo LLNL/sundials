@@ -18,11 +18,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_pcg.h>
 
+#include "sundials_cli.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
 
@@ -38,6 +40,15 @@
 #define PCG_CONTENT(S) ((SUNLinearSolverContent_PCG)(S->content))
 #define PRETYPE(S)     (PCG_CONTENT(S)->pretype)
 #define LASTFLAG(S)    (PCG_CONTENT(S)->last_flag)
+
+/*
+ * -----------------------------------------------------------------
+ * unexported functions
+ * -----------------------------------------------------------------
+ */
+
+static SUNErrCode setFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
+                                         int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -72,6 +83,7 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
   S->ops->gettype           = SUNLinSolGetType_PCG;
   S->ops->getid             = SUNLinSolGetID_PCG;
   S->ops->setatimes         = SUNLinSolSetATimes_PCG;
+  S->ops->setoptions        = SUNLinSolSetOptions_PCG;
   S->ops->setpreconditioner = SUNLinSolSetPreconditioner_PCG;
   S->ops->setscalingvectors = SUNLinSolSetScalingVectors_PCG;
   S->ops->setzeroguess      = SUNLinSolSetZeroGuess_PCG;
@@ -125,6 +137,99 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
   SUNCheckLastErrNull();
 
   return (S);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNLinSolSetOptions_PCG(SUNLinearSolver S, const char* LSid,
+                                   const char* file_name, int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_PCG(S, LSid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line
+ */
+
+static SUNErrCode setFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
+                                         int argc, char* argv[])
+{
+  SUNFunctionBegin(S->sunctx);
+
+  /* Prefix for options to set */
+  const char* default_id = "sunlinearsolver";
+  size_t offset          = strlen(default_id) + 1;
+  if (LSid != NULL) { offset = SUNMAX(strlen(LSid) + 1, offset); }
+  char* prefix = (char*)malloc(sizeof(char) * (offset + 1));
+  if (LSid != NULL && strlen(LSid) > 0) { strcpy(prefix, LSid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+
+  for (int idx = 1; idx < argc; idx++)
+  {
+    int retval;
+
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
+
+    /* control over PrecType function */
+    if (strcmp(argv[idx] + offset, "prec_type") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNLinSol_PCGSetPrecType(S, iarg);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+
+    /* control over Maxl function */
+    if (strcmp(argv[idx] + offset, "maxl") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNLinSol_PCGSetMaxl(S, iarg);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+
+    /* control over ZeroGuess function */
+    if (strcmp(argv[idx] + offset, "zero_guess") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNLinSolSetZeroGuess_PCG(S, iarg);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+  }
+  free(prefix);
+  return SUN_SUCCESS;
 }
 
 /* ----------------------------------------------------------------------------

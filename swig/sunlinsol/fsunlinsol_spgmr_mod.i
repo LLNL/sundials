@@ -28,4 +28,3 @@
 
 // Process and wrap functions in the following files
 %include "sunlinsol/sunlinsol_spgmr.h"
-

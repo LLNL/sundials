@@ -24,6 +24,7 @@ set(cvodes_SOURCES
     cvodes.c
     cvodes_bandpre.c
     cvodes_bbdpre.c
+    cvodes_cli.c
     cvodes_diag.c
     cvodes_io.c
     cvodes_ls.c
