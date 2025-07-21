@@ -28,6 +28,7 @@
 #include "arkode/arkode_sprk.h"
 #include "arkode_sprkstep_impl.h"
 #include "arkode_types_impl.h"
+#include "sundials_cli.h"
 
 /*===============================================================
   Exported optional input functions.
@@ -193,6 +194,35 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  sprkStep_SetOption:
+
+  Provides string-based control over SPRKStep-specific "set"
+  routines.
+  ---------------------------------------------------------------*/
+int sprkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used)
+{
+  /* Set lists of keys, and the corresponding set routines */
+  static const struct sunKeyCharPair char_pairs[] = {
+    {"method_name", SPRKStepSetMethodName}};
+  static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
+
+  /* check all "char" keys */
+  int j, retval;
+  retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
+                                  char_pairs, num_char_keys, arg_used, &j);
+  if (retval != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting key: %s", char_pairs[j].key);
+    return retval;
+  }
+  if (*arg_used) { return ARK_SUCCESS; }
+
+  return (ARK_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   sprkStep_SetDefaults:

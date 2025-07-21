@@ -87,6 +87,8 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                              int* nflagPtr);
+int erkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
+                      size_t offset, sunbooleantype* arg_used);
 int erkStep_SetDefaults(ARKodeMem ark_mem);
 int erkStep_SetOrder(ARKodeMem ark_mem, int ord);
 int erkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);

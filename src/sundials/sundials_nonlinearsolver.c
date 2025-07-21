@@ -63,6 +63,7 @@ SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
   ops->setlsetupfn     = NULL;
   ops->setlsolvefn     = NULL;
   ops->setctestfn      = NULL;
+  ops->setoptions      = NULL;
   ops->setmaxiters     = NULL;
   ops->getnumiters     = NULL;
   ops->getcuriter      = NULL;
@@ -194,6 +195,16 @@ SUNErrCode SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
   if (NLS->ops->setctestfn)
   {
     return (NLS->ops->setctestfn(NLS, CTestFn, ctest_data));
+  }
+  else { return (SUN_SUCCESS); }
+}
+
+SUNErrCode SUNNonlinSolSetOptions(SUNNonlinearSolver NLS, const char* NLSid,
+                                  const char* file_name, int argc, char* argv[])
+{
+  if (NLS->ops->setoptions)
+  {
+    return (NLS->ops->setoptions(NLS, NLSid, file_name, argc, argv));
   }
   else { return (SUN_SUCCESS); }
 }

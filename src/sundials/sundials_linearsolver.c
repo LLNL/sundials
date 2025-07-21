@@ -62,6 +62,7 @@ SUNLinearSolver SUNLinSolNewEmpty(SUNContext sunctx)
   ops->setatimes         = NULL;
   ops->setpreconditioner = NULL;
   ops->setscalingvectors = NULL;
+  ops->setoptions        = NULL;
   ops->setzeroguess      = NULL;
   ops->initialize        = NULL;
   ops->setup             = NULL;
@@ -143,6 +144,19 @@ SUNErrCode SUNLinSolSetScalingVectors(SUNLinearSolver S, N_Vector s1, N_Vector s
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
   if (S->ops->setscalingvectors) { ier = S->ops->setscalingvectors(S, s1, s2); }
   else { ier = SUN_SUCCESS; }
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
+  return (ier);
+}
+
+SUNErrCode SUNLinSolSetOptions(SUNLinearSolver S, const char* LSid,
+                               const char* file_name, int argc, char* argv[])
+{
+  SUNErrCode ier = SUN_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(S));
+  if (S->ops->setoptions)
+  {
+    return (S->ops->setoptions(S, LSid, file_name, argc, argv));
+  }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
   return (ier);
 }

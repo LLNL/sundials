@@ -19,11 +19,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_klu.h>
 
+#include "sundials_cli.h"
 #include "sundials_macros.h"
 
 #define ONE       SUN_RCONST(1.0)
@@ -42,6 +45,15 @@
 #define NUMERIC(S)        (KLU_CONTENT(S)->numeric)
 #define COMMON(S)         (KLU_CONTENT(S)->common)
 #define SOLVE(S)          (KLU_CONTENT(S)->klu_solver)
+
+/*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+static SUNErrCode setFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
+                                         int argc, char* argv[]);
 
 /*
  * -----------------------------------------------------------------
@@ -81,6 +93,7 @@ SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A, SUNContext sunctx)
   /* Attach operations */
   S->ops->gettype    = SUNLinSolGetType_KLU;
   S->ops->getid      = SUNLinSolGetID_KLU;
+  S->ops->setoptions = SUNLinSolSetOptions_KLU;
   S->ops->initialize = SUNLinSolInitialize_KLU;
   S->ops->setup      = SUNLinSolSetup_KLU;
   S->ops->solve      = SUNLinSolSolve_KLU;
@@ -165,6 +178,71 @@ SUNErrCode SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
   FIRSTFACTORIZE(S) = 1;
 
   LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNLinSolSetOptions_KLU(SUNLinearSolver S, const char* LSid,
+                                   const char* file_name, int argc, char* argv[])
+{
+  if (file_name != NULL && strlen(file_name) > 0)
+  {
+    /* File-based option control is currently unimplemented */
+    return SUN_ERR_NOT_IMPLEMENTED;
+  }
+
+  if (argc > 0 && argv != NULL)
+  {
+    int retval = setFromCommandLine_KLU(S, LSid, argc, argv);
+    if (retval != SUN_SUCCESS) { return retval; }
+  }
+
+  return SUN_SUCCESS;
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line
+ */
+
+static SUNErrCode setFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
+                                         int argc, char* argv[])
+{
+  SUNFunctionBegin(S->sunctx);
+
+  /* Prefix for options to set */
+  const char* default_id = "sunlinearsolver";
+  size_t offset          = strlen(default_id) + 1;
+  if (LSid != NULL) { offset = SUNMAX(strlen(LSid) + 1, offset); }
+  char* prefix = (char*)malloc(sizeof(char) * (offset + 1));
+  if (LSid != NULL && strlen(LSid) > 0) { strcpy(prefix, LSid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+
+  for (int idx = 1; idx < argc; idx++)
+  {
+    int retval;
+
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
+
+    /* control over SetOrdering function */
+    if (strcmp(argv[idx] + offset, "ordering") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNLinSol_KLUSetOrdering(S, iarg);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+  }
+  free(prefix);
   return SUN_SUCCESS;
 }
 

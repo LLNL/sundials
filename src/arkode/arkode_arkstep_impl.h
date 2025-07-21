@@ -195,6 +195,8 @@ int arkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                  int* nflagPtr);
 int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int arkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
+                      size_t offset, sunbooleantype* arg_used);
 int arkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int arkStep_SetDefaults(ARKodeMem ark_mem);
 int arkStep_SetOrder(ARKodeMem ark_mem, int ord);

@@ -111,6 +111,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ark_mem->step_printmem                  = mriStep_PrintMem;
   ark_mem->step_setdefaults               = mriStep_SetDefaults;
   ark_mem->step_computestate              = mriStep_ComputeState;
+  ark_mem->step_setoption                 = mriStep_SetOption;
   ark_mem->step_setorder                  = mriStep_SetOrder;
   ark_mem->step_setnonlinearsolver        = mriStep_SetNonlinearSolver;
   ark_mem->step_setlinear                 = mriStep_SetLinear;
