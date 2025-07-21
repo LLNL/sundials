@@ -418,7 +418,7 @@ subroutine PrintFinalStats(kmem)
 
   integer(c_int)  :: ierr
   integer(c_long) :: nni(1), nli(1), ncfl(1), nfe(1), nfeLS(1), njvevals(1)
-  integer(c_long) :: npe(1), nps(1), lenrw(1), leniw(1), lenrwLS(1), leniwLS(1)
+  integer(c_long) :: npe(1), nps(1)
 
   !======= Internals ============
 
@@ -474,31 +474,12 @@ subroutine PrintFinalStats(kmem)
     stop 1
   end if
 
-  ! Main solver workspace size
-
-  ierr = FKINGetWorkSpace(kmem, lenrw, leniw)
-  if (ierr /= 0) then
-    print *, 'Error in FKINGetWorkSpace, ierr = ', ierr, '; halting'
-    stop 1
-  end if
-
-  ! Linear solver workspace size
-
-  ierr = FKINGetLinWorkSpace(kmem, lenrwLS, leniwLS)
-  if (ierr /= 0) then
-    print *, 'Error in FKINGetLinWorkSpace, ierr = ', ierr, '; halting'
-    stop 1
-  end if
-
   print *, ' '
   print '(A)', 'Final Statistics..'
   print *, ' '
   print '(3(A,i6))', 'nni = ', nni, '  nli   = ', nli, '  ncfl = ', ncfl
   print '(3(A,i6))', 'nfe = ', nfe, '  nfeLS = ', nfeLS, '  njt  = ', njvevals
   print '(2(A,i6))', 'npe = ', npe, '  nps   = ', nps
-  print *, ' '
-  print '(2(A,i6))', 'lenrw   = ', lenrw, '  leniw   = ', leniw
-  print '(2(A,i6))', 'lenrwLS = ', lenrwLS, '  leniwLS = ', leniwLS
 
   return
 

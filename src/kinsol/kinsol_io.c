@@ -129,8 +129,9 @@ int KINSetMAA(void* kinmem, long int maa)
     return (KIN_ILL_INPUT);
   }
 
-  if (maa > kin_mem->kin_mxiter) { maa = kin_mem->kin_mxiter; }
-
+  // To allow for setting the depth and max number of iterations in any order we
+  // do not limit maa here and instead enforce maa < mxiter in the AA
+  // initialization function (KINInitAA)
   kin_mem->kin_m_aa = maa;
 
   return (KIN_SUCCESS);

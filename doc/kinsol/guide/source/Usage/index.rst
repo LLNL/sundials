@@ -1008,28 +1008,40 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
 .. c:function:: int KINSetMAA(void * kin_mem, long int maa)
 
-   The function :c:func:`KINSetMAA` specifies the size of the subspace used with
-   Anderson acceleration in conjunction with Picard or fixed-point iteration.
+   The function :c:func:`KINSetMAA` specifies the Anderson acceleration subspace
+   size (depth) in the Picard or fixed-point iteration.
+
+   The default depth is 0, indicating no acceleration. Providing a value
+   :math:`> 0` will enable acceleration. The input ``maa`` must be less than the
+   maximum number of iterations allowed, ``mxiter`` (see
+   :c:func:`KINSetNumMaxIters`). This limit is enforced within :c:func:`KINSol`,
+   so :c:func:`KINSetMAA` and :c:func:`KINSetNumMaxIters` may be called in any
+   order. If ``maa`` is greater than or equal to ``mxiter``, it is set to the
+   maximum possible depth, ``maa = mxiter - 1``.
 
    **Arguments:**
      * ``kin_mem`` -- pointer to the KINSOL memory block.
-     * ``maa`` -- subspace size for various methods. A value of 0 means no acceleration, while a positive value means acceleration will be done.
+     * ``maa`` -- subspace size for various methods. A value of 0 means no
+       acceleration, while a positive value means acceleration will be done.
 
    **Return value:**
      * ``KIN_SUCCESS`` -- The optional value has been successfully set.
      * ``KIN_MEM_NULL`` -- The ``kin_mem`` pointer is ``NULL``.
      * ``KIN_ILL_INPUT`` -- The argument ``maa`` was negative.
 
-   **Notes:**
-      This function sets the subspace size, which needs to be :math:`> 0` if
-      Anderson  Acceleration is to be used.  It also allocates additional memory
-      necessary for Anderson Acceleration.  The default value of ``maa`` is 0,
-      indicating no acceleration.  The value of ``maa``  should always be less
-      than ``mxiter``.  This function MUST be called before calling
-      :c:func:`KINInit`.  If the user calls the function KINSetNumMaxIters, that
-      call should be made  before the call to KINSetMAA, as the latter uses the
-      value of ``mxiter``.
+   .. note::
 
+      Users solving a series of problems with the same KINSOL instance and
+      changing the maximum number of iterations between :c:func:`KINSol` calls
+      may need to also call :c:func:`KINSetMAA` to adjust the depth as its value
+      may have been limited in the last :c:func:`KINSol` call to enforce ``maa <
+      mxiter``.
+
+   .. versionchanged:: x.y.z
+
+      This function can now be called any time after :c:func:`KINCreate` (i.e.,
+      it no longer needs to be call before :c:func:`KINInit`) and may be called
+      before or after :c:func:`KINSetNumMaxIters`.
 
 .. c:function:: int KINSetDampingAA(void * kin_mem, sunrealtype beta)
 
@@ -1098,13 +1110,50 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
      * ``KIN_ILL_INPUT`` -- The argument ``orthaa`` was not one of the predefined
        orthogonalization routines defined in KINSOL.
 
+   **Examples codes:**
+
+   * ``examples/kinsol/serial/kinAnalytic_fp.c``
+
+   .. versionchanged:: x.y.z
+
+      This function can now be called any time after :c:func:`KINCreate` (i.e.,
+      it no longer needs to be call before :c:func:`KINInit`).
+
+
+.. c:function:: int KINSetDampingFn(void* kin_mem, KINDampingFn damping_fn)
+
+   Sets the function used to compute the damping factor, :math:`\beta_n`, in
+   fixed-point or Picard iterations.
+
+   :param kin_mem: pointer to the KINSOL memory block.
+   :param damping_fn: the function to compute the damping parameter or ``NULL``
+                      to disable using a damping factor function. See
+                      :c:type:`KINDampingFn` for more information.
+
+   :retval KIN_SUCCESS: The damping function has been successfully set.
+   :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 7.3.0
+
    .. note::
 
-      This function *must* be called before calling :c:func:`KINInit`.
+      The function provided to :c:func:`KINSetDampingFn` will override any
+      values set with :c:func:`KINSetDamping` or :c:func:`KINSetDampingAA`.
 
-      An example of how to use this function can be found in
-      ``examples/kinsol/serial/kinAnalytic_fp.c``
+.. c:function:: int KINSetDepthFn(void* kin_mem, KINDepthFn depth_fn)
 
+   Sets the function used to compute the updated depth, :math:`m_n`, in
+   fixed-point or Picard iterations.
+
+   :param kin_mem: pointer to the KINSOL memory block.
+   :param damping_fn: the function to compute the depth parameter or ``NULL``
+                      to disable using a depth function. See
+                      :c:type:`KINDepthFn` for more information.
+
+   :retval KIN_SUCCESS: The depth function has been successfully set.
+   :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 7.3.0
 
 .. c:function:: int KINSetDampingFn(void* kin_mem, KINDampingFn damping_fn)
 
