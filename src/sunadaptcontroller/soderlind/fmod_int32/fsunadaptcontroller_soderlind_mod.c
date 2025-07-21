@@ -178,6 +178,22 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
+enum {
+    SWIG_MEM_OWN = 0x01,
+    SWIG_MEM_RVALUE = 0x02,
+    SWIG_MEM_CONST = 0x04
+};
+
+
+#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
+        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+            "Cannot pass const " TYPENAME " (class " FNAME ") " \
+            "as a mutable reference", \
+            RETURNNULL); \
+    }
+
+
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -207,6 +223,45 @@
 
 
 #include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
+
+
+#include <stdlib.h>
+#ifdef _MSC_VER
+# ifndef strtoull
+#  define strtoull _strtoui64
+# endif
+# ifndef strtoll
+#  define strtoll _strtoi64
+# endif
+#endif
+
+
+typedef struct {
+    void* data;
+    size_t size;
+} SwigArrayWrapper;
+
+
+SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
+  SwigArrayWrapper result;
+  result.data = NULL;
+  result.size = 0;
+  return result;
+}
+
+
+typedef struct {
+    void* cptr;
+    int cmemflags;
+} SwigClassWrapper;
+
+
+SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+    SwigClassWrapper result;
+    result.cptr = NULL;
+    result.cmemflags = 0;
+    return result;
+}
 
 SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_Soderlind(void *farg1) {
   SUNAdaptController fresult ;
@@ -281,6 +336,27 @@ SWIGEXPORT int _wrap_FSUNAdaptController_Reset_Soderlind(SUNAdaptController farg
   
   arg1 = (SUNAdaptController)(farg1);
   result = (SUNErrCode)SUNAdaptController_Reset_Soderlind(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNAdaptController_SetOptions_Soderlind(SUNAdaptController farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, int const *farg4, SwigClassWrapper const *farg5) {
+  int fresult ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char **arg5 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (char *)(farg3->data);
+  arg4 = (int)(*farg4);
+  SWIG_check_mutable(*farg5, "char **", "SWIGTYPE_p_p_char", "SUNAdaptController_SetOptions_Soderlind(SUNAdaptController,char const *,char const *,int,char *[])", return 0);
+  arg5 = (char **)(farg5->cptr);
+  result = (SUNErrCode)SUNAdaptController_SetOptions_Soderlind(arg1,(char const *)arg2,(char const *)arg3,arg4,arg5);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

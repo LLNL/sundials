@@ -95,6 +95,11 @@ The module SUNLinSol_SuperLUMT provides the following user-callable routines:
    **Return value:**
       * A :c:type:`SUNErrCode`
 
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.ordering".
+
 
 .. _SUNLinSol.SuperLUMT.Description:
 

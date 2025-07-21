@@ -154,6 +154,47 @@ parameters. Only the routine for setting the nonlinear system defining function
 (:c:func:`SUNNonlinSolSetSysFn`) is required. All other set functions are optional.
 
 
+.. c:function:: SUNErrCode SUNNonlinSolSetOptions(SUNNonlinearSolver NLS, const char* NLSid, const char* file_name, int argc, char* argv[])
+
+   This *optional* routine sets SUNNonlinearSolver options from an array of strings or a file.
+
+   :param NLS: the :c:type:`SUNNonlinearSolver` object.
+   :param NLSid: the prefix for options to read. The default is "sunnonlinearsolver".
+   :param file_name: the name of a file containing options to read. If this is
+                     ``NULL`` or an empty string, ``""``, then no file is read.
+   :param argc: length of the ``argv`` array.
+   :param argv: an array of strings containing the options to set and their values.
+
+   :return: :c:type:`SUNErrCode` indicating success or failure.
+
+   .. note::
+
+      The ``argc`` and ``argv`` arguments are typically those supplied to the user's
+      ``main`` routine however, this is not required. The inputs are left unchanged by
+      :c:func:`SUNNonlinSolSetOptions`.
+
+      If the ``NLSid`` argument is ``NULL``, then the default prefix, ``sunnonlinearsolver``, must
+      be used for all SUNNonlinearSolver options.  Whether ``NLSid`` is supplied or not, a ``"."``
+      will be used to separate all option keys from this identifier.  For example, when
+      using the default ``NLSid``, the option ``sunnonlinearsolver.max_iters`` followed by the value
+      can be used to set the maximum number of nonlinear solver iterations.
+      When using a combination of SUNNonlinearSolver objects (e.g., when using MRIStep), it is recommended
+      that users call :c:func:`SUNNonlinSolSetOptions` for each nonlinear solver using distinct
+      *NLSid* inputs, so that each solver object can be configured separately.
+
+      SUNNonlinearSolver options set via command-line arguments to
+      :c:func:`SUNNonlinSolSetOptions` will overwrite any previously-set values.
+
+   .. warning::
+
+      This function is not available in the Fortran interface.
+
+      File-based options are not yet implemented, so the *file_name* argument
+      should be set to either ``NULL`` or the empty string ``""``.
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: SUNErrCode SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 
    This *required* function is used to provide the nonlinear solver
@@ -262,6 +303,11 @@ parameters. Only the routine for setting the nonlinear system defining function
    **Return value:**
       * A :c:type:`SUNErrCode`
 
+   **Notes:**
+
+      If supported by the SUNNonlinearSolver implementation, this routine will be called
+      by :c:func:`SUNNonlinSolSetOptions` when using the key
+      "NLSid.max_iters".
 
 
 

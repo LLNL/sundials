@@ -22,6 +22,7 @@
 
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include "arkode_lsrkstep_impl.h"
+#include "sundials_cli.h"
 
 /*===============================================================
   Exported optional input functions.
@@ -603,6 +604,81 @@ int LSRKStepGetNumDomEigEstRhsEvals(void* arkode_mem, long int* nfeDQ)
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  lsrkStep_SetOption:
+
+  Provides string-based control over LSRKStep-specific "set" routines.
+  ---------------------------------------------------------------*/
+int lsrkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used)
+{
+  /* Set lists of keys, and the corresponding set routines */
+  static const struct sunKeyCharPair char_pairs[] =
+    {{"sts_method_name", LSRKStepSetSTSMethodByName},
+     {"ssp_method_name", LSRKStepSetSSPMethodByName}};
+  static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
+
+  static const struct sunKeyLongPair long_pairs[] = {
+    {"dom_eig_frequency", LSRKStepSetDomEigFrequency}};
+  static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
+
+  static const struct sunKeyIntPair int_pairs[] = {{"max_num_stages",
+                                                    LSRKStepSetMaxNumStages},
+                                                   {"num_ssp_stages",
+                                                    LSRKStepSetNumSSPStages}};
+  static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
+
+  static const struct sunKeyRealPair real_pairs[] = {
+    {"dom_eig_safety_factor", LSRKStepSetDomEigSafetyFactor}};
+  static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
+
+  /* check all "char" keys */
+  int j, retval;
+  retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
+                                  char_pairs, num_char_keys, arg_used, &j);
+  if (retval != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting key: %s", char_pairs[j].key);
+    return retval;
+  }
+  if (*arg_used) { return ARK_SUCCESS; }
+
+  /* check all "long int" keys */
+  retval = sunCheckAndSetLongArgs((void*)ark_mem, argidx, argv, offset,
+                                  long_pairs, num_long_keys, arg_used, &j);
+  if (retval != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting key: %s", long_pairs[j].key);
+    return retval;
+  }
+  if (*arg_used) { return ARK_SUCCESS; }
+
+  /* check all "int" keys */
+  retval = sunCheckAndSetIntArgs((void*)ark_mem, argidx, argv, offset,
+                                 int_pairs, num_int_keys, arg_used, &j);
+  if (retval != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting key: %s", int_pairs[j].key);
+    return retval;
+  }
+  if (*arg_used) { return ARK_SUCCESS; }
+
+  /* check all "real" keys */
+  retval = sunCheckAndSetRealArgs((void*)ark_mem, argidx, argv, offset,
+                                  real_pairs, num_real_keys, arg_used, &j);
+  if (retval != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting key: %s", real_pairs[j].key);
+    return retval;
+  }
+
+  return (ARK_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   lsrkStep_SetDefaults:

@@ -52,6 +52,7 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   ops->reset           = NULL;
   ops->estimatestep    = NULL;
   ops->estimatesteptol = NULL;
+  ops->setoptions      = NULL;
   ops->setdefaults     = NULL;
   ops->write           = NULL;
   ops->seterrorbias    = NULL;
@@ -169,6 +170,20 @@ SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   if (C->ops->reset) { ier = C->ops->reset(C); }
+  return (ier);
+}
+
+SUNErrCode SUNAdaptController_SetOptions(SUNAdaptController C, const char* Cid,
+                                         const char* file_name, int argc,
+                                         char* argv[])
+{
+  SUNErrCode ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  if (C->ops->setoptions)
+  {
+    ier = C->ops->setoptions(C, Cid, file_name, argc, argv);
+  }
   return (ier);
 }
 
