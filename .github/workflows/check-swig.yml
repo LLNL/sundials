@@ -9,9 +9,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  swig:
+  swig_check:
     runs-on: ubuntu-latest
-
     steps:
       - name: Install pcre
         run: |
@@ -23,7 +22,7 @@ jobs:
           cd swig
           ./autogen.sh
           ./configure --prefix=/usr/
-          make 
+          make
           sudo make install
           swig -version
 
@@ -47,7 +46,7 @@ jobs:
         run:  /usr/bin/git diff > swig.patch
 
       - name: Archive diff as a patch if we failed
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: swig.patch
