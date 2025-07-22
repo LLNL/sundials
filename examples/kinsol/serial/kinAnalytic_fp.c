@@ -136,7 +136,6 @@ int main(int argc, char* argv[])
   UserOpt uopt   = NULL; /* user options struct */
   N_Vector u     = NULL; /* solution vector     */
   N_Vector scale = NULL; /* scaling vector      */
-  FILE* infofp   = NULL; /* KINSOL log file     */
   long int nni, nfe;     /* solver outputs      */
   sunrealtype* data;     /* vector data array   */
   void* kmem;            /* KINSOL memory       */
@@ -249,10 +248,6 @@ int main(int argc, char* argv[])
     if (check_retval(&retval, "KINSetDepthFn", 1)) { return (1); }
   }
 
-  /* Set info log file and print level */
-  infofp = fopen("kinsol.log", "w");
-  if (check_retval((void*)infofp, "fopen", 0)) { return (1); }
-
   /* -------------
    * Initial guess
    * ------------- */
@@ -306,7 +301,6 @@ int main(int argc, char* argv[])
    * Free memory
    * ----------- */
 
-  fclose(infofp);
   N_VDestroy(u);
   N_VDestroy(scale);
   KINFree(&kmem);
