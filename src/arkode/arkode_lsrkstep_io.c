@@ -495,7 +495,6 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
 
   /* Attach the DEE pointer to the step memory */
   step_mem->DEE      = DEE;
-  step_mem->DEE_init = SUNTRUE;
 
   // Set the ATimes function for the DEE with A_data = arkode_mem
   retval = SUNDomEigEst_SetATimes(DEE, arkode_mem, lsrkStep_DQJtimes);
@@ -640,7 +639,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
   step_mem->init_warmup        = SUNFALSE;
-  step_mem->DEE_init           = SUNTRUE;
 
   /* Load the default SUNAdaptController */
   retval = arkReplaceAdaptController(ark_mem, NULL, SUNTRUE);

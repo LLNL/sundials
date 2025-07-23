@@ -31,18 +31,17 @@ the header file ``sundials/sundials_domeigestimator.h``.
 SUNDomEigEstimator core functions
 -----------------------------------------------------
 
-The core dominant eigenvalue estimator functions consist of several **required**
-functions: :c:func:`SUNDomEigEst_NewEmpty` creates a new empty ``SUNDomEigEstimator`` 
-object, :c:func:`SUNDomEigEst_SetATimes` provides a :c:type:`SUNATimesFn` function pointer,
+The SUNDomEigEstimator base class provides two **utility** routines for implementors, 
+:c:func:`SUNDomEigEst_NewEmpty` and :c:func:`SUNDomEigEst_FreeEmpty`.
+
+Implementations of SUNDomEigEstimators must include a set of **required** functions: `
+:c:func:`SUNDomEigEst_SetATimes` provides a :c:type:`SUNATimesFn` function pointer,
 as well as a ``void*`` pointer to a data structure used by this routine,
 :c:func:`SUNDomEigEst_Initialize` initializes the estimator object once all estimator-specific
 options have been set, :c:func:`SUNDomEig_Estimate` estimates the dominant eigenvalue,
-:c:func:`SUNDomEigEst_FreeEmpty` an empty estimator and :c:func:`SUNDomEigEst_Destroy` destroys 
-an estimator object.
+and :c:func:`SUNDomEigEst_Destroy` destroys an estimator object.
 
 .. c:function:: SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
-
-   *Required.*
 
    This function allocates a new ``SUNDomEigEstimator`` object and
    initializes its content pointer and the function pointers in the operations
@@ -71,7 +70,7 @@ an estimator object.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object,
+      * *DEE* -- a SUNDomEigEstimator object,
       * *A_data* -- pointer to structure for ``ATimes``,
       * *ATimes* -- function pointer to perform :math:`Av` product.
 
@@ -95,7 +94,7 @@ an estimator object.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object.
+      * *DEE* -- a SUNDomEigEstimator object.
 
    **Return value:**
 
@@ -116,7 +115,7 @@ an estimator object.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object.
+      * *DEE* -- a SUNDomEigEstimator object.
       * *lambdaR* -- The real part of the dominant eigenvalue
       * *lambdaI* -- The imaginary part of the dominant eigenvalue
 
@@ -151,11 +150,11 @@ an estimator object.
 
 .. c:function:: SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
 
-   Frees memory allocated by the dominant eigenvalue estimatimator.
+   Frees memory allocated by the dominant eigenvalue estimator.
 
    **Arguments:**
 
-      * *DEEptr* -- a SUNDomEigEst object pointer.
+      * *DEEptr* -- a SUNDomEigEstimator object pointer.
 
    **Usage:**
 
@@ -184,7 +183,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object,
+      * *DEE* -- a SUNDomEigEstimator object,
       * *numpreprocess* -- the number of preprocess.
 
    **Return value:**
@@ -204,7 +203,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object,
+      * *DEE* -- a SUNDomEigEstimator object,
       * *tol* -- the requested eigenvalue accuracy.
 
    **Return value:**
@@ -224,7 +223,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object,
+      * *DEE* -- a SUNDomEigEstimator object,
       * *max_iters* -- the maximum number of iterations.
 
    **Return value:**
@@ -253,7 +252,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object.
+      * *DEE* -- a SUNDomEigEstimator object.
       * *cur_res* -- the current residual
 
    **Return value:**
@@ -275,7 +274,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object,
+      * *DEE* -- a SUNDomEigEstimator object,
       * *curniter* -- the current number of iterations.
 
    **Return value:**
@@ -293,11 +292,11 @@ dominant eigenvalue estimator.  *All routines are optional.*
 .. c:function:: SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, long int* max_niter)
 
    This *optional* routine should return the maximum number of iterations
-   performed in all "estimator" calls so far.
+   performed in any previous "estimator" call so far.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object,
+      * *DEE* -- a SUNDomEigEstimator object,
       * *max_niter* -- the maximum number of iterations.
 
    **Return value:**
@@ -315,11 +314,11 @@ dominant eigenvalue estimator.  *All routines are optional.*
 .. c:function:: SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, long int* min_niter)
 
    This *optional* routine should return the minimum number of iterations
-   performed in all "estimator" calls so far.
+   performed in any previous "estimator" call so far.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object,
+      * *DEE* -- a SUNDomEigEstimator object,
       * *min_niter* -- the minimum number of iterations.
 
    **Return value:**
@@ -339,7 +338,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object,
+      * *DEE* -- a SUNDomEigEstimator object,
       * *num_ATimes* -- the number of calls to the ``Atimes`` function.
 
    **Return value:**
@@ -361,7 +360,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEst object,
+      * *DEE* -- a SUNDomEigEstimator object,
       * *outfile* -- the output stream.
 
    **Return value:**
@@ -516,7 +515,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEst_PrintStats`
       
-   .. c:member:: SUNErrCode (*free)(SUNDomEigEstimator)
+   .. c:member:: SUNErrCode (*destroy)(SUNDomEigEstimator*)
 
       The function implementing :c:func:`SUNDomEigEst_Destroy`
 

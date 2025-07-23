@@ -146,9 +146,9 @@ information:
 
 * ``cur_num_iters`` - current number of power iterations,
 
-* ``max_num_iters`` - maximum number of power iterations so far,
+* ``max_num_iters`` - maximum number of power iterations in any single estimate so far,
 
-* ``min_num_iters`` - minimum number of power iterations so far,
+* ``min_num_iters`` - minimum number of power iterations in any single estimate so far,
 
 * ``num_ATimes`` - number of calls to the ``ATimes`` function,
 
@@ -188,13 +188,13 @@ eigenvalue estimator operations listed in
 
 * ``SUNDomEigEst_SetATimes_Power``
 
-* ``SUNDomEigEst_Initialize_Power``
+* ``SUNDomEigEst_SetMaxIters_Power``
 
 * ``SUNDomEigEst_SetNumPreProcess_Power``
 
 * ``SUNDomEigEst_SetTol_Power``
 
-* ``SUNDomEigEst_SetMaxIters_Power``
+* ``SUNDomEigEst_Initialize_Power``
 
 * ``SUNDomEig_Estimate_Power``
 

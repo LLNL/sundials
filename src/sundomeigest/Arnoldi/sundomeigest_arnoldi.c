@@ -105,7 +105,7 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim,
   DEE->ops->getminniters      = NULL;
   DEE->ops->getnumatimescalls = SUNDomEigEst_GetNumATimesCalls_Arnoldi;
   DEE->ops->printstats        = SUNDomEigEst_PrintStats_Arnoldi;
-  DEE->ops->free              = SUNDomEigEst_Destroy_Arnoldi;
+  DEE->ops->destroy           = SUNDomEigEst_Destroy_Arnoldi;
 
   /* Create content */
   content = NULL;
@@ -178,16 +178,25 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
   SUNAssert(Arnoldi_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
 
-  Arnoldi_CONTENT(DEE)->LAPACK_A = (sunrealtype*)malloc(
-    (Arnoldi_CONTENT(DEE)->kry_dim * Arnoldi_CONTENT(DEE)->kry_dim) *
-    sizeof(sunrealtype));
-  SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_A, SUN_ERR_MALLOC_FAIL);
-  Arnoldi_CONTENT(DEE)->LAPACK_wr =
-    malloc(Arnoldi_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
-  SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_wr, SUN_ERR_MALLOC_FAIL);
-  Arnoldi_CONTENT(DEE)->LAPACK_wi =
-    malloc(Arnoldi_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
-  SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_wi, SUN_ERR_MALLOC_FAIL);
+  if (Arnoldi_CONTENT(DEE)->LAPACK_A == NULL)
+  {
+    Arnoldi_CONTENT(DEE)->LAPACK_A = (sunrealtype*)malloc(
+      (Arnoldi_CONTENT(DEE)->kry_dim * Arnoldi_CONTENT(DEE)->kry_dim) *
+      sizeof(sunrealtype));
+    SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_A, SUN_ERR_MALLOC_FAIL);
+  }
+  if (Arnoldi_CONTENT(DEE)->LAPACK_wr == NULL)
+  {
+    Arnoldi_CONTENT(DEE)->LAPACK_wr =
+      malloc(Arnoldi_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
+    SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_wr, SUN_ERR_MALLOC_FAIL);
+  }
+  if (Arnoldi_CONTENT(DEE)->LAPACK_wi == NULL)
+  {
+    Arnoldi_CONTENT(DEE)->LAPACK_wi =
+      malloc(Arnoldi_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
+    SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_wi, SUN_ERR_MALLOC_FAIL);
+  }
 
   /* query the workspace size (call with lwork = -1) */
   char jobvl         = 'N';

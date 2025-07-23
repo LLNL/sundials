@@ -55,13 +55,8 @@ SUNDomEigEst_ARNOLDI Usage
 
 The header file to be included when using this module is ``sundomeigest/sundomeigest_arnoldi.h``.
 The SUNDomEigEst_ARNOLDI module is accessible from all SUNDIALS solvers *without* linking to the
-``libsundials_sundomeigestarnoldi`` module library.
-
-The header file to be included when using this module is ``sundomeigest/sundomeigest_arnoldi.h``.
-The SUNDomEigEst_ARNOLDI module is accessible from all SUNDIALS solvers *without* linking to the
-``libsundials_sundomeigestarnoldi`` module library after enabling SUNDIALS interfaces to the LAPACK library.
-This LAPACK dependence is limited to the eigenvalue estimation of the Hessenberg matrix using the 
-``dgeev``` and/or ``sgeev`` functions.
+``libsundials_sundomeigestarnoldi`` module library after enabling SUNDIALS interfaces to the LAPACK 
+library.
 
 The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
 
@@ -72,7 +67,7 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
    ``SUNDomEigEstimator``.
 
    **Arguments:**
-      * *q* -- a template vector.
+      * *q* -- the initial guess for the dominant eigenvector -- It must avoid being a non-dominant eigenvector of the Jacobian.
       * *kry_dim* -- the dimension of the Krylov subspaces.
       * *num_warmups* -- number of preprocessing warmups.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
@@ -173,10 +168,14 @@ dominant eigenvalue estimator operations listed in
 
 * ``SUNDomEigEst_SetATimes_Arnoldi``
 
-* ``SUNDomEigEst_Initialize_Arnoldi``
-
 * ``SUNDomEigEst_SetNumPreProcess_Arnoldi``
 
+* ``SUNDomEigEst_Initialize_Arnoldi``
+
 * ``SUNDomEig_Estimate_Arnoldi``
+
+* ``SUNDomEigEst_GetNumATimesCalls_Arnoldi``
+
+* ``SUNDomEigEst_PrintStats_Arnoldi``
 
 * ``SUNDomEigEst_Destroy_Arnoldi``

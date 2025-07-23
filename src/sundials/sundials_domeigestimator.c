@@ -62,7 +62,7 @@ SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
   ops->getminniters     = NULL;
   ops->getcurres        = NULL;
   ops->printstats       = NULL;
-  ops->free             = NULL;
+  ops->destroy          = NULL;
 
   /* attach ops and initialize content and context to NULL */
   DEE->ops     = ops;
@@ -246,7 +246,7 @@ SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
 {
   SUNDomEigEstimator DEE = *DEEptr;
   SUNErrCode ier;
-  if (DEE->ops->free) { ier = DEE->ops->free(&DEE); }
+  if (DEE->ops->destroy) { ier = DEE->ops->destroy(&DEE); }
   else
   {
     SUNDomEigEst_FreeEmpty(DEE);

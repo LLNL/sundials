@@ -92,7 +92,7 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
   DEE->ops->getminniters      = SUNDomEigEst_GetMinNumIters_Power;
   DEE->ops->getnumatimescalls = SUNDomEigEst_GetNumATimesCalls_Power;
   DEE->ops->printstats        = SUNDomEigEst_PrintStats_Power;
-  DEE->ops->free              = SUNDomEigEst_Destroy_Power;
+  DEE->ops->destroy           = SUNDomEigEst_Destroy_Power;
 
   /* Create content */
   content = NULL;

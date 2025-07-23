@@ -316,7 +316,7 @@ int main(int argc, char* argv[])
      It is used only to initialize the DEE */
   N_VDestroy(q);
 
-  /* Specify the number of preprocessing warmups. */
+  /* Specify the number of preprocessing warmups before the first estimate call. */
   flag = SUNDomEigEst_SetNumPreProcess(DEE, udata->dee_num_init_wups);
   if (check_flag(&flag, "SUNDomEigEst_SetNumPreProcess", 2)) { return 1; }
 

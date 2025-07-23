@@ -56,7 +56,7 @@ struct _generic_SUNDomEigEstimator_Ops
   SUNErrCode (*getminniters)(SUNDomEigEstimator, long int*);
   SUNErrCode (*getnumatimescalls)(SUNDomEigEstimator, long int*);
   SUNErrCode (*printstats)(SUNDomEigEstimator, FILE*);
-  SUNErrCode (*free)(SUNDomEigEstimator*);
+  SUNErrCode (*destroy)(SUNDomEigEstimator*);
 };
 
 /* An estimator is a structure with an implementation-dependent

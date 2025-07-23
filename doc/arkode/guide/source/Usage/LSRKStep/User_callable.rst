@@ -176,8 +176,7 @@ Allowable Method Families
 
    Specifies the user-supplied dominant eigenvalue approximation routine to
    be used for determining the number of stages that will be used by either the
-   RKC or RKL methods.  ``dom_eig = NULL`` input creates internal SUNDIALS Dominant
-   Eigenvalue Estimator (DEE) to serve this goal.
+   RKC or RKL methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -186,24 +185,10 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_DEE_FAIL* if ``dom_eig = NULL`` and DEE failed.
+      * *ARK_ILL_INPUT* ``dom_eig = NULL``.
 
-   .. note:: This function is currently required when either the RKC or RKL methods are used.
-
-   .. note:: *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).  These errors
-      are handled by :c:type:`SUNErrCode`.
-
-      Either this function or the DEE creator function, :c:func:`LSRKStepSetDomEigEstimator` is required
-      when either the RKC or RKL methods are used.
-
-      :c:func:`LSRKStepSetDomEigFn` expects a user-provided spectral radius function pointer of type
-      :c:func:`ARKDomEigFn()`.
-
-      Note that although a DEE creation routine requires :c:func:`SUNDomEigEst_SetATimes` with a valid
-      matrix-vector product function pointer, creating a DEE with :c:func:`LSRKStepSetDomEigFn`
-      uses an internal Jacobian-vector product estimation that is passed with the *arkode_mem* pointer.
-      Similarly, it estimates the eigenvalue as needed internally without requiring a call to
-      :c:func:`SUNDomEig_Estimate`.
+   .. note:: Either this function or the DEE creator function, :c:func:`LSRKStepSetDomEigEstimator` 
+      is required when either the RKC or RKL methods are used.
 
 
 .. c:function:: int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE);
@@ -216,7 +201,7 @@ Allowable Method Families
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *DEE* -- pointer to the SUNDIALS Dominant Eigenvalue Estimator (of type :c:type:`SUNDomEigEstimator`).
+      * *DEE* -- the SUNDIALS Dominant Eigenvalue Estimator to use (of type :c:type:`SUNDomEigEstimator`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -250,8 +235,8 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-.. note:: If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps`` is set to :math:`25` as recommended in :cite:p:`VSH:04`.
-   Calling this function with ``nsteps < 0`` resets the default value while ``nsteps = 0`` refers to constant dominant eigenvalue.
+   .. note:: If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps`` is set to :math:`25` as recommended in :cite:p:`VSH:04`.
+      Calling this function with ``nsteps < 0`` resets the default value while ``nsteps = 0`` refers to constant dominant eigenvalue.
 
 
 .. c:function:: int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit);
@@ -267,10 +252,10 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-.. note:: If LSRKStepSetMaxNumStages routine is not called, then the default ``stage_max_limit`` is
-   set to :math:`200`. Calling this function with ``stage_max_limit < 2`` resets the default value.
-   This limit should be chosen with consideration of the following proportionality: :math:`s^2 \sim - h\lambda`,
-   where :math:`s` is the number of stages used, :math:`h` is the current step size and :math:`\lambda` is the dominant eigenvalue.
+   .. note:: If LSRKStepSetMaxNumStages routine is not called, then the default ``stage_max_limit`` is
+      set to :math:`200`. Calling this function with ``stage_max_limit < 2`` resets the default value.
+      This limit should be chosen with consideration of the following proportionality: :math:`s^2 \sim - h\lambda`,
+      where :math:`s` is the number of stages used, :math:`h` is the current step size and :math:`\lambda` is the dominant eigenvalue.
 
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety);
@@ -288,8 +273,8 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-.. note:: If LSRKStepSetDomEigSafetyFactor routine is not called, then the default ``dom_eig_safety`` is
-   set to :math:`1.01`. Calling this function with ``dom_eig_safety < 1`` resets the default value.
+   .. note:: If LSRKStepSetDomEigSafetyFactor routine is not called, then the default ``dom_eig_safety`` is
+      set to :math:`1.01`. Calling this function with ``dom_eig_safety < 1`` resets the default value.
 
 
 .. c:function:: int LSRKStepSetNumSucceedingWarmups(void* arkode_mem, int num_succ_warmups);
@@ -304,8 +289,8 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-.. note:: If LSRKStepSetNumSucceedingWarmups routine is not called, then the default ``num_succ_warmups`` is set to :math:`0`.
-   Calling this function with ``num_succ_warmups < 0`` resets the default.
+   .. note:: If LSRKStepSetNumSucceedingWarmups routine is not called, then the default ``num_succ_warmups`` is set to :math:`0`.
+      Calling this function with ``num_succ_warmups < 0`` resets the default.
 
 
 .. c:function:: int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
@@ -325,12 +310,12 @@ Allowable Method Families
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. SSP method is not declared)
 
-.. note:: If LSRKStepSetNumSSPStages routine is not called, then the default ``num_of_stages`` is
-   set. Calling this function with ``num_of_stages <= 0`` resets the default values:
+   .. note:: If LSRKStepSetNumSSPStages routine is not called, then the default ``num_of_stages`` is
+      set. Calling this function with ``num_of_stages <= 0`` resets the default values:
 
-   * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_S_2`
-   * ``num_of_stages = 9`` for :c:enumerator:`ARKODE_LSRK_SSP_S_3`
-   * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_10_4`
+      * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_S_2`
+      * ``num_of_stages = 9`` for :c:enumerator:`ARKODE_LSRK_SSP_S_3`
+      * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_10_4`
 
 .. _ARKODE.Usage.LSRKStep.OptionalOutputs:
 
@@ -378,8 +363,8 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
       * *ARK_ILL_INPUT* if ``nfeDQ`` is illegal
 
-.. note:: The internal SUNDIALS dominant eigenvalue estimator (DEE) uses this approximation.
-   Therefore, it returns 0 if DEE the was not created.
+   .. note:: The internal SUNDIALS dominant eigenvalue estimator (DEE) uses this approximation.
+      Therefore, it returns 0 if DEE the was not created.
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:
