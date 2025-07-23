@@ -494,7 +494,7 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
   }
 
   /* Attach the DEE pointer to the step memory */
-  step_mem->DEE      = DEE;
+  step_mem->DEE = DEE;
 
   // Set the ATimes function for the DEE with A_data = arkode_mem
   retval = SUNDomEigEst_SetATimes(DEE, arkode_mem, lsrkStep_DQJtimes);

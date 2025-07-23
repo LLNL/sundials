@@ -31,7 +31,7 @@ the header file ``sundials/sundials_domeigestimator.h``.
 SUNDomEigEstimator core functions
 -----------------------------------------------------
 
-The SUNDomEigEstimator base class provides two **utility** routines for implementors, 
+The SUNDomEigEstimator base class provides two **utility** routines for implementers, 
 :c:func:`SUNDomEigEst_NewEmpty` and :c:func:`SUNDomEigEst_FreeEmpty`.
 
 Implementations of SUNDomEigEstimators must include a set of **required** functions: `
