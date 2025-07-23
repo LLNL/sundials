@@ -196,6 +196,16 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
          retval = SUNDomEigEst_SetNumPreProcess(DEE, numpreprocess);
 
+   .. note:: Whenever :c:func:`SUNDomEig_Estimate` is called, ``numpreprocess`` times warmups are 
+      performed. This makes sense when considering the DEE module standalone since it cannot assume 
+      that the last ``q`` vector will be a good initial guess for the next estimation. Therefore, 
+      if the user needs to call :c:func:`SUNDomEig_Estimate` again, warmups help ensure accuracy. 
+      However, when DEE is used within an integrator, there is a ``num_succ_warmups`` field in its 
+      step memory. This field is updated by a set function within the integrator, e.g., by 
+      :c:func:`LSRKStepSetNumSucceedingWarmups`. Once DEE is initialized and ``num_warmups`` is used 
+      for the first preprocessing, the integrator calls :c:func:`SUNDomEigEst_SetNumPreProcess` 
+      internally to ensure that all succeeding warmups are performed ``num_succ_warmups`` times.
+
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol)
 

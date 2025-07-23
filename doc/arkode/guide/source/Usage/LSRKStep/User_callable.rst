@@ -218,6 +218,8 @@ Allowable Method Families
       Note that although a DEE creation routine requires :c:func:`SUNDomEigEst_SetATimes` with a valid
       matrix-vector product function pointer, setting a DEE with :c:func:`LSRKStepSetDomEigEstimator`
       uses an internal Jacobian-vector product estimation that is passed with the *arkode_mem* pointer.
+      On the other hand, overwriting the default ``ATimes`` approximation is possible by calling 
+      :c:func:`SUNDomEigEst_SetATimes`  after calling  :c:func:`LSRKStepSetDomEigEstimator`  function.
       Similarly, it estimates the eigenvalue as needed internally without requiring a call to
       :c:func:`SUNDomEig_Estimate`.
 
@@ -291,6 +293,10 @@ Allowable Method Families
 
    .. note:: If LSRKStepSetNumSucceedingWarmups routine is not called, then the default ``num_succ_warmups`` is set to :math:`0`.
       Calling this function with ``num_succ_warmups < 0`` resets the default.
+
+      Once DEE is attached by :c:func:`LSRKStepSetDomEigEstimator`, ``num_warmups`` from DEE is used 
+      for the first preprocessing, then integrator calls :c:func:`SUNDomEigEst_SetNumPreProcess` 
+      internally to ensure that all succeeding warmups are performed ``num_succ_warmups`` times.
 
 
 .. c:function:: int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);

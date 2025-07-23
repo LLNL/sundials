@@ -233,8 +233,8 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
 
   for (int k = 0; k <= Arnoldi_CONTENT(DEE)->kry_dim; k++)
   {
-    Arnoldi_CONTENT(DEE)->Hes[k] =
-      (sunrealtype*)malloc(Arnoldi_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
+    Arnoldi_CONTENT(DEE)->Hes[k] = 
+      &(Arnoldi_CONTENT(DEE)->LAPACK_A[k * Arnoldi_CONTENT(DEE)->kry_dim]);
   }
 
   sunrealtype normq = N_VDotProd(Arnoldi_CONTENT(DEE)->q,
@@ -296,12 +296,6 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
     SUNCheckLastErr();
   }
 
-  /* Initialize the Hessenberg matrix Hes with zeros */
-  for (int i = 0; i < n; i++)
-  {
-    for (int j = 0; j < n; j++) { Arnoldi_CONTENT(DEE)->Hes[i][j] = ZERO; }
-  }
-
   for (int i = 0; i < n; i++)
   {
     /* Compute the next Krylov vector */
@@ -323,17 +317,6 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
     N_VScale(SUN_RCONST(1.0) / Arnoldi_CONTENT(DEE)->Hes[i + 1][i],
              Arnoldi_CONTENT(DEE)->V[i + 1], Arnoldi_CONTENT(DEE)->V[i + 1]);
     SUNCheckLastErr();
-  }
-
-  /* Reshape the Hessenberg matrix as an input vector for the LAPACK dgeev_ function */
-  int k = 0;
-  for (int i = 0; i < n; i++)
-  {
-    for (int j = 0; j < n; j++)
-    {
-      Arnoldi_CONTENT(DEE)->LAPACK_A[k] = Arnoldi_CONTENT(DEE)->Hes[i][j];
-      k++;
-    }
   }
 
   char jobvl = 'N'; // Do not compute left eigenvectors
@@ -479,10 +462,6 @@ SUNErrCode SUNDomEigEst_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr)
     /* free Hes */
     if (Arnoldi_CONTENT(DEE)->Hes != NULL)
     {
-      for (k = 0; k <= Arnoldi_CONTENT(DEE)->kry_dim; k++)
-      {
-        free(Arnoldi_CONTENT(DEE)->Hes[k]);
-      }
       free(Arnoldi_CONTENT(DEE)->Hes);
       Arnoldi_CONTENT(DEE)->Hes = NULL;
     }

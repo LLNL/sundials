@@ -100,6 +100,16 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
       A ``num_warmups`` argument that is :math:` < 0` will result in the default
       value (0).  This default is chosen to minimize complexity for the general user.
 
+      Whenever :c:func:`SUNDomEig_Estimate` is called, ``num_warmups`` times warmups are 
+      performed. This makes sense when considering the DEE module standalone since it cannot assume 
+      that the last ``q`` vector will be a good initial guess for the next estimation. Therefore, 
+      if the user needs to call :c:func:`SUNDomEig_Estimate` again, warmups help ensure accuracy. 
+      However, when DEE is used within an integrator, there is a ``num_succ_warmups`` field in its 
+      step memory. This field is updated by a set function within the integrator, e.g., by 
+      :c:func:`LSRKStepSetNumSucceedingWarmups`. Once DEE is initialized and ``num_warmups`` is used 
+      for the first preprocessing, the integrator calls :c:func:`SUNDomEigEst_SetNumPreProcess` 
+      internally to ensure that all succeeding warmups are performed ``num_succ_warmups`` times.
+
       A ``rel_tol`` argument that is :math:` < 0` will result in the default
       value (0.01).  This default is found particularly small enough for many internal applications.
 

@@ -89,6 +89,17 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
       value (100).  This default value is particularly chosen to minimize the memory
       footprint by lowering the required ``kry_dim``.
 
+      Whenever :c:func:`SUNDomEig_Estimate` is called, ``num_warmups`` times warmups are 
+      performed. This makes sense when considering the DEE module standalone since it cannot assume 
+      that the last ``q`` vector will be a good initial guess for the next estimation. Therefore, 
+      if the user needs to call :c:func:`SUNDomEig_Estimate` again, warmups help ensure accuracy. 
+      However, when DEE is used within an integrator, there is a ``num_succ_warmups`` field in its 
+      step memory. This field is updated by a set function within the integrator, e.g., by 
+      :c:func:`LSRKStepSetNumSucceedingWarmups`. Once DEE is initialized and ``num_warmups`` is used 
+      for the first preprocessing, the integrator calls :c:func:`SUNDomEigEst_SetNumPreProcess` 
+      internally to ensure that all succeeding warmups are performed ``num_succ_warmups`` times.
+
+
 .. _SUNDomEigEst.ARNOLDI.Description:
 
 SUNDomEigEst_ARNOLDI Description
