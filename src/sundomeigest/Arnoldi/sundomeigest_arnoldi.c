@@ -34,7 +34,6 @@
 #error Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
 #endif
 
-#define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
 /* Default estimator parameters */
@@ -233,7 +232,7 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
 
   for (int k = 0; k <= Arnoldi_CONTENT(DEE)->kry_dim; k++)
   {
-    Arnoldi_CONTENT(DEE)->Hes[k] = 
+    Arnoldi_CONTENT(DEE)->Hes[k] =
       &(Arnoldi_CONTENT(DEE)->LAPACK_A[k * Arnoldi_CONTENT(DEE)->kry_dim]);
   }
 
