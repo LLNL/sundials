@@ -14,4 +14,3 @@
 .. include:: ../../../../shared/sundomeigest/SUNDomEigEst_API.rst
 .. include:: ../../../../shared/sundomeigest/SUNDomEigEst_Power.rst
 .. include:: ../../../../shared/sundomeigest/SUNDomEigEst_Arnoldi.rst
-.. include:: ../../../../shared/sundomeigest/SUNDomEigEst_Examples.rst

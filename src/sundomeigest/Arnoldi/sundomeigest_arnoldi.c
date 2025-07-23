@@ -34,7 +34,7 @@
 #error Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
 #endif
 
-#define ONE  SUN_RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 /* Default estimator parameters */
 #define DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT 100
@@ -233,7 +233,7 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
   for (int k = 0; k <= Arnoldi_CONTENT(DEE)->kry_dim; k++)
   {
     Arnoldi_CONTENT(DEE)->Hes[k] =
-      &(Arnoldi_CONTENT(DEE)->LAPACK_A[k * Arnoldi_CONTENT(DEE)->kry_dim]);
+      (sunrealtype*)malloc(Arnoldi_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
   }
 
   sunrealtype normq = N_VDotProd(Arnoldi_CONTENT(DEE)->q,
@@ -316,6 +316,17 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
     N_VScale(SUN_RCONST(1.0) / Arnoldi_CONTENT(DEE)->Hes[i + 1][i],
              Arnoldi_CONTENT(DEE)->V[i + 1], Arnoldi_CONTENT(DEE)->V[i + 1]);
     SUNCheckLastErr();
+  }
+
+  /* Reshape the Hessenberg matrix as an input vector for the LAPACK dgeev_ function */
+  int k = 0;
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = 0; j < n; j++)
+    {
+      Arnoldi_CONTENT(DEE)->LAPACK_A[k] = Arnoldi_CONTENT(DEE)->Hes[i][j];
+      k++;
+    }
   }
 
   char jobvl = 'N'; // Do not compute left eigenvectors
@@ -461,6 +472,10 @@ SUNErrCode SUNDomEigEst_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr)
     /* free Hes */
     if (Arnoldi_CONTENT(DEE)->Hes != NULL)
     {
+      for (k = 0; k <= Arnoldi_CONTENT(DEE)->kry_dim; k++)
+      {
+        free(Arnoldi_CONTENT(DEE)->Hes[k]);
+      }
       free(Arnoldi_CONTENT(DEE)->Hes);
       Arnoldi_CONTENT(DEE)->Hes = NULL;
     }
