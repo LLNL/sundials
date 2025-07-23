@@ -70,7 +70,7 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
    ``SUNDomEigEstimator``.
 
    **Arguments:**
-      * *q* -- a template vector.
+      * *q* -- the initial guess for the dominant eigenvector; this should not be a non-dominant eigenvector of the Jacobian.
       * *max_iters* -- maximum number of iterations.
       * *num_warmups* -- number of preprocessing warmups.
       * *rel_tol* -- relative tolerance for convergence check.
@@ -88,27 +88,26 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
       A ``max_iters`` argument that is :math:`\le0` will result in the default
       value (100).
 
-      Although this default number is not high for large martices,
+      Although this default number is not high for large matrices,
       it is reasonable since
 
       1.  most solvers do not need too tight tolerances and consider a safety factor,
 
-      2.  an early (less costly) termination will be a good indicator if PI is compatible.
+      2.  an early (less costly) termination will be a good indicator whether the power iteration is compatible.
 
-      Preprocessing warmups for power iteration refer to running power iteration without 
-      checking for convergence. This can help reduce some computational overhead.
-      A ``num_warmups`` argument that is :math:` < 0` will result in the default
-      value (0).  This default is chosen to minimize complexity for the general user.
+      "Warmup" iterations correspond to power iterations that do not check for 
+      convergence.  They can help reduce some computational overhead, and may be useful 
+      if the initial guess ``q`` is not a good approximation of the dominant 
+      eigenvector.  A ``num_warmups`` argument that is :math:` < 0` will result in the 
+      default value (0).  This default is chosen to minimize complexity for the general 
+      user.
 
-      Whenever :c:func:`SUNDomEig_Estimate` is called, ``num_warmups`` times warmups are 
-      performed. This makes sense when considering the DEE module standalone since it cannot assume 
-      that the last ``q`` vector will be a good initial guess for the next estimation. Therefore, 
-      if the user needs to call :c:func:`SUNDomEig_Estimate` again, warmups help ensure accuracy. 
-      However, when DEE is used within an integrator, there is a ``num_succ_warmups`` field in its 
-      step memory. This field is updated by a set function within the integrator, e.g., by 
-      :c:func:`LSRKStepSetNumSucceedingWarmups`. Once DEE is initialized and ``num_warmups`` is used 
-      for the first preprocessing, the integrator calls :c:func:`SUNDomEigEst_SetNumPreProcess` 
-      internally to ensure that all succeeding warmups are performed ``num_succ_warmups`` times.
+      When the DEE is used in a time-dependent context, however, it is likely that the
+      most-recent ``q`` will provide a suitable initial guess for the subsequent call to 
+      :c:func:`SUNDomEig_Estimate`.  Thus, when the DEE is used by LSRKStep (see
+      :c:func:`LSRKStepSetDomEigEstimator`), the initial value of ``num_warmups`` will 
+      be overwritten after the first :c:func:`SUNDomEig_Estimate` call (see
+      :c:func:`LSRKStepSetNumSucceedingWarmups`).
 
       A ``rel_tol`` argument that is :math:` < 0` will result in the default
       value (0.01).  This default is found particularly small enough for many internal applications.

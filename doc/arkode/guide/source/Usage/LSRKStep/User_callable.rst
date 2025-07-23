@@ -196,8 +196,8 @@ Allowable Method Families
    Specifies the user-supplied dominant eigenvalue estimator (DEE) to be used for
    determining the number of stages that will be used by either the RKC or RKL methods.
    This function is an alternative to :c:func:`LSRKStepSetDomEigFn` and is used when a DEE
-   has already been created. TODO: Add extra information about how we implement this function 
-   after deciding on it by the group.
+   has already been created. This routine provides dominant eigenvalues as needed by 
+   the integrator, requiring no further user action.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.

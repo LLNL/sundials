@@ -67,7 +67,7 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
    ``SUNDomEigEstimator``.
 
    **Arguments:**
-      * *q* -- the initial guess for the dominant eigenvector -- It must avoid being a non-dominant eigenvector of the Jacobian.
+      * *q* -- the initial guess for the dominant eigenvector; this should not be a non-dominant eigenvector of the Jacobian.
       * *kry_dim* -- the dimension of the Krylov subspaces.
       * *num_warmups* -- number of preprocessing warmups.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
@@ -89,15 +89,14 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
       value (100).  This default value is particularly chosen to minimize the memory
       footprint by lowering the required ``kry_dim``.
 
-      Whenever :c:func:`SUNDomEig_Estimate` is called, ``num_warmups`` times warmups are 
-      performed. This makes sense when considering the DEE module standalone since it cannot assume 
-      that the last ``q`` vector will be a good initial guess for the next estimation. Therefore, 
-      if the user needs to call :c:func:`SUNDomEig_Estimate` again, warmups help ensure accuracy. 
-      However, when DEE is used within an integrator, there is a ``num_succ_warmups`` field in its 
-      step memory. This field is updated by a set function within the integrator, e.g., by 
-      :c:func:`LSRKStepSetNumSucceedingWarmups`. Once DEE is initialized and ``num_warmups`` is used 
-      for the first preprocessing, the integrator calls :c:func:`SUNDomEigEst_SetNumPreProcess` 
-      internally to ensure that all succeeding warmups are performed ``num_succ_warmups`` times.
+      When :c:func:`SUNDomEig_Estimate` is called, then prior to beginning the Arnoldi
+      process, ``num_warmups`` power iterations are performed on ``q`` to generate an
+      improved initial guess.  However, when the DEE is used in a time-dependent 
+      context, it is likely that the most-recent ``q`` will provide a suitable initial 
+      guess for the subsequent call to :c:func:`SUNDomEig_Estimate`.  Thus, when the DEE 
+      is used by LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial 
+      value of ``num_warmups`` will be overwritten after the first 
+      :c:func:`SUNDomEig_Estimate` call (see :c:func:`LSRKStepSetNumSucceedingWarmups`).
 
 
 .. _SUNDomEigEst.ARNOLDI.Description:

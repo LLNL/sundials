@@ -184,11 +184,11 @@ function pointer ``NULL`` instead of supplying a dummy routine.
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object,
-      * *numpreprocess* -- the number of preprocess.
+      * *numpreprocess* -- the number of preprocessing iterations.
 
    **Return value:**
 
-      * *numpreprocess* -- the number of preprocessing iterations. 
+      A :c:type:`SUNErrCode`.
 
    **Usage:**
 
@@ -218,7 +218,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    **Return value:**
 
-      * *tol* -- the requested eigenvalue accuracy.
+      A :c:type:`SUNErrCode`.
 
    **Usage:**
 
