@@ -65,6 +65,9 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
                   (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL)),
                 SUN_ERR_DEE_BAD_NVECTOR);
 
+  /* Check if q != 0 vector */
+  SUNAssertNull(N_VDotProd(q, q) > SUN_SMALL_REAL, SUN_ERR_DEE_BAD_NVECTOR);
+
   /* check for max_iters values; if illegal use defaults */
   if (max_iters <= 0) { max_iters = DEE_MAX_ITER_DEFAULT; }
 

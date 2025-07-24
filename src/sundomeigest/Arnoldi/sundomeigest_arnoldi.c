@@ -86,6 +86,9 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim,
                   (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL)),
                 SUN_ERR_DEE_BAD_NVECTOR);
 
+  /* Check if q != 0 vector */
+  SUNAssertNull(N_VDotProd(q, q) > SUN_SMALL_REAL, SUN_ERR_DEE_BAD_NVECTOR);
+
   /* Create dominant eigenvalue estimator */
   DEE = NULL;
   DEE = SUNDomEigEst_NewEmpty(sunctx);
