@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 #include <nvector/nvector_parhyp.h>
-#include <sundials/sundials_errors.h>
+#include <sundials/priv/sundials_mpi_errors_impl.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector.h>
 
@@ -150,6 +150,7 @@ N_Vector_ID N_VGetVectorID_ParHyp(SUNDIALS_MAYBE_UNUSED N_Vector v)
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
                             sunindextype global_length, SUNContext sunctx)
 {
+  SUNFunctionBegin(sunctx);
   N_Vector v;
   N_VectorContent_ParHyp content;
 

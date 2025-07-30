@@ -22,7 +22,6 @@
 #include <nvector/nvector_parallel.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/priv/sundials_mpi_errors_impl.h>
-#include <sundials/sundials_errors.h>
 #include <sundials/sundials_types.h>
 
 #include "sundials_macros.h"

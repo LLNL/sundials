@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 
     // Set initial condition
     retval = SetStartGuess(u, udata);
-    if (check_retval(&retval, "RandomVec", 1)) { return 1; }
+    if (check_retval(&retval, "SetStartGuess", 1)) { return 1; }
 
     // Create vector true mu values
     udata->mu_true = N_VClone(u);

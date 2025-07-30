@@ -1,8 +1,18 @@
 # SUNDIALS Changelog
 
+
 ## Changes to SUNDIALS in release X.Y.Z
 
 ### Major Features
+
+Added the `SUNDomEigEstimator` interface for estimating the dominant value of a system. 
+Two implementations are provided: Power Iteration and Arnoldi Iteration. The latter
+method requires building with LAPACK support enabled.
+
+Added the function `LSRKStepSetDomEigEstimator` in LSRKStep to attach a
+`SUNDomEigEstimator`, when using Runge-Kutta-Chebyshev or Runge-Kutta-Legendre
+methods, as an alternative to supplying a user-defined function to compute the dominant
+eigenvalue. 
 
 ### New Features and Enhancements
 
@@ -42,6 +52,7 @@ scale step matched the given status filter. Fixed an additional bug in
 fast time scale integration associated with an embedding.
 
 ### Deprecation Notices
+
 
 ## Changes to SUNDIALS in release 7.4.0
 
