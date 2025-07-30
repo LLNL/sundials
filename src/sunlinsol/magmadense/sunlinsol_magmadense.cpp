@@ -270,8 +270,6 @@ static SUNErrCode setFromCommandLine_MagmaDense(SUNLinearSolver S,
                                                 const char* LSid, int argc,
                                                 char* argv[])
 {
-  SUNFunctionBegin(S->sunctx);
-
   /* Prefix for options to set */
   const char* default_id = "sunlinearsolver";
   size_t offset          = strlen(default_id) + 1;
