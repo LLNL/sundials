@@ -34,4 +34,11 @@ by zero, so in most cases the extraneous computations would not impact results.
 However, in cases where these vectors contain ``inf`` or ``nan``, this would
 lead to erroneous forcing terms.
 
+Fixed a bug in the ``suntools.logs`` Python module where the ``get_history``
+function, when given a ``step_status`` for filtering output from a multirate
+method, would only extract values from the fast time scale if the slow time
+scale step matched the given status filter. Fixed an additional bug in
+``get_history`` with MRI-GARK methods where values would not be extracted from a
+fast time scale integration associated with an embedding.
+
 **Deprecation Notices**
