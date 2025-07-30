@@ -20,6 +20,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include <sundials/sundials_math.h>
@@ -29,6 +31,7 @@
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 #include "arkode_user_controller.h"
+#include "sundials_utils.h"
 
 /*===============================================================
   ARKODE optional input functions

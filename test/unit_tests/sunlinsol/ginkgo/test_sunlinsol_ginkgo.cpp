@@ -143,12 +143,8 @@ __global__ void fill_kernel(sunindextype mat_rows, sunindextype mat_cols,
 }
 #endif
 
-#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
-static void fill_matrix(gko::matrix::Csr<sunrealtype, sunindextype>* matrix)
-#else
 static void fill_matrix(
   std::shared_ptr<gko::matrix::Csr<sunrealtype, sunindextype>> matrix)
-#endif
 {
   sunindextype mat_rows  = static_cast<sunindextype>(matrix->get_size()[0]);
   sunindextype mat_cols  = static_cast<sunindextype>(matrix->get_size()[1]);
@@ -234,11 +230,7 @@ static void fill_matrix(
 #endif
 }
 
-#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
-static void fill_matrix(gko::matrix::Dense<sunrealtype>* matrix)
-#else
 static void fill_matrix(std::shared_ptr<gko::matrix::Dense<sunrealtype>> matrix)
-#endif
 {
   sunindextype mat_rows = static_cast<sunindextype>(matrix->get_size()[0]);
   sunindextype mat_cols = static_cast<sunindextype>(matrix->get_size()[1]);
@@ -350,19 +342,9 @@ int main(int argc, char* argv[])
   sundials::Context sunctx;
 
 #if defined(USE_HIP)
-#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 7)
   auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create())};
-#else
-  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false,
-                                         gko::allocation_mode::device)};
-#endif
 #elif defined(USE_CUDA)
-#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 7)
   auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create())};
-#else
-  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false,
-                                          gko::allocation_mode::device)};
-#endif
 #elif defined(USE_SYCL)
   auto gko_exec{gko::DpcppExecutor::create(0, gko::ReferenceExecutor::create())};
 #elif defined(USE_OMP)
@@ -422,7 +404,7 @@ int main(int argc, char* argv[])
   }
   const auto matrows{matcols};
 
-  const auto matcond{static_cast<sunrealtype>(atof(argv[++argi]))};
+  const auto matcond{SUNStrToReal(argv[++argi])};
   if (matcond < 0)
   {
     std::cerr << "ERROR: matrix condition number must be positive or 0 "
@@ -497,14 +479,7 @@ int main(int argc, char* argv[])
       gko_matdata.remove_zeros();
       gko_matrix->read(gko_matdata);
     }
-    else
-    {
-#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
-      fill_matrix(gko::lend(gko_matrix));
-#else
-      fill_matrix(gko_matrix);
-#endif
-    }
+    else { fill_matrix(gko_matrix); }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),
                                                                   sunctx);
@@ -525,11 +500,7 @@ int main(int argc, char* argv[])
     else
     {
       gko_matrix->fill(0.0);
-#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
-      fill_matrix(gko::lend(gko_matrix));
-#else
       fill_matrix(gko_matrix);
-#endif
     }
     A = std::make_unique<sundials::ginkgo::Matrix<GkoMatrixType>>(std::move(
                                                                     gko_matrix),
@@ -769,7 +740,8 @@ int main(int argc, char* argv[])
  * Implementation-specific 'check' routines                                   *
  * -------------------------------------------------------------------------- */
 
-int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
+extern "C" int check_vector(N_Vector expected, N_Vector actual,
+                            sunrealtype check_tol)
 {
   int failure{0};
 
@@ -817,7 +789,7 @@ int check_vector(N_Vector expected, N_Vector actual, sunrealtype check_tol)
   return failure > 0;
 }
 
-void sync_device()
+extern "C" void sync_device()
 {
   HIP_OR_CUDA_OR_SYCL(hipDeviceSynchronize(), cudaDeviceSynchronize(),
                       global_exec->synchronize());
