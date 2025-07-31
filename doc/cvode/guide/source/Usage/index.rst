@@ -889,24 +889,24 @@ Main solver optional input functions
 
    **Example usage:**
 
-      In a C or C++ program, the following will enable command-line processing:
+   In a C or C++ program, the following will enable command-line processing:
 
-      .. code-block:: C
+   .. code-block:: C
 
-         /* Create CVODE memory block */
-         void* cvode_mem = CVodeCreate(CV_BDF, ctx);
+      /* Create CVODE memory block */
+      void* cvode_mem = CVodeCreate(CV_BDF, ctx);
 
-         /* Configure CVODE as normal */
-         ...
+      /* Configure CVODE as normal */
+      ...
 
-         /* Override settings with command-line options using default "cvode" prefix */
-         flag = CVodeSetOptions(cvode_mem, NULL, NULL, argc, argv);
+      /* Override settings with command-line options using default "cvode" prefix */
+      flag = CVodeSetOptions(cvode_mem, NULL, NULL, argc, argv);
 
-      Then when running the program, the user can specify desired options, e.g.,
+   Then when running the program, the user can specify desired options, e.g.,
 
-      .. code-block:: console
+   .. code-block:: console
 
-         $ ./a.out cvode.max_order 3 cvode.max_num_steps 10000
+      $ ./a.out cvode.max_order 3 cvode.max_num_steps 10000
 
    .. note::
 
@@ -916,21 +916,25 @@ Main solver optional input functions
 
       If the ``cvid`` argument is ``NULL``, then the default prefix, ``cvode``, must
       be used for all CVODE options. Whether ``cvid`` is supplied or not, a ``"."``
-      will be used to separate all option keys from this identifier.  For example, when
+      must be used to separate an option key from the prefix.  For example, when
       using the default ``cvid``, the option ``cvodes.max_order`` followed by the value
       can be used to set the maximum method order of accuracy.
 
       CVODE options set via :c:func:`CVodeSetOptions` will overwrite
-      any previously-set values.
+      any previously-set values.  Options are set in the order they are given in
+      ``argv`` and, if an option with the same prefix appears multiple times in
+      ``argv``, the value of the last occurrence will used.
 
       The supported option names are noted within the documentation for the
-      corresponding CVODE "set" function.
+      corresponding CVODE "set" function.  For options that take a
+      :c:type:`sunbooleantype` as input, use ``1`` to indicate ``true`` and
+      ``0`` for ``false``.
 
    .. warning::
 
       This function is not available in the Fortran interface.
 
-      File-based options are not yet implemented, so the *file_name* argument
+      File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
    .. versionadded:: x.y.z

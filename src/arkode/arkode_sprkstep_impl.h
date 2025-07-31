@@ -73,8 +73,8 @@ int sprkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                   int* nflagPtr);
-int sprkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
-                       size_t offset, sunbooleantype* arg_used);
+int sprkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
+                        size_t offset, sunbooleantype* arg_used);
 int sprkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int sprkStep_SetDefaults(ARKodeMem ark_mem);
 int sprkStep_SetOrder(ARKodeMem ark_mem, int ord);

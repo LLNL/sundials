@@ -175,7 +175,7 @@ parameters. Only the routine for setting the nonlinear system defining function
 
       If the ``NLSid`` argument is ``NULL``, then the default prefix, ``sunnonlinearsolver``, must
       be used for all SUNNonlinearSolver options.  Whether ``NLSid`` is supplied or not, a ``"."``
-      will be used to separate all option keys from this identifier.  For example, when
+      must be used to separate an option key from the prefix.  For example, when
       using the default ``NLSid``, the option ``sunnonlinearsolver.max_iters`` followed by the value
       can be used to set the maximum number of nonlinear solver iterations.
       When using a combination of SUNNonlinearSolver objects (e.g., when using MRIStep), it is recommended
@@ -184,12 +184,19 @@ parameters. Only the routine for setting the nonlinear system defining function
 
       SUNNonlinearSolver options set via command-line arguments to
       :c:func:`SUNNonlinSolSetOptions` will overwrite any previously-set values.
+      Options are set in the order they are given in ``argv`` and, if an
+      option with the same prefix appears multiple times in ``argv``, the value of the
+      last occurrence will used.
+
+      The supported option names are noted within the documentation for the
+      corresponding "set" function. For options that take a :c:type:`sunbooleantype` as
+      input, use ``1`` to indicate ``true`` and ``0`` for ``false``.
 
    .. warning::
 
       This function is not available in the Fortran interface.
 
-      File-based options are not yet implemented, so the *file_name* argument
+      File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
    .. versionadded:: x.y.z

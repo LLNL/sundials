@@ -290,9 +290,9 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
 
     /* Call stepper-specific SetFromCommandLine routine (if supplied) to
        process this command-line argument */
-    if (ark_mem->step_setoption)
+    if (ark_mem->step_setoptions)
     {
-      retval = ark_mem->step_setoption(ark_mem, &idx, argv, offset, &arg_used);
+      retval = ark_mem->step_setoptions(ark_mem, &idx, argv, offset, &arg_used);
       if (retval != ARK_SUCCESS)
       {
         free(prefix);

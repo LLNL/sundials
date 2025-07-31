@@ -288,7 +288,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
       If the ``Cid`` argument is ``NULL`` then the default prefix, ``sunadaptcontroller``, must
       be used for all SUNAdaptController options.  Whether ``Cid`` is supplied or not, a ``"."``
-      will be used to separate all option keys from this identifier.  For example, when
+      must be used to separate an option key from the prefix.  For example, when
       using the default ``Cid``, the option ``sunadaptcontroller.error_bias`` followed by the value
       can be used to set the error bias factor.  When using a combination of SUNAdaptController
       objects (e.g., within MRIStep, SplittingStep or ForcingStep), it is recommended that users
@@ -296,16 +296,20 @@ note these requirements below. Additionally, we note the behavior of the base SU
       so that each controller can be configured separately.
 
       SUNAdaptController options set via :c:func:`SUNAdaptController_SetOptions` will overwrite
-      any previously-set values.
+      any previously-set values.  Options are set in the order they are given in ``argv`` and,
+      if an option with the same prefix appears multiple times in ``argv``, the value of the
+      last occurrence will used.
 
       The supported option names are noted within the documentation for the
-      corresponding SUNAdaptController functions.
+      corresponding SUNAdaptController functions.  For options that take a
+      :c:type:`sunbooleantype` as input, use ``1`` to indicate ``true`` and
+      ``0`` for ``false``.
 
    .. warning::
 
       This function is not available in the Fortran interface.
 
-      File-based options are not yet implemented, so the *file_name* argument
+      File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
    .. versionadded:: x.y.z

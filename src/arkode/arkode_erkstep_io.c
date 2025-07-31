@@ -261,8 +261,8 @@ int ERKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
 
   Provides string-based control over ERKStep-specific "set" routines.
   ---------------------------------------------------------------*/
-int erkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
-                      size_t offset, sunbooleantype* arg_used)
+int erkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of keys, and the corresponding set routines */
   static const struct sunKeyCharPair char_pairs[] = {

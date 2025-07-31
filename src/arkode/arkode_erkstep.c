@@ -99,7 +99,7 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   ark_mem->step_resize                = erkStep_Resize;
   ark_mem->step_free                  = erkStep_Free;
   ark_mem->step_printmem              = erkStep_PrintMem;
-  ark_mem->step_setoption             = erkStep_SetOption;
+  ark_mem->step_setoptions            = erkStep_SetOptions;
   ark_mem->step_setdefaults           = erkStep_SetDefaults;
   ark_mem->step_setrelaxfn            = erkStep_SetRelaxFn;
   ark_mem->step_setorder              = erkStep_SetOrder;

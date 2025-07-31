@@ -19,6 +19,9 @@
 // include code common to all nvector implementations
 %include "fsunlinsol.i"
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore SUNLinSolSetOptions_SPGMR;
+
 %{
 #include "sunlinsol/sunlinsol_spgmr.h"
 %}

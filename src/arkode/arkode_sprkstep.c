@@ -114,7 +114,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   ark_mem->step_printallstats         = sprkStep_PrintAllStats;
   ark_mem->step_writeparameters       = sprkStep_WriteParameters;
   ark_mem->step_setusecompensatedsums = sprkStep_SetUseCompensatedSums;
-  ark_mem->step_setoption             = sprkStep_SetOption;
+  ark_mem->step_setoptions            = sprkStep_SetOptions;
   ark_mem->step_resize                = sprkStep_Resize;
   ark_mem->step_free                  = sprkStep_Free;
   ark_mem->step_setdefaults           = sprkStep_SetDefaults;

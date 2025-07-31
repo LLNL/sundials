@@ -254,8 +254,8 @@ int MRIStepGetNumInnerStepperFails(void* arkode_mem, long int* inner_fails)
 
   Provides command-line control over MRIStep-specific "set" routines.
   ---------------------------------------------------------------*/
-int mriStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
-                      size_t offset, sunbooleantype* arg_used)
+int mriStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used)
 {
   /* The only MRIStep-specific "Set" routine takes a custom MRIStepCoupling
      table; however, these may be specified by name, so here we'll support

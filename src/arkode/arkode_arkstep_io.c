@@ -634,8 +634,8 @@ int ARKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
 
   Provides string-based control over ARKStep-specific "set" routines.
   ---------------------------------------------------------------*/
-int arkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
-                      size_t offset, sunbooleantype* arg_used)
+int arkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of keys, and the corresponding set routines */
   static const struct sunKeyTwoCharPair twochar_pairs[] = {
@@ -646,7 +646,7 @@ int arkStep_SetOption(ARKodeMem ark_mem, int* argidx, char* argv[],
   static const struct sunKeyActionPair action_pairs[] =
     {{"explicit", ARKStepSetExplicit},
      {"implicit", ARKStepSetImplicit},
-     {"set_imex", ARKStepSetImEx}};
+     {"imex", ARKStepSetImEx}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   /* check all "twochar" keys */

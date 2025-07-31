@@ -261,7 +261,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
       If the ``LSid`` argument is ``NULL``, then the default prefix, ``sunlinearsolver``, must
       be used for all SUNLinearSolver options.  Whether ``LSid`` is supplied or not, a ``"."``
-      will be used to separate all option keys from this identifier.  For example, when
+      must be used to separate an option key from the prefix.  For example, when
       using the default ``LSid``, the option ``sunlinearsolver.zero_guess``
       can be used to inform an iterative linear solver to use a zero-valued initial guess.
       When using a combination of SUNLinearSolver objects (e.g., for system and mass matrices within
@@ -270,14 +270,19 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
       SUNLinearSolver options set via command-line arguments to
       :c:func:`SUNLinSolSetOptions` will overwrite any previously-set values.
+      Options are set in the order they are given in ``argv`` and, if an
+      option with the same prefix appears multiple times in ``argv``, the value of the
+      last occurrence will used.
 
       The supported options are documented within each SUNLinearSolver "set" routine.
+      For options that take a :c:type:`sunbooleantype` as input, use ``1`` to indicate
+      ``true`` and ``0`` for ``false``.
 
    .. warning::
 
       This function is not available in the Fortran interface.
 
-      File-based options are not yet implemented, so the *file_name* argument
+      File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
    .. versionadded:: x.y.z

@@ -146,16 +146,14 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
 SUNErrCode SUNLinSolSetOptions_PCG(SUNLinearSolver S, const char* LSid,
                                    const char* file_name, int argc, char* argv[])
 {
-  if (file_name != NULL && strlen(file_name) > 0)
-  {
-    /* File-based option control is currently unimplemented */
-    return SUN_ERR_NOT_IMPLEMENTED;
-  }
+  SUNFunctionBegin(C->sunctx);
+
+  /* File-based option control is currently unimplemented */
+  SUNAssert((file_name == NULL || strlen(file_name) == 0), SUN_ERR_ARG_INCOMPATIBLE)
 
   if (argc > 0 && argv != NULL)
   {
-    int retval = setFromCommandLine_PCG(S, LSid, argc, argv);
-    if (retval != SUN_SUCCESS) { return retval; }
+    SUNCheckCall(setFromCommandLine_PCG(S, LSid, argc, argv));
   }
 
   return SUN_SUCCESS;

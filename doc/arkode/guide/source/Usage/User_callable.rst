@@ -929,24 +929,24 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
 
    **Example usage:**
 
-      In a C or C++ program, the following will enable command-line processing:
+   In a C or C++ program, the following will enable command-line processing:
 
-      .. code-block:: C
+   .. code-block:: C
 
-         /* Create ARKODE memory block */
-         void* arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
+      /* Create ARKODE memory block */
+      void* arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
 
-         /* Configure ARKODE as normal */
-         ...
+      /* Configure ARKODE as normal */
+      ...
 
-         /* Override settings with command-line options using default "arkode" prefix */
-         flag = ARKodeSetOptions(arkode_mem, NULL, NULL, argc, argv);
+      /* Override settings with command-line options using default "arkode" prefix */
+      flag = ARKodeSetOptions(arkode_mem, NULL, NULL, argc, argv);
 
-      Then when running the program, the user can specify desired options, e.g.,
+   Then when running the program, the user can specify desired options, e.g.,
 
-      .. code-block:: console
+   .. code-block:: console
 
-         $ ./a.out arkode.order 3 arkode.interpolant_type ARK_INTERP_LAGRANGE
+      $ ./a.out arkode.order 3 arkode.interpolant_type ARK_INTERP_LAGRANGE
 
    .. note::
 
@@ -956,7 +956,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
 
       If the ``arkid`` argument is ``NULL``, then the default prefix, ``arkode``, must
       be used for all ARKODE options. Whether ``arkid`` is supplied or not, a ``"."``
-      will be used to separate all option keys from this identifier.  For example, when
+      must be used to separate an option key from the prefix.  For example, when
       using the default ``arkid``, the option ``arkode.order`` followed by the value
       can be used to set the method order of accuracy.
 
@@ -969,17 +969,21 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
       followed by the desired values to set the method order for the fast and slow time
       scales, respectively).
 
-      ARKODE options set via :c:func:`ARKodeSetOptions` will overwrite
-      any previously-set values.
+      ARKODE options set via :c:func:`ARKodeSetOptions` will overwrite any previously
+      set values. Options are set in the order they are given in ``argv`` and, if an
+      option with the same prefix appears multiple times in ``argv``, the value of the
+      last occurrence will used.
 
       The supported option names are noted within the documentation for the
-      corresponding ARKODE "set" function.
+      corresponding ARKODE "set" function. For options that take a
+      :c:type:`sunbooleantype` as input, use ``1`` to indicate ``true`` and
+      ``0`` for ``false``.
 
    .. warning::
 
       This function is not available in the Fortran interface.
 
-      File-based options are not yet implemented, so the *file_name* argument
+      File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
    .. versionadded:: x.y.z
