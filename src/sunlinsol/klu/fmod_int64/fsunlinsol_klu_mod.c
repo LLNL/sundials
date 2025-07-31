@@ -185,15 +185,6 @@ enum {
 };
 
 
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -236,31 +227,6 @@ SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
     result.cptr = NULL;
     result.cmemflags = 0;
     return result;
-}
-
-
-#include <stdlib.h>
-#ifdef _MSC_VER
-# ifndef strtoull
-#  define strtoull _strtoui64
-# endif
-# ifndef strtoll
-#  define strtoll _strtoi64
-# endif
-#endif
-
-
-typedef struct {
-    void* data;
-    size_t size;
-} SwigArrayWrapper;
-
-
-SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
-  SwigArrayWrapper result;
-  result.data = NULL;
-  result.size = 0;
-  return result;
 }
 
 SWIGEXPORT SUNLinearSolver _wrap_FSUNLinSol_KLU(N_Vector farg1, SUNMatrix farg2, void *farg3) {
@@ -370,27 +336,6 @@ SWIGEXPORT int _wrap_FSUNLinSolGetID_KLU(SUNLinearSolver farg1) {
   arg1 = (SUNLinearSolver)(farg1);
   result = (SUNLinearSolver_ID)SUNLinSolGetID_KLU(arg1);
   fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNLinSolSetOptions_KLU(SUNLinearSolver farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, int const *farg4, SwigClassWrapper const *farg5) {
-  int fresult ;
-  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
-  char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  int arg4 ;
-  char **arg5 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNLinearSolver)(farg1);
-  arg2 = (char *)(farg2->data);
-  arg3 = (char *)(farg3->data);
-  arg4 = (int)(*farg4);
-  SWIG_check_mutable(*farg5, "char **", "SWIGTYPE_p_p_char", "SUNLinSolSetOptions_KLU(SUNLinearSolver,char const *,char const *,int,char *[])", return 0);
-  arg5 = (char **)(farg5->cptr);
-  result = (SUNErrCode)SUNLinSolSetOptions_KLU(arg1,(char const *)arg2,(char const *)arg3,arg4,arg5);
-  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

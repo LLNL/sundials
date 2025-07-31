@@ -61,14 +61,6 @@ module fsunadaptcontroller_mrihtol_mod
  public :: FSUNAdaptController_GetType_MRIHTol
  public :: FSUNAdaptController_EstimateStepTol_MRIHTol
  public :: FSUNAdaptController_Reset_MRIHTol
- type, public :: SWIGTYPE_p_p_char
-  type(SwigClassWrapper), public :: swigdata
- end type
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
- public :: FSUNAdaptController_SetOptions_MRIHTol
  public :: FSUNAdaptController_SetDefaults_MRIHTol
  public :: FSUNAdaptController_Write_MRIHTol
  public :: FSUNAdaptController_SetErrorBias_MRIHTol
@@ -252,20 +244,6 @@ bind(C, name="_wrap_FSUNAdaptController_Reset_MRIHTol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdaptController_SetOptions_MRIHTol(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FSUNAdaptController_SetOptions_MRIHTol") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigarraywrapper
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigArrayWrapper) :: farg2
-type(SwigArrayWrapper) :: farg3
-integer(C_INT), intent(in) :: farg4
-type(SwigClassWrapper) :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -614,51 +592,6 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_Reset_MRIHTol(farg1)
-swig_result = fresult
-end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
-
-function FSUNAdaptController_SetOptions_MRIHTol(c, cid, file_name, argc, argv) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(SUNAdaptController), target, intent(inout) :: c
-character(kind=C_CHAR, len=*), target :: cid
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-character(kind=C_CHAR, len=*), target :: file_name
-character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
-integer(C_INT), intent(in) :: argc
-class(SWIGTYPE_p_p_char), intent(in) :: argv
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigArrayWrapper) :: farg2 
-type(SwigArrayWrapper) :: farg3 
-integer(C_INT) :: farg4 
-type(SwigClassWrapper) :: farg5 
-
-farg1 = c_loc(c)
-call SWIG_string_to_chararray(cid, farg2_chars, farg2)
-call SWIG_string_to_chararray(file_name, farg3_chars, farg3)
-farg4 = argc
-farg5 = argv%swigdata
-fresult = swigc_FSUNAdaptController_SetOptions_MRIHTol(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
