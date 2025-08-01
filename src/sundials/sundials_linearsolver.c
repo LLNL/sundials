@@ -37,7 +37,6 @@ static SUNProfiler getSUNProfiler(SUNLinearSolver S)
 SUNErrCode sunlsSetFromCommandLine(SUNLinearSolver S, const char* LSid,
                                    int argc, char* argv[]);
 
-
 /* -----------------------------------------------------------------
  * Create a new empty SUNLinearSolver object
  * ----------------------------------------------------------------- */

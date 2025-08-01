@@ -28,7 +28,6 @@
 SUNErrCode sunadctrlSetFromCommandLine(SUNAdaptController C, const char* Cid,
                                        int argc, char* argv[]);
 
-
 /* -----------------------------------------------------------------
  * Create a new empty SUNAdaptController object
  * ----------------------------------------------------------------- */
