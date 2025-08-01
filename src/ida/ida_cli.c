@@ -128,7 +128,6 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
 
   for (int idx = 1; idx < argc; idx++)
   {
-    SUNErrCode sunretval;
     int j, retval;
     sunbooleantype arg_used = SUNFALSE;
 
@@ -136,11 +135,10 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* check all "int" command-line options */
-    sunretval = sunCheckAndSetIntArgs(ida_mem, &idx, argv, offset, int_pairs,
-                                      num_int_keys, &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetIntArgs(ida_mem, &idx, argv, offset, int_pairs,
+                                   num_int_keys, &arg_used, &j);
+    if (retval != IDA_SUCCESS)
     {
-      retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", int_pairs[j].key);
       free(prefix);
@@ -149,11 +147,10 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (arg_used) continue;
 
     /* check all long int command-line options */
-    sunretval = sunCheckAndSetLongArgs(ida_mem, &idx, argv, offset, long_pairs,
-                                       num_long_keys, &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetLongArgs(ida_mem, &idx, argv, offset, long_pairs,
+                                    num_long_keys, &arg_used, &j);
+    if (retval != IDA_SUCCESS)
     {
-      retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", long_pairs[j].key);
       free(prefix);
@@ -162,11 +159,10 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (arg_used) continue;
 
     /* check all real command-line options */
-    sunretval = sunCheckAndSetRealArgs(ida_mem, &idx, argv, offset, real_pairs,
-                                       num_real_keys, &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetRealArgs(ida_mem, &idx, argv, offset, real_pairs,
+                                    num_real_keys, &arg_used, &j);
+    if (retval != IDA_SUCCESS)
     {
-      retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", real_pairs[j].key);
       free(prefix);
@@ -175,12 +171,11 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (arg_used) continue;
 
     /* check all pair-of-real command-line options */
-    sunretval = sunCheckAndSetTwoRealArgs(ida_mem, &idx, argv, offset,
-                                          tworeal_pairs, num_tworeal_keys,
-                                          &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetTwoRealArgs(ida_mem, &idx, argv, offset,
+                                       tworeal_pairs, num_tworeal_keys,
+                                       &arg_used, &j);
+    if (retval != IDA_SUCCESS)
     {
-      retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", tworeal_pairs[j].key);
       free(prefix);
@@ -189,12 +184,11 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (arg_used) continue;
 
     /* check all action command-line options */
-    sunretval = sunCheckAndSetActionArgs(ida_mem, &idx, argv, offset,
-                                         action_pairs, num_action_keys,
-                                         &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetActionArgs(ida_mem, &idx, argv, offset,
+                                      action_pairs, num_action_keys,
+                                      &arg_used, &j);
+    if (retval != IDA_SUCCESS)
     {
-      retval = IDA_ILL_INPUT;
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", action_pairs[j].key);
       free(prefix);

@@ -213,7 +213,7 @@ int sprkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
   int j, retval;
   retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
                                   char_pairs, num_char_keys, arg_used, &j);
-  if (retval != SUN_SUCCESS)
+  if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "error setting key: %s", char_pairs[j].key);

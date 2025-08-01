@@ -26,11 +26,10 @@
   Command-line input utility routines
   ===============================================================*/
 
-SUNErrCode sunCheckAndSetIntArgs(void* mem, int* argidx, char* argv[],
-                                 const size_t offset,
-                                 const struct sunKeyIntPair* testpairs,
-                                 int numpairs, sunbooleantype* arg_used,
-                                 int* failedarg)
+int sunCheckAndSetIntArgs(void* mem, int* argidx, char* argv[],
+                          const size_t offset,
+                          const struct sunKeyIntPair* testpairs, int numpairs,
+                          sunbooleantype* arg_used, int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -52,11 +51,11 @@ SUNErrCode sunCheckAndSetIntArgs(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetTwoIntArgs(void* mem, int* argidx, char* argv[],
-                                    const size_t offset,
-                                    const struct sunKeyTwoIntPair* testpairs,
-                                    int numpairs, sunbooleantype* arg_used,
-                                    int* failedarg)
+int sunCheckAndSetTwoIntArgs(void* mem, int* argidx, char* argv[],
+                             const size_t offset,
+                             const struct sunKeyTwoIntPair* testpairs,
+                             int numpairs, sunbooleantype* arg_used,
+                             int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -80,11 +79,10 @@ SUNErrCode sunCheckAndSetTwoIntArgs(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetLongArgs(void* mem, int* argidx, char* argv[],
-                                  const size_t offset,
-                                  const struct sunKeyLongPair* testpairs,
-                                  int numpairs, sunbooleantype* arg_used,
-                                  int* failedarg)
+int sunCheckAndSetLongArgs(void* mem, int* argidx, char* argv[],
+                           const size_t offset,
+                           const struct sunKeyLongPair* testpairs, int numpairs,
+                           sunbooleantype* arg_used, int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -106,11 +104,11 @@ SUNErrCode sunCheckAndSetLongArgs(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetIntRealArgs(void* mem, int* argidx, char* argv[],
-                                     const size_t offset,
-                                     const struct sunKeyIntRealPair* testpairs,
-                                     int numpairs, sunbooleantype* arg_used,
-                                     int* failedarg)
+int sunCheckAndSetIntRealArgs(void* mem, int* argidx, char* argv[],
+                              const size_t offset,
+                              const struct sunKeyIntRealPair* testpairs,
+                              int numpairs, sunbooleantype* arg_used,
+                              int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -134,10 +132,11 @@ SUNErrCode sunCheckAndSetIntRealArgs(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetIntRealRealArgs(
-  void* mem, int* argidx, char* argv[], const size_t offset,
-  const struct sunKeyIntRealRealPair* testpairs, int numpairs,
-  sunbooleantype* arg_used, int* failedarg)
+int sunCheckAndSetIntRealRealArgs(void* mem, int* argidx, char* argv[],
+                                  const size_t offset,
+                                  const struct sunKeyIntRealRealPair* testpairs,
+                                  int numpairs, sunbooleantype* arg_used,
+                                  int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -163,11 +162,11 @@ SUNErrCode sunCheckAndSetIntRealRealArgs(
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetIntLongArgs(void* mem, int* argidx, char* argv[],
-                                     const size_t offset,
-                                     const struct sunKeyIntLongPair* testpairs,
-                                     int numpairs, sunbooleantype* arg_used,
-                                     int* failedarg)
+int sunCheckAndSetIntLongArgs(void* mem, int* argidx, char* argv[],
+                              const size_t offset,
+                              const struct sunKeyIntLongPair* testpairs,
+                              int numpairs, sunbooleantype* arg_used,
+                              int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -191,11 +190,10 @@ SUNErrCode sunCheckAndSetIntLongArgs(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetRealArgs(void* mem, int* argidx, char* argv[],
-                                  const size_t offset,
-                                  const struct sunKeyRealPair* testpairs,
-                                  int numpairs, sunbooleantype* arg_used,
-                                  int* failedarg)
+int sunCheckAndSetRealArgs(void* mem, int* argidx, char* argv[],
+                           const size_t offset,
+                           const struct sunKeyRealPair* testpairs, int numpairs,
+                           sunbooleantype* arg_used, int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -217,11 +215,11 @@ SUNErrCode sunCheckAndSetRealArgs(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetTwoRealArgs(void* mem, int* argidx, char* argv[],
-                                     const size_t offset,
-                                     const struct sunKeyTwoRealPair* testpairs,
-                                     int numpairs, sunbooleantype* arg_used,
-                                     int* failedarg)
+int sunCheckAndSetTwoRealArgs(void* mem, int* argidx, char* argv[],
+                              const size_t offset,
+                              const struct sunKeyTwoRealPair* testpairs,
+                              int numpairs, sunbooleantype* arg_used,
+                              int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -245,11 +243,10 @@ SUNErrCode sunCheckAndSetTwoRealArgs(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetCharArgs(void* mem, int* argidx, char* argv[],
-                                  const size_t offset,
-                                  const struct sunKeyCharPair* testpairs,
-                                  int numpairs, sunbooleantype* arg_used,
-                                  int* failedarg)
+int sunCheckAndSetCharArgs(void* mem, int* argidx, char* argv[],
+                           const size_t offset,
+                           const struct sunKeyCharPair* testpairs, int numpairs,
+                           sunbooleantype* arg_used, int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -270,11 +267,11 @@ SUNErrCode sunCheckAndSetCharArgs(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetTwoCharArgs(void* mem, int* argidx, char* argv[],
-                                     const size_t offset,
-                                     const struct sunKeyTwoCharPair* testpairs,
-                                     int numpairs, sunbooleantype* arg_used,
-                                     int* failedarg)
+int sunCheckAndSetTwoCharArgs(void* mem, int* argidx, char* argv[],
+                              const size_t offset,
+                              const struct sunKeyTwoCharPair* testpairs,
+                              int numpairs, sunbooleantype* arg_used,
+                              int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {
@@ -295,11 +292,11 @@ SUNErrCode sunCheckAndSetTwoCharArgs(void* mem, int* argidx, char* argv[],
   return SUN_SUCCESS;
 }
 
-SUNErrCode sunCheckAndSetActionArgs(void* mem, int* argidx, char* argv[],
-                                    const size_t offset,
-                                    const struct sunKeyActionPair* testpairs,
-                                    int numpairs, sunbooleantype* arg_used,
-                                    int* failedarg)
+int sunCheckAndSetActionArgs(void* mem, int* argidx, char* argv[],
+                             const size_t offset,
+                             const struct sunKeyActionPair* testpairs,
+                             int numpairs, sunbooleantype* arg_used,
+                             int* failedarg)
 {
   for (int j = 0; j < numpairs; j++)
   {

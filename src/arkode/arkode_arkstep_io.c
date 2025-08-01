@@ -654,7 +654,7 @@ int arkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
   retval = sunCheckAndSetTwoCharArgs((void*)ark_mem, argidx, argv, offset,
                                      twochar_pairs, num_twochar_keys, arg_used,
                                      &j);
-  if (retval != SUN_SUCCESS)
+  if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "error setting command-line argument: %s",
@@ -666,7 +666,7 @@ int arkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
   /* check all action keys */
   retval = sunCheckAndSetActionArgs((void*)ark_mem, argidx, argv, offset,
                                     action_pairs, num_action_keys, arg_used, &j);
-  if (retval != SUN_SUCCESS)
+  if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "error setting command-line argument: %s",

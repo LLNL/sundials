@@ -524,7 +524,7 @@ int lsrkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
   int j, retval;
   retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
                                   char_pairs, num_char_keys, arg_used, &j);
-  if (retval != SUN_SUCCESS)
+  if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "error setting key: %s", char_pairs[j].key);
@@ -535,7 +535,7 @@ int lsrkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
   /* check all "long int" keys */
   retval = sunCheckAndSetLongArgs((void*)ark_mem, argidx, argv, offset,
                                   long_pairs, num_long_keys, arg_used, &j);
-  if (retval != SUN_SUCCESS)
+  if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "error setting key: %s", long_pairs[j].key);
@@ -546,7 +546,7 @@ int lsrkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
   /* check all "int" keys */
   retval = sunCheckAndSetIntArgs((void*)ark_mem, argidx, argv, offset,
                                  int_pairs, num_int_keys, arg_used, &j);
-  if (retval != SUN_SUCCESS)
+  if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "error setting key: %s", int_pairs[j].key);
@@ -557,7 +557,7 @@ int lsrkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
   /* check all "real" keys */
   retval = sunCheckAndSetRealArgs((void*)ark_mem, argidx, argv, offset,
                                   real_pairs, num_real_keys, arg_used, &j);
-  if (retval != SUN_SUCCESS)
+  if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "error setting key: %s", real_pairs[j].key);

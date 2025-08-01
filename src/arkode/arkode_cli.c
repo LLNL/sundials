@@ -147,7 +147,7 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
   int retval;
   for (int idx = 1; idx < argc; idx++)
   {
-    SUNErrCode sunretval;
+
     int j;
     sunbooleantype arg_used = SUNFALSE;
 
@@ -155,11 +155,10 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* check all "int" command-line options */
-    sunretval = sunCheckAndSetIntArgs(arkode_mem, &idx, argv, offset, int_pairs,
-                                      num_int_keys, &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetIntArgs(arkode_mem, &idx, argv, offset, int_pairs,
+                                   num_int_keys, &arg_used, &j);
+    if (retval != ARK_SUCCESS)
     {
-      retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", int_pairs[j].key);
       free(prefix);
@@ -168,11 +167,10 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (arg_used) continue;
 
     /* check all long int command-line options */
-    sunretval = sunCheckAndSetLongArgs(arkode_mem, &idx, argv, offset,
-                                       long_pairs, num_long_keys, &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetLongArgs(arkode_mem, &idx, argv, offset,
+                                    long_pairs, num_long_keys, &arg_used, &j);
+    if (retval != ARK_SUCCESS)
     {
-      retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", long_pairs[j].key);
       free(prefix);
@@ -181,11 +179,10 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (arg_used) continue;
 
     /* check all real command-line options */
-    sunretval = sunCheckAndSetRealArgs(arkode_mem, &idx, argv, offset,
-                                       real_pairs, num_real_keys, &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetRealArgs(arkode_mem, &idx, argv, offset,
+                                    real_pairs, num_real_keys, &arg_used, &j);
+    if (retval != ARK_SUCCESS)
     {
-      retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", real_pairs[j].key);
       free(prefix);
@@ -194,12 +191,11 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (arg_used) continue;
 
     /* check all pair-of-real command-line options */
-    sunretval = sunCheckAndSetTwoRealArgs(arkode_mem, &idx, argv, offset,
-                                          tworeal_pairs, num_tworeal_keys,
-                                          &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetTwoRealArgs(arkode_mem, &idx, argv, offset,
+                                       tworeal_pairs, num_tworeal_keys,
+                                       &arg_used, &j);
+    if (retval != ARK_SUCCESS)
     {
-      retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", tworeal_pairs[j].key);
       free(prefix);
@@ -208,12 +204,11 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (arg_used) continue;
 
     /* check all action command-line options */
-    sunretval = sunCheckAndSetActionArgs(arkode_mem, &idx, argv, offset,
-                                         action_pairs, num_action_keys,
-                                         &arg_used, &j);
-    if (sunretval != SUN_SUCCESS)
+    retval = sunCheckAndSetActionArgs(arkode_mem, &idx, argv, offset,
+                                      action_pairs, num_action_keys,
+                                      &arg_used, &j);
+    if (retval != ARK_SUCCESS)
     {
-      retval = ARK_ILL_INPUT;
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", action_pairs[j].key);
       free(prefix);
