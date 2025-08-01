@@ -22,6 +22,7 @@
 #include <sunmatrix/sunmatrix_magmadense.h>
 
 #include "sundials_cli.h"
+#include "sundials_macros.h"
 
 /* Interfaces to match 'sunrealtype' with the correct MAGMA functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
