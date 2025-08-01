@@ -151,8 +151,8 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl,
  */
 
 SUNErrCode SUNLinSolSetOptions_SPGMR(SUNLinearSolver S, const char* LSid,
-                                     const char* file_name, int argc,
-                                     char* argv[])
+                                     SUNDIALS_MAYBE_UNUSED const char* file_name,
+                                     int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 

@@ -248,8 +248,8 @@ SUNErrCode SUNLinSolInitialize_MagmaDense(SUNLinearSolver S)
 }
 
 SUNErrCode SUNLinSolSetOptions_MagmaDense(SUNLinearSolver S, const char* LSid,
-                                          const char* file_name, int argc,
-                                          char* argv[])
+                                          SUNDIALS_MAYBE_UNUSED const char* file_name,
+                                          int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 

@@ -346,8 +346,8 @@ SUNErrCode SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
 
 SUNErrCode SUNNonlinSolSetOptions_FixedPoint(SUNNonlinearSolver NLS,
                                              const char* NLSid,
-                                             const char* file_name, int argc,
-                                             char* argv[])
+                                             SUNDIALS_MAYBE_UNUSED const char* file_name,
+                                             int argc, char* argv[])
 {
   SUNFunctionBegin(NLS->sunctx);
 

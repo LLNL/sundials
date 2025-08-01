@@ -124,7 +124,7 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
 
 SUNErrCode SUNAdaptController_SetOptions_MRIHTol(SUNAdaptController C,
                                                  const char* Cid,
-                                                 const char* file_name,
+                                                 SUNDIALS_MAYBE_UNUSED const char* file_name,
                                                  int argc, char* argv[])
 {
   SUNFunctionBegin(C->sunctx);

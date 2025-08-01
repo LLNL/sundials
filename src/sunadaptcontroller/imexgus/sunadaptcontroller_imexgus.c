@@ -113,7 +113,7 @@ SUNAdaptController SUNAdaptController_ImExGus(SUNContext sunctx)
 
 SUNErrCode SUNAdaptController_SetOptions_ImExGus(SUNAdaptController C,
                                                  const char* Cid,
-                                                 const char* file_name,
+                                                 SUNDIALS_MAYBE_UNUSED const char* file_name,
                                                  int argc, char* argv[])
 {
   SUNFunctionBegin(C->sunctx);

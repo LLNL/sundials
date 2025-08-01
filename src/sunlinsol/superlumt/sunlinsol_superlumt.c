@@ -222,8 +222,8 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads,
  */
 
 SUNErrCode SUNLinSolSetOptions_SuperLUMT(SUNLinearSolver S, const char* LSid,
-                                         const char* file_name, int argc,
-                                         char* argv[])
+                                         SUNDIALS_MAYBE_UNUSED const char* file_name,
+                                         int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 

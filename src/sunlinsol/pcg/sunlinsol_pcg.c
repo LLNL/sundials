@@ -144,7 +144,8 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
  */
 
 SUNErrCode SUNLinSolSetOptions_PCG(SUNLinearSolver S, const char* LSid,
-                                   const char* file_name, int argc, char* argv[])
+                                   SUNDIALS_MAYBE_UNUSED const char* file_name,
+                                   int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 

@@ -409,7 +409,8 @@ SUNErrCode SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS,
 }
 
 SUNErrCode SUNNonlinSolSetOptions_Newton(SUNNonlinearSolver NLS,
-                                         const char* NLSid, const char* file_name,
+                                         const char* NLSid,
+                                         SUNDIALS_MAYBE_UNUSED const char* file_name,
                                          int argc, char* argv[])
 {
   SUNFunctionBegin(NLS->sunctx);
