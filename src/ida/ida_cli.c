@@ -171,9 +171,8 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (arg_used) continue;
 
     /* check all pair-of-real command-line options */
-    retval = sunCheckAndSetTwoRealArgs(ida_mem, &idx, argv, offset,
-                                       tworeal_pairs, num_tworeal_keys,
-                                       &arg_used, &j);
+    retval = sunCheckAndSetTwoRealArgs(ida_mem, &idx, argv, offset, tworeal_pairs,
+                                       num_tworeal_keys, &arg_used, &j);
     if (retval != IDA_SUCCESS)
     {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
@@ -184,9 +183,8 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (arg_used) continue;
 
     /* check all action command-line options */
-    retval = sunCheckAndSetActionArgs(ida_mem, &idx, argv, offset,
-                                      action_pairs, num_action_keys,
-                                      &arg_used, &j);
+    retval = sunCheckAndSetActionArgs(ida_mem, &idx, argv, offset, action_pairs,
+                                      num_action_keys, &arg_used, &j);
     if (retval != IDA_SUCCESS)
     {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,

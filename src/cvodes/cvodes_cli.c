@@ -189,8 +189,8 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     if (arg_used) continue;
 
     /* check all long int command-line options */
-    retval = sunCheckAndSetLongArgs(cvode_mem, &idx, argv, offset,
-                                    long_pairs, num_long_keys, &arg_used, &j);
+    retval = sunCheckAndSetLongArgs(cvode_mem, &idx, argv, offset, long_pairs,
+                                    num_long_keys, &arg_used, &j);
     if (retval != CV_SUCCESS)
     {
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
@@ -201,8 +201,8 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     if (arg_used) continue;
 
     /* check all real command-line options */
-    retval = sunCheckAndSetRealArgs(cvode_mem, &idx, argv, offset,
-                                    real_pairs, num_real_keys, &arg_used, &j);
+    retval = sunCheckAndSetRealArgs(cvode_mem, &idx, argv, offset, real_pairs,
+                                    num_real_keys, &arg_used, &j);
     if (retval != CV_SUCCESS)
     {
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
@@ -213,9 +213,8 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     if (arg_used) continue;
 
     /* check all pair-of-int command-line options */
-    retval = sunCheckAndSetTwoIntArgs(cvode_mem, &idx, argv, offset,
-                                      twoint_pairs, num_twoint_keys,
-                                      &arg_used, &j);
+    retval = sunCheckAndSetTwoIntArgs(cvode_mem, &idx, argv, offset, twoint_pairs,
+                                      num_twoint_keys, &arg_used, &j);
     if (retval != CV_SUCCESS)
     {
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
@@ -239,9 +238,8 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     if (arg_used) continue;
 
     /* check all action command-line options */
-    retval = sunCheckAndSetActionArgs(cvode_mem, &idx, argv, offset,
-                                      action_pairs, num_action_keys,
-                                      &arg_used, &j);
+    retval = sunCheckAndSetActionArgs(cvode_mem, &idx, argv, offset, action_pairs,
+                                      num_action_keys, &arg_used, &j);
     if (retval != CV_SUCCESS)
     {
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
@@ -280,8 +278,7 @@ static int cvSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all int+real+real command-line options */
     retval = sunCheckAndSetIntRealRealArgs(cvode_mem, &idx, argv, offset,
                                            int_real_real_pairs,
-                                           num_int_real_real_keys, &arg_used,
-                                           &j);
+                                           num_int_real_real_keys, &arg_used, &j);
     if (retval != CV_SUCCESS)
     {
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,

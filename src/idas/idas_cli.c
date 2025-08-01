@@ -206,9 +206,8 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (arg_used) continue;
 
     /* check all pair-of-int command-line options */
-    retval = sunCheckAndSetTwoIntArgs(ida_mem, &idx, argv, offset,
-                                      twoint_pairs, num_twoint_keys,
-                                      &arg_used, &j);
+    retval = sunCheckAndSetTwoIntArgs(ida_mem, &idx, argv, offset, twoint_pairs,
+                                      num_twoint_keys, &arg_used, &j);
     if (retval != IDA_SUCCESS)
     {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
@@ -219,9 +218,8 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (arg_used) continue;
 
     /* check all pair-of-real command-line options */
-    retval = sunCheckAndSetTwoRealArgs(ida_mem, &idx, argv, offset,
-                                       tworeal_pairs, num_tworeal_keys,
-                                       &arg_used, &j);
+    retval = sunCheckAndSetTwoRealArgs(ida_mem, &idx, argv, offset, tworeal_pairs,
+                                       num_tworeal_keys, &arg_used, &j);
     if (retval != IDA_SUCCESS)
     {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
@@ -232,9 +230,8 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     if (arg_used) continue;
 
     /* check all action command-line options */
-    retval = sunCheckAndSetActionArgs(ida_mem, &idx, argv, offset,
-                                      action_pairs, num_action_keys,
-                                      &arg_used, &j);
+    retval = sunCheckAndSetActionArgs(ida_mem, &idx, argv, offset, action_pairs,
+                                      num_action_keys, &arg_used, &j);
     if (retval != IDA_SUCCESS)
     {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
@@ -261,7 +258,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     retval = sunCheckAndSetIntLongArgs(ida_mem, &idx, argv, offset,
                                        int_long_pairs, num_int_long_keys,
                                        &arg_used, &j);
-   if (retval != IDA_SUCCESS)
+    if (retval != IDA_SUCCESS)
     {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       "error setting key: %s", int_long_pairs[j].key);
@@ -273,8 +270,7 @@ static int idaSetFromCommandLine(void* ida_mem, const char* idaid, int argc,
     /* check all int+real+real command-line options */
     retval = sunCheckAndSetIntRealRealArgs(ida_mem, &idx, argv, offset,
                                            int_real_real_pairs,
-                                           num_int_real_real_keys, &arg_used,
-                                           &j);
+                                           num_int_real_real_keys, &arg_used, &j);
     if (retval != IDA_SUCCESS)
     {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,

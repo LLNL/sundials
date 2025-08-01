@@ -147,7 +147,6 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
   int retval;
   for (int idx = 1; idx < argc; idx++)
   {
-
     int j;
     sunbooleantype arg_used = SUNFALSE;
 
@@ -167,8 +166,8 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (arg_used) continue;
 
     /* check all long int command-line options */
-    retval = sunCheckAndSetLongArgs(arkode_mem, &idx, argv, offset,
-                                    long_pairs, num_long_keys, &arg_used, &j);
+    retval = sunCheckAndSetLongArgs(arkode_mem, &idx, argv, offset, long_pairs,
+                                    num_long_keys, &arg_used, &j);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -179,8 +178,8 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (arg_used) continue;
 
     /* check all real command-line options */
-    retval = sunCheckAndSetRealArgs(arkode_mem, &idx, argv, offset,
-                                    real_pairs, num_real_keys, &arg_used, &j);
+    retval = sunCheckAndSetRealArgs(arkode_mem, &idx, argv, offset, real_pairs,
+                                    num_real_keys, &arg_used, &j);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -205,8 +204,8 @@ static int arkSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
 
     /* check all action command-line options */
     retval = sunCheckAndSetActionArgs(arkode_mem, &idx, argv, offset,
-                                      action_pairs, num_action_keys,
-                                      &arg_used, &j);
+                                      action_pairs, num_action_keys, &arg_used,
+                                      &j);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,

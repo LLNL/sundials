@@ -157,9 +157,8 @@ static int kinSetFromCommandLine(void* kinmem, const char* kinid, int argc,
     if (arg_used) continue;
 
     /* check all pair-of-real command-line options */
-    retval = sunCheckAndSetTwoRealArgs(kinmem, &idx, argv, offset,
-                                       tworeal_pairs, num_tworeal_keys,
-                                       &arg_used, &j);
+    retval = sunCheckAndSetTwoRealArgs(kinmem, &idx, argv, offset, tworeal_pairs,
+                                       num_tworeal_keys, &arg_used, &j);
     if (retval != KIN_SUCCESS)
     {
       KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
