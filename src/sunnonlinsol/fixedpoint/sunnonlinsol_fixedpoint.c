@@ -40,16 +40,6 @@ static void FreeContent(SUNNonlinearSolver NLS);
 #define ONE  SUN_RCONST(1.0)
 #define ZERO SUN_RCONST(0.0)
 
-/*
- * -----------------------------------------------------------------
- * unexported functions
- * -----------------------------------------------------------------
- */
-
-static SUNErrCode setFromCommandLine_FixedPoint(SUNNonlinearSolver NLS,
-                                                const char* NLSid, int argc,
-                                                char* argv[]);
-
 /*==============================================================================
   Constructor to create a new fixed point solver
   ============================================================================*/

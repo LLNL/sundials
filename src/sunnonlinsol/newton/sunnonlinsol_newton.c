@@ -34,16 +34,6 @@
 #define ZERO SUN_RCONST(0.0) /* real 0.0 */
 #define ONE  SUN_RCONST(1.0) /* real 1.0 */
 
-/*
- * -----------------------------------------------------------------
- * unexported functions
- * -----------------------------------------------------------------
- */
-
-static SUNErrCode setFromCommandLine_Newton(SUNNonlinearSolver NLS,
-                                            const char* NLSid, int argc,
-                                            char* argv[]);
-
 /*==============================================================================
   Constructor to create a new Newton solver
   ============================================================================*/
