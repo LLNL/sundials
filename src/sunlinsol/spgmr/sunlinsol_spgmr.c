@@ -234,20 +234,6 @@ static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
       }
       continue;
     }
-
-    /* control over ZeroGuess function */
-    if (strcmp(argv[idx] + offset, "zero_guess") == 0)
-    {
-      idx += 1;
-      int iarg = atoi(argv[idx]);
-      retval   = SUNLinSolSetZeroGuess_SPGMR(S, iarg);
-      if (retval != SUN_SUCCESS)
-      {
-        free(prefix);
-        return retval;
-      }
-      continue;
-    }
   }
   free(prefix);
   return SUN_SUCCESS;
