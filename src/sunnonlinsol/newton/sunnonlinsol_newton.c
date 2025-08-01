@@ -408,15 +408,15 @@ SUNErrCode SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNNonlinSolSetOptions_Newton(SUNNonlinearSolver NLS,
-                                         const char* NLSid,
-                                         SUNDIALS_MAYBE_UNUSED const char* file_name,
-                                         int argc, char* argv[])
+SUNErrCode SUNNonlinSolSetOptions_Newton(
+  SUNNonlinearSolver NLS, const char* NLSid,
+  SUNDIALS_MAYBE_UNUSED const char* file_name, int argc, char* argv[])
 {
   SUNFunctionBegin(NLS->sunctx);
 
   /* File-based option control is currently unimplemented */
-  SUNAssert((file_name == NULL || strlen(file_name) == 0), SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssert((file_name == NULL || strlen(file_name) == 0),
+            SUN_ERR_ARG_INCOMPATIBLE);
 
   if (argc > 0 && argv != NULL)
   {

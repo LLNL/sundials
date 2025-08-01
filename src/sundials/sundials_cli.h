@@ -34,7 +34,6 @@ struct sunKeyIntPair
   sunIntSetFn set;
 };
 
-
 SUNErrCode sunCheckAndSetIntArgs(void* mem, int* argidx, char* argv[],
                                  const size_t offset,
                                  const struct sunKeyIntPair* testpairs,
@@ -49,7 +48,6 @@ struct sunKeyTwoIntPair
   const char* key;
   sunTwoIntSetFn set;
 };
-
 
 SUNErrCode sunCheckAndSetTwoIntArgs(void* mem, int* argidx, char* argv[],
                                     const size_t offset,
@@ -66,7 +64,6 @@ struct sunKeyLongPair
   sunLongSetFn set;
 };
 
-
 SUNErrCode sunCheckAndSetLongArgs(void* mem, int* argidx, char* argv[],
                                   const size_t offset,
                                   const struct sunKeyLongPair* testpairs,
@@ -81,7 +78,6 @@ struct sunKeyIntRealPair
   const char* key;
   sunIntRealSetFn set;
 };
-
 
 SUNErrCode sunCheckAndSetIntRealArgs(void* mem, int* argidx, char* argv[],
                                      const size_t offset,
@@ -98,7 +94,6 @@ struct sunKeyIntRealRealPair
   sunIntRealRealSetFn set;
 };
 
-
 SUNErrCode sunCheckAndSetIntRealRealArgs(
   void* mem, int* argidx, char* argv[], const size_t offset,
   const struct sunKeyIntRealRealPair* testpairs, int numpairs,
@@ -112,7 +107,6 @@ struct sunKeyIntLongPair
   const char* key;
   sunIntLongSetFn set;
 };
-
 
 SUNErrCode sunCheckAndSetIntLongArgs(void* mem, int* argidx, char* argv[],
                                      const size_t offset,
@@ -129,7 +123,6 @@ struct sunKeyRealPair
   sunRealSetFn set;
 };
 
-
 SUNErrCode sunCheckAndSetRealArgs(void* mem, int* argidx, char* argv[],
                                   const size_t offset,
                                   const struct sunKeyRealPair* testpairs,
@@ -144,7 +137,6 @@ struct sunKeyTwoRealPair
   const char* key;
   sunTwoRealSetFn set;
 };
-
 
 SUNErrCode sunCheckAndSetTwoRealArgs(void* mem, int* argidx, char* argv[],
                                      const size_t offset,
@@ -161,7 +153,6 @@ struct sunKeyCharPair
   sunCharSetFn set;
 };
 
-
 SUNErrCode sunCheckAndSetCharArgs(void* mem, int* argidx, char* argv[],
                                   const size_t offset,
                                   const struct sunKeyCharPair* testpairs,
@@ -177,7 +168,6 @@ struct sunKeyTwoCharPair
   sunTwoCharSetFn set;
 };
 
-
 SUNErrCode sunCheckAndSetTwoCharArgs(void* mem, int* argidx, char* argv[],
                                      const size_t offset,
                                      const struct sunKeyTwoCharPair* testpairs,
@@ -192,7 +182,6 @@ struct sunKeyActionPair
   const char* key;
   sunActionSetFn set;
 };
-
 
 SUNErrCode sunCheckAndSetActionArgs(void* mem, int* argidx, char* argv[],
                                     const size_t offset,

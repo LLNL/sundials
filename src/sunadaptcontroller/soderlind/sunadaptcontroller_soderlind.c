@@ -120,15 +120,15 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
  * Function to control set routines via the command line or file
  */
 
-SUNErrCode SUNAdaptController_SetOptions_Soderlind(SUNAdaptController C,
-                                                   const char* Cid,
-                                                   SUNDIALS_MAYBE_UNUSED const char* file_name,
-                                                   int argc, char* argv[])
+SUNErrCode SUNAdaptController_SetOptions_Soderlind(
+  SUNAdaptController C, const char* Cid,
+  SUNDIALS_MAYBE_UNUSED const char* file_name, int argc, char* argv[])
 {
   SUNFunctionBegin(C->sunctx);
 
   /* File-based option control is currently unimplemented */
-  SUNAssert((file_name == NULL || strlen(file_name) == 0), SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssert((file_name == NULL || strlen(file_name) == 0),
+            SUN_ERR_ARG_INCOMPATIBLE);
 
   if (argc > 0 && argv != NULL)
   {
