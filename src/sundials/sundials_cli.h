@@ -34,6 +34,7 @@ struct sunKeyIntPair
   sunIntSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetIntArgs(void* mem, int* argidx, char* argv[],
                                  const size_t offset,
                                  const struct sunKeyIntPair* testpairs,
@@ -49,6 +50,7 @@ struct sunKeyTwoIntPair
   sunTwoIntSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetTwoIntArgs(void* mem, int* argidx, char* argv[],
                                     const size_t offset,
                                     const struct sunKeyTwoIntPair* testpairs,
@@ -64,6 +66,7 @@ struct sunKeyLongPair
   sunLongSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetLongArgs(void* mem, int* argidx, char* argv[],
                                   const size_t offset,
                                   const struct sunKeyLongPair* testpairs,
@@ -79,6 +82,7 @@ struct sunKeyIntRealPair
   sunIntRealSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetIntRealArgs(void* mem, int* argidx, char* argv[],
                                      const size_t offset,
                                      const struct sunKeyIntRealPair* testpairs,
@@ -94,6 +98,7 @@ struct sunKeyIntRealRealPair
   sunIntRealRealSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetIntRealRealArgs(
   void* mem, int* argidx, char* argv[], const size_t offset,
   const struct sunKeyIntRealRealPair* testpairs, int numpairs,
@@ -108,6 +113,7 @@ struct sunKeyIntLongPair
   sunIntLongSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetIntLongArgs(void* mem, int* argidx, char* argv[],
                                      const size_t offset,
                                      const struct sunKeyIntLongPair* testpairs,
@@ -123,6 +129,7 @@ struct sunKeyRealPair
   sunRealSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetRealArgs(void* mem, int* argidx, char* argv[],
                                   const size_t offset,
                                   const struct sunKeyRealPair* testpairs,
@@ -138,6 +145,7 @@ struct sunKeyTwoRealPair
   sunTwoRealSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetTwoRealArgs(void* mem, int* argidx, char* argv[],
                                      const size_t offset,
                                      const struct sunKeyTwoRealPair* testpairs,
@@ -153,6 +161,7 @@ struct sunKeyCharPair
   sunCharSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetCharArgs(void* mem, int* argidx, char* argv[],
                                   const size_t offset,
                                   const struct sunKeyCharPair* testpairs,
@@ -168,6 +177,7 @@ struct sunKeyTwoCharPair
   sunTwoCharSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetTwoCharArgs(void* mem, int* argidx, char* argv[],
                                      const size_t offset,
                                      const struct sunKeyTwoCharPair* testpairs,
@@ -183,6 +193,7 @@ struct sunKeyActionPair
   sunActionSetFn set;
 };
 
+SUNDIALS_EXPORT
 SUNErrCode sunCheckAndSetActionArgs(void* mem, int* argidx, char* argv[],
                                     const size_t offset,
                                     const struct sunKeyActionPair* testpairs,
