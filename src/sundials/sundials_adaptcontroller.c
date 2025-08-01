@@ -24,6 +24,11 @@
 
 #include "sundials/sundials_errors.h"
 
+/* internal function prototypes */
+SUNErrCode sunadctrlSetFromCommandLine(SUNAdaptController C, const char* Cid,
+                                       int argc, char* argv[]);
+
+
 /* -----------------------------------------------------------------
  * Create a new empty SUNAdaptController object
  * ----------------------------------------------------------------- */

@@ -31,6 +31,11 @@ static SUNProfiler getSUNProfiler(SUNNonlinearSolver NLS)
 }
 #endif
 
+/* internal function prototypes */
+SUNErrCode sunnlsSetFromCommandLine(SUNNonlinearSolver NLS, const char* NLSid,
+                                    int argc, char* argv[]);
+
+
 /* -----------------------------------------------------------------------------
  * Create a new empty SUNLinearSolver object
  * ---------------------------------------------------------------------------*/

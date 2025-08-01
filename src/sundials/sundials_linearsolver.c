@@ -33,6 +33,11 @@ static SUNProfiler getSUNProfiler(SUNLinearSolver S)
 }
 #endif
 
+/* internal function prototypes */
+SUNErrCode sunlsSetFromCommandLine(SUNLinearSolver S, const char* LSid,
+                                   int argc, char* argv[]);
+
+
 /* -----------------------------------------------------------------
  * Create a new empty SUNLinearSolver object
  * ----------------------------------------------------------------- */
