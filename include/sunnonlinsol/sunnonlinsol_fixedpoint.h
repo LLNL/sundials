@@ -104,12 +104,6 @@ SUNErrCode SUNNonlinSolSetConvTestFn_FixedPoint(SUNNonlinearSolver NLS,
                                                 void* ctest_data);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNNonlinSolSetOptions_FixedPoint(SUNNonlinearSolver NLS,
-                                             const char* NLSid,
-                                             const char* file_name, int argc,
-                                             char* argv[]);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS,
                                               int maxiters);
 
