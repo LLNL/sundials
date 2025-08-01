@@ -212,7 +212,7 @@ SUNErrCode SUNLinSolSetOptions(SUNLinearSolver S, const char* LSid,
   /* Second, ask the implementation to process any remaining options */
   if (S->ops->setoptions)
   {
-    return (S->ops->setoptions(S, LSid, file_name, argc, argv));
+    ier = S->ops->setoptions(S, LSid, file_name, argc, argv);
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(S));
   return (ier);

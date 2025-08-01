@@ -245,7 +245,6 @@ SUNErrCode SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
 SUNErrCode SUNNonlinSolSetOptions(SUNNonlinearSolver NLS, const char* NLSid,
                                   const char* file_name, int argc, char* argv[])
 {
-  SUNErrCode ier = SUN_SUCCESS;
   if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(NLS->sunctx);
 

@@ -238,7 +238,6 @@ SUNErrCode SUNAdaptController_SetOptions(SUNAdaptController C, const char* Cid,
                                          const char* file_name, int argc,
                                          char* argv[])
 {
-  SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
 
@@ -255,9 +254,9 @@ SUNErrCode SUNAdaptController_SetOptions(SUNAdaptController C, const char* Cid,
   /* Second, ask the implementation to process any remaining options */
   if (C->ops->setoptions)
   {
-    ier = C->ops->setoptions(C, Cid, file_name, argc, argv);
+    return (C->ops->setoptions(C, Cid, file_name, argc, argv));
   }
-  return (ier);
+  else { return (SUN_SUCCESS); }
 }
 
 SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
