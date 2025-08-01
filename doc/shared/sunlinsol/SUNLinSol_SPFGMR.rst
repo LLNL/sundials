@@ -84,6 +84,7 @@ user-callable routines:
       these packages, this use mode is not supported and may result in
       inferior performance.
 
+
 .. c:function:: SUNErrCode SUNLinSol_SPFGMRSetPrecType(SUNLinearSolver S, int pretype)
 
    This function updates the flag indicating use of preconditioning.
@@ -107,6 +108,9 @@ user-callable routines:
       will result in use of ``SUN_PREC_RIGHT``;  any other integer input
       will result in the default (no preconditioning).
 
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.prec_type".
+
 
 .. c:function:: SUNErrCode SUNLinSol_SPFGMRSetGSType(SUNLinearSolver S, int gstype)
 
@@ -122,6 +126,11 @@ user-callable routines:
    **Return value:**
       * A :c:type:`SUNErrCode`
 
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.gs_type".
+
 
 .. c:function:: SUNErrCode SUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 
@@ -134,6 +143,11 @@ user-callable routines:
 
    **Return value:**
       * A :c:type:`SUNErrCode`
+
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.max_restarts".
 
 
 

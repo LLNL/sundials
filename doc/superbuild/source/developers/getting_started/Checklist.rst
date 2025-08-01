@@ -60,6 +60,10 @@ system, etc. developers should adhere to the following checklist.
    * For any problems that now fail when running ``make test``, verify that your
      updates either made only cosmetic changes or improved the results, and
      update test output in the ``examples/`` directory.
+   * Add command-line options to control any scalar-valued parameters that you
+     introduced (e.g., tolerances, maximum number of iterations, etc.).
+     Information on how to do this can be found in the
+     :ref:`CommandLineOptions` section of the developer guide.
 
 #. When adding new test or example problems to the ``examples/`` directory:
 
@@ -68,7 +72,7 @@ system, etc. developers should adhere to the following checklist.
      directory and ensure that ``make`` succeeds, since the CMake-generated
      Makefile system differs from how the examples are built within SUNDIALS.
    * Ensure that the reference output is included e.g., if a file ``foo.c`` is
-     added, also add ``foo.out``. 
+     added, also add ``foo.out``.
    * Update the example problem documentation for to include a description of
      the new problem.
 
@@ -77,7 +81,7 @@ system, etc. developers should adhere to the following checklist.
 
 #. If answer files changed, and it is expected/desired, then update the `.out` files
    that are embedded in the `examples/` directory AND the
-   `"answers" repository <https://github.com/sundials-codes/answers>`_. 
+   `"answers" repository <https://github.com/sundials-codes/answers>`_.
 
 #. If you changed any header files, re-run SWIG to generate updated fortran interfaces.
    This is done by navigating to the `swig/` directory and running `make all32 all64`.

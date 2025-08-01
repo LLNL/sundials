@@ -157,6 +157,11 @@ also provides the following additional user-callable routines:
 
    :returns: :c:type:`SUNErrCode` indicating success or failure.
 
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetOptions`
+      when using the key "Cid.params_mrihtol".
+
 
 Usage
 -----

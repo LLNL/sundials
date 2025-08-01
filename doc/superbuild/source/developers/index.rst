@@ -35,6 +35,7 @@ meant for SUNDIALS developers.
    History
    getting_started/index
    source_code/index
+   commandline/index
    documentation/index
    testing/index
    benchmarks/index

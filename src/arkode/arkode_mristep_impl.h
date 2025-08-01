@@ -230,6 +230,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                             int* nflagPtr);
 int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int mriStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used);
 int mriStep_SetAdaptController(ARKodeMem ark_mem, SUNAdaptController C);
 int mriStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int mriStep_SetDefaults(ARKodeMem ark_mem);

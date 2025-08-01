@@ -59,6 +59,10 @@ typedef struct _SUNLinearSolverContent_MagmaDense* SUNLinearSolverContent_MagmaD
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix A,
                                                      SUNContext sunctx);
 
+SUNDIALS_EXPORT SUNErrCode SUNLinSolSetOptions_MagmaDense(SUNLinearSolver S,
+                                                          const char* LSid,
+                                                          const char* file_name,
+                                                          int argc, char* argv[]);
 SUNDIALS_EXPORT int SUNLinSol_MagmaDense_SetAsync(SUNLinearSolver S,
                                                   sunbooleantype onoff);
 

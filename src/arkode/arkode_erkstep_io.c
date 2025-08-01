@@ -25,6 +25,7 @@
 #include <sundials/sundials_types.h>
 
 #include "arkode_erkstep_impl.h"
+#include "sundials_cli.h"
 
 /*===============================================================
   Exported optional input functions.
@@ -254,6 +255,33 @@ int ERKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  erkStep_SetOption:
+
+  Provides string-based control over ERKStep-specific "set" routines.
+  ---------------------------------------------------------------*/
+int erkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used)
+{
+  /* Set lists of keys, and the corresponding set routines */
+  static const struct sunKeyCharPair char_pairs[] = {
+    {"table_name", ERKStepSetTableName}};
+  static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
+
+  /* check all "char" keys */
+  int j, retval;
+  retval = sunCheckAndSetCharArgs((void*)ark_mem, argidx, argv, offset,
+                                  char_pairs, num_char_keys, arg_used, &j);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "error setting key: %s", char_pairs[j].key);
+    return retval;
+  }
+
+  return (ARK_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   erkStep_SetRelaxFn:

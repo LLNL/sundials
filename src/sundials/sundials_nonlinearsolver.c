@@ -31,6 +31,10 @@ static SUNProfiler getSUNProfiler(SUNNonlinearSolver NLS)
 }
 #endif
 
+/* internal function prototypes */
+SUNErrCode sunnlsSetFromCommandLine(SUNNonlinearSolver NLS, const char* NLSid,
+                                    int argc, char* argv[]);
+
 /* -----------------------------------------------------------------------------
  * Create a new empty SUNLinearSolver object
  * ---------------------------------------------------------------------------*/
@@ -63,6 +67,7 @@ SUNNonlinearSolver SUNNonlinSolNewEmpty(SUNContext sunctx)
   ops->setlsetupfn     = NULL;
   ops->setlsolvefn     = NULL;
   ops->setctestfn      = NULL;
+  ops->setoptions      = NULL;
   ops->setmaxiters     = NULL;
   ops->getnumiters     = NULL;
   ops->getcuriter      = NULL;
@@ -161,6 +166,49 @@ SUNErrCode SUNNonlinSolFree(SUNNonlinearSolver NLS)
 }
 
 /* -----------------------------------------------------------------------------
+ * internal utility routines
+ * ---------------------------------------------------------------------------*/
+
+SUNErrCode sunnlsSetFromCommandLine(SUNNonlinearSolver NLS, const char* NLSid,
+                                    int argc, char* argv[])
+{
+  SUNFunctionBegin(NLS->sunctx);
+
+  /* Prefix for options to set */
+  const char* default_id = "sunnonlinearsolver";
+  size_t offset          = strlen(default_id) + 1;
+  if (NLSid != NULL && strlen(NLSid) > 0) { offset = strlen(NLSid) + 1; }
+  char* prefix = (char*)malloc(sizeof(char) * (offset + 1));
+  if (NLSid != NULL && strlen(NLSid) > 0) { strcpy(prefix, NLSid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+
+  for (int idx = 1; idx < argc; idx++)
+  {
+    int retval;
+
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
+
+    /* control over MaxIters function */
+    if (strcmp(argv[idx] + offset, "max_iters") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNNonlinSolSetMaxIters(NLS, iarg);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+  }
+  free(prefix);
+  return SUN_SUCCESS;
+}
+
+/* -----------------------------------------------------------------------------
  * set functions
  * ---------------------------------------------------------------------------*/
 
@@ -194,6 +242,30 @@ SUNErrCode SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS,
   if (NLS->ops->setctestfn)
   {
     return (NLS->ops->setctestfn(NLS, CTestFn, ctest_data));
+  }
+  else { return (SUN_SUCCESS); }
+}
+
+SUNErrCode SUNNonlinSolSetOptions(SUNNonlinearSolver NLS, const char* NLSid,
+                                  const char* file_name, int argc, char* argv[])
+{
+  if (NLS == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(NLS->sunctx);
+
+  /* File-based option control is currently unimplemented */
+  SUNAssert((file_name == NULL || strlen(file_name) == 0),
+            SUN_ERR_ARG_INCOMPATIBLE);
+
+  /* First, process all base-class options */
+  if (argc > 0 && argv != NULL)
+  {
+    SUNCheckCall(sunnlsSetFromCommandLine(NLS, NLSid, argc, argv));
+  }
+
+  /* Second, ask the implementation to process any remaining options */
+  if (NLS->ops->setoptions)
+  {
+    return (NLS->ops->setoptions(NLS, NLSid, file_name, argc, argv));
   }
   else { return (SUN_SUCCESS); }
 }

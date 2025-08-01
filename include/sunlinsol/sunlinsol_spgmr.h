@@ -103,6 +103,10 @@ SUNDIALS_EXPORT SUNErrCode SUNLinSolSetPreconditioner_SPGMR(SUNLinearSolver S,
 SUNDIALS_EXPORT SUNErrCode SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S,
                                                             N_Vector s1,
                                                             N_Vector s2);
+SUNDIALS_EXPORT SUNErrCode SUNLinSolSetOptions_SPGMR(SUNLinearSolver S,
+                                                     const char* LSid,
+                                                     const char* file_name,
+                                                     int argc, char* argv[]);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolSetZeroGuess_SPGMR(SUNLinearSolver S,
                                                        sunbooleantype onff);
 SUNDIALS_EXPORT int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A);
