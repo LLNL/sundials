@@ -128,7 +128,7 @@ SUNErrCode SUNAdaptController_SetOptions_Soderlind(SUNAdaptController C,
   SUNFunctionBegin(C->sunctx);
 
   /* File-based option control is currently unimplemented */
-  SUNAssert((file_name == NULL || strlen(file_name) == 0), SUN_ERR_ARG_INCOMPATIBLE)
+  SUNAssert((file_name == NULL || strlen(file_name) == 0), SUN_ERR_ARG_INCOMPATIBLE);
 
   if (argc > 0 && argv != NULL)
   {
