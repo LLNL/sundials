@@ -184,32 +184,6 @@ static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
       continue;
     }
 
-    /* control over SetDefaults function */
-    if (strcmp(argv[idx] + offset, "defaults") == 0)
-    {
-      retval = SUNAdaptController_SetDefaults_MRIHTol(C);
-      if (retval != SUN_SUCCESS)
-      {
-        free(prefix);
-        return retval;
-      }
-      continue;
-    }
-
-    /* control over SetErrorBias function */
-    if (strcmp(argv[idx] + offset, "error_bias") == 0)
-    {
-      idx += 1;
-      sunrealtype rarg = SUNStrToReal(argv[idx]);
-      retval           = SUNAdaptController_SetErrorBias_MRIHTol(C, rarg);
-      if (retval != SUN_SUCCESS)
-      {
-        free(prefix);
-        return retval;
-      }
-      continue;
-    }
-
     /* check whether it was requested that all parameters be printed to screen */
     if (strcmp(argv[idx] + offset, "write_parameters") == 0)
     {
@@ -218,13 +192,13 @@ static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
     }
   }
 
-  /* Call SUNAdaptController_Write_MRIHTol (if requested) now that all
+  /* Call SUNAdaptController_Write (if requested) now that all
      command-line options have been set -- WARNING: this knows
      nothing about MPI, so it could be redundantly written by all
      processes if requested. */
   if (write_parameters)
   {
-    retval = SUNAdaptController_Write_MRIHTol(C, stdout);
+    retval = SUNAdaptController_Write(C, stdout);
     if (retval != SUN_SUCCESS)
     {
       free(prefix);
