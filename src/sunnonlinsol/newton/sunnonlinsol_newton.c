@@ -412,7 +412,7 @@ SUNErrCode SUNNonlinSolSetOptions_Newton(SUNNonlinearSolver NLS,
                                          const char* NLSid, const char* file_name,
                                          int argc, char* argv[])
 {
-  SUNFunctionBegin(C->sunctx);
+  SUNFunctionBegin(NLS->sunctx);
 
   /* File-based option control is currently unimplemented */
   SUNAssert((file_name == NULL || strlen(file_name) == 0), SUN_ERR_ARG_INCOMPATIBLE)

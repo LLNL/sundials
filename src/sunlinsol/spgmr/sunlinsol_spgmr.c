@@ -154,7 +154,7 @@ SUNErrCode SUNLinSolSetOptions_SPGMR(SUNLinearSolver S, const char* LSid,
                                      const char* file_name, int argc,
                                      char* argv[])
 {
-  SUNFunctionBegin(C->sunctx);
+  SUNFunctionBegin(S->sunctx);
 
   /* File-based option control is currently unimplemented */
   SUNAssert((file_name == NULL || strlen(file_name) == 0), SUN_ERR_ARG_INCOMPATIBLE)
