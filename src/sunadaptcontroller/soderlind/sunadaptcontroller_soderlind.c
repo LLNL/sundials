@@ -165,7 +165,7 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
     if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
 
     /* control over SetParams_Soderlind function */
-    if (strcmp(argv[idx] + offset, "params") == 0)
+    if (strcmp(argv[idx] + offset, "params_soderlind") == 0)
     {
       idx += 1;
       sunrealtype rarg1 = SUNStrToReal(argv[idx]);

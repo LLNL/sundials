@@ -128,4 +128,4 @@ routines:
    .. note::
 
       This routine will be called by :c:func:`SUNAdaptController_SetOptions`
-      when using the key "Cid.params".
+      when using the key "Cid.params_imexgus".
