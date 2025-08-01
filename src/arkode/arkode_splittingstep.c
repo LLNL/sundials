@@ -455,12 +455,12 @@ static int splittingStep_SetOrder(ARKodeMem ark_mem, int order)
 static int splittingStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
                                     size_t offset, sunbooleantype* arg_used)
 {
-  /* The only MRIStep-specific "Set" routine takes a custom MRIStepCoupling
-     table; however, these may be specified by name, so here we'll support
-     a key to specify the MRIStepCoupling table name,
-     create the table with that name, attach it to MRIStep (who copies its
-     values), and then free the table. */
-  if (strcmp(argv[*argidx] + offset, "coefficients_name") == 0)
+  /* The only SplittingStep-specific "Set" routine takes a custom set of
+     coefficients; however, these may be specified by name, so here we'll support
+     a key to specify the SplittingStepCoefficients by name,
+     create the coefficients with that name, attach it to SplittingStep (who copies its
+     values), and then frees the coefficients. */
+  if (strcmp(argv[*argidx] + offset, "splitting_coefficients_name") == 0)
   {
     (*argidx)++;
     SplittingStepCoefficients Coefficients =

@@ -107,7 +107,7 @@ Optional inputs for IVP method selection
       :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients`.
 
       This routine will be called by :c:func:`ARKodeSetOptions`
-      when using the key "arkid.coefficients_name", where ``coefficients``
+      when using the key "arkid.splitting_coefficients_name", where ``coefficients``
       is itself constructed by passing the command-line option to
       :c:func:`SplittingStepCoefficients_LoadCoefficientsByName`.
 
