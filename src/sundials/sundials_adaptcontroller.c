@@ -157,7 +157,6 @@ SUNErrCode sunadctrlSetFromCommandLine(SUNAdaptController C, const char* Cid,
   return SUN_SUCCESS;
 }
 
-
 /* -----------------------------------------------------------------
  * Optional functions in the 'ops' structure
  * ----------------------------------------------------------------- */
