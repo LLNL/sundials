@@ -173,7 +173,7 @@ static SUNErrCode setFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
   /* Prefix for options to set */
   const char* default_id = "sunlinearsolver";
   size_t offset          = strlen(default_id) + 1;
-  if (LSid != NULL) { offset = SUNMAX(strlen(LSid) + 1, offset); }
+  if (LSid != NULL && strlen(LSid) > 0) { offset = strlen(LSid) + 1; }
   char* prefix = (char*)malloc(sizeof(char) * (offset + 1));
   if (LSid != NULL && strlen(LSid) > 0) { strcpy(prefix, LSid); }
   else { strcpy(prefix, default_id); }

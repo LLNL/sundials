@@ -435,7 +435,7 @@ static SUNErrCode setFromCommandLine_Newton(SUNNonlinearSolver NLS,
   /* Prefix for options to set */
   const char* default_id = "sunnonlinearsolver";
   size_t offset          = strlen(default_id) + 1;
-  if (NLSid != NULL) { offset = SUNMAX(strlen(NLSid) + 1, offset); }
+  if (NLSid != NULL && strlen(NLSid) > 0) { offset = strlen(NLSid) + 1; }
   char* prefix = (char*)malloc(sizeof(char) * (offset + 1));
   if (NLSid != NULL && strlen(NLSid) > 0) { strcpy(prefix, NLSid); }
   else { strcpy(prefix, default_id); }
