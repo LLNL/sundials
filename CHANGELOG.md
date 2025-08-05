@@ -11,6 +11,12 @@ setting the Anderson acceleration depth and orthogonalization method after
 `KINInit`. Additionally, `KINSetMAA` and `KINSetNumMaxIters` may now be called
 in any order.
 
+A new `IDAGetInterpData` function has been added to return the internal data
+defining the polynomial interpolant constructed during the last successful
+solver step.  This permits the construction of a piecewise-defined interpolant
+across multiple steps, useful for offline evaluation, checkpointing, custom
+output, etc.
+
 ### Bug Fixes
 
 The shared library version numbers for the oneMKL dense linear solver and

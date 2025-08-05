@@ -39,3 +39,14 @@ target_link_libraries(test_ida_error_handling PRIVATE GTest::gtest_main
                                                       GTest::gmock)
 
 gtest_discover_tests(test_ida_error_handling)
+
+sundials_add_executable(test_ida_get_interp_data test_ida_get_interp_data.cpp)
+target_include_directories(
+  test_ida_get_interp_data
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+          ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
+
+target_link_libraries(test_ida_get_interp_data PRIVATE sundials_ida)
+target_link_libraries(test_ida_get_interp_data PRIVATE GTest::gtest_main
+                                                       GTest::gmock)
+gtest_discover_tests(test_ida_get_interp_data)

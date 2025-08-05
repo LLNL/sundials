@@ -1522,3 +1522,76 @@ char* IDAGetReturnFlagName(long int flag)
 
   return (name);
 }
+
+/*-----------------------------------------------------------------*/
+
+/**
+ * IDAGetInterpData returns the internal data defining the polynomial
+ * interpolant constructed during the last successful solver step.
+ *
+ * The interpolation data includes:
+ *   - phi: an array of N_Vectors phi[kused+1], where each phi[i] is a divided
+ *          difference used to construct the interpolating polynomial. Each
+ *          N_Vector phi[i] has the same length as the y vector passed to
+ *          IDAInit.
+ *   - psi: an array of real values psi[kused+1], where each psi[i] is the sum
+ *          of recent step sizes used to compute time differences.
+ *   - kused: the order of the method used for the last successful step
+ *            (i.e., the degree of the interpolating polynomial).
+ *   - hused: the step size used in the last successful solver step.
+ *   - tn: the time at the end of the last successful step.  The interpolant
+ *         is valid over the interval [tn - hused, tn].
+ *
+ * These values define the dense output polynomial that IDA constructs during
+ * each successful solver step.  (The function IDAGetDky can be used to
+ * evaluate this polynomial to obtain the solution and its derivatives at
+ * intermediate locations.)  While the interpolant is only valid over the most
+ * recent step, this function enables users to extract and save the necessary
+ * data to reconstruct the interpolant later.
+ *
+ * The function does not allocate or copy memory.  The returned phi and psi
+ * pointers reference internal IDA data structures and must not be modified.
+ * However, users may safely copy the contents of phi and psi, as well as
+ * kused, hused, and tn, after each successful solver step to construct a
+ * piecewise-defined interpolant across multiple steps.  This can be useful
+ * for offline evaluation, checkpointing, custom output, or other
+ * post-processing.
+ *
+ * @param[in]  ida_mem  pointer to the IDA memory block.
+ * @param[out] phi      the array of N_Vectors phi[kused+1].
+ * @param[out] psi      the array of real values psi[kused+1].
+ * @param[out] kused    the order of the interpolating polynomial.
+ * @param[out] hused    the step size used in the last successful step.
+ * @param[out] tn       the time at the end of the last successful step.  The
+ *                      interpolant is valid on [tn - hused, tn].
+ *
+ * @note The phi and psi pointers reference internal memory.  The data they
+ * point to must not be modified.
+ *
+ * @return IDA_SUCCESS on success, or a negative return value on failure.
+ *
+ * @see IDAGetDky for how IDA evaluates the interpolant using the returned
+ * data.
+ */
+
+SUNDIALS_EXPORT int IDAGetInterpData(void* ida_mem, N_Vector** phi,
+                                     sunrealtype** psi, int* kused,
+                                     sunrealtype* hused, sunrealtype* tn)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL)
+  {
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem)ida_mem;
+  *phi    = IDA_mem->ida_phi;
+  *psi    = IDA_mem->ida_psi;
+  *kused  = IDA_mem->ida_kused;
+  *hused  = IDA_mem->ida_hused;
+  *tn     = IDA_mem->ida_tn;
+
+  return (IDA_SUCCESS);
+}

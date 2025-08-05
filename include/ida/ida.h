@@ -224,6 +224,9 @@ SUNDIALS_EXPORT int IDAGetUserData(void* ida_mem, void** user_data);
 SUNDIALS_EXPORT int IDAPrintAllStats(void* ida_mem, FILE* outfile,
                                      SUNOutputFormat fmt);
 SUNDIALS_EXPORT char* IDAGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT int IDAGetInterpData(void* ida_mem, N_Vector** phi,
+                                     sunrealtype** psi, int* kused,
+                                     sunrealtype* hused, sunrealtype* tn);
 
 /* Free function */
 SUNDIALS_EXPORT void IDAFree(void** ida_mem);
