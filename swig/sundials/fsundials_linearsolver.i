@@ -14,6 +14,9 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore SUNLinSolSetOptions;
+
 // insert the include into the swig wrapper
 %{
 #include "sundials/sundials_iterative.h"
@@ -25,4 +28,3 @@
 // Process and wrap functions in the following files
 %include "sundials/sundials_iterative.h"
 %include "sundials/sundials_linearsolver.h"
-

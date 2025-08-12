@@ -22,6 +22,7 @@
 #include <sundials/sundials_types.h>
 
 #include "arkode_mristep_impl.h"
+#include "sundials_cli.h"
 
 /*===============================================================
   Exported optional input functions.
@@ -247,6 +248,46 @@ int MRIStepGetNumInnerStepperFails(void* arkode_mem, long int* inner_fails)
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  mriStep_SetOption:
+
+  Provides command-line control over MRIStep-specific "set" routines.
+  ---------------------------------------------------------------*/
+int mriStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
+                       size_t offset, sunbooleantype* arg_used)
+{
+  /* The only MRIStep-specific "Set" routine takes a custom MRIStepCoupling
+     table; however, these may be specified by name, so here we'll support
+     a key to specify the MRIStepCoupling table name,
+     create the table with that name, attach it to MRIStep (who copies its
+     values), and then free the table. */
+  if (strcmp(argv[*argidx] + offset, "coupling_table_name") == 0)
+  {
+    (*argidx)++;
+    MRIStepCoupling Coupling = MRIStepCoupling_LoadTableByName(argv[*argidx]);
+    if (Coupling == NULL)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "error setting key %s %s (invalid table name)",
+                      argv[(*argidx) - 1], argv[*argidx]);
+      return ARK_ILL_INPUT;
+    }
+    int retval = MRIStepSetCoupling(ark_mem, Coupling);
+    MRIStepCoupling_Free(Coupling);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting key %s %s (SetCoupling failed)",
+                      argv[(*argidx) - 1], argv[*argidx]);
+      return retval;
+    }
+    *arg_used = SUNTRUE;
+    return ARK_SUCCESS;
+  }
+
+  return ARK_SUCCESS;
+}
 
 /*---------------------------------------------------------------
   mriStep_SetAdaptController:

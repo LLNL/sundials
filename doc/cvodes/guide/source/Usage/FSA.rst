@@ -804,6 +804,9 @@ time and, if successful, takes effect immediately.
       The default value are ``DQtype == CV_CENTERED`` and
       ``DQrhomax=0.0``.
 
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.sens_dq_method".
+
 
 .. c:function:: int CVodeSetSensErrCon(void * cvode_mem, sunbooleantype errconS)
 
@@ -825,6 +828,9 @@ time and, if successful, takes effect immediately.
       variables are excluded from the  error tests. Note that, in any event, all
       variables are considered in the convergence  tests.
 
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.sens_err_con".
+
 
 .. c:function:: int CVodeSetSensMaxNonlinIters(void * cvode_mem, int maxcorS)
 
@@ -842,6 +848,9 @@ time and, if successful, takes effect immediately.
 
    **Notes:**
       The default value is 3.
+
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.sens_max_nonlin_iters".
 
 
 .. _CVODES.Usage.FSA.user_callable.optional_output:
@@ -1594,6 +1603,9 @@ integration of sensitivity-dependent quadrature equations.
 
    **Notes:**
       By default, ``errconQS`` is set to ``SUNFALSE``.
+
+      This routine will be called by :c:func:`CVodeSetOptions`
+      when using the key "cvid.quad_sens_err_con".
 
       .. warning::
          It is illegal to call :c:func:`CVodeSetQuadSensErrCon` before a call

@@ -19,6 +19,9 @@
 // include code common to all implementations
 %include "fsunadaptcontroller.i"
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore SUNAdaptController_SetOptions_MRIHTol;
+
 %{
 #include "sunadaptcontroller/sunadaptcontroller_mrihtol.h"
 %}

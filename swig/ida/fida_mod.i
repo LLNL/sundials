@@ -18,6 +18,9 @@
 
 %include "../sundials/fsundials.i"
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore IDASetOptions;
+
 %{
 #include "ida/ida.h"
 #include "ida/ida_bbdpre.h"
@@ -30,4 +33,3 @@
 %include "ida/ida.h"
 %include "ida/ida_bbdpre.h"
 %include "ida/ida_ls.h"
-

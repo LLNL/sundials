@@ -82,7 +82,7 @@ static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol);
  *--------------------------------------------------------------------
  */
 
-int main(void)
+int main(int argc, char* argv[])
 {
   SUNContext sunctx;
   sunrealtype fnormtol, fnorm;
@@ -146,6 +146,11 @@ int main(void)
   fnormtol = TOL;
   retval   = KINSetFuncNormTol(kmem, fnormtol);
   if (check_retval(&retval, "KINSetFuncNormTol", 1)) { return (1); }
+
+  /* Override any current settings with command-line options */
+
+  retval = KINSetOptions(kmem, NULL, NULL, argc, argv);
+  if (check_retval(&retval, "KINSetOptions", 1)) { return (1); }
 
   /* -------------
    * Initial guess

@@ -22,6 +22,7 @@ set(cvode_SOURCES
     cvode.c
     cvode_bandpre.c
     cvode_bbdpre.c
+    cvode_cli.c
     cvode_diag.c
     cvode_io.c
     cvode_ls.c

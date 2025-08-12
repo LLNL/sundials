@@ -86,6 +86,7 @@ set(sundials_SOURCES
     sundials_adjointcheckpointscheme.c
     sundials_adjointstepper.c
     sundials_band.c
+    sundials_cli.c
     sundials_context.c
     sundials_dense.c
     sundials_datanode.c

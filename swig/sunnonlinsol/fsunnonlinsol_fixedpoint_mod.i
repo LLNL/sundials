@@ -19,6 +19,7 @@
 // include code common to all implementations
 %include "fsunnonlinsol.i"
 
+
 %{
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 %}

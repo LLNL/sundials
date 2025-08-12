@@ -381,6 +381,10 @@ norms). Note that this call must be made after the call to :c:func:`IDAInit`.
         called.
       * ``IDA_ILL_INPUT`` -- One of the input tolerances was negative.
 
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.scalar_tolerances".
+
 .. c:function:: int IDASVtolerances(void* ida_mem, sunrealtype reltol, N_Vector abstol)
 
    The function :c:func:`IDASVtolerances` specifies scalar relative tolerance and
@@ -910,6 +914,8 @@ Main solver optional input functions
 
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | **Optional input**                                                 | **Function name**               | **Default**    |
+   +====================================================================+=================================+================+
+   | Set IDAS options from the command line or file                     | :c:func:`IDASetOptions`         |                |
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | User data                                                          | :c:func:`IDASetUserData`        | NULL           |
    +--------------------------------------------------------------------+---------------------------------+----------------+
@@ -935,6 +941,74 @@ Main solver optional input functions
    +--------------------------------------------------------------------+---------------------------------+----------------+
    | Inequality constraints on solution                                 | :c:func:`IDASetConstraints`     | NULL           |
    +--------------------------------------------------------------------+---------------------------------+----------------+
+
+
+.. c:function:: int IDASetOptions(void* ida_mem, const char* idaid, const char* file_name, int argc, char* argv[])
+
+   Sets IDAS options from an array of strings or a file.
+
+   :param ida_mem: pointer to the IDAS memory block.
+   :param idaid: the prefix for options to read. The default is "idas".
+   :param file_name: the name of a file containing options to read. If this is
+                     ``NULL`` or an empty string, ``""``, then no file is read.
+   :param argc: number of command-line arguments passed to executable.
+   :param argv: an array of strings containing the options to set and their values.
+
+   :retval IDA_SUCCESS: the function exited successfully.
+   :retval IDA_MEM_NULL: ``ida_mem`` was ``NULL``.
+   :retval other: error return value from relevant IDAS "set" routine.
+
+   **Example usage:**
+
+   In a C or C++ program, the following will enable command-line processing:
+
+   .. code-block:: C
+
+      /* Create IDAS memory block */
+      void* ida_mem = IDACreate(ctx);
+
+      /* Configure IDAS as normal */
+      ...
+
+      /* Override settings with command-line options using default "idas" prefix */
+      flag = IDASetOptions(ida_mem, NULL, NULL, argc, argv);
+
+   Then when running the program, the user can specify desired options, e.g.,
+
+   .. code-block:: console
+
+      $ ./a.out idas.max_order 3 idas.delta_cj_lsetup 0.1
+
+   .. note::
+
+      The ``argc`` and ``argv`` arguments are typically those supplied to the user's
+      ``main`` routine however, this is not required. The inputs are left unchanged by
+      :c:func:`IDASetOptions`.
+
+      If the ``idaid`` argument is ``NULL``, then the default prefix, ``idas``, must
+      be used for all IDAS options.  Whether ``idaid`` is supplied or not, a ``"."``
+      must be used to separate an option key from the prefix.  For example, when
+      using the default ``idaid``, the option ``idas.max_order`` followed by the value
+      can be used to set the maximum method order of accuracy.
+
+      IDAS options set via :c:func:`IDASetOptions` will overwrite
+      any previously-set values.  Options are set in the order they are given in
+      ``argv`` and, if an option with the same prefix appears multiple times in
+      ``argv``, the value of the last occurrence will used.
+
+      The supported option names are noted within the documentation for the
+      corresponding IDAS "set" function.  For options that take a
+      :c:type:`sunbooleantype` as input, use ``1`` to indicate ``true`` and
+      ``0`` for ``false``.
+
+   .. warning::
+
+      This function is not available in the Fortran interface.
+
+      File-based options are not yet supported, so the ``file_name`` argument
+      should be set to either ``NULL`` or the empty string ``""``.
+
+   .. versionadded:: x.y.z
 
 
 .. c:function:: int IDASetUserData(void * ida_mem, void * user_data)
@@ -982,6 +1056,9 @@ Main solver optional input functions
       requirements for the internal IDAS memory block and its value cannot be
       increased past the value set when :c:func:`IDAInit` was called.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_order".
+
 .. c:function:: int IDASetMaxNumSteps(void * ida_mem, long int mxsteps)
 
    The function :c:func:`IDASetMaxNumSteps` specifies the maximum number of steps to
@@ -998,6 +1075,9 @@ Main solver optional input functions
    **Notes:**
       Passing ``mxsteps`` = 0 results in IDAS using the default value (500).
       Passing ``mxsteps`` < 0 disables the test (not recommended).
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_num_steps".
 
 .. c:function:: int IDASetInitStep(void * ida_mem, sunrealtype hin)
 
@@ -1017,6 +1097,9 @@ Main solver optional input functions
       :math:`\|h \dot{y} \|_{{\scriptsize WRMS}} = 1/2`, with an added restriction
       that :math:`|h| \leq .001|t_{\text{out}} - t_0|`.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.init_step".
+
 .. c:function:: int IDASetMinStep(void * ida_mem, sunrealtype hmin)
 
    The function :c:func:`IDASetMinStep` specifies the minimum absolute value of
@@ -1032,6 +1115,10 @@ Main solver optional input functions
       * ``IDA_SUCCESS`` -- The optional value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
       * ``IDA_ILL_INPUT`` -- ``hmin`` is negative.
+
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.min_step".
 
    .. versionadded:: 5.2.0
 
@@ -1052,6 +1139,9 @@ Main solver optional input functions
 
    **Notes:**
       Pass ``hmax = 0`` to obtain the default value :math:`\infty`.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_step".
 
 .. c:function:: int IDASetStopTime(void * ida_mem, sunrealtype tstop)
 
@@ -1078,6 +1168,9 @@ Main solver optional input functions
       A stop time not reached before a call to :c:func:`IDAReInit` will
       remain active but can be disabled by calling :c:func:`IDAClearStopTime`.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.stop_time".
+
 .. c:function:: int IDAClearStopTime(void* ida_mem)
 
    Disables the stop time set with :c:func:`IDASetStopTime`.
@@ -1092,6 +1185,9 @@ Main solver optional input functions
    **Notes:**
       The stop time can be re-enabled though a new call to
       :c:func:`IDASetStopTime`.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.clear_stop_time".
 
    .. versionadded:: 6.5.1
 
@@ -1111,6 +1207,9 @@ Main solver optional input functions
 
    **Notes:**
       The default value is 10.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_err_test_fails".
 
 .. c:function:: int IDASetSuppressAlg(void * ida_mem, sunbooleantype suppressalg)
 
@@ -1133,6 +1232,9 @@ Main solver optional input functions
       ``suppressalg = SUNTRUE``) is *discouraged* when solving DAE systems of index
       1, whereas it is generally *encouraged* for systems of index 2 or more. See
       pp. 146-147 of :cite:p:`BCP:96` for more on this issue.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.suppress_alg".
 
 .. c:function:: int IDASetId(void * ida_mem, N_Vector id)
 
@@ -1300,6 +1402,10 @@ that updates the matrix using the current :math:`\alpha` as part of the solve.
      * ``IDA_SUCCESS`` -- The flag value has been successfully set.
      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
 
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.delta_cj_lsetup".
+
    .. versionadded:: 5.2.0
 
 .. c:function:: int IDASetLinearSolutionScaling(void * ida_mem, sunbooleantype onoff)
@@ -1323,6 +1429,9 @@ that updates the matrix using the current :math:`\alpha` as part of the solve.
       This function must be called after the IDALS linear solver interface has been
       initialized through a call to :c:func:`IDASetLinearSolver`.  By default
       scaling is enabled with matrix-based linear solvers.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.linear_solution_scaling".
 
 
 When using matrix-free linear solver modules, the IDALS solver interface
@@ -1413,6 +1522,9 @@ finite-difference approximation, via a call to :c:func:`IDASetIncrementFactor`.
       The default value is 1.0.  This function must be called after the IDALS
       linear solver interface has been initialized through a call to
       :c:func:`IDASetLinearSolver`.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.increment_factor".
 
    .. versionadded:: 3.0.0
 
@@ -1534,6 +1646,9 @@ where :math:`\epsilon` is the nonlinear solver tolerance, and the default
       :c:func:`IDASetLinearSolver`.  If ``eplifac`` :math:`= 0.0` is passed, the
       default value is used.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.eps_lin".
+
    .. versionadded:: 3.0.0
 
       Replaces the deprecated function ``IDASpilsSetEpsLin``.
@@ -1566,6 +1681,9 @@ where :math:`\epsilon` is the nonlinear solver tolerance, and the default
       introduction of :c:func:`N_VGetLength` in SUNDIALS v5.0.0 (IDAS v4.0.0) the
       value of ``nrmfac`` was computed using :c:func:`N_VDotProd` i.e., the
       ``nrmfac < 0`` case.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.ls_norm_factor".
 
 
 .. _IDAS.Usage.SIM.user_callable.optional_input.nls:
@@ -1610,6 +1728,9 @@ nonlinear solver.
    **Notes:**
       The default value is 4.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_nonlin_iters".
+
 
 .. c:function:: int IDASetMaxConvFails(void * ida_mem, int maxncf)
 
@@ -1628,6 +1749,9 @@ nonlinear solver.
    **Notes:**
       The default value is 10.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_conv_fails".
+
 
 .. c:function:: int IDASetNonlinConvCoef(void * ida_mem, sunrealtype nlscoef)
 
@@ -1645,6 +1769,9 @@ nonlinear solver.
 
    **Notes:**
       The default value is 0.33.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.nonlin_conv_coef".
 
 
 .. c:function:: int IDASetNlsResFn(void * ida_mem, IDAResFn res)
@@ -1726,6 +1853,9 @@ to set optional inputs controlling the initial condition calculation.
       :math:`J^{-1}F(t_0, y, \dot{y})` must be :math:`\leq \mathtt{epiccon}`, where
       :math:`J` is the system Jacobian.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.nonlin_conv_coef_ic".
+
 .. c:function:: int IDASetMaxNumStepsIC(void * ida_mem, int maxnh)
 
    The function :c:func:`IDASetMaxNumStepsIC` specifies the maximum number of steps
@@ -1744,6 +1874,9 @@ to set optional inputs controlling the initial condition calculation.
 
    **Notes:**
       The default value is :math:`5`.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_num_steps_ic".
 
 .. c:function:: int IDASetMaxNumJacsIC(void * ida_mem, int maxnj)
 
@@ -1764,6 +1897,9 @@ to set optional inputs controlling the initial condition calculation.
    **Notes:**
       The default value is :math:`4`.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_num_jacs_ic".
+
 .. c:function:: int IDASetMaxNumItersIC(void * ida_mem, int maxnit)
 
    The function :c:func:`IDASetMaxNumItersIC` specifies the maximum number of Newton
@@ -1781,6 +1917,9 @@ to set optional inputs controlling the initial condition calculation.
 
    **Notes:**
       The default value is :math:`10`.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_num_iters_ic".
 
 .. c:function:: int IDASetMaxBacksIC(void * ida_mem, int maxbacks)
 
@@ -1804,6 +1943,9 @@ to set optional inputs controlling the initial condition calculation.
       the limit ``maxbacks`` applies in the calculation of both the initial state
       values and the initial sensitivities.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.max_backs_ic".
+
 
 .. c:function:: int IDASetLineSearchOffIC(void * ida_mem, sunbooleantype lsoff)
 
@@ -1821,7 +1963,10 @@ to set optional inputs controlling the initial condition calculation.
 
    **Notes:**
 
-   The default value is ``SUNFALSE``.
+      The default value is ``SUNFALSE``.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.line_search_off_ic".
 
 .. c:function:: int IDASetStepToleranceIC(void * ida_mem, int steptol)
 
@@ -1839,6 +1984,9 @@ to set optional inputs controlling the initial condition calculation.
 
    **Notes:**
       The default value is :math:`(\text{unit roundoff})^{2/3}`.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.step_tolerance_ic".
 
 
 .. _IDAS.Usage.SIM.user_callable.optional_input.step_adapt:
@@ -1907,6 +2055,10 @@ step size adaptivity.
       * ``IDA_SUCCESS`` -- The optional value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
 
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.eta_fixed_step_bounds".
+
    .. versionadded:: 5.2.0
 
 .. c:function:: int IDASetEtaMax(void* ida_mem, sunrealtype eta_max)
@@ -1923,6 +2075,10 @@ step size adaptivity.
    **Return value:**
       * ``IDA_SUCCESS`` -- The optional value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.eta_max".
 
    .. versionadded:: 5.2.0
 
@@ -1944,6 +2100,10 @@ step size adaptivity.
       * ``IDA_SUCCESS`` -- The optional value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
 
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.eta_min".
+
    .. versionadded:: 5.2.0
 
 .. c:function:: int IDASetEtaLow(void* ida_mem, sunrealtype eta_low)
@@ -1963,6 +2123,10 @@ step size adaptivity.
    **Return value:**
       * ``IDA_SUCCESS`` -- The optional value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.eta_low".
 
    .. versionadded:: 5.2.0
 
@@ -1984,6 +2148,10 @@ step size adaptivity.
       * ``IDA_SUCCESS`` -- The optional value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
 
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.eta_min_err_fail".
+
    .. versionadded:: 5.2.0
 
 .. c:function:: int IDASetEtaConvFail(void* ida_mem, sunrealtype eta_cf)
@@ -2003,6 +2171,10 @@ step size adaptivity.
    **Return value:**
       * ``IDA_SUCCESS`` -- The optional value has been successfully set.
       * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
+
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.eta_conv_fail".
 
    .. versionadded:: 5.2.0
 
@@ -2075,6 +2247,9 @@ rootfinding algorithm.
       the initial time (i.e., :math:`g_i` is zero at the initial time and after the
       first step), IDAS will issue a warning which can be disabled with this
       optional input function.
+
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.no_inactive_root_warn".
 
 
 .. _IDAS.Usage.SIM.user_callable.optional_dky:
@@ -3884,6 +4059,9 @@ of quadrature equations.
    **Notes:**
       By default, ``errconQ`` is set to ``SUNFALSE``.
 
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.quad_err_con".
+
       .. warning::
          It is illegal to call :c:func:`IDASetQuadErrCon` before a call  to :c:func:`IDAQuadInit`.
 
@@ -3905,6 +4083,10 @@ quadrature variables.
      * ``IDA_NO_QUAD`` -- Quadrature integration was not initialized.
      * ``IDA_MEM_NULL`` -- The ``ida_mem`` pointer is ``NULL``.
      * ``IDA_ILL_INPUT`` -- One of the input tolerances was negative.
+
+   **Notes:**
+      This routine will be called by :c:func:`IDASetOptions`
+      when using the key "idaid.quad_scalar_tolerances".
 
 
 .. c:function:: int IDAQuadSVtolerances(void * ida_mem, sunrealtype reltolQ, N_Vector abstolQ)
