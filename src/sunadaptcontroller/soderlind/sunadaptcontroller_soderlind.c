@@ -76,6 +76,11 @@ static SUNErrCode setFromCommandLine_Soderlind(SUNAdaptController C,
                                                const char* Cid, int argc,
                                                char* argv[]);
 
+SUNErrCode SUNAdaptController_SetOptions_Soderlind(SUNAdaptController C,
+                                                   const char* Cid,
+                                                   const char* file_name,
+                                                   int argc, char* argv[]);
+
 /* -----------------------------------------------------------------
  * exported functions
  * ----------------------------------------------------------------- */

@@ -19,8 +19,6 @@
 // include code common to all implementations
 %include "fsunnonlinsol.i"
 
-// Ignore command-line processing functions since they are not supported in Fortran
-%ignore SUNNonlinSolSetOptions_FixedPoint;
 
 %{
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"

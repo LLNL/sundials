@@ -49,6 +49,10 @@
 static SUNErrCode setFromCommandLine_SPTFQMR(SUNLinearSolver S, const char* LSid,
                                              int argc, char* argv[]);
 
+SUNErrCode SUNLinSolSetOptions_SPTFQMR(SUNLinearSolver S, const char* LSid,
+                                       const char* file_name, int argc,
+                                       char* argv[]);
+
 /*
  * -----------------------------------------------------------------
  * exported functions

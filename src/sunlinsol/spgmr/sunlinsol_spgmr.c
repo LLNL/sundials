@@ -50,6 +50,10 @@
 static SUNErrCode setFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
                                            int argc, char* argv[]);
 
+SUNErrCode SUNLinSolSetOptions_SPGMR(SUNLinearSolver S, const char* LSid,
+                                     const char* file_name, int argc,
+                                     char* argv[]);
+
 /*
  * -----------------------------------------------------------------
  * exported functions

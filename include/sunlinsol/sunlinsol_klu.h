@@ -130,10 +130,6 @@ SUNDIALS_EXPORT sun_klu_common* SUNLinSol_KLUGetCommon(SUNLinearSolver S);
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_KLU(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSetOptions_KLU(SUNLinearSolver S,
-                                                   const char* LSid,
-                                                   const char* file_name,
-                                                   int argc, char* argv[]);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolInitialize_KLU(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A);
 SUNDIALS_EXPORT int SUNLinSolSolve_KLU(SUNLinearSolver S, SUNMatrix A,

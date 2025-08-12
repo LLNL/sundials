@@ -75,12 +75,6 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_SetOptions_ImExGus(SUNAdaptController C,
-                                                 const char* Cid,
-                                                 const char* file_name,
-                                                 int argc, char* argv[]);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetErrorBias_ImExGus(SUNAdaptController C,
                                                    sunrealtype bias);
 SUNDIALS_EXPORT

@@ -74,12 +74,6 @@ SUNDIALS_EXPORT
 int SUNAdaptController_Reset_MRIHTol(SUNAdaptController C);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_SetOptions_MRIHTol(SUNAdaptController C,
-                                                 const char* Cid,
-                                                 const char* file_name,
-                                                 int argc, char* argv[]);
-
-SUNDIALS_EXPORT
 int SUNAdaptController_SetDefaults_MRIHTol(SUNAdaptController C);
 
 SUNDIALS_EXPORT

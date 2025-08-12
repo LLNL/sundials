@@ -100,10 +100,6 @@ SUNErrCode SUNLinSolSetScalingVectors_PCG(SUNLinearSolver S, N_Vector s,
                                           N_Vector nul);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNLinSolSetOptions_PCG(SUNLinearSolver S, const char* LSid,
-                                   const char* file_name, int argc, char* argv[]);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNLinSolSetZeroGuess_PCG(SUNLinearSolver S, sunbooleantype onoff);
 
 SUNDIALS_EXPORT
