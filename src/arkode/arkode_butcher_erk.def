@@ -196,7 +196,7 @@ ARK_BUTCHER_TABLE(ARKODE_BOGACKI_SHAMPINE_4_2_3, { /* Bogacki-Shampine-ERK */
     return B;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_2_1_2, { /* citation */
+ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_2_1_2, { /* https://doi.org/10.1016/j.cam.2022.114325 */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(2, SUNTRUE);
     B->q = 2;
     B->p = 1;
@@ -212,7 +212,7 @@ ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_2_1_2, { /* citation */
     return B;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_3_1_2, { /* citation */
+ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_3_1_2, { /* https://doi.org/10.1016/j.cam.2022.114325 */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     B->q = 2;
     B->p = 1;
@@ -300,7 +300,7 @@ ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_10_1_2, { /* citation */
     return B;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_ASCHER_ERK_3_1_2, { /* citation */
+ARK_BUTCHER_TABLE(ARKODE_ASCHER_ERK_3_1_2, { /* https://doi.org/10.1016/S0168-9274(97)00056-1 (custom embedding) */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     const sunrealtype gamma = (SUN_RCONST(2.0)-SUNRsqrt(SUN_RCONST(2.0)))/SUN_RCONST(2.0);
     const sunrealtype delta = SUN_RCONST(1.0)-SUN_RCONST(1.0)/(SUN_RCONST(2.0)*gamma);
@@ -313,15 +313,15 @@ ARK_BUTCHER_TABLE(ARKODE_ASCHER_ERK_3_1_2, { /* citation */
     B->b[0] = delta;
     B->b[1] = SUN_RCONST(1.0)-delta;
 
-    B->d[1] = SUN_RCONST(2.0)/SUN_RCONST(3.0);
-    B->d[2] = SUN_RCONST(1.0)/SUN_RCONST(3.0);
+    B->d[1] = SUN_RCONST(3.0)/SUN_RCONST(5.0);
+    B->d[2] = SUN_RCONST(2.0)/SUN_RCONST(5.0);
 
     B->c[1] = gamma;
     B->c[2] = SUN_RCONST(1.0);
     return B;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_4_2_3, { /* citation */
+ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_4_2_3, { /* https://doi.org/10.1016/j.cam.2022.114325 */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(4, SUNTRUE);
     B->q = 3;
     B->p = 2;
@@ -342,7 +342,7 @@ ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_4_2_3, { /* citation */
     return B;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_9_2_3, { /* citation */
+ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_9_2_3, { /* https://doi.org/10.1016/j.cam.2022.114325 */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(9, SUNTRUE);
 
     /* 1/6, 1/15, 1/9 */
@@ -380,7 +380,7 @@ ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_9_2_3, { /* citation */
     return B;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_10_3_4, { /* citation */
+ARK_BUTCHER_TABLE(ARKODE_SSP_ERK_10_3_4, { /* https://doi.org/10.1016/j.cam.2022.114325 */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(10, SUNTRUE);
 
     /* 1/6, 1/15, 1/10 */
