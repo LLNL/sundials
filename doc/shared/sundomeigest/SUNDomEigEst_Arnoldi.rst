@@ -149,7 +149,7 @@ This estimator is constructed to perform the following operations:
 
 * In :c:func:`SUNDomEigEst_Estimate`, the initial nonzero vector :math:`q_0` is warmed up
   :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
-  integrator such as by calling :c:func:`LSRKSetNumDomEigEstPreprocessIters`. 
+  integrator such as by calling :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`. 
   Then, the Arnoldi estimator is performed.
 
 .. math::

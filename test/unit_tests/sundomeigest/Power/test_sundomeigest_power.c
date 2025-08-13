@@ -160,18 +160,6 @@ int main(int argc, char* argv[])
     printf("    >>> FAILED test -- SUNDomEigEst_GetNumIters return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEst_GetMaxNumIters(DEE, &max_niter, 0);
-  if (max_niter <= 0)
-  {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetMaxNumIters return value\n");
-    fails++;
-  }
-  fails += Test_SUNDomEigEst_GetMinNumIters(DEE, &min_niter, 0);
-  if (min_niter <= 0)
-  {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetMinNumIters return value\n");
-    fails++;
-  }
   fails += Test_SUNDomEigEst_GetNumATimesCalls(DEE, &num_ATimes, 0);
   fails += Test_SUNDomEigEst_Write(DEE, 0);
 

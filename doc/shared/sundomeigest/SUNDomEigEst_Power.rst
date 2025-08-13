@@ -116,8 +116,6 @@ The SUNDomEigEst_Power module defines the *content* field of a
      int num_warmups;
      long int max_iters;
      long int cur_num_iters;
-     long int max_num_iters;
-     long int min_num_iters;
      long int num_ATimes;
      sunrealtype powiter_tol;
      sunrealtype cur_res;
@@ -138,10 +136,6 @@ information:
 * ``max_iters`` - maximum number of iterations (default is 100),
 
 * ``cur_num_iters`` - current number of power iterations,
-
-* ``max_num_iters`` - maximum number of power iterations in any single estimate so far,
-
-* ``min_num_iters`` - minimum number of power iterations in any single estimate so far,
 
 * ``num_ATimes`` - number of calls to the ``ATimes`` function,
 
@@ -168,7 +162,7 @@ This estimator is constructed to perform the following operations:
 
 * In :c:func:`SUNDomEigEst_Estimate`, the initial nonzero vector :math:`q_0` is warmed up  
   :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
-  integrator such as by calling :c:func:`LSRKSetNumDomEigEstPreprocessIters`. 
+  integrator such as by calling :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`. 
   Then, the PI estimator is performed.
 
 .. math::
@@ -194,10 +188,6 @@ eigenvalue estimator operations listed in
 * ``SUNDomEigEst_GetRes_Power``
 
 * ``SUNDomEigEst_GetNumIters_Power``
-
-* ``SUNDomEigEst_GetMaxNumIters_Power``
-
-* ``SUNDomEigEst_GetMinNumIters_Power``
 
 * ``SUNDomEigEst_GetNumATimesCalls_Power``
 

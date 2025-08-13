@@ -309,10 +309,10 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 }
 
 /*---------------------------------------------------------------
-  LSRKSetNumDomEigEstInitPreprocessIters sets the number of the preprocessing
+  LSRKStepSetNumDomEigEstInitPreprocessIters sets the number of the preprocessing
   warmups before the very first estimate call.
   ---------------------------------------------------------------*/
-int LSRKSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups)
+int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -342,10 +342,10 @@ int LSRKSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups)
 }
 
 /*---------------------------------------------------------------
-  LSRKSetNumDomEigEstPreprocessIters sets the number of the preprocessing
+  LSRKStepSetNumDomEigEstPreprocessIters sets the number of the preprocessing
   warmups before each estimate call succeeding the very first estimate call.
   ---------------------------------------------------------------*/
-int LSRKSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_warmups)
+int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_warmups)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -627,6 +627,31 @@ int LSRKStepGetNumDomEigEstRhsEvals(void* arkode_mem, long int* nfeDQ)
   return ARK_SUCCESS;
 }
 
+int LSRKStepGetNumDomEigEstIters(void* arkode_mem, long int* num_iters)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (num_iters == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "num_iters cannot be NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  /* get values from step_mem */
+  *num_iters = step_mem->num_iters;
+
+  return ARK_SUCCESS;
+}
+
+
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
@@ -704,6 +729,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     {
       sunfprintf_long(outfile, fmt, SUNFALSE, "Number of fe calls for DEE",
                       step_mem->nfeDQ);
+      sunfprintf_long(outfile, fmt, SUNFALSE, "Number of iterations for DEE",
+                     step_mem->num_iters);
     }
     sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of stages used",
                     step_mem->stage_max);

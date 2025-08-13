@@ -44,9 +44,6 @@ struct SUNDomEigEstimatorContent_Power_
   long int max_iters;     /* Maximum number of power iterations */
   long int cur_num_iters; /* Current number of power iterations */
 
-  long int max_num_iters; /* Maximum number of power iterations so far */
-  long int min_num_iters; /* Minimum number of power iterations so far */
-
   long int num_ATimes; /* Number of ATimes calls */
 
   sunrealtype powiter_tol; /* Convergence criteria for the power iteration */
@@ -92,14 +89,6 @@ SUNErrCode SUNDomEigEst_GetRes_Power(SUNDomEigEstimator DEE,
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumIters_Power(SUNDomEigEstimator DEE,
                                              long int* curniter);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMaxNumIters_Power(SUNDomEigEstimator DEE,
-                                             long int* max_niter);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetMinNumIters_Power(SUNDomEigEstimator DEE,
-                                             long int* min_niter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumATimesCalls_Power(SUNDomEigEstimator DEE,

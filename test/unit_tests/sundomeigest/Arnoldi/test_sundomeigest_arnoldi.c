@@ -152,9 +152,8 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEst_SetRelTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEst_Initialize(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
-  // SUNDomEigEst_GetRes, SUNDomEigEst_GetNumIters, SUNDomEigEst_GetMaxNumIters
-  // and SUNDomEigEst_GetMinNumIters are not options for Arnoldi iteration.
-  // They should return with 0.
+  // SUNDomEigEst_GetRes and SUNDomEigEst_GetNumIters are not options 
+  // for Arnoldi iteration. They should return with 0.
   fails += Test_SUNDomEigEst_GetRes(DEE, &cur_res, 0);
   if (cur_res > SUN_SMALL_REAL)
   {
@@ -165,19 +164,6 @@ int main(int argc, char* argv[])
   if (curniter != 0)
   {
     printf("    >>> FAILED test -- SUNDomEigEst_GetNumIters return value\n");
-    fails++;
-  }
-  fails += Test_SUNDomEigEst_GetMaxNumIters(DEE, &max_niter, 0);
-  if (max_niter != 0)
-  {
-    printf(
-      "    >>> FAILED test -- SUNDomEigEst_GetMaxNumIters return  value\n");
-    fails++;
-  }
-  fails += Test_SUNDomEigEst_GetMinNumIters(DEE, &min_niter, 0);
-  if (min_niter != 0)
-  {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetMinNumIters return value\n");
     fails++;
   }
   fails += Test_SUNDomEigEst_GetNumATimesCalls(DEE, &num_ATimes, 0);

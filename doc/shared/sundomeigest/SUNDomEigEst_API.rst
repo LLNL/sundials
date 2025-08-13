@@ -183,7 +183,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       guess for the subsequent call to :c:func:`SUNDomEig_Estimate`.  Thus, when the estimator 
       is used by LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial 
       value of ``num_warmups`` will be overwritten after the first 
-      :c:func:`SUNDomEig_Estimate` call (see :c:func:`LSRKSetNumDomEigEstPreprocessIters`).
+      :c:func:`SUNDomEig_Estimate` call (see :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`).
 
       A ``num_warmups`` argument that is :math:` < 0` will result in the default
       value (100).  This default value is particularly chosen to minimize the memory
@@ -269,49 +269,6 @@ dominant eigenvalue estimator.  *All routines are optional.*
          long int num_iters;
          retval = SUNDomEigEst_GetNumIters(DEE, &num_iters);
 
-
-.. c:function:: SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, long int* max_niter)
-
-   This *optional* routine should return the maximum number of iterations
-   performed in any previous "estimator" call so far.
-
-   **Arguments:**
-
-      * *DEE* -- a SUNDomEigEstimator object,
-      * *max_niter* -- the maximum number of iterations.
-
-   **Return value:**
-
-      A :c:type:`SUNErrCode`.
-
-   **Usage:**
-
-      .. code-block:: c
-
-         long int max_niter;
-         retval = SUNDomEigEst_GetMaxNumIters(DEE, &max_niter);
-
-
-.. c:function:: SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, long int* min_niter)
-
-   This *optional* routine should return the minimum number of iterations
-   performed in any previous "estimator" call so far.
-
-   **Arguments:**
-
-      * *DEE* -- a SUNDomEigEstimator object,
-      * *min_niter* -- the minimum number of iterations.
-
-   **Return value:**
-
-      A :c:type:`SUNErrCode`.
-
-   **Usage:**
-
-      .. code-block:: c
-
-         long int min_niter;
-         retval = SUNDomEigEst_GetMinNumIters(DEE, &min_niter);
 
 .. c:function:: SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* num_ATimes)
 
@@ -429,14 +386,6 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEst_GetNumIters`
 
-   .. c:member:: int (*getmaxniters)(SUNDomEigEstimator)
-
-      The function implementing :c:func:`SUNDomEigEst_GetMaxNumIters`
-
-   .. c:member:: int (*getminniters)(SUNDomEigEstimator)
-
-      The function implementing :c:func:`SUNDomEigEst_GetMinNumIters`
-
    .. c:member:: long int (*getnumatimescalls)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEst_GetNumATimesCalls`
@@ -517,10 +466,6 @@ the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_GetRes`\ :sup:`2`            |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetNumIters`\ :sup:`3`       |          O          |         N/A         |
-   +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetMaxNumIters`\ :sup:`3`    |          O          |         N/A         |
-   +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_GetMinNumIters`\ :sup:`3`    |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_GetNumATimesCalls`           |          O          |          O          |
@@ -541,8 +486,7 @@ Notes:
    implemented by the ``SUNDomEigEstimator`` then the interface will consider all
    estimates a being *exact*.
 
-3. :c:func:`SUNDomEigEst_GetNumIters()`, :c:func:`SUNDomEigEst_GetMaxNumIters()`
-   and :c:func:`SUNDomEigEst_GetMinNumIters()` are optional, if they are not
+3. :c:func:`SUNDomEigEst_GetNumIters()`is optional, if it is not
    implemented by the ``SUNDomEigEstimator`` then the interface will consider all
    estimates as requiring zero iterations.
 

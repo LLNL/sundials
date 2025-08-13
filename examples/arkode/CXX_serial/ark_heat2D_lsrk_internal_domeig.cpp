@@ -135,7 +135,6 @@ struct UserData
   int dee_max_iters;     // max number of iterations
   int dee_krylov_dim;    // Krylov dimension for DEE
   double dee_reltol;     // tolerance
-  bool dee_nostats;      // DEE stats flag
 
   // Timing variables
   bool timing; // print timings
@@ -321,8 +320,8 @@ int main(int argc, char* argv[])
   /* Specify the succeeding warmups before each estimate call.
      This is the number of warmups that will be performed after the first
      estimate call and before each subsequent estimate calls. */
-  flag = LSRKSetNumDomEigEstPreprocessIters(arkode_mem, udata->dee_num_succ_wups);
-  if (check_flag(&flag, "LSRKSetNumDomEigEstPreprocessIters", 1)) { return 1; }
+  flag = LSRKStepSetNumDomEigEstPreprocessIters(arkode_mem, udata->dee_num_succ_wups);
+  if (check_flag(&flag, "LSRKStepSetNumDomEigEstPreprocessIters", 1)) { return 1; }
 
   /* Specify the max number for PI iterations. 
      This does nothing if DEE is Arnoldi */
@@ -424,14 +423,6 @@ int main(int argc, char* argv[])
     cout << "Final integrator statistics:" << endl;
     flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
     if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
-  }
-
-  if (!udata->dee_nostats)
-  {
-    // Print DEE statistics
-    cout << "Final DEE statistics:" << endl;
-    flag = SUNDomEigEst_Write(DEE, stdout);
-    if (check_flag(&flag, "SUNDomEigEst_Write", 1)) { return 1; }
   }
 
   if (udata->forcing)
@@ -616,7 +607,6 @@ static int InitUserData(UserData* udata)
   udata->dee_max_iters     = 100;
   udata->dee_krylov_dim    = 3;
   udata->dee_reltol        = 0.01;
-  udata->dee_nostats       = false;
 
   // Timing variables
   udata->timing     = false;
@@ -724,7 +714,6 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
     {
       udata->dee_reltol = stod((*argv)[arg_idx++]);
     }
-    else if (arg == "--dee_nostats") { udata->dee_nostats = true; }
     else if (arg == "--timing") { udata->timing = true; }
     // Help
     else if (arg == "--help")
@@ -842,7 +831,6 @@ static void InputHelp()
   cout << "  --dee_max_iters <num>       : max iterations in DEE" << endl;
   cout << "  --dee_krylov_dim <dim>      : Krylov dimension for DEE" << endl;
   cout << "  --dee_reltol <tol>          : DEE tolerance" << endl;
-  cout << "  --dee_nostats               : turn off DEE statistics" << endl;
   cout << "  --timing                    : print timing data" << endl;
   cout << "  --help                      : print this message and exit" << endl;
 }

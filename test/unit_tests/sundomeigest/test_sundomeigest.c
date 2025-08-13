@@ -278,68 +278,6 @@ int Test_SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter,
 }
 
 /* ----------------------------------------------------------------------
- * SUNDomEigEst_GetMaxNumIters Test
- * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE,
-                                     long int* max_niter, int myid)
-{
-  int failure;
-  double start_time, stop_time;
-
-  start_time = get_time();
-  failure    = SUNDomEigEst_GetMaxNumIters(DEE, max_niter);
-  stop_time  = get_time();
-
-  if (failure)
-  {
-    printf(">>> FAILED test -- SUNDomEigEst_GetMaxNumIters check, Proc %d \n",
-           myid);
-    PRINT_TIME("    SUNDomEigEst_GetMaxNumIters Time: %22.15e \n \n",
-               stop_time - start_time);
-    return (1);
-  }
-  else if (myid == 0)
-  {
-    printf("    PASSED test -- SUNDomEigEst_GetMaxNumIters \n");
-    PRINT_TIME("    SUNDomEigEst_GetMaxNumIters Time: %22.15e \n \n",
-               stop_time - start_time);
-  }
-
-  return (0);
-}
-
-/* ----------------------------------------------------------------------
- * SUNDomEigEst_GetMinNumIters Test
- * --------------------------------------------------------------------*/
-int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE,
-                                     long int* min_niter, int myid)
-{
-  int failure;
-  double start_time, stop_time;
-
-  start_time = get_time();
-  failure    = SUNDomEigEst_GetMinNumIters(DEE, min_niter);
-  stop_time  = get_time();
-
-  if (failure)
-  {
-    printf(">>> FAILED test -- SUNDomEigEst_GetMinNumIters check, Proc %d \n",
-           myid);
-    PRINT_TIME("    SUNDomEigEst_GetMinNumIters Time: %22.15e \n \n",
-               stop_time - start_time);
-    return (1);
-  }
-  else if (myid == 0)
-  {
-    printf("    PASSED test -- SUNDomEigEst_GetMinNumIters \n");
-    PRINT_TIME("    SUNDomEigEst_GetMinNumIters Time: %22.15e \n \n",
-               stop_time - start_time);
-  }
-
-  return (0);
-}
-
-/* ----------------------------------------------------------------------
  * SUNDomEigEst_GetNumATimesCalls Test
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,

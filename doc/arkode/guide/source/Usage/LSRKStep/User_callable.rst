@@ -290,7 +290,7 @@ Allowable Method Families
       ``dom_eig_safety < 1`` resets the default value.
 
 
-.. c:function:: int LSRKSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups);
+.. c:function:: int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups);
 
    Specifies the number of the preprocessing warmups before the very first estimate call.
 
@@ -308,11 +308,11 @@ Allowable Method Families
       *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).
       These errors are handled by :c:type:`SUNErrCode`.
 
-      If LSRKSetNumDomEigEstInitPreprocessIters routine is not called, then the default ``num_warmups``
+      If LSRKStepSetNumDomEigEstInitPreprocessIters routine is not called, then the default ``num_warmups``
       is set to :math:`0`. Calling this function with ``num_warmups < 0`` resets the default.
 
       
-.. c:function:: int LSRKSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_warmups);
+.. c:function:: int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_warmups);
 
    Specifies the number of the preprocessing warmups before each estimate call succeeding the very first estimate call.
 
@@ -326,7 +326,7 @@ Allowable Method Families
 
    .. note::
 
-      If LSRKSetNumDomEigEstPreprocessIters routine is not called, then the default ``num_warmups`` is set to :math:`0`.
+      If LSRKStepSetNumDomEigEstPreprocessIters routine is not called, then the default ``num_warmups`` is set to :math:`0`.
       Calling this function with ``num_warmups < 0`` resets the default.
 
       Once DEE is attached by :c:func:`LSRKStepSetDomEigEstimator`, ``num_warmups`` from DEE is used 
@@ -411,6 +411,26 @@ Optional output functions
 
       The number of RHS evaluations is non-zero only when using a dominant eigenvalue
       estimator and the internal Jacobian-vector product approximation.
+
+
+.. c:function:: int LSRKStepGetNumDomEigEstIters(void* arkode_mem, long int* num_iters);
+
+   Returns the number of iterations used in the dominant eigenvalue estimator (DEE) (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *num_iters* -- number of iterations.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+      * *ARK_ILL_INPUT* if ``num_iters`` is illegal
+
+
+   .. note::
+
+      The number of iterations is non-zero only when the dominant eigenvalue
+      estimator is power iteration.
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:

@@ -89,7 +89,7 @@ SUNDIALS_EXPORT int LSRKStepSetDomEigSafetyFactor(void* arkode_mem,
 SUNDIALS_EXPORT int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem,
                                                     int num_warmups);                                                  
 
-SUNDIALS_EXPORT int LSRKSetNumDomEigEstPreprocessIters(void* arkode_mem,
+SUNDIALS_EXPORT int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem,
                                                     int num_warmups);
 
 SUNDIALS_EXPORT int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
@@ -103,6 +103,9 @@ SUNDIALS_EXPORT int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 
 SUNDIALS_EXPORT int LSRKStepGetNumDomEigEstRhsEvals(void* arkode_mem,
                                                     long int* nfeDQ);
+
+SUNDIALS_EXPORT int LSRKStepGetNumDomEigEstIters(void* arkode_mem,
+                                                    long int* num_iters);
 
 #ifdef __cplusplus
 }

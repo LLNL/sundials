@@ -58,8 +58,6 @@ SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
   ops->initialize       = NULL;
   ops->estimate         = NULL;
   ops->getcurniters     = NULL;
-  ops->getmaxniters     = NULL;
-  ops->getminniters     = NULL;
   ops->getcurres        = NULL;
   ops->write       = NULL;
   ops->destroy          = NULL;
@@ -181,34 +179,6 @@ SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter)
   {
     *curniter = 0;
     ier       = SUN_SUCCESS;
-  }
-  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
-  return (ier);
-}
-
-SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, long int* max_niter)
-{
-  SUNErrCode ier;
-  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->getmaxniters) { ier = DEE->ops->getmaxniters(DEE, max_niter); }
-  else
-  {
-    *max_niter = 0;
-    ier        = SUN_SUCCESS;
-  }
-  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
-  return (ier);
-}
-
-SUNErrCode SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE, long int* min_niter)
-{
-  SUNErrCode ier;
-  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->getminniters) { ier = DEE->ops->getminniters(DEE, min_niter); }
-  else
-  {
-    *min_niter = 0;
-    ier        = SUN_SUCCESS;
   }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);

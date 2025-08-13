@@ -87,8 +87,6 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
   DEE->ops->estimate          = SUNDomEig_Estimate_Power;
   DEE->ops->getcurres         = SUNDomEigEst_GetRes_Power;
   DEE->ops->getcurniters      = SUNDomEigEst_GetNumIters_Power;
-  DEE->ops->getmaxniters      = SUNDomEigEst_GetMaxNumIters_Power;
-  DEE->ops->getminniters      = SUNDomEigEst_GetMinNumIters_Power;
   DEE->ops->getnumatimescalls = SUNDomEigEst_GetNumATimesCalls_Power;
   DEE->ops->write             = SUNDomEigEst_Write_Power;
   DEE->ops->destroy           = SUNDomEigEst_Destroy_Power;
@@ -111,8 +109,6 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
   content->powiter_tol   = rel_tol;
   content->cur_res       = ZERO;
   content->cur_num_iters = 0;
-  content->max_num_iters = 0;
-  content->min_num_iters = max_iters;
   content->num_ATimes    = 0;
 
   /* Allocate content */
@@ -302,14 +298,11 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
     oldlambdaR = newlambdaR;
   }
 
-  k++;
   *lambdaI                       = ZERO;
   *lambdaR                       = newlambdaR;
-  PI_CONTENT(DEE)->cur_num_iters = k;
-  PI_CONTENT(DEE)->max_num_iters =
-    (k > PI_CONTENT(DEE)->max_num_iters) ? k : PI_CONTENT(DEE)->max_num_iters;
-  PI_CONTENT(DEE)->min_num_iters =
-    (k < PI_CONTENT(DEE)->min_num_iters) ? k : PI_CONTENT(DEE)->min_num_iters;
+
+  /* Set the current number of iterations */
+  PI_CONTENT(DEE)->cur_num_iters = k + PI_CONTENT(DEE)->num_warmups + 1;
 
   return SUN_SUCCESS;
 }
@@ -338,34 +331,6 @@ SUNErrCode SUNDomEigEst_GetNumIters_Power(SUNDomEigEstimator DEE,
   SUNAssert(curniter, SUN_ERR_ARG_CORRUPT);
 
   *curniter = PI_CONTENT(DEE)->cur_num_iters;
-
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNDomEigEst_GetMaxNumIters_Power(SUNDomEigEstimator DEE,
-                                             long int* max_niter)
-{
-  SUNFunctionBegin(DEE->sunctx);
-
-  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(PI_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
-  SUNAssert(max_niter, SUN_ERR_ARG_CORRUPT);
-
-  *max_niter = PI_CONTENT(DEE)->max_num_iters;
-
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNDomEigEst_GetMinNumIters_Power(SUNDomEigEstimator DEE,
-                                             long int* min_niter)
-{
-  SUNFunctionBegin(DEE->sunctx);
-
-  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(PI_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
-  SUNAssert(min_niter, SUN_ERR_ARG_CORRUPT);
-
-  *min_niter = PI_CONTENT(DEE)->min_num_iters;
 
   return SUN_SUCCESS;
 }
@@ -406,10 +371,6 @@ SUNErrCode SUNDomEigEst_Write_Power(SUNDomEigEstimator DEE, FILE* outfile)
           PI_CONTENT(DEE)->cur_res);
   fprintf(outfile, "Cur. num. of power iters      = %ld\n",
           PI_CONTENT(DEE)->cur_num_iters);
-  fprintf(outfile, "Max. num. of power iters      = %ld\n",
-          PI_CONTENT(DEE)->max_num_iters);
-  fprintf(outfile, "Min. num. of power iters      = %ld\n",
-          PI_CONTENT(DEE)->min_num_iters);
   fprintf(outfile, "Num. of ATimes calls          = %ld\n\n",
           PI_CONTENT(DEE)->num_ATimes);
 

@@ -472,7 +472,7 @@ SWIGEXPORT int _wrap_FLSRKStepSetNumDomEigEstInitPreprocessIters(void *farg1, in
 }
 
 
-SWIGEXPORT int _wrap_FLSRKSetNumDomEigEstPreprocessIters(void *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepSetNumDomEigEstPreprocessIters(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int arg2 ;
@@ -480,7 +480,7 @@ SWIGEXPORT int _wrap_FLSRKSetNumDomEigEstPreprocessIters(void *farg1, int const 
   
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)LSRKSetNumDomEigEstPreprocessIters(arg1,arg2);
+  result = (int)LSRKStepSetNumDomEigEstPreprocessIters(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -537,6 +537,20 @@ SWIGEXPORT int _wrap_FLSRKStepGetNumDomEigEstRhsEvals(void *farg1, long *farg2) 
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)LSRKStepGetNumDomEigEstRhsEvals(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepGetNumDomEigEstIters(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)LSRKStepGetNumDomEigEstIters(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
