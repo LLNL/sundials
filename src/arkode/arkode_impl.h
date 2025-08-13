@@ -70,6 +70,8 @@ extern "C" {
 #define MAXCONSTRFAILS 10
 /*   max number of t+h==h warnings */
 #define MXHNIL 10
+/*   max number of attempts to recover in DQ J*v */
+#define MAX_DQITERS 3
 
 /* Numeric constants */
 #define ZERO  SUN_RCONST(0.0)
@@ -813,6 +815,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   "JacPFn or JPvpFn was provided, but the number of subvectors in y is not " \
   "2. To perform ASA w.r.t. parameters, one subvector should be the state "  \
   "vector, and the other should be the parameter vector."
+#define MSG_ARK_DEE_FAIL "Dominant eigenvalue estimator (DEE) failed. "
 
 /*===============================================================
 

@@ -411,6 +411,8 @@ contains the ARKODE output constants.
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_SUNADJSTEPPER_ERR`      | -55  | An error occurred in the SUNAdjStepper module.             |
    +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_DEE_FAIL`               | -56  | An error occurred in the SUNDomEigEstimator module.        |
+   +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    | **ARKLS linear solver module output constants**                                                         |
