@@ -11,21 +11,22 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for the PI SUNDomEigEstimator library
+# CMakeLists.txt file for the F2003 ARNOLDI SUNDOMEIGEST object library
 # ---------------------------------------------------------------
 
-install(CODE "MESSAGE(\"\nInstall SUNDOMEIGEST_POWER\n\")")
+# Disable warnings from unused SWIG macros which we can't control
+if(ENABLE_ALL_WARNINGS)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-macros")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-macros")
+endif()
 
-# Add the sundomeigest_power library
-sundials_add_library(
-  sundials_sundomeigestpower
-  SOURCES sundomeigest_power.c
-  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sundomeigest/sundomeigest_power.h
-  INCLUDE_SUBDIR sundomeigest
-  LINK_LIBRARIES PUBLIC sundials_core
+sundials_add_f2003_library(
+  sundials_fsundomeigestarnoldi_mod
+  SOURCES fsundomeigest_arnoldi_mod.f90 fsundomeigest_arnoldi_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-  OUTPUT_NAME sundials_sundomeigestpower
+  OUTPUT_NAME sundials_fsundomeigestarnoldi_mod
   VERSION ${sundomeigestlib_VERSION}
   SOVERSION ${sundomeigestlib_SOVERSION})
 
-message(STATUS "Added SUNDOMEIGEST_POWER module")
+message(STATUS "Added SUNDOMEIGEST_ARNOLDI F2003 interface")

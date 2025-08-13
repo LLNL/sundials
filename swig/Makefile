@@ -29,10 +29,11 @@ SUNLINSOL=band dense lapackdense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
 SUNADAPTCONTROLLER=imexgus soderlind mrihtol
 SUNADJOINTCHECKPOINTSCHEME=fixed
+SUNDOMEIGEST=power arnoldi
 
 INCLUDES=-I../include
 
-.PHONY: .SETINT64 .SETINT32 all all32 all64 modules core arkode cvode cvodes ida idas kinsol nvector mpimanyvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller sunadjointcheckpointscheme clean
+.PHONY: .SETINT64 .SETINT32 all all32 all64 modules core arkode cvode cvodes ida idas kinsol nvector mpimanyvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller sunadjointcheckpointscheme sundomeigest clean
 
 .SETINT32:
 	$(eval INT_SIZE=32)
@@ -46,7 +47,7 @@ all32: .SETINT32 modules
 
 all64: .SETINT64 modules
 
-modules: core arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller sunadjointcheckpointscheme
+modules: core arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller sunadjointcheckpointscheme sundomeigest
 
 core: $(CORE:%:sundials/%.i)
 	@for i in ${CORE} ; do \
@@ -128,6 +129,12 @@ sunadjointcheckpointscheme: $(SUNADJOINTCHECKPOINTSCHEME:%:sunadjointcheckpoints
 	@for i in ${SUNADJOINTCHECKPOINTSCHEME} ; do \
 		set -x; \
 		${SWIG} -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/sunadjointcheckpointscheme/$${i}/fmod_int${INT_SIZE} -o ../src/sunadjointcheckpointscheme/$${i}/fmod_int${INT_SIZE}/fsunadjointcheckpointscheme_$${i}_mod.c ${INCLUDES} sunadjointcheckpointscheme/fsunadjointcheckpointscheme_$${i}_mod.i; \
+	done
+
+sundomeigest: $(SUNDOMEIGEST:%:sundomeigest/fsundomeigest_%_mod.i)
+	@for i in ${SUNDOMEIGEST} ; do \
+		set -x; \
+		${SWIG} -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/sundomeigest/$${i}/fmod_int${INT_SIZE} -o ../src/sundomeigest/$${i}/fmod_int${INT_SIZE}/fsundomeigest_$${i}_mod.c ${INCLUDES} sundomeigest/fsundomeigest_$${i}_mod.i; \
 	done
 
 clean:

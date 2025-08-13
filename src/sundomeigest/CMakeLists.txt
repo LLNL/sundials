@@ -15,8 +15,8 @@
 # ------------------------------------------------------------------------------
 
 # required native dominant eigenvalue estimators
-add_subdirectory(Power)
+add_subdirectory(power)
 
 if(ENABLE_LAPACK)
-  add_subdirectory(Arnoldi)
+  add_subdirectory(arnoldi)
 endif()
