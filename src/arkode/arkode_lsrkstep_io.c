@@ -208,20 +208,9 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   if (retval != ARK_SUCCESS) { return retval; }
 
   /* set the dom_eig routine pointer, and update relevant flags */
-  if (dom_eig != NULL)
-  {
-    step_mem->dom_eig_fn = dom_eig;
+  step_mem->dom_eig_fn = dom_eig;
 
-    return ARK_SUCCESS;
-  }
-  else
-  {
-    step_mem->dom_eig_fn = NULL;
-
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Null dom_eig pointer");
-    return ARK_ILL_INPUT;
-  }
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -508,15 +497,20 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
 
   if (DEE == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Null DEE pointer");
+    return ARK_SUCCESS;
+  }
+
+  if (DEE->ops == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,  
+                    "Null SUNDomEigEstimator operations structure");
     return ARK_ILL_INPUT;
   }
 
-  if (DEE->ops == NULL || DEE->content == NULL)
+  if (DEE->ops->estimate == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Null DEE ops or content pointer");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,  
+                    "Null SUNDomEigEstimator estimate operation");
     return ARK_ILL_INPUT;
   }
 

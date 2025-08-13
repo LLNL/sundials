@@ -86,7 +86,7 @@ and :c:func:`SUNDomEigEst_Destroy` destroys an estimator object.
    **Return value:**
 
       `SUN_SUCCESS` for a successful call, or a relevant error code from
-      :numref:`SUNDomEigEst.ErrorCodes` upon failure.
+      :c:type:`SUNErrCode` upon failure.
 
 
 .. c:function:: SUNErrCode SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE)
@@ -359,51 +359,6 @@ To interface with SUNDomEigEst modules, the SUNDIALS packages supply a routine
 routine translates between the user-supplied ODE or DAE systems and the generic
 dominant eigenvalue estimator API.  The function types
 for these routines are defined in the header file ``sundials/sundials_iterative.h``.
-
-.. _SUNDomEigEst.ReturnCodes:
-
-SUNDomEigEstimator return codes
-------------------------------------
-
-The functions provided to SUNDomEigEst modules by each SUNDIALS package,
-and functions within the SUNDIALS-provided SUNDomEigEst implementations,
-utilize a common set of return codes, listed in :numref:`SUNDomEigEst.ErrorCodes`.
-
-
-.. _SUNDomEigEst.ErrorCodes:
-.. table:: SUNDomEigEst error codes
-   :align: center
-
-   +------------------------------------+-------+---------------------------------------------------+
-   | Error code                         | Value | Meaning                                           |
-   +====================================+=======+===================================================+
-   | ``SUN_SUCCESS``                    | 0     | successful call or converged estimate             |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_BAD_NVECTOR``        | -9973 | bad NVector                                       |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_NULL_ATIMES``        | -9972 | the ``Atimes`` function ptr is ``NULL``           |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_ATIMES_FAIL_REC``    | -9971 | an unrecoverable failure occurred in the          |
-   |                                    |       | ``ATimes`` routine                                |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_ATIMES_FAIL_UNREC``  | -9970 | a recoverable failure occurred in the             |
-   |                                    |       | ``ATimes`` routine                                |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_NULL_HES``           | -9969 | the Hessenberg matrix is ``NULL``                 |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_NULL_MEM``           | -9968 | the DEE memory is ``NULL``                        |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_NULL_CONTENT``       | -9967 | the DEE content is ``NULL``                       |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_LAPACK_FAIL``        | -9966 | LAPACK ``_dgeev/_sgeev`` function failure         |
-   |                                    |       |                                                   |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_NULL_ESTIMATE``      | -9965 | estimate function ptr is ``NULL``                 |
-   |                                    |       |                                                   |
-   +------------------------------------+-------+---------------------------------------------------+
-   | ``SUN_ERR_DEE_NULL_FREE``          | -9964 | free function ptr is ``NULL``                     |
-   |                                    |       |                                                   |
-   +------------------------------------+-------+---------------------------------------------------+
 
 
 .. _SUNDomEigEst.Generic:

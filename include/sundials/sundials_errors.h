@@ -70,20 +70,6 @@
   ENTRY(SUN_ERR_CHECKPOINT_MISMATCH, "the expected time for the checkpoint "   \
                                      "and the stored time do not match")       \
                                                                                \
-  ENTRY(SUN_ERR_DEE_BAD_NVECTOR, "Bad NVector")                                \
-  ENTRY(SUN_ERR_DEE_NULL_ATIMES,                                               \
-        "ATimes is null: Either the user or the "                              \
-        "solver did not set it yet. The latter happens internallly - user "    \
-        "needs to attach the estimator and call set routines only")            \
-  ENTRY(SUN_ERR_DEE_ATIMES_FAIL_REC, "Atimes recoverable failure")             \
-  ENTRY(SUN_ERR_DEE_ATIMES_FAIL_UNREC, "Atimes unrecoverable failure")         \
-  ENTRY(SUN_ERR_DEE_NULL_HES, "Hessenberg matrix is null")                     \
-  ENTRY(SUN_ERR_DEE_NULL_MEM, "DEE memory is null")                            \
-  ENTRY(SUN_ERR_DEE_NULL_CONTENT, "DDE content is null")                       \
-  ENTRY(SUN_ERR_DEE_LAPACK_FAIL, "LAPACK _dgeev/_sgeev function failure")      \
-  ENTRY(SUN_ERR_DEE_NULL_ESTIMATE, "Estimate function ptr is NULL")            \
-  ENTRY(SUN_ERR_DEE_NULL_FREE, "Free function ptr is NULL")                    \
-                                                                               \
   ENTRY(SUN_ERR_SUNCTX_CORRUPT, "SUNContext is NULL or corrupt")               \
                                                                                \
   ENTRY(SUN_ERR_MPI_FAIL,                                                      \

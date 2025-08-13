@@ -206,7 +206,7 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. DEE itself or some of the required options is ``NULL``)
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. some of the required DEE options is ``NULL``)
       * *ARK_DEE_FAIL* if DEE failed.
 
    .. note:: 
@@ -215,8 +215,8 @@ Allowable Method Families
       These errors are handled by :c:type:`SUNErrCode`.
 
       When using RKC or RKL methods, users must supply a :c:type:`ARKDomEigFn` function
-      or attach a dominant eigenvalue estimator with
-      :c:func:`LSRKStepSetDomEigEstimator`.
+      or attach a dominant eigenvalue estimator with :c:func:`LSRKStepSetDomEigEstimator`.
+      If both are provided then the estimator *DEE* will be used and the function ignored.
 
       ARKODE will supply the :c:type:`SUNDomEigEstimator` with an internal
       Jacobian-vector product approximation function. User's may supply their own

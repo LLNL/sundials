@@ -50,8 +50,7 @@ following section presents the :c:type:`SUNDomEigEstimator` class and its implem
 beginning with the definition of :c:type:`SUNDomEigEstimator` functions in
 :numref:`SUNDomEigEst.CoreFn` -- :numref:`SUNDomEigEst.GetFn`. This is followed by
 the definition of functions supplied to an estimator implementation in
-:numref:`SUNDomEigEst.SUNSuppliedFn`. The estimator return codes are described
-in :numref:`SUNDomEigEst.ErrorCodes`. The :c:type:`SUNDomEigEstimator` type is defined 
+:numref:`SUNDomEigEst.SUNSuppliedFn`. The :c:type:`SUNDomEigEstimator` type is defined 
 :numref:`SUNDomEigEst.Generic`. The section that then follows describes
 the :c:type:`SUNDomEigEstimator` functions required by this SUNDIALS package, and provides
 additional package specific details. Then the remaining sections of this
