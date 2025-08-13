@@ -63,7 +63,7 @@ and link to the library ``libsundials_sundomeigestpower``.
 The module SUNDomEigEst_Power provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters, int num_warmups, sunrealtype rel_tol, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters, sunrealtype rel_tol, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a PI
    ``SUNDomEigEstimator``.
@@ -71,7 +71,6 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
    **Arguments:**
       * *q* -- the initial guess for the dominant eigenvector; this should not be a non-dominant eigenvector of the Jacobian.
       * *max_iters* -- maximum number of iterations.
-      * *num_warmups* -- number of preprocessing warmups.
       * *rel_tol* -- relative tolerance for convergence check.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
@@ -93,20 +92,6 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
       1.  most solvers do not need too tight tolerances and consider a safety factor,
 
       2.  an early (less costly) termination will be a good indicator whether the power iteration is compatible.
-
-      "Warmup" iterations correspond to power iterations that do not check for 
-      convergence.  They can help reduce some computational overhead, and may be useful 
-      if the initial guess ``q`` is not a good approximation of the dominant 
-      eigenvector.  A ``num_warmups`` argument that is :math:` < 0` will result in the 
-      default value (0).  This default is chosen to minimize complexity for the general 
-      user.
-
-      When the estimator is used in a time-dependent context, however, it is likely that the  
-      most-recent ``q`` will provide a suitable initial guess for the subsequent call to 
-      :c:func:`SUNDomEig_Estimate`.  Thus, when the DEE is used by LSRKStep (see
-      :c:func:`LSRKStepSetDomEigEstimator`), the initial value of ``num_warmups`` will 
-      be overwritten after the first :c:func:`SUNDomEig_Estimate` call (see
-      :c:func:`LSRKSetNumDomEigEstPreprocessIters`).
 
       A ``rel_tol`` argument that is :math:` < 0` will result in the default
       value (0.01).  This default is found particularly small enough for many internal applications.

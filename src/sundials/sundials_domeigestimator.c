@@ -114,13 +114,13 @@ SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numpreprocess)
+SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int num_warmups)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->setnumpreprocess)
   {
-    ier = DEE->ops->setnumpreprocess(DEE, numpreprocess);
+    ier = DEE->ops->setnumpreprocess(DEE, num_warmups);
   }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));

@@ -153,7 +153,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       A :c:type:`SUNErrCode`.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numpreprocess)
+.. c:function:: SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int num_warmups)
 
    This *optional* routine should set the number of "warm-up" matrix-vector multiplications,
    which is executed by :c:func:`SUNDomEig_Estimate` before each estimate.
@@ -161,17 +161,34 @@ function pointer ``NULL`` instead of supplying a dummy routine.
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object,
-      * *numpreprocess* -- the number of preprocessing iterations.
+      * *num_warmups* -- the number of preprocessing warmup iterations.
 
    **Return value:**
 
       A :c:type:`SUNErrCode`.
 
-      
-   .. note:: When the DEE is used within LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), 
-      this number of warmup iterations will be overwritten after the first call to 
-      `SUNDomEig_Estimate` (see :c:func:`LSRKSetNumDomEigEstPreprocessIters`).
 
+   .. note:: 
+      
+      When :c:func:`SUNDomEig_Estimate` is called, then prior to beginning the Arnoldi
+      process, ``num_warmups`` power iterations are performed on ``q`` to generate an
+      improved initial guess.  Similarly, prior to the beginning the Power process, 
+      "Warmup" iterations correspond to power iterations that do not check for 
+      convergence.  They can help reduce some computational overhead, and may be useful 
+      if the initial guess ``q`` is not a good approximation of the dominant 
+      eigenvector.
+      
+      However, when the estimator is used in a time-dependent
+      context, it is likely that the most-recent ``q`` will provide a suitable initial 
+      guess for the subsequent call to :c:func:`SUNDomEig_Estimate`.  Thus, when the estimator 
+      is used by LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial 
+      value of ``num_warmups`` will be overwritten after the first 
+      :c:func:`SUNDomEig_Estimate` call (see :c:func:`LSRKSetNumDomEigEstPreprocessIters`).
+
+      A ``num_warmups`` argument that is :math:` < 0` will result in the default
+      value (100).  This default value is particularly chosen to minimize the memory
+      footprint by lowering the required ``kry_dim`` in Arnoldi iteration, or reducing 
+      computational overhead when estimating with the power iteration.
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
 

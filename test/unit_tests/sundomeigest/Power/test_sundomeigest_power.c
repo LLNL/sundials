@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
   ProbData.A12 = nondiagonal;
 
   /* Create Power Iteration Dominant Eigvalue Estimator (DEE)*/
-  DEE = SUNDomEigEst_Power(q, max_iters, num_warmups, rel_tol, sunctx);
+  DEE = SUNDomEigEst_Power(q, max_iters, rel_tol, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_Power", 0)) { return 1; }
 
   fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);

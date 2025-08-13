@@ -173,7 +173,7 @@ int main(void)
   }
 
   /* Create power iteration dominant eigenvalue estimator (DEE) */
-  DEE = SUNDomEigEst_Power(q, max_iters, numwarmup, rel_tol, ctx);
+  DEE = SUNDomEigEst_Power(q, max_iters, rel_tol, ctx);
   if (check_flag(DEE, "SUNDomEigEst_Power", 0)) { return 1; }
 
   /* After the DEE creation, random q vector is no longer needed.

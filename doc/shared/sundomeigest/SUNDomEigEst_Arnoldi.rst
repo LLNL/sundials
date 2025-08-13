@@ -59,7 +59,7 @@ and link to the library ``libsundials_sundomeigestarnoldi``.
 The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, int num_warmups, SUNContext sunctx);
+.. c:function:: SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx);
 
    This constructor function creates and allocates memory for an Arnoldi
    ``SUNDomEigEstimator``.
@@ -67,7 +67,6 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
    **Arguments:**
       * *q* -- the initial guess for the dominant eigenvector; this should not be a non-dominant eigenvector of the Jacobian.
       * *kry_dim* -- the dimension of the Krylov subspaces.
-      * *num_warmups* -- number of preprocessing warmups.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
@@ -82,19 +81,6 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
       A ``kry_dim`` argument that is :math:`\leq 2` will result in the default
       value (3).  This default value is particularly chosen to minimize the memory
       footprint.
-
-      A ``num_warmups`` argument that is :math:` < 0` will result in the default
-      value (100).  This default value is particularly chosen to minimize the memory
-      footprint by lowering the required ``kry_dim``.
-
-      When :c:func:`SUNDomEig_Estimate` is called, then prior to beginning the Arnoldi
-      process, ``num_warmups`` power iterations are performed on ``q`` to generate an
-      improved initial guess.  However, when the estimator is used in a time-dependent
-      context, it is likely that the most-recent ``q`` will provide a suitable initial 
-      guess for the subsequent call to :c:func:`SUNDomEig_Estimate`.  Thus, when the estimator 
-      is used by LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial 
-      value of ``num_warmups`` will be overwritten after the first 
-      :c:func:`SUNDomEig_Estimate` call (see :c:func:`LSRKSetNumDomEigEstPreprocessIters`).
 
 
 .. _SUNDomEigEst.ARNOLDI.Description:

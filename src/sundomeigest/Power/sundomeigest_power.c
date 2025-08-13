@@ -53,8 +53,7 @@
  */
 
 SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
-                                      int num_warmups, sunrealtype rel_tol,
-                                      SUNContext sunctx)
+                                      sunrealtype rel_tol, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -70,9 +69,6 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
 
   /* check for max_iters values; if illegal use defaults */
   if (max_iters <= 0) { max_iters = DEE_MAX_ITER_DEFAULT; }
-
-  /* Check if num_warmups >= 0 */
-  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_PI_DEFAULT; }
 
   /* Check if rel_tol > 0 */
   if (rel_tol < SUN_SMALL_REAL) { rel_tol = DEE_TOL_DEFAULT; }
@@ -111,7 +107,7 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
   content->V             = NULL;
   content->q             = NULL;
   content->max_iters     = max_iters;
-  content->num_warmups   = num_warmups;
+  content->num_warmups   = DEE_NUM_OF_WARMUPS_PI_DEFAULT;
   content->powiter_tol   = rel_tol;
   content->cur_res       = ZERO;
   content->cur_num_iters = 0;
@@ -191,18 +187,18 @@ SUNErrCode SUNDomEigEst_Initialize_Power(SUNDomEigEstimator DEE)
 }
 
 SUNErrCode SUNDomEigEst_SetNumPreProcess_Power(SUNDomEigEstimator DEE,
-                                               int numpreprocess)
+                                               int num_warmups)
 {
   SUNFunctionBegin(DEE->sunctx);
 
   SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
-  /* Check if numpreprocess >= 0 */
-  if (numpreprocess < 0) { numpreprocess = DEE_NUM_OF_WARMUPS_PI_DEFAULT;}
+  /* Check if num_warmups >= 0 */
+  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_PI_DEFAULT;}
 
   /* set the number of warmups */
-  PI_CONTENT(DEE)->num_warmups = numpreprocess;
+  PI_CONTENT(DEE)->num_warmups = num_warmups;
   return SUN_SUCCESS;
 }
 
@@ -256,6 +252,7 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
 
   int retval;
   sunrealtype normq;
+  PI_CONTENT(DEE)->num_ATimes = 0;
 
   for (int i = 0; i < PI_CONTENT(DEE)->num_warmups; i++)
   {

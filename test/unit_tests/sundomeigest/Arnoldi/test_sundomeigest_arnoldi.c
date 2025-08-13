@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
   ProbData.imag_part = imagpart;
 
   /* Create Arnoldi Iteration Dominant Eigvalue Estimator (DEE)*/
-  DEE = SUNDomEigEst_Arnoldi(q, kry_dim, num_warmups, sunctx);
+  DEE = SUNDomEigEst_Arnoldi(q, kry_dim, sunctx);
   if (check_flag(DEE, "SUNDomEigEst_Arnoldi", 0)) { return 1; }
 
   fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);

@@ -68,8 +68,7 @@ int sundomeigest_Compare(const void* a, const void* b);
  * Function to create a new Arnoldi estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim,
-                                        int num_warmups, SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -77,9 +76,6 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim,
 
   /* Check if kry_dim >= 2 */
   if (kry_dim < 3) { kry_dim = DEE_KRYLOV_DIM_DEFAULT; }
-
-  /* Check if num_warmups >= 0 */
-  if (num_warmups < 0) { kry_dim = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT; }
 
   /* check for legal q; if illegal return NULL */
   SUNAssertNull(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
@@ -117,7 +113,7 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim,
   content->V           = NULL;
   content->q           = NULL;
   content->kry_dim     = kry_dim;
-  content->num_warmups = num_warmups;
+  content->num_warmups = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT;
   content->LAPACK_A    = NULL;
   content->LAPACK_wr   = NULL;
   content->LAPACK_wi   = NULL;
@@ -256,18 +252,18 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
 }
 
 SUNErrCode SUNDomEigEst_SetNumPreProcess_Arnoldi(SUNDomEigEstimator DEE,
-                                                 int numpreprocess)
+                                                 int num_warmups)
 {
   SUNFunctionBegin(DEE->sunctx);
 
   SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
-  /* Check if numpreprocess >= 0 */
-  if (numpreprocess < 0) { numpreprocess = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT;}
+  /* Check if num_warmups >= 0 */
+  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT;}
 
   /* set the number of warmups */
-  Arnoldi_CONTENT(DEE)->num_warmups = numpreprocess;
+  Arnoldi_CONTENT(DEE)->num_warmups = num_warmups;
   return SUN_SUCCESS;
 }
 
@@ -288,6 +284,7 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
   int retval;
   sunindextype n = Arnoldi_CONTENT(DEE)->kry_dim;
   sunrealtype normq;
+  Arnoldi_CONTENT(DEE)->num_ATimes = 0;
 
   /* Set the initial q = A^{num_warmups}q/||A^{num_warmups}q|| */
   for (int i = 0; i < Arnoldi_CONTENT(DEE)->num_warmups; i++)

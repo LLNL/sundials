@@ -87,7 +87,7 @@ SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE,
-                                         int numpreprocess);
+                                         int num_warmups);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol);

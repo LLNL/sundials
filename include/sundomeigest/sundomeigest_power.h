@@ -61,8 +61,7 @@ typedef struct SUNDomEigEstimatorContent_Power_* SUNDomEigEstimatorContent_Power
 
 SUNDIALS_EXPORT
 SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
-                                      int num_warmups, sunrealtype rel_tol,
-                                      SUNContext sunctx);
+                                      sunrealtype rel_tol, SUNContext sunctx);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetATimes_Power(SUNDomEigEstimator DEE, void* A_data,
@@ -74,7 +73,7 @@ SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetNumPreProcess_Power(SUNDomEigEstimator DEE,
-                                               int numpreprocess);
+                                               int num_warmups);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetRelTol_Power(SUNDomEigEstimator DEE, sunrealtype tol);
