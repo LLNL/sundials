@@ -291,6 +291,8 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   step_mem->dom_eig_is_current  = SUNFALSE;
   step_mem->init_warmup         = SUNTRUE;
 
+  /* default num_init_warmups resets to the DEE's default 
+     unless the user set a different number */
   retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
                                          step_mem->num_init_warmups);
   if (retval != SUN_SUCCESS)

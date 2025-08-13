@@ -323,12 +323,9 @@ int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  if (num_warmups < 0)
-  {
-    step_mem->num_init_warmups = DOM_EIG_NUM_INIT_WARMUPS_DEFAULT;
-  }
-  else { step_mem->num_init_warmups = num_warmups; }
+  step_mem->num_init_warmups = num_warmups;
 
+  /* num_warmups < 0 resets to the DEE's default */
   retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
                                          step_mem->num_init_warmups);
   if (retval != SUN_SUCCESS)

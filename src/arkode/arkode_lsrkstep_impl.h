@@ -31,7 +31,7 @@ extern "C" {
 #define DOM_EIG_SAFETY_DEFAULT           SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT             25
 #define DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT 0
-#define DOM_EIG_NUM_INIT_WARMUPS_DEFAULT 0
+#define DOM_EIG_NUM_INIT_WARMUPS_DEFAULT -1 /* reset to the DEE's default */
 
 /*===============================================================
   LSRK time step module private math function macros
