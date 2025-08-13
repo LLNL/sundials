@@ -57,8 +57,6 @@ int main(int argc, char* argv[])
   long int max_iters;             /* max power iteration        */
   int kry_dim;                    /* Krylov subspace dimension  */
   long int curniter;              /* cur. number of iterations  */
-  long int max_niter;             /* max. number of iterations  */
-  long int min_niter;             /* min. number of iterations  */
   long int num_ATimes;            /* number of ATimes calls     */
   int print_timing;               /* timing output flag         */
   sunrealtype cur_res;            /* current residual           */
@@ -152,7 +150,7 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEst_SetRelTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEst_Initialize(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
-  // SUNDomEigEst_GetRes and SUNDomEigEst_GetNumIters are not options 
+  // SUNDomEigEst_GetRes and SUNDomEigEst_GetNumIters are not options
   // for Arnoldi iteration. They should return with 0.
   fails += Test_SUNDomEigEst_GetRes(DEE, &cur_res, 0);
   if (cur_res > SUN_SMALL_REAL)

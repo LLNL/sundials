@@ -320,8 +320,12 @@ int main(int argc, char* argv[])
   /* Specify the succeeding warmups before each estimate call.
      This is the number of warmups that will be performed after the first
      estimate call and before each subsequent estimate calls. */
-  flag = LSRKStepSetNumDomEigEstPreprocessIters(arkode_mem, udata->dee_num_succ_wups);
-  if (check_flag(&flag, "LSRKStepSetNumDomEigEstPreprocessIters", 1)) { return 1; }
+  flag = LSRKStepSetNumDomEigEstPreprocessIters(arkode_mem,
+                                                udata->dee_num_succ_wups);
+  if (check_flag(&flag, "LSRKStepSetNumDomEigEstPreprocessIters", 1))
+  {
+    return 1;
+  }
 
   /* Specify the max number for PI iterations. 
      This does nothing if DEE is Arnoldi */

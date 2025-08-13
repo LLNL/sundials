@@ -220,7 +220,7 @@ int Test_SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
  * SUNDomEigEst_GetRes Test
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
-                                int myid)
+                             int myid)
 {
   int failure;
   double start_time, stop_time;
@@ -250,7 +250,7 @@ int Test_SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
  * SUNDomEigEst_GetNumIters Test
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter,
-                                     int myid)
+                                  int myid)
 {
   int failure;
   double start_time, stop_time;
@@ -261,8 +261,7 @@ int Test_SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter,
 
   if (failure)
   {
-    printf(">>> FAILED test -- SUNDomEigEst_GetNumIters check, Proc %d \n",
-           myid);
+    printf(">>> FAILED test -- SUNDomEigEst_GetNumIters check, Proc %d \n", myid);
     PRINT_TIME("    SUNDomEigEst_GetNumIters Time: %22.15e \n \n",
                stop_time - start_time);
     return (1);

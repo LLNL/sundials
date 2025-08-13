@@ -292,7 +292,7 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   step_mem->init_warmup         = SUNTRUE;
 
   retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
-                                          step_mem->num_init_warmups);
+                                         step_mem->num_init_warmups);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
@@ -2110,7 +2110,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     if (step_mem->DEE != NULL)
     {
       fprintf(outfile, "LSRKStep: nfeDQ               = %li\n", step_mem->nfeDQ);
-      fprintf(outfile, "LSRKStep: num_iters           = %li\n", step_mem->num_iters);
+      fprintf(outfile, "LSRKStep: num_iters           = %li\n",
+              step_mem->num_iters);
     }
     fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
             step_mem->dom_eig_num_evals);
@@ -2256,7 +2257,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       return ARK_DEE_FAIL;
     }
 
-    if(step_mem->DEE->ops->getcurniters != NULL)
+    if (step_mem->DEE->ops->getcurniters != NULL)
     {
       long int cur_num_iters;
       retval = SUNDomEigEst_GetNumIters(step_mem->DEE, &cur_num_iters);

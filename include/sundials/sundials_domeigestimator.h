@@ -29,7 +29,6 @@
 extern "C" {
 #endif
 
-
 /* -----------------------------------------------------------------
  * Generic definition of SUNDomEigEstimator (DEE)
  * ----------------------------------------------------------------- */
@@ -84,8 +83,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE,
-                                         int num_warmups);
+SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int num_warmups);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol);
@@ -101,8 +99,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE,
-                                       long int* curniter);
+SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,

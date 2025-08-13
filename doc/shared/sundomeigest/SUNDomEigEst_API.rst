@@ -229,7 +229,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
 .. c:function:: SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
 
    This *optional* routine should return the final residual from
-   the most-recent call to :c:func:`:SUNDomEigEst_Estimate`. 
+   the most-recent call to :c:func:`SUNDomEig_Estimate`.
 
    **Arguments:**
 
@@ -251,7 +251,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
 .. c:function:: SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* num_iters)
 
    This *optional* routine should return the number of estimator
-   iterations performed in the most-recent call to :c:func:`:SUNDomEigEst_Estimate`.
+   iterations performed in the most-recent call to :c:func:`SUNDomEig_Estimate`.
 
    **Arguments:**
 
@@ -325,11 +325,11 @@ The generic SUNDomEigEstimator module
 
 SUNDIALS packages interact with dominant eigenvalue estimator implementations through the
 :c:type:`SUNDomEigEstimator` class.  A :c:type:`SUNDomEigEstimator` is a pointer to the
-:c:struct:`_generic_SUNDomEigEstimator` structure:
+:c:struct:`SUNDomEigEstimator_` structure:
 
 .. c:type:: struct SUNDomEigEstimator_ *SUNDomEigEstimator
 
-.. c:struct:: _generic_SUNDomEigEstimator
+.. c:struct:: SUNDomEigEstimator_
 
    The structure defining the SUNDIALS dominant eigenvalue estimator class.
 
@@ -350,7 +350,7 @@ The virtual table structure is defined as
 
 .. c:type:: struct SUNDomEigEstimator_Ops_ *SUNDomEigEstimator_Ops
 
-.. c:struct:: _generic_SUNDomEigEstimator_Ops
+.. c:struct:: SUNDomEigEstimator_Ops_
 
    The structure defining :c:type:`SUNDomEigEstimator` operations.
 
@@ -466,7 +466,7 @@ the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_GetRes`\ :sup:`2`            |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetMinNumIters`\ :sup:`3`    |          O          |         N/A         |
+   | :c:func:`SUNDomEigEst_GetNumIters`\ :sup:`3`       |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_GetNumATimesCalls`           |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
@@ -486,7 +486,7 @@ Notes:
    implemented by the ``SUNDomEigEstimator`` then the interface will consider all
    estimates a being *exact*.
 
-3. :c:func:`SUNDomEigEst_GetNumIters()`is optional, if it is not
+3. :c:func:`SUNDomEigEst_GetNumIters()` is optional, if it is not
    implemented by the ``SUNDomEigEstimator`` then the interface will consider all
    estimates as requiring zero iterations.
 

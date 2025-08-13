@@ -147,7 +147,7 @@ typedef struct ARKodeLSRKStepMemRec
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
   long int dom_eig_nst; /* num of step at which the last domainant eigenvalue was computed  */
-  long int step_nst; /* The number of successful steps. */
+  long int step_nst;  /* The number of successful steps. */
   long int num_iters; /* number of iterations in the DEE estimates */
 
   /* Spectral info */

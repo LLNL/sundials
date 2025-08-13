@@ -135,8 +135,8 @@ SUNErrCode SUNDomEigEst_SetATimes_Power(SUNDomEigEstimator DEE, void* A_data,
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);  
-  SUNAssert(PI_CONTENT(DEE), SUN_ERR_ARG_CORRUPT); 
+  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(PI_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
   SUNAssert(ATimes, SUN_ERR_ARG_CORRUPT);
 
   /* set function pointers to integrator-supplied ATimes routine
@@ -191,7 +191,7 @@ SUNErrCode SUNDomEigEst_SetNumPreProcess_Power(SUNDomEigEstimator DEE,
   SUNAssert(PI_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
   /* Check if num_warmups >= 0 */
-  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_PI_DEFAULT;}
+  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_PI_DEFAULT; }
 
   /* set the number of warmups */
   PI_CONTENT(DEE)->num_warmups = num_warmups;
@@ -255,10 +255,7 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
     retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
                                      PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
     PI_CONTENT(DEE)->num_ATimes++;
-    if (retval != 0)
-    {
-      return SUN_ERR_USER_FCN_FAIL;
-    }
+    if (retval != 0) { return SUN_ERR_USER_FCN_FAIL; }
 
     normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);
     SUNCheckLastErr();
@@ -274,10 +271,7 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
     retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
                                      PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
     PI_CONTENT(DEE)->num_ATimes++;
-    if (retval != 0)
-    {
-      return SUN_ERR_USER_FCN_FAIL;
-    }
+    if (retval != 0) { return SUN_ERR_USER_FCN_FAIL; }
 
     newlambdaR = N_VDotProd(PI_CONTENT(DEE)->V,
                             PI_CONTENT(DEE)->q); //Rayleigh quotient
@@ -298,8 +292,8 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
     oldlambdaR = newlambdaR;
   }
 
-  *lambdaI                       = ZERO;
-  *lambdaR                       = newlambdaR;
+  *lambdaI = ZERO;
+  *lambdaR = newlambdaR;
 
   /* Set the current number of iterations */
   PI_CONTENT(DEE)->cur_num_iters = k + PI_CONTENT(DEE)->num_warmups + 1;
@@ -307,8 +301,7 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_GetRes_Power(SUNDomEigEstimator DEE,
-                                        sunrealtype* cur_res)
+SUNErrCode SUNDomEigEst_GetRes_Power(SUNDomEigEstimator DEE, sunrealtype* cur_res)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -322,7 +315,7 @@ SUNErrCode SUNDomEigEst_GetRes_Power(SUNDomEigEstimator DEE,
 }
 
 SUNErrCode SUNDomEigEst_GetNumIters_Power(SUNDomEigEstimator DEE,
-                                             long int* curniter)
+                                          long int* curniter)
 {
   SUNFunctionBegin(DEE->sunctx);
 

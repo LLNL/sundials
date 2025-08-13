@@ -84,11 +84,11 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetRes_Power(SUNDomEigEstimator DEE,
-                                        sunrealtype* cur_res);
+                                     sunrealtype* cur_res);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumIters_Power(SUNDomEigEstimator DEE,
-                                             long int* curniter);
+                                          long int* curniter);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumATimesCalls_Power(SUNDomEigEstimator DEE,

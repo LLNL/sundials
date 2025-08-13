@@ -150,7 +150,6 @@ N_Vector_ID N_VGetVectorID_ParHyp(SUNDIALS_MAYBE_UNUSED N_Vector v)
 N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length,
                             sunindextype global_length, SUNContext sunctx)
 {
-
   N_Vector v;
   N_VectorContent_ParHyp content;
 

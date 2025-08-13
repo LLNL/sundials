@@ -147,7 +147,7 @@ SUNErrCode SUNDomEigEst_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,
   SUNFunctionBegin(DEE->sunctx);
 
   SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT); 
+  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
   /* set function pointers to integrator-supplied ATimes routine
      and data, and return with success */
@@ -161,7 +161,7 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
   SUNFunctionBegin(DEE->sunctx);
 
   SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT); 
+  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
   if (Arnoldi_CONTENT(DEE)->kry_dim < 2)
   {
@@ -218,25 +218,25 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
   /* LAPACK array */
   Arnoldi_CONTENT(DEE)->LAPACK_arr =
     (sunrealtype**)malloc(Arnoldi_CONTENT(DEE)->kry_dim * sizeof(sunrealtype*));
-    SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_arr, SUN_ERR_MALLOC_FAIL); 
+  SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_arr, SUN_ERR_MALLOC_FAIL);
 
   for (int k = 0; k < Arnoldi_CONTENT(DEE)->kry_dim; k++)
   {
     Arnoldi_CONTENT(DEE)->LAPACK_arr[k] =
       (sunrealtype*)malloc(2 * sizeof(sunrealtype));
-      SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_arr[k], SUN_ERR_MALLOC_FAIL);
+    SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_arr[k], SUN_ERR_MALLOC_FAIL);
   }
 
   /* Hessenberg matrix Hes */
   Arnoldi_CONTENT(DEE)->Hes = (sunrealtype**)malloc(
     (Arnoldi_CONTENT(DEE)->kry_dim + 1) * sizeof(sunrealtype*));
-    SUNAssert(Arnoldi_CONTENT(DEE)->Hes, SUN_ERR_MALLOC_FAIL); 
+  SUNAssert(Arnoldi_CONTENT(DEE)->Hes, SUN_ERR_MALLOC_FAIL);
 
   for (int k = 0; k <= Arnoldi_CONTENT(DEE)->kry_dim; k++)
   {
     Arnoldi_CONTENT(DEE)->Hes[k] =
       (sunrealtype*)malloc(Arnoldi_CONTENT(DEE)->kry_dim * sizeof(sunrealtype));
-      SUNAssert(Arnoldi_CONTENT(DEE)->Hes[k], SUN_ERR_MALLOC_FAIL);
+    SUNAssert(Arnoldi_CONTENT(DEE)->Hes[k], SUN_ERR_MALLOC_FAIL);
   }
 
   sunrealtype normq = N_VDotProd(Arnoldi_CONTENT(DEE)->q,
@@ -260,7 +260,7 @@ SUNErrCode SUNDomEigEst_SetNumPreProcess_Arnoldi(SUNDomEigEstimator DEE,
   SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
   /* Check if num_warmups >= 0 */
-  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT;}
+  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT; }
 
   /* set the number of warmups */
   Arnoldi_CONTENT(DEE)->num_warmups = num_warmups;
@@ -279,7 +279,7 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
   SUNAssert(Arnoldi_CONTENT(DEE)->ATimes, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE)->V, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE)->q, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(Arnoldi_CONTENT(DEE)->Hes, SUN_ERR_ARG_CORRUPT);  
+  SUNAssert(Arnoldi_CONTENT(DEE)->Hes, SUN_ERR_ARG_CORRUPT);
 
   int retval;
   sunindextype n = Arnoldi_CONTENT(DEE)->kry_dim;
@@ -293,10 +293,7 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
                                           Arnoldi_CONTENT(DEE)->V[0],
                                           Arnoldi_CONTENT(DEE)->q);
     Arnoldi_CONTENT(DEE)->num_ATimes++;
-    if (retval != 0)
-    {
-      return SUN_ERR_USER_FCN_FAIL; 
-    }
+    if (retval != 0) { return SUN_ERR_USER_FCN_FAIL; }
 
     normq = N_VDotProd(Arnoldi_CONTENT(DEE)->q, Arnoldi_CONTENT(DEE)->q);
     SUNCheckLastErr();
@@ -313,10 +310,7 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
                                           Arnoldi_CONTENT(DEE)->V[i],
                                           Arnoldi_CONTENT(DEE)->V[i + 1]);
     Arnoldi_CONTENT(DEE)->num_ATimes++;
-    if (retval != 0)
-    {
-      return SUN_ERR_USER_FCN_FAIL;
-    }
+    if (retval != 0) { return SUN_ERR_USER_FCN_FAIL; }
 
     SUNCheckCall(SUNModifiedGS(Arnoldi_CONTENT(DEE)->V,
                                Arnoldi_CONTENT(DEE)->Hes, i + 1, (int)n,
@@ -361,10 +355,7 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
             NULL, &ldvl, NULL, &ldvr, Arnoldi_CONTENT(DEE)->LAPACK_work, &lwork,
             &info);
 
-  if (info != 0)
-  {
-    return SUN_ERR_EXT_FAIL;
-  }
+  if (info != 0) { return SUN_ERR_EXT_FAIL; }
 
   /* order the eigenvalues by their magnitude */
   for (int i = 0; i < n; i++)
@@ -396,8 +387,8 @@ SUNErrCode SUNDomEigEst_GetNumATimesCalls_Arnoldi(SUNDomEigEstimator DEE,
 {
   SUNFunctionBegin(DEE->sunctx);
 
-  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);  
-  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT); 
+  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
   SUNAssert(num_ATimes, SUN_ERR_ARG_CORRUPT);
 
   *num_ATimes = Arnoldi_CONTENT(DEE)->num_ATimes;

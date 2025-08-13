@@ -59,7 +59,7 @@ SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
   ops->estimate         = NULL;
   ops->getcurniters     = NULL;
   ops->getcurres        = NULL;
-  ops->write       = NULL;
+  ops->write            = NULL;
   ops->destroy          = NULL;
 
   /* attach ops and initialize content and context to NULL */

@@ -330,7 +330,7 @@ int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups
   else { step_mem->num_init_warmups = num_warmups; }
 
   retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
-                                          step_mem->num_init_warmups);
+                                         step_mem->num_init_warmups);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
@@ -495,21 +495,18 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
     return ARK_ILL_INPUT;
   }
 
-  if (DEE == NULL)
-  {
-    return ARK_SUCCESS;
-  }
+  if (DEE == NULL) { return ARK_SUCCESS; }
 
   if (DEE->ops == NULL)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,  
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Null SUNDomEigEstimator operations structure");
     return ARK_ILL_INPUT;
   }
 
   if (DEE->ops->estimate == NULL)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,  
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Null SUNDomEigEstimator estimate operation");
     return ARK_ILL_INPUT;
   }
@@ -651,7 +648,6 @@ int LSRKStepGetNumDomEigEstIters(void* arkode_mem, long int* num_iters)
   return ARK_SUCCESS;
 }
 
-
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
@@ -730,7 +726,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       sunfprintf_long(outfile, fmt, SUNFALSE, "Number of fe calls for DEE",
                       step_mem->nfeDQ);
       sunfprintf_long(outfile, fmt, SUNFALSE, "Number of iterations for DEE",
-                     step_mem->num_iters);
+                      step_mem->num_iters);
     }
     sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of stages used",
                     step_mem->stage_max);

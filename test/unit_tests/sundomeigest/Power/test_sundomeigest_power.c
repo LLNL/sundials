@@ -54,8 +54,6 @@ int main(int argc, char* argv[])
   int num_warmups;                /* number of the preprocessing warmups */
   long int max_iters;             /* max power iteration        */
   long int curniter;              /* cur. number of iterations  */
-  long int max_niter;             /* max. number of iterations  */
-  long int min_niter;             /* min. number of iterations  */
   long int num_ATimes;            /* number of ATimes calls     */
   int print_timing;               /* timing output flag         */
   sunrealtype cur_res;            /* current residual           */
