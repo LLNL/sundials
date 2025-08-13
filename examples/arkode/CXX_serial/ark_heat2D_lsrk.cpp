@@ -20,9 +20,6 @@
  *
  *   u_t = kx u_xx + ky u_yy + b,
  *
- * TO-DO: update this to kx(t) and ky(t), and determine the corresponding
- * changes required for b to ensure the same analytical solution.
- *
  * for t in [0, 1] and (x,y) in [0, 1]^2, with initial condition
  *
  *   u(0,x,y) = sin^2(pi x) sin^2(pi y),
