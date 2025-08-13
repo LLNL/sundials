@@ -57,6 +57,41 @@ if(GINKGO_PROJECT_VERSION VERSION_LESS "1.9.0")
     FATAL_ERROR "The SUNDIALS Ginkgo interface requires Ginkgo 1.9.0 or newer")
 endif()
 
+if((SUNDIALS_GINKGO_BACKENDS MATCHES "REF") AND (NOT GINKGO_BUILD_REFERENCE))
+  message(
+    FATAL_ERROR
+      "The SUNDIALS_GINKGO_BACKENDS includes REF but Ginkgo was not built with the reference executor"
+  )
+endif()
+
+if((SUNDIALS_GINKGO_BACKENDS MATCHES "OMP") AND (NOT GINKGO_BUILD_OMP))
+  message(
+    FATAL_ERROR
+      "The SUNDIALS_GINKGO_BACKENDS includes OMP but Ginkgo was not built with the OpenMP executor"
+  )
+endif()
+
+if((SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA") AND (NOT GINKGO_BUILD_CUDA))
+  message(
+    FATAL_ERROR
+      "The SUNDIALS_GINKGO_BACKENDS includes CUDA but Ginkgo was not built with the CUDA executor"
+  )
+endif()
+
+if((SUNDIALS_GINKGO_BACKENDS MATCHES "HIP") AND (NOT GINKGO_BUILD_HIP))
+  message(
+    FATAL_ERROR
+      "The SUNDIALS_GINKGO_BACKENDS includes HIP but Ginkgo was not built with the HIP executor"
+  )
+endif()
+
+if((SUNDIALS_GINKGO_BACKENDS MATCHES "SYCL") AND (NOT GINKGO_BUILD_SYCL))
+  message(
+    FATAL_ERROR
+      "The SUNDIALS_GINKGO_BACKENDS includes SYCL but Ginkgo was not built with the SYCL executor"
+  )
+endif()
+
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------

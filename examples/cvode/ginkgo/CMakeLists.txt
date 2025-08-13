@@ -15,7 +15,8 @@
 # Example lists are tuples "name\;args\;type"
 
 # Examples that support CPU and GPU Ginkgo backends
-set(cpu_gpu_examples "cv_heat2D_ginkgo.cpp\;\;develop")
+set(cpu_gpu_examples "cv_heat2D_ginkgo.cpp\;\;develop"
+                     "cv_bruss_batched_ginkgo.cpp\;\;develop")
 
 sundials_add_examples_ginkgo(
   cpu_gpu_examples

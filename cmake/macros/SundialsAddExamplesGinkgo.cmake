@@ -57,11 +57,9 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
 
       set(float_precision "default")
       if(backend MATCHES "CUDA")
-        set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
         set(vector nveccuda)
         set(float_precision "4")
       elseif(backend MATCHES "HIP")
-        set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
         set(vector nvechip)
       elseif(backend MATCHES "SYCL")
         set(vector nvecsycl)
@@ -69,6 +67,12 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
         set(vector nvecopenmp)
       elseif(backend MATCHES "REF")
         set(vector nvecserial)
+      endif()
+
+      if(backend MATCHES "CUDA")
+        set_source_files_properties(${example} PROPERTIES LANGUAGE CUDA)
+      else()
+        set_source_files_properties(${example} PROPERTIES LANGUAGE CXX)
       endif()
 
       # extract the file name without extension
@@ -92,8 +96,9 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
 
         # libraries to link against
         target_link_libraries(
-          ${example_target} PRIVATE ${arg_TARGETS} sundials_${vector}
-                                    Ginkgo::ginkgo ${EXTRA_LINK_LIBS})
+          ${example_target}
+          PRIVATE ${arg_TARGETS} sundials_${vector} sundials_nvecserial
+                  Ginkgo::ginkgo ${EXTRA_LINK_LIBS})
 
       endif()
 
