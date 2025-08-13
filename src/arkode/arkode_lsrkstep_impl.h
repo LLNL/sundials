@@ -31,6 +31,7 @@ extern "C" {
 #define DOM_EIG_SAFETY_DEFAULT           SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT             25
 #define DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT 0
+#define DOM_EIG_NUM_INIT_WARMUPS_DEFAULT 0
 
 /*===============================================================
   LSRK time step module private math function macros
@@ -156,6 +157,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype spectral_radius_min; /* min spectral radius*/
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
+  int num_init_warmups; /* number of warm-ups in the first DEE estimates */
   int num_succ_warmups; /* number of warm-ups in succeeding DEE estimates */
 
   SUNDomEigEstimator DEE; /* DomEig estimator*/

@@ -19,7 +19,7 @@ if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} caliper)
 endif()
 
-set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestpi)
+set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestpower)
 
 if(ENABLE_LAPACK)
   set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestarnoldi)
@@ -36,7 +36,7 @@ if(BUILD_SHARED_LIBS)
   set_property(TARGET test_sundomeigest_obj PROPERTY POSITION_INDEPENDENT_CODE
                                                      TRUE)
 endif()
-target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpi)
+target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpower)
 
 # Add the Arnoldi iteration examples if LAPACK is enabled
 if(ENABLE_LAPACK)
@@ -47,6 +47,6 @@ if(ENABLE_LAPACK)
                                                        TRUE)
   endif()
   target_link_libraries(
-    test_sundomeigest_obj PRIVATE sundials_sundomeigestpi
+    test_sundomeigest_obj PRIVATE sundials_sundomeigestpower
                                   sundials_sundomeigestarnoldi)
 endif()

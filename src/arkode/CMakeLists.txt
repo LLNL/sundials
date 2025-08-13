@@ -69,17 +69,6 @@ set(arkode_HEADERS
     arkode_sprk.h
     arkode_sprkstep.h)
 
-# Add variable DOMEIG_OBJECT_LIBRARIES
-set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
-
-if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarnoldi_obj)
-  set(LAPACK_LIBRARY LAPACK::LAPACK)
-  if(CMAKE_VERSION VERSION_LESS 3.20)
-    list(APPEND LAPACK_LIBRARY BLAS::BLAS)
-  endif()
-endif()
-
 # Add prefix with complete path to the ARKODE header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
 
@@ -89,7 +78,7 @@ sundials_add_library(
   SOURCES ${arkode_SOURCES}
   HEADERS ${arkode_HEADERS}
   INCLUDE_SUBDIR arkode
-  LINK_LIBRARIES PUBLIC sundials_core PRIVATE ${LAPACK_LIBRARY}
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
@@ -110,7 +99,6 @@ sundials_add_library(
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
     sundials_adjointcheckpointscheme_fixed_obj
-    ${DOMEIG_OBJECT_LIBRARIES}
   OUTPUT_NAME sundials_arkode
   VERSION ${arkodelib_VERSION}
   SOVERSION ${arkodelib_SOVERSION})

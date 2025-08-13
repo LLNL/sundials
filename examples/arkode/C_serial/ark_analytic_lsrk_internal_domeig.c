@@ -191,13 +191,13 @@ int main(void)
   /* Set the relative tolerance for the DEE. 
   This function can be called anytime to change
   the relative tolerance. */
-  flag = SUNDomEigEst_SetTol(DEE, rel_tol);
-  if (check_flag(&flag, "SUNDomEigEst_SetTol", 1)) { return 1; }
+  flag = SUNDomEigEst_SetRelTol(DEE, rel_tol);
+  if (check_flag(&flag, "SUNDomEigEst_SetRelTol", 1)) { return 1; }
 
   /* Set the number of preprocessing warmups. The warmup
   is used to compute a "better" initial eigenvector and so an initial
   eigenvalue. The warmup is performed only once by the LSRKStep module 
-  internally unless LSRKStepSetNumSucceedingWarmups is called to set
+  internally unless LSRKSetNumDomEigEstPreprocessIters is called to set
   a new number of succeeding warmups that would be executed before 
   every dominant eigenvalue estimate calls */
   flag = SUNDomEigEst_SetNumPreProcess(DEE, numwarmup);
@@ -227,8 +227,8 @@ int main(void)
 
   /* Specify the number of preprocessing warmups before each estimate call
      succeeding the very first estimate call. */
-  flag = LSRKStepSetNumSucceedingWarmups(arkode_mem, 0);
-  if (check_flag(&flag, "LSRKStepSetNumSucceedingWarmups", 1)) { return 1; }
+  flag = LSRKSetNumDomEigEstPreprocessIters(arkode_mem, 0);
+  if (check_flag(&flag, "LSRKSetNumDomEigEstPreprocessIters", 1)) { return 1; }
 
   /* Specify the Runge--Kutta--Chebyshev LSRK method by name */
   flag = LSRKStepSetSTSMethodByName(arkode_mem, "ARKODE_LSRK_RKC_2");
@@ -271,7 +271,7 @@ int main(void)
   /* Print final statistics */
   printf("\nFinal Statistics:\n");
   flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-  flag = SUNDomEigEst_PrintStats(DEE, stdout);
+  flag = SUNDomEigEst_Write(DEE, stdout);
 
   /* Print final statistics to a file in CSV format */
   FID  = fopen("ark_analytic_nonlin_stats.csv", "w");

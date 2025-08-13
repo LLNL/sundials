@@ -61,7 +61,7 @@ SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
   ops->getmaxniters     = NULL;
   ops->getminniters     = NULL;
   ops->getcurres        = NULL;
-  ops->printstats       = NULL;
+  ops->write       = NULL;
   ops->destroy          = NULL;
 
   /* attach ops and initialize content and context to NULL */
@@ -127,7 +127,7 @@ SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numpreproce
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol)
+SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -153,12 +153,12 @@ SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
   if (DEE->ops->estimate) { ier = DEE->ops->estimate(DEE, lambdaR, lambdaI); }
-  else { ier = SUN_ERR_DEE_NULL_ESTIMATE; }
+  else { ier = SUN_ERR_NOT_IMPLEMENTED; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
+SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -172,7 +172,7 @@ SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, long int* curniter)
+SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -232,11 +232,11 @@ SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile)
+SUNErrCode SUNDomEigEst_Write(SUNDomEigEstimator DEE, FILE* outfile)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->printstats) { ier = DEE->ops->printstats(DEE, outfile); }
+  if (DEE->ops->write) { ier = DEE->ops->write(DEE, outfile); }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);

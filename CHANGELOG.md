@@ -5,9 +5,9 @@
 
 ### Major Features
 
-Added the `SUNDomEigEstimator` interface for estimating the dominant value of a system. 
-Two implementations are provided: Power Iteration and Arnoldi Iteration. The latter
-method requires building with LAPACK support enabled.
+Added the `SUNDomEigEstimator` interface for estimating the dominant eigenvalue value
+of a system. Two implementations are provided: Power Iteration and Arnoldi Iteration.
+The latter method requires building with LAPACK support enabled.
 
 Added the function `LSRKStepSetDomEigEstimator` in LSRKStep to attach a
 `SUNDomEigEstimator`, when using Runge-Kutta-Chebyshev or Runge-Kutta-Legendre

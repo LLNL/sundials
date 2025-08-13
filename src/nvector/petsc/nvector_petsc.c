@@ -22,7 +22,6 @@
 #include <stdlib.h>
 
 #include <nvector/nvector_petsc.h>
-#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 

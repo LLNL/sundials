@@ -34,13 +34,13 @@ int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters,
                                   int myid);
 int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int num_warmups,
                                        int myid);
-int Test_SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol, int myid);
+int Test_SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol, int myid);
 int Test_SUNDomEigEst_Initialize(SUNDomEigEstimator DEE, int myid);
 int Test_SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                             sunrealtype* lambdaI, int myid);
-int Test_SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
+int Test_SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
                                 int myid);
-int Test_SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, long int* curniter,
+int Test_SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter,
                                      int myid);
 int Test_SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE,
                                      long int* max_niter, int myid);
@@ -48,7 +48,7 @@ int Test_SUNDomEigEst_GetMinNumIters(SUNDomEigEstimator DEE,
                                      long int* min_niter, int myid);
 int Test_SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
                                         long int* num_ATimes, int myid);
-int Test_SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, int myid);
+int Test_SUNDomEigEst_Write(SUNDomEigEstimator DEE, int myid);
 
 /* Timing function */
 void SetTiming(int onoff);

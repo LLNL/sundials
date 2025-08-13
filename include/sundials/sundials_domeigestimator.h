@@ -29,20 +29,19 @@
 extern "C" {
 #endif
 
-//#define DEE_LAPACK_FAIL        "Error: LAPACK dgeev failed with info = %d\n"
 
 /* -----------------------------------------------------------------
  * Generic definition of SUNDomEigEstimator (DEE)
  * ----------------------------------------------------------------- */
 
 /* Forward reference for pointer to SUNDomEigEstimator_Ops object */
-typedef _SUNDIALS_STRUCT_ _generic_SUNDomEigEstimator_Ops* SUNDomEigEstimator_Ops;
+typedef _SUNDIALS_STRUCT_ SUNDomEigEstimator_Ops_* SUNDomEigEstimator_Ops;
 
 /* Forward reference for pointer to SUNDomEigEstimator object */
-typedef _SUNDIALS_STRUCT_ _generic_SUNDomEigEstimator* SUNDomEigEstimator;
+typedef _SUNDIALS_STRUCT_ SUNDomEigEstimator_* SUNDomEigEstimator;
 
 /* Structure containing function pointers to estimator operations */
-struct _generic_SUNDomEigEstimator_Ops
+struct SUNDomEigEstimator_Ops_
 {
   SUNErrCode (*setatimes)(SUNDomEigEstimator, void*, SUNATimesFn);
   SUNErrCode (*setmaxiters)(SUNDomEigEstimator, long int);
@@ -55,14 +54,14 @@ struct _generic_SUNDomEigEstimator_Ops
   SUNErrCode (*getmaxniters)(SUNDomEigEstimator, long int*);
   SUNErrCode (*getminniters)(SUNDomEigEstimator, long int*);
   SUNErrCode (*getnumatimescalls)(SUNDomEigEstimator, long int*);
-  SUNErrCode (*printstats)(SUNDomEigEstimator, FILE*);
+  SUNErrCode (*write)(SUNDomEigEstimator, FILE*);
   SUNErrCode (*destroy)(SUNDomEigEstimator*);
 };
 
 /* An estimator is a structure with an implementation-dependent
    'content' field, and a pointer to a structure of estimator
    operations corresponding to that implementation. */
-struct _generic_SUNDomEigEstimator
+struct SUNDomEigEstimator_
 {
   void* content;
   SUNDomEigEstimator_Ops ops;
@@ -91,7 +90,7 @@ SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE,
                                          int numpreprocess);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol);
+SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE);
@@ -101,10 +100,10 @@ SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                               sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res);
+SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE,
                                        long int* curniter);
 
 SUNDIALS_EXPORT
@@ -120,7 +119,7 @@ SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
                                           long int* num_ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile);
+SUNErrCode SUNDomEigEst_Write(SUNDomEigEstimator DEE, FILE* outfile);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr);

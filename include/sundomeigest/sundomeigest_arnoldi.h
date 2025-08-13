@@ -33,7 +33,7 @@ extern "C" {
  * Arnoldi Iteration Implementation of SUNDomEigEstimator
  * ----------------------------------------------------- */
 
-struct _SUNDomEigEstimatorContent_Arnoldi
+struct SUNDomEigEstimatorContent_Arnoldi_
 {
   SUNATimesFn ATimes; /* User provided ATimes function */
   void* ATdata;       /* ATimes function data*/
@@ -56,7 +56,7 @@ struct _SUNDomEigEstimatorContent_Arnoldi
   sunrealtype** Hes; /* Hessenberg matrix Hes */
 };
 
-typedef struct _SUNDomEigEstimatorContent_Arnoldi* SUNDomEigEstimatorContent_Arnoldi;
+typedef struct SUNDomEigEstimatorContent_Arnoldi_* SUNDomEigEstimatorContent_Arnoldi;
 
 /* ---------------------------------------
  * Exported Functions for SUNDOMEIGEST_Arnoldi
@@ -86,7 +86,7 @@ SUNErrCode SUNDomEigEst_GetNumATimesCalls_Arnoldi(SUNDomEigEstimator DEE,
                                                   long int* num_ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_PrintStats_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile);
+SUNErrCode SUNDomEigEst_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr);

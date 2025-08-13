@@ -167,7 +167,7 @@ fi
 # Set the SUNDomEigEstimator version values. Assume the major version is six
 # less than the SUNDIALS major version.
 dee_major=$(( sun_major - 6 ))
-dee_minor=$sun_minor
+dee_minor=$(( sun_minor - 5 )) # TODO(DJG): Will need to remove this at the next major release
 dee_patch=$sun_patch
 dee_label=$sun_label
 

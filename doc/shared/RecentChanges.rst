@@ -10,6 +10,10 @@ to allow for setting the Anderson acceleration depth and orthogonalization
 method after :c:func:`KINInit`. Additionally, :c:func:`KINSetMAA` and
 :c:func:`KINSetNumMaxIters` may now be called in any order.
 
+Added the `SUNDomEigEstimator` interface for estimating the dominant eigenvalue 
+value of a system. Two implementations are provided: Power Iteration and Arnoldi 
+Iteration. The latter method requires building with LAPACK support enabled.
+
 **Bug Fixes**
 
 The shared library version numbers for the oneMKL dense linear solver and

@@ -14,10 +14,10 @@
 
 .. _SUNDomEigEst.ARNOLDI:
 
-The SUNDomEigEst_ARNOLDI Module
+The SUNDomEigEst_Arnoldi Module
 ======================================
 
-The SUNDomEigEst_ARNOLDI implementation of the ``SUNDomEigEstimator`` class performs
+The SUNDomEigEst_Arnoldi implementation of the :c:type:`SUNDomEigEstimator` class performs
 the Arnoldi Iteration method :cite:p:`arnoldi51`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
@@ -53,10 +53,8 @@ approximation of the matrix-vector product, :math:`Av`, is required.
 SUNDomEigEst_ARNOLDI Usage
 -------------------------------
 
-The header file to be included when using this module is ``sundomeigest/sundomeigest_arnoldi.h``.
-The SUNDomEigEst_ARNOLDI module is accessible from all SUNDIALS solvers *without* linking to the
-``libsundials_sundomeigestarnoldi`` module library after enabling SUNDIALS interfaces to the LAPACK 
-library.
+To use SUNDomEigEst_Arnoldi include the header file ``sundomeigest/sundomeigest_arnoldi.h``,  
+and link to the library ``libsundials_sundomeigestarnoldi``. 
 
 The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
 
@@ -91,12 +89,12 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
 
       When :c:func:`SUNDomEig_Estimate` is called, then prior to beginning the Arnoldi
       process, ``num_warmups`` power iterations are performed on ``q`` to generate an
-      improved initial guess.  However, when the DEE is used in a time-dependent 
+      improved initial guess.  However, when the estimator is used in a time-dependent
       context, it is likely that the most-recent ``q`` will provide a suitable initial 
-      guess for the subsequent call to :c:func:`SUNDomEig_Estimate`.  Thus, when the DEE 
+      guess for the subsequent call to :c:func:`SUNDomEig_Estimate`.  Thus, when the estimator 
       is used by LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial 
       value of ``num_warmups`` will be overwritten after the first 
-      :c:func:`SUNDomEig_Estimate` call (see :c:func:`LSRKStepSetNumSucceedingWarmups`).
+      :c:func:`SUNDomEig_Estimate` call (see :c:func:`LSRKSetNumDomEigEstPreprocessIters`).
 
 
 .. _SUNDomEigEst.ARNOLDI.Description:
@@ -110,7 +108,7 @@ The SUNDomEigEst_ARNOLDI module defines the *content* field of a
 
 .. code-block:: c
 
-   struct _SUNDomEigEstimatorContent_Arnoldi {
+   struct SUNDomEigEstimatorContent_Arnoldi_ {
      SUNATimesFn ATimes;
      void* ATdata;
      N_Vector* V;
@@ -155,17 +153,17 @@ This estimator is constructed to perform the following operations:
 * User-facing "set" routines may be called to modify default
   estimator parameters.
 
-* An additional "set" routine must be called by the SUNDIALS estimator
-  that interfaces with SUNDomEigEst_ARNOLDI to supply the ``ATimes``
+* An additional "set" routine must be called by the SUNDIALS package  
+  using SUNDomEigEst_Arnoldi to supply the ``ATimes``  
   function pointer and the related data ``ATData``.
 
-* In the "initialize" call, the estimator parameters are checked
+* In :c:func:`SUNDomEigEst_Initialize`, the estimator parameters are checked
   for validity and the remaining Arnoldi estimator memory such as LAPACK 
   workspace is allocated.
 
-* In the "estimate" call, the initial nonzero vector :math:`q_0` is warmed up
+* In :c:func:`SUNDomEigEst_Estimate`, the initial nonzero vector :math:`q_0` is warmed up
   :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
-  integrator such as by calling :c:func:`LSRKStepSetNumSucceedingWarmups`. 
+  integrator such as by calling :c:func:`LSRKSetNumDomEigEstPreprocessIters`. 
   Then, the Arnoldi estimator is performed.
 
 .. math::
@@ -186,6 +184,6 @@ dominant eigenvalue estimator operations listed in
 
 * ``SUNDomEigEst_GetNumATimesCalls_Arnoldi``
 
-* ``SUNDomEigEst_PrintStats_Arnoldi``
+* ``SUNDomEigEst_Write_Arnoldi``
 
 * ``SUNDomEigEst_Destroy_Arnoldi``

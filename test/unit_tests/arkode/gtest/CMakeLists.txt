@@ -20,9 +20,9 @@ target_include_directories(
           ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
 # Add variable SUNDomEigEst libraries
-set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
+set(DOMEIG_LIBRARIES sundials_sundomeigestpower)
 if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarnoldi_obj)
+  list(APPEND DOMEIG_LIBRARIES sundials_sundomeigestarnoldi)
 endif()
 
 # We explicitly choose which object libraries to link to and link in the ARKODE
@@ -39,7 +39,7 @@ target_link_libraries(
           sundials_sunnonlinsolnewton_obj
           sundials_sunadaptcontrollerimexgus_obj
           sundials_sunadaptcontrollersoderlind_obj
-          ${DOMEIG_OBJECT_LIBRARIES}
+          ${DOMEIG_LIBRARIES}
           ${EXE_EXTRA_LINK_LIBS})
 
 # Tell CMake that we depend on the ARKODE library since it does not pick that up

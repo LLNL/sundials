@@ -31,7 +31,7 @@ set(sundomeigest_power_dependencies test_sundomeigest)
 include_directories(. ..)
 
 # Specify libraries to link against
-set(DOMEIG_LIB sundials_sundomeigestpi)
+set(DOMEIG_LIB sundials_sundomeigestpower)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS sundials_nvecserial ${DOMEIG_LIB} ${EXE_EXTRA_LINK_LIBS})

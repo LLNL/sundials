@@ -64,7 +64,7 @@ module farkode_lsrkstep_mod
  public :: FLSRKStepSetDomEigFrequency
  public :: FLSRKStepSetMaxNumStages
  public :: FLSRKStepSetDomEigSafetyFactor
- public :: FLSRKStepSetNumSucceedingWarmups
+ public :: FLSRKSetNumDomEigEstPreprocessIters
  public :: FLSRKStepSetNumSSPStages
  public :: FLSRKStepGetNumDomEigUpdates
  public :: FLSRKStepGetMaxNumStages
@@ -200,8 +200,8 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FLSRKStepSetNumSucceedingWarmups(farg1, farg2) &
-bind(C, name="_wrap_FLSRKStepSetNumSucceedingWarmups") &
+function swigc_FLSRKSetNumDomEigEstPreprocessIters(farg1, farg2) &
+bind(C, name="_wrap_FLSRKSetNumDomEigEstPreprocessIters") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -502,7 +502,7 @@ fresult = swigc_FLSRKStepSetDomEigSafetyFactor(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepSetNumSucceedingWarmups(arkode_mem, num_succ_warmups) &
+function FLSRKSetNumDomEigEstPreprocessIters(arkode_mem, num_succ_warmups) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -514,7 +514,7 @@ integer(C_INT) :: farg2
 
 farg1 = arkode_mem
 farg2 = num_succ_warmups
-fresult = swigc_FLSRKStepSetNumSucceedingWarmups(farg1, farg2)
+fresult = swigc_FLSRKSetNumDomEigEstPreprocessIters(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -21,9 +21,9 @@ if(NOT SUNDIALS_PRECISION MATCHES "SINGLE")
 endif()
 
 # Add SUNDomEigEst libraries
-set(DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestpi_obj)
+set(DOMEIG_LIBRARIES sundials_sundomeigestpower)
 if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_OBJECT_LIBRARIES sundials_sundomeigestarnoldi_obj)
+  list(APPEND DOMEIG_LIBRARIES sundials_sundomeigestarnoldi)
 endif()
 
 # Add the build and install targets for each test
@@ -55,7 +55,7 @@ foreach(test_tuple ${unit_tests})
     # libraries to link against
     target_link_libraries(
       ${test_target} MPI::MPI_CXX sundials_arkode sundials_nvecparallel
-      ${DOMEIG_OBJECT_LIBRARIES} ${EXE_EXTRA_LINK_LIBS})
+      ${DOMEIG_LIBRARIES} ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 

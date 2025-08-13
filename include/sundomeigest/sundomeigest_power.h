@@ -33,7 +33,7 @@ extern "C" {
  * Power Iteration Implementation of SUNDomEigEstimator
  * ----------------------------------------------------- */
 
-struct _SUNDomEigEstimatorContent_Power
+struct SUNDomEigEstimatorContent_Power_
 {
   SUNATimesFn ATimes; /* User provided ATimes function */
   void* ATdata;       /* ATimes function data*/
@@ -53,7 +53,7 @@ struct _SUNDomEigEstimatorContent_Power
   sunrealtype cur_res;     /* Current residual of power iterations */
 };
 
-typedef struct _SUNDomEigEstimatorContent_Power* SUNDomEigEstimatorContent_Power;
+typedef struct SUNDomEigEstimatorContent_Power_* SUNDomEigEstimatorContent_Power;
 
 /* ---------------------------------------
  * Exported Functions for SUNDOMEIGEST_Power
@@ -77,7 +77,7 @@ SUNErrCode SUNDomEigEst_SetNumPreProcess_Power(SUNDomEigEstimator DEE,
                                                int numpreprocess);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetTol_Power(SUNDomEigEstimator DEE, sunrealtype tol);
+SUNErrCode SUNDomEigEst_SetRelTol_Power(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Initialize_Power(SUNDomEigEstimator DEE);
@@ -87,11 +87,11 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
                                     sunrealtype* lambdaR, sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetCurRes_Power(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEst_GetRes_Power(SUNDomEigEstimator DEE,
                                         sunrealtype* cur_res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetCurNumIters_Power(SUNDomEigEstimator DEE,
+SUNErrCode SUNDomEigEst_GetNumIters_Power(SUNDomEigEstimator DEE,
                                              long int* curniter);
 
 SUNDIALS_EXPORT
@@ -107,7 +107,7 @@ SUNErrCode SUNDomEigEst_GetNumATimesCalls_Power(SUNDomEigEstimator DEE,
                                                 long int* num_ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_PrintStats_Power(SUNDomEigEstimator DEE, FILE* outfile);
+SUNErrCode SUNDomEigEst_Write_Power(SUNDomEigEstimator DEE, FILE* outfile);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Destroy_Power(SUNDomEigEstimator* DEEptr);

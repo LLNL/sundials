@@ -17,7 +17,7 @@
 The SUNDomEigEst_Power Module
 ======================================
 
-The SUNDomEigEst_Power implementation of the ``SUNDomEigEstimator`` class performs
+The SUNDomEigEst_Power implementation of the :c:type:`SUNDomEigEstimator` class performs  
 the Power Iteration (PI) method :cite:p:`vonmises29`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
@@ -57,9 +57,8 @@ amount of memory regardless of the number of iterations.
 SUNDomEigEst_Power Usage
 -----------------------------
 
-The header file to be included when using this module is ``sundomeigest/sundomeigest_power.h``.
-The SUNDomEigEst_Power module is accessible from all SUNDIALS solvers *without* linking to the
-``libsundials_sundomeigestpi`` module library.
+To use SUNDomEigEst_Arnoldi include the header file ``sundomeigest/sundomeigest_power.h``,  
+and link to the library ``libsundials_sundomeigestpower``.
 
 The module SUNDomEigEst_Power provides the following user-callable routines:
 
@@ -102,12 +101,12 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
       default value (0).  This default is chosen to minimize complexity for the general 
       user.
 
-      When the DEE is used in a time-dependent context, however, it is likely that the
+      When the estimator is used in a time-dependent context, however, it is likely that the  
       most-recent ``q`` will provide a suitable initial guess for the subsequent call to 
       :c:func:`SUNDomEig_Estimate`.  Thus, when the DEE is used by LSRKStep (see
       :c:func:`LSRKStepSetDomEigEstimator`), the initial value of ``num_warmups`` will 
       be overwritten after the first :c:func:`SUNDomEig_Estimate` call (see
-      :c:func:`LSRKStepSetNumSucceedingWarmups`).
+      :c:func:`LSRKSetNumDomEigEstPreprocessIters`).
 
       A ``rel_tol`` argument that is :math:` < 0` will result in the default
       value (0.01).  This default is found particularly small enough for many internal applications.
@@ -124,7 +123,7 @@ The SUNDomEigEst_Power module defines the *content* field of a
 
 .. code-block:: c
 
-   struct _SUNDomEigEstimatorContent_Power {
+   struct SUNDomEigEstimatorContent_Power_ {
      SUNATimesFn ATimes;
      void* ATdata;
      N_Vector* V;
@@ -175,16 +174,16 @@ This estimator is constructed to perform the following operations:
 * User-facing "set" routines may be called to modify default
   estimator parameters.
 
-* An additional "set" routine must be called by the SUNDIALS estimator
-  that interfaces with SUNDomEigEst_Power to supply the ``ATimes``
-  function pointer and the related data ``ATData``.
+* An additional "set" routine must be called by the SUNDIALS package  
+  using  SUNDomEigEst_Power to supply the ``ATimes``  
+  function pointer and the related data ``ATData``. 
 
-* In the "initialize" call, the estimator parameters are checked
+* In :c:func:`SUNDomEigEst_Initialize`, the estimator parameters are checked  
   for validity and the initial eigenvector is normalized.
 
-* In the "estimate" call, the initial nonzero vector :math:`q_0` is warmed up
+* In :c:func:`SUNDomEigEst_Estimate`, the initial nonzero vector :math:`q_0` is warmed up  
   :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
-  integrator such as by calling :c:func:`LSRKStepSetNumSucceedingWarmups`. 
+  integrator such as by calling :c:func:`LSRKSetNumDomEigEstPreprocessIters`. 
   Then, the PI estimator is performed.
 
 .. math::
@@ -201,15 +200,15 @@ eigenvalue estimator operations listed in
 
 * ``SUNDomEigEst_SetNumPreProcess_Power``
 
-* ``SUNDomEigEst_SetTol_Power``
+* ``SUNDomEigEst_SetRelTol_Power``
 
 * ``SUNDomEigEst_Initialize_Power``
 
 * ``SUNDomEig_Estimate_Power``
 
-* ``SUNDomEigEst_GetCurRes_Power``
+* ``SUNDomEigEst_GetRes_Power``
 
-* ``SUNDomEigEst_GetCurNumIters_Power``
+* ``SUNDomEigEst_GetNumIters_Power``
 
 * ``SUNDomEigEst_GetMaxNumIters_Power``
 
@@ -217,6 +216,6 @@ eigenvalue estimator operations listed in
 
 * ``SUNDomEigEst_GetNumATimesCalls_Power``
 
-* ``SUNDomEigEst_PrintStats_Power``
+* ``SUNDomEigEst_Write_Power``
 
 * ``SUNDomEigEst_Destroy_Power``

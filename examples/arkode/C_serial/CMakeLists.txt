@@ -123,6 +123,13 @@ set(ARKODE_extras
     plot_sol_log.py
     plot_sol.py)
 
+# Add the DOMEIG object libraries
+set(DOMEIG_LIBRARIES sundials_sundomeigestpower)
+
+if(ENABLE_LAPACK)
+  list(APPEND DOMEIG_LIBRARIES sundials_sundomeigestarnoldi)
+endif()
+
 # Add the build and install targets for each ARKODE example
 foreach(example_tuple ${ARKODE_examples})
 
@@ -140,7 +147,7 @@ foreach(example_tuple ${ARKODE_examples})
 
     # libraries to link against
     target_link_libraries(${example} sundials_arkode sundials_nvecserial
-                          ${EXE_EXTRA_LINK_LIBS})
+                          ${EXE_EXTRA_LINK_LIBS} ${DOMEIG_LIBRARIES})
   endif()
 
   # check if example args are provided and set the test name

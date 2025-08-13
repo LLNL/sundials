@@ -34,11 +34,10 @@ SUNDomEigEstimator core functions
 The SUNDomEigEstimator base class provides two **utility** routines for implementers, 
 :c:func:`SUNDomEigEst_NewEmpty` and :c:func:`SUNDomEigEst_FreeEmpty`.
 
-Implementations of SUNDomEigEstimators must include a set of **required** functions: `
+Implementations of SUNDomEigEstimators must include a set of **required** functions: 
 :c:func:`SUNDomEigEst_SetATimes` provides a :c:type:`SUNATimesFn` function pointer,
 as well as a ``void*`` pointer to a data structure used by this routine,
-:c:func:`SUNDomEigEst_Initialize` initializes the estimator object once all estimator-specific
-options have been set, :c:func:`SUNDomEig_Estimate` estimates the dominant eigenvalue,
+:c:func:`SUNDomEig_Estimate` estimates the dominant eigenvalue,
 and :c:func:`SUNDomEigEst_Destroy` destroys an estimator object.
 
 .. c:function:: SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
@@ -58,38 +57,9 @@ and :c:func:`SUNDomEigEst_Destroy` destroys an estimator object.
       return ``NULL``.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
-
-   *Required.*
-
-   Provides a :c:type:`SUNATimesFn` function pointer, as well as a ``void*`` pointer to a
-   data structure used by this routine, to the dominant eigenvalue estimator object
-   *DEE*.  SUNDIALS packages call this function to set the matrix-vector product function
-   to either an estimator-provided difference-quotient via vector operations or a user-supplied
-   estimator-specific routine.
-
-   **Arguments:**
-
-      * *DEE* -- a SUNDomEigEstimator object,
-      * *A_data* -- pointer to structure for ``ATimes``,
-      * *ATimes* -- function pointer to perform :math:`Av` product.
-
-   **Return value:**
-
-      A :c:type:`SUNErrCode`.
-
-   **Usage:**
-
-      .. code-block:: c
-
-         retval = SUNDomEigEst_SetATimes(DEE, A_data, ATimes);
-
-
 .. c:function:: SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE)
 
-   *Required.*
-
-   Performs dominant eigenvalue estimator initialization (assuming that all
+   This *optional* function performs dominant eigenvalue estimator initialization (assuming that all  
    estimator-specific options have been set).
 
    **Arguments:**
@@ -99,12 +69,6 @@ and :c:func:`SUNDomEigEst_Destroy` destroys an estimator object.
    **Return value:**
 
       A :c:type:`SUNErrCode`.
-
-   **Usage:**
-
-      .. code-block:: c
-
-         retval = SUNDomEigEst_Initialize(DEE);
 
 
 .. c:function:: SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
@@ -123,12 +87,6 @@ and :c:func:`SUNDomEigEst_Destroy` destroys an estimator object.
 
       `SUN_SUCCESS` for a successful call, or a relevant error code from
       :numref:`SUNDomEigEst.ErrorCodes` upon failure.
-
-   **Usage:**
-
-      .. code-block:: c
-
-         retval = SUNDomEig_Estimate(DEE, dom_eig);
 
 
 .. c:function:: SUNErrCode SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE)
@@ -176,6 +134,25 @@ that do not provide the functionality for any optional routine should leave the 
 function pointer ``NULL`` instead of supplying a dummy routine.
 
 
+.. c:function:: SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
+
+   This *required* function provides a :c:type:`SUNATimesFn` function pointer, as well as a ``void*`` pointer to a
+   data structure used by this routine, to the dominant eigenvalue estimator object
+   `DEE``.  SUNDIALS packages call this function to set the matrix-vector product function
+   to either an estimator-provided difference-quotient via vector operations or a user-supplied
+   estimator-specific routine.
+
+   **Arguments:**
+
+      * *DEE* -- a SUNDomEigEstimator object,
+      * *A_data* -- pointer to structure for ``ATimes``,
+      * *ATimes* -- function pointer to perform :math:`Av` product.
+
+   **Return value:**
+
+      A :c:type:`SUNErrCode`.
+
+
 .. c:function:: SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int numpreprocess)
 
    This *optional* routine should set the number of "warm-up" matrix-vector multiplications,
@@ -190,35 +167,24 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
       A :c:type:`SUNErrCode`.
 
-   **Usage:**
-
-      .. code-block:: c
-
-         retval = SUNDomEigEst_SetNumPreProcess(DEE, numpreprocess);
       
    .. note:: When the DEE is used within LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), 
       this number of warmup iterations will be overwritten after the first call to 
-      `SUNDomEig_Estimate` (see :c:func:`LSRKStepSetNumSucceedingWarmups`).
+      `SUNDomEig_Estimate` (see :c:func:`LSRKSetNumDomEigEstPreprocessIters`).
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetTol(SUNDomEigEstimator DEE, sunrealtype tol)
+.. c:function:: SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
 
    This *optional* routine sets the estimator's :ref:`relative tolerance <pi_rel_tol>`.
 
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object,
-      * *tol* -- the requested eigenvalue accuracy.
+      * *rel_tol* -- the requested eigenvalue accuracy.
 
    **Return value:**
 
       A :c:type:`SUNErrCode`.
-
-   **Usage:**
-
-      .. code-block:: c
-
-         retval = SUNDomEigEst_SetTol(DEE, tol);
 
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters)
@@ -234,12 +200,6 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
       A :c:type:`SUNErrCode`.
 
-   **Usage:**
-
-      .. code-block:: c
-
-         retval = SUNDomEigEst_SetMaxIters(DEE, max_iters);
-
 
 .. _SUNDomEigEst.GetFn:
 
@@ -249,10 +209,10 @@ SUNDomEigEstimator "get" functions
 The following functions allow SUNDIALS packages to retrieve results from a
 dominant eigenvalue estimator.  *All routines are optional.*
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetCurRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
+.. c:function:: SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
 
    This *optional* routine should return the final residual from
-   the most-recent "estimator" call.
+   the most-recent call to :c:func:`:SUNDomEigEst_Estimate`. 
 
    **Arguments:**
 
@@ -268,18 +228,18 @@ dominant eigenvalue estimator.  *All routines are optional.*
       .. code-block:: c
 
          sunrealtype cur_res;
-         retval = SUNDomEigEst_GetCurRes(DEE, &cur_res);
+         retval = SUNDomEigEst_GetRes(DEE, &cur_res);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetCurNumIters(SUNDomEigEstimator DEE, long int* curniter)
+.. c:function:: SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* num_iters)
 
    This *optional* routine should return the number of estimator
-   iterations performed in the most-recent "estimator" call.
+   iterations performed in the most-recent call to :c:func:`:SUNDomEigEst_Estimate`.
 
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object,
-      * *curniter* -- the current number of iterations.
+      * *num_iters* -- the number of iterations.
 
    **Return value:**
 
@@ -289,8 +249,8 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       .. code-block:: c
 
-         long int curniter;
-         retval = SUNDomEigEst_GetCurNumIters(DEE, &curniter);
+         long int num_iters;
+         retval = SUNDomEigEst_GetNumIters(DEE, &num_iters);
 
 
 .. c:function:: SUNErrCode SUNDomEigEst_GetMaxNumIters(SUNDomEigEstimator DEE, long int* max_niter)
@@ -357,7 +317,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
          retval = SUNDomEigEst_GetNumATimesCalls(DEE, &num_ATimes);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_PrintStats(SUNDomEigEstimator DEE, FILE* outfile)
+.. c:function:: SUNErrCode SUNDomEigEst_Write(SUNDomEigEstimator DEE, FILE* outfile)
 
    This *optional* routine prints the dominant eigenvalue estimator statistics
    to the output stream *outfile*.
@@ -371,12 +331,6 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
       A :c:type:`SUNErrCode`.
 
-   **Usage:**
-
-      .. code-block:: c
-
-         retval = SUNDomEigEst_PrintStats(DEE, stdout);
-
 
 .. _SUNDomEigEst.SUNSuppliedFn:
 
@@ -385,8 +339,8 @@ Functions provided by SUNDIALS packages
 
 To interface with SUNDomEigEst modules, the SUNDIALS packages supply a routine
 :c:type:`SUNATimesFn` for evaluating the matrix-vector product.  This package-provided
-routine translates between the user-supplied ODE, DAE, or linear and nonlinear
-systems and the generic dominant eigenvalue estimatimator API.  The function types
+routine translates between the user-supplied ODE or DAE systems and the generic
+dominant eigenvalue estimator API.  The function types
 for these routines are defined in the header file ``sundials/sundials_iterative.h``.
 
 .. _SUNDomEigEst.ReturnCodes:
@@ -444,7 +398,7 @@ SUNDIALS packages interact with dominant eigenvalue estimator implementations th
 :c:type:`SUNDomEigEstimator` class.  A :c:type:`SUNDomEigEstimator` is a pointer to the
 :c:struct:`_generic_SUNDomEigEstimator` structure:
 
-.. c:type:: struct _generic_SUNDomEigEstimator *SUNDomEigEstimator
+.. c:type:: struct SUNDomEigEstimator_ *SUNDomEigEstimator
 
 .. c:struct:: _generic_SUNDomEigEstimator
 
@@ -465,7 +419,7 @@ SUNDIALS packages interact with dominant eigenvalue estimator implementations th
 
 The virtual table structure is defined as
 
-.. c:type:: struct _generic_SUNDomEigEstimator_Ops *SUNDomEigEstimator_Ops
+.. c:type:: struct SUNDomEigEstimator_Ops_ *SUNDomEigEstimator_Ops
 
 .. c:struct:: _generic_SUNDomEigEstimator_Ops
 
@@ -485,7 +439,7 @@ The virtual table structure is defined as
 
    .. c:member:: SUNErrCode (*settol)(SUNDomEigEstimator, sunrealtype)
 
-      The function implementing :c:func:`SUNDomEigEst_SetTol`
+      The function implementing :c:func:`SUNDomEigEst_SetRelTol`
 
    .. c:member:: SUNErrCode (*initialize)(SUNDomEigEstimator)
 
@@ -497,11 +451,11 @@ The virtual table structure is defined as
 
    .. c:member:: sunrealtype (*getcurres)(SUNDomEigEstimator)
 
-      The function implementing :c:func:`SUNDomEigEst_GetCurRes`
+      The function implementing :c:func:`SUNDomEigEst_GetRes`
 
    .. c:member:: int (*getcurniters)(SUNDomEigEstimator)
 
-      The function implementing :c:func:`SUNDomEigEst_GetCurNumIters`
+      The function implementing :c:func:`SUNDomEigEst_GetNumIters`
 
    .. c:member:: int (*getmaxniters)(SUNDomEigEstimator)
 
@@ -515,9 +469,9 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEst_GetNumATimesCalls`
       
-   .. c:member:: SUNErrCode (*printstats)(SUNDomEigEstimator, FILE*)
+   .. c:member:: SUNErrCode (*write)(SUNDomEigEstimator, FILE*)
 
-      The function implementing :c:func:`SUNDomEigEst_PrintStats`
+      The function implementing :c:func:`SUNDomEigEst_Write`
       
    .. c:member:: SUNErrCode (*destroy)(SUNDomEigEstimator*)
 
@@ -583,15 +537,15 @@ the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_SetNumPreProcess`            |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_SetTol`\ :sup:`1`            |          O          |         N/A         |
+   | :c:func:`SUNDomEigEst_SetRelTol`\ :sup:`1`         |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_Initialize`                  |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEig_Estimate`                       |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetCurRes`\ :sup:`2`         |          O          |          O          |
+   | :c:func:`SUNDomEigEst_GetRes`\ :sup:`2`            |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetCurNumIters`\ :sup:`3`    |          O          |         N/A         |
+   | :c:func:`SUNDomEigEst_GetNumIters`\ :sup:`3`       |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_GetMaxNumIters`\ :sup:`3`    |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
@@ -599,7 +553,7 @@ the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_GetNumATimesCalls`           |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_PrintStats`                  |          O          |          O          |
+   | :c:func:`SUNDomEigEst_Write`                       |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_Destroy`\ :sup:`4`           |                     |                     |
    +----------------------------------------------------+---------------------+---------------------+
@@ -607,15 +561,15 @@ the interested reader.
 
 Notes:
 
-1. :c:func:`SUNDomEigEst_SetMaxIters()` and :c:func:`SUNDomEigEst_SetTol()` might or 
+1. :c:func:`SUNDomEigEst_SetMaxIters()` and :c:func:`SUNDomEigEst_SetRelTol()` might or 
    might not be required depending on ``SUNDomEigEstimator`` implementation that is being used. 
    These flags must be left ``NULL`` if it is not applicable for an estimator.
 
-2. Although :c:func:`SUNDomEigEst_GetCurRes()` is optional, if it is not
+2. Although :c:func:`SUNDomEigEst_GetRes()` is optional, if it is not
    implemented by the ``SUNDomEigEstimator`` then the interface will consider all
    estimates a being *exact*.
 
-3. :c:func:`SUNDomEigEst_GetCurNumIters()`, :c:func:`SUNDomEigEst_GetMaxNumIters()`
+3. :c:func:`SUNDomEigEst_GetNumIters()`, :c:func:`SUNDomEigEst_GetMaxNumIters()`
    and :c:func:`SUNDomEigEst_GetMinNumIters()` are optional, if they are not
    implemented by the ``SUNDomEigEstimator`` then the interface will consider all
    estimates as requiring zero iterations.

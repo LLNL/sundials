@@ -18,7 +18,6 @@
 #define _NVECTOR_CUDA_KERNELS_CUH_
 
 #include <cuda_runtime.h>
-#include <curand_kernel.h>
 #include <limits>
 
 #include "sundials_cuda_kernels.cuh"

@@ -323,8 +323,8 @@ int main(int argc, char* argv[])
   /* Specify the succeeding warmups before each estimate call.
      This is the number of warmups that will be performed after the first
      estimate call and before each subsequent estimate calls. */
-  flag = LSRKStepSetNumSucceedingWarmups(arkode_mem, udata->dee_num_succ_wups);
-  if (check_flag(&flag, "LSRKStepSetNumSucceedingWarmups", 2)) { return 1; }
+  flag = LSRKSetNumDomEigEstPreprocessIters(arkode_mem, udata->dee_num_succ_wups);
+  if (check_flag(&flag, "LSRKSetNumDomEigEstPreprocessIters", 1)) { return 1; }
 
   /* Specify the max number for PI iterations. 
      This does nothing if DEE is Arnoldi */
@@ -333,8 +333,8 @@ int main(int argc, char* argv[])
 
   /* Specify the relative tolerance for PI iterations. 
      This does nothing if DEE is Arnoldi */
-  flag = SUNDomEigEst_SetTol(DEE, udata->dee_reltol);
-  if (check_flag(&flag, "SUNDomEigEst_SetTol", 2)) { return 1; }
+  flag = SUNDomEigEst_SetRelTol(DEE, udata->dee_reltol);
+  if (check_flag(&flag, "SUNDomEigEst_SetRelTol", 2)) { return 1; }
 
   /* Attach the DEE to the LSRKStep module.
   There is no need to set Atimes or initialize since these are all 
@@ -352,10 +352,6 @@ int main(int argc, char* argv[])
   // Set spectral radius safety factor
   flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, udata->eigsafety);
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
-
-  // Set the number of preprocessing warmups before each estimate call
-  flag = LSRKStepSetNumSucceedingWarmups(arkode_mem, udata->dee_num_succ_wups);
-  if (check_flag(&flag, "LSRKStepSetNumSucceedingWarmups", 1)) { return 1; }
 
   // Set fixed step size or adaptivity method
   if (udata->hfixed > ZERO)
@@ -436,8 +432,8 @@ int main(int argc, char* argv[])
   {
     // Print DEE statistics
     cout << "Final DEE statistics:" << endl;
-    flag = SUNDomEigEst_PrintStats(DEE, stdout);
-    if (check_flag(&flag, "SUNDomEigEst_PrintStats", 1)) { return 1; }
+    flag = SUNDomEigEst_Write(DEE, stdout);
+    if (check_flag(&flag, "SUNDomEigEst_Write", 1)) { return 1; }
   }
 
   if (udata->forcing)
@@ -843,7 +839,7 @@ static void InputHelp()
           "Arnoldi: 1)"
        << endl;
   cout << "  --dee_num_init_wups <num>   : number of DEE initial warmups" << endl;
-  cout << "  --dee_num_succ_wups <num>  : number of DEE succeeding warmups"
+  cout << "  --dee_num_succ_wups <num>   : number of DEE succeeding warmups"
        << endl;
   cout << "  --dee_max_iters <num>       : max iterations in DEE" << endl;
   cout << "  --dee_krylov_dim <dim>      : Krylov dimension for DEE" << endl;

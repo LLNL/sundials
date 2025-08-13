@@ -285,9 +285,18 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   step_mem->spectral_radius_max = 0;
   step_mem->spectral_radius_min = 0;
   step_mem->dom_eig_nst         = 0;
-  step_mem->num_succ_warmups    = DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT;
   step_mem->dom_eig_update      = SUNTRUE;
   step_mem->dom_eig_is_current  = SUNFALSE;
+  step_mem->init_warmup         = SUNTRUE;
+
+  retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
+                                          step_mem->num_init_warmups);
+  if (retval != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_DEE_FAIL);
+    return ARK_DEE_FAIL;
+  }
 
   return ARK_SUCCESS;
 }
@@ -2089,6 +2098,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->stage_max_limit);
     fprintf(outfile, "LSRKStep: dom_eig_freq          = %li\n",
             step_mem->dom_eig_freq);
+    fprintf(outfile, "LSRKStep: num_init_warmups      = %i\n",
+            step_mem->num_init_warmups);
     fprintf(outfile, "LSRKStep: num_succ_warmups      = %i\n",
             step_mem->num_succ_warmups);
 
@@ -2124,7 +2135,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
     if (step_mem->DEE != NULL)
     {
-      retval = SUNDomEigEst_PrintStats(step_mem->DEE, outfile);
+      retval = SUNDomEigEst_Write(step_mem->DEE, outfile);
       if (retval != SUN_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
@@ -2276,7 +2287,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   {
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to estimate the dominant eigenvalue: Either a user "
-                    "provided or a SUNDIALS DEE is required");
+                    "provided function or a SUNDomEigEstimator is required");
     return ARK_DOMEIG_FAIL;
   }
 

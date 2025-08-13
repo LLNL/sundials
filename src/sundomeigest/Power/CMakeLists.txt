@@ -14,18 +14,18 @@
 # CMakeLists.txt file for the PI SUNDomEigEstimator library
 # ---------------------------------------------------------------
 
-install(CODE "MESSAGE(\"\nInstall SUNDOMEIGEST_POWER_ITERATION\n\")")
+install(CODE "MESSAGE(\"\nInstall SUNDOMEIGEST_POWER\n\")")
 
 # Add the sundomeigest_power library
 sundials_add_library(
-  sundials_sundomeigestpi
+  sundials_sundomeigestpower
   SOURCES sundomeigest_power.c
   HEADERS ${SUNDIALS_SOURCE_DIR}/include/sundomeigest/sundomeigest_power.h
   INCLUDE_SUBDIR sundomeigest
   LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  OUTPUT_NAME sundials_sundomeigestpi
+  OUTPUT_NAME sundials_sundomeigestpower
   VERSION ${sundomeigestlib_VERSION}
   SOVERSION ${sundomeigestlib_SOVERSION})
 
-message(STATUS "Added SUNDOMEIGEST_POWER_ITERATION module")
+message(STATUS "Added SUNDOMEIGEST_POWER module")
