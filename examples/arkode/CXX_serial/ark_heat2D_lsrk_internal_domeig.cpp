@@ -20,9 +20,6 @@
  *
  *   u_t = kx u_xx + ky u_yy + b,
  *
- * TO-DO: update this to kx(t) and ky(t), and determine the corresponding
- * changes required for b to ensure the same analytical solution.
- *
  * for t in [0, 1] and (x,y) in [0, 1]^2, with initial condition
  *
  *   u(0,x,y) = sin^2(pi x) sin^2(pi y),
@@ -323,18 +320,18 @@ int main(int argc, char* argv[])
   flag = LSRKStepSetNumDomEigEstPreprocessIters(arkode_mem, udata->dee_num_succ_wups);
   if (check_flag(&flag, "LSRKStepSetNumDomEigEstPreprocessIters", 1)) { return 1; }
 
-  /* Specify the max number for PI iterations. 
+  /* Specify the max number for PI iterations.
      This does nothing if DEE is Arnoldi */
   flag = SUNDomEigEst_SetMaxIters(DEE, udata->dee_max_iters);
   if (check_flag(&flag, "SUNDomEigEst_SetMaxIters", 2)) { return 1; }
 
-  /* Specify the relative tolerance for PI iterations. 
+  /* Specify the relative tolerance for PI iterations.
      This does nothing if DEE is Arnoldi */
   flag = SUNDomEigEst_SetRelTol(DEE, udata->dee_reltol);
   if (check_flag(&flag, "SUNDomEigEst_SetRelTol", 2)) { return 1; }
 
   /* Attach the DEE to the LSRKStep module.
-  There is no need to set Atimes or initialize since these are all 
+  There is no need to set Atimes or initialize since these are all
   performed after attaching the DEE by LSRKStep. */
   flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
   if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 2)) { return 1; }
