@@ -3,18 +3,22 @@ name: Containers - build llvm container for clang-format checker
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   build_llvm_container:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Free up disk space
         uses: ./.github/actions/free-space-ubuntu
 
       - name: Checkout Spack
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: spack/spack
           ref: v0.21.0

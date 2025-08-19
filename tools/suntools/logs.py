@@ -377,6 +377,7 @@ def get_history(
     """
 
     steps, times, values, levels = _get_history(log, key, step_status, time_range, step_range)
+
     if group_by_level:
         from collections import defaultdict
 
@@ -416,17 +417,16 @@ def _get_history(log, key, step_status, time_range, step_range):
             if step < step_range[0] or step > step_range[1]:
                 continue
 
+        save_data = True
         if step_status is not None:
             if step_status not in entry["status"]:
-                continue
+                save_data = False
 
-        if key not in entry:
-            continue
-
-        steps.append(step)
-        times.append(time)
-        values.append(convert_to_num(entry[key]))
-        levels.append(level)
+        if key in entry and save_data:
+            steps.append(step)
+            times.append(time)
+            values.append(convert_to_num(entry[key]))
+            levels.append(level)
 
         if "stages" in entry:
             for s in entry["stages"]:
@@ -439,5 +439,16 @@ def _get_history(log, key, step_status, time_range, step_range):
                     times.extend(sub_times)
                     values.extend(sub_values)
                     levels.extend(sub_levels)
+
+        if "compute-embedding" in entry:
+            next_level_key = f"time-level-{level + 1}"
+            if next_level_key in entry["compute-embedding"]:
+                sub_steps, sub_times, sub_values, sub_levels = _get_history(
+                    entry["compute-embedding"][next_level_key], key, step_status, time_range, None
+                )
+                steps.extend(sub_steps)
+                times.extend(sub_times)
+                values.extend(sub_values)
+                levels.extend(sub_levels)
 
     return steps, times, values, levels
