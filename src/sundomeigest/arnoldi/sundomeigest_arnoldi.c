@@ -214,8 +214,8 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
   /* The workspace size is returned as the first entry of the work array */
   Arnoldi_CONTENT(DEE)->LAPACK_lwork = (sunindextype)work;
 
-  Arnoldi_CONTENT(DEE)->LAPACK_work =
-    (sunrealtype*)malloc(Arnoldi_CONTENT(DEE)->LAPACK_lwork * sizeof(sunrealtype));
+  Arnoldi_CONTENT(DEE)->LAPACK_work = (sunrealtype*)malloc(
+    Arnoldi_CONTENT(DEE)->LAPACK_lwork * sizeof(sunrealtype));
   SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_work, SUN_ERR_MALLOC_FAIL);
 
   /* LAPACK array */
