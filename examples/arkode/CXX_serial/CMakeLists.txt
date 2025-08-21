@@ -46,15 +46,6 @@ if(BUILD_CVODE)
   list(APPEND ARKODE_headers "ark_advection_diffusion_reaction.hpp")
 endif()
 
-# Add the DOMEIG object libraries
-set(DOMEIG_LIBRARIES sundials_sundomeigestpower)
-
-if(ENABLE_LAPACK)
-  list(APPEND ARKODE_examples
-       "ark_heat2D_lsrk_internal_domeig.cpp\;\;exclude-single")
-  list(APPEND DOMEIG_LIBRARIES sundials_sundomeigestarnoldi)
-endif()
-
 # Auxiliary files to install
 set(ARKODE_extras plot_heat2D.py plot_sol.py)
 
@@ -81,7 +72,7 @@ foreach(example_tuple ${ARKODE_examples})
 
     # libraries to link against
     target_link_libraries(${example_target} sundials_arkode sundials_nvecserial
-                          ${EXE_EXTRA_LINK_LIBS} ${DOMEIG_LIBRARIES})
+                          ${EXE_EXTRA_LINK_LIBS})
 
     if(BUILD_CVODE)
       target_link_libraries(${example_target} sundials_cvode)
