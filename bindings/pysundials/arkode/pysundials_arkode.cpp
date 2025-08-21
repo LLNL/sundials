@@ -48,6 +48,14 @@ void bind_arkode(nb::module_& m)
     .def("get", nb::overload_cast<>(&ARKodeView::get, nb::const_),
          nb::rv_policy::reference);
 
+  nb::class_<ARKodeButcherTableView>(m, "ARKodeButcherTableView")
+    .def_static("Create", [](int s, int q, int p, 
+        std::vector<sunrealtype> c, std::vector<sunrealtype> A, std::vector<sunrealtype> b, std::vector<sunrealtype> d) {
+          ARKodeButcherTableView::Create(s, q, p, c.data(), A.data(), b.data(), d.data());
+        })
+    .def("get", nb::overload_cast<>(&ARKodeButcherTableView::get, nb::const_),
+         nb::rv_policy::reference);
+
   /////////////////////////////////////////////////////////////////////////////
   // ARKODE user-supplied function setters
   /////////////////////////////////////////////////////////////////////////////

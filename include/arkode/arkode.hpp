@@ -18,7 +18,6 @@
 #define _SUNDIALS_ARKODE_HPP
 
 #include <arkode/arkode.h>
-#include <arkode/arkode_erkstep.h>
 #include <sundials/sundials_base.hpp>
 
 namespace sundials {
@@ -44,6 +43,29 @@ template<typename... Args>
 ARKodeView ARKodeView::Create(Args&&... args)
 {
   return ARKodeView(std::forward<Args>(args)...);
+}
+
+struct ARKodeButcherTableDeleter
+{
+  void operator()(ARKodeButcherTable t)
+  {
+    if (t) { ARKodeButcherTable_Free(t); }
+  }
+};
+
+class ARKodeButcherTableView : public ClassView<ARKodeButcherTable, ARKodeButcherTableDeleter>
+{
+public:
+  using ClassView<ARKodeButcherTable, ARKodeButcherTableDeleter>::ClassView;
+  template<typename... Args>
+  static ARKodeButcherTableView Create(Args&&... args);
+};
+
+template<typename... Args>
+ARKodeButcherTableView ARKodeButcherTableView::Create(Args&&... args)
+{
+  ARKodeButcherTable table = ARKodeButcherTable_Create(std::forward<Args>(args)...);
+  return ARKodeButcherTableView(table);
 }
 
 } // namespace experimental

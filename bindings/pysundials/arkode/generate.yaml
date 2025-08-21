@@ -41,6 +41,9 @@ modules:
     - "ARKodeCreateSUNStepper"
     - "ARKodeGetCurrentMassMatrix"
     - "ARKodeGetCurrentState"
+    # we dont bind the alloc or create functions as we need to do something custom
+    - "ARKodeButcherTable_Create"
+    - "ARKodeButcherTable_Alloc"
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
     - "ARKodeGetUserData" 
     - "ARKodeSetUserData" 

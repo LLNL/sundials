@@ -1081,26 +1081,6 @@ auto pyClassARKodeButcherTableMem =
     ;
 
 
-m.def("ARKodeButcherTable_Alloc",
-    ARKodeButcherTable_Alloc, nb::arg("stages"), nb::arg("embedded"));
-
-m.def("ARKodeButcherTable_Create",
-    [](int s, int q, int p, std::vector<sunrealtype> c, std::vector<sunrealtype> A, std::vector<sunrealtype> b, std::vector<sunrealtype> d) -> ARKodeButcherTable
-    {
-        auto ARKodeButcherTable_Create_adapt_arr_ptr_to_std_vector = [](int s, int q, int p, std::vector<sunrealtype> c, std::vector<sunrealtype> A, std::vector<sunrealtype> b, std::vector<sunrealtype> d) -> ARKodeButcherTable
-        {
-            sunrealtype* c_ptr = reinterpret_cast<sunrealtype*>( c.empty() ? nullptr : c.data() );
-            sunrealtype* A_ptr = reinterpret_cast<sunrealtype*>( A.empty() ? nullptr : A.data() );
-            sunrealtype* b_ptr = reinterpret_cast<sunrealtype*>( b.empty() ? nullptr : b.data() );
-            sunrealtype* d_ptr = reinterpret_cast<sunrealtype*>( d.empty() ? nullptr : d.data() );
-
-            auto lambda_result = ARKodeButcherTable_Create(s, q, p, c_ptr, A_ptr, b_ptr, d_ptr);
-            return lambda_result;
-        };
-
-        return ARKodeButcherTable_Create_adapt_arr_ptr_to_std_vector(s, q, p, c, A, b, d);
-    },     nb::arg("s"), nb::arg("q"), nb::arg("p"), nb::arg("c"), nb::arg("A"), nb::arg("b"), nb::arg("d"));
-
 m.def("ARKodeButcherTable_Copy",
     ARKodeButcherTable_Copy, nb::arg("B"));
 
