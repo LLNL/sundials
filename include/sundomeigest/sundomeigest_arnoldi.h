@@ -47,11 +47,12 @@ struct SUNDomEigEstimatorContent_Arnoldi_
 
   long int num_ATimes; /* Number of ATimes calls */
 
-  sunrealtype* LAPACK_A; /* The vector which holds rows of the Hessenberg matrix in the given order */
-  sunrealtype* LAPACK_wr;   /* Real parts of eigenvalues */
-  sunrealtype* LAPACK_wi;   /* Imaginary parts of eigenvalues */
-  sunrealtype* LAPACK_work; /* Workspace array */
-  sunrealtype** LAPACK_arr; /* an array to sort eigenvalues*/
+  sunrealtype* LAPACK_A;     /* The vector which holds rows of the Hessenberg matrix in the given order */
+  sunrealtype* LAPACK_wr;    /* Real parts of eigenvalues */
+  sunrealtype* LAPACK_wi;    /* Imaginary parts of eigenvalues */
+  sunrealtype* LAPACK_work;  /* Workspace array */
+  sunindextype LAPACK_lwork; /* Dimension of the workspace array */
+  sunrealtype** LAPACK_arr;  /* an array to sort eigenvalues*/
 
   sunrealtype** Hes; /* Hessenberg matrix Hes */
 };

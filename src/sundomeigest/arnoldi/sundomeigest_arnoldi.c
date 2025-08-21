@@ -211,8 +211,11 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
             Arnoldi_CONTENT(DEE)->LAPACK_wr, Arnoldi_CONTENT(DEE)->LAPACK_wi,
             NULL, &ldvl, NULL, &ldvr, &work, &lwork, &info);
 
+  /* The workspace size is returned as the first entry of the work array */
+  Arnoldi_CONTENT(DEE)->LAPACK_lwork = (sunindextype)work;
+
   Arnoldi_CONTENT(DEE)->LAPACK_work =
-    (sunrealtype*)malloc(((sunindextype)work) * sizeof(sunrealtype));
+    (sunrealtype*)malloc(Arnoldi_CONTENT(DEE)->LAPACK_lwork * sizeof(sunrealtype));
   SUNAssert(Arnoldi_CONTENT(DEE)->LAPACK_work, SUN_ERR_MALLOC_FAIL);
 
   /* LAPACK array */
@@ -349,7 +352,7 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
   sunindextype ldvl = n;
   sunindextype ldvr = n;
   sunindextype info;
-  sunindextype lwork = 4 * n;
+  sunindextype lwork = Arnoldi_CONTENT(DEE)->LAPACK_lwork;
   xgeev_f77(&jobvl, &jobvr, &n, Arnoldi_CONTENT(DEE)->LAPACK_A, &lda,
             Arnoldi_CONTENT(DEE)->LAPACK_wr, Arnoldi_CONTENT(DEE)->LAPACK_wi,
             NULL, &ldvl, NULL, &ldvr, Arnoldi_CONTENT(DEE)->LAPACK_work, &lwork,
