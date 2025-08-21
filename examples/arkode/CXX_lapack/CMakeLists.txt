@@ -35,9 +35,10 @@ foreach(example_tuple ${examples_list})
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target} sundials_arkode sundials_nvecserial
-                          sundials_sundomeigestpower sundials_sundomeigestarnoldi
-                         ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(
+      ${example_target} sundials_arkode sundials_nvecserial
+      sundials_sundomeigestpower sundials_sundomeigestarnoldi
+      ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -56,7 +57,6 @@ foreach(example_tuple ${examples_list})
     EXAMPLE_TYPE ${example_type})
 
 endforeach()
-
 
 if(EXAMPLES_INSTALL)
 

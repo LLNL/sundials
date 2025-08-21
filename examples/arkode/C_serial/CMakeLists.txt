@@ -135,9 +135,9 @@ foreach(example_tuple ${ARKODE_examples})
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target} sundials_arkode sundials_nvecserial
-                          sundials_sundomeigestpower ${EXE_EXTRA_LINK_LIBS}
-                          ${DOMEIG_LIBRARIES})
+    target_link_libraries(
+      ${example_target} sundials_arkode sundials_nvecserial
+      sundials_sundomeigestpower ${EXE_EXTRA_LINK_LIBS} ${DOMEIG_LIBRARIES})
   endif()
 
   # check if example args are provided and set the test name

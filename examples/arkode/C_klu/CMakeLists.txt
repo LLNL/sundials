@@ -56,7 +56,6 @@ foreach(example_tuple ${examples_list})
 
 endforeach()
 
-
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(
