@@ -123,7 +123,7 @@ def main():
             x_a = times_a
             x_f = times_f
 
-        # now that we've read the first log, make as many subplots a time levels
+        # now that we've read the first log, make as many subplots as time levels
         if log_idx == 0:
             _, axes = plt.subplots(len(x_a), sharex=True)
 
