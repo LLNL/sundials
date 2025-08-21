@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * Based on PETSc TS example 15 and idaHeat2D_petsc_spgmr.c by
- * Slaven Peles @ LLNL and Daniel Reynolds @ SMU.
+ * Slaven Peles @ LLNL and Daniel Reynolds @ UMBC.
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

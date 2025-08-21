@@ -3,7 +3,7 @@
  * -----------------------------------------------------------------
  * Acknowledgements: These testing routines are based on an
  *                   NVECTOR testing routine by Daniel R. Reynolds
- *                   @ SMU.
+ *                   @ UMBC.
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

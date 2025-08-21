@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds and Mustafa Aggul @ SMU
+ * Programmer(s): Daniel R. Reynolds and Mustafa Aggul @ UMBC
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

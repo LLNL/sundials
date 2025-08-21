@@ -1,8 +1,8 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel Reynolds @ UMBC
  * Based on code sundials_spfgmr.h by: Daniel R. Reynolds and
- *    Hilari C. Tiedeman @ SMU
+ *    Hilari C. Tiedeman @ UMBC
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

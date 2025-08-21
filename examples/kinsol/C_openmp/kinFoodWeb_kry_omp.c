@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Ting Yan @ SMU
+ * Programmer(s): Ting Yan @ UMBC
  *      Based on kinFoodWeb_kry.c and parallelized with OpenMP
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start

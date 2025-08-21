@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel Reynolds @ UMBC
  * -----------------------------------------------------------------
  * Based on codes <solver>_superlumt.c, written by
  * Carol S. Woodward @ LLNL

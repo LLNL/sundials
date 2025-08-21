@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ------------------------------------------------------------------------------
-# Programmer(s):  Daniel R. Reynolds @ SMU
+# Programmer(s):  Daniel R. Reynolds @ UMBC
 #                 David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start

@@ -1,5 +1,5 @@
 !-----------------------------------------------------------------
-! Programmer(s): Daniel M. Margolis @ SMU
+! Programmer(s): Daniel M. Margolis @ UMBC
 !                modified from previous ARKODE examples
 !-----------------------------------------------------------------
 ! SUNDIALS Copyright Start

@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ UMBC
  *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * Based on PETSc TS example 15 and a SUNDIALS example by

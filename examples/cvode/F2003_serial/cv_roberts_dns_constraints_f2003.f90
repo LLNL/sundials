@@ -3,7 +3,7 @@
 !   Based on prior version by: Scott D. Cohen, Alan C. Hindmarsh and
 !                              Radu Serban @ LLNL
 !
-!                modified by Daniel M. Margolis @ SMU
+!                modified by Daniel M. Margolis @ UMBC
 !
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start

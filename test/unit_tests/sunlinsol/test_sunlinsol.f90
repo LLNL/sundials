@@ -3,7 +3,7 @@
 ! -----------------------------------------------------------------
 ! Acknowledgements: These testing routines are based on
 ! test_sunlinsol.c written by David Gardner @ LLNL and Daniel
-! R. Reynolds @ SMU.
+! R. Reynolds @ UMBC.
 ! -----------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2025, Lawrence Livermore National Security

@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * --------------------------------------------------------------
  * Based on the ark_brusselator1D_omp.c ARKode example by
- * Daniel R. Reynolds @ SMU.
+ * Daniel R. Reynolds @ UMBC.
  * --------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

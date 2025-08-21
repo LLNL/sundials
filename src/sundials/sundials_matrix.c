@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel Reynolds @ UMBC
  *                David J. Gardner, Carol S. Woodward, and
  *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------

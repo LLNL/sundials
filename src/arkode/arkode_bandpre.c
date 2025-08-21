@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ UMBC
  * Based off of cvode_bandpre.c by Scott D. Cohen,
  *      Alan C. Hindmarsh, Radu Serban, and Aaron Collier @ LLNL
  *---------------------------------------------------------------

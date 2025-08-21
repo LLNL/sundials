@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban and
  *                Dan Shumaker @ LLNL
- *                Daniel Reynolds @ SMU
+ *                Daniel Reynolds @ UMBC
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

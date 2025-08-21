@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds and Ting Yan @ SMU
+ * Programmer(s): Daniel R. Reynolds and Ting Yan @ UMBC
  *      Based on idaFoodWeb_bnd.c and parallelized with OpenMP
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start

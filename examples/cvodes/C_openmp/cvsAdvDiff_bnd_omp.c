@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds and Ting Yan @ SMU
+ * Programmer(s): Daniel Reynolds and Ting Yan @ UMBC
  *     Based on cvsAdvDiff_bnd.c and parallelized with OpenMP
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Daniel R. Reynolds @ SMU,
+# Programmer(s): Daniel R. Reynolds @ UMBC,
 #                Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start

@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Daniel R. Reynolds, Ashley Crawford @ SMU
+# Programmer(s): Daniel R. Reynolds, Ashley Crawford @ UMBC
 #                and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start

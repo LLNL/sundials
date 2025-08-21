@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------
  * Programmer(s): David J. Gardner @ LLNL
  * ------------------------------------------------------------------
- * Based an example program by Rujeko Chinomona @ SMU.
+ * Based an example program by Rujeko Chinomona @ UMBC.
  * ------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

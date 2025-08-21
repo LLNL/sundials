@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
- *                Rujeko Chinomona @ SMU
+ * Programmer(s): Daniel R. Reynolds @ UMBC
+ *                Rujeko Chinomona @ UMBC
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

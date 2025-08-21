@@ -1,7 +1,7 @@
 ! ----------------------------------------------------------------
-! Programmer(s): Daniel R. Reynolds @ SMU
+! Programmer(s): Daniel R. Reynolds @ UMBC
 !                Radu Serban and Alan C. Hindmarsh @ LLNL
-!                modified by Daniel M. Margolis @ SMU
+!                modified by Daniel M. Margolis @ UMBC
 ! ----------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2025, Lawrence Livermore National Security

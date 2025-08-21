@@ -1,8 +1,8 @@
 .. ----------------------------------------------------------------
    Programmer(s): David J. Gardner @ LLNL
-                  Daniel R. Reynolds @ SMU
+                  Daniel R. Reynolds @ UMBC
    ----------------------------------------------------------------
-   Based on ERKStep by Daniel R. Reynolds @ SMU
+   Based on ERKStep by Daniel R. Reynolds @ UMBC
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2025, Lawrence Livermore National Security

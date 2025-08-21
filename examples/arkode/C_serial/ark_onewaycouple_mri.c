@@ -4,7 +4,7 @@
  * Based a linear test problem from Estep, Ginting, and Tavener,
  * "A Posteriori analysis of a multirate numerical method for
  * ordinary differential equations," 2012 and an example program by
- * Rujeko Chinomona @ SMU.
+ * Rujeko Chinomona @ UMBC.
  * ------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel Reynolds @ UMBC
  * Based on codes <solver>_klu.c, written by Carol Woodward @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start

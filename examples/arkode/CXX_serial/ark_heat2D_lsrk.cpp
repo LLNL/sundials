@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ UMBC
  *
  * (adapted from ark_heat2D.cpp, co-authored by Daniel Reynolds and David
  * Gardner (LLNL))

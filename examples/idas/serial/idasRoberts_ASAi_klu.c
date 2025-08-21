@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Ting Yan @ SMU
+ * Programmer(s): Ting Yan @ UMBC
  *      Based on idasRoberts_ASAi_dns.c and modified to use KLU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start

@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL and Jean M. Sexton @ SMU
+ * Programmer(s): Slaven Peles @ LLNL and Jean M. Sexton @ UMBC
  * -----------------------------------------------------------------
  * Based on work by Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                  and Aaron Collier @ LLNL

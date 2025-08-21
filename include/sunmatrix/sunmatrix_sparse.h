@@ -1,9 +1,9 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel Reynolds @ UMBC
  *                David Gardner @ LLNL
  * Based on code sundials_sparse.h by: Carol Woodward and
- *     Slaven Peles @ LLNL, and Daniel R. Reynolds @ SMU
+ *     Slaven Peles @ LLNL, and Daniel R. Reynolds @ UMBC
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security

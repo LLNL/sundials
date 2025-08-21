@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds, Jean Sexton @ SMU
+ * Programmer(s): Daniel R. Reynolds, Jean Sexton @ UMBC
  *                Slaven Peles @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start

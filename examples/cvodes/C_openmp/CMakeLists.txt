@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer(s): Ting Yan @ SMU
+# Programmer(s): Ting Yan @ UMBC
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2025, Lawrence Livermore National Security

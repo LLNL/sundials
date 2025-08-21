@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel Reynolds @ UMBC
  * Based on sundials_spbcgs.c code, written by Peter Brown and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------

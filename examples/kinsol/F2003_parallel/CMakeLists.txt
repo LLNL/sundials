@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): David J. Gardner @ LLNL
-#                modified by Daniel M. Margolis @ SMU
+#                modified by Daniel M. Margolis @ UMBC
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2025, Lawrence Livermore National Security

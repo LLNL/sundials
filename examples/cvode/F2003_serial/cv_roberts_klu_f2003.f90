@@ -1,7 +1,7 @@
 ! ------------------------------------------------------------------
-! Programmer(s): Ting Yan @ SMU
+! Programmer(s): Ting Yan @ UMBC
 !                Based on cvRoberts_klu.c and modified to Fortran 77
-!                modified by Daniel M. Margolis @ SMU
+!                modified by Daniel M. Margolis @ UMBC
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
 ! Copyright (c) 2002-2025, Lawrence Livermore National Security

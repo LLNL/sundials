@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ UMBC
  *                Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * ----------------------------------------------------------------

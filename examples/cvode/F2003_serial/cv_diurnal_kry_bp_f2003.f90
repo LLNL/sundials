@@ -1,5 +1,5 @@
 ! ------------------------------------------------------------------
-! Programmer(s): Daniel M. Margolis @ SMU
+! Programmer(s): Daniel M. Margolis @ UMBC
 !                based off the previous Fortran-77 example program,
 !                cvode/fcmix_serial/fcvDiurnal_kry_bp.f
 ! ------------------------------------------------------------------

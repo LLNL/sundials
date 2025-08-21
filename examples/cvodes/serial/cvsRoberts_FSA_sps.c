@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Ting Yan @ SMU
+ * Programmer(s): Ting Yan @ UMBC
  *      Based on cvsRoberts_FSA_dns.c and modified to use SUPERLU_MT
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start

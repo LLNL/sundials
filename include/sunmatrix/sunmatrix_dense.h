@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel Reynolds @ UMBC
  *                David Gardner @ LLNL
  * Based on code sundials_direct.h by: Radu Serban @ LLNL
  * -----------------------------------------------------------------

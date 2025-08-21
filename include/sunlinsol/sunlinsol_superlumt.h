@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ SMU
+ * Programmer(s): Daniel Reynolds @ UMBC
  * Based on codes sundials_superlumt_impl.h and <solver>_superlumt.h
  *     written by Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
