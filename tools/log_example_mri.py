@@ -106,7 +106,7 @@ def main():
         )
 
         if args.stats:
-            # extract step size history for all step attempts
+            # extract step size history for all successful steps
             steps_s, times_s, vals_s = sunlog.get_history(
                 log,
                 "h",
