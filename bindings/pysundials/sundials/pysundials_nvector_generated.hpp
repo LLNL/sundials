@@ -30,25 +30,14 @@ auto pyEnumN_Vector_ID =
 auto pyClass_generic_N_Vector_Ops =
     nb::class_<_generic_N_Vector_Ops>
         (m, "_generic_N_Vector_Ops", "")
-    .def(nb::init<>()) // implicit default constructor 
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 
 auto pyClass_generic_N_Vector =
     nb::class_<_generic_N_Vector>
         (m, "_generic_N_Vector", "")
-    .def("__init__", [](_generic_N_Vector * self, N_Vector_Ops ops = N_Vector_Ops(), SUNContext sunctx = SUNContext())
-    {
-        new (self) _generic_N_Vector();  // placement new
-        auto r_ctor_ = self;
-        r_ctor_->ops = ops;
-        r_ctor_->sunctx = sunctx;
-    },
-    nb::arg("ops") = N_Vector_Ops(), nb::arg("sunctx") = SUNContext()
-    )
-    .def_rw("content", &_generic_N_Vector::content, "")
-    .def_rw("ops", &_generic_N_Vector::ops, "")
-    .def_rw("sunctx", &_generic_N_Vector::sunctx, "")
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 

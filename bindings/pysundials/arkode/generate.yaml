@@ -33,12 +33,14 @@ modules:
     headers:
     - ../../include/arkode/arkode.h
     - ../../include/arkode/arkode_ls.h
+    - ../../include/arkode/arkode_butcher.h
     fn_exclude_by_name__regex:
     # nanobind doesnt support **
     - "ARKodeCreateMRIStepInnerStepper" 
     - "ARKodeGetJac" 
     - "ARKodeCreateSUNStepper"
     - "ARKodeGetCurrentMassMatrix"
+    - "ARKodeGetCurrentState"
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
     - "ARKodeGetUserData" 
     - "ARKodeSetUserData" 

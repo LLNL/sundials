@@ -563,20 +563,6 @@ m.def("ARKodeGetCurrentTime",
         return ARKodeGetCurrentTime_adapt_modifiable_immutable_to_return(arkode_mem, tcur);
     },     nb::arg("arkode_mem"), nb::arg("tcur"));
 
-m.def("ARKodeGetCurrentState",
-    [](void * arkode_mem, std::vector<N_Vector> state) -> int
-    {
-        auto ARKodeGetCurrentState_adapt_nvector_ptr_to_vector = [](void * arkode_mem, std::vector<N_Vector> state) -> int
-        {
-            N_Vector* state_ptr = state.empty() ? nullptr : state.data();
-
-            auto lambda_result = ARKodeGetCurrentState(arkode_mem, state_ptr);
-            return lambda_result;
-        };
-
-        return ARKodeGetCurrentState_adapt_nvector_ptr_to_vector(arkode_mem, state);
-    },     nb::arg("arkode_mem"), nb::arg("state"));
-
 m.def("ARKodeGetCurrentGamma",
     [](void * arkode_mem, double gamma) -> std::tuple<int, double>
     {
@@ -1075,6 +1061,84 @@ m.def("ARKodeSetLSNormFactor",
 
 m.def("ARKodeSetMassLSNormFactor",
     ARKodeSetMassLSNormFactor, nb::arg("arkode_mem"), nb::arg("nrmfac"));
+// #ifdef __cplusplus
+// 
+// #endif
+// 
+// #endif
+// 
+// #ifndef _ARKODE_BUTCHER_H
+// 
+// #ifdef __cplusplus 
+// #endif
+// 
+
+
+auto pyClassARKodeButcherTableMem =
+    nb::class_<ARKodeButcherTableMem>
+        (m, "ARKodeButcherTableMem", "")
+    .def(nb::init<>()) // implicit default constructor
+    ;
+
+
+m.def("ARKodeButcherTable_Alloc",
+    ARKodeButcherTable_Alloc, nb::arg("stages"), nb::arg("embedded"));
+
+m.def("ARKodeButcherTable_Create",
+    [](int s, int q, int p, std::vector<sunrealtype> c, std::vector<sunrealtype> A, std::vector<sunrealtype> b, std::vector<sunrealtype> d) -> ARKodeButcherTable
+    {
+        auto ARKodeButcherTable_Create_adapt_arr_ptr_to_std_vector = [](int s, int q, int p, std::vector<sunrealtype> c, std::vector<sunrealtype> A, std::vector<sunrealtype> b, std::vector<sunrealtype> d) -> ARKodeButcherTable
+        {
+            sunrealtype* c_ptr = reinterpret_cast<sunrealtype*>( c.empty() ? nullptr : c.data() );
+            sunrealtype* A_ptr = reinterpret_cast<sunrealtype*>( A.empty() ? nullptr : A.data() );
+            sunrealtype* b_ptr = reinterpret_cast<sunrealtype*>( b.empty() ? nullptr : b.data() );
+            sunrealtype* d_ptr = reinterpret_cast<sunrealtype*>( d.empty() ? nullptr : d.data() );
+
+            auto lambda_result = ARKodeButcherTable_Create(s, q, p, c_ptr, A_ptr, b_ptr, d_ptr);
+            return lambda_result;
+        };
+
+        return ARKodeButcherTable_Create_adapt_arr_ptr_to_std_vector(s, q, p, c, A, b, d);
+    },     nb::arg("s"), nb::arg("q"), nb::arg("p"), nb::arg("c"), nb::arg("A"), nb::arg("b"), nb::arg("d"));
+
+m.def("ARKodeButcherTable_Copy",
+    ARKodeButcherTable_Copy, nb::arg("B"));
+
+m.def("ARKodeButcherTable_Write",
+    ARKodeButcherTable_Write, nb::arg("B"), nb::arg("outfile"));
+
+m.def("ARKodeButcherTable_IsStifflyAccurate",
+    ARKodeButcherTable_IsStifflyAccurate, nb::arg("B"));
+
+m.def("ARKodeButcherTable_CheckOrder",
+    [](ARKodeButcherTable B, int q, int p, FILE * outfile) -> std::tuple<int, int, int>
+    {
+        auto ARKodeButcherTable_CheckOrder_adapt_modifiable_immutable_to_return = [](ARKodeButcherTable B, int q, int p, FILE * outfile) -> std::tuple<int, int, int>
+        {
+            int * q_adapt_modifiable = & q;
+            int * p_adapt_modifiable = & p;
+
+            int r = ARKodeButcherTable_CheckOrder(B, q_adapt_modifiable, p_adapt_modifiable, outfile);
+            return std::make_tuple(r, q, p);
+        };
+
+        return ARKodeButcherTable_CheckOrder_adapt_modifiable_immutable_to_return(B, q, p, outfile);
+    },     nb::arg("B"), nb::arg("q"), nb::arg("p"), nb::arg("outfile"));
+
+m.def("ARKodeButcherTable_CheckARKOrder",
+    [](ARKodeButcherTable B1, ARKodeButcherTable B2, int q, int p, FILE * outfile) -> std::tuple<int, int, int>
+    {
+        auto ARKodeButcherTable_CheckARKOrder_adapt_modifiable_immutable_to_return = [](ARKodeButcherTable B1, ARKodeButcherTable B2, int q, int p, FILE * outfile) -> std::tuple<int, int, int>
+        {
+            int * q_adapt_modifiable = & q;
+            int * p_adapt_modifiable = & p;
+
+            int r = ARKodeButcherTable_CheckARKOrder(B1, B2, q_adapt_modifiable, p_adapt_modifiable, outfile);
+            return std::make_tuple(r, q, p);
+        };
+
+        return ARKodeButcherTable_CheckARKOrder_adapt_modifiable_immutable_to_return(B1, B2, q, p, outfile);
+    },     nb::arg("B1"), nb::arg("B2"), nb::arg("q"), nb::arg("p"), nb::arg("outfile"));
 // #ifdef __cplusplus
 // 
 // #endif

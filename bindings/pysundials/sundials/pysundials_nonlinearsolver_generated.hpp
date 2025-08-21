@@ -8,25 +8,14 @@
 auto pyClass_generic_SUNNonlinearSolver_Ops =
     nb::class_<_generic_SUNNonlinearSolver_Ops>
         (m, "_generic_SUNNonlinearSolver_Ops", "")
-    .def(nb::init<>()) // implicit default constructor 
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 
 auto pyClass_generic_SUNNonlinearSolver =
     nb::class_<_generic_SUNNonlinearSolver>
         (m, "_generic_SUNNonlinearSolver", "")
-    .def("__init__", [](_generic_SUNNonlinearSolver * self, SUNNonlinearSolver_Ops ops = SUNNonlinearSolver_Ops(), SUNContext sunctx = SUNContext())
-    {
-        new (self) _generic_SUNNonlinearSolver();  // placement new
-        auto r_ctor_ = self;
-        r_ctor_->ops = ops;
-        r_ctor_->sunctx = sunctx;
-    },
-    nb::arg("ops") = SUNNonlinearSolver_Ops(), nb::arg("sunctx") = SUNContext()
-    )
-    .def_rw("content", &_generic_SUNNonlinearSolver::content, "")
-    .def_rw("ops", &_generic_SUNNonlinearSolver::ops, "")
-    .def_rw("sunctx", &_generic_SUNNonlinearSolver::sunctx, "")
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 

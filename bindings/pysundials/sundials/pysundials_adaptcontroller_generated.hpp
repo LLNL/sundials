@@ -8,25 +8,14 @@
 auto pyClass_generic_SUNAdaptController_Ops =
     nb::class_<_generic_SUNAdaptController_Ops>
         (m, "_generic_SUNAdaptController_Ops", "")
-    .def(nb::init<>()) // implicit default constructor 
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 
 auto pyClass_generic_SUNAdaptController =
     nb::class_<_generic_SUNAdaptController>
         (m, "_generic_SUNAdaptController", "")
-    .def("__init__", [](_generic_SUNAdaptController * self, SUNAdaptController_Ops ops = SUNAdaptController_Ops(), SUNContext sunctx = SUNContext())
-    {
-        new (self) _generic_SUNAdaptController();  // placement new
-        auto r_ctor_ = self;
-        r_ctor_->ops = ops;
-        r_ctor_->sunctx = sunctx;
-    },
-    nb::arg("ops") = SUNAdaptController_Ops(), nb::arg("sunctx") = SUNContext()
-    )
-    .def_rw("content", &_generic_SUNAdaptController::content, "")
-    .def_rw("ops", &_generic_SUNAdaptController::ops, "")
-    .def_rw("sunctx", &_generic_SUNAdaptController::sunctx, "")
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 

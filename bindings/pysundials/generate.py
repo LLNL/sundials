@@ -40,8 +40,14 @@ def main():
     # Transform inplace modification of values, e.g. int CVodeGetNumSteps(void* cvode_mem, long int* num_steps), to CvodeGetNumSteps(cvode_mem) -> Tuple[int, long int]
     options.fn_params_output_modifiable_immutable_to_return__regex = r".*"
 
-    # options.fn_params_array_pointers_to_std_vector = [r"N_Vector\s*\*\s+\w+_arr", r"sunrealtype\s*\*\s+\w+_arr"]
+    # Transform arrays of thing to std::vector<thing>
     options.fn_params_array_pointers_to_std_vector = [r"N_Vector1d", r"N_Vector2d", r"sunrealtype1d"]
+
+    # Don't create default constructors for any struct
+    options.struct_create_default_named_ctor__regex = ""
+
+    # Don't interface any struct or class member directly
+    options.member_exclude_by_name__regex = r".*"
 
     # Our own custom function adapters
     options.fn_custom_adapters = [adapt_default_arg_pointer_with_default_null, adapt_array_pointer_to_std_vector]

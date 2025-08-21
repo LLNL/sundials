@@ -126,25 +126,14 @@ m.def("SUNQRAdd_DCGS2_SB",
 auto pyClass_generic_SUNLinearSolver_Ops =
     nb::class_<_generic_SUNLinearSolver_Ops>
         (m, "_generic_SUNLinearSolver_Ops", "")
-    .def(nb::init<>()) // implicit default constructor 
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 
 auto pyClass_generic_SUNLinearSolver =
     nb::class_<_generic_SUNLinearSolver>
         (m, "_generic_SUNLinearSolver", "")
-    .def("__init__", [](_generic_SUNLinearSolver * self, SUNLinearSolver_Ops ops = SUNLinearSolver_Ops(), SUNContext sunctx = SUNContext())
-    {
-        new (self) _generic_SUNLinearSolver();  // placement new
-        auto r_ctor_ = self;
-        r_ctor_->ops = ops;
-        r_ctor_->sunctx = sunctx;
-    },
-    nb::arg("ops") = SUNLinearSolver_Ops(), nb::arg("sunctx") = SUNContext()
-    )
-    .def_rw("content", &_generic_SUNLinearSolver::content, "")
-    .def_rw("ops", &_generic_SUNLinearSolver::ops, "")
-    .def_rw("sunctx", &_generic_SUNLinearSolver::sunctx, "")
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 

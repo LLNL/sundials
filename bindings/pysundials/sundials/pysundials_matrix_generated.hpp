@@ -8,25 +8,14 @@
 auto pyClass_generic_SUNMatrix_Ops =
     nb::class_<_generic_SUNMatrix_Ops>
         (m, "_generic_SUNMatrix_Ops", "")
-    .def(nb::init<>()) // implicit default constructor 
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 
 auto pyClass_generic_SUNMatrix =
     nb::class_<_generic_SUNMatrix>
         (m, "_generic_SUNMatrix", "")
-    .def("__init__", [](_generic_SUNMatrix * self, SUNMatrix_Ops ops = SUNMatrix_Ops(), SUNContext sunctx = SUNContext())
-    {
-        new (self) _generic_SUNMatrix();  // placement new
-        auto r_ctor_ = self;
-        r_ctor_->ops = ops;
-        r_ctor_->sunctx = sunctx;
-    },
-    nb::arg("ops") = SUNMatrix_Ops(), nb::arg("sunctx") = SUNContext()
-    )
-    .def_rw("content", &_generic_SUNMatrix::content, "")
-    .def_rw("ops", &_generic_SUNMatrix::ops, "")
-    .def_rw("sunctx", &_generic_SUNMatrix::sunctx, "")
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 

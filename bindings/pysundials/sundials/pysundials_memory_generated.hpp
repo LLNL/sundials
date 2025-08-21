@@ -17,26 +17,14 @@ auto pyEnumSUNMemoryType_ =
 auto pyClassSUNMemoryHelper_ =
     nb::class_<SUNMemoryHelper_>
         (m, "SUNMemoryHelper_", "")
-    .def("__init__", [](SUNMemoryHelper_ * self, SUNMemoryHelper_Ops ops = SUNMemoryHelper_Ops(), SUNContext sunctx = SUNContext())
-    {
-        new (self) SUNMemoryHelper_();  // placement new
-        auto r_ctor_ = self;
-        r_ctor_->ops = ops;
-        r_ctor_->sunctx = sunctx;
-    },
-    nb::arg("ops") = SUNMemoryHelper_Ops(), nb::arg("sunctx") = SUNContext()
-    )
-    .def_rw("content", &SUNMemoryHelper_::content, "")
-    .def_rw("queue", &SUNMemoryHelper_::queue, "")
-    .def_rw("ops", &SUNMemoryHelper_::ops, "")
-    .def_rw("sunctx", &SUNMemoryHelper_::sunctx, "")
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 
 auto pyClassSUNMemoryHelper_Ops_ =
     nb::class_<SUNMemoryHelper_Ops_>
         (m, "SUNMemoryHelper_Ops_", "")
-    .def(nb::init<>()) // implicit default constructor 
+    .def(nb::init<>()) // implicit default constructor
     ;
 
 
