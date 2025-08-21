@@ -34,7 +34,7 @@ def test_bdf():
 
     nv2 = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
     arr2 = N_VGetArrayPointer(nv2.get())
-    arr2[:] = 1.0 
+    arr2[:] = 1.0
 
     # TODO(CJB): figure out why the state does not change -- seems like somehow there is a copy of the vector rather than a reference?
     status = CVodeGetCurrentState(solver.get(), [nv2.get()])

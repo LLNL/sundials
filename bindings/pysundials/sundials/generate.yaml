@@ -105,11 +105,16 @@ modules:
     fn_exclude_by_name__regex:
     # we have to have custom handling for the following to get the proper dimensions set for the numpy array
     - "ArrayPointer"
+    # these operations for supporting xbraid are not needed in Python
     - "BufPack"
     - "BufUnpack"
-    # these have ** and *** argument types which trip up nanobind
-    - "VectorArray"
-    - "Multi"
+    - "BufSize"
+    # vector arrays do not need to be created in Python
+    - "N_VNewVectorArray"
+    - "N_VCloneVectorArray"
+    - "N_VCloneEmptyVectorArray"
+    - "N_VGetVecAtIndexVectorArray"
+    - "N_VSetVecAtIndexVectorArray"
   sundials_profiler:
     path: sundials/pysundials_profiler_generated.hpp
     headers:

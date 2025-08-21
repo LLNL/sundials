@@ -124,7 +124,7 @@ typedef int (*IDAResFn)(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
                         void* user_data);
 
 typedef int (*IDARootFn)(sunrealtype t, N_Vector y, N_Vector yp,
-                         sunrealtype* gout, void* user_data);
+                         sunrealtype1d gout, void* user_data);
 
 typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void* user_data);
 
@@ -132,20 +132,20 @@ typedef int (*IDAQuadRhsFn)(sunrealtype tres, N_Vector yy, N_Vector yp,
                             N_Vector rrQ, void* user_data);
 
 typedef int (*IDASensResFn)(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
-                            N_Vector resval, N_Vector* yyS, N_Vector* ypS,
-                            N_Vector* resvalS, void* user_data, N_Vector tmp1,
+                            N_Vector resval, N_Vector1d yyS, N_Vector1d ypS,
+                            N_Vector1d resvalS, void* user_data, N_Vector tmp1,
                             N_Vector tmp2, N_Vector tmp3);
 
 typedef int (*IDAQuadSensRhsFn)(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
-                                N_Vector* yyS, N_Vector* ypS, N_Vector rrQ,
-                                N_Vector* rhsvalQS, void* user_data,
+                                N_Vector1d yyS, N_Vector1d ypS, N_Vector rrQ,
+                                N_Vector1d rhsvalQS, void* user_data,
                                 N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS);
 
 typedef int (*IDAResFnB)(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector yyB,
                          N_Vector ypB, N_Vector rrB, void* user_dataB);
 
 typedef int (*IDAResFnBS)(sunrealtype t, N_Vector yy, N_Vector yp,
-                          N_Vector* yyS, N_Vector* ypS, N_Vector yyB,
+                          N_Vector1d yyS, N_Vector1d ypS, N_Vector yyB,
                           N_Vector ypB, N_Vector rrBS, void* user_dataB);
 
 typedef int (*IDAQuadRhsFnB)(sunrealtype tt, N_Vector yy, N_Vector yp,
@@ -153,7 +153,7 @@ typedef int (*IDAQuadRhsFnB)(sunrealtype tt, N_Vector yy, N_Vector yp,
                              void* user_dataB);
 
 typedef int (*IDAQuadRhsFnBS)(sunrealtype t, N_Vector yy, N_Vector yp,
-                              N_Vector* yyS, N_Vector* ypS, N_Vector yyB,
+                              N_Vector1d yyS, N_Vector1d ypS, N_Vector yyB,
                               N_Vector ypB, N_Vector rhsvalBQS, void* user_dataB);
 
 /* ---------------------------------------
@@ -343,9 +343,9 @@ SUNDIALS_EXPORT void IDAQuadFree(void* ida_mem);
 
 /* Initialization functions */
 SUNDIALS_EXPORT int IDASensInit(void* ida_mem, int Ns, int ism,
-                                IDASensResFn resS, N_Vector* yS0, N_Vector* ypS0);
-SUNDIALS_EXPORT int IDASensReInit(void* ida_mem, int ism, N_Vector* yS0,
-                                  N_Vector* ypS0);
+                                IDASensResFn resS, N_Vector1d yS0, N_Vector1d ypS0);
+SUNDIALS_EXPORT int IDASensReInit(void* ida_mem, int ism, N_Vector1d yS0,
+                                  N_Vector1d ypS0);
 
 /* Tolerance input functions */
 SUNDIALS_EXPORT int IDASensSStolerances(void* ida_mem, sunrealtype reltolS,
@@ -414,14 +414,14 @@ SUNDIALS_EXPORT void IDASensFree(void* ida_mem);
 
 /* Initialization functions */
 SUNDIALS_EXPORT int IDAQuadSensInit(void* ida_mem, IDAQuadSensRhsFn resQS,
-                                    N_Vector* yQS0);
-SUNDIALS_EXPORT int IDAQuadSensReInit(void* ida_mem, N_Vector* yQS0);
+                                    N_Vector1d yQS0);
+SUNDIALS_EXPORT int IDAQuadSensReInit(void* ida_mem, N_Vector1d yQS0);
 
 /* Tolerance input functions */
 SUNDIALS_EXPORT int IDAQuadSensSStolerances(void* ida_mem, sunrealtype reltolQS,
                                             sunrealtype* abstolQS);
 SUNDIALS_EXPORT int IDAQuadSensSVtolerances(void* ida_mem, sunrealtype reltolQS,
-                                            N_Vector* abstolQS);
+                                            N_Vector1d abstolQS);
 SUNDIALS_EXPORT int IDAQuadSensEEtolerances(void* ida_mem);
 
 /* Optional input specification functions */

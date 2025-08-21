@@ -40,8 +40,11 @@ def main():
     # Transform inplace modification of values, e.g. int CVodeGetNumSteps(void* cvode_mem, long int* num_steps), to CvodeGetNumSteps(cvode_mem) -> Tuple[int, long int]
     options.fn_params_output_modifiable_immutable_to_return__regex = r".*"
 
+    # options.fn_params_array_pointers_to_std_vector = [r"N_Vector\s*\*\s+\w+_arr", r"sunrealtype\s*\*\s+\w+_arr"]
+    options.fn_params_array_pointers_to_std_vector = [r"N_Vector1d", r"N_Vector2d", r"sunrealtype1d"]
+
     # Our own custom function adapters
-    options.fn_custom_adapters = [adapt_default_arg_pointer_with_default_null, adapt_nvector_pointer_to_vector]
+    options.fn_custom_adapters = [adapt_default_arg_pointer_with_default_null, adapt_array_pointer_to_std_vector]
 
     options.srcmlcpp_options.code_preprocess_function = preprocess_header
     options.srcmlcpp_options.ignored_warning_parts.append(

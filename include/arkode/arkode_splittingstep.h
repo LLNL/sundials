@@ -30,8 +30,8 @@ extern "C" {
   ---------------------------------------------------------------*/
 struct SplittingStepCoefficientsMem
 {
-  sunrealtype* alpha;  /* weights for sum over sequential splitting methods */
-  sunrealtype*** beta; /* subintegration nodes, indexed by the sequential method, stage, and partition */
+  sunrealtype1d alpha;  /* weights for sum over sequential splitting methods */
+  sunrealtype3d beta; /* subintegration nodes, indexed by the sequential method, stage, and partition */
   int sequential_methods; /* number of sequential splitting methods */
   int stages;     /* number of stages within each sequential splitting method */
   int partitions; /* number of RHS partitions */
@@ -61,7 +61,7 @@ SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Alloc(
   int sequential_methods, int stages, int partitions);
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Create(
   int sequential_methods, int stages, int partitions, int order,
-  sunrealtype* alpha, sunrealtype* beta);
+  sunrealtype1d alpha, sunrealtype1d beta);
 SUNDIALS_EXPORT void SplittingStepCoefficients_Destroy(
   SplittingStepCoefficients* coefficients);
 SUNDIALS_EXPORT SplittingStepCoefficients

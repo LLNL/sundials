@@ -85,11 +85,11 @@ typedef void (*KINInfoHandlerFn)(const char* module, const char* function,
                                  char* msg, void* user_data);
 
 typedef int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val,
-                            sunrealtype* qt_fn, long int depth, void* user_data,
+                            sunrealtype1d qt_fn, long int depth, void* user_data,
                             sunrealtype* damping_factor);
 
 typedef int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val,
-                          N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
+                          N_Vector f_val, N_Vector1d df, sunrealtype1d R_mat,
                           long int depth, void* user_data, long int* new_depth,
                           sunbooleantype* remove_indices);
 

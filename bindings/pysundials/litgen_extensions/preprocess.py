@@ -22,7 +22,6 @@ def change_long_int_to_long(code):
 
 def change_sundials_types(code):
     code = re.sub(r"\bsunrealtype\b", "double", code)
-    # code = re.sub(r"\bsunrealtype1d\b", "std::vector<double>", code)
     code = re.sub(r"\bsunindextype\b", "long", code)
     code = re.sub(r"\bsunbooleantype\b", "int", code)
     return code

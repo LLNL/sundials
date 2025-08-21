@@ -161,7 +161,7 @@ extern "C" {
 typedef int (*ARKRhsFn)(sunrealtype t, N_Vector y, N_Vector ydot,
                         void* user_data);
 
-typedef int (*ARKRootFn)(sunrealtype t, N_Vector y, sunrealtype* gout,
+typedef int (*ARKRootFn)(sunrealtype t, N_Vector y, sunrealtype1d gout,
                          void* user_data);
 
 typedef int (*ARKEwtFn)(N_Vector y, N_Vector ewt, void* user_data);

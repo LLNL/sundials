@@ -126,15 +126,16 @@ typedef long double sunrealtype;
 
 /*
  *-----------------------------------------------------------------------------
- * Type(s): sunrealtype1d, sunrealtype2d
- * These types are to be used in place of sunrealtype* and sunrealtype**
- * when semantically these map to arrays. I.e., if sunrealtype*
+ * Type(s): sunrealtype1d, sunrealtype2d, sunrealtype3d
+ * These types are to be used in place of sunrealtype*, sunrealtype**, and
+ * sunrealtype*** when semantically these map to arrays. I.e., if sunrealtype*
  * refers to an array, then use sunrealtype1d. If it refers to a 
  * a pointer to a singular value (for "out" params), use sunrealtype*.
  *-----------------------------------------------------------------------------
  */
 typedef sunrealtype* sunrealtype1d;
 typedef sunrealtype** sunrealtype2d;
+typedef sunrealtype*** sunrealtype3d;
 
 /*
  *------------------------------------------------------------------
