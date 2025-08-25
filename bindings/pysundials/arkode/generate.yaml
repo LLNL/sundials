@@ -59,8 +59,11 @@ modules:
     headers:
     - ../../include/arkode/arkode_arkstep.h
     fn_exclude_by_name__regex:
-    # we dont bind the ERKStepCreate function as we need to do something custom
-    - "Create"
+    # we dont bind the ARKStepCreate function as we need to do something custom
+    - "ARKStepCreate"
+    - "ARKStepReInit"
+    # reinit also requires custom handling due to function pointers
+    - "ARKStepReInit"
     # nanobind doesnt support **
     - "ARKStepGetCurrentButcherTable"
   erkstep:
@@ -69,7 +72,9 @@ modules:
     - ../../include/arkode/arkode_erkstep.h
     fn_exclude_by_name__regex:
     # we dont bind the ERKStepCreate function as we need to do something custom
-    - "Create"
+    - "ERKStepCreate"
+    # reinit also requires custom handling due to function pointers
+    - "ERKStepReInit"
     # nanobind doesnt support **
     - "ERKStepGetCurrentButcherTable"
   sprkstep:
@@ -77,7 +82,9 @@ modules:
     headers:
     - ../../include/arkode/arkode_sprkstep.h
     fn_exclude_by_name__regex:
-    - "Create"
+    - "SPRKStepCreate"
+    # reinit also requires custom handling due to function pointers
+    - "SPRKStepReInit"
     # nanobind doesnt support **
     - "GetCurrentMethod"
   lsrkstep:
@@ -85,6 +92,24 @@ modules:
     headers:
     - ../../include/arkode/arkode_lsrkstep.h
     fn_exclude_by_name__regex:
-    - "Create"
+    - "LSRKStepCreate"
+    - "LSRKStepReInit"
     - "SetDomEigFn"
-    
+  mristep:
+    path: arkode/pysundials_arkode_mristep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_mristep.h
+    fn_exclude_by_name__regex:
+    # we dont allow alloc to be used from Python
+    - "MRIStepCoupling_Alloc"
+    # we do custom handling of Create
+    - "MRIStepCreate"
+    - "MRIStepCoupling_Create"
+    - "MRIStepInnerStepper_Create"
+    # reinit also requires custom handling due to function pointers
+    - "MRIStepReInit"
+    # We steal the MRIStepInnerStepper content for callbacks, so dont interface the set/get
+    - "MRIStepInnerStepper_GetContent"
+    - "MRIStepInnerStepper_SetContent"
+    # we cannot yet handle **s for most custom types
+    - "MRIStepGetCurrentCoupling"

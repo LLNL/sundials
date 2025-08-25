@@ -4,9 +4,6 @@
 // #endif
 // 
 
-m.def("ARKStepReInit",
-    ARKStepReInit, nb::arg("arkode_mem"), nb::arg("fe"), nb::arg("fi"), nb::arg("t0"), nb::arg("y0"));
-
 m.def("ARKStepSetExplicit",
     ARKStepSetExplicit, nb::arg("arkode_mem"));
 

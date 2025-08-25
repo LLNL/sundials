@@ -4,9 +4,6 @@
 // #endif
 // 
 
-m.def("ERKStepReInit",
-    ERKStepReInit, nb::arg("arkode_mem"), nb::arg("f"), nb::arg("t0"), nb::arg("y0"));
-
 m.def("ERKStepSetTable",
     ERKStepSetTable, nb::arg("arkode_mem"), nb::arg("B"));
 

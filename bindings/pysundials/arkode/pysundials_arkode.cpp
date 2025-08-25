@@ -38,10 +38,15 @@ void bind_arkode_erkstep(nb::module_& m);
 void bind_arkode_arkstep(nb::module_& m);
 void bind_arkode_sprkstep(nb::module_& m);
 void bind_arkode_lsrkstep(nb::module_& m);
+void bind_arkode_mristep(nb::module_& m);
 
 void bind_arkode(nb::module_& m)
 {
 #include "pysundials_arkode_generated.hpp"
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Interface view classes for ARKODE level objects
+  /////////////////////////////////////////////////////////////////////////////
 
   nb::class_<ARKodeView>(m, "ARKodeView")
     .def_static("Create", &ARKodeView::Create<void*>)
@@ -56,6 +61,7 @@ void bind_arkode(nb::module_& m)
     .def("get", nb::overload_cast<>(&ARKodeButcherTableView::get, nb::const_),
          nb::rv_policy::reference);
 
+         
   /////////////////////////////////////////////////////////////////////////////
   // ARKODE user-supplied function setters
   /////////////////////////////////////////////////////////////////////////////
@@ -264,9 +270,9 @@ void bind_arkode(nb::module_& m)
   m.def("ARKodeSetMassLinearSolver",
     ARKodeSetMassLinearSolver, nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M").none(), nb::arg("time_dep"));
 
-
   bind_arkode_arkstep(m);
   bind_arkode_erkstep(m);
   bind_arkode_sprkstep(m);
   bind_arkode_lsrkstep(m);
+  bind_arkode_mristep(m);
 }

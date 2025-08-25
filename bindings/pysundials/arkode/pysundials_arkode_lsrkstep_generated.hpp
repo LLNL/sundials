@@ -4,12 +4,6 @@
 // #endif
 // 
 
-m.def("LSRKStepReInitSTS",
-    LSRKStepReInitSTS, nb::arg("arkode_mem"), nb::arg("rhs"), nb::arg("t0"), nb::arg("y0"));
-
-m.def("LSRKStepReInitSSP",
-    LSRKStepReInitSSP, nb::arg("arkode_mem"), nb::arg("rhs"), nb::arg("t0"), nb::arg("y0"));
-
 m.def("LSRKStepSetSTSMethod",
     LSRKStepSetSTSMethod, nb::arg("arkode_mem"), nb::arg("method"));
 
