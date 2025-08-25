@@ -5,6 +5,7 @@ from pysundials.core import *
 from pysundials.cvodes import *
 from ode_problems import AnalyticODE
 
+
 def test_bdf():
     sunctx = SUNContextView.Create()
     nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
@@ -16,15 +17,9 @@ def test_bdf():
 
     ode_problem = AnalyticODE()
 
-    solver = CVodeView.Create(
-        CVodeCreate(
-            CV_BDF, sunctx.get()
-        )
-    )
+    solver = CVodeView.Create(CVodeCreate(CV_BDF, sunctx.get()))
 
-    status = CVodeInit(solver.get(),
-        lambda t, y, ydot, _: ode_problem.f(t, y, ydot), 0, nv.get(),
-    )
+    status = CVodeInit(solver.get(), lambda t, y, ydot, _: ode_problem.f(t, y, ydot), 0, nv.get())
     status = CVodeSStolerances(solver.get(), 1e-6, 1e-6)
     status = CVodeSetLinearSolver(solver.get(), ls.get(), None)
 
