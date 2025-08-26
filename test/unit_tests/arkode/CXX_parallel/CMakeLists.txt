@@ -47,9 +47,8 @@ foreach(test_tuple ${unit_tests})
               ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
-    target_link_libraries(
-      ${test_target} MPI::MPI_CXX sundials_arkode sundials_nvecparallel
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${test_target} MPI::MPI_CXX sundials_arkode
+                          sundials_nvecparallel ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 

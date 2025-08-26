@@ -182,7 +182,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       of ``num_iters`` should be set with
       :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` while the number of  
       preprocessing iterations for subsequent calls should be set with  
-      :c:func:`LSRKStepSetNumDomEigEsPreprocessIters`. 
+      :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`. 
 
       A ``num_iters`` argument that is :math:` < 0` will result in the default
       value (100).  This default value is particularly chosen to minimize the memory
