@@ -50,6 +50,10 @@ wheel.py-api = "cp312"
 
 cmake.args = [
     "-DBUILD_SHARED_LIBS=OFF",
+    "-DBUILD_CVODE=OFF",
+    "-DBUILD_IDA=OFF",
+    "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+    "-DEXAMPLES_ENABLE=OFF",
     "-DSUNDIALS_ENABLE_PYTHON=ON"
 ]
 

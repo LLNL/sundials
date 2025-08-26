@@ -36,12 +36,12 @@ modules:
     - ../../include/arkode/arkode_butcher.h
     fn_exclude_by_name__regex:
     # nanobind doesnt support **
-    - "ARKodeCreateMRIStepInnerStepper" 
     - "ARKodeGetJac" 
-    - "ARKodeCreateSUNStepper"
     - "ARKodeGetCurrentMassMatrix"
     - "ARKodeGetCurrentState"
     # we dont bind the alloc or create functions as we need to do something custom
+    - "ARKodeCreateMRIStepInnerStepper" 
+    - "ARKodeCreateSUNStepper"
     - "ARKodeButcherTable_Create"
     - "ARKodeButcherTable_Alloc"
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
@@ -53,6 +53,7 @@ modules:
     - "ARKodeSet.*Preconditioner"
     - "ARKodeSet.*Times"
     # generator cannot handle functions with optional (i.e. NULLable) parameters that is not followed by only optional parameters
+    # so we have to do something custom
     - "ARKodeSetMassLinearSolver"
   arkstep:
     path: arkode/pysundials_arkode_arkstep_generated.hpp
@@ -115,3 +116,7 @@ modules:
     - "MRIStepGetCurrentCoupling"
     # we have to do custom things to handle setting function pointers
     - "MRIStepInnerStepper_Set.*Fn"
+  forcingstep:
+    path: arkode/pysundials_arkode_forcingstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_forcingstep.h

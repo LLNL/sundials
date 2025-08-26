@@ -13,6 +13,7 @@
  *----------------------------------------------------------------------------*/
 
 #include <optional>
+#include <stdexcept>
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
@@ -20,6 +21,9 @@
 #include <nanobind/stl/tuple.h>
 
 #include <sundials/sundials_core.hpp>
+// #include <sundials/sundials_stepper.hpp>
+
+class SUNStepperView;
 
 #include <arkode/arkode.h>
 #include <arkode/arkode.hpp>
@@ -39,6 +43,7 @@ void bind_arkode_arkstep(nb::module_& m);
 void bind_arkode_sprkstep(nb::module_& m);
 void bind_arkode_lsrkstep(nb::module_& m);
 void bind_arkode_mristep(nb::module_& m);
+void bind_arkode_forcingstep(nb::module_& m);
 
 void bind_arkode(nb::module_& m)
 {
@@ -54,14 +59,17 @@ void bind_arkode(nb::module_& m)
          nb::rv_policy::reference);
 
   nb::class_<ARKodeButcherTableView>(m, "ARKodeButcherTableView")
-    .def_static("Create", [](int s, int q, int p, 
-        std::vector<sunrealtype> c, std::vector<sunrealtype> A, std::vector<sunrealtype> b, std::vector<sunrealtype> d) {
-          ARKodeButcherTableView::Create(s, q, p, c.data(), A.data(), b.data(), d.data());
-        })
+    .def_static("Create",
+                [](int s, int q, int p, std::vector<sunrealtype> c,
+                   std::vector<sunrealtype> A, std::vector<sunrealtype> b,
+                   std::vector<sunrealtype> d)
+                {
+                  ARKodeButcherTableView::Create(s, q, p, c.data(), A.data(),
+                                                 b.data(), d.data());
+                })
     .def("get", nb::overload_cast<>(&ARKodeButcherTableView::get, nb::const_),
          nb::rv_policy::reference);
 
-         
   /////////////////////////////////////////////////////////////////////////////
   // ARKODE user-supplied function setters
   /////////////////////////////////////////////////////////////////////////////
@@ -267,12 +275,31 @@ void bind_arkode(nb::module_& m)
 
   // These functions have optional arguments which litgen cannot deal with because they are followed by
   // non-optional arguments.
-  m.def("ARKodeSetMassLinearSolver",
-    ARKodeSetMassLinearSolver, nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M").none(), nb::arg("time_dep"));
+  m.def("ARKodeSetMassLinearSolver", ARKodeSetMassLinearSolver,
+        nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M").none(),
+        nb::arg("time_dep"));
+
+  m.def(
+    "ARKodeCreateSUNStepper",
+    [](void* ark_mem)
+    {
+      SUNStepper stepper = nullptr;
+
+      int status = ARKodeCreateSUNStepper(ark_mem, &stepper);
+      if (status != ARK_SUCCESS)
+      {
+        throw std::runtime_error(
+          "PY-SUNDIALS-OFFICIAL: ARKodeCreateSUNStepper call failed");
+      }
+
+      return stepper;
+    },
+    nb::arg("ark_mem"), nb::rv_policy::reference);
 
   bind_arkode_arkstep(m);
   bind_arkode_erkstep(m);
   bind_arkode_sprkstep(m);
   bind_arkode_lsrkstep(m);
   bind_arkode_mristep(m);
+  bind_arkode_forcingstep(m);
 }

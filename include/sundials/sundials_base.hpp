@@ -21,6 +21,7 @@
 #include <memory>
 #include <sundials/sundials_context.hpp>
 #include <sundials/sundials_convertibleto.hpp>
+#include <utility>
 
 namespace sundials {
 namespace impl {
@@ -113,21 +114,29 @@ BaseObject<ObjectStruct, ObjectOps>::~BaseObject() = default;
 
 namespace experimental {
 
-template<class T, class Deleter, class Tstruct = T>
+template<class T, class Deleter>
 class ClassView : public sundials::ConvertibleTo<T>
 {
 public:
   ClassView() : object_(nullptr) {}
 
-  ClassView(T& object) : object_(std::make_unique<T>(object)) {}
+  ClassView(T& object) : object_(object) {}
 
-  ClassView(T&& object) : object_(std::make_unique<T>(object)) {}
+  ClassView(T&& object) : object_(object) {}
 
-  ClassView(const ClassView&)  = delete;
-  ClassView(ClassView&& other) = default;
+  ClassView(const ClassView&) = delete;
+
+  ClassView(ClassView&& other) noexcept
+    : object_(std::exchange(other.object_, nullptr))
+  {}
 
   ClassView& operator=(const ClassView&) = delete;
-  ClassView& operator=(ClassView&& rhs)  = default;
+
+  ClassView& operator=(ClassView&& rhs) noexcept
+  {
+    this->object_ = std::exchange(rhs.object_, nullptr);
+    return *this;
+  };
 
   ~ClassView()
   {
@@ -135,16 +144,16 @@ public:
   };
 
   // Override ConvertibleTo functions
-  T get() override { return *object_.get(); }
+  T get() override { return object_; }
 
-  T get() const override { return *object_.get(); }
+  T get() const override { return object_; }
 
-  operator T() override { return *object_.get(); }
+  operator T() override { return object_; }
 
-  operator T() const override { return *object_.get(); }
+  operator T() const override { return object_; }
 
 private:
-  std::unique_ptr<T> object_;
+  T object_;
 };
 
 template<typename T, typename Deleter, typename Func, typename... Args>

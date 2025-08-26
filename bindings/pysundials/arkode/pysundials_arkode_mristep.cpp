@@ -71,7 +71,7 @@ void bind_arkode_mristep(nb::module_& m)
         // TODO(CJB): need to set ownership of content so that MRIStepInnerStepper_Free frees the user-supplied function table
 
         return stepper;
-  });
+  }, nb::arg("sunctx"), nb::rv_policy::reference);
 
   m.def("ARKodeCreateMRIStepInnerStepper", [] (void* inner_arkode_mem) {
     MRIStepInnerStepper stepper = nullptr;
@@ -81,12 +81,8 @@ void bind_arkode_mristep(nb::module_& m)
         throw std::runtime_error("Failed to create MRIStepInnerStepper");
     }
 
-    // void* content = nullptr;
-    // MRIStepInnerStepper_GetContent(stepper, &content);
-    // printf("alloc stepper:%p, content:%p\n", stepper, content);
-
     return stepper;
-  });
+  }, nb::arg("inner_arkode_mem"), nb::rv_policy::reference);
 
   m.def("MRIStepCreate",
         [](std::function<std::remove_pointer_t<ARKRhsFn>> fse, std::function<std::remove_pointer_t<ARKRhsFn>> fsi,

@@ -82,6 +82,7 @@ set(sundials_SOURCES
     arkode/pysundials_arkode_sprkstep.cpp
     arkode/pysundials_arkode_lsrkstep.cpp
     arkode/pysundials_arkode_mristep.cpp
+    arkode/pysundials_arkode_forcingstep.cpp
     cvodes/pysundials_cvodes.cpp)
 
 # Create the Python sundials library

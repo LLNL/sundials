@@ -24,6 +24,7 @@
 namespace sundials {
 
 namespace experimental {
+  
 struct SUNStepperDeleter
 {
   void operator()(SUNStepper self)
@@ -36,16 +37,23 @@ class SUNStepperView : public ClassView<SUNStepper, SUNStepperDeleter>
 {
 public:
   using ClassView<SUNStepper, SUNStepperDeleter>::ClassView;
+
   template<typename... Args>
   static SUNStepperView Create(Args&&... args);
 };
+
+template<>
+SUNStepperView SUNStepperView::Create(SUNStepper&& stepper)
+{
+  return SUNStepperView(std::forward<SUNStepper>(stepper));
+}
 
 template<typename... Args>
 SUNStepperView SUNStepperView::Create(Args&&... args)
 {
   SUNStepper stepper;
   SUNStepper_Create(std::forward<Args>(args)..., &stepper);
-  return SUNStepperView(stepper);
+  return SUNStepperView(std::move(stepper));
 }
 
 } // namespace experimental
