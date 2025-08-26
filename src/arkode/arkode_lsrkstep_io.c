@@ -310,9 +310,9 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 
 /*---------------------------------------------------------------
   LSRKStepSetNumDomEigEstInitPreprocessIters sets the number of the preprocessing
-  warmups before the very first estimate call.
+  iterations before the very first estimate call.
   ---------------------------------------------------------------*/
-int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups)
+int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_iters)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -323,11 +323,11 @@ int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  step_mem->num_init_warmups = num_warmups;
+  step_mem->num_init_warmups = num_iters;
 
-  /* num_warmups < 0 resets to the DEE's default */
-  retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
-                                         step_mem->num_init_warmups);
+  /* num_iters < 0 resets to the DEE's default */
+  retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
+                                              step_mem->num_init_warmups);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
@@ -340,9 +340,9 @@ int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups
 
 /*---------------------------------------------------------------
   LSRKStepSetNumDomEigEstPreprocessIters sets the number of the preprocessing
-  warmups before each estimate call succeeding the very first estimate call.
+  iterations before each estimate call after the initial estimate call.
   ---------------------------------------------------------------*/
-int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_warmups)
+int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_iters)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -353,11 +353,8 @@ int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_warmups)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  if (num_warmups < 0)
-  {
-    step_mem->num_succ_warmups = DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT;
-  }
-  else { step_mem->num_succ_warmups = num_warmups; }
+  if (num_iters < 0) { step_mem->num_warmups = DOM_EIG_NUM_WARMUPS_DEFAULT; }
+  else { step_mem->num_warmups = num_iters; }
 
   return ARK_SUCCESS;
 }
@@ -485,14 +482,11 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  if (step_mem->DEE != NULL)
+  if (DEE == NULL)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "A DEE pointer is already set in step_mem");
-    return ARK_ILL_INPUT;
+    step_mem->DEE = DEE;
+    return ARK_SUCCESS;
   }
-
-  if (DEE == NULL) { return ARK_SUCCESS; }
 
   if (DEE->ops == NULL)
   {
@@ -640,7 +634,7 @@ int LSRKStepGetNumDomEigEstIters(void* arkode_mem, long int* num_iters)
   }
 
   /* get values from step_mem */
-  *num_iters = step_mem->num_iters;
+  *num_iters = step_mem->num_dee_iters;
 
   return ARK_SUCCESS;
 }
@@ -678,7 +672,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
   step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
   step_mem->num_init_warmups    = DOM_EIG_NUM_INIT_WARMUPS_DEFAULT;
-  step_mem->num_succ_warmups    = DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT;
+  step_mem->num_warmups         = DOM_EIG_NUM_WARMUPS_DEFAULT;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;
@@ -723,7 +717,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       sunfprintf_long(outfile, fmt, SUNFALSE, "Number of fe calls for DEE",
                       step_mem->nfeDQ);
       sunfprintf_long(outfile, fmt, SUNFALSE, "Number of iterations for DEE",
-                      step_mem->num_iters);
+                      step_mem->num_dee_iters);
     }
     sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of stages used",
                     step_mem->stage_max);
@@ -801,8 +795,8 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
             step_mem->dom_eig_freq);
     fprintf(fp, "  Number of first preprocessing warmups = %i\n",
             step_mem->num_init_warmups);
-    fprintf(fp, "  Number of succeeding preprocessing warmups = %i\n",
-            step_mem->num_succ_warmups);
+    fprintf(fp, "  Number of subsequent preprocessing warmups = %i\n",
+            step_mem->num_warmups);
     fprintf(fp, "  Flag to indicate Jacobian is constant = %d\n",
             step_mem->const_Jac);
     break;

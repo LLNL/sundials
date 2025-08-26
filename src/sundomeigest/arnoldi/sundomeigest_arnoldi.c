@@ -92,7 +92,7 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunc
 
   /* Attach operations */
   DEE->ops->setatimes         = SUNDomEigEst_SetATimes_Arnoldi;
-  DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreProcess_Arnoldi;
+  DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreprocessIters_Arnoldi;
   DEE->ops->initialize        = SUNDomEigEst_Initialize_Arnoldi;
   DEE->ops->estimate          = SUNDomEig_Estimate_Arnoldi;
   DEE->ops->getnumatimescalls = SUNDomEigEst_GetNumATimesCalls_Arnoldi;
@@ -254,19 +254,19 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_SetNumPreProcess_Arnoldi(SUNDomEigEstimator DEE,
-                                                 int num_warmups)
+SUNErrCode SUNDomEigEst_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator DEE,
+                                                      int num_iters)
 {
   SUNFunctionBegin(DEE->sunctx);
 
   SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
-  /* Check if num_warmups >= 0 */
-  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT; }
+  /* Check if num_iters >= 0 */
+  if (num_iters < 0) { num_iters = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT; }
 
   /* set the number of warmups */
-  Arnoldi_CONTENT(DEE)->num_warmups = num_warmups;
+  Arnoldi_CONTENT(DEE)->num_warmups = num_iters;
   return SUN_SUCCESS;
 }
 
@@ -407,9 +407,7 @@ SUNErrCode SUNDomEigEst_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile)
   SUNAssert(outfile, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
-  if (DEE == NULL || outfile == NULL) { return SUN_ERR_ARG_CORRUPT; }
-
-  fprintf(outfile, "\nArnoldi Iteration DEE Statistics:");
+  fprintf(outfile, "\nArnoldi Iteration DEE Settings:");
   fprintf(outfile, "\n------------------------------------------------\n");
   fprintf(outfile, "Krylov dimensions             = %d\n",
           Arnoldi_CONTENT(DEE)->kry_dim);

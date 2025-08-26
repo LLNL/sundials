@@ -290,13 +290,13 @@ Allowable Method Families
       ``dom_eig_safety < 1`` resets the default value.
 
 
-.. c:function:: int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_warmups);
+.. c:function:: int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_iters);
 
-   Specifies the number of the preprocessing warmups before the very first estimate call.
+   Specifies the number of the preprocessing iterations before the very first estimate call.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *num_warmups* -- the number of warmups.
+      * *num_iters* -- the number of iterations.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -308,17 +308,18 @@ Allowable Method Families
       *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).
       These errors are handled by :c:type:`SUNErrCode`.
 
-      If LSRKStepSetNumDomEigEstInitPreprocessIters routine is not called, then the default ``num_warmups``
-      is set to :math:`0`. Calling this function with ``num_warmups < 0`` resets the default.
+      If LSRKStepSetNumDomEigEstInitPreprocessIters routine is not called, then the
+      default value of the estimator is used. Calling this function with ``num_iters < 0`` 
+      resets the default.
 
       
-.. c:function:: int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_warmups);
+.. c:function:: int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_iters);
 
-   Specifies the number of the preprocessing warmups before each estimate call succeeding the very first estimate call.
+   Specifies the number of the preprocessing iterations before each estimate call after the very first estimate.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *num_warmups* -- the number of warmups.
+      * *num_iters* -- the number of iterations.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -326,12 +327,9 @@ Allowable Method Families
 
    .. note::
 
-      If LSRKStepSetNumDomEigEstPreprocessIters routine is not called, then the default ``num_warmups`` is set to :math:`0`.
-      Calling this function with ``num_warmups < 0`` resets the default.
-
-      Once DEE is attached by :c:func:`LSRKStepSetDomEigEstimator`, ``num_warmups`` from DEE is used 
-      for the first preprocessing, then integrator calls :c:func:`SUNDomEigEst_SetNumPreProcess` 
-      internally to ensure that all succeeding warmups are performed ``num_warmups`` times.
+      If LSRKStepSetNumDomEigEstPreprocessIters routine is not called, then the  
+      default value of 0 is used. Calling this function with ``num_iters < 0`` resets  
+      the default.
 
 
 .. c:function:: int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
@@ -425,12 +423,6 @@ Optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
       * *ARK_ILL_INPUT* if ``num_iters`` is illegal
-
-
-   .. note::
-
-      The number of iterations is non-zero only when the dominant eigenvalue
-      estimator is power iteration.
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:

@@ -619,16 +619,16 @@ SWIGEXPORT int _wrap_FSUNDomEigEst_SetMaxIters_Power(SwigClassWrapper const *far
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_SetNumPreProcess_Power(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_SetNumPreprocessIters_Power(SwigClassWrapper const *farg1, int const *farg2) {
   int fresult ;
   SUNDomEigEstimator arg1 ;
   int arg2 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_SetNumPreProcess_Power(SUNDomEigEstimator,int)", return 0);
+  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_SetNumPreprocessIters_Power(SUNDomEigEstimator,int)", return 0);
   arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
   arg2 = (int)(*farg2);
-  result = (SUNErrCode)SUNDomEigEst_SetNumPreProcess_Power(arg1,arg2);
+  result = (SUNErrCode)SUNDomEigEst_SetNumPreprocessIters_Power(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

@@ -180,13 +180,11 @@ int main(void)
      It is used only to initialize the DEE */
   N_VDestroy(q);
 
-  /* Specify max number of PI iterations.
-  This number is already set in the declaration of DEE.
-  Nevertheless, we call this function for illustration of the DEE
-  interface and to show how to set the max number of iterations 
-  in the DEE module. This function can be called anytime to change
-  the maximum allowed number of iterations. */
-  SUNDomEigEst_SetMaxIters(DEE, max_iters);
+  /* Attach the DEE to the LSRKStep module.
+  There is no need to set Atimes or initialize since these are all 
+  performed after attaching the DEE by LSRKStep. */
+  flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
+  if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 1)) { return 1; }
 
   /* Set the number of preprocessing warmups. The warmup
   is used to compute a "better" initial eigenvector and so an initial
@@ -194,14 +192,11 @@ int main(void)
   internally unless LSRKStepSetNumDomEigEstPreprocessIters is called to set
   a new number of succeeding warmups that would be executed before 
   every dominant eigenvalue estimate calls */
-  flag = SUNDomEigEst_SetNumPreProcess(DEE, numwarmup);
-  if (check_flag(&flag, "SUNDomEigEst_SetNumPreProcess", 1)) { return 1; }
-
-  /* Attach the DEE to the LSRKStep module.
-  There is no need to set Atimes or initialize since these are all 
-  performed after attaching the DEE by LSRKStep. */
-  flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
-  if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 1)) { return 1; }
+  flag = LSRKStepSetNumDomEigEstInitPreprocessIters(arkode_mem, numwarmup);
+  if (check_flag(&flag, "LSRKStepSetNumDomEigEstInitPreprocessIters", 1))
+  {
+    return 1;
+  }
 
   /* Specify after how many successful steps dom_eig is recomputed */
   flag = LSRKStepSetDomEigFrequency(arkode_mem, 25);

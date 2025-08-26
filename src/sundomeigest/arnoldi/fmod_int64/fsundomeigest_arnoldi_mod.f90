@@ -77,7 +77,7 @@ module fsundomeigest_arnoldi_mod
  end type
  public :: FSUNDomEigEst_Arnoldi
  public :: FSUNDomEigEst_SetATimes_Arnoldi
- public :: FSUNDomEigEst_SetNumPreProcess_Arnoldi
+ public :: FSUNDomEigEst_SetNumPreprocessIters_Arnoldi
  public :: FSUNDomEigEst_Initialize_Arnoldi
  public :: FSUNDomEig_Estimate_Arnoldi
  public :: FSUNDomEigEst_GetNumATimesCalls_Arnoldi
@@ -369,8 +369,8 @@ type(C_FUNPTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNDomEigEst_SetNumPreProcess_Arnoldi(farg1, farg2) &
-bind(C, name="_wrap_FSUNDomEigEst_SetNumPreProcess_Arnoldi") &
+function swigc_FSUNDomEigEst_SetNumPreprocessIters_Arnoldi(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEst_SetNumPreprocessIters_Arnoldi") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -858,19 +858,19 @@ fresult = swigc_FSUNDomEigEst_SetATimes_Arnoldi(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNDomEigEst_SetNumPreProcess_Arnoldi(dee, num_warmups) &
+function FSUNDomEigEst_SetNumPreprocessIters_Arnoldi(dee, num_iters) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
-integer(C_INT), intent(in) :: num_warmups
+integer(C_INT), intent(in) :: num_iters
 integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = dee%swigdata
-farg2 = num_warmups
-fresult = swigc_FSUNDomEigEst_SetNumPreProcess_Arnoldi(farg1, farg2)
+farg2 = num_iters
+fresult = swigc_FSUNDomEigEst_SetNumPreprocessIters_Arnoldi(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -34,11 +34,8 @@ SUNDomEigEstimator core functions
 The SUNDomEigEstimator base class provides two **utility** routines for implementers, 
 :c:func:`SUNDomEigEst_NewEmpty` and :c:func:`SUNDomEigEst_FreeEmpty`.
 
-Implementations of SUNDomEigEstimators must include a set of **required** functions: 
-:c:func:`SUNDomEigEst_SetATimes` provides a :c:type:`SUNATimesFn` function pointer,
-as well as a ``void*`` pointer to a data structure used by this routine,
-:c:func:`SUNDomEig_Estimate` estimates the dominant eigenvalue,
-and :c:func:`SUNDomEigEst_Destroy` destroys an estimator object.
+Implementations of SUNDomEigEstimators must include a **required**
+:c:func:`SUNDomEig_Estimate` function to estimate the dominant eigenvalue.
 
 .. c:function:: SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
 
@@ -153,15 +150,15 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       A :c:type:`SUNErrCode`.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int num_warmups)
+.. c:function:: SUNErrCode SUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator DEE, int num_iters)
 
-   This *optional* routine should set the number of "warm-up" matrix-vector multiplications,
-   which is executed by :c:func:`SUNDomEig_Estimate` before each estimate.
+   This *optional* routine should set the number of preprocessing matrix-vector multiplications,
+   performed at the beginning of each :c:func:`SUNDomEig_Estimate` evaluation.
 
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object,
-      * *num_warmups* -- the number of preprocessing warmup iterations.
+      * *num_iters* -- the number of preprocessing iterations.
 
    **Return value:**
 
@@ -171,21 +168,23 @@ function pointer ``NULL`` instead of supplying a dummy routine.
    .. note:: 
       
       When :c:func:`SUNDomEig_Estimate` is called, then prior to beginning the Arnoldi
-      process, ``num_warmups`` power iterations are performed on ``q`` to generate an
+      process, ``num_iters`` power iterations are performed on ``q`` to generate an
       improved initial guess.  Similarly, prior to the beginning the Power process, 
-      "Warmup" iterations correspond to power iterations that do not check for 
-      convergence.  They can help reduce some computational overhead, and may be useful 
-      if the initial guess ``q`` is not a good approximation of the dominant 
+      Preprocessing iterations correspond to power iterations that do not check for 
+      convergence. Preprocessing iterations can help reduce some computational overhead, 
+      and may be useful if the initial guess ``q`` is not a good approximation of the dominant 
       eigenvector.
       
-      However, when the estimator is used in a time-dependent
+      When the estimator is used in a time-dependent
       context, it is likely that the most-recent ``q`` will provide a suitable initial 
-      guess for the subsequent call to :c:func:`SUNDomEig_Estimate`.  Thus, when the estimator 
-      is used by LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial 
-      value of ``num_warmups`` will be overwritten after the first 
-      :c:func:`SUNDomEig_Estimate` call (see :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`).
+      guess for subsequent calls to :c:func:`SUNDomEig_Estimate`.  Thus, when the estimator 
+      is used by LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial value  
+      of ``num_iters`` should be set with
+      :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` while the number of  
+      preprocessing iterations for subsequent calls should be set with  
+      :c:func:`LSRKStepSetNumDomEigEsPreprocessIters`. 
 
-      A ``num_warmups`` argument that is :math:` < 0` will result in the default
+      A ``num_iters`` argument that is :math:` < 0` will result in the default
       value (100).  This default value is particularly chosen to minimize the memory
       footprint by lowering the required ``kry_dim`` in Arnoldi iteration, or reducing 
       computational overhead when estimating with the power iteration.
@@ -364,7 +363,7 @@ The virtual table structure is defined as
 
    .. c:member:: SUNErrCode (*setnumpreprocess)(SUNDomEigEstimator, int)
 
-      The function implementing :c:func:`SUNDomEigEst_SetNumPreProcess`
+      The function implementing :c:func:`SUNDomEigEst_SetNumPreprocessIters`
 
    .. c:member:: SUNErrCode (*settol)(SUNDomEigEstimator, sunrealtype)
 
@@ -456,7 +455,7 @@ the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_SetMaxIters`\ :sup:`1`       |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_SetNumPreProcess`            |          O          |          O          |
+   | :c:func:`SUNDomEigEst_SetNumPreprocessIters`       |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEst_SetRelTol`\ :sup:`1`         |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+

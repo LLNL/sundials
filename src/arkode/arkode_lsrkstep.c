@@ -205,7 +205,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   step_mem->dom_eig_num_evals = 0;
   step_mem->stage_max_limit   = STAGE_MAX_LIMIT_DEFAULT;
   step_mem->dom_eig_nst       = 0;
-  step_mem->num_iters         = 0;
+  step_mem->num_dee_iters     = 0;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
@@ -286,15 +286,15 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   step_mem->spectral_radius_max = 0;
   step_mem->spectral_radius_min = 0;
   step_mem->dom_eig_nst         = 0;
-  step_mem->num_iters           = 0;
+  step_mem->num_dee_iters       = 0;
   step_mem->dom_eig_update      = SUNTRUE;
   step_mem->dom_eig_is_current  = SUNFALSE;
   step_mem->init_warmup         = SUNTRUE;
 
   /* default num_init_warmups resets to the DEE's default 
      unless the user set a different number */
-  retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
-                                         step_mem->num_init_warmups);
+  retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
+                                              step_mem->num_init_warmups);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
@@ -2104,8 +2104,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->dom_eig_freq);
     fprintf(outfile, "LSRKStep: num_init_warmups      = %i\n",
             step_mem->num_init_warmups);
-    fprintf(outfile, "LSRKStep: num_succ_warmups      = %i\n",
-            step_mem->num_succ_warmups);
+    fprintf(outfile, "LSRKStep: num_warmups           = %i\n",
+            step_mem->num_warmups);
 
     /* output long integer quantities */
     fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
@@ -2113,7 +2113,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     {
       fprintf(outfile, "LSRKStep: nfeDQ               = %li\n", step_mem->nfeDQ);
       fprintf(outfile, "LSRKStep: num_iters           = %li\n",
-              step_mem->num_iters);
+              step_mem->num_dee_iters);
     }
     fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
             step_mem->dom_eig_num_evals);
@@ -2259,27 +2259,23 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       return ARK_DEE_FAIL;
     }
 
-    if (step_mem->DEE->ops->getcurniters != NULL)
+    long int cur_num_iters;
+    retval = SUNDomEigEst_GetNumIters(step_mem->DEE, &cur_num_iters);
+    if (retval != SUN_SUCCESS)
     {
-      long int cur_num_iters;
-      retval = SUNDomEigEst_GetNumIters(step_mem->DEE, &cur_num_iters);
-      if (retval != SUN_SUCCESS)
-      {
-        arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_DEE_FAIL);
-        return ARK_DEE_FAIL;
-      }
-
-      step_mem->num_iters += cur_num_iters;
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_DEE_FAIL);
+      return ARK_DEE_FAIL;
     }
+    step_mem->num_dee_iters += cur_num_iters;
 
     /* After the first call to SUNDomEig_Estimate, the number of warmups is set to
-       num_succ_warmups, this allows the successive calls to
+       num_warmups, this allows the successive calls to
        SUNDomEig_Estimate to use a diffirent number of warmups. */
     if (step_mem->init_warmup)
     {
-      retval = SUNDomEigEst_SetNumPreProcess(step_mem->DEE,
-                                             step_mem->num_succ_warmups);
+      retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
+                                                  step_mem->num_warmups);
       if (retval != SUN_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,

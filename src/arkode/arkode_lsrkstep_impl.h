@@ -30,7 +30,7 @@ extern "C" {
 #define STAGE_MAX_LIMIT_DEFAULT          200
 #define DOM_EIG_SAFETY_DEFAULT           SUN_RCONST(1.01)
 #define DOM_EIG_FREQ_DEFAULT             25
-#define DOM_EIG_NUM_SUCC_WARMUPS_DEFAULT 0
+#define DOM_EIG_NUM_WARMUPS_DEFAULT      0
 #define DOM_EIG_NUM_INIT_WARMUPS_DEFAULT -1 /* reset to the DEE's default */
 
 /*===============================================================
@@ -147,8 +147,8 @@ typedef struct ARKodeLSRKStepMemRec
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
   long int dom_eig_nst; /* num of step at which the last domainant eigenvalue was computed  */
-  long int step_nst;  /* The number of successful steps. */
-  long int num_iters; /* number of iterations in the DEE estimates */
+  long int step_nst;      /* The number of successful steps. */
+  long int num_dee_iters; /* number of iterations in the DEE estimates */
 
   /* Spectral info */
   sunrealtype lambdaR;         /* Real part of the dominated eigenvalue*/
@@ -159,7 +159,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
   int num_init_warmups; /* number of warm-ups in the first DEE estimates */
-  int num_succ_warmups; /* number of warm-ups in succeeding DEE estimates */
+  int num_warmups;      /* number of warm-ups in succeeding DEE estimates */
 
   SUNDomEigEstimator DEE; /* DomEig estimator*/
 

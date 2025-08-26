@@ -72,8 +72,8 @@ SUNErrCode SUNDomEigEst_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,
                                           SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetNumPreProcess_Arnoldi(SUNDomEigEstimator DEE,
-                                                 int num_warmups);
+SUNErrCode SUNDomEigEst_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator DEE,
+                                                      int num_iters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE);

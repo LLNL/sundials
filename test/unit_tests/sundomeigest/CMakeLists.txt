@@ -25,11 +25,8 @@ if(ENABLE_LAPACK)
   set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestarnoldi)
 endif()
 
-# Always add the power iteration examples
-add_subdirectory(Power)
-
 # Build the sundials_sundomeigest test utilities
-add_library(test_sundomeigest_obj OBJECT test_sundomeigest.c)
+add_library(test_sundomeigest_obj OBJECT test_sundomeigest.c test_sundomeigest.h)
 if(BUILD_SHARED_LIBS)
   # need PIC when shared libs are used since the example executables will link
   # to the shared lib
@@ -38,15 +35,10 @@ if(BUILD_SHARED_LIBS)
 endif()
 target_link_libraries(test_sundomeigest_obj PRIVATE sundials_sundomeigestpower)
 
+# Always add the power iteration examples
+add_subdirectory(Power)
+
 # Add the Arnoldi iteration examples if LAPACK is enabled
 if(ENABLE_LAPACK)
   add_subdirectory(Arnoldi)
-
-  if(BUILD_SHARED_LIBS)
-    set_property(TARGET test_sundomeigest_obj PROPERTY POSITION_INDEPENDENT_CODE
-                                                       TRUE)
-  endif()
-  target_link_libraries(
-    test_sundomeigest_obj PRIVATE sundials_sundomeigestpower
-                                  sundials_sundomeigestarnoldi)
 endif()

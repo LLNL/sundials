@@ -87,10 +87,10 @@ SUNDIALS_EXPORT int LSRKStepSetDomEigSafetyFactor(void* arkode_mem,
                                                   sunrealtype dom_eig_safety);
 
 SUNDIALS_EXPORT int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem,
-                                                               int num_warmups);
+                                                               int num_iters);
 
 SUNDIALS_EXPORT int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem,
-                                                           int num_warmups);
+                                                           int num_iters);
 
 SUNDIALS_EXPORT int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
 

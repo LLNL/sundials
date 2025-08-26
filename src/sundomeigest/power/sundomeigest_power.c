@@ -28,7 +28,7 @@
 #define ONE  SUN_RCONST(1.0)
 
 /* Default estimator parameters */
-#define DEE_NUM_OF_WARMUPS_PI_DEFAULT 0
+#define DEE_NUM_OF_WARMUPS_PI_DEFAULT 100
 
 /* Default Power Iteration parameters */
 #define DEE_TOL_DEFAULT      SUN_RCONST(0.01)
@@ -82,7 +82,7 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
   DEE->ops->setatimes         = SUNDomEigEst_SetATimes_Power;
   DEE->ops->setmaxiters       = SUNDomEigEst_SetMaxIters_Power;
   DEE->ops->settol            = SUNDomEigEst_SetRelTol_Power;
-  DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreProcess_Power;
+  DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreprocessIters_Power;
   DEE->ops->initialize        = SUNDomEigEst_Initialize_Power;
   DEE->ops->estimate          = SUNDomEig_Estimate_Power;
   DEE->ops->getcurres         = SUNDomEigEst_GetRes_Power;
@@ -182,19 +182,19 @@ SUNErrCode SUNDomEigEst_Initialize_Power(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_SetNumPreProcess_Power(SUNDomEigEstimator DEE,
-                                               int num_warmups)
+SUNErrCode SUNDomEigEst_SetNumPreprocessIters_Power(SUNDomEigEstimator DEE,
+                                                    int num_iters)
 {
   SUNFunctionBegin(DEE->sunctx);
 
   SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
-  /* Check if num_warmups >= 0 */
-  if (num_warmups < 0) { num_warmups = DEE_NUM_OF_WARMUPS_PI_DEFAULT; }
+  /* Check if num_iters >= 0 */
+  if (num_iters < 0) { num_iters = DEE_NUM_OF_WARMUPS_PI_DEFAULT; }
 
   /* set the number of warmups */
-  PI_CONTENT(DEE)->num_warmups = num_warmups;
+  PI_CONTENT(DEE)->num_warmups = num_iters;
   return SUN_SUCCESS;
 }
 

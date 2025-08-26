@@ -98,29 +98,30 @@ int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters,
   return (0);
 }
 
-int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int num_warmups,
-                                       int myid)
+int Test_SUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator DEE,
+                                            int num_warmups, int myid)
 {
   int failure;
   double start_time, stop_time;
 
-  /* try calling SUNDomEigEst_SetNumPreProcess routine: should pass/fail based on expected input */
+  /* try calling SUNDomEigEst_SetNumPreprocessIters routine: should pass/fail based on expected input */
   start_time = get_time();
-  failure    = SUNDomEigEst_SetNumPreProcess(DEE, num_warmups);
+  failure    = SUNDomEigEst_SetNumPreprocessIters(DEE, num_warmups);
   stop_time  = get_time();
 
   if (failure)
   {
-    printf(">>> FAILED test -- SUNDomEigEst_SetNumPreProcess check, Proc %d \n",
+    printf(">>> FAILED test -- SUNDomEigEst_SetNumPreprocessIters check, Proc "
+           "%d \n",
            myid);
-    PRINT_TIME("    SUNDomEigEst_SetNumPreProcess Time: %22.15e \n \n",
+    PRINT_TIME("    SUNDomEigEst_SetNumPreprocessIters Time: %22.15e \n \n",
                stop_time - start_time);
     return (1);
   }
   else if (myid == 0)
   {
-    printf("    PASSED test -- SUNDomEigEst_SetNumPreProcess \n");
-    PRINT_TIME("    SUNDomEigEst_SetNumPreProcess Time: %22.15e \n \n",
+    printf("    PASSED test -- SUNDomEigEst_SetNumPreprocessIters \n");
+    PRINT_TIME("    SUNDomEigEst_SetNumPreprocessIters Time: %22.15e \n \n",
                stop_time - start_time);
   }
 

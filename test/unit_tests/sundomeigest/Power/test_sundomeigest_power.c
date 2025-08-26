@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 
   fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
   fails += Test_SUNDomEigEst_SetMaxIters(DEE, max_iters, 0);
-  fails += Test_SUNDomEigEst_SetNumPreProcess(DEE, num_warmups, 0);
+  fails += Test_SUNDomEigEst_SetNumPreprocessIters(DEE, num_warmups, 0);
   fails += Test_SUNDomEigEst_SetRelTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEst_Initialize(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);

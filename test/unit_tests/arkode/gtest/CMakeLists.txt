@@ -19,12 +19,6 @@ target_include_directories(
   PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
           ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
-# Add variable SUNDomEigEst libraries
-set(DOMEIG_LIBRARIES sundials_sundomeigestpower)
-if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_LIBRARIES sundials_sundomeigestarnoldi)
-endif()
-
 # We explicitly choose which object libraries to link to and link in the ARKODE
 # objects so that we have access to private functions w/o changing their
 # visibility in the installed libraries.
@@ -39,7 +33,6 @@ target_link_libraries(
           sundials_sunnonlinsolnewton_obj
           sundials_sunadaptcontrollerimexgus_obj
           sundials_sunadaptcontrollersoderlind_obj
-          ${DOMEIG_LIBRARIES}
           ${EXE_EXTRA_LINK_LIBS})
 
 # Tell CMake that we depend on the ARKODE library since it does not pick that up

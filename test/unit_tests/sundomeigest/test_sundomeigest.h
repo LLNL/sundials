@@ -32,8 +32,8 @@ int Test_SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* ATdata,
                                 SUNATimesFn ATimes, int myid);
 int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters,
                                   int myid);
-int Test_SUNDomEigEst_SetNumPreProcess(SUNDomEigEstimator DEE, int num_warmups,
-                                       int myid);
+int Test_SUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator DEE,
+                                            int num_warmups, int myid);
 int Test_SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol,
                                 int myid);
 int Test_SUNDomEigEst_Initialize(SUNDomEigEstimator DEE, int myid);

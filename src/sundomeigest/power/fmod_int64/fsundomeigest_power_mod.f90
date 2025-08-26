@@ -70,7 +70,7 @@ module fsundomeigest_power_mod
  public :: FSUNDomEigEst_Power
  public :: FSUNDomEigEst_SetATimes_Power
  public :: FSUNDomEigEst_SetMaxIters_Power
- public :: FSUNDomEigEst_SetNumPreProcess_Power
+ public :: FSUNDomEigEst_SetNumPreprocessIters_Power
  public :: FSUNDomEigEst_SetRelTol_Power
  public :: FSUNDomEigEst_Initialize_Power
  public :: FSUNDomEig_Estimate_Power
@@ -308,8 +308,8 @@ integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNDomEigEst_SetNumPreProcess_Power(farg1, farg2) &
-bind(C, name="_wrap_FSUNDomEigEst_SetNumPreProcess_Power") &
+function swigc_FSUNDomEigEst_SetNumPreprocessIters_Power(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEst_SetNumPreprocessIters_Power") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -746,19 +746,19 @@ fresult = swigc_FSUNDomEigEst_SetMaxIters_Power(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNDomEigEst_SetNumPreProcess_Power(dee, num_warmups) &
+function FSUNDomEigEst_SetNumPreprocessIters_Power(dee, num_iters) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
-integer(C_INT), intent(in) :: num_warmups
+integer(C_INT), intent(in) :: num_iters
 integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = dee%swigdata
-farg2 = num_warmups
-fresult = swigc_FSUNDomEigEst_SetNumPreProcess_Power(farg1, farg2)
+farg2 = num_iters
+fresult = swigc_FSUNDomEigEst_SetNumPreprocessIters_Power(farg1, farg2)
 swig_result = fresult
 end function
 

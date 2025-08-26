@@ -41,7 +41,7 @@ Arnoldi iteration works for matrices with both real and complex eigenvalues.  It
 estimations with a user-specified fixed Krylov subspace dimension (at least 3).  While
 the choice of dimension results in a prefixed amount of memory, it strictly
 determines how good an estimation is.  To improve the estimation accuracy, we have found that 
-preprocessing set by :c:func:`SUNDomEigEst_SetNumPreProcess` is particularly useful.  
+preprocessing set by :c:func:`SUNDomEigEst_SetNumPreprocessIters` is particularly useful.  
 This operation is free from any additional memory requirement and is further explained below.
 
 The matrix :math:`A` is not required explicitly; only a routine that provides an 
@@ -149,7 +149,8 @@ This estimator is constructed to perform the following operations:
 
 * In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is warmed up
   :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
-  integrator such as by calling :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`. 
+  integrator such as by calling :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters`
+  or :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`.
   Then, the Arnoldi estimator is performed.
 
 .. math::
@@ -162,7 +163,7 @@ dominant eigenvalue estimator operations listed in
 
 * ``SUNDomEigEst_SetATimes_Arnoldi``
 
-* ``SUNDomEigEst_SetNumPreProcess_Arnoldi``
+* ``SUNDomEigEst_SetNumPreprocessIters_Arnoldi``
 
 * ``SUNDomEigEst_Initialize_Arnoldi``
 

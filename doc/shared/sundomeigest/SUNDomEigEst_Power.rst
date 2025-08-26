@@ -162,7 +162,8 @@ This estimator is constructed to perform the following operations:
 
 * In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is warmed up  
   :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
-  integrator such as by calling :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`. 
+  integrator such as by calling :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters`
+  or :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`.
   Then, the PI estimator is performed.
 
 .. math::
@@ -177,7 +178,7 @@ eigenvalue estimator operations listed in
 
 * ``SUNDomEigEst_SetMaxIters_Power``
 
-* ``SUNDomEigEst_SetNumPreProcess_Power``
+* ``SUNDomEigEst_SetNumPreprocessIters_Power``
 
 * ``SUNDomEigEst_SetRelTol_Power``
 

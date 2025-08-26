@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
   // It should return with SUN_SUCCESS
   max_iters = kry_dim;
   fails += Test_SUNDomEigEst_SetMaxIters(DEE, max_iters, 0);
-  fails += Test_SUNDomEigEst_SetNumPreProcess(DEE, num_warmups, 0);
+  fails += Test_SUNDomEigEst_SetNumPreprocessIters(DEE, num_warmups, 0);
   fails += Test_SUNDomEigEst_SetRelTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEst_Initialize(DEE, 0);
   fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);

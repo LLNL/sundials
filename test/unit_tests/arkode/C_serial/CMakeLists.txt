@@ -37,12 +37,6 @@ set(ARKODE_unit_tests
     "ark_test_splittingstep_coefficients\;"
     "ark_test_tstop\;")
 
-# Add SUNDomEigEst libraries
-set(DOMEIG_LIBRARIES sundials_sundomeigestpower)
-if(ENABLE_LAPACK)
-  list(APPEND DOMEIG_LIBRARIES sundials_sundomeigestarnoldi)
-endif()
-
 # Add the build and install targets for each test
 foreach(test_tuple ${ARKODE_unit_tests})
 
@@ -79,7 +73,6 @@ foreach(test_tuple ${ARKODE_unit_tests})
               sundials_sunadaptcontrollerimexgus_obj
               sundials_sunadaptcontrollersoderlind_obj
               sundials_adjointcheckpointscheme_fixed_obj
-              ${DOMEIG_LIBRARIES}
               ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

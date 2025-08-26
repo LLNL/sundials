@@ -522,34 +522,34 @@ fresult = swigc_FLSRKStepSetDomEigSafetyFactor(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepSetNumDomEigEstInitPreprocessIters(arkode_mem, num_warmups) &
+function FLSRKStepSetNumDomEigEstInitPreprocessIters(arkode_mem, num_iters) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: num_warmups
+integer(C_INT), intent(in) :: num_iters
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = arkode_mem
-farg2 = num_warmups
+farg2 = num_iters
 fresult = swigc_FLSRKStepSetNumDomEigEstInitPreprocessIters(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepSetNumDomEigEstPreprocessIters(arkode_mem, num_warmups) &
+function FLSRKStepSetNumDomEigEstPreprocessIters(arkode_mem, num_iters) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: num_warmups
+integer(C_INT), intent(in) :: num_iters
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = arkode_mem
-farg2 = num_warmups
+farg2 = num_iters
 fresult = swigc_FLSRKStepSetNumDomEigEstPreprocessIters(farg1, farg2)
 swig_result = fresult
 end function

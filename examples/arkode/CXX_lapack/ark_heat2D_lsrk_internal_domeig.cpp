@@ -310,9 +310,24 @@ int main(int argc, char* argv[])
      It is used only to initialize the DEE */
   N_VDestroy(q);
 
+  /* Specify the max number for PI iterations.
+     This does nothing if DEE is Arnoldi */
+  flag = SUNDomEigEst_SetMaxIters(DEE, udata->dee_max_iters);
+  if (check_flag(&flag, "SUNDomEigEst_SetMaxIters", 2)) { return 1; }
+
+  /* Attach the DEE to the LSRKStep module.
+  There is no need to set Atimes or initialize since these are all
+  performed after attaching the DEE by LSRKStep. */
+  flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
+  if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 2)) { return 1; }
+
   /* Specify the number of preprocessing warmups before the first estimate call. */
-  flag = SUNDomEigEst_SetNumPreProcess(DEE, udata->dee_num_init_wups);
-  if (check_flag(&flag, "SUNDomEigEst_SetNumPreProcess", 2)) { return 1; }
+  flag = LSRKStepSetNumDomEigEstInitPreprocessIters(arkode_mem,
+                                                    udata->dee_num_init_wups);
+  if (check_flag(&flag, "LSRKStepSetNumDomEigEstInitPreprocessIters", 2))
+  {
+    return 1;
+  }
 
   /* Specify the succeeding warmups before each estimate call.
      This is the number of warmups that will be performed after the first
@@ -323,22 +338,6 @@ int main(int argc, char* argv[])
   {
     return 1;
   }
-
-  /* Specify the max number for PI iterations.
-     This does nothing if DEE is Arnoldi */
-  flag = SUNDomEigEst_SetMaxIters(DEE, udata->dee_max_iters);
-  if (check_flag(&flag, "SUNDomEigEst_SetMaxIters", 2)) { return 1; }
-
-  /* Specify the relative tolerance for PI iterations.
-     This does nothing if DEE is Arnoldi */
-  flag = SUNDomEigEst_SetRelTol(DEE, udata->dee_reltol);
-  if (check_flag(&flag, "SUNDomEigEst_SetRelTol", 2)) { return 1; }
-
-  /* Attach the DEE to the LSRKStep module.
-  There is no need to set Atimes or initialize since these are all
-  performed after attaching the DEE by LSRKStep. */
-  flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
-  if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 2)) { return 1; }
 
   flag = LSRKStepSetDomEigFrequency(arkode_mem, udata->eigfrequency);
   if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
