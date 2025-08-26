@@ -11,6 +11,7 @@ auto pyClassMRIStepCouplingMem =
     .def(nb::init<>()) // implicit default constructor
     ;
 
+
 m.def("MRIStepCoupling_LoadTable",
     MRIStepCoupling_LoadTable, nb::arg("method"));
 
@@ -62,28 +63,6 @@ m.def("MRIStepGetNumInnerStepperFails",
 
         return MRIStepGetNumInnerStepperFails_adapt_modifiable_immutable_to_return(arkode_mem, inner_fails);
     },     nb::arg("arkode_mem"), nb::arg("inner_fails"));
-
-
-m.def("MRIStepInnerStepper_SetContent",
-    MRIStepInnerStepper_SetContent, nb::arg("stepper"), nb::arg("content"));
-
-m.def("MRIStepInnerStepper_SetEvolveFn",
-    MRIStepInnerStepper_SetEvolveFn, nb::arg("stepper"), nb::arg("fn"));
-
-m.def("MRIStepInnerStepper_SetFullRhsFn",
-    MRIStepInnerStepper_SetFullRhsFn, nb::arg("stepper"), nb::arg("fn"));
-
-m.def("MRIStepInnerStepper_SetResetFn",
-    MRIStepInnerStepper_SetResetFn, nb::arg("stepper"), nb::arg("fn"));
-
-m.def("MRIStepInnerStepper_SetAccumulatedErrorGetFn",
-    MRIStepInnerStepper_SetAccumulatedErrorGetFn, nb::arg("stepper"), nb::arg("fn"));
-
-m.def("MRIStepInnerStepper_SetAccumulatedErrorResetFn",
-    MRIStepInnerStepper_SetAccumulatedErrorResetFn, nb::arg("stepper"), nb::arg("fn"));
-
-m.def("MRIStepInnerStepper_SetRTolFn",
-    MRIStepInnerStepper_SetRTolFn, nb::arg("stepper"), nb::arg("fn"));
 
 m.def("MRIStepInnerStepper_AddForcing",
     MRIStepInnerStepper_AddForcing, nb::arg("stepper"), nb::arg("t"), nb::arg("f"));

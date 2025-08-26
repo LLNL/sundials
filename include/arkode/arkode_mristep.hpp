@@ -50,7 +50,6 @@ struct MRIStepInnerStepperDeleter
 {
   void operator()(MRIStepInnerStepper s)
   {
-    printf("free stepper:%p\n", s);
     if (s) { MRIStepInnerStepper_Free(&s); }
   }
 };

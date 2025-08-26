@@ -34,7 +34,7 @@ void bind_arkode_mristep(nb::module_& m)
   nb::class_<MRIStepCouplingView>(m, "MRIStepCouplingView")
     .def_static("Create", [](int nmat, int stages, int q, int p, 
         std::vector<sunrealtype> W, std::vector<sunrealtype> G, std::vector<sunrealtype> c) {
-          MRIStepCouplingView::Create(nmat, stages, q, p, W.data(), G.data(), c.data());
+          return MRIStepCouplingView::Create(nmat, stages, q, p, W.data(), G.data(), c.data());
         })
     .def("get", nb::overload_cast<>(&MRIStepCouplingView::get, nb::const_),
          nb::rv_policy::reference);
@@ -43,11 +43,13 @@ void bind_arkode_mristep(nb::module_& m)
   // defined in a source file elsewhere. As such, we need to declare it here since its
   // not picked up in any header files by the generator.
   nb::class_<_MRIStepInnerStepper>(m, "_MRIStepInnerStepper");
+    // .def(nb::init<>()); // implicit default constructor
 
   nb::class_<MRIStepInnerStepperView>(m, "MRIStepInnerStepperView")
     .def_static("Create", &MRIStepInnerStepperView::Create<MRIStepInnerStepper>)
     .def("get", nb::overload_cast<>(&MRIStepInnerStepperView::get, nb::const_),
          nb::rv_policy::reference);
+
 
   m.def("MRIStepInnerStepper_Create", [](SUNContext sunctx) {
         MRIStepInnerStepper stepper = nullptr;
@@ -73,13 +75,16 @@ void bind_arkode_mristep(nb::module_& m)
 
   m.def("ARKodeCreateMRIStepInnerStepper", [] (void* inner_arkode_mem) {
     MRIStepInnerStepper stepper = nullptr;
-    
+
     int status = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
     if (status != ARK_SUCCESS) {
         throw std::runtime_error("Failed to create MRIStepInnerStepper");
     }
 
-    printf("alloc stepper:%p\n", stepper);
+    // void* content = nullptr;
+    // MRIStepInnerStepper_GetContent(stepper, &content);
+    // printf("alloc stepper:%p, content:%p\n", stepper, content);
+
     return stepper;
   });
 
@@ -87,11 +92,17 @@ void bind_arkode_mristep(nb::module_& m)
         [](std::function<std::remove_pointer_t<ARKRhsFn>> fse, std::function<std::remove_pointer_t<ARKRhsFn>> fsi,
            sunrealtype t0, N_Vector y0, MRIStepInnerStepper stepper, SUNContext sunctx)
         {
-          void* ark_mem = MRIStepCreate(mristep_fse_wrapper, mristep_fsi_wrapper, t0, y0, stepper, sunctx);
+            auto fse_wrapper = fse ? mristep_fse_wrapper : nullptr;
+            auto fsi_wrapper = fsi ? mristep_fsi_wrapper : nullptr;
+
+          void* ark_mem = MRIStepCreate(fse_wrapper, fsi_wrapper, t0, y0, stepper, sunctx);
           if (ark_mem == nullptr)
           {
             throw std::runtime_error("Failed to create ARKODE memory");
           }
+
+          void* content = nullptr;
+          MRIStepInnerStepper_GetContent(stepper, &content);
 
           // Create the user-supplied function table to store the Python user functions
           auto cb_fns = arkode_user_supplied_fn_table_alloc();
