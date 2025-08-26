@@ -539,7 +539,7 @@ static int InitUserData(UserData* udata)
 
   // LSRKStep options
   udata->method          = ARKODE_LSRK_RKC_2; // RKC
-  udata->eigfrequency    = 25;   // update eigenvalue at least every 20 steps
+  udata->eigfrequency    = 25;   // update eigenvalue at least every 25 steps
   udata->stage_max_limit = 1000; // allow up to 1000 stages/step
   udata->eigsafety       = SUN_RCONST(1.01); // 1% safety factor
 
