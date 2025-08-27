@@ -568,8 +568,8 @@ SWIGEXPORT void _wrap_SUNDomEigEstimatorContent_Power__op_assign__(SwigClassWrap
 }
 
 
-SWIGEXPORT SwigClassWrapper _wrap_FSUNDomEigEst_Power(N_Vector farg1, long const *farg2, double const *farg3, void *farg4) {
-  SwigClassWrapper fresult ;
+SWIGEXPORT SUNDomEigEstimator _wrap_FSUNDomEigEst_Power(N_Vector farg1, long const *farg2, double const *farg3, void *farg4) {
+  SUNDomEigEstimator fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   long arg2 ;
   sunrealtype arg3 ;
@@ -580,22 +580,20 @@ SWIGEXPORT SwigClassWrapper _wrap_FSUNDomEigEst_Power(N_Vector farg1, long const
   arg2 = (long)(*farg2);
   arg3 = (sunrealtype)(*farg3);
   arg4 = (SUNContext)(farg4);
-  result = SUNDomEigEst_Power(arg1,arg2,arg3,arg4);
-  fresult.cptr = (SUNDomEigEstimator *)memcpy((SUNDomEigEstimator *)calloc(1,sizeof(SUNDomEigEstimator)),&result,sizeof(SUNDomEigEstimator));
-  fresult.cmemflags = SWIG_MEM_RVALUE | SWIG_MEM_OWN;
+  result = (SUNDomEigEstimator)SUNDomEigEst_Power(arg1,arg2,arg3,arg4);
+  fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_SetATimes_Power(SwigClassWrapper const *farg1, void *farg2, SUNATimesFn farg3) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_SetATimes_Power(SUNDomEigEstimator farg1, void *farg2, SUNATimesFn farg3) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   void *arg2 = (void *) 0 ;
   SUNATimesFn arg3 = (SUNATimesFn) 0 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_SetATimes_Power(SUNDomEigEstimator,void *,SUNATimesFn)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   arg2 = (void *)(farg2);
   arg3 = (SUNATimesFn)(farg3);
   result = (SUNErrCode)SUNDomEigEst_SetATimes_Power(arg1,arg2,arg3);
@@ -604,14 +602,13 @@ SWIGEXPORT int _wrap_FSUNDomEigEst_SetATimes_Power(SwigClassWrapper const *farg1
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_SetMaxIters_Power(SwigClassWrapper const *farg1, long const *farg2) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator farg1, long const *farg2) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   long arg2 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator,long)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   arg2 = (long)(*farg2);
   result = (SUNErrCode)SUNDomEigEst_SetMaxIters_Power(arg1,arg2);
   fresult = (SUNErrCode)(result);
@@ -619,14 +616,13 @@ SWIGEXPORT int _wrap_FSUNDomEigEst_SetMaxIters_Power(SwigClassWrapper const *far
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_SetNumPreprocessIters_Power(SwigClassWrapper const *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_SetNumPreprocessIters_Power(SUNDomEigEstimator farg1, int const *farg2) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   int arg2 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_SetNumPreprocessIters_Power(SUNDomEigEstimator,int)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   arg2 = (int)(*farg2);
   result = (SUNErrCode)SUNDomEigEst_SetNumPreprocessIters_Power(arg1,arg2);
   fresult = (SUNErrCode)(result);
@@ -634,14 +630,13 @@ SWIGEXPORT int _wrap_FSUNDomEigEst_SetNumPreprocessIters_Power(SwigClassWrapper 
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_SetRelTol_Power(SwigClassWrapper const *farg1, double const *farg2) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_SetRelTol_Power(SUNDomEigEstimator farg1, double const *farg2) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   sunrealtype arg2 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_SetRelTol_Power(SUNDomEigEstimator,sunrealtype)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (SUNErrCode)SUNDomEigEst_SetRelTol_Power(arg1,arg2);
   fresult = (SUNErrCode)(result);
@@ -649,28 +644,26 @@ SWIGEXPORT int _wrap_FSUNDomEigEst_SetRelTol_Power(SwigClassWrapper const *farg1
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_Initialize_Power(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_Initialize_Power(SUNDomEigEstimator farg1) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_Initialize_Power(SUNDomEigEstimator)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   result = (SUNErrCode)SUNDomEigEst_Initialize_Power(arg1);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEig_Estimate_Power(SwigClassWrapper const *farg1, double *farg2, double *farg3) {
+SWIGEXPORT int _wrap_FSUNDomEig_Estimate_Power(SUNDomEigEstimator farg1, double *farg2, double *farg3) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   sunrealtype *arg3 = (sunrealtype *) 0 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEig_Estimate_Power(SUNDomEigEstimator,sunrealtype *,sunrealtype *)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   arg2 = (sunrealtype *)(farg2);
   arg3 = (sunrealtype *)(farg3);
   result = (SUNErrCode)SUNDomEig_Estimate_Power(arg1,arg2,arg3);
@@ -679,14 +672,13 @@ SWIGEXPORT int _wrap_FSUNDomEig_Estimate_Power(SwigClassWrapper const *farg1, do
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_GetRes_Power(SwigClassWrapper const *farg1, double *farg2) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_GetRes_Power(SUNDomEigEstimator farg1, double *farg2) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   sunrealtype *arg2 = (sunrealtype *) 0 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_GetRes_Power(SUNDomEigEstimator,sunrealtype *)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (SUNErrCode)SUNDomEigEst_GetRes_Power(arg1,arg2);
   fresult = (SUNErrCode)(result);
@@ -694,14 +686,13 @@ SWIGEXPORT int _wrap_FSUNDomEigEst_GetRes_Power(SwigClassWrapper const *farg1, d
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_GetNumIters_Power(SwigClassWrapper const *farg1, long *farg2) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_GetNumIters_Power(SUNDomEigEstimator farg1, long *farg2) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   long *arg2 = (long *) 0 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_GetNumIters_Power(SUNDomEigEstimator,long *)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   arg2 = (long *)(farg2);
   result = (SUNErrCode)SUNDomEigEst_GetNumIters_Power(arg1,arg2);
   fresult = (SUNErrCode)(result);
@@ -709,14 +700,13 @@ SWIGEXPORT int _wrap_FSUNDomEigEst_GetNumIters_Power(SwigClassWrapper const *far
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_GetNumATimesCalls_Power(SwigClassWrapper const *farg1, long *farg2) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_GetNumATimesCalls_Power(SUNDomEigEstimator farg1, long *farg2) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   long *arg2 = (long *) 0 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_GetNumATimesCalls_Power(SUNDomEigEstimator,long *)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   arg2 = (long *)(farg2);
   result = (SUNErrCode)SUNDomEigEst_GetNumATimesCalls_Power(arg1,arg2);
   fresult = (SUNErrCode)(result);
@@ -724,14 +714,13 @@ SWIGEXPORT int _wrap_FSUNDomEigEst_GetNumATimesCalls_Power(SwigClassWrapper cons
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_Write_Power(SwigClassWrapper const *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_Write_Power(SUNDomEigEstimator farg1, void *farg2) {
   int fresult ;
-  SUNDomEigEstimator arg1 ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
   FILE *arg2 = (FILE *) 0 ;
   SUNErrCode result;
   
-  SWIG_check_nonnull(*farg1, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_Write_Power(SUNDomEigEstimator,FILE *)", return 0);
-  arg1 = *(SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator)(farg1);
   arg2 = (FILE *)(farg2);
   result = (SUNErrCode)SUNDomEigEst_Write_Power(arg1,arg2);
   fresult = (SUNErrCode)(result);
@@ -739,13 +728,12 @@ SWIGEXPORT int _wrap_FSUNDomEigEst_Write_Power(SwigClassWrapper const *farg1, vo
 }
 
 
-SWIGEXPORT int _wrap_FSUNDomEigEst_Destroy_Power(SwigClassWrapper const *farg1) {
+SWIGEXPORT int _wrap_FSUNDomEigEst_Destroy_Power(void *farg1) {
   int fresult ;
   SUNDomEigEstimator *arg1 = (SUNDomEigEstimator *) 0 ;
   SUNErrCode result;
   
-  SWIG_check_mutable(*farg1, "SUNDomEigEstimator *", "SWIGTYPE_p_SUNDomEigEstimator", "SUNDomEigEst_Destroy_Power(SUNDomEigEstimator *)", return 0);
-  arg1 = (SUNDomEigEstimator *)(farg1->cptr);
+  arg1 = (SUNDomEigEstimator *)(farg1);
   result = (SUNErrCode)SUNDomEigEst_Destroy_Power(arg1);
   fresult = (SUNErrCode)(result);
   return fresult;

@@ -301,6 +301,9 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 #include "sundials/sundials_adjointcheckpointscheme.h"
 #include "sundials/sundials_adjointstepper.h"
 
+
+#include "sundials/sundials_domeigestimator.h"
+
 SWIGEXPORT void _wrap_FSUNLogErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
   int arg1 ;
   char *arg2 = (char *) 0 ;
@@ -3722,6 +3725,180 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_Destroy(void *farg1) {
   
   arg1 = (SUNAdjointStepper *)(farg1);
   result = (SUNErrCode)SUNAdjointStepper_Destroy(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT SUNDomEigEstimator _wrap_FSUNDomEigEst_NewEmpty(void *farg1) {
+  SUNDomEigEstimator fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNDomEigEstimator result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNDomEigEstimator)SUNDomEigEst_NewEmpty(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void _wrap_FSUNDomEigEst_FreeEmpty(SUNDomEigEstimator farg1) {
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  SUNDomEigEst_FreeEmpty(arg1);
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_SetATimes(SUNDomEigEstimator farg1, void *farg2, SUNATimesFn farg3) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  void *arg2 = (void *) 0 ;
+  SUNATimesFn arg3 = (SUNATimesFn) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (void *)(farg2);
+  arg3 = (SUNATimesFn)(farg3);
+  result = (SUNErrCode)SUNDomEigEst_SetATimes(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_SetMaxIters(SUNDomEigEstimator farg1, long const *farg2) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  long arg2 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (long)(*farg2);
+  result = (SUNErrCode)SUNDomEigEst_SetMaxIters(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator farg1, int const *farg2) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  int arg2 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (int)(*farg2);
+  result = (SUNErrCode)SUNDomEigEst_SetNumPreprocessIters(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_SetRelTol(SUNDomEigEstimator farg1, double const *farg2) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  sunrealtype arg2 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (SUNErrCode)SUNDomEigEst_SetRelTol(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_Initialize(SUNDomEigEstimator farg1) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  result = (SUNErrCode)SUNDomEigEst_Initialize(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEig_Estimate(SUNDomEigEstimator farg1, double *farg2, double *farg3) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  sunrealtype *arg3 = (sunrealtype *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (sunrealtype *)(farg2);
+  arg3 = (sunrealtype *)(farg3);
+  result = (SUNErrCode)SUNDomEig_Estimate(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_GetRes(SUNDomEigEstimator farg1, double *farg2) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (sunrealtype *)(farg2);
+  result = (SUNErrCode)SUNDomEigEst_GetRes(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_GetNumIters(SUNDomEigEstimator farg1, long *farg2) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  long *arg2 = (long *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (long *)(farg2);
+  result = (SUNErrCode)SUNDomEigEst_GetNumIters(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator farg1, long *farg2) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  long *arg2 = (long *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (long *)(farg2);
+  result = (SUNErrCode)SUNDomEigEst_GetNumATimesCalls(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_Write(SUNDomEigEstimator farg1, void *farg2) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  FILE *arg2 = (FILE *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (FILE *)(farg2);
+  result = (SUNErrCode)SUNDomEigEst_Write(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNDomEigEst_Destroy(void *farg1) {
+  int fresult ;
+  SUNDomEigEstimator *arg1 = (SUNDomEigEstimator *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator *)(farg1);
+  result = (SUNErrCode)SUNDomEigEst_Destroy(arg1);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

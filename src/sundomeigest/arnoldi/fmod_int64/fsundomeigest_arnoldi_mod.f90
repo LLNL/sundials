@@ -72,9 +72,6 @@ module fsundomeigest_arnoldi_mod
  interface SUNDomEigEstimatorContent_Arnoldi_
   module procedure swigf_create_SUNDomEigEstimatorContent_Arnoldi_
  end interface
- type, public :: SWIGTYPE_p_SUNDomEigEstimator
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNDomEigEst_Arnoldi
  public :: FSUNDomEigEst_SetATimes_Arnoldi
  public :: FSUNDomEigEst_SetNumPreprocessIters_Arnoldi
@@ -351,19 +348,17 @@ function swigc_FSUNDomEigEst_Arnoldi(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNDomEigEst_Arnoldi") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 type(C_PTR), value :: farg3
-type(SwigClassWrapper) :: fresult
+type(C_PTR) :: fresult
 end function
 
 function swigc_FSUNDomEigEst_SetATimes_Arnoldi(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNDomEigEst_SetATimes_Arnoldi") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_FUNPTR), value :: farg3
 integer(C_INT) :: fresult
@@ -373,8 +368,7 @@ function swigc_FSUNDomEigEst_SetNumPreprocessIters_Arnoldi(farg1, farg2) &
 bind(C, name="_wrap_FSUNDomEigEst_SetNumPreprocessIters_Arnoldi") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
@@ -383,8 +377,7 @@ function swigc_FSUNDomEigEst_Initialize_Arnoldi(farg1) &
 bind(C, name="_wrap_FSUNDomEigEst_Initialize_Arnoldi") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -392,8 +385,7 @@ function swigc_FSUNDomEig_Estimate_Arnoldi(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNDomEig_Estimate_Arnoldi") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
@@ -403,8 +395,7 @@ function swigc_FSUNDomEigEst_GetNumATimesCalls_Arnoldi(farg1, farg2) &
 bind(C, name="_wrap_FSUNDomEigEst_GetNumATimesCalls_Arnoldi") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -413,8 +404,7 @@ function swigc_FSUNDomEigEst_Write_Arnoldi(farg1, farg2) &
 bind(C, name="_wrap_FSUNDomEigEst_Write_Arnoldi") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -423,8 +413,7 @@ function swigc_FSUNDomEigEst_Destroy_Arnoldi(farg1) &
 bind(C, name="_wrap_FSUNDomEigEst_Destroy_Arnoldi") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
@@ -823,11 +812,11 @@ end subroutine
 function FSUNDomEigEst_Arnoldi(q, kry_dim, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SWIGTYPE_p_SUNDomEigEstimator) :: swig_result
+type(SUNDomEigEstimator), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: q
 integer(C_INT), intent(in) :: kry_dim
 type(C_PTR) :: sunctx
-type(SwigClassWrapper) :: fresult 
+type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 type(C_PTR) :: farg3 
@@ -836,22 +825,22 @@ farg1 = c_loc(q)
 farg2 = kry_dim
 farg3 = sunctx
 fresult = swigc_FSUNDomEigEst_Arnoldi(farg1, farg2, farg3)
-swig_result%swigdata = fresult
+call c_f_pointer(fresult, swig_result)
 end function
 
 function FSUNDomEigEst_SetATimes_Arnoldi(dee, a_data, atimes) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
+type(SUNDomEigEstimator), target, intent(inout) :: dee
 type(C_PTR) :: a_data
 type(C_FUNPTR), intent(in), value :: atimes
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_FUNPTR) :: farg3 
 
-farg1 = dee%swigdata
+farg1 = c_loc(dee)
 farg2 = a_data
 farg3 = atimes
 fresult = swigc_FSUNDomEigEst_SetATimes_Arnoldi(farg1, farg2, farg3)
@@ -862,13 +851,13 @@ function FSUNDomEigEst_SetNumPreprocessIters_Arnoldi(dee, num_iters) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
+type(SUNDomEigEstimator), target, intent(inout) :: dee
 integer(C_INT), intent(in) :: num_iters
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = dee%swigdata
+farg1 = c_loc(dee)
 farg2 = num_iters
 fresult = swigc_FSUNDomEigEst_SetNumPreprocessIters_Arnoldi(farg1, farg2)
 swig_result = fresult
@@ -878,11 +867,11 @@ function FSUNDomEigEst_Initialize_Arnoldi(dee) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
+type(SUNDomEigEstimator), target, intent(inout) :: dee
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = dee%swigdata
+farg1 = c_loc(dee)
 fresult = swigc_FSUNDomEigEst_Initialize_Arnoldi(farg1)
 swig_result = fresult
 end function
@@ -891,15 +880,15 @@ function FSUNDomEig_Estimate_Arnoldi(dee, lambdar, lambdai) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
+type(SUNDomEigEstimator), target, intent(inout) :: dee
 real(C_DOUBLE), dimension(*), target, intent(inout) :: lambdar
 real(C_DOUBLE), dimension(*), target, intent(inout) :: lambdai
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = dee%swigdata
+farg1 = c_loc(dee)
 farg2 = c_loc(lambdar(1))
 farg3 = c_loc(lambdai(1))
 fresult = swigc_FSUNDomEig_Estimate_Arnoldi(farg1, farg2, farg3)
@@ -910,13 +899,13 @@ function FSUNDomEigEst_GetNumATimesCalls_Arnoldi(dee, num_atimes) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
+type(SUNDomEigEstimator), target, intent(inout) :: dee
 integer(C_LONG), dimension(*), target, intent(inout) :: num_atimes
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = dee%swigdata
+farg1 = c_loc(dee)
 farg2 = c_loc(num_atimes(1))
 fresult = swigc_FSUNDomEigEst_GetNumATimesCalls_Arnoldi(farg1, farg2)
 swig_result = fresult
@@ -926,13 +915,13 @@ function FSUNDomEigEst_Write_Arnoldi(dee, outfile) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: dee
+type(SUNDomEigEstimator), target, intent(inout) :: dee
 type(C_PTR) :: outfile
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = dee%swigdata
+farg1 = c_loc(dee)
 farg2 = outfile
 fresult = swigc_FSUNDomEigEst_Write_Arnoldi(farg1, farg2)
 swig_result = fresult
@@ -942,11 +931,11 @@ function FSUNDomEigEst_Destroy_Arnoldi(deeptr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SWIGTYPE_p_SUNDomEigEstimator), intent(in) :: deeptr
+type(C_PTR), target, intent(inout) :: deeptr
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 
-farg1 = deeptr%swigdata
+farg1 = c_loc(deeptr)
 fresult = swigc_FSUNDomEigEst_Destroy_Arnoldi(farg1)
 swig_result = fresult
 end function

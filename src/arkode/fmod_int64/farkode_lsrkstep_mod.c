@@ -178,21 +178,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
-                        "as a reference", RETURNNULL); \
-  }
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -243,20 +228,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   result.data = NULL;
   result.size = 0;
   return result;
-}
-
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
 }
 
 SWIGEXPORT void * _wrap_FLSRKStepCreateSTS(ARKRhsFn farg1, double const *farg2, N_Vector farg3, void *farg4) {
@@ -401,15 +372,14 @@ SWIGEXPORT int _wrap_FLSRKStepSetDomEigFn(void *farg1, ARKDomEigFn farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepSetDomEigEstimator(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepSetDomEigEstimator(void *farg1, SUNDomEigEstimator farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  SUNDomEigEstimator arg2 ;
+  SUNDomEigEstimator arg2 = (SUNDomEigEstimator) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  SWIG_check_nonnull(*farg2, "SUNDomEigEstimator", "SWIGTYPE_p_SUNDomEigEstimator", "LSRKStepSetDomEigEstimator(void *,SUNDomEigEstimator)", return 0);
-  arg2 = *(SUNDomEigEstimator *)(farg2->cptr);
+  arg2 = (SUNDomEigEstimator)(farg2);
   result = (int)LSRKStepSetDomEigEstimator(arg1,arg2);
   fresult = (int)(result);
   return fresult;
