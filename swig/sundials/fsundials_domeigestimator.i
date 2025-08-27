@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------
-// Programmer: Cody J. Balos @ LLNL
+// Programmer: Daniel R. Reynolds @ SMU
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
 // Copyright (c) 2002-2025, Lawrence Livermore National Security
@@ -14,23 +14,17 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-
-// insert the include into the swig wrapper
 %{
-#include "sundials/sundials_memory.h"
+#include "sundials/sundials_domeigestimator.h"
 %}
 
-%ignore SUNMemory_;
-%apply void* { SUNMemory };
-%apply void** { SUNMemory* };
+%fortran_struct(SUNDomEigEstimator_Ops_);
+%typemap(ctype) SUNDomEigEstimator_Ops_* "SUNDomEigEstimator_Ops";
+%rename(SUNDomEigEstimator_Ops) SUNDomEigEstimator_Ops_;
 
-%fortran_struct(SUNMemoryHelper_Ops_);
-%typemap(ctype) SUNMemoryHelper_Ops_* "SUNMemoryHelper_Ops";
-%rename(SUNMemoryHelper_Ops) SUNMemoryHelper_Ops_;
-
-%fortran_struct(SUNMemoryHelper_);
-%typemap(ctype) SUNMemoryHelper_* "SUNMemoryHelper";
-%rename(SUNMemoryHelper) SUNMemoryHelper;
+%fortran_struct(SUNDomEigEstimator_);
+%typemap(ctype) SUNDomEigEstimator_* "SUNDomEigEstimator";
+%rename(SUNDomEigEstimator) SUNDomEigEstimator_;
 
 // Process and wrap functions in the following files
-%include "sundials/sundials_memory.h"
+%include "sundials/sundials_domeigestimator.h"
