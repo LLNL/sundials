@@ -19,11 +19,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
 #include "kinsol_impl.h"
 #include "kinsol_ls_impl.h"
+#include "sundials_utils.h"
 
 #define ZERO      SUN_RCONST(0.0)
 #define POINT1    SUN_RCONST(0.1)

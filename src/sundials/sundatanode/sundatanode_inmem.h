@@ -11,10 +11,10 @@
  * -----------------------------------------------------------------*/
 
 #include <sundials/priv/sundials_errors_impl.h>
-#include "sundials_datanode.h"
+#include <sundials/sundials_memory.h>
+#include <sundials/sundials_types.h>
 
-#include "sundials/sundials_memory.h"
-#include "sundials_hashmap_impl.h"
+#include "sundials_datanode.h"
 
 #ifndef _SUNDATANODE_INMEM_H
 #define _SUNDATANODE_INMEM_H

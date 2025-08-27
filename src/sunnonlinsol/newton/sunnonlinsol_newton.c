@@ -24,7 +24,7 @@
 #include <sundials/sundials_nvector_senswrapper.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
-#include "sundials_logger_impl.h"
+#include <sundials/priv/sundials_logger_impl.h>
 #include "sundials_macros.h"
 
 /* Content structure accessibility macros  */

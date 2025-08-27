@@ -1,0 +1,123 @@
+.. _SUNMatrix.GinkgoBlock:
+
+The SUNMATRIX_GINKGOBLOCK Module
+================================
+
+.. versionadded:: X.Y.Z
+
+The SUNMATRIX_GINKGOBLOCK implementation of the ``SUNMatrix`` API provides an
+interface to the batched matrix types from the Ginkgo linear algebra library.
+This module is written in C++14 and is distributed as a header file. To use the
+SUNMATRIX_GINKGOBLOCK ``SUNMatrix``, users will need to include
+``sunmatrix/sunmatrix_ginkgoblock.hpp``. The module is meant to be used with the
+SUNLINEARSOLVER_GINKGOBLOCK module described in :numref:`SUNLinSol.GinkgoBlock`.
+
+.. note::
+
+   It is assumed that users of this module are aware of how to use Ginkgo. This
+   module does not try to encapsulate Ginkgo matrices, rather it provides a
+   lightweight interoperability layer between Ginkgo and SUNDIALS. Most, if not
+   all, of the Ginkgo batch matrix types should work with this interface.
+
+.. _SUNMatrix.GinkgoBlock.CompatibleNVectors:
+
+Compatible Vectors
+------------------
+
+The :c:type:`N_Vector` to use with the SUNLINEARSOLVER_GINKGOBLOCK module depends on the ``gko::Executor``
+utilized. That is, when using the ``gko::CudaExecutor`` you should use a CUDA capable ``N_Vector``
+(e.g., :numref:`NVectors.CUDA`), ``gko::HipExecutor`` goes with a HIP capable ``N_Vector`` (e.g.,
+:numref:`NVectors.HIP`), ``gko::DpcppExecutor`` goes with a DPC++/SYCL capable ``N_Vector`` (e.g.,
+:numref:`NVectors.SYCL`),  and ``gko::OmpExecutor`` goes with a CPU based N_Vector (e.g.,
+:numref:`NVectors.OpenMP`). Specifically, what makes a ``N_Vector`` compatible with different Ginkgo
+executors is where they store the data. The GPU enabled Ginkgo executors need the data to reside on
+the GPU, so the ``N_Vector`` must implement :c:func:`N_VGetDeviceArrayPointer` and keep the data in
+GPU memory. The CPU-only enabled Ginkgo executors (e.g, ``gko::OmpExecutor`` and
+``gko::ReferenceExecutor``) need data to reside on the CPU and will use
+:c:func:`N_VGetArrayPointer` to access the ``N_Vector`` data.
+
+.. _SUNMatrix.GinkgoBlock.API:
+
+SUNMATRIX_GINKGOBLOCK API
+-------------------------
+
+In this section we list the public API of the
+:cpp:type:`sundials::ginkgo::BlockMatrix` class.
+
+.. cpp:class:: template<class GkoBatchMatType> sundials::ginkgo::BlockMatrix : public sundials::ConvertibleTo<SUNMatrix>
+
+   Batched matrix wrapper for Ginkgo batch matrix types, providing a SUNDIALS
+   ``SUNMatrix`` interface.
+
+   .. cpp:function:: BlockMatrix()
+
+      Default constructor. The matrix must be copied or moved to.
+
+   .. cpp:function:: BlockMatrix(gko::size_type num_blocks, sunindextype M, sunindextype N, std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
+
+      Construct a batch matrix with the given number of blocks, rows, columns,
+      executor, and context. (Specialized for supported Ginkgo batch matrix
+      types.)
+
+   .. cpp:function:: BlockMatrix(gko::size_type num_blocks, sunindextype M, sunindextype N, sunindextype num_nonzeros, std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
+
+      Construct a batch sparse matrix with the given number of blocks, rows,
+      columns, nonzeros, executor, and context. (Specialized for supported
+      Ginkgo batch matrix types.)
+
+   .. cpp:function:: BlockMatrix(std::shared_ptr<GkoBatchMatType> gko_mat, SUNContext sunctx)
+
+      Construct a BlockMatrix from an existing Ginkgo batch matrix pointer and
+      SUNDIALS context.
+
+   .. cpp:function:: BlockMatrix(BlockMatrix&& that_matrix) noexcept
+
+      Move constructor.
+
+   .. cpp:function:: BlockMatrix(const BlockMatrix& that_matrix)
+
+      Copy constructor. Clones the Ginkgo matrix and SUNDIALS SUNMatrix.
+
+   .. cpp:function:: BlockMatrix& operator=(BlockMatrix&& rhs) noexcept
+
+      Move assignment.
+
+   .. cpp:function:: BlockMatrix& operator=(const BlockMatrix& rhs)
+
+      Copy assignment. Clones the Ginkgo matrix and SUNDIALS SUNMatrix.
+
+   .. cpp:function:: ~BlockMatrix() override = default
+
+      Default destructor.
+
+   .. cpp:function:: std::shared_ptr<GkoBatchMatType> GkoMtx() const
+
+      Get the underlying Ginkgo batch matrix pointer.
+
+   .. cpp:function:: std::shared_ptr<const gko::Executor> GkoExec() const
+
+      Get the Ginkgo executor associated with the matrix.
+
+   .. cpp:function:: const gko::batch_dim<2>& GkoSize() const
+
+      Get the Ginkgo batch size object.
+
+   .. cpp:function:: sunindextype NumBlocks() const
+
+      Get the number of blocks (batch systems).
+
+   .. cpp:function:: operator SUNMatrix() override
+
+      Implicit conversion to a :c:type:`SUNMatrix`.
+
+   .. cpp:function:: operator SUNMatrix() const override
+
+      Implicit conversion to a :c:type:`SUNMatrix`.
+
+   .. cpp:function:: SUNMatrix Convert() override
+
+      Explicit conversion to a :c:type:`SUNMatrix`.
+
+   .. cpp:function:: SUNMatrix Convert() const override
+
+      Explicit conversion to a :c:type:`SUNMatrix`.

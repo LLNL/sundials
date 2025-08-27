@@ -59,17 +59,17 @@
  * =================================================================
  */
 
-#include "kinsol/kinsol.h"
-
-#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <kinsol/kinsol.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
 
 #include "kinsol_impl.h"
-#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials_utils.h"
 
 /*
  * =================================================================

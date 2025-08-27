@@ -40,6 +40,12 @@ nitpick_ignore = [
     ("cpp:identifier", "gko::dim<2>"),
     ("cpp:identifier", "gko::Executor"),
     ("cpp:identifier", "gko::LinOp"),
+    ("cpp:identifier", "gko::size_type"),
+    ("cpp:identifier", "gko::batch_dim<2>"),
+    ("cpp:identifier", "gko::batch"),
+    ("cpp:identifier", "gko::batch::stop"),
+    ("cpp:identifier", "gko::batch::stop::tolerance_type"),
+    ("cpp:identifier", "gko::batch::BatchLinOpFactory"),
     # HIP
     ("cpp:identifier", "hipStream_t"),
     # hypre

@@ -31,8 +31,6 @@ extern "C" {
 #define SUNHASHMAP_KEYNOTFOUND -1
 #define SUNHASHMAP_DUPLICATE   -2
 
-typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
-
 struct SUNHashMapKeyValue_
 {
   char* key;
@@ -42,8 +40,6 @@ struct SUNHashMapKeyValue_
 #define TTYPE SUNHashMapKeyValue
 #include "stl/sunstl_vector.h"
 #undef TTYPE
-
-typedef struct SUNHashMap_* SUNHashMap;
 
 struct SUNHashMap_
 {

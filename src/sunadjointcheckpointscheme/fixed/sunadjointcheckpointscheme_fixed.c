@@ -18,10 +18,10 @@
 #include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_core.h>
 
+#include <sundials/priv/sundials_logger_impl.h>
 #include "sundatanode/sundatanode_inmem.h"
 #include "sundials_adjointcheckpointscheme_impl.h"
 #include "sundials_datanode.h"
-#include "sundials_logger_impl.h"
 #include "sundials_macros.h"
 #include "sundials_utils.h"
 

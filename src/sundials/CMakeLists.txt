@@ -143,6 +143,7 @@ sundials_add_library(
 install(
   FILES ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_context_impl.h
         ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_errors_impl.h
+        ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_logger_impl.h
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv")
 
 if(ENABLE_MPI)
