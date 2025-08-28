@@ -310,11 +310,6 @@ int main(int argc, char* argv[])
      It is used only to initialize the DEE */
   N_VDestroy(q);
 
-  /* Specify the max number for PI iterations.
-     This does nothing if DEE is Arnoldi */
-  flag = SUNDomEigEst_SetMaxIters(DEE, udata->dee_max_iters);
-  if (check_flag(&flag, "SUNDomEigEst_SetMaxIters", 2)) { return 1; }
-
   /* Attach the DEE to the LSRKStep module.
   There is no need to set Atimes or initialize since these are all
   performed after attaching the DEE by LSRKStep. */

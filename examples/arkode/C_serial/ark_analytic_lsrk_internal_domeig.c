@@ -181,16 +181,16 @@ int main(void)
   N_VDestroy(q);
 
   /* Attach the DEE to the LSRKStep module.
-  There is no need to set Atimes or initialize since these are all 
+  There is no need to set Atimes or initialize since these are all
   performed after attaching the DEE by LSRKStep. */
   flag = LSRKStepSetDomEigEstimator(arkode_mem, DEE);
   if (check_flag(&flag, "LSRKStepSetDomEigEstimator", 1)) { return 1; }
 
   /* Set the number of preprocessing warmups. The warmup
   is used to compute a "better" initial eigenvector and so an initial
-  eigenvalue. The warmup is performed only once by the LSRKStep module 
+  eigenvalue. The warmup is performed only once by the LSRKStep module
   internally unless LSRKStepSetNumDomEigEstPreprocessIters is called to set
-  a new number of succeeding warmups that would be executed before 
+  a new number of succeeding warmups that would be executed before
   every dominant eigenvalue estimate calls */
   flag = LSRKStepSetNumDomEigEstInitPreprocessIters(arkode_mem, numwarmup);
   if (check_flag(&flag, "LSRKStepSetNumDomEigEstInitPreprocessIters", 1))
