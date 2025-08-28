@@ -124,3 +124,8 @@ routines:
    .. code-block:: c
 
       retval = SUNAdaptController_SetParams_ImExGus(C, 0.4, 0.3, -1.0, 1.0);
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetOptions`
+      when using the key "Cid.params_imexgus".

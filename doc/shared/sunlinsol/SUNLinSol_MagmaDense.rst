@@ -97,6 +97,11 @@ In addition, the module provides the following user-callable routines:
    **Return value:**
       * A :c:type:`SUNErrCode`
 
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.async".
+
 
 SUNLinearSolver_MagmaDense Content
 -----------------------------------
