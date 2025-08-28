@@ -15,7 +15,7 @@
 # ---------------------------------------------------------------
 
 # List of example tuples, "name\;args\;type"
-set(examples_list "ark_heat2D_lsrk_internal_domeig.cpp\;\;exclude-single")
+set(examples_list "ark_heat2D_lsrk_domeigest.cpp\;\;exclude-single")
 
 foreach(example_tuple ${examples_list})
 

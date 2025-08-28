@@ -27,7 +27,7 @@ set(ARKODE_examples
     "ark_advection_diffusion_reaction_splitting.c\;\;develop"
     "ark_analytic_lsrk.c\;\;develop"
     "ark_analytic_lsrk_varjac.c\;\;develop"
-    "ark_analytic_lsrk_internal_domeig.c\;\;develop"
+    "ark_analytic_lsrk_domeigest.c\;\;develop"
     "ark_analytic_mels.c\;\;develop"
     "ark_analytic_nonlin.c\;\;develop"
     "ark_analytic_partitioned.c\;forcing\;develop"
