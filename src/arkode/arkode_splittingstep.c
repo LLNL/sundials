@@ -450,6 +450,45 @@ static int splittingStep_SetOrder(ARKodeMem ark_mem, int order)
 }
 
 /*------------------------------------------------------------------------------
+  Routine to set SplittingStep options
+  ----------------------------------------------------------------------------*/
+static int splittingStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
+                                    size_t offset, sunbooleantype* arg_used)
+{
+  /* The only SplittingStep-specific "Set" routine takes a custom set of
+     coefficients; however, these may be specified by name, so here we'll support
+     a key to specify the SplittingStepCoefficients by name,
+     create the coefficients with that name, attach it to SplittingStep (who copies its
+     values), and then frees the coefficients. */
+  if (strcmp(argv[*argidx] + offset, "splitting_coefficients_name") == 0)
+  {
+    (*argidx)++;
+    SplittingStepCoefficients Coefficients =
+      SplittingStepCoefficients_LoadCoefficientsByName(argv[*argidx]);
+    if (Coefficients == NULL)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "error setting key %s %s (invalid coefficients name)",
+                      argv[(*argidx) - 1], argv[*argidx]);
+      return ARK_ILL_INPUT;
+    }
+    int retval = SplittingStepSetCoefficients(ark_mem, Coefficients);
+    SplittingStepCoefficients_Destroy(&Coefficients);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting key %s %s (SetCoefficients failed)",
+                      argv[(*argidx) - 1], argv[*argidx]);
+      return retval;
+    }
+    *arg_used = SUNTRUE;
+    return ARK_SUCCESS;
+  }
+
+  return ARK_SUCCESS;
+}
+
+/*------------------------------------------------------------------------------
   Resets all SplittingStep optional inputs to their default values. Does not
   change problem-defining function pointers or user_data pointer.
   ----------------------------------------------------------------------------*/
@@ -613,6 +652,7 @@ void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
   ark_mem->step_writeparameters = splittingStep_WriteParameters;
   ark_mem->step_free            = splittingStep_Free;
   ark_mem->step_printmem        = splittingStep_PrintMem;
+  ark_mem->step_setoptions      = splittingStep_SetOptions;
   ark_mem->step_setdefaults     = splittingStep_SetDefaults;
   ark_mem->step_setorder        = splittingStep_SetOrder;
   ark_mem->step_mem             = (void*)step_mem;

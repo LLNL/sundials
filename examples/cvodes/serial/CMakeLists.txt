@@ -25,6 +25,7 @@ set(CVODES_examples
     "cvsAdvDiff_FSA_non\;-sensi stg t\;exclude-single"
     "cvsAdvDiff_bnd\;\;develop"
     "cvsAnalytic_mels\;\;develop"
+    "cvsAnalytic_mels\;cvodes.max_order 3\;develop"
     "cvsDirectDemo_ls\;\;develop"
     "cvsDiurnal_FSA_kry\;-sensi sim t\;exclude-single"
     "cvsDiurnal_FSA_kry\;-sensi stg t\;exclude-single"

@@ -21,6 +21,7 @@
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
     "idaAnalytic_mels\;\;exclude-single"
+    "idaAnalytic_mels\;ida.scalar_tolerances 1e-3 1e-8\;exclude-single"
     "idaFoodWeb_bnd\;\;develop"
     "idaFoodWeb_kry\;\;develop"
     "idaHeat2D_bnd\;\;develop"
