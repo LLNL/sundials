@@ -503,13 +503,6 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
     return ARK_ILL_INPUT;
   }
 
-  if (ark_mem->sunctx == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_SUNCTX);
-    return ARK_ILL_INPUT;
-  }
-
   /* Attach the DEE pointer to the step memory */
   step_mem->DEE = DEE;
 
