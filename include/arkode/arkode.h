@@ -220,6 +220,11 @@ typedef enum
  * Shared API routines
  * -------------------------- */
 
+/* Command-line control over ARKODE options */
+SUNDIALS_EXPORT int ARKodeSetOptions(void* arkode_mem, const char* arkid,
+                                     const char* file_name, int argc,
+                                     char* argv[]);
+
 /* Resize and Reset functions */
 SUNDIALS_EXPORT int ARKodeResize(void* arkode_mem, N_Vector ynew,
                                  sunrealtype hscale, sunrealtype t0,

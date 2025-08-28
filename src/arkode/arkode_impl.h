@@ -224,6 +224,8 @@ typedef int (*ARKTimestepSetStepDirection)(ARKodeMem ark_mem,
                                            sunrealtype stepdir);
 typedef int (*ARKTimestepSetUseCompensatedSums)(ARKodeMem ark_mem,
                                                 sunbooleantype onoff);
+typedef int (*ARKTimestepSetOptions)(ARKodeMem ark_mem, int* argidx, char* argv[],
+                                     size_t offset, sunbooleantype* arg_used);
 
 /* time stepper interface functions -- temporal adaptivity */
 typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
@@ -415,6 +417,7 @@ struct ARKodeMemRec
   ARKTimestepGetNumRhsEvals step_getnumrhsevals;
   ARKTimestepSetStepDirection step_setstepdirection;
   ARKTimestepSetUseCompensatedSums step_setusecompensatedsums;
+  ARKTimestepSetOptions step_setoptions;
 
   /* Time stepper module -- temporal adaptivity */
   sunbooleantype step_supports_adaptive;

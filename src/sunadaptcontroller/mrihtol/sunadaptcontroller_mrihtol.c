@@ -17,12 +17,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sunadaptcontroller/sunadaptcontroller_mrihtol.h>
 #include <sundials/sundials_core.h>
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
 
+#include "sundials_cli.h"
 #include "sundials_macros.h"
 
 /* ------------------
@@ -46,6 +48,21 @@
 #define MRIHTOL_INNER_MAX_RELCH(C)  (MRIHTOL_CONTENT(C)->inner_max_relch)
 #define MRIHTOL_INNER_MIN_TOLFAC(C) (MRIHTOL_CONTENT(C)->inner_min_tolfac)
 #define MRIHTOL_INNER_MAX_TOLFAC(C) (MRIHTOL_CONTENT(C)->inner_max_tolfac)
+
+/*
+ * ----------------------------------------------------------------------------
+ * Un-exported implementation specific routines
+ * ----------------------------------------------------------------------------
+ */
+
+static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
+                                             const char* Cid, int argc,
+                                             char* argv[]);
+
+SUNErrCode SUNAdaptController_SetOptions_MRIHTol(SUNAdaptController C,
+                                                 const char* Cid,
+                                                 const char* file_name,
+                                                 int argc, char* argv[]);
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -79,6 +96,7 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
   C->ops->gettype         = SUNAdaptController_GetType_MRIHTol;
   C->ops->estimatesteptol = SUNAdaptController_EstimateStepTol_MRIHTol;
   C->ops->reset           = SUNAdaptController_Reset_MRIHTol;
+  C->ops->setoptions      = SUNAdaptController_SetOptions_MRIHTol;
   C->ops->setdefaults     = SUNAdaptController_SetDefaults_MRIHTol;
   C->ops->write           = SUNAdaptController_Write_MRIHTol;
   C->ops->seterrorbias    = SUNAdaptController_SetErrorBias_MRIHTol;
@@ -103,6 +121,98 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
   C->content = content;
 
   return C;
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line or file
+ */
+
+SUNErrCode SUNAdaptController_SetOptions_MRIHTol(
+  SUNAdaptController C, const char* Cid,
+  SUNDIALS_MAYBE_UNUSED const char* file_name, int argc, char* argv[])
+{
+  SUNFunctionBegin(C->sunctx);
+
+  /* File-based option control is currently unimplemented */
+  SUNAssert((file_name == NULL || strlen(file_name) == 0),
+            SUN_ERR_ARG_INCOMPATIBLE);
+
+  if (argc > 0 && argv != NULL)
+  {
+    SUNCheckCall(setFromCommandLine_MRIHTol(C, Cid, argc, argv));
+  }
+
+  return SUN_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to control MRIHTol parameters from the command line
+ */
+
+static SUNErrCode setFromCommandLine_MRIHTol(SUNAdaptController C,
+                                             const char* Cid, int argc,
+                                             char* argv[])
+{
+  SUNFunctionBegin(C->sunctx);
+
+  /* Prefix for options to set */
+  const char* default_id = "sunadaptcontroller";
+  size_t offset          = strlen(default_id) + 1;
+  if (Cid != NULL && strlen(Cid) > 0) { offset = strlen(Cid) + 1; }
+  char* prefix = (char*)malloc(sizeof(char) * (offset + 1));
+  if (Cid != NULL && strlen(Cid) > 0) { strcpy(prefix, Cid); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+
+  int retval;
+  sunbooleantype write_parameters = SUNFALSE;
+  for (int idx = 1; idx < argc; idx++)
+  {
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
+
+    /* control over SetParams function */
+    if (strcmp(argv[idx] + offset, "params_mrihtol") == 0)
+    {
+      idx += 1;
+      sunrealtype rarg1 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg2 = SUNStrToReal(argv[idx]);
+      idx += 1;
+      sunrealtype rarg3 = SUNStrToReal(argv[idx]);
+      retval = SUNAdaptController_SetParams_MRIHTol(C, rarg1, rarg2, rarg3);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+
+    /* check whether it was requested that all parameters be printed to screen */
+    if (strcmp(argv[idx] + offset, "write_parameters") == 0)
+    {
+      write_parameters = SUNTRUE;
+      continue;
+    }
+  }
+
+  /* Call SUNAdaptController_Write (if requested) now that all
+     command-line options have been set -- WARNING: this knows
+     nothing about MPI, so it could be redundantly written by all
+     processes if requested. */
+  if (write_parameters)
+  {
+    retval = SUNAdaptController_Write(C, stdout);
+    if (retval != SUN_SUCCESS)
+    {
+      free(prefix);
+      return retval;
+    }
+  }
+
+  free(prefix);
+  return SUN_SUCCESS;
 }
 
 /* -----------------------------------------------------------------
