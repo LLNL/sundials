@@ -73,6 +73,8 @@ struct _generic_SUNAdaptController_Ops
   /* OPTIONAL for all SUNAdaptController implementations. */
   SUNErrCode (*destroy)(SUNAdaptController C);
   SUNErrCode (*reset)(SUNAdaptController C);
+  SUNErrCode (*setoptions)(SUNAdaptController C, const char* Cid,
+                           const char* file_name, int argc, char* argv[]);
   SUNErrCode (*setdefaults)(SUNAdaptController C);
   SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
   SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
@@ -146,6 +148,12 @@ SUNErrCode SUNAdaptController_EstimateStepTol(SUNAdaptController C,
    it stores a small number of previous dsm or step size values. */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_Reset(SUNAdaptController C);
+
+/* Function to update internal controller parameters from the command line. */
+SUNDIALS_EXPORT
+SUNErrCode SUNAdaptController_SetOptions(SUNAdaptController C, const char* Cid,
+                                         const char* file_name, int argc,
+                                         char* argv[]);
 
 /* Function to set the controller parameters to their default values. */
 SUNDIALS_EXPORT

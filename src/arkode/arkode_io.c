@@ -12,10 +12,7 @@
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * This is the implementation file for the optional input and
- * output functions for the ARKODE infrastructure; these routines
- * should not be called directly by the user; instead they are
- * provided as utility routines for ARKODE time-step modules
- * to use.
+ * output functions for the ARKODE infrastructure.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -1478,7 +1475,7 @@ int ARKodeSetNoInactiveRootWarn(void* arkode_mem)
   if (ark_mem->root_mem == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
+                    MSG_ARK_NO_ROOT);
     return (ARK_MEM_NULL);
   }
   ark_root_mem          = (ARKodeRootMem)ark_mem->root_mem;

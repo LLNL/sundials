@@ -23,6 +23,7 @@ set(ARKODE_examples
     # tests that are always run
     "ark_analytic\;\;"
     # develop tests
+    "ark_analytic\;arkode.scalar_tolerances 1e-6 1e-8 arkode.table_names ARKODE_ESDIRK547L2SA_7_4_5 ARKODE_ERK_NONE\;"
     "ark_advection_diffusion_reaction_splitting\;\;develop"
     "ark_analytic_lsrk\;\;develop"
     "ark_analytic_lsrk_varjac\;\;develop"

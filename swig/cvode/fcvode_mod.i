@@ -18,6 +18,9 @@
 
 %include "../sundials/fsundials.i"
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore CVodeSetOptions;
+
 %{
 #include "cvode/cvode.h"
 #include "cvode/cvode_bandpre.h"

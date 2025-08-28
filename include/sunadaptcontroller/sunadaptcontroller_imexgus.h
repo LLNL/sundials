@@ -55,6 +55,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C,
                                                 sunrealtype k1e, sunrealtype k2e,
                                                 sunrealtype k1i, sunrealtype k2i);
+
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_ImExGus(SUNAdaptController C);
 
@@ -63,6 +64,7 @@ SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
                                                    sunrealtype h, int p,
                                                    sunrealtype dsm,
                                                    sunrealtype* hnew);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_Reset_ImExGus(SUNAdaptController C);
 

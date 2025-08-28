@@ -94,6 +94,11 @@ user-callable routines:
    **Return value:**
       * A :c:type:`SUNErrCode`
 
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.prec_type".
+
 
 .. c:function:: SUNErrCode SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
 
@@ -109,6 +114,11 @@ user-callable routines:
    **Return value:**
       * A :c:type:`SUNErrCode`
 
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.gs_type".
+
 
 .. c:function:: SUNErrCode SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 
@@ -121,6 +131,11 @@ user-callable routines:
 
    **Return value:**
       * A :c:type:`SUNErrCode`
+
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.max_restarts".
 
 
 .. _SUNLinSol.SPGMR.Description:

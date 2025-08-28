@@ -36,11 +36,9 @@
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
-#define ESYM "Le"
 #define FSYM "Lf"
 #else
 #define GSYM "g"
-#define ESYM "e"
 #define FSYM "f"
 #endif
 
@@ -64,7 +62,7 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol,
                      sunrealtype atol);
 
 /* Main Program */
-int main(void)
+int main(int argc, char* argv[])
 {
   /* SUNDIALS context object */
   SUNContext ctx;
@@ -89,9 +87,7 @@ int main(void)
 
   /* Initial diagnostics output */
   printf("\nAnalytical DAE test problem:\n");
-  printf("    alpha = %" GSYM "\n", alpha);
-  printf("   reltol = %.1" ESYM "\n", reltol);
-  printf("   abstol = %.1" ESYM "\n\n", abstol);
+  printf("    alpha = %" GSYM "\n\n", alpha);
 
   /* Create the SUNDIALS context object for this simulation */
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
@@ -123,6 +119,10 @@ int main(void)
   /* Attach the linear solver */
   retval = IDASetLinearSolver(ida_mem, LS, NULL);
   if (check_retval(&retval, "IDASetLinearSolver", 1)) { return (1); }
+
+  /* Override any current settings with command-line options */
+  retval = IDASetOptions(ida_mem, NULL, NULL, argc, argv);
+  if (check_retval(&retval, "IDASetOptions", 1)) { return 1; }
 
   /* In loop, call IDASolve, print results, and test for error.
      Stops when the final time has been reached. */

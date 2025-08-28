@@ -78,11 +78,8 @@ The module SUNLinSol_SPTFQMR provides the following user-callable routines:
       with these solvers, this use mode is not supported and may result
       in inferior performance.
 
-   .. note::
-
       With ``SUN_PREC_RIGHT`` or ``SUN_PREC_BOTH`` the initial guess must be zero (use
       :c:func:`SUNLinSolSetZeroGuess` to indicate the initial guess is zero).
-
 
 
 .. c:function:: SUNErrCode SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
@@ -101,6 +98,11 @@ The module SUNLinSol_SPTFQMR provides the following user-callable routines:
    **Return value:**
       * A :c:type:`SUNErrCode`
 
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.prec_type".
+
 
 .. c:function:: SUNErrCode SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
 
@@ -113,6 +115,11 @@ The module SUNLinSol_SPTFQMR provides the following user-callable routines:
 
    **Return value:**
       * A :c:type:`SUNErrCode`
+
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetOptions`
+      when using the key "LSid.maxl".
 
 
 .. _SUNLinSol.SPTFQMR.Description:
