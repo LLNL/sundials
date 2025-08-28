@@ -352,7 +352,7 @@ SUNErrCode SUNDomEigEst_Write_Power(SUNDomEigEstimator DEE, FILE* outfile)
 
   if (DEE == NULL || outfile == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
-  fprintf(outfile, "\nPower Iteration DEE Statistics:");
+  fprintf(outfile, "\nPower Iteration DEE Settings:");
   fprintf(outfile, "\n------------------------------------------------\n");
   fprintf(outfile, "Max. num. of iters allowed    = %ld\n",
           PI_CONTENT(DEE)->max_iters);
