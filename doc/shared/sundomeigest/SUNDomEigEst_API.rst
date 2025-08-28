@@ -31,7 +31,7 @@ the header file ``sundials/sundials_domeigestimator.h``.
 SUNDomEigEstimator core functions
 -----------------------------------------------------
 
-The SUNDomEigEstimator base class provides two **utility** routines for implementers, 
+The SUNDomEigEstimator base class provides two **utility** routines for implementers,
 :c:func:`SUNDomEigEst_NewEmpty` and :c:func:`SUNDomEigEst_FreeEmpty`.
 
 Implementations of SUNDomEigEstimators must include a **required**
@@ -56,7 +56,7 @@ Implementations of SUNDomEigEstimators must include a **required**
 
 .. c:function:: SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE)
 
-   This *optional* function performs dominant eigenvalue estimator initialization (assuming that all  
+   This *optional* function performs dominant eigenvalue estimator initialization (assuming that all
    estimator-specific options have been set).
 
    **Arguments:**
@@ -125,19 +125,20 @@ SUNDomEigEstimator "set" functions
 
 The following functions supply dominant eigenvalue estimator modules with
 functions defined by the SUNDIALS packages and modify estimator parameters.
-Only the routine for setting the matrix-vector product routine is required.
-Otherwise, all other set functions are optional.  SUNDomEigEst implementations
-that do not provide the functionality for any optional routine should leave the corresponding
-function pointer ``NULL`` instead of supplying a dummy routine.
+When using the matrix-vector product routine provided by a SUNDIALS integration,
+the ``SetATimes`` is required. Otherwise, all set functions are optional.
+SUNDomEigEst implementations that do not provide the functionality for any
+optional routine should leave the corresponding function pointer ``NULL``
+instead of supplying a dummy routine.
 
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
 
-   This *required* function provides a :c:type:`SUNATimesFn` function pointer, as well as a ``void*`` pointer to a
-   data structure used by this routine, to the dominant eigenvalue estimator object
-   `DEE``.  SUNDIALS packages call this function to set the matrix-vector product function
-   to either an estimator-provided difference-quotient via vector operations or a user-supplied
-   estimator-specific routine.
+   This function provides a :c:type:`SUNATimesFn` function for performing
+   matrix-vector products, as well as a ``void*`` pointer to a data structure
+   used by this routine, to the dominant eigenvalue estimator. This function is
+   *required* when using the matrix-vector product function provided by a
+   SUNDIALS integrator, otherwise the function is *optional*.
 
    **Arguments:**
 
@@ -152,8 +153,9 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator DEE, int num_iters)
 
-   This *optional* routine should set the number of preprocessing matrix-vector multiplications,
-   performed at the beginning of each :c:func:`SUNDomEig_Estimate` evaluation.
+   This *optional* routine should set the number of preprocessing matrix-vector
+   multiplications, performed at the beginning of each
+   :c:func:`SUNDomEig_Estimate` evaluation.
 
    **Arguments:**
 
@@ -164,30 +166,29 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
       A :c:type:`SUNErrCode`.
 
+   .. note::
 
-   .. note:: 
-      
-      When :c:func:`SUNDomEig_Estimate` is called, then prior to beginning the Arnoldi
-      process, ``num_iters`` power iterations are performed on ``q`` to generate an
-      improved initial guess.  Similarly, prior to the beginning the Power process, 
-      Preprocessing iterations correspond to power iterations that do not check for 
-      convergence. Preprocessing iterations can help reduce some computational overhead, 
-      and may be useful if the initial guess ``q`` is not a good approximation of the dominant 
-      eigenvector.
-      
-      When the estimator is used in a time-dependent
-      context, it is likely that the most-recent ``q`` will provide a suitable initial 
-      guess for subsequent calls to :c:func:`SUNDomEig_Estimate`.  Thus, when the estimator 
-      is used by LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial value  
-      of ``num_iters`` should be set with
-      :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` while the number of  
-      preprocessing iterations for subsequent calls should be set with  
-      :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`. 
+      Prior to computing the dominant eigenvalue in :c:func:`SUNDomEig_Estimate`
+      an may perform ``num_iters`` power iterations on ``q`` to generate an
+      improved initial guess.  Preprocessing iterations can help reduce some
+      computational overhead, and may be useful if the initial guess ``q`` is
+      not a good approximation of the dominant eigenvector.
 
-      A ``num_iters`` argument that is :math:` < 0` will result in the default
-      value (100).  This default value is particularly chosen to minimize the memory
-      footprint by lowering the required ``kry_dim`` in Arnoldi iteration, or reducing 
-      computational overhead when estimating with the power iteration.
+      When the estimator is used in a time-dependent context, it is likely that
+      the most-recent ``q`` will provide a suitable initial guess for subsequent
+      calls to :c:func:`SUNDomEig_Estimate`. Thus, when the estimator is used
+      with LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial
+      value of ``num_iters`` should be set with
+      :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` while the number of
+      preprocessing iterations for subsequent calls should be set with
+      :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`.
+
+      Both the Arnodli and Power implementations provided with SUNDIALS use a
+      default value of 100. This default value is particularly chosen to
+      minimize the memory footprint by lowering the required ``kry_dim`` in
+      Arnoldi iteration, or reducing computational overhead when estimating with
+      the power iteration. With either implementation, supplying a ``num_iters``
+      argument that is :math:` < 0`, it will reset the value to the default.
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
 
@@ -388,11 +389,11 @@ The virtual table structure is defined as
    .. c:member:: long int (*getnumatimescalls)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEst_GetNumATimesCalls`
-      
+
    .. c:member:: SUNErrCode (*write)(SUNDomEigEstimator, FILE*)
 
       The function implementing :c:func:`SUNDomEigEst_Write`
-      
+
    .. c:member:: SUNErrCode (*destroy)(SUNDomEigEstimator*)
 
       The function implementing :c:func:`SUNDomEigEst_Destroy`
@@ -426,7 +427,7 @@ Additionally, a ``SUNDomEigEstimator`` implementation *may* do the following:
 * Provide additional user-callable "get" routines acting on the
   ``SUNDomEigEstimator`` object, e.g., for returning various estimator
   statistics.
-  
+
 
 .. _SUNDomEigEst.Intended:
 
@@ -477,8 +478,8 @@ the interested reader.
 
 Notes:
 
-1. :c:func:`SUNDomEigEst_SetMaxIters()` and :c:func:`SUNDomEigEst_SetRelTol()` might or 
-   might not be required depending on ``SUNDomEigEstimator`` implementation that is being used. 
+1. :c:func:`SUNDomEigEst_SetMaxIters()` and :c:func:`SUNDomEigEst_SetRelTol()` might or
+   might not be required depending on ``SUNDomEigEstimator`` implementation that is being used.
    These flags must be left ``NULL`` if it is not applicable for an estimator.
 
 2. Although :c:func:`SUNDomEigEst_GetRes()` is optional, if it is not
