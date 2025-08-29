@@ -21,7 +21,7 @@ The SUNDomEigEst_Power implementation of the :c:type:`SUNDomEigEstimator` class 
 the Power Iteration (PI) method :cite:p:`vonmises29`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
-:c:func:`N_VDotProd()`,  :c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
+:c:func:`N_VDotProd()`, :c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
 
 Power iteration is useful for large, sparse matrices whose dominant eigenvalue
 is real-valued and has algebraic multiplicity one. The algorithm starts with a non-zero
@@ -93,7 +93,7 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
 
       2.  an early (less costly) termination will be a good indicator whether the power iteration is compatible.
 
-      A ``rel_tol`` argument that is :math:` < 0` will result in the default
+      A ``rel_tol`` argument that is :math:`< 0` will result in the default
       value (0.01).  This default is found particularly small enough for many internal applications.
 
 
