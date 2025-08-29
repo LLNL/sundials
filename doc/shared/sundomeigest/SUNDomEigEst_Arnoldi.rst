@@ -21,8 +21,7 @@ The SUNDomEigEst_Arnoldi implementation of the :c:type:`SUNDomEigEstimator` clas
 the Arnoldi Iteration method :cite:p:`arnoldi51`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
-:c:func:`N_VCloneVectorArray()`, :c:func:`N_VDotProd()`, :c:func:`N_VScale()`,
-:c:func:`N_VDestroy()`, and :c:func:`N_VDestroyVectorArray()`).
+:c:func:`N_VDotProd()`, :c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
 
 Arnoldi iteration is particularly effective for large, sparse matrices where only
 the dominant eigenvalue is needed.  It constructs an orthonormal basis of the Krylov
