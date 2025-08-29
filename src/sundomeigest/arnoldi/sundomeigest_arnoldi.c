@@ -407,13 +407,12 @@ SUNErrCode SUNDomEigEst_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile)
   SUNAssert(outfile, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
-  fprintf(outfile, "\nArnoldi Iteration DEE Settings:");
-  fprintf(outfile, "\n------------------------------------------------\n");
-  fprintf(outfile, "Krylov dimensions             = %d\n",
+  fprintf(outfile, "\nArnoldi Iteration SUNDomEigEstimator:");
+  fprintf(outfile, "Krylov dimension         = %d\n",
           Arnoldi_CONTENT(DEE)->kry_dim);
-  fprintf(outfile, "Num. of warmups               = %d\n",
+  fprintf(outfile, "Num. preprocessing iters = %d\n",
           Arnoldi_CONTENT(DEE)->num_warmups);
-  fprintf(outfile, "Num. of ATimes calls          = %ld\n\n",
+  fprintf(outfile, "Num. ATimes calls        = %ld\n\n",
           Arnoldi_CONTENT(DEE)->num_ATimes);
 
   return SUN_SUCCESS;
