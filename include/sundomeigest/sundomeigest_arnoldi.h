@@ -43,7 +43,7 @@ struct SUNDomEigEstimatorContent_Arnoldi_
   N_Vector q;
 
   int kry_dim;     /* Krylov subspace dimension */
-  int num_warmups; /* Power of A in the preprocessing; initial q = A^{num_warmups}q/||A^{num_warmups}q|| */
+  int num_warmups; /* Number of preprocessing iterations */
 
   long int num_ATimes; /* Number of ATimes calls */
 

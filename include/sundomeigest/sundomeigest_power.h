@@ -40,7 +40,7 @@ struct SUNDomEigEstimatorContent_Power_
 
   N_Vector V, q; /* workspace vectors */
 
-  int num_warmups; /* Power of A in the preprocessing iterations */
+  int num_warmups;     /* Number of preprocessing iterations */
   long int max_iters;  /* Maximum number of power iterations */
   long int num_iters;  /* Number of iterations in last Estimate call */
 
