@@ -115,10 +115,10 @@ The SUNDomEigEst_Power module defines the *content* field of a
      N_Vector q;
      int num_warmups;
      long int max_iters;
-     long int cur_num_iters;
+     long int num_iters;
      long int num_ATimes;
-     sunrealtype powiter_tol;
-     sunrealtype cur_res;
+     sunrealtype rel_tol;
+     sunrealtype res;
    };
 
 
@@ -135,11 +135,12 @@ information:
 
 * ``max_iters`` - maximum number of iterations (default is 100),
 
-* ``cur_num_iters`` - current number of power iterations,
+* ``num_iters`` - number of power iterations in the last
+  :c:func:`SUNDomEig_Estimate` call,
 
 * ``num_ATimes`` - number of calls to the ``ATimes`` function,
 
-* ``powiter_tol`` - convergence criteria for the power iteration (default is 0.01),
+* ``rel_tol`` - relative tolerance for the convergence criteria (default is 0.01),
 
 * ``cur_res`` - current residual of power iterations.
 
