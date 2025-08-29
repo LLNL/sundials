@@ -3,16 +3,21 @@
 
 **Major Features**
 
+Added the :c:type:`SUNDomEigEstimator` interface for estimating the dominant eigenvalue
+value of a system. Two implementations are provided: Power Iteration and Arnoldi
+Iteration. The latter method requires building with LAPACK support enabled.
+
+Added the function :c:type:`LSRKStepSetDomEigEstimator` in LSRKStep to attach a
+:c:type:`SUNDomEigEstimator`, when using Runge-Kutta-Chebyshev or
+Runge-Kutta-Legendre methods, as an alternative to supplying a user-defined
+function to compute the dominant eigenvalue.
+
 **New Features and Enhancements**
 
 The functions :c:func:`KINSetMAA` and :c:func:`KINSetOrthAA` have been updated
 to allow for setting the Anderson acceleration depth and orthogonalization
 method after :c:func:`KINInit`. Additionally, :c:func:`KINSetMAA` and
 :c:func:`KINSetNumMaxIters` may now be called in any order.
-
-Added the :c:type:`SUNDomEigEstimator` interface for estimating the dominant eigenvalue
-value of a system. Two implementations are provided: Power Iteration and Arnoldi 
-Iteration. The latter method requires building with LAPACK support enabled.
 
 **Bug Fixes**
 
