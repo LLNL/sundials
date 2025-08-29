@@ -195,8 +195,8 @@ Allowable Method Families
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* ``dom_eig = NULL``.
 
-   .. note:: 
-      
+   .. note::
+
       When using RKC or RKL methods, users must supply a :c:type:`ARKDomEigFn` function
       or attach a dominant eigenvalue estimator with :c:func:`LSRKStepSetDomEigEstimator`.
 
@@ -214,22 +214,22 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. some of the required DEE options is ``NULL``)
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g., ``DEE`` does
+        not implement the required operations)
       * *ARK_DEE_FAIL* if DEE failed.
 
-   .. note:: 
-   
-      *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).
-      These errors are handled by :c:type:`SUNErrCode`.
+   .. note::
 
-      When using RKC or RKL methods, users must supply a :c:type:`ARKDomEigFn` function
-      or attach a dominant eigenvalue estimator with :c:func:`LSRKStepSetDomEigEstimator`.
-      If both are provided then the estimator *DEE* will be used and the function ignored.
+      When using RKC or RKL methods, users must supply a :c:type:`ARKDomEigFn`
+      function or attach a dominant eigenvalue estimator with
+      :c:func:`LSRKStepSetDomEigEstimator`.  If both are provided then the
+      estimator ``DEE`` will be used and the function ignored.
 
       ARKODE will supply the :c:type:`SUNDomEigEstimator` with an internal
-      Jacobian-vector product approximation function. User's may supply their own
-      Jacobian-vector product function calling :c:func:`SUNDomEigEst_SetATimes` after
-      attaching the estimator with :c:func:`LSRKStepSetDomEigEstimator`.
+      Jacobian-vector product approximation function. Users may supply their own
+      Jacobian-vector product function by calling
+      :c:func:`SUNDomEigEst_SetATimes` after attaching the estimator with
+      :c:func:`LSRKStepSetDomEigEstimator`.
 
 
 .. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps);
@@ -246,7 +246,7 @@ Allowable Method Families
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
    .. note::
-      
+
       If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps``
       is set to :math:`25` as recommended in :cite:p:`VSH:04`. Calling this function
       with ``nsteps < 0`` resets the default value while ``nsteps = 0`` refers to
@@ -330,10 +330,10 @@ Allowable Method Families
       These errors are handled by :c:type:`SUNErrCode`.
 
       If LSRKStepSetNumDomEigEstInitPreprocessIters routine is not called, then the
-      default value of the estimator is used. Calling this function with ``num_iters < 0`` 
+      default value of the estimator is used. Calling this function with ``num_iters < 0``
       resets the default.
 
-      
+
 .. c:function:: int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_iters);
 
    Specifies the number of the preprocessing iterations before each estimate call after the very first estimate.
@@ -348,8 +348,8 @@ Allowable Method Families
 
    .. note::
 
-      If LSRKStepSetNumDomEigEstPreprocessIters routine is not called, then the  
-      default value of 0 is used. Calling this function with ``num_iters < 0`` resets  
+      If LSRKStepSetNumDomEigEstPreprocessIters routine is not called, then the
+      default value of 0 is used. Calling this function with ``num_iters < 0`` resets
       the default.
 
 
