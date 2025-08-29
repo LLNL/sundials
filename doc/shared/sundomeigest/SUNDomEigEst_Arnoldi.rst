@@ -105,6 +105,7 @@ The SUNDomEigEst_Arnoldi module defines the *content* field of a
      sunrealtype* LAPACK_wr;
      sunrealtype* LAPACK_wi;
      sunrealtype* LAPACK_work;
+     snuindextype LAPACK_lwork;
      sunrealtype** LAPACK_arr;
      sunrealtype** Hes;
    };
@@ -117,13 +118,15 @@ information:
 
 * ``ATData`` - pointer to structure for ``ATimes``,
 
-* ``V, q``   - ``N_Vector`` used for workspace by the Arnoldi algorithm.
+* ``V, q``   - vectors used for workspace by the Arnoldi algorithm.
 
 * ``kry_dim`` - dimension of Krylov subspaces (default is 3),
 
 * ``num_warmups`` - number of preprocessing warmups (default is 0),
 
 * ``LAPACK_A, LAPACK_wr, LAPACK_wi, LAPACK_work`` - ``sunrealtype`` used for workspace by LAPACK,
+
+* ``LAPACK_lwork`` - the size of the ``LAPACK_work`` requested by LAPACK,
 
 * ``LAPACK_arr`` - storage for the estimated dominant eigenvalues,
 
