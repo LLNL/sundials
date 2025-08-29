@@ -44,6 +44,7 @@ void bind_arkode_sprkstep(nb::module_& m);
 void bind_arkode_lsrkstep(nb::module_& m);
 void bind_arkode_mristep(nb::module_& m);
 void bind_arkode_forcingstep(nb::module_& m);
+void bind_arkode_splittingstep(nb::module_& m);
 
 void bind_arkode(nb::module_& m)
 {
@@ -302,4 +303,5 @@ void bind_arkode(nb::module_& m)
   bind_arkode_lsrkstep(m);
   bind_arkode_mristep(m);
   bind_arkode_forcingstep(m);
+  bind_arkode_splittingstep(m);
 }

@@ -120,3 +120,15 @@ modules:
     path: arkode/pysundials_arkode_forcingstep_generated.hpp
     headers:
     - ../../include/arkode/arkode_forcingstep.h
+  splittingstep:
+    path: arkode/pysundials_arkode_splittingstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_splittingstep.h
+    fn_exclude_by_name__regex:
+    # we dont allow alloc to be used from Python
+    - "SplittingStepCoefficients_Alloc"
+    # we do custom handling of the stepper create/reinit
+    - "SplittingStepCreate"
+    - "SplittingStepReInit"
+    # nanobind doesnt support FILE*
+    - "SplittingStepCoefficients_Write"

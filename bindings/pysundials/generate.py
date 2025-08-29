@@ -41,7 +41,13 @@ def main():
     options.fn_params_output_modifiable_immutable_to_return__regex = r".*"
 
     # Transform arrays of thing to std::vector<thing>
-    options.fn_params_array_pointers_to_std_vector = [r"N_Vector1d", r"N_Vector2d", r"sunrealtype1d"]
+    options.fn_params_array_pointers_to_std_vector = [
+        r"N_Vector1d",
+        r"N_Vector2d",
+        r"sunrealtype1d",
+        r"sunrealtype2d",
+        r"sunrealtype3d"
+    ]
 
     # Don't create default constructors for any struct
     options.struct_create_default_named_ctor__regex = ""
@@ -50,7 +56,10 @@ def main():
     options.member_exclude_by_name__regex = r".*"
 
     # Our own custom function adapters
-    options.fn_custom_adapters = [adapt_default_arg_pointer_with_default_null, adapt_array_pointer_to_std_vector]
+    options.fn_custom_adapters = [
+        adapt_default_arg_pointer_with_default_null,
+        adapt_array_pointer_to_std_vector,
+    ]
 
     options.srcmlcpp_options.code_preprocess_function = preprocess_header
     options.srcmlcpp_options.ignored_warning_parts.append(
@@ -74,7 +83,9 @@ def main():
 
         module = config_object.get(module_name)
 
-        options.fn_params_optional_with_default_null = load_nullable_params_from_yaml(config_object, module_name)
+        options.fn_params_optional_with_default_null = load_nullable_params_from_yaml(
+            config_object, module_name
+        )
 
         options.enum_exclude_by_name__regex = code_utils.join_string_by_pipe_char(
             load_enum_exclusions_from_yaml(config_object, module_name)
