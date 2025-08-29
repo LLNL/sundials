@@ -93,7 +93,7 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
 
       2.  an early (less costly) termination will be a good indicator whether the power iteration is compatible.
 
-      A ``rel_tol`` argument that is :math:`< 0` will result in the default
+      A ``rel_tol`` argument that is :math:`\leq 0` will result in the default
       value (0.01).  This default is found particularly small enough for many internal applications.
 
 
