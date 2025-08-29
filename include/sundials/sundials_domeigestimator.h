@@ -44,12 +44,12 @@ struct SUNDomEigEstimator_Ops_
 {
   SUNErrCode (*setatimes)(SUNDomEigEstimator, void*, SUNATimesFn);
   SUNErrCode (*setmaxiters)(SUNDomEigEstimator, long int);
-  SUNErrCode (*setnumpreprocess)(SUNDomEigEstimator, int);
-  SUNErrCode (*settol)(SUNDomEigEstimator, sunrealtype);
+  SUNErrCode (*setnumpreprocessiters)(SUNDomEigEstimator, int);
+  SUNErrCode (*setreltol)(SUNDomEigEstimator, sunrealtype);
   SUNErrCode (*initialize)(SUNDomEigEstimator);
   SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*);
-  SUNErrCode (*getcurres)(SUNDomEigEstimator, sunrealtype*);
-  SUNErrCode (*getcurniters)(SUNDomEigEstimator, long int*);
+  SUNErrCode (*getres)(SUNDomEigEstimator, sunrealtype*);
+  SUNErrCode (*getnumiters)(SUNDomEigEstimator, long int*);
   SUNErrCode (*getnumatimescalls)(SUNDomEigEstimator, long int*);
   SUNErrCode (*write)(SUNDomEigEstimator, FILE*);
   SUNErrCode (*destroy)(SUNDomEigEstimator*);

@@ -51,16 +51,16 @@ SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
-  ops->setatimes        = NULL;
-  ops->setmaxiters      = NULL;
-  ops->settol           = NULL;
-  ops->setnumpreprocess = NULL;
-  ops->initialize       = NULL;
-  ops->estimate         = NULL;
-  ops->getcurniters     = NULL;
-  ops->getcurres        = NULL;
-  ops->write            = NULL;
-  ops->destroy          = NULL;
+  ops->setatimes             = NULL;
+  ops->setmaxiters           = NULL;
+  ops->setreltol             = NULL;
+  ops->setnumpreprocessiters = NULL;
+  ops->initialize            = NULL;
+  ops->estimate              = NULL;
+  ops->getnumiters           = NULL;
+  ops->getres                = NULL;
+  ops->write                 = NULL;
+  ops->destroy               = NULL;
 
   /* attach ops and initialize content and context to NULL */
   DEE->ops     = ops;
@@ -117,9 +117,9 @@ SUNErrCode SUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator DEE,
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->setnumpreprocess)
+  if (DEE->ops->setnumpreprocessiters)
   {
-    ier = DEE->ops->setnumpreprocess(DEE, num_iters);
+    ier = DEE->ops->setnumpreprocessiters(DEE, num_iters);
   }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
@@ -130,7 +130,7 @@ SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->settol) { ier = DEE->ops->settol(DEE, tol); }
+  if (DEE->ops->setreltol) { ier = DEE->ops->setreltol(DEE, tol); }
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
@@ -161,7 +161,7 @@ SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->getcurres) { ier = DEE->ops->getcurres(DEE, cur_res); }
+  if (DEE->ops->getres) { ier = DEE->ops->getres(DEE, cur_res); }
   else
   {
     *cur_res = SUN_RCONST(0.0);
@@ -175,7 +175,7 @@ SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
-  if (DEE->ops->getcurniters) { ier = DEE->ops->getcurniters(DEE, curniter); }
+  if (DEE->ops->getnumiters) { ier = DEE->ops->getnumiters(DEE, curniter); }
   else
   {
     *curniter = 0;

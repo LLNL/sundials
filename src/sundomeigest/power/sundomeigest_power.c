@@ -79,17 +79,17 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->setatimes         = SUNDomEigEst_SetATimes_Power;
-  DEE->ops->setmaxiters       = SUNDomEigEst_SetMaxIters_Power;
-  DEE->ops->settol            = SUNDomEigEst_SetRelTol_Power;
-  DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreprocessIters_Power;
-  DEE->ops->initialize        = SUNDomEigEst_Initialize_Power;
-  DEE->ops->estimate          = SUNDomEig_Estimate_Power;
-  DEE->ops->getcurres         = SUNDomEigEst_GetRes_Power;
-  DEE->ops->getcurniters      = SUNDomEigEst_GetNumIters_Power;
-  DEE->ops->getnumatimescalls = SUNDomEigEst_GetNumATimesCalls_Power;
-  DEE->ops->write             = SUNDomEigEst_Write_Power;
-  DEE->ops->destroy           = SUNDomEigEst_Destroy_Power;
+  DEE->ops->setatimes             = SUNDomEigEst_SetATimes_Power;
+  DEE->ops->setmaxiters           = SUNDomEigEst_SetMaxIters_Power;
+  DEE->ops->setreltol             = SUNDomEigEst_SetRelTol_Power;
+  DEE->ops->setnumpreprocessiters = SUNDomEigEst_SetNumPreprocessIters_Power;
+  DEE->ops->initialize            = SUNDomEigEst_Initialize_Power;
+  DEE->ops->estimate              = SUNDomEig_Estimate_Power;
+  DEE->ops->getres                = SUNDomEigEst_GetRes_Power;
+  DEE->ops->getnumiters           = SUNDomEigEst_GetNumIters_Power;
+  DEE->ops->getnumatimescalls     = SUNDomEigEst_GetNumATimesCalls_Power;
+  DEE->ops->write                 = SUNDomEigEst_Write_Power;
+  DEE->ops->destroy               = SUNDomEigEst_Destroy_Power;
 
   /* Create content */
   content = NULL;

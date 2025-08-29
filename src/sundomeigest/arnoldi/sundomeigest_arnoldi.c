@@ -91,13 +91,13 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunc
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->setatimes         = SUNDomEigEst_SetATimes_Arnoldi;
-  DEE->ops->setnumpreprocess  = SUNDomEigEst_SetNumPreprocessIters_Arnoldi;
-  DEE->ops->initialize        = SUNDomEigEst_Initialize_Arnoldi;
-  DEE->ops->estimate          = SUNDomEig_Estimate_Arnoldi;
-  DEE->ops->getnumatimescalls = SUNDomEigEst_GetNumATimesCalls_Arnoldi;
-  DEE->ops->write             = SUNDomEigEst_Write_Arnoldi;
-  DEE->ops->destroy           = SUNDomEigEst_Destroy_Arnoldi;
+  DEE->ops->setatimes             = SUNDomEigEst_SetATimes_Arnoldi;
+  DEE->ops->setnumpreprocessiters = SUNDomEigEst_SetNumPreprocessIters_Arnoldi;
+  DEE->ops->initialize            = SUNDomEigEst_Initialize_Arnoldi;
+  DEE->ops->estimate              = SUNDomEig_Estimate_Arnoldi;
+  DEE->ops->getnumatimescalls     = SUNDomEigEst_GetNumATimesCalls_Arnoldi;
+  DEE->ops->write                 = SUNDomEigEst_Write_Arnoldi;
+  DEE->ops->destroy               = SUNDomEigEst_Destroy_Arnoldi;
 
   /* Create content */
   content = NULL;

@@ -360,11 +360,11 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEst_SetMaxIters`
 
-   .. c:member:: SUNErrCode (*setnumpreprocess)(SUNDomEigEstimator, int)
+   .. c:member:: SUNErrCode (*setnumpreprocessiters)(SUNDomEigEstimator, int)
 
       The function implementing :c:func:`SUNDomEigEst_SetNumPreprocessIters`
 
-   .. c:member:: SUNErrCode (*settol)(SUNDomEigEstimator, sunrealtype)
+   .. c:member:: SUNErrCode (*setreltol)(SUNDomEigEstimator, sunrealtype)
 
       The function implementing :c:func:`SUNDomEigEst_SetRelTol`
 
@@ -376,11 +376,11 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEig_Estimate`
 
-   .. c:member:: sunrealtype (*getcurres)(SUNDomEigEstimator)
+   .. c:member:: sunrealtype (*getres)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEst_GetRes`
 
-   .. c:member:: int (*getcurniters)(SUNDomEigEstimator)
+   .. c:member:: int (*getnumiters)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEst_GetNumIters`
 
