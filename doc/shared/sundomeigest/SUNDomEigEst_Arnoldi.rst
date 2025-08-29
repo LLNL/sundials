@@ -40,7 +40,7 @@ Arnoldi iteration works for matrices with both real and complex eigenvalues.  It
 estimations with a user-specified fixed Krylov subspace dimension (at least 3).  While
 the choice of dimension results in a prefixed amount of memory, it strictly
 determines the quality of the estimate.  To improve the estimation accuracy, we have found that
-preprocessing set by :c:func:`SUNDomEigEst_SetNumPreprocessIters` is particularly useful.
+preprocessing with a number of Power iterations is particularly useful.
 This operation is free from any additional memory requirement and is further explained below.
 
 The matrix :math:`A` is not required explicitly; only a routine that provides an
@@ -65,7 +65,7 @@ The module SUNDomEigEst_Arnoldi provides the following user-callable routines:
 
    **Arguments:**
       * *q* -- the initial guess for the dominant eigenvector; this should not be a non-dominant eigenvector of the Jacobian.
-      * *kry_dim* -- the dimension of the Krylov subspaces.
+      * *kry_dim* -- the dimension of the Krylov subspace.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
@@ -121,7 +121,7 @@ information:
 
 * ``kry_dim`` - dimension of Krylov subspaces (default is 3),
 
-* ``num_warmups`` - number of preprocessing warmups (default is 0),
+* ``num_warmups`` - number of preprocessing iterations (default is 100),
 
 * ``LAPACK_A, LAPACK_wr, LAPACK_wi, LAPACK_work`` - ``sunrealtype`` used for workspace by LAPACK,
 
@@ -141,23 +141,24 @@ This estimator is constructed to perform the following operations:
 * User-facing "set" routines may be called to modify default
   estimator parameters.
 
-* An additional "set" routine must be called by the SUNDIALS package
-  using SUNDomEigEst_Arnoldi to supply the ``ATimes``
-  function pointer and the related data ``ATData``.
+* SUNDIALS packages will call :c:func:`SUNDomEigEst_SetATimes` to supply the
+  ``ATimes`` function pointer and the related data ``ATData``.
 
 * In :c:func:`SUNDomEigEst_Initialize`, the estimator parameters are checked
   for validity and the remaining Arnoldi estimator memory such as LAPACK
   workspace is allocated.
 
-* In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is warmed up
-  :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
-  integrator such as by calling :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters`
-  or :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`.
-  Then, the Arnoldi estimator is performed.
+* In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is
+  preprocessed with some fixed number of Power iterations,
 
-.. math::
+  .. math::
 
-    q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}.
+     q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||},
+
+  (see :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` and
+  :c:func:`LSRKStepSetNumDomEigEstPreprocessIters` for setting the number of
+  preprocessing iterations). Then, the Arnoldi iteration is performed to compute
+  the estimate.
 
 The SUNDomEigEst_Arnoldi module defines implementations of all
 dominant eigenvalue estimator operations listed in

@@ -131,7 +131,7 @@ information:
 
 * ``V, q``   - ``N_Vector`` used for workspace by the PI algorithm.
 
-* ``num_warmups`` - number of preprocessing warmups (default is 0),
+* ``num_warmups`` - number of preprocessing iterations (default is 100),
 
 * ``max_iters`` - maximum number of iterations (default is 100),
 
@@ -154,22 +154,22 @@ This estimator is constructed to perform the following operations:
 * User-facing "set" routines may be called to modify default
   estimator parameters.
 
-* An additional "set" routine must be called by the SUNDIALS package
-  using  SUNDomEigEst_Power to supply the ``ATimes``
-  function pointer and the related data ``ATData``.
+* SUNDIALS packages will call :c:func:`SUNDomEigEst_SetATimes` to supply the
+  ``ATimes`` function pointer and the related data ``ATData``.
 
 * In :c:func:`SUNDomEigEst_Initialize`, the estimator parameters are checked
   for validity and the initial eigenvector is normalized.
 
-* In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is warmed up
-  :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
-  integrator such as by calling :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters`
-  or :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`.
-  Then, the PI estimator is performed.
+* In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is
+  preprocessed with some fixed number of Power iterations,
 
-.. math::
+  .. math::
 
-    q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}.
+     q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||},
+
+  (see :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` and
+  :c:func:`LSRKStepSetNumDomEigEstPreprocessIters` for setting the number of
+  preprocessing iterations) before computing the estimate.
 
 The SUNDomEigEst_Power module defines implementations of all dominant
 eigenvalue estimator operations listed in
