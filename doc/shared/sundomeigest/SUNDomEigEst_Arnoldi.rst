@@ -39,7 +39,7 @@ well-approximated by the dominant eigenvalue of :math:`H_m`.
 Arnoldi iteration works for matrices with both real and complex eigenvalues.  It supports
 estimations with a user-specified fixed Krylov subspace dimension (at least 3).  While
 the choice of dimension results in a prefixed amount of memory, it strictly
-determines how good an estimation is.  To improve the estimation accuracy, we have found that
+determines the quality of the estimate.  To improve the estimation accuracy, we have found that
 preprocessing set by :c:func:`SUNDomEigEst_SetNumPreprocessIters` is particularly useful.
 This operation is free from any additional memory requirement and is further explained below.
 
