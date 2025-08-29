@@ -332,7 +332,7 @@ int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_iters)
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_DEE_FAIL);
+                    "SUNDomeEigEst_SetNumPreprocessIters failed");
     return ARK_DEE_FAIL;
   }
 
@@ -511,7 +511,7 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_DEE_FAIL);
+                    "SUNDomEigEst_SetATimes failed");
     return ARK_DEE_FAIL;
   }
 

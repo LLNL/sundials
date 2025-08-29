@@ -818,7 +818,6 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   "JacPFn or JPvpFn was provided, but the number of subvectors in y is not " \
   "2. To perform ASA w.r.t. parameters, one subvector should be the state "  \
   "vector, and the other should be the parameter vector."
-#define MSG_ARK_DEE_FAIL "Dominant eigenvalue estimator (DEE) failed. "
 
 /*===============================================================
 

@@ -216,7 +216,7 @@ Allowable Method Families
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g., ``DEE`` does
         not implement the required operations)
-      * *ARK_DEE_FAIL* if DEE failed.
+      * *ARK_DEE_FAIL* if the call to :c:func:`SUNDomEigEst_SetATimes` failed
 
    .. note::
 
@@ -322,12 +322,10 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_DEE_FAIL* if DEE failed.
+      * *ARK_DEE_FAIL* if the call to
+        :c:func:`SUNDomEigEst_SetNumPreprocessIters` failed.
 
    .. note::
-
-      *ARK_DEE_FAIL* return should also produce error messages due to DEE error(s).
-      These errors are handled by :c:type:`SUNErrCode`.
 
       If LSRKStepSetNumDomEigEstInitPreprocessIters routine is not called, then the
       default value of the estimator is used. Calling this function with ``num_iters < 0``

@@ -359,7 +359,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_DEE_FAIL);
+                      "SUNDomEigEst_Initialize failed");
       return ARK_DEE_FAIL;
     }
   }
@@ -2146,7 +2146,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
       if (retval != SUN_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_DEE_FAIL);
+                        "SUNDomEigEst_Write failed");
         return;
       }
     }
@@ -2256,7 +2256,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_DEE_FAIL);
+                      "SUNDomEig_Estimate failed");
       return ARK_DEE_FAIL;
     }
 
@@ -2265,7 +2265,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_DEE_FAIL);
+                      "SUNDomEigEst_GetNumIters failed");
       return ARK_DEE_FAIL;
     }
     step_mem->num_dee_iters += cur_num_iters;
@@ -2280,7 +2280,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       if (retval != SUN_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_DEE_FAIL);
+                        "SUNDomEigEst_SetNumPreprocessIters failed");
         return ARK_DEE_FAIL;
       }
       step_mem->init_warmup = SUNFALSE;
