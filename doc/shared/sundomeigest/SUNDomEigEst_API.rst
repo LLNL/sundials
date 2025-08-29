@@ -449,7 +449,7 @@ the interested reader.
    :align: center
 
    +----------------------------------------------------+---------------------+---------------------+
-   | Routine                                            |   POWER ITERATION   |  ARNOLDI ITERATION  |
+   | Routine                                            |   Power Iteration   |  Arnoldi Iteration  |
    |                                                    |                     |                     |
    +====================================================+=====================+=====================+
    | :c:func:`SUNDomEigEst_SetATimes`                   |          X          |          X          |

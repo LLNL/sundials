@@ -1293,7 +1293,9 @@ When LAPACK support is enabled, the :ref:`LAPACK banded SUNLinearSolver
 <SUNLinSol_LapackDense>` will be built (see sections
 :numref:`Installation.LibrariesAndHeaders.LinearSolver.LAPACKBand` and
 :numref:`Installation.LibrariesAndHeaders.LinearSolver.LAPACKDense`,
-respectively, for the corresponding header files and libraries).
+respectively, for the corresponding header files and libraries). Additionally,
+the :ref:`Arnoldi iteration SUNDomEigEstimator <SUNDomEigEst.Arnoldi>` will be
+build (see :numref:`Installation.LibrariesAndHeaders.DomEigEst.Arnoldi`).
 
 To enable LAPACK support, set :cmakeop:`ENABLE_LAPACK` to ``ON``. CMake will
 attempt to find BLAS and LAPACK installations on the system and set the
@@ -2424,6 +2426,8 @@ make up the SUNDIALS core infrastructure.
    |              | ``sundials/sundials_config.h``                  |
    |              +-------------------------------------------------+
    |              | ``sundials/sundials_context.h``                 |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_domeigestimator.h``         |
    |              +-------------------------------------------------+
    |              | ``sundials/sundials_errors.h``                  |
    |              +-------------------------------------------------+
@@ -3886,10 +3890,14 @@ access the SYCL execution policy C++ classes.
    | Headers      | ``sundials/sundials_sycl_policies.hpp``      |
    +--------------+----------------------------------------------+
 
+.. _Installation.LibrariesAndHeaders.AdjointSensitivityCheckpointing:
+
 Adjoint Sensitivity Checkpointing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Fixed ASA checkpointing
+.. _Installation.LibrariesAndHeaders.ASACheckpointing.Fixed:
+
+Fixed ASA Checkpointing
 """""""""""""""""""""""
 
 For fixed-interval adjoint checkpointing, include the header file below:
@@ -3900,3 +3908,48 @@ For fixed-interval adjoint checkpointing, include the header file below:
    +--------------+---------------------------------------------------------------------+
    | Headers      | ``sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h``   |
    +--------------+---------------------------------------------------------------------+
+
+.. _Installation.LibrariesAndHeaders.DomEigEst:
+
+Dominant Eigenvalue Estimation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _Installation.LibrariesAndHeaders.DomEigEst.Power:
+
+Power Iteration
+"""""""""""""""
+
+To use the :ref:`Power iteration SUNDomEigEstimator <SUNDomEigEst.Power>`,
+include the header file and link to the library given below.
+
+.. table:: The SUNDIALS Power iteration SUNDomEigEstimator library, header file,
+           and CMake target
+   :align: center
+
+   +--------------+---------------------------------------+
+   | Libraries    | ``libsundials_sundomeigestpower.LIB`` |
+   +--------------+---------------------------------------+
+   | Headers      | ``sundomeigest/sundomeigest_power.h`` |
+   +--------------+---------------------------------------+
+   | CMake target | ``SUNDIALS::sundomeigestpower``       |
+   +--------------+---------------------------------------+
+
+.. _Installation.LibrariesAndHeaders.DomEigEst.Arnoldi:
+
+Arnoldi Iteration
+"""""""""""""""""
+
+To use the :ref:`Arnoldi iteration SUNDomEigEstimator <SUNDomEigEst.Arnoldi>`,
+include the header file and link to the library given below.
+
+.. table:: The SUNDIALS Arnoldi iteration SUNDomEigEstimator library, header
+           file, and CMake target
+   :align: center
+
+   +--------------+-----------------------------------------+
+   | Libraries    | ``libsundials_sundomeigestarnoldi.LIB`` |
+   +--------------+-----------------------------------------+
+   | Headers      | ``sundomeigest/sundomeigest_arnoldi.h`` |
+   +--------------+-----------------------------------------+
+   | CMake target | ``SUNDIALS::sundomeigestarnoldi``       |
+   +--------------+-----------------------------------------+

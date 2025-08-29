@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNDomEigEst.ARNOLDI:
+.. _SUNDomEigEst.Arnoldi:
 
 The SUNDomEigEst_Arnoldi Module
 ======================================
@@ -21,11 +21,11 @@ The SUNDomEigEst_Arnoldi implementation of the :c:type:`SUNDomEigEstimator` clas
 the Arnoldi Iteration method :cite:p:`arnoldi51`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
-:c:func:`N_VCloneVectorArray()`, :c:func:`N_VDotProd()`, :c:func:`N_VScale()`, 
+:c:func:`N_VCloneVectorArray()`, :c:func:`N_VDotProd()`, :c:func:`N_VScale()`,
 :c:func:`N_VDestroy()`, and :c:func:`N_VDestroyVectorArray()`).
 
-Arnoldi iteration is particularly effective for large, sparse matrices where only 
-the dominant eigenvalue is needed.  It constructs an orthonormal basis of the Krylov 
+Arnoldi iteration is particularly effective for large, sparse matrices where only
+the dominant eigenvalue is needed.  It constructs an orthonormal basis of the Krylov
 subspace
 
 .. math::
@@ -40,23 +40,23 @@ well-approximated by the dominant eigenvalue of :math:`H_m`.
 Arnoldi iteration works for matrices with both real and complex eigenvalues.  It supports
 estimations with a user-specified fixed Krylov subspace dimension (at least 3).  While
 the choice of dimension results in a prefixed amount of memory, it strictly
-determines how good an estimation is.  To improve the estimation accuracy, we have found that 
-preprocessing set by :c:func:`SUNDomEigEst_SetNumPreprocessIters` is particularly useful.  
+determines how good an estimation is.  To improve the estimation accuracy, we have found that
+preprocessing set by :c:func:`SUNDomEigEst_SetNumPreprocessIters` is particularly useful.
 This operation is free from any additional memory requirement and is further explained below.
 
-The matrix :math:`A` is not required explicitly; only a routine that provides an 
+The matrix :math:`A` is not required explicitly; only a routine that provides an
 approximation of the matrix-vector product, :math:`Av`, is required.
 
 
-.. _SUNDomEigEst.ARNOLDI.Usage:
+.. _SUNDomEigEst.Arnoldi.Usage:
 
-SUNDomEigEst_ARNOLDI Usage
+SUNDomEigEst_Arnoldi Usage
 -------------------------------
 
-To use SUNDomEigEst_Arnoldi include the header file ``sundomeigest/sundomeigest_arnoldi.h``,  
-and link to the library ``libsundials_sundomeigestarnoldi``. 
+To use SUNDomEigEst_Arnoldi include the header file ``sundomeigest/sundomeigest_arnoldi.h``,
+and link to the library ``libsundials_sundomeigestarnoldi``.
 
-The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
+The module SUNDomEigEst_Arnoldi provides the following user-callable routines:
 
 
 .. c:function:: SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx);
@@ -83,13 +83,13 @@ The module SUNDomEigEst_ARNOLDI provides the following user-callable routines:
       footprint.
 
 
-.. _SUNDomEigEst.ARNOLDI.Description:
+.. _SUNDomEigEst.Arnoldi.Description:
 
-SUNDomEigEst_ARNOLDI Description
+SUNDomEigEst_Arnoldi Description
 -------------------------------------
 
 
-The SUNDomEigEst_ARNOLDI module defines the *content* field of a
+The SUNDomEigEst_Arnoldi module defines the *content* field of a
 ``SUNDomEigEstimator`` to be the following structure:
 
 .. code-block:: c
@@ -113,7 +113,7 @@ The SUNDomEigEst_ARNOLDI module defines the *content* field of a
 These entries of the *content* field contain the following
 information:
 
-* ``ATimes`` - function pointer to perform the product :math:`Av`,  
+* ``ATimes`` - function pointer to perform the product :math:`Av`,
 
 * ``ATData`` - pointer to structure for ``ATimes``,
 
@@ -139,12 +139,12 @@ This estimator is constructed to perform the following operations:
 * User-facing "set" routines may be called to modify default
   estimator parameters.
 
-* An additional "set" routine must be called by the SUNDIALS package  
-  using SUNDomEigEst_Arnoldi to supply the ``ATimes``  
+* An additional "set" routine must be called by the SUNDIALS package
+  using SUNDomEigEst_Arnoldi to supply the ``ATimes``
   function pointer and the related data ``ATData``.
 
 * In :c:func:`SUNDomEigEst_Initialize`, the estimator parameters are checked
-  for validity and the remaining Arnoldi estimator memory such as LAPACK 
+  for validity and the remaining Arnoldi estimator memory such as LAPACK
   workspace is allocated.
 
 * In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is warmed up
@@ -157,7 +157,7 @@ This estimator is constructed to perform the following operations:
 
     q_1 = \frac{Aq_0}{||Aq_0||} \quad \cdots \quad q_k = \frac{Aq_{k-1}}{||Aq_{k-1}||}.
 
-The SUNDomEigEst_ARNOLDI module defines implementations of all
+The SUNDomEigEst_Arnoldi module defines implementations of all
 dominant eigenvalue estimator operations listed in
 :numref:`SUNDomEigEst.API`:
 

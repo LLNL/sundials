@@ -12,19 +12,19 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNDomEigEst.POWER:
+.. _SUNDomEigEst.Power:
 
 The SUNDomEigEst_Power Module
 ======================================
 
-The SUNDomEigEst_Power implementation of the :c:type:`SUNDomEigEstimator` class performs  
+The SUNDomEigEst_Power implementation of the :c:type:`SUNDomEigEstimator` class performs
 the Power Iteration (PI) method :cite:p:`vonmises29`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
 implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
 :c:func:`N_VDotProd()`,  :c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
 
-Power iteration is useful for large, sparse matrices whose dominant eigenvalue  
-is real-valued and has algebraic multiplicity one. The algorithm starts with a non-zero 
+Power iteration is useful for large, sparse matrices whose dominant eigenvalue
+is real-valued and has algebraic multiplicity one. The algorithm starts with a non-zero
 vector :math:`\mathbf{v}_{0}`.  It then  iteratively updates this via
 
 .. math::
@@ -43,21 +43,21 @@ can be approximated using the Rayleigh quotient
 The iteration continues until the two successive eigenvalue approximations are
 relatively close enough to one another.  That is, for some :ref:`relative tolerance <pi_rel_tol>`.
 
-Power iteration works for the matrices that have a **real** dominant eigenvalue.  
-If it is strictly greater than all others (in magnitude), convergence is guaranteed.  
+Power iteration works for the matrices that have a **real** dominant eigenvalue.
+If it is strictly greater than all others (in magnitude), convergence is guaranteed.
 The speed of convergence depends on the ratios of the magnitude of the first two dominant eigenvalues.
 
-The matrix :math:`A` is not required explicitly; only a routine that provides  
-the matrix-vector product :math:`Av` is required.  Also, PI requires a fixed 
-amount of memory regardless of the number of iterations.  
+The matrix :math:`A` is not required explicitly; only a routine that provides
+the matrix-vector product :math:`Av` is required.  Also, PI requires a fixed
+amount of memory regardless of the number of iterations.
 
 
-.. _SUNDomEigEst.POWER.Usage:
+.. _SUNDomEigEst.Power.Usage:
 
 SUNDomEigEst_Power Usage
 -----------------------------
 
-To use SUNDomEigEst_Arnoldi include the header file ``sundomeigest/sundomeigest_power.h``,  
+To use SUNDomEigEst_Arnoldi include the header file ``sundomeigest/sundomeigest_power.h``,
 and link to the library ``libsundials_sundomeigestpower``.
 
 The module SUNDomEigEst_Power provides the following user-callable routines:
@@ -97,7 +97,7 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
       value (0.01).  This default is found particularly small enough for many internal applications.
 
 
-.. _SUNDomEigEst.POWER.Description:
+.. _SUNDomEigEst.Power.Description:
 
 SUNDomEigEst_Power Description
 --------------------------------
@@ -153,14 +153,14 @@ This estimator is constructed to perform the following operations:
 * User-facing "set" routines may be called to modify default
   estimator parameters.
 
-* An additional "set" routine must be called by the SUNDIALS package  
-  using  SUNDomEigEst_Power to supply the ``ATimes``  
-  function pointer and the related data ``ATData``. 
+* An additional "set" routine must be called by the SUNDIALS package
+  using  SUNDomEigEst_Power to supply the ``ATimes``
+  function pointer and the related data ``ATData``.
 
-* In :c:func:`SUNDomEigEst_Initialize`, the estimator parameters are checked  
+* In :c:func:`SUNDomEigEst_Initialize`, the estimator parameters are checked
   for validity and the initial eigenvector is normalized.
 
-* In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is warmed up  
+* In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is warmed up
   :math:`k=` ``num_warmups`` times as follows unless otherwise is set by an
   integrator such as by calling :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters`
   or :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`.
