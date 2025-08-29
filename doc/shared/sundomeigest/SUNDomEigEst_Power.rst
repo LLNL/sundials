@@ -142,7 +142,7 @@ information:
 
 * ``rel_tol`` - relative tolerance for the convergence criteria (default is 0.01),
 
-* ``cur_res`` - current residual of power iterations.
+* ``res`` - the residual from the last :c:func:`SUNDomEig_Estimate` call.
 
 
 This estimator is constructed to perform the following operations:
