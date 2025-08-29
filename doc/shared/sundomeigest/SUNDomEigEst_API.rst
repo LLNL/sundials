@@ -45,7 +45,7 @@ Implementations of SUNDomEigEstimators must include a **required**
 
    **Arguments:**
 
-      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`).
 
    **Return value:**
 
@@ -77,8 +77,8 @@ Implementations of SUNDomEigEstimators must include a **required**
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object.
-      * *lambdaR* -- The real part of the dominant eigenvalue
-      * *lambdaI* -- The imaginary part of the dominant eigenvalue
+      * *lambdaR* -- The real part of the dominant eigenvalue.
+      * *lambdaI* -- The imaginary part of the dominant eigenvalue.
 
    **Return value:**
 
@@ -96,7 +96,7 @@ Implementations of SUNDomEigEstimators must include a **required**
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEstimator object
+      * *DEE* -- a SUNDomEigEstimator object.
 
    **Return value:**
 
@@ -111,11 +111,9 @@ Implementations of SUNDomEigEstimators must include a **required**
 
       * *DEEptr* -- a SUNDomEigEstimator object pointer.
 
-   **Usage:**
+   **Return value:**
 
-      .. code-block:: c
-
-         retval = SUNDomEigEst_Destroy(&DEE);
+      A :c:type:`SUNErrCode`.
 
 
 .. _SUNDomEigEst.SetFn:
@@ -142,8 +140,8 @@ instead of supplying a dummy routine.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEstimator object,
-      * *A_data* -- pointer to structure for ``ATimes``,
+      * *DEE* -- a SUNDomEigEstimator object.
+      * *A_data* -- pointer to structure for ``ATimes``.
       * *ATimes* -- function pointer to perform :math:`Av` product.
 
    **Return value:**
@@ -159,7 +157,7 @@ instead of supplying a dummy routine.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEstimator object,
+      * *DEE* -- a SUNDomEigEstimator object.
       * *num_iters* -- the number of preprocessing iterations.
 
    **Return value:**
@@ -169,10 +167,10 @@ instead of supplying a dummy routine.
    .. note::
 
       Prior to computing the dominant eigenvalue in :c:func:`SUNDomEig_Estimate`
-      an may perform ``num_iters`` power iterations on ``q`` to generate an
-      improved initial guess.  Preprocessing iterations can help reduce some
-      computational overhead, and may be useful if the initial guess ``q`` is
-      not a good approximation of the dominant eigenvector.
+      an implementation may perform ``num_iters`` power iterations on ``q`` to
+      generate an improved initial guess.  Preprocessing iterations can help
+      reduce some computational overhead, and may be useful if the initial guess
+      ``q`` is not a good approximation of the dominant eigenvector.
 
       When the estimator is used in a time-dependent context, it is likely that
       the most-recent ``q`` will provide a suitable initial guess for subsequent
@@ -185,10 +183,10 @@ instead of supplying a dummy routine.
 
       Both the Arnodli and Power implementations provided with SUNDIALS use a
       default value of 100. This default value is particularly chosen to
-      minimize the memory footprint by lowering the required ``kry_dim`` in
+      minimize the memory footprint by lowering the required ``kry_dim`` in the
       Arnoldi iteration, or reducing computational overhead when estimating with
       the power iteration. With either implementation, supplying a ``num_iters``
-      argument that is :math:` < 0`, it will reset the value to the default.
+      argument that is :math:`< 0`, it will reset the value to the default.
 
 .. c:function:: SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
 
@@ -196,7 +194,7 @@ instead of supplying a dummy routine.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEstimator object,
+      * *DEE* -- a SUNDomEigEstimator object.
       * *rel_tol* -- the requested eigenvalue accuracy.
 
    **Return value:**
@@ -210,7 +208,7 @@ instead of supplying a dummy routine.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEstimator object,
+      * *DEE* -- a SUNDomEigEstimator object.
       * *max_iters* -- the maximum number of iterations.
 
    **Return value:**
@@ -234,7 +232,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object.
-      * *cur_res* -- the current residual
+      * *cur_res* -- the residual.
 
    **Return value:**
 
@@ -255,7 +253,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEstimator object,
+      * *DEE* -- a SUNDomEigEstimator object.
       * *num_iters* -- the number of iterations.
 
    **Return value:**
@@ -276,7 +274,7 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEstimator object,
+      * *DEE* -- a SUNDomEigEstimator object.
       * *num_ATimes* -- the number of calls to the ``Atimes`` function.
 
    **Return value:**
@@ -293,12 +291,12 @@ dominant eigenvalue estimator.  *All routines are optional.*
 
 .. c:function:: SUNErrCode SUNDomEigEst_Write(SUNDomEigEstimator DEE, FILE* outfile)
 
-   This *optional* routine prints the dominant eigenvalue estimator statistics
-   to the output stream *outfile*.
+   This *optional* routine prints the dominant eigenvalue estimator settings to
+   the file pointer.
 
    **Arguments:**
 
-      * *DEE* -- a SUNDomEigEstimator object,
+      * *DEE* -- a SUNDomEigEstimator object.
       * *outfile* -- the output stream.
 
    **Return value:**
@@ -311,11 +309,11 @@ dominant eigenvalue estimator.  *All routines are optional.*
 Functions provided by SUNDIALS packages
 ---------------------------------------------
 
-To interface with SUNDomEigEst modules, the SUNDIALS packages supply a routine
-:c:type:`SUNATimesFn` for evaluating the matrix-vector product.  This package-provided
-routine translates between the user-supplied ODE or DAE systems and the generic
-dominant eigenvalue estimator API.  The function types
-for these routines are defined in the header file ``sundials/sundials_iterative.h``.
+To interface with SUNDomEigEst modules, the SUNDIALS packages supply a
+:c:type:`SUNATimesFn` function for evaluating the matrix-vector product. This
+package-provided routine translates between the user-supplied ODE or DAE systems
+and the generic dominant eigenvalue estimator API. The function types for these
+routines are defined in the header file ``sundials/sundials_iterative.h``.
 
 
 .. _SUNDomEigEst.Generic:
@@ -434,11 +432,11 @@ Additionally, a ``SUNDomEigEstimator`` implementation *may* do the following:
 SUNDIALS modules SUNDomEigEstimator interface
 ==============================================
 
-In :numref:`SUNDomEigEst.Intended.Usage`, we list the SUNDomEigEst module functions used
-within SUNDIALS modules.  We emphasize that the user does not need to know
-detailed usage of dominant eigenvalue estimator functions by a SUNDIALS module
-in order to use a module.  The information is presented as an implementation detail for
-the interested reader.
+In :numref:`SUNDomEigEst.Intended.Usage`, we list the SUNDomEigEst module
+functions used within SUNDIALS packages. We emphasize that the user does not
+need to know detailed usage of dominant eigenvalue estimator functions by a
+SUNDIALS package in order to use it. The information is presented as an
+implementation detail for the interested reader.
 
 .. _SUNDomEigEst.Intended.Usage:
 .. table:: List of SUNDomEigEst functions called by a SUNDIALS module dominant eigenvalue
@@ -478,18 +476,19 @@ the interested reader.
 
 Notes:
 
-1. :c:func:`SUNDomEigEst_SetMaxIters()` and :c:func:`SUNDomEigEst_SetRelTol()` might or
-   might not be required depending on ``SUNDomEigEstimator`` implementation that is being used.
-   These flags must be left ``NULL`` if it is not applicable for an estimator.
+1. :c:func:`SUNDomEigEst_SetMaxIters` and :c:func:`SUNDomEigEst_SetRelTol` might
+   or might not be required depending on ``SUNDomEigEstimator`` implementation
+   that is being used. These operations should be left as ``NULL`` if it is not
+   applicable for an estimator.
 
-2. Although :c:func:`SUNDomEigEst_GetRes()` is optional, if it is not
-   implemented by the ``SUNDomEigEstimator`` then the interface will consider all
-   estimates a being *exact*.
+2. Although :c:func:`SUNDomEigEst_GetRes` is optional, if it is not implemented
+   by the ``SUNDomEigEstimator`` then the interface will consider all estimates
+   a being *exact*.
 
-3. :c:func:`SUNDomEigEst_GetNumIters()` is optional, if it is not
-   implemented by the ``SUNDomEigEstimator`` then the interface will consider all
-   estimates as requiring zero iterations.
+3. :c:func:`SUNDomEigEst_GetNumIters` is optional, if it is not implemented by
+   the ``SUNDomEigEstimator`` then the interface will consider all estimates as
+   requiring zero iterations.
 
-4. Although the interface does not call :c:func:`SUNDomEigEst_Destroy()`
-   directly, this routine should be available for users to call when
-   cleaning up from a simulation.
+4. Although the interface does not call :c:func:`SUNDomEigEst_Destroy` directly,
+   this routine should be available for users to call when cleaning up from a
+   simulation.
