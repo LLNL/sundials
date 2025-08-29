@@ -324,17 +324,10 @@ int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_iters)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
+  /* This value will be used in lsrkStep_Init to set the number of preprocessing
+     iterations for the first dominant eigenvalue estimate. If num_iters < 0,
+     then the DEE's default will be used. */
   step_mem->num_init_warmups = num_iters;
-
-  /* num_iters < 0 resets to the DEE's default */
-  retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
-                                              step_mem->num_init_warmups);
-  if (retval != SUN_SUCCESS)
-  {
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNDomeEigEst_SetNumPreprocessIters failed");
-    return ARK_DEE_FAIL;
-  }
 
   return ARK_SUCCESS;
 }
@@ -356,6 +349,29 @@ int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_iters)
 
   if (num_iters < 0) { step_mem->num_warmups = DOM_EIG_NUM_WARMUPS_DEFAULT; }
   else { step_mem->num_warmups = num_iters; }
+
+  /* Set the number of iterations immediately (if possible) to allow the user to
+     can change the value at any time during the integration. This value will be
+     overridden for the first estimate by the value set with InitPreprocessIters
+     above then reset to the supplied value afterward.
+
+     A (perhaps pathological) corner case can occur where this value is not
+     applied if a user detaches the DEE, calls this function then attaches a new
+     DEE (or reattached the same DEE), and reinit is not called before
+     evolve. In that case, whatever value the DEE has will be used. This could
+     be avoided (with additional overhead) by calling SetNumPreprocessIters
+     before every Estimate call. */
+  if (step_mem->DEE)
+  {
+    retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
+                                                step_mem->num_init_warmups);
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      "SUNDomeEigEst_SetNumPreprocessIters failed");
+      return ARK_DEE_FAIL;
+    }
+  }
 
   return ARK_SUCCESS;
 }

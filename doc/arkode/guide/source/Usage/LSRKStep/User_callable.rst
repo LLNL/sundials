@@ -322,8 +322,6 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_DEE_FAIL* if the call to
-        :c:func:`SUNDomEigEst_SetNumPreprocessIters` failed.
 
    .. note::
 
@@ -343,6 +341,8 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_DEE_FAIL* if the call to
+        :c:func:`SUNDomEigEst_SetNumPreprocessIters` failed.
 
    .. note::
 

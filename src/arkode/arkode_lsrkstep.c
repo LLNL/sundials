@@ -292,17 +292,6 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   step_mem->dom_eig_is_current  = SUNFALSE;
   step_mem->init_warmup         = SUNTRUE;
 
-  /* default num_init_warmups resets to the DEE's default
-     unless the user set a different number */
-  retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
-                                              step_mem->num_init_warmups);
-  if (retval != SUN_SUCCESS)
-  {
-    arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_DEE_FAIL);
-    return ARK_DEE_FAIL;
-  }
-
   return ARK_SUCCESS;
 }
 
@@ -360,6 +349,16 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
                       "SUNDomEigEst_Initialize failed");
+      return ARK_DEE_FAIL;
+    }
+
+    /* Set number of DEE preprocessing iterations for the initial estimate */
+    retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
+                                                step_mem->num_init_warmups);
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
+                      "SUNDomEigEst_SetNumPreprocessIters failed");
       return ARK_DEE_FAIL;
     }
   }
