@@ -20,8 +20,29 @@
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/tuple.h>
 
+NAMESPACE_BEGIN(NB_NAMESPACE)
+NAMESPACE_BEGIN(detail)
+
+    template <> struct type_caster<FILE *> {
+        NB_TYPE_CASTER(FILE * , const_name("FILE*"));
+
+        // Python -> C++
+        bool from_python(handle src, uint8_t, cleanup_list *) noexcept {
+            if (!src || !PyCapsule_CheckExact(src.ptr())) return false;
+            value = static_cast<FILE *>(PyCapsule_GetPointer(src.ptr(), "FILE*"));
+            return value != nullptr;
+        }
+
+        // C++ -> Python
+        static handle from_cpp(FILE *fp, rv_policy, cleanup_list *) noexcept {
+            return PyCapsule_New(static_cast<void *>(fp), "FILE*", nullptr);
+        }
+    };
+
+NAMESPACE_END(detail)
+NAMESPACE_END(NB_NAMESPACE)
+
 #include <sundials/sundials_core.hpp>
-// #include <sundials/sundials_stepper.hpp>
 
 class SUNStepperView;
 

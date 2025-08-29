@@ -16,8 +16,12 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
 
 #include <sundials/sundials_core.hpp>
+#include <sundials/sundials_futils.h>
 
 namespace nb = nanobind;
 
@@ -36,8 +40,22 @@ void bind_sunstepper(nb::module_& m);
 
 void bind_core(nb::module_& m)
 {
-#include "pysundials_types_generated.hpp"
 #include "pysundials_errors.hpp"
+#include "pysundials_types_generated.hpp"
+
+  // handle opening and closing C files 
+  nb::class_<FILE>(m, "FILE");
+  m.def("SUNFileOpen",
+        [](const char* filename,
+           const char* modes)
+        {
+          FILE* tmp = nullptr;
+          std::shared_ptr<FILE> fp;
+          SUNErrCode status = SUNFileOpen(filename, modes, &tmp);
+          if (status) { fp = nullptr; }
+          else { fp = std::shared_ptr<FILE>(tmp, std::fclose); }
+          return std::make_tuple(status, fp);
+        });
 
   bind_nvector(m);
   bind_sunadaptcontroller(m);

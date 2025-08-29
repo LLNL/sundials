@@ -62,6 +62,5 @@ def test_splittingstep():
     ode_problem.solution(y0view.get(), yview.get(), tf)
     N_VPrint(yview.get())
 
-
 if __name__ == "__main__":
     test_splittingstep()

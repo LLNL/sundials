@@ -45,6 +45,9 @@ m.def("SplittingStepCoefficients_Create",
 m.def("SplittingStepCoefficients_Copy",
     SplittingStepCoefficients_Copy, nb::arg("coefficients"));
 
+m.def("SplittingStepCoefficients_Write",
+    SplittingStepCoefficients_Write, nb::arg("coefficients"), nb::arg("outfile"));
+
 m.def("SplittingStepCoefficients_LoadCoefficients",
     SplittingStepCoefficients_LoadCoefficients, nb::arg("id"));
 

@@ -24,6 +24,7 @@ def change_sundials_types(code):
     code = re.sub(r"\bsunrealtype\b", "double", code)
     code = re.sub(r"\bsunindextype\b", "long", code)
     code = re.sub(r"\bsunbooleantype\b", "int", code)
+    code = re.sub(r"\bFILE\*\b", "std::shared_ptr<FILE>", code)
     return code
 
 

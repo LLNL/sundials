@@ -93,6 +93,7 @@ modules:
     headers:
     - ../../include/arkode/arkode_lsrkstep.h
     fn_exclude_by_name__regex:
+    # these three functions take function pointers, so we have to do something custom
     - "LSRKStepCreate"
     - "LSRKStepReInit"
     - "SetDomEigFn"
@@ -130,5 +131,3 @@ modules:
     # we do custom handling of the stepper create/reinit
     - "SplittingStepCreate"
     - "SplittingStepReInit"
-    # nanobind doesnt support FILE*
-    - "SplittingStepCoefficients_Write"
