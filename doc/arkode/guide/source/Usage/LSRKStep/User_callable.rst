@@ -193,7 +193,6 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* ``dom_eig = NULL``.
 
    .. note::
 
