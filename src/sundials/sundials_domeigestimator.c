@@ -215,13 +215,14 @@ SUNErrCode SUNDomEigEst_Write(SUNDomEigEstimator DEE, FILE* outfile)
 
 SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
 {
-  SUNErrCode ier;
+  SUNErrCode ier = SUN_SUCCESS;
+  if (DEEptr == NULL) { return ier; }
+  if (*DEEptr == NULL) { return ier; }
   if ((*DEEptr)->ops->destroy) { ier = (*DEEptr)->ops->destroy(DEEptr); }
   else
   {
     SUNDomEigEst_FreeEmpty(*DEEptr);
     *DEEptr = NULL;
-    ier     = SUN_SUCCESS;
   }
   return (ier);
 }
