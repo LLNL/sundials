@@ -77,10 +77,15 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunc
   /* Check if kry_dim >= 2 */
   if (kry_dim < 3) { kry_dim = DEE_KRYLOV_DIM_DEFAULT; }
 
-  /* check for legal q; if illegal return NULL */
-  SUNAssertNull(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
-                  (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL)),
-                SUN_ERR_ARG_INCOMPATIBLE);
+  /* Input vector must be non-NULL */
+  SUNAssertNull(q, SUN_ERR_ARG_CORRUPT);
+  SUNAssertNull(q->ops, SUN_ERR_ARG_CORRUPT);
+
+  /* Check for required vector operations */
+  SUNAssertNull(q->ops->nvclone, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssertNull(q->ops->nvdestroy, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssertNull(q->ops->nvdotprod, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssertNull(q->ops->nvscale, SUN_ERR_ARG_INCOMPATIBLE);
 
   /* Check if q != 0 vector */
   SUNAssertNull(N_VDotProd(q, q) > SUN_SMALL_REAL, SUN_ERR_ARG_INCOMPATIBLE);
