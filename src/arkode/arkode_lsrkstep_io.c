@@ -749,22 +749,11 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->req_stages = 0; /* no stages */
 
   /* Spectral info */
-  step_mem->lambdaR             = ZERO;
-  step_mem->lambdaI             = ZERO;
-  step_mem->spectral_radius     = ZERO;
-  step_mem->spectral_radius_max = ZERO;
-  step_mem->spectral_radius_min = ZERO;
-  step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
-  step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
-  step_mem->num_init_warmups    = DOM_EIG_NUM_INIT_WARMUPS_DEFAULT;
-  step_mem->num_warmups         = DOM_EIG_NUM_WARMUPS_DEFAULT;
-
-  /* Flags */
-  step_mem->dom_eig_update     = SUNTRUE;
-  step_mem->const_Jac          = SUNFALSE;
-  step_mem->dom_eig_is_current = SUNFALSE;
-  step_mem->is_SSP             = SUNFALSE;
-  step_mem->init_warmup        = SUNTRUE;
+  step_mem->dom_eig_safety   = DOM_EIG_SAFETY_DEFAULT;
+  step_mem->dom_eig_freq     = DOM_EIG_FREQ_DEFAULT;
+  step_mem->const_Jac        = SUNFALSE;
+  step_mem->num_init_warmups = DOM_EIG_NUM_INIT_WARMUPS_DEFAULT;
+  step_mem->num_warmups      = DOM_EIG_NUM_WARMUPS_DEFAULT;
 
   /* Load the default SUNAdaptController */
   retval = arkReplaceAdaptController(ark_mem, NULL, SUNTRUE);

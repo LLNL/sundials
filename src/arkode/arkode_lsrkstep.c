@@ -193,6 +193,19 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
 
+  /* Initialize spectral radius info */
+  step_mem->lambdaR             = ZERO;
+  step_mem->lambdaI             = ZERO;
+  step_mem->spectral_radius     = ZERO;
+  step_mem->spectral_radius_max = ZERO;
+  step_mem->spectral_radius_min = ZERO;
+
+  /* Initialize flags */
+  step_mem->dom_eig_update     = SUNTRUE;
+  step_mem->dom_eig_is_current = SUNFALSE;
+  step_mem->is_SSP             = SUNFALSE;
+  step_mem->init_warmup        = SUNTRUE;
+
   /* Set NULL for dom_eig_fn */
   step_mem->dom_eig_fn = NULL;
 
@@ -284,6 +297,9 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   step_mem->nfeDQ               = 0;
   step_mem->dom_eig_num_evals   = 0;
   step_mem->stage_max           = 0;
+  step_mem->lambdaR             = ZERO;
+  step_mem->lambdaI             = ZERO;
+  step_mem->spectral_radius     = ZERO;
   step_mem->spectral_radius_max = 0;
   step_mem->spectral_radius_min = 0;
   step_mem->dom_eig_nst         = 0;
