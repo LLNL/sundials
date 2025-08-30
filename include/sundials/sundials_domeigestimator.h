@@ -97,10 +97,10 @@ SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
                               sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res);
+SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter);
+SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* num_iters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
