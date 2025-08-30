@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for ARKODE examples with KLU
+# CMakeLists.txt file for ARKODE examples with SuperLU_MT
 # ---------------------------------------------------------------
 
 # List of example tuples, "name\;args\;type"
