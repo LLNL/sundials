@@ -40,9 +40,9 @@ struct SUNDomEigEstimatorContent_Power_
 
   N_Vector V, q; /* workspace vectors */
 
-  int num_warmups;     /* Number of preprocessing iterations */
-  long int max_iters;  /* Maximum number of power iterations */
-  long int num_iters;  /* Number of iterations in last Estimate call */
+  int num_warmups;    /* Number of preprocessing iterations */
+  long int max_iters; /* Maximum number of power iterations */
+  long int num_iters; /* Number of iterations in last Estimate call */
 
   long int num_ATimes; /* Number of ATimes calls */
 
@@ -83,8 +83,7 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
                                     sunrealtype* lambdaR, sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetRes_Power(SUNDomEigEstimator DEE,
-                                     sunrealtype* res);
+SUNErrCode SUNDomEigEst_GetRes_Power(SUNDomEigEstimator DEE, sunrealtype* res);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEst_GetNumIters_Power(SUNDomEigEstimator DEE,

@@ -198,7 +198,8 @@ SUNErrCode SUNDomEigEst_SetNumPreprocessIters_Power(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_SetRelTol_Power(SUNDomEigEstimator DEE, sunrealtype rel_tol)
+SUNErrCode SUNDomEigEst_SetRelTol_Power(SUNDomEigEstimator DEE,
+                                        sunrealtype rel_tol)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -277,8 +278,7 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
                             PI_CONTENT(DEE)->q); //Rayleigh quotient
     SUNCheckLastErr();
 
-    PI_CONTENT(DEE)->res = SUNRabs(newlambdaR - oldlambdaR) /
-                               SUNRabs(newlambdaR);
+    PI_CONTENT(DEE)->res = SUNRabs(newlambdaR - oldlambdaR) / SUNRabs(newlambdaR);
 
     if (PI_CONTENT(DEE)->res < PI_CONTENT(DEE)->rel_tol) { break; }
 

@@ -669,12 +669,12 @@ module fsundials_core_mod
  type, bind(C), public :: SUNDomEigEstimator_Ops
   type(C_FUNPTR), public :: setatimes
   type(C_FUNPTR), public :: setmaxiters
-  type(C_FUNPTR), public :: setnumpreprocess
-  type(C_FUNPTR), public :: settol
+  type(C_FUNPTR), public :: setnumpreprocessiters
+  type(C_FUNPTR), public :: setreltol
   type(C_FUNPTR), public :: initialize
   type(C_FUNPTR), public :: estimate
-  type(C_FUNPTR), public :: getcurres
-  type(C_FUNPTR), public :: getcurniters
+  type(C_FUNPTR), public :: getres
+  type(C_FUNPTR), public :: getnumiters
   type(C_FUNPTR), public :: getnumatimescalls
   type(C_FUNPTR), public :: write
   type(C_FUNPTR), public :: destroy
@@ -7121,34 +7121,34 @@ fresult = swigc_FSUNDomEig_Estimate(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNDomEigEst_GetRes(dee, cur_res) &
+function FSUNDomEigEst_GetRes(dee, res) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNDomEigEstimator), target, intent(inout) :: dee
-real(C_DOUBLE), dimension(*), target, intent(inout) :: cur_res
+real(C_DOUBLE), dimension(*), target, intent(inout) :: res
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = c_loc(dee)
-farg2 = c_loc(cur_res(1))
+farg2 = c_loc(res(1))
 fresult = swigc_FSUNDomEigEst_GetRes(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNDomEigEst_GetNumIters(dee, curniter) &
+function FSUNDomEigEst_GetNumIters(dee, num_iters) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNDomEigEstimator), target, intent(inout) :: dee
-integer(C_LONG), dimension(*), target, intent(inout) :: curniter
+integer(C_LONG), dimension(*), target, intent(inout) :: num_iters
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = c_loc(dee)
-farg2 = c_loc(curniter(1))
+farg2 = c_loc(num_iters(1))
 fresult = swigc_FSUNDomEigEst_GetNumIters(farg1, farg2)
 swig_result = fresult
 end function
