@@ -2259,15 +2259,15 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       return ARK_DEE_FAIL;
     }
 
-    long int cur_num_iters;
-    retval = SUNDomEigEst_GetNumIters(step_mem->DEE, &cur_num_iters);
+    long int num_iters;
+    retval = SUNDomEigEst_GetNumIters(step_mem->DEE, &num_iters);
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
                       "SUNDomEigEst_GetNumIters failed");
       return ARK_DEE_FAIL;
     }
-    step_mem->num_dee_iters += cur_num_iters;
+    step_mem->num_dee_iters += num_iters;
 
     /* After the first call to SUNDomEig_Estimate, the number of warmups is set to
        num_warmups, this allows the successive calls to
