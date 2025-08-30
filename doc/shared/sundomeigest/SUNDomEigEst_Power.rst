@@ -17,6 +17,8 @@
 The SUNDomEigEst_Power Module
 ======================================
 
+.. versionadded:: x.y.z
+
 The SUNDomEigEst_Power implementation of the :c:type:`SUNDomEigEstimator` class performs
 the Power Iteration (PI) method :cite:p:`vonmises29`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``

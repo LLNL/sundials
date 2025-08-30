@@ -17,6 +17,8 @@
 The SUNDomEigEstimator API
 =============================
 
+.. versionadded:: x.y.z
+
 The SUNDomEigEst API defines several dominant eigenvalue estimation operations that enable
 SUNDIALS packages to utilize this API.  These functions can be divided into three categories.
 The first are the core dominant eigenvalue estimation functions.  The second consist of "set"

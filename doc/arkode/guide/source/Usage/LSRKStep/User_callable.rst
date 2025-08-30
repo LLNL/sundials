@@ -217,6 +217,8 @@ Allowable Method Families
         not implement the required operations)
       * *ARK_DEE_FAIL* if the call to :c:func:`SUNDomEigEst_SetATimes` failed
 
+   .. versionadded:: x.y.z
+
    .. note::
 
       When using RKC or RKL methods, users must supply a :c:type:`ARKDomEigFn`
@@ -322,6 +324,8 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
+   .. versionadded:: x.y.z
+
    .. note::
 
       If LSRKStepSetNumDomEigEstInitPreprocessIters routine is not called, then the
@@ -342,6 +346,8 @@ Allowable Method Families
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_DEE_FAIL* if the call to
         :c:func:`SUNDomEigEst_SetNumPreprocessIters` failed.
+
+   .. versionadded:: x.y.z
 
    .. note::
 
@@ -425,6 +431,8 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
       * *ARK_ILL_INPUT* if ``nfeDQ`` is illegal
 
+   .. versionadded:: x.y.z
+
    .. note::
 
       The number of RHS evaluations is non-zero only when using a dominant eigenvalue
@@ -443,6 +451,8 @@ Optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
       * *ARK_ILL_INPUT* if ``num_iters`` is illegal
+
+   .. versionadded:: x.y.z
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:

@@ -17,6 +17,8 @@
 The SUNDomEigEst_Arnoldi Module
 ======================================
 
+.. versionadded:: x.y.z
+
 The SUNDomEigEst_Arnoldi implementation of the :c:type:`SUNDomEigEstimator` class performs
 the Arnoldi Iteration method :cite:p:`arnoldi51`; this is an iterative dominant
 eigenvalue estimator that is designed to be compatible with any ``N_Vector``
