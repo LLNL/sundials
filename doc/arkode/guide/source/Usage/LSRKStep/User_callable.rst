@@ -215,7 +215,8 @@ Allowable Method Families
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g., ``DEE`` does
         not implement the required operations)
-      * *ARK_DEE_FAIL* if the call to :c:func:`SUNDomEigEst_SetATimes` failed
+      * *ARK_DEE_FAIL* if the call to :c:func:`SUNDomEigEstimator_SetATimes`
+        failed
 
    .. versionadded:: x.y.z
 
@@ -229,7 +230,7 @@ Allowable Method Families
       ARKODE will supply the :c:type:`SUNDomEigEstimator` with an internal
       Jacobian-vector product approximation function. Users may supply their own
       Jacobian-vector product function by calling
-      :c:func:`SUNDomEigEst_SetATimes` after attaching the estimator with
+      :c:func:`SUNDomEigEstimator_SetATimes` after attaching the estimator with
       :c:func:`LSRKStepSetDomEigEstimator`.
 
 
@@ -345,7 +346,7 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_DEE_FAIL* if the call to
-        :c:func:`SUNDomEigEst_SetNumPreprocessIters` failed.
+        :c:func:`SUNDomEigEstimator_SetNumPreprocessIters` failed.
 
    .. versionadded:: x.y.z
 

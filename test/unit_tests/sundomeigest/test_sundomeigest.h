@@ -28,24 +28,24 @@ extern "C" {
 #endif
 
 /* Test function declarations */
-int Test_SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* ATdata,
-                                SUNATimesFn ATimes, int myid);
-int Test_SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters,
-                                  int myid);
-int Test_SUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator DEE,
-                                            int num_warmups, int myid);
-int Test_SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol,
-                                int myid);
-int Test_SUNDomEigEst_Initialize(SUNDomEigEstimator DEE, int myid);
-int Test_SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                            sunrealtype* lambdaI, int myid);
-int Test_SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
-                             int myid);
-int Test_SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* curniter,
-                                  int myid);
-int Test_SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
-                                        long int* num_ATimes, int myid);
-int Test_SUNDomEigEst_Write(SUNDomEigEstimator DEE, int myid);
+int Test_SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* ATdata,
+                                      SUNATimesFn ATimes, int myid);
+int Test_SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters,
+                                        int myid);
+int Test_SUNDomEigEstimator_SetNumPreprocessIters(SUNDomEigEstimator DEE,
+                                                  int num_warmups, int myid);
+int Test_SUNDomEigEstimator_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol,
+                                      int myid);
+int Test_SUNDomEigEstimator_Initialize(SUNDomEigEstimator DEE, int myid);
+int Test_SUNDomEigEstimator_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                                     sunrealtype* lambdaI, int myid);
+int Test_SUNDomEigEstimator_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
+                                   int myid);
+int Test_SUNDomEigEstimator_GetNumIters(SUNDomEigEstimator DEE, long int* curniter,
+                                        int myid);
+int Test_SUNDomEigEstimator_GetNumATimesCalls(SUNDomEigEstimator DEE,
+                                              long int* num_ATimes, int myid);
+int Test_SUNDomEigEstimator_Write(SUNDomEigEstimator DEE, int myid);
 
 /* Timing function */
 void SetTiming(int onoff);

@@ -14,16 +14,17 @@
 
 .. _SUNDomEigEst.Arnoldi:
 
-The SUNDomEigEst_Arnoldi Module
-======================================
+The SUNDomEigEstimator_Arnoldi Module
+=====================================
 
 .. versionadded:: x.y.z
 
-The SUNDomEigEst_Arnoldi implementation of the :c:type:`SUNDomEigEstimator` class performs
-the Arnoldi Iteration method :cite:p:`arnoldi51`; this is an iterative dominant
-eigenvalue estimator that is designed to be compatible with any ``N_Vector``
-implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
-:c:func:`N_VDotProd()`, :c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
+The SUNDomEigEstimator_Arnoldi implementation of the
+:c:type:`SUNDomEigEstimator` class performs the Arnoldi Iteration method
+:cite:p:`arnoldi51`; this is an iterative dominant eigenvalue estimator that is
+designed to be compatible with any ``N_Vector`` implementation that supports a
+minimal subset of operations (:c:func:`N_VClone()`, :c:func:`N_VDotProd()`,
+:c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
 
 Arnoldi iteration is particularly effective for large, sparse matrices where only
 the dominant eigenvalue is needed.  It constructs an orthonormal basis of the Krylov
@@ -51,16 +52,18 @@ approximation of the matrix-vector product, :math:`Av`, is required.
 
 .. _SUNDomEigEst.Arnoldi.Usage:
 
-SUNDomEigEst_Arnoldi Usage
--------------------------------
+SUNDomEigEstimator_Arnoldi Usage
+--------------------------------
 
-To use SUNDomEigEst_Arnoldi include the header file ``sundomeigest/sundomeigest_arnoldi.h``,
-and link to the library ``libsundials_sundomeigestarnoldi``.
+To use SUNDomEigEstimator_Arnoldi include the header file
+``sundomeigest/sundomeigest_arnoldi.h``, and link to the library
+``libsundials_sundomeigestarnoldi``.
 
-The module SUNDomEigEst_Arnoldi provides the following user-callable routines:
+The module SUNDomEigEstimator_Arnoldi provides the following user-callable
+routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx);
+.. c:function:: SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx);
 
    This constructor function creates and allocates memory for an Arnoldi
    ``SUNDomEigEstimator``.
@@ -86,11 +89,10 @@ The module SUNDomEigEst_Arnoldi provides the following user-callable routines:
 
 .. _SUNDomEigEst.Arnoldi.Description:
 
-SUNDomEigEst_Arnoldi Description
--------------------------------------
+SUNDomEigEstimator_Arnoldi Description
+--------------------------------------
 
-
-The SUNDomEigEst_Arnoldi module defines the *content* field of a
+The SUNDomEigEstimator_Arnoldi module defines the *content* field of a
 ``SUNDomEigEstimator`` to be the following structure:
 
 .. code-block:: c
@@ -143,15 +145,15 @@ This estimator is constructed to perform the following operations:
 * User-facing "set" routines may be called to modify default
   estimator parameters.
 
-* SUNDIALS packages will call :c:func:`SUNDomEigEst_SetATimes` to supply the
-  ``ATimes`` function pointer and the related data ``ATData``.
+* SUNDIALS packages will call :c:func:`SUNDomEigEstimator_SetATimes` to supply
+  the ``ATimes`` function pointer and the related data ``ATData``.
 
-* In :c:func:`SUNDomEigEst_Initialize`, the estimator parameters are checked
-  for validity and the remaining Arnoldi estimator memory such as LAPACK
+* In :c:func:`SUNDomEigEstimator_Initialize`, the estimator parameters are
+  checked for validity and the remaining Arnoldi estimator memory such as LAPACK
   workspace is allocated.
 
-* In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is
-  preprocessed with some fixed number of Power iterations,
+* In :c:func:`SUNDomEigEstimator_Estimate`, the initial nonzero vector
+  :math:`q_0` is preprocessed with some fixed number of Power iterations,
 
   .. math::
 
@@ -162,20 +164,19 @@ This estimator is constructed to perform the following operations:
   preprocessing iterations). Then, the Arnoldi iteration is performed to compute
   the estimate.
 
-The SUNDomEigEst_Arnoldi module defines implementations of all
-dominant eigenvalue estimator operations listed in
-:numref:`SUNDomEigEst.API`:
+The SUNDomEigEstimator_Arnoldi module defines implementations of all dominant
+eigenvalue estimator operations listed in :numref:`SUNDomEigEst.API`:
 
-* ``SUNDomEigEst_SetATimes_Arnoldi``
+* ``SUNDomEigEstimator_SetATimes_Arnoldi``
 
-* ``SUNDomEigEst_SetNumPreprocessIters_Arnoldi``
+* ``SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi``
 
-* ``SUNDomEigEst_Initialize_Arnoldi``
+* ``SUNDomEigEstimator_Initialize_Arnoldi``
 
-* ``SUNDomEig_Estimate_Arnoldi``
+* ``SUNDomEigEstimator_Estimate_Arnoldi``
 
-* ``SUNDomEigEst_GetNumATimesCalls_Arnoldi``
+* ``SUNDomEigEstimator_GetNumATimesCalls_Arnoldi``
 
-* ``SUNDomEigEst_Write_Arnoldi``
+* ``SUNDomEigEstimator_Write_Arnoldi``
 
-* ``SUNDomEigEst_Destroy_Arnoldi``
+* ``SUNDomEigEstimator_Destroy_Arnoldi``

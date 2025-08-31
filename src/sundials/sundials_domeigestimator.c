@@ -33,7 +33,7 @@ static SUNProfiler getSUNProfiler(SUNDomEigEstimator DEE)
  * Create a new empty SUNDomEigEstimator object
  * ----------------------------------------------------------------- */
 
-SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEstimator_NewEmpty(SUNContext sunctx)
 {
   if (sunctx == NULL) { return NULL; }
   SUNFunctionBegin(sunctx);
@@ -74,7 +74,7 @@ SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
  * Free a generic SUNDomEigEstimator (assumes content is already empty)
  * ----------------------------------------------------------------- */
 
-void SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE)
+void SUNDomEigEstimator_FreeEmpty(SUNDomEigEstimator DEE)
 {
   if (DEE == NULL) { return; }
 
@@ -91,8 +91,8 @@ void SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE)
  * Functions in the 'ops' structure
  * -----------------------------------------------------------------*/
 
-SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data,
-                                  SUNATimesFn ATimes)
+SUNErrCode SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* A_data,
+                                        SUNATimesFn ATimes)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -102,7 +102,7 @@ SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data,
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters)
+SUNErrCode SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -112,8 +112,8 @@ SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator DEE,
-                                              int num_iters)
+SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters(SUNDomEigEstimator DEE,
+                                                    int num_iters)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -126,7 +126,7 @@ SUNErrCode SUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator DEE,
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
+SUNErrCode SUNDomEigEstimator_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -136,7 +136,7 @@ SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEigEstimator_Initialize(SUNDomEigEstimator DEE)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -146,8 +146,8 @@ SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE)
   return (ier);
 }
 
-SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
-                              sunrealtype* lambdaI)
+SUNErrCode SUNDomEigEstimator_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+                                       sunrealtype* lambdaI)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -157,7 +157,7 @@ SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* res)
+SUNErrCode SUNDomEigEstimator_GetRes(SUNDomEigEstimator DEE, sunrealtype* res)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -171,7 +171,7 @@ SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* res)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* num_iters)
+SUNErrCode SUNDomEigEstimator_GetNumIters(SUNDomEigEstimator DEE, long int* num_iters)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -185,8 +185,8 @@ SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* num_iters)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
-                                          long int* num_ATimes)
+SUNErrCode SUNDomEigEstimator_GetNumATimesCalls(SUNDomEigEstimator DEE,
+                                                long int* num_ATimes)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -203,7 +203,7 @@ SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE,
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_Write(SUNDomEigEstimator DEE, FILE* outfile)
+SUNErrCode SUNDomEigEstimator_Write(SUNDomEigEstimator DEE, FILE* outfile)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(DEE));
@@ -213,7 +213,7 @@ SUNErrCode SUNDomEigEst_Write(SUNDomEigEstimator DEE, FILE* outfile)
   return (ier);
 }
 
-SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
+SUNErrCode SUNDomEigEstimator_Destroy(SUNDomEigEstimator* DEEptr)
 {
   SUNErrCode ier = SUN_SUCCESS;
   if (DEEptr == NULL) { return ier; }
@@ -221,7 +221,7 @@ SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
   if ((*DEEptr)->ops->destroy) { ier = (*DEEptr)->ops->destroy(DEEptr); }
   else
   {
-    SUNDomEigEst_FreeEmpty(*DEEptr);
+    SUNDomEigEstimator_FreeEmpty(*DEEptr);
     *DEEptr = NULL;
   }
   return (ier);

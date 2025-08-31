@@ -137,40 +137,40 @@ int main(int argc, char* argv[])
   ProbData.A12 = nondiagonal;
 
   /* Create Power Iteration Dominant Eigvalue Estimator (DEE)*/
-  DEE = SUNDomEigEst_Power(q, max_iters, rel_tol, sunctx);
-  if (check_flag(DEE, "SUNDomEigEst_Power", 0)) { return 1; }
+  DEE = SUNDomEigEstimator_Power(q, max_iters, rel_tol, sunctx);
+  if (check_flag(DEE, "SUNDomEigEstimator_Power", 0)) { return 1; }
 
-  fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
-  fails += Test_SUNDomEigEst_SetMaxIters(DEE, max_iters, 0);
-  fails += Test_SUNDomEigEst_SetNumPreprocessIters(DEE, num_warmups, 0);
-  fails += Test_SUNDomEigEst_SetRelTol(DEE, rel_tol, 0);
-  fails += Test_SUNDomEigEst_Initialize(DEE, 0);
-  fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
-  fails += Test_SUNDomEigEst_GetRes(DEE, &cur_res, 0);
+  fails += Test_SUNDomEigEstimator_SetATimes(DEE, &ProbData, ATimes, 0);
+  fails += Test_SUNDomEigEstimator_SetMaxIters(DEE, max_iters, 0);
+  fails += Test_SUNDomEigEstimator_SetNumPreprocessIters(DEE, num_warmups, 0);
+  fails += Test_SUNDomEigEstimator_SetRelTol(DEE, rel_tol, 0);
+  fails += Test_SUNDomEigEstimator_Initialize(DEE, 0);
+  fails += Test_SUNDomEigEstimator_Estimate(DEE, &lambdaR, &lambdaI, 0);
+  fails += Test_SUNDomEigEstimator_GetRes(DEE, &cur_res, 0);
   if (cur_res < SUN_SMALL_REAL)
   {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetRes return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEstimator_GetRes return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEst_GetNumIters(DEE, &curniter, 0);
+  fails += Test_SUNDomEigEstimator_GetNumIters(DEE, &curniter, 0);
   if (curniter <= 0)
   {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetNumIters return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEstimator_GetNumIters return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEst_GetNumATimesCalls(DEE, &num_ATimes, 0);
-  fails += Test_SUNDomEigEst_Write(DEE, 0);
+  fails += Test_SUNDomEigEstimator_GetNumATimesCalls(DEE, &num_ATimes, 0);
+  fails += Test_SUNDomEigEstimator_Write(DEE, 0);
 
   if (fails)
   {
-    printf("FAIL: SUNDomEigEst_Power module failed %i initialization tests\n\n",
+    printf("FAIL: SUNDomEigEstimator_Power module failed %i initialization tests\n\n",
            fails);
     return 1;
   }
   else
   {
     printf(
-      "SUCCESS: SUNDomEigEst_Power module passed all initialization tests\n\n");
+      "SUCCESS: SUNDomEigEstimator_Power module passed all initialization tests\n\n");
   }
 
   /* First check if the computed eigenvalue has a nonzero magnitute */
@@ -225,7 +225,7 @@ int main(int argc, char* argv[])
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
   N_VDestroy(q);
-  SUNDomEigEst_Destroy(&DEE);
+  SUNDomEigEstimator_Destroy(&DEE);
 
   return (passfail);
 }

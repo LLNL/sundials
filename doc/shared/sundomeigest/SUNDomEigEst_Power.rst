@@ -14,16 +14,17 @@
 
 .. _SUNDomEigEst.Power:
 
-The SUNDomEigEst_Power Module
+The SUNDomEigEstimator_Power Module
 ======================================
 
 .. versionadded:: x.y.z
 
-The SUNDomEigEst_Power implementation of the :c:type:`SUNDomEigEstimator` class performs
-the Power Iteration (PI) method :cite:p:`vonmises29`; this is an iterative dominant
-eigenvalue estimator that is designed to be compatible with any ``N_Vector``
-implementation that supports a minimal subset of operations (:c:func:`N_VClone()`,
-:c:func:`N_VDotProd()`, :c:func:`N_VScale()`, and :c:func:`N_VDestroy()`).
+The SUNDomEigEstimator_Power implementation of the :c:type:`SUNDomEigEstimator`
+class performs the Power Iteration (PI) method :cite:p:`vonmises29`; this is an
+iterative dominant eigenvalue estimator that is designed to be compatible with
+any ``N_Vector`` implementation that supports a minimal subset of operations
+(:c:func:`N_VClone()`, :c:func:`N_VDotProd()`, :c:func:`N_VScale()`, and
+:c:func:`N_VDestroy()`).
 
 Power iteration is useful for large, sparse matrices whose dominant eigenvalue
 is real-valued and has algebraic multiplicity one. The algorithm starts with a non-zero
@@ -56,16 +57,18 @@ amount of memory regardless of the number of iterations.
 
 .. _SUNDomEigEst.Power.Usage:
 
-SUNDomEigEst_Power Usage
------------------------------
+SUNDomEigEstimator_Power Usage
+------------------------------
 
-To use SUNDomEigEst_Arnoldi include the header file ``sundomeigest/sundomeigest_power.h``,
-and link to the library ``libsundials_sundomeigestpower``.
+To use SUNDomEigEstimator_Arnoldi include the header file
+``sundomeigest/sundomeigest_power.h``, and link to the library
+``libsundials_sundomeigestpower``.
 
-The module SUNDomEigEst_Power provides the following user-callable routines:
+The module SUNDomEigEstimator_Power provides the following user-callable
+routines:
 
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters, sunrealtype rel_tol, SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEstimator_Power(N_Vector q, long int max_iters, sunrealtype rel_tol, SUNContext sunctx)
 
    This constructor function creates and allocates memory for a PI
    ``SUNDomEigEstimator``.
@@ -101,11 +104,11 @@ The module SUNDomEigEst_Power provides the following user-callable routines:
 
 .. _SUNDomEigEst.Power.Description:
 
-SUNDomEigEst_Power Description
---------------------------------
+SUNDomEigEstimator_Power Description
+------------------------------------
 
 
-The SUNDomEigEst_Power module defines the *content* field of a
+The SUNDomEigEstimator_Power module defines the *content* field of a
 ``SUNDomEigEstimator`` to be the following structure:
 
 .. code-block:: c
@@ -138,13 +141,14 @@ information:
 * ``max_iters`` - maximum number of iterations (default is 100),
 
 * ``num_iters`` - number of power iterations in the last
-  :c:func:`SUNDomEig_Estimate` call,
+  :c:func:`SUNDomEigEstimator_Estimate` call,
 
 * ``num_ATimes`` - number of calls to the ``ATimes`` function,
 
 * ``rel_tol`` - relative tolerance for the convergence criteria (default is 0.01),
 
-* ``res`` - the residual from the last :c:func:`SUNDomEig_Estimate` call.
+* ``res`` - the residual from the last :c:func:`SUNDomEigEstimator_Estimate`
+  call.
 
 
 This estimator is constructed to perform the following operations:
@@ -156,14 +160,14 @@ This estimator is constructed to perform the following operations:
 * User-facing "set" routines may be called to modify default
   estimator parameters.
 
-* SUNDIALS packages will call :c:func:`SUNDomEigEst_SetATimes` to supply the
-  ``ATimes`` function pointer and the related data ``ATData``.
+* SUNDIALS packages will call :c:func:`SUNDomEigEstimator_SetATimes` to supply
+  the ``ATimes`` function pointer and the related data ``ATData``.
 
-* In :c:func:`SUNDomEigEst_Initialize`, the estimator parameters are checked
-  for validity and the initial eigenvector is normalized.
+* In :c:func:`SUNDomEigEstimator_Initialize`, the estimator parameters are
+  checked for validity and the initial eigenvector is normalized.
 
-* In :c:func:`SUNDomEig_Estimate`, the initial nonzero vector :math:`q_0` is
-  preprocessed with some fixed number of Power iterations,
+* In :c:func:`SUNDomEigEstimator_Estimate`, the initial nonzero vector
+  :math:`q_0` is preprocessed with some fixed number of Power iterations,
 
   .. math::
 
@@ -173,28 +177,27 @@ This estimator is constructed to perform the following operations:
   :c:func:`LSRKStepSetNumDomEigEstPreprocessIters` for setting the number of
   preprocessing iterations) before computing the estimate.
 
-The SUNDomEigEst_Power module defines implementations of all dominant
-eigenvalue estimator operations listed in
-:numref:`SUNDomEigEst.API`:
+The SUNDomEigEstimator_Power module defines implementations of all dominant
+eigenvalue estimator operations listed in :numref:`SUNDomEigEst.API`:
 
-* ``SUNDomEigEst_SetATimes_Power``
+* ``SUNDomEigEstimator_SetATimes_Power``
 
-* ``SUNDomEigEst_SetMaxIters_Power``
+* ``SUNDomEigEstimator_SetMaxIters_Power``
 
-* ``SUNDomEigEst_SetNumPreprocessIters_Power``
+* ``SUNDomEigEstimator_SetNumPreprocessIters_Power``
 
-* ``SUNDomEigEst_SetRelTol_Power``
+* ``SUNDomEigEstimator_SetRelTol_Power``
 
-* ``SUNDomEigEst_Initialize_Power``
+* ``SUNDomEigEstimator_Initialize_Power``
 
-* ``SUNDomEig_Estimate_Power``
+* ``SUNDomEigEstimator_Estimate_Power``
 
-* ``SUNDomEigEst_GetRes_Power``
+* ``SUNDomEigEstimator_GetRes_Power``
 
-* ``SUNDomEigEst_GetNumIters_Power``
+* ``SUNDomEigEstimator_GetNumIters_Power``
 
-* ``SUNDomEigEst_GetNumATimesCalls_Power``
+* ``SUNDomEigEstimator_GetNumATimesCalls_Power``
 
-* ``SUNDomEigEst_Write_Power``
+* ``SUNDomEigEstimator_Write_Power``
 
-* ``SUNDomEigEst_Destroy_Power``
+* ``SUNDomEigEstimator_Destroy_Power``

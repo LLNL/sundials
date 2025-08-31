@@ -360,21 +360,21 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   /* Initialize the DEE */
   if (step_mem->DEE != NULL)
   {
-    retval = SUNDomEigEst_Initialize(step_mem->DEE);
+    retval = SUNDomEigEstimator_Initialize(step_mem->DEE);
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNDomEigEst_Initialize failed");
+                      "SUNDomEigEstimator_Initialize failed");
       return ARK_DEE_FAIL;
     }
 
     /* Set number of DEE preprocessing iterations for the initial estimate */
-    retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
-                                                step_mem->num_init_warmups);
+    retval = SUNDomEigEstimator_SetNumPreprocessIters(step_mem->DEE,
+                                                      step_mem->num_init_warmups);
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNDomEigEst_SetNumPreprocessIters failed");
+                      "SUNDomEigEstimator_SetNumPreprocessIters failed");
       return ARK_DEE_FAIL;
     }
   }
@@ -2157,11 +2157,11 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
     if (step_mem->DEE != NULL)
     {
-      retval = SUNDomEigEst_Write(step_mem->DEE, outfile);
+      retval = SUNDomEigEstimator_Write(step_mem->DEE, outfile);
       if (retval != SUN_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                        "SUNDomEigEst_Write failed");
+                        "SUNDomEigEstimator_Write failed");
         return;
       }
     }
@@ -2265,37 +2265,37 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if (step_mem->DEE != NULL)
   {
-    retval = SUNDomEig_Estimate(step_mem->DEE, &step_mem->lambdaR,
-                                &step_mem->lambdaI);
+    retval = SUNDomEigEstimator_Estimate(step_mem->DEE, &step_mem->lambdaR,
+                                         &step_mem->lambdaI);
     step_mem->dom_eig_num_evals++;
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNDomEig_Estimate failed");
+                      "SUNDomEigEstimator_Estimate failed");
       return ARK_DEE_FAIL;
     }
 
     long int num_iters;
-    retval = SUNDomEigEst_GetNumIters(step_mem->DEE, &num_iters);
+    retval = SUNDomEigEstimator_GetNumIters(step_mem->DEE, &num_iters);
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNDomEigEst_GetNumIters failed");
+                      "SUNDomEigEstimator_GetNumIters failed");
       return ARK_DEE_FAIL;
     }
     step_mem->num_dee_iters += num_iters;
 
-    /* After the first call to SUNDomEig_Estimate, the number of warmups is set to
+    /* After the first call to SUNDomEigEstimator_Estimate, the number of warmups is set to
        num_warmups, this allows the successive calls to
-       SUNDomEig_Estimate to use a diffirent number of warmups. */
+       SUNDomEigEstimator_Estimate to use a diffirent number of warmups. */
     if (step_mem->init_warmup)
     {
-      retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
-                                                  step_mem->num_warmups);
+      retval = SUNDomEigEstimator_SetNumPreprocessIters(step_mem->DEE,
+                                                        step_mem->num_warmups);
       if (retval != SUN_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                        "SUNDomEigEst_SetNumPreprocessIters failed");
+                        "SUNDomEigEstimator_SetNumPreprocessIters failed");
         return ARK_DEE_FAIL;
       }
       step_mem->init_warmup = SUNFALSE;

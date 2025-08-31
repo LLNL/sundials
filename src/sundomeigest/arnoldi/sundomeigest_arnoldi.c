@@ -68,7 +68,7 @@ int sundomeigest_Compare(const void* a, const void* b);
  * Function to create a new Arnoldi estimator
  */
 
-SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -92,17 +92,17 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunc
 
   /* Create dominant eigenvalue estimator */
   DEE = NULL;
-  DEE = SUNDomEigEst_NewEmpty(sunctx);
+  DEE = SUNDomEigEstimator_NewEmpty(sunctx);
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->setatimes             = SUNDomEigEst_SetATimes_Arnoldi;
-  DEE->ops->setnumpreprocessiters = SUNDomEigEst_SetNumPreprocessIters_Arnoldi;
-  DEE->ops->initialize            = SUNDomEigEst_Initialize_Arnoldi;
-  DEE->ops->estimate              = SUNDomEig_Estimate_Arnoldi;
-  DEE->ops->getnumatimescalls     = SUNDomEigEst_GetNumATimesCalls_Arnoldi;
-  DEE->ops->write                 = SUNDomEigEst_Write_Arnoldi;
-  DEE->ops->destroy               = SUNDomEigEst_Destroy_Arnoldi;
+  DEE->ops->setatimes             = SUNDomEigEstimator_SetATimes_Arnoldi;
+  DEE->ops->setnumpreprocessiters = SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi;
+  DEE->ops->initialize            = SUNDomEigEstimator_Initialize_Arnoldi;
+  DEE->ops->estimate              = SUNDomEigEstimator_Estimate_Arnoldi;
+  DEE->ops->getnumatimescalls     = SUNDomEigEstimator_GetNumATimesCalls_Arnoldi;
+  DEE->ops->write                 = SUNDomEigEstimator_Write_Arnoldi;
+  DEE->ops->destroy               = SUNDomEigEstimator_Destroy_Arnoldi;
 
   /* Create content */
   content = NULL;
@@ -147,8 +147,8 @@ SUNDomEigEstimator SUNDomEigEst_Arnoldi(N_Vector q, int kry_dim, SUNContext sunc
  * -----------------------------------------------------------------
  */
 
-SUNErrCode SUNDomEigEst_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,
-                                          SUNATimesFn ATimes)
+SUNErrCode SUNDomEigEstimator_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,
+                                                SUNATimesFn ATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -162,7 +162,7 @@ SUNErrCode SUNDomEigEst_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
+SUNErrCode SUNDomEigEstimator_Initialize_Arnoldi(SUNDomEigEstimator DEE)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -260,8 +260,8 @@ SUNErrCode SUNDomEigEst_Initialize_Arnoldi(SUNDomEigEstimator DEE)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator DEE,
-                                                      int num_iters)
+SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator DEE,
+                                                            int num_iters)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -276,8 +276,8 @@ SUNErrCode SUNDomEigEst_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
-                                      sunrealtype* lambdaR, sunrealtype* lambdaI)
+SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
+                                               sunrealtype* lambdaR, sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -391,8 +391,8 @@ SUNErrCode SUNDomEig_Estimate_Arnoldi(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_GetNumATimesCalls_Arnoldi(SUNDomEigEstimator DEE,
-                                                  long int* num_ATimes)
+SUNErrCode SUNDomEigEstimator_GetNumATimesCalls_Arnoldi(SUNDomEigEstimator DEE,
+                                                        long int* num_ATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -405,7 +405,7 @@ SUNErrCode SUNDomEigEst_GetNumATimesCalls_Arnoldi(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile)
+SUNErrCode SUNDomEigEstimator_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -424,7 +424,7 @@ SUNErrCode SUNDomEigEst_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEst_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr)
+SUNErrCode SUNDomEigEstimator_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr)
 {
   if ((*DEEptr) == NULL) { return SUN_SUCCESS; }
 

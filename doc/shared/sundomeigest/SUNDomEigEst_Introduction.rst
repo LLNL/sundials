@@ -29,7 +29,7 @@ residual, etc.) from the estimator.  All of these functions
 are defined in the header file ``sundials/sundials_domeigestimator.h``.
 
 The implementations provided with SUNDIALS work in coordination
-with the SUNDIALS :c:type:`N_Vector` modules to provide a set of compatible data 
+with the SUNDIALS :c:type:`N_Vector` modules to provide a set of compatible data
 structures for the estimator.
 Moreover, advanced users can provide a customized :c:type:`SUNDomEigEstimator`
 implementation to any SUNDIALS package, particularly in cases where they
@@ -42,7 +42,7 @@ tolerance, :math:`\tau`,
 
 .. math::
   :name: pi_rel_tol
-  
+
   \frac{\left|\lambda_k - \lambda_{k-1}\right|}{\left|\lambda_k \right|} < \tau.
 
 For users interested in providing their own :c:func:`SUNDomEigEstimator`, the
@@ -50,7 +50,7 @@ following section presents the :c:type:`SUNDomEigEstimator` class and its implem
 beginning with the definition of :c:type:`SUNDomEigEstimator` functions in
 :numref:`SUNDomEigEst.CoreFn` -- :numref:`SUNDomEigEst.GetFn`. This is followed by
 the definition of functions supplied to an estimator implementation in
-:numref:`SUNDomEigEst.SUNSuppliedFn`. The :c:type:`SUNDomEigEstimator` type is defined 
+:numref:`SUNDomEigEst.SUNSuppliedFn`. The :c:type:`SUNDomEigEstimator` type is defined
 :numref:`SUNDomEigEst.Generic`. The section that then follows describes
 the :c:type:`SUNDomEigEstimator` functions required by this SUNDIALS package, and provides
 additional package specific details. Then the remaining sections of this

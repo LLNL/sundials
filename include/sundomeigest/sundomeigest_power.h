@@ -57,47 +57,47 @@ typedef struct SUNDomEigEstimatorContent_Power_* SUNDomEigEstimatorContent_Power
  * --------------------------------------- */
 
 SUNDIALS_EXPORT
-SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
-                                      sunrealtype rel_tol, SUNContext sunctx);
+SUNDomEigEstimator SUNDomEigEstimator_Power(N_Vector q, long int max_iters,
+                                            sunrealtype rel_tol, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetATimes_Power(SUNDomEigEstimator DEE, void* A_data,
-                                        SUNATimesFn ATimes);
+SUNErrCode SUNDomEigEstimator_SetATimes_Power(SUNDomEigEstimator DEE, void* A_data,
+                                              SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetMaxIters_Power(SUNDomEigEstimator DEE,
-                                          long int max_iters);
+SUNErrCode SUNDomEigEstimator_SetMaxIters_Power(SUNDomEigEstimator DEE,
+                                                long int max_iters);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetNumPreprocessIters_Power(SUNDomEigEstimator DEE,
-                                                    int num_iters);
+SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters_Power(SUNDomEigEstimator DEE,
+                                                          int num_iters);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_SetRelTol_Power(SUNDomEigEstimator DEE, sunrealtype tol);
+SUNErrCode SUNDomEigEstimator_SetRelTol_Power(SUNDomEigEstimator DEE, sunrealtype tol);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_Initialize_Power(SUNDomEigEstimator DEE);
+SUNErrCode SUNDomEigEstimator_Initialize_Power(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
-                                    sunrealtype* lambdaR, sunrealtype* lambdaI);
+SUNErrCode SUNDomEigEstimator_Estimate_Power(SUNDomEigEstimator DEE,
+                                             sunrealtype* lambdaR, sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetRes_Power(SUNDomEigEstimator DEE, sunrealtype* res);
+SUNErrCode SUNDomEigEstimator_GetRes_Power(SUNDomEigEstimator DEE, sunrealtype* res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetNumIters_Power(SUNDomEigEstimator DEE,
-                                          long int* num_iters);
+SUNErrCode SUNDomEigEstimator_GetNumIters_Power(SUNDomEigEstimator DEE,
+                                                long int* num_iters);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_GetNumATimesCalls_Power(SUNDomEigEstimator DEE,
-                                                long int* num_ATimes);
+SUNErrCode SUNDomEigEstimator_GetNumATimesCalls_Power(SUNDomEigEstimator DEE,
+                                                      long int* num_ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_Write_Power(SUNDomEigEstimator DEE, FILE* outfile);
+SUNErrCode SUNDomEigEstimator_Write_Power(SUNDomEigEstimator DEE, FILE* outfile);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEst_Destroy_Power(SUNDomEigEstimator* DEEptr);
+SUNErrCode SUNDomEigEstimator_Destroy_Power(SUNDomEigEstimator* DEEptr);
 
 #ifdef __cplusplus
 }

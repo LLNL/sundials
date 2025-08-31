@@ -173,8 +173,8 @@ int main(void)
   }
 
   /* Create power iteration dominant eigenvalue estimator (DEE) */
-  DEE = SUNDomEigEst_Power(q, max_iters, rel_tol, ctx);
-  if (check_flag(DEE, "SUNDomEigEst_Power", 0)) { return 1; }
+  DEE = SUNDomEigEstimator_Power(q, max_iters, rel_tol, ctx);
+  if (check_flag(DEE, "SUNDomEigEstimator_Power", 0)) { return 1; }
 
   /* After the DEE creation, random q vector is no longer needed.
      It is used only to initialize the DEE */
@@ -276,7 +276,7 @@ int main(void)
   /* Clean up and return */
   N_VDestroy(y);              /* Free y vector */
   ARKodeFree(&arkode_mem);    /* Free integrator memory */
-  SUNDomEigEst_Destroy(&DEE); /* Free DEE object */
+  SUNDomEigEstimator_Destroy(&DEE); /* Free DEE object */
   SUNContext_Free(&ctx);      /* Free context */
 
   return flag;

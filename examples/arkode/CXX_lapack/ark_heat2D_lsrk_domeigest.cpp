@@ -291,14 +291,14 @@ int main(int argc, char* argv[])
   if (udata->dee_id == 0)
   {
     /* Create power iteration dominant eigenvalue estimator */
-    DEE = SUNDomEigEst_Power(q, udata->dee_max_iters, udata->dee_reltol, ctx);
-    if (check_flag(DEE, "SUNDomEigEst_Power", 0)) { return 1; }
+    DEE = SUNDomEigEstimator_Power(q, udata->dee_max_iters, udata->dee_reltol, ctx);
+    if (check_flag(DEE, "SUNDomEigEstimator_Power", 0)) { return 1; }
   }
   else if (udata->dee_id == 1)
   {
     /* Create Arnoldi dominant eigenvalue estimator */
-    DEE = SUNDomEigEst_Arnoldi(q, udata->dee_krylov_dim, ctx);
-    if (check_flag(DEE, "SUNDomEigEst_Arnoldi", 0)) { return 1; }
+    DEE = SUNDomEigEstimator_Arnoldi(q, udata->dee_krylov_dim, ctx);
+    if (check_flag(DEE, "SUNDomEigEstimator_Arnoldi", 0)) { return 1; }
   }
   else
   {
@@ -446,7 +446,7 @@ int main(int argc, char* argv[])
 
   ARKodeFree(&arkode_mem);    // Free integrator memory
   N_VDestroy(u);              // Free vectors
-  SUNDomEigEst_Destroy(&DEE); /* Free DEE object */
+  SUNDomEigEstimator_Destroy(&DEE); /* Free DEE object */
   FreeUserData(udata);        // Free user data
   delete udata;
   SUNContext_Free(&ctx); // Free context

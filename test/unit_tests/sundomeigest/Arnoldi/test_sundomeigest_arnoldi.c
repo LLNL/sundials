@@ -138,45 +138,45 @@ int main(int argc, char* argv[])
   ProbData.imag_part = imagpart;
 
   /* Create Arnoldi Iteration Dominant Eigvalue Estimator (DEE)*/
-  DEE = SUNDomEigEst_Arnoldi(q, kry_dim, sunctx);
-  if (check_flag(DEE, "SUNDomEigEst_Arnoldi", 0)) { return 1; }
+  DEE = SUNDomEigEstimator_Arnoldi(q, kry_dim, sunctx);
+  if (check_flag(DEE, "SUNDomEigEstimator_Arnoldi", 0)) { return 1; }
 
-  fails += Test_SUNDomEigEst_SetATimes(DEE, &ProbData, ATimes, 0);
-  // SUNDomEigEst_SetMaxIters is not an option for Arnoldi iteration.
+  fails += Test_SUNDomEigEstimator_SetATimes(DEE, &ProbData, ATimes, 0);
+  // SUNDomEigEstimator_SetMaxIters is not an option for Arnoldi iteration.
   // It should return with SUN_SUCCESS
   max_iters = kry_dim;
-  fails += Test_SUNDomEigEst_SetMaxIters(DEE, max_iters, 0);
-  fails += Test_SUNDomEigEst_SetNumPreprocessIters(DEE, num_warmups, 0);
-  fails += Test_SUNDomEigEst_SetRelTol(DEE, rel_tol, 0);
-  fails += Test_SUNDomEigEst_Initialize(DEE, 0);
-  fails += Test_SUNDomEig_Estimate(DEE, &lambdaR, &lambdaI, 0);
-  // SUNDomEigEst_GetRes and SUNDomEigEst_GetNumIters are not options
+  fails += Test_SUNDomEigEstimator_SetMaxIters(DEE, max_iters, 0);
+  fails += Test_SUNDomEigEstimator_SetNumPreprocessIters(DEE, num_warmups, 0);
+  fails += Test_SUNDomEigEstimator_SetRelTol(DEE, rel_tol, 0);
+  fails += Test_SUNDomEigEstimator_Initialize(DEE, 0);
+  fails += Test_SUNDomEigEstimator_Estimate(DEE, &lambdaR, &lambdaI, 0);
+  // SUNDomEigEstimator_GetRes and SUNDomEigEstimator_GetNumIters are not options
   // for Arnoldi iteration. They should return with 0.
-  fails += Test_SUNDomEigEst_GetRes(DEE, &cur_res, 0);
+  fails += Test_SUNDomEigEstimator_GetRes(DEE, &cur_res, 0);
   if (cur_res > SUN_SMALL_REAL)
   {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetRes return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEstimator_GetRes return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEst_GetNumIters(DEE, &curniter, 0);
+  fails += Test_SUNDomEigEstimator_GetNumIters(DEE, &curniter, 0);
   if (curniter != 0)
   {
-    printf("    >>> FAILED test -- SUNDomEigEst_GetNumIters return value\n");
+    printf("    >>> FAILED test -- SUNDomEigEstimator_GetNumIters return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEst_GetNumATimesCalls(DEE, &num_ATimes, 0);
-  fails += Test_SUNDomEigEst_Write(DEE, 0);
+  fails += Test_SUNDomEigEstimator_GetNumATimesCalls(DEE, &num_ATimes, 0);
+  fails += Test_SUNDomEigEstimator_Write(DEE, 0);
 
   if (fails)
   {
-    printf("FAIL: SUNDomEigEst_Arnoldi module failed %i initialization "
+    printf("FAIL: SUNDomEigEstimator_Arnoldi module failed %i initialization "
            "tests\n\n",
            fails);
     return 1;
   }
   else
   {
-    printf("SUCCESS: SUNDomEigEst_Arnoldi module passed all initialization "
+    printf("SUCCESS: SUNDomEigEstimator_Arnoldi module passed all initialization "
            "tests\n\n");
   }
 
@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
   N_VDestroy(q);
-  SUNDomEigEst_Destroy(&DEE);
+  SUNDomEigEstimator_Destroy(&DEE);
 
   return (passfail);
 }

@@ -33,13 +33,15 @@ the header file ``sundials/sundials_domeigestimator.h``.
 SUNDomEigEstimator core functions
 -----------------------------------------------------
 
-The SUNDomEigEstimator base class provides two **utility** routines for implementers,
-:c:func:`SUNDomEigEst_NewEmpty` and :c:func:`SUNDomEigEst_FreeEmpty`.
+The SUNDomEigEstimator base class provides two **utility** routines for
+implementers, :c:func:`SUNDomEigEstimator_NewEmpty` and
+:c:func:`SUNDomEigEstimator_FreeEmpty`.
 
 Implementations of SUNDomEigEstimators must include a **required**
-:c:func:`SUNDomEig_Estimate` function to estimate the dominant eigenvalue.
+:c:func:`SUNDomEigEstimator_Estimate` function to estimate the dominant
+eigenvalue.
 
-.. c:function:: SUNDomEigEstimator SUNDomEigEst_NewEmpty(SUNContext sunctx)
+.. c:function:: SUNDomEigEstimator SUNDomEigEstimator_NewEmpty(SUNContext sunctx)
 
    This function allocates a new ``SUNDomEigEstimator`` object and
    initializes its content pointer and the function pointers in the operations
@@ -56,7 +58,7 @@ Implementations of SUNDomEigEstimators must include a **required**
       return ``NULL``.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE)
+.. c:function:: SUNErrCode SUNDomEigEstimator_Initialize(SUNDomEigEstimator DEE)
 
    This *optional* function performs dominant eigenvalue estimator initialization (assuming that all
    estimator-specific options have been set).
@@ -70,7 +72,7 @@ Implementations of SUNDomEigEstimators must include a **required**
       A :c:type:`SUNErrCode`.
 
 
-.. c:function:: SUNErrCode SUNDomEig_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
+.. c:function:: SUNErrCode SUNDomEigEstimator_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR, sunrealtype* lambdaI)
 
    This *required* function estimates the dominant eigenvalue,
    :math:`\lambda_{\max} = \lambda_{R} + \lambda_{I}i` such that
@@ -88,7 +90,7 @@ Implementations of SUNDomEigEstimators must include a **required**
       :c:type:`SUNErrCode` upon failure.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_FreeEmpty(SUNDomEigEstimator DEE)
+.. c:function:: SUNErrCode SUNDomEigEstimator_FreeEmpty(SUNDomEigEstimator DEE)
 
    This routine frees the ``SUNDomEigEstimator`` object, under the
    assumption that any implementation-specific data that was allocated
@@ -105,7 +107,7 @@ Implementations of SUNDomEigEstimators must include a **required**
       A :c:type:`SUNErrCode`.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_Destroy(SUNDomEigEstimator* DEEptr)
+.. c:function:: SUNErrCode SUNDomEigEstimator_Destroy(SUNDomEigEstimator* DEEptr)
 
    Frees memory allocated by the dominant eigenvalue estimator.
 
@@ -132,7 +134,7 @@ optional routine should leave the corresponding function pointer ``NULL``
 instead of supplying a dummy routine.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
+.. c:function:: SUNErrCode SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
 
    This function provides a :c:type:`SUNATimesFn` function for performing
    matrix-vector products, as well as a ``void*`` pointer to a data structure
@@ -151,11 +153,11 @@ instead of supplying a dummy routine.
       A :c:type:`SUNErrCode`.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetNumPreprocessIters(SUNDomEigEstimator DEE, int num_iters)
+.. c:function:: SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters(SUNDomEigEstimator DEE, int num_iters)
 
    This *optional* routine should set the number of preprocessing matrix-vector
    multiplications, performed at the beginning of each
-   :c:func:`SUNDomEig_Estimate` evaluation.
+   :c:func:`SUNDomEigEstimator_Estimate` evaluation.
 
    **Arguments:**
 
@@ -168,17 +170,18 @@ instead of supplying a dummy routine.
 
    .. note::
 
-      Prior to computing the dominant eigenvalue in :c:func:`SUNDomEig_Estimate`
-      an implementation may perform ``num_iters`` power iterations on ``q`` to
-      generate an improved initial guess.  Preprocessing iterations can help
-      reduce some computational overhead, and may be useful if the initial guess
-      ``q`` is not a good approximation of the dominant eigenvector.
+      Prior to computing the dominant eigenvalue in
+      :c:func:`SUNDomEigEstimator_Estimate` an implementation may perform
+      ``num_iters`` power iterations on ``q`` to generate an improved initial
+      guess.  Preprocessing iterations can help reduce some computational
+      overhead, and may be useful if the initial guess ``q`` is not a good
+      approximation of the dominant eigenvector.
 
       When the estimator is used in a time-dependent context, it is likely that
       the most-recent ``q`` will provide a suitable initial guess for subsequent
-      calls to :c:func:`SUNDomEig_Estimate`. Thus, when the estimator is used
-      with LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the initial
-      value of ``num_iters`` should be set with
+      calls to :c:func:`SUNDomEigEstimator_Estimate`. Thus, when the estimator
+      is used with LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the
+      initial value of ``num_iters`` should be set with
       :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` while the number of
       preprocessing iterations for subsequent calls should be set with
       :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`.
@@ -190,7 +193,7 @@ instead of supplying a dummy routine.
       the power iteration. With either implementation, supplying a ``num_iters``
       argument that is :math:`< 0`, it will reset the value to the default.
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
+.. c:function:: SUNErrCode SUNDomEigEstimator_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
 
    This *optional* routine sets the estimator's :ref:`relative tolerance <pi_rel_tol>`.
 
@@ -204,7 +207,7 @@ instead of supplying a dummy routine.
       A :c:type:`SUNErrCode`.
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters)
+.. c:function:: SUNErrCode SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters)
 
    This *optional* routine sets the maximum number of iterations.
 
@@ -226,10 +229,10 @@ SUNDomEigEstimator "get" functions
 The following functions allow SUNDIALS packages to retrieve results from a
 dominant eigenvalue estimator.  *All routines are optional.*
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
+.. c:function:: SUNErrCode SUNDomEigEstimator_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res)
 
-   This *optional* routine should return the final residual from
-   the most-recent call to :c:func:`SUNDomEig_Estimate`.
+   This *optional* routine should return the final residual from the most-recent
+   call to :c:func:`SUNDomEigEstimator_Estimate`.
 
    **Arguments:**
 
@@ -245,13 +248,13 @@ dominant eigenvalue estimator.  *All routines are optional.*
       .. code-block:: c
 
          sunrealtype cur_res;
-         retval = SUNDomEigEst_GetRes(DEE, &cur_res);
+         retval = SUNDomEigEstimator_GetRes(DEE, &cur_res);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetNumIters(SUNDomEigEstimator DEE, long int* num_iters)
+.. c:function:: SUNErrCode SUNDomEigEstimator_GetNumIters(SUNDomEigEstimator DEE, long int* num_iters)
 
-   This *optional* routine should return the number of estimator
-   iterations performed in the most-recent call to :c:func:`SUNDomEig_Estimate`.
+   This *optional* routine should return the number of estimator iterations
+   performed in the most-recent call to :c:func:`SUNDomEigEstimator_Estimate`.
 
    **Arguments:**
 
@@ -267,10 +270,10 @@ dominant eigenvalue estimator.  *All routines are optional.*
       .. code-block:: c
 
          long int num_iters;
-         retval = SUNDomEigEst_GetNumIters(DEE, &num_iters);
+         retval = SUNDomEigEstimator_GetNumIters(DEE, &num_iters);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* num_ATimes)
+.. c:function:: SUNErrCode SUNDomEigEstimator_GetNumATimesCalls(SUNDomEigEstimator DEE, long int* num_ATimes)
 
    This *optional* routine should return the number of calls to the :c:type:`SUNATimesFn` function.
 
@@ -288,10 +291,10 @@ dominant eigenvalue estimator.  *All routines are optional.*
       .. code-block:: c
 
          long int num_ATimes;
-         retval = SUNDomEigEst_GetNumATimesCalls(DEE, &num_ATimes);
+         retval = SUNDomEigEstimator_GetNumATimesCalls(DEE, &num_ATimes);
 
 
-.. c:function:: SUNErrCode SUNDomEigEst_Write(SUNDomEigEstimator DEE, FILE* outfile)
+.. c:function:: SUNErrCode SUNDomEigEstimator_Write(SUNDomEigEstimator DEE, FILE* outfile)
 
    This *optional* routine prints the dominant eigenvalue estimator settings to
    the file pointer.
@@ -356,62 +359,63 @@ The virtual table structure is defined as
 
    .. c:member:: SUNErrCode (*setatimes)(SUNDomEigEstimator, void*, SUNATimesFn)
 
-      The function implementing :c:func:`SUNDomEigEst_SetATimes`
+      The function implementing :c:func:`SUNDomEigEstimator_SetATimes`
 
    .. c:member:: SUNErrCode (*setmaxiters)(SUNDomEigEstimator, int)
 
-      The function implementing :c:func:`SUNDomEigEst_SetMaxIters`
+      The function implementing :c:func:`SUNDomEigEstimator_SetMaxIters`
 
    .. c:member:: SUNErrCode (*setnumpreprocessiters)(SUNDomEigEstimator, int)
 
-      The function implementing :c:func:`SUNDomEigEst_SetNumPreprocessIters`
+      The function implementing :c:func:`SUNDomEigEstimator_SetNumPreprocessIters`
 
    .. c:member:: SUNErrCode (*setreltol)(SUNDomEigEstimator, sunrealtype)
 
-      The function implementing :c:func:`SUNDomEigEst_SetRelTol`
+      The function implementing :c:func:`SUNDomEigEstimator_SetRelTol`
 
    .. c:member:: SUNErrCode (*initialize)(SUNDomEigEstimator)
 
-      The function implementing :c:func:`SUNDomEigEst_Initialize`
+      The function implementing :c:func:`SUNDomEigEstimator_Initialize`
 
    .. c:member:: SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*)
 
-      The function implementing :c:func:`SUNDomEig_Estimate`
+      The function implementing :c:func:`SUNDomEigEstimator_Estimate`
 
    .. c:member:: sunrealtype (*getres)(SUNDomEigEstimator)
 
-      The function implementing :c:func:`SUNDomEigEst_GetRes`
+      The function implementing :c:func:`SUNDomEigEstimator_GetRes`
 
    .. c:member:: int (*getnumiters)(SUNDomEigEstimator)
 
-      The function implementing :c:func:`SUNDomEigEst_GetNumIters`
+      The function implementing :c:func:`SUNDomEigEstimator_GetNumIters`
 
    .. c:member:: long int (*getnumatimescalls)(SUNDomEigEstimator)
 
-      The function implementing :c:func:`SUNDomEigEst_GetNumATimesCalls`
+      The function implementing :c:func:`SUNDomEigEstimator_GetNumATimesCalls`
 
    .. c:member:: SUNErrCode (*write)(SUNDomEigEstimator, FILE*)
 
-      The function implementing :c:func:`SUNDomEigEst_Write`
+      The function implementing :c:func:`SUNDomEigEstimator_Write`
 
    .. c:member:: SUNErrCode (*destroy)(SUNDomEigEstimator*)
 
-      The function implementing :c:func:`SUNDomEigEst_Destroy`
+      The function implementing :c:func:`SUNDomEigEstimator_Destroy`
 
-The generic SUNDomEigEst class defines and implements the dominant eigenvalue estimator
-operations defined in :numref:`SUNDomEigEst.CoreFn` -- :numref:`SUNDomEigEst.GetFn`.
-These routines are in fact only wrappers to the dominant eigenvalue estimator operations
-defined by a particular SUNDomEigEst implementation, which are accessed through
-the *ops* field of the ``SUNDomEigEstimator`` structure.  To illustrate this
-point we show below the implementation of a typical dominant eigenvalue estimator operation
-from the ``SUNDomEigEstimator`` base class, namely :c:func:`SUNDomEigEst_Initialize`,
-that initializes a ``SUNDomEigEstimator`` object for use after it has been
-created and configured, and returns a flag denoting a successful or failed
-operation:
+The generic SUNDomEigEst class defines and implements the dominant eigenvalue
+estimator operations defined in :numref:`SUNDomEigEst.CoreFn` --
+:numref:`SUNDomEigEst.GetFn`.  These routines are in fact only wrappers to the
+dominant eigenvalue estimator operations defined by a particular SUNDomEigEst
+implementation, which are accessed through the *ops* field of the
+``SUNDomEigEstimator`` structure.  To illustrate this point we show below the
+implementation of a typical dominant eigenvalue estimator operation from the
+``SUNDomEigEstimator`` base class, namely
+:c:func:`SUNDomEigEstimator_Initialize`, that initializes a
+``SUNDomEigEstimator`` object for use after it has been created and configured,
+and returns a flag denoting a successful or failed operation:
 
 .. code-block:: c
 
-   SUNErrCode SUNDomEigEst_Initialize(SUNDomEigEstimator DEE)
+   SUNErrCode SUNDomEigEstimator_Initialize(SUNDomEigEstimator DEE)
    {
      return (DEE->ops->initialize(DEE));
    }
@@ -452,45 +456,45 @@ implementation detail for the interested reader.
    | Routine                                            |   Power Iteration   |  Arnoldi Iteration  |
    |                                                    |                     |                     |
    +====================================================+=====================+=====================+
-   | :c:func:`SUNDomEigEst_SetATimes`                   |          X          |          X          |
+   | :c:func:`SUNDomEigEstimator_SetATimes`             |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_SetMaxIters`\ :sup:`1`       |          O          |         N/A         |
+   | :c:func:`SUNDomEigEstimator_SetMaxIters`\ :sup:`1` |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_SetNumPreprocessIters`       |          O          |          O          |
+   | :c:func:`SUNDomEigEstimator_SetNumPreprocessIters` |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_SetRelTol`\ :sup:`1`         |          O          |         N/A         |
+   | :c:func:`SUNDomEigEstimator_SetRelTol`\ :sup:`1`   |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_Initialize`                  |          X          |          X          |
+   | :c:func:`SUNDomEigEstimator_Initialize`            |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEig_Estimate`                       |          X          |          X          |
+   | :c:func:`SUNDomEigEstimator_Estimate`              |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetRes`\ :sup:`2`            |          O          |          O          |
+   | :c:func:`SUNDomEigEstimator_GetRes`\ :sup:`2`      |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetNumIters`\ :sup:`3`       |          O          |         N/A         |
+   | :c:func:`SUNDomEigEstimator_GetNumIters`\ :sup:`3` |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_GetNumATimesCalls`           |          O          |          O          |
+   | :c:func:`SUNDomEigEstimator_GetNumATimesCalls`     |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_Write`                       |          O          |          O          |
+   | :c:func:`SUNDomEigEstimator_Write`                 |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEst_Destroy`\ :sup:`4`           |                     |                     |
+   | :c:func:`SUNDomEigEstimator_Destroy`\ :sup:`4`     |                     |                     |
    +----------------------------------------------------+---------------------+---------------------+
-
 
 Notes:
 
-1. :c:func:`SUNDomEigEst_SetMaxIters` and :c:func:`SUNDomEigEst_SetRelTol` might
-   or might not be required depending on ``SUNDomEigEstimator`` implementation
-   that is being used. These operations should be left as ``NULL`` if it is not
-   applicable for an estimator.
+1. :c:func:`SUNDomEigEstimator_SetMaxIters` and
+   :c:func:`SUNDomEigEstimator_SetRelTol` might or might not be required
+   depending on ``SUNDomEigEstimator`` implementation that is being used. These
+   operations should be left as ``NULL`` if it is not applicable for an
+   estimator.
 
-2. Although :c:func:`SUNDomEigEst_GetRes` is optional, if it is not implemented
-   by the ``SUNDomEigEstimator`` then the interface will consider all estimates
-   a being *exact*.
+2. Although :c:func:`SUNDomEigEstimator_GetRes` is optional, if it is not
+   implemented by the ``SUNDomEigEstimator`` then the interface will consider
+   all estimates a being *exact*.
 
-3. :c:func:`SUNDomEigEst_GetNumIters` is optional, if it is not implemented by
-   the ``SUNDomEigEstimator`` then the interface will consider all estimates as
-   requiring zero iterations.
+3. :c:func:`SUNDomEigEstimator_GetNumIters` is optional, if it is not
+   implemented by the ``SUNDomEigEstimator`` then the interface will consider
+   all estimates as requiring zero iterations.
 
-4. Although the interface does not call :c:func:`SUNDomEigEst_Destroy` directly,
-   this routine should be available for users to call when cleaning up from a
-   simulation.
+4. Although the interface does not call :c:func:`SUNDomEigEstimator_Destroy`
+   directly, this routine should be available for users to call when cleaning up
+   from a simulation.

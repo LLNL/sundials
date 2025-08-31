@@ -363,12 +363,12 @@ int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_iters)
      before every Estimate call. */
   if (step_mem->DEE)
   {
-    retval = SUNDomEigEst_SetNumPreprocessIters(step_mem->DEE,
-                                                step_mem->num_init_warmups);
+    retval = SUNDomEigEstimator_SetNumPreprocessIters(step_mem->DEE,
+                                                      step_mem->num_init_warmups);
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNDomeEigEst_SetNumPreprocessIters failed");
+                      "SUNDomeEigEstimator_SetNumPreprocessIters failed");
       return ARK_DEE_FAIL;
     }
   }
@@ -523,11 +523,11 @@ int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE)
   step_mem->DEE = DEE;
 
   /* Set the ATimes function for the DEE with A_data = arkode_mem */
-  retval = SUNDomEigEst_SetATimes(DEE, arkode_mem, lsrkStep_DQJtimes);
+  retval = SUNDomEigEstimator_SetATimes(DEE, arkode_mem, lsrkStep_DQJtimes);
   if (retval != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNDomEigEst_SetATimes failed");
+                    "SUNDomEigEstimator_SetATimes failed");
     return ARK_DEE_FAIL;
   }
 
