@@ -68,8 +68,8 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
                                               SUNContext sunctx);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimator_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,
-                                                SUNATimesFn ATimes);
+SUNErrCode SUNDomEigEstimator_SetATimes_Arnoldi(SUNDomEigEstimator DEE,
+                                                void* A_data, SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator DEE,
@@ -80,14 +80,16 @@ SUNErrCode SUNDomEigEstimator_Initialize_Arnoldi(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
-                                               sunrealtype* lambdaR, sunrealtype* lambdaI);
+                                               sunrealtype* lambdaR,
+                                               sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_GetNumATimesCalls_Arnoldi(SUNDomEigEstimator DEE,
                                                         long int* num_ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimator_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile);
+SUNErrCode SUNDomEigEstimator_Write_Arnoldi(SUNDomEigEstimator DEE,
+                                            FILE* outfile);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr);

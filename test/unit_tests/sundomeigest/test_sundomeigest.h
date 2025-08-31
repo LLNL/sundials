@@ -30,8 +30,8 @@ extern "C" {
 /* Test function declarations */
 int Test_SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* ATdata,
                                       SUNATimesFn ATimes, int myid);
-int Test_SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters,
-                                        int myid);
+int Test_SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE,
+                                        long int max_iters, int myid);
 int Test_SUNDomEigEstimator_SetNumPreprocessIters(SUNDomEigEstimator DEE,
                                                   int num_warmups, int myid);
 int Test_SUNDomEigEstimator_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol,
@@ -41,8 +41,8 @@ int Test_SUNDomEigEstimator_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambda
                                      sunrealtype* lambdaI, int myid);
 int Test_SUNDomEigEstimator_GetRes(SUNDomEigEstimator DEE, sunrealtype* cur_res,
                                    int myid);
-int Test_SUNDomEigEstimator_GetNumIters(SUNDomEigEstimator DEE, long int* curniter,
-                                        int myid);
+int Test_SUNDomEigEstimator_GetNumIters(SUNDomEigEstimator DEE,
+                                        long int* curniter, int myid);
 int Test_SUNDomEigEstimator_GetNumATimesCalls(SUNDomEigEstimator DEE,
                                               long int* num_ATimes, int myid);
 int Test_SUNDomEigEstimator_Write(SUNDomEigEstimator DEE, int myid);

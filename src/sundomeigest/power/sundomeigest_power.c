@@ -53,7 +53,8 @@
  */
 
 SUNDomEigEstimator SUNDomEigEstimator_Power(N_Vector q, long int max_iters,
-                                            sunrealtype rel_tol, SUNContext sunctx)
+                                            sunrealtype rel_tol,
+                                            SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -84,17 +85,17 @@ SUNDomEigEstimator SUNDomEigEstimator_Power(N_Vector q, long int max_iters,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->setatimes             = SUNDomEigEstimator_SetATimes_Power;
-  DEE->ops->setmaxiters           = SUNDomEigEstimator_SetMaxIters_Power;
-  DEE->ops->setreltol             = SUNDomEigEstimator_SetRelTol_Power;
+  DEE->ops->setatimes   = SUNDomEigEstimator_SetATimes_Power;
+  DEE->ops->setmaxiters = SUNDomEigEstimator_SetMaxIters_Power;
+  DEE->ops->setreltol   = SUNDomEigEstimator_SetRelTol_Power;
   DEE->ops->setnumpreprocessiters = SUNDomEigEstimator_SetNumPreprocessIters_Power;
-  DEE->ops->initialize            = SUNDomEigEstimator_Initialize_Power;
-  DEE->ops->estimate              = SUNDomEigEstimator_Estimate_Power;
-  DEE->ops->getres                = SUNDomEigEstimator_GetRes_Power;
-  DEE->ops->getnumiters           = SUNDomEigEstimator_GetNumIters_Power;
-  DEE->ops->getnumatimescalls     = SUNDomEigEstimator_GetNumATimesCalls_Power;
-  DEE->ops->write                 = SUNDomEigEstimator_Write_Power;
-  DEE->ops->destroy               = SUNDomEigEstimator_Destroy_Power;
+  DEE->ops->initialize        = SUNDomEigEstimator_Initialize_Power;
+  DEE->ops->estimate          = SUNDomEigEstimator_Estimate_Power;
+  DEE->ops->getres            = SUNDomEigEstimator_GetRes_Power;
+  DEE->ops->getnumiters       = SUNDomEigEstimator_GetNumIters_Power;
+  DEE->ops->getnumatimescalls = SUNDomEigEstimator_GetNumATimesCalls_Power;
+  DEE->ops->write             = SUNDomEigEstimator_Write_Power;
+  DEE->ops->destroy           = SUNDomEigEstimator_Destroy_Power;
 
   /* Create content */
   content = NULL;
@@ -135,8 +136,8 @@ SUNDomEigEstimator SUNDomEigEstimator_Power(N_Vector q, long int max_iters,
  * -----------------------------------------------------------------
  */
 
-SUNErrCode SUNDomEigEstimator_SetATimes_Power(SUNDomEigEstimator DEE, void* A_data,
-                                              SUNATimesFn ATimes)
+SUNErrCode SUNDomEigEstimator_SetATimes_Power(SUNDomEigEstimator DEE,
+                                              void* A_data, SUNATimesFn ATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -236,7 +237,8 @@ SUNErrCode SUNDomEigEstimator_SetMaxIters_Power(SUNDomEigEstimator DEE,
 }
 
 SUNErrCode SUNDomEigEstimator_Estimate_Power(SUNDomEigEstimator DEE,
-                                             sunrealtype* lambdaR, sunrealtype* lambdaI)
+                                             sunrealtype* lambdaR,
+                                             sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -305,7 +307,8 @@ SUNErrCode SUNDomEigEstimator_Estimate_Power(SUNDomEigEstimator DEE,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstimator_GetRes_Power(SUNDomEigEstimator DEE, sunrealtype* res)
+SUNErrCode SUNDomEigEstimator_GetRes_Power(SUNDomEigEstimator DEE,
+                                           sunrealtype* res)
 {
   SUNFunctionBegin(DEE->sunctx);
 

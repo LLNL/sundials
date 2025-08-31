@@ -291,7 +291,8 @@ int main(int argc, char* argv[])
   if (udata->dee_id == 0)
   {
     /* Create power iteration dominant eigenvalue estimator */
-    DEE = SUNDomEigEstimator_Power(q, udata->dee_max_iters, udata->dee_reltol, ctx);
+    DEE = SUNDomEigEstimator_Power(q, udata->dee_max_iters, udata->dee_reltol,
+                                   ctx);
     if (check_flag(DEE, "SUNDomEigEstimator_Power", 0)) { return 1; }
   }
   else if (udata->dee_id == 1)
@@ -444,10 +445,10 @@ int main(int argc, char* argv[])
   // Clean up and return
   // --------------------
 
-  ARKodeFree(&arkode_mem);    // Free integrator memory
-  N_VDestroy(u);              // Free vectors
+  ARKodeFree(&arkode_mem);          // Free integrator memory
+  N_VDestroy(u);                    // Free vectors
   SUNDomEigEstimator_Destroy(&DEE); /* Free DEE object */
-  FreeUserData(udata);        // Free user data
+  FreeUserData(udata);              // Free user data
   delete udata;
   SUNContext_Free(&ctx); // Free context
 

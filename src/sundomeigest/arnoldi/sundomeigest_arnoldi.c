@@ -68,7 +68,8 @@ int sundomeigest_Compare(const void* a, const void* b);
  * Function to create a new Arnoldi estimator
  */
 
-SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx)
+SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
+                                              SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
   SUNDomEigEstimator DEE;
@@ -96,13 +97,14 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim, SUNContex
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->setatimes             = SUNDomEigEstimator_SetATimes_Arnoldi;
-  DEE->ops->setnumpreprocessiters = SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi;
-  DEE->ops->initialize            = SUNDomEigEstimator_Initialize_Arnoldi;
-  DEE->ops->estimate              = SUNDomEigEstimator_Estimate_Arnoldi;
-  DEE->ops->getnumatimescalls     = SUNDomEigEstimator_GetNumATimesCalls_Arnoldi;
-  DEE->ops->write                 = SUNDomEigEstimator_Write_Arnoldi;
-  DEE->ops->destroy               = SUNDomEigEstimator_Destroy_Arnoldi;
+  DEE->ops->setatimes = SUNDomEigEstimator_SetATimes_Arnoldi;
+  DEE->ops->setnumpreprocessiters =
+    SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi;
+  DEE->ops->initialize        = SUNDomEigEstimator_Initialize_Arnoldi;
+  DEE->ops->estimate          = SUNDomEigEstimator_Estimate_Arnoldi;
+  DEE->ops->getnumatimescalls = SUNDomEigEstimator_GetNumATimesCalls_Arnoldi;
+  DEE->ops->write             = SUNDomEigEstimator_Write_Arnoldi;
+  DEE->ops->destroy           = SUNDomEigEstimator_Destroy_Arnoldi;
 
   /* Create content */
   content = NULL;
@@ -147,8 +149,8 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim, SUNContex
  * -----------------------------------------------------------------
  */
 
-SUNErrCode SUNDomEigEstimator_SetATimes_Arnoldi(SUNDomEigEstimator DEE, void* A_data,
-                                                SUNATimesFn ATimes)
+SUNErrCode SUNDomEigEstimator_SetATimes_Arnoldi(SUNDomEigEstimator DEE,
+                                                void* A_data, SUNATimesFn ATimes)
 {
   SUNFunctionBegin(DEE->sunctx);
 
@@ -277,7 +279,8 @@ SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator D
 }
 
 SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
-                                               sunrealtype* lambdaR, sunrealtype* lambdaI)
+                                               sunrealtype* lambdaR,
+                                               sunrealtype* lambdaI)
 {
   SUNFunctionBegin(DEE->sunctx);
 

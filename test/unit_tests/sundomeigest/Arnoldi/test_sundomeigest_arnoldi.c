@@ -161,7 +161,8 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEstimator_GetNumIters(DEE, &curniter, 0);
   if (curniter != 0)
   {
-    printf("    >>> FAILED test -- SUNDomEigEstimator_GetNumIters return value\n");
+    printf(
+      "    >>> FAILED test -- SUNDomEigEstimator_GetNumIters return value\n");
     fails++;
   }
   fails += Test_SUNDomEigEstimator_GetNumATimesCalls(DEE, &num_ATimes, 0);
@@ -176,8 +177,9 @@ int main(int argc, char* argv[])
   }
   else
   {
-    printf("SUCCESS: SUNDomEigEstimator_Arnoldi module passed all initialization "
-           "tests\n\n");
+    printf(
+      "SUCCESS: SUNDomEigEstimator_Arnoldi module passed all initialization "
+      "tests\n\n");
   }
 
   /* First check if the computed eigenvalue has a nonzero magnitute */

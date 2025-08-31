@@ -80,7 +80,8 @@ SUNErrCode SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* A_data,
                                         SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters);
+SUNErrCode SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE,
+                                          long int max_iters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters(SUNDomEigEstimator DEE,
@@ -93,14 +94,16 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_Initialize(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimator_Estimate(SUNDomEigEstimator DEE, sunrealtype* lambdaR,
+SUNErrCode SUNDomEigEstimator_Estimate(SUNDomEigEstimator DEE,
+                                       sunrealtype* lambdaR,
                                        sunrealtype* lambdaI);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_GetRes(SUNDomEigEstimator DEE, sunrealtype* res);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimator_GetNumIters(SUNDomEigEstimator DEE, long int* num_iters);
+SUNErrCode SUNDomEigEstimator_GetNumIters(SUNDomEigEstimator DEE,
+                                          long int* num_iters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_GetNumATimesCalls(SUNDomEigEstimator DEE,
