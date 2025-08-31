@@ -59,10 +59,15 @@ SUNDomEigEstimator SUNDomEigEst_Power(N_Vector q, long int max_iters,
   SUNDomEigEstimator DEE;
   SUNDomEigEstimatorContent_Power content;
 
-  /* check for legal q; if illegal return NULL */
-  SUNAssertNull(!((q->ops->nvclone == NULL) || (q->ops->nvdestroy == NULL) ||
-                  (q->ops->nvdotprod == NULL) || (q->ops->nvscale == NULL)),
-                SUN_ERR_ARG_INCOMPATIBLE);
+  /* Input vector must be non-NULL */
+  SUNAssertNull(q, SUN_ERR_ARG_CORRUPT);
+  SUNAssertNull(q->ops, SUN_ERR_ARG_CORRUPT);
+
+  /* Check for required vector operations */
+  SUNAssertNull(q->ops->nvclone, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssertNull(q->ops->nvdestroy, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssertNull(q->ops->nvdotprod, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssertNull(q->ops->nvscale, SUN_ERR_ARG_INCOMPATIBLE);
 
   /* Check if q != 0 vector */
   SUNAssertNull(N_VDotProd(q, q) > SUN_SMALL_REAL, SUN_ERR_ARG_INCOMPATIBLE);
