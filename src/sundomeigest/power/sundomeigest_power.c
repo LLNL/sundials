@@ -255,12 +255,14 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
   int retval;
   sunrealtype normq;
   PI_CONTENT(DEE)->num_ATimes = 0;
+  PI_CONTENT(DEE)->num_iters  = 0;
 
   for (int i = 0; i < PI_CONTENT(DEE)->num_warmups; i++)
   {
     retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
                                      PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
     PI_CONTENT(DEE)->num_ATimes++;
+    PI_CONTENT(DEE)->num_iters++;
     if (retval != 0) { return SUN_ERR_USER_FCN_FAIL; }
 
     normq = N_VDotProd(PI_CONTENT(DEE)->q, PI_CONTENT(DEE)->q);
@@ -271,12 +273,12 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
     SUNCheckLastErr();
   }
 
-  int k; // k will be used out of the loop as a counter
-  for (k = 0; k < PI_CONTENT(DEE)->max_iters; k++)
+  for (int k = 0; k < PI_CONTENT(DEE)->max_iters; k++)
   {
     retval = PI_CONTENT(DEE)->ATimes(PI_CONTENT(DEE)->ATdata,
                                      PI_CONTENT(DEE)->V, PI_CONTENT(DEE)->q);
     PI_CONTENT(DEE)->num_ATimes++;
+    PI_CONTENT(DEE)->num_iters++;
     if (retval != 0) { return SUN_ERR_USER_FCN_FAIL; }
 
     newlambdaR = N_VDotProd(PI_CONTENT(DEE)->V,
@@ -299,9 +301,6 @@ SUNErrCode SUNDomEig_Estimate_Power(SUNDomEigEstimator DEE,
 
   *lambdaI = ZERO;
   *lambdaR = newlambdaR;
-
-  /* Set the current number of iterations */
-  PI_CONTENT(DEE)->num_iters = k + PI_CONTENT(DEE)->num_warmups + 1;
 
   return SUN_SUCCESS;
 }
