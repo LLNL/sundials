@@ -426,8 +426,6 @@ SUNErrCode SUNDomEigEst_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfile)
 
 SUNErrCode SUNDomEigEst_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr)
 {
-  SUNFunctionBegin((*DEEptr)->sunctx);
-
   if ((*DEEptr) == NULL) { return SUN_SUCCESS; }
 
   SUNDomEigEstimator DEE = *DEEptr;
@@ -473,6 +471,7 @@ SUNErrCode SUNDomEigEst_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr)
       for (int k = 0; k < Arnoldi_CONTENT(DEE)->kry_dim; k++)
       {
         free(Arnoldi_CONTENT(DEE)->LAPACK_arr[k]);
+        Arnoldi_CONTENT(DEE)->LAPACK_arr[k] = NULL;
       }
       free(Arnoldi_CONTENT(DEE)->LAPACK_arr);
       Arnoldi_CONTENT(DEE)->LAPACK_arr = NULL;
@@ -483,6 +482,7 @@ SUNErrCode SUNDomEigEst_Destroy_Arnoldi(SUNDomEigEstimator* DEEptr)
       for (int k = 0; k <= Arnoldi_CONTENT(DEE)->kry_dim; k++)
       {
         free(Arnoldi_CONTENT(DEE)->Hes[k]);
+        Arnoldi_CONTENT(DEE)->Hes[k] = NULL;
       }
       free(Arnoldi_CONTENT(DEE)->Hes);
       Arnoldi_CONTENT(DEE)->Hes = NULL;
