@@ -433,9 +433,10 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
   *lambdaI = Arnoldi_CONTENT(DEE)->LAPACK_wi[0];
 
   /* */
-  if(Arnoldi_CONTENT(DEE)->refine_guess)
+  if (Arnoldi_CONTENT(DEE)->refine_guess)
   {
-    N_VScale(ONE, Arnoldi_CONTENT(DEE)->V[Arnoldi_CONTENT(DEE)->kry_dim], Arnoldi_CONTENT(DEE)->V[0]);
+    N_VScale(ONE, Arnoldi_CONTENT(DEE)->V[Arnoldi_CONTENT(DEE)->kry_dim],
+             Arnoldi_CONTENT(DEE)->V[0]);
   }
 
   return SUN_SUCCESS;
