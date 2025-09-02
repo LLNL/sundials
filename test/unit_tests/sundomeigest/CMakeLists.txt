@@ -19,12 +19,6 @@ if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)
   set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} caliper)
 endif()
 
-set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestpower)
-
-if(ENABLE_LAPACK)
-  set(EXE_EXTRA_LINK_LIBS ${EXE_EXTRA_LINK_LIBS} sundials_sundomeigestarnoldi)
-endif()
-
 # Build the sundials_sundomeigest test utilities
 add_library(test_sundomeigest_obj OBJECT test_sundomeigest.c
                                          test_sundomeigest.h)
