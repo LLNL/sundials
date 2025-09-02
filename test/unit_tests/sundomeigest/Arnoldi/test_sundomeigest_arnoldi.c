@@ -53,13 +53,12 @@ int main(int argc, char* argv[])
   int passfail           = 0;     /* overall pass/fail flag     */
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
   UserData ProbData;              /* problem data structure     */
-  int num_warmups;                /* number of the preprocessing warmups */
-  long int max_iters;             /* max power iteration        */
+  int num_warmups;                /* number of preprocessing iters */
   int kry_dim;                    /* Krylov subspace dimension  */
-  long int curniter;              /* cur. number of iterations  */
+  long int num_iters;             /* number of iterations       */
   long int num_ATimes;            /* number of ATimes calls     */
   int print_timing;               /* timing output flag         */
-  sunrealtype cur_res;            /* current residual           */
+  sunrealtype res;                /* residual                   */
   sunrealtype lambdaR, lambdaI;   /* computed domeig parts      */
   sunrealtype tlambdaR, tlambdaI; /* true domeig parts          */
   SUNContext sunctx;
@@ -78,8 +77,8 @@ int main(int argc, char* argv[])
   {
     printf("ERROR: FOUR (4) Inputs required:\n");
     printf("  Problem size should be >= 2\n");
-    printf("  Krylov subspace dimension should be >0\n");
-    printf("  Number of preprocessing should be >= 0\n");
+    printf("  Krylov subspace dimension should be > 0\n");
+    printf("  Number of preprocessing iters should be >= 0\n");
     printf("  Include timers for calculation (0=off, 1=on)\n");
     return 1;
   }
@@ -98,7 +97,7 @@ int main(int argc, char* argv[])
   num_warmups = atoi(argv[3]);
   if (num_warmups < 0)
   {
-    printf("ERROR: Number of preprocessing must be a nonnegative integer\n");
+    printf("ERROR: Number of preprocessing iters must be a nonnegative integer\n");
     return 1;
   }
   print_timing = atoi(argv[4]);
@@ -107,7 +106,7 @@ int main(int argc, char* argv[])
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
   printf("  Krylov subspace dimension = %i\n", kry_dim);
-  printf("  Number of preprocessing = %i\n", num_warmups);
+  printf("  Number of preprocessing iters = %i\n", num_warmups);
   printf("  Timing output flag = %i\n\n", print_timing);
 
   /* Create vectors */
@@ -144,22 +143,21 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEstimator_SetATimes(DEE, &ProbData, ATimes, 0);
   // SUNDomEigEstimator_SetMaxIters is not an option for Arnoldi iteration.
   // It should return with SUN_SUCCESS
-  max_iters = kry_dim;
-  fails += Test_SUNDomEigEstimator_SetMaxIters(DEE, max_iters, 0);
+  fails += Test_SUNDomEigEstimator_SetMaxIters(DEE, kry_dim, 0);
   fails += Test_SUNDomEigEstimator_SetNumPreprocessIters(DEE, num_warmups, 0);
   fails += Test_SUNDomEigEstimator_SetRelTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEstimator_Initialize(DEE, 0);
   fails += Test_SUNDomEigEstimator_Estimate(DEE, &lambdaR, &lambdaI, 0);
   // SUNDomEigEstimator_GetRes and SUNDomEigEstimator_GetNumIters are not options
   // for Arnoldi iteration. They should return with 0.
-  fails += Test_SUNDomEigEstimator_GetRes(DEE, &cur_res, 0);
-  if (cur_res > SUN_SMALL_REAL)
+  fails += Test_SUNDomEigEstimator_GetRes(DEE, &res, 0);
+  if (res > SUN_SMALL_REAL)
   {
     printf("    >>> FAILED test -- SUNDomEigEstimator_GetRes return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEstimator_GetNumIters(DEE, &curniter, 0);
-  if (curniter != 0)
+  fails += Test_SUNDomEigEstimator_GetNumIters(DEE, &num_iters, 0);
+  if (num_iters != 0)
   {
     printf(
       "    >>> FAILED test -- SUNDomEigEstimator_GetNumIters return value\n");

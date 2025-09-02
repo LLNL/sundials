@@ -51,12 +51,12 @@ int main(int argc, char* argv[])
   int passfail           = 0;     /* overall pass/fail flag     */
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
   UserData ProbData;              /* problem data structure     */
-  int num_warmups;                /* number of the preprocessing warmups */
+  int num_warmups;                /* number of preprocessing iters */
   long int max_iters;             /* max power iteration        */
-  long int curniter;              /* cur. number of iterations  */
+  long int num_iters;             /* cur. number of iterations  */
   long int num_ATimes;            /* number of ATimes calls     */
   int print_timing;               /* timing output flag         */
-  sunrealtype cur_res;            /* current residual           */
+  sunrealtype res;                /* current residual           */
   sunrealtype lambdaR, lambdaI;   /* computed domeig parts      */
   sunrealtype tlambdaR, tlambdaI; /* true domeig parts          */
   SUNContext sunctx;
@@ -75,8 +75,8 @@ int main(int argc, char* argv[])
   {
     printf("ERROR: FOUR (4) Inputs required:\n");
     printf("  Problem size should be >= 2\n");
-    printf("  Maximum number of power iterations should be >0\n");
-    printf("  Number of preprocessing should be >= 0\n");
+    printf("  Maximum number of power iterations should be > 0\n");
+    printf("  Number of preprocessing iters should be >= 0\n");
     printf("  Include timers for calculation (0=off, 1=on)\n");
     return 1;
   }
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
   printf("  Number of power iterations = %ld\n", (long int)max_iters);
-  printf("  Number of preprocessing = %i\n", num_warmups);
+  printf("  Number of preprocessing iters = %i\n", num_warmups);
   printf("  Timing output flag = %i\n\n", print_timing);
 
   /* Create vectors */
@@ -146,14 +146,14 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEstimator_SetRelTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEstimator_Initialize(DEE, 0);
   fails += Test_SUNDomEigEstimator_Estimate(DEE, &lambdaR, &lambdaI, 0);
-  fails += Test_SUNDomEigEstimator_GetRes(DEE, &cur_res, 0);
-  if (cur_res < SUN_SMALL_REAL)
+  fails += Test_SUNDomEigEstimator_GetRes(DEE, &res, 0);
+  if (res < SUN_SMALL_REAL)
   {
     printf("    >>> FAILED test -- SUNDomEigEstimator_GetRes return value\n");
     fails++;
   }
-  fails += Test_SUNDomEigEstimator_GetNumIters(DEE, &curniter, 0);
-  if (curniter <= 0)
+  fails += Test_SUNDomEigEstimator_GetNumIters(DEE, &num_iters, 0);
+  if (num_iters <= 0)
   {
     printf(
       "    >>> FAILED test -- SUNDomEigEstimator_GetNumIters return value\n");
