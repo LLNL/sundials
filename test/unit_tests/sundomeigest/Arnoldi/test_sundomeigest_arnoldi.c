@@ -147,10 +147,11 @@ int main(int argc, char* argv[])
   fails += Test_SUNDomEigEstimator_SetMaxIters(DEE, kry_dim, 0);
   fails += Test_SUNDomEigEstimator_SetNumPreprocessIters(DEE, num_warmups, 0);
   fails += Test_SUNDomEigEstimator_SetRelTol(DEE, rel_tol, 0);
+  fails += Test_SUNDomEigEstimator_SetInitialGuess(DEE, q, 0);
   fails += Test_SUNDomEigEstimator_Initialize(DEE, 0);
   fails += Test_SUNDomEigEstimator_Estimate(DEE, &lambdaR, &lambdaI, 0);
-  // SUNDomEigEstimator_GetRes and SUNDomEigEstimator_GetNumIters are not options
-  // for Arnoldi iteration. They should return with 0.
+  // SUNDomEigEstimator_GetRes is not an option
+  // for Arnoldi iteration. It should return with 0.
   fails += Test_SUNDomEigEstimator_GetRes(DEE, &res, 0);
   if (res > SUN_SMALL_REAL)
   {
@@ -158,7 +159,7 @@ int main(int argc, char* argv[])
     fails++;
   }
   fails += Test_SUNDomEigEstimator_GetNumIters(DEE, &num_iters, 0);
-  if (num_iters != 0)
+  if (num_iters <= 0)
   {
     printf(
       "    >>> FAILED test -- SUNDomEigEstimator_GetNumIters return value\n");

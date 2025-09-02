@@ -671,6 +671,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: setmaxiters
   type(C_FUNPTR), public :: setnumpreprocessiters
   type(C_FUNPTR), public :: setreltol
+  type(C_FUNPTR), public :: setinitialguess
   type(C_FUNPTR), public :: initialize
   type(C_FUNPTR), public :: estimate
   type(C_FUNPTR), public :: getres
@@ -691,6 +692,7 @@ module fsundials_core_mod
  public :: FSUNDomEigEstimator_SetMaxIters
  public :: FSUNDomEigEstimator_SetNumPreprocessIters
  public :: FSUNDomEigEstimator_SetRelTol
+ public :: FSUNDomEigEstimator_SetInitialGuess
  public :: FSUNDomEigEstimator_Initialize
  public :: FSUNDomEigEstimator_Estimate
  public :: FSUNDomEigEstimator_GetRes
@@ -2918,6 +2920,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_SetInitialGuess(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEstimator_SetInitialGuess") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -7086,6 +7097,22 @@ real(C_DOUBLE) :: farg2
 farg1 = c_loc(dee)
 farg2 = tol
 fresult = swigc_FSUNDomEigEstimator_SetRelTol(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_SetInitialGuess(dee, q) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+type(N_Vector), target, intent(inout) :: q
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(dee)
+farg2 = c_loc(q)
+fresult = swigc_FSUNDomEigEstimator_SetInitialGuess(farg1, farg2)
 swig_result = fresult
 end function
 

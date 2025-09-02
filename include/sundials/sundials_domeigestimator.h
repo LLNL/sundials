@@ -46,6 +46,7 @@ struct SUNDomEigEstimator_Ops_
   SUNErrCode (*setmaxiters)(SUNDomEigEstimator, long int);
   SUNErrCode (*setnumpreprocessiters)(SUNDomEigEstimator, int);
   SUNErrCode (*setreltol)(SUNDomEigEstimator, sunrealtype);
+  SUNErrCode (*setinitialguess)(SUNDomEigEstimator, N_Vector);
   SUNErrCode (*initialize)(SUNDomEigEstimator);
   SUNErrCode (*estimate)(SUNDomEigEstimator, sunrealtype*, sunrealtype*);
   SUNErrCode (*getres)(SUNDomEigEstimator, sunrealtype*);
@@ -89,6 +90,9 @@ SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters(SUNDomEigEstimator DEE,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstimator_SetInitialGuess(SUNDomEigEstimator DEE, N_Vector q);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_Initialize(SUNDomEigEstimator DEE);

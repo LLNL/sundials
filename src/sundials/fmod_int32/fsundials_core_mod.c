@@ -3808,6 +3808,20 @@ SWIGEXPORT int _wrap_FSUNDomEigEstimator_SetRelTol(SUNDomEigEstimator farg1, dou
 }
 
 
+SWIGEXPORT int _wrap_FSUNDomEigEstimator_SetInitialGuess(SUNDomEigEstimator farg1, N_Vector farg2) {
+  int fresult ;
+  SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNDomEigEstimator)(farg1);
+  arg2 = (N_Vector)(farg2);
+  result = (SUNErrCode)SUNDomEigEstimator_SetInitialGuess(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNDomEigEstimator_Initialize(SUNDomEigEstimator farg1) {
   int fresult ;
   SUNDomEigEstimator arg1 = (SUNDomEigEstimator) 0 ;

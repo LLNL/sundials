@@ -85,17 +85,18 @@ SUNDomEigEstimator SUNDomEigEstimator_Power(N_Vector q, long int max_iters,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->setatimes   = SUNDomEigEstimator_SetATimes_Power;
-  DEE->ops->setmaxiters = SUNDomEigEstimator_SetMaxIters_Power;
-  DEE->ops->setreltol   = SUNDomEigEstimator_SetRelTol_Power;
+  DEE->ops->setatimes             = SUNDomEigEstimator_SetATimes_Power;
+  DEE->ops->setmaxiters           = SUNDomEigEstimator_SetMaxIters_Power;
   DEE->ops->setnumpreprocessiters = SUNDomEigEstimator_SetNumPreprocessIters_Power;
-  DEE->ops->initialize        = SUNDomEigEstimator_Initialize_Power;
-  DEE->ops->estimate          = SUNDomEigEstimator_Estimate_Power;
-  DEE->ops->getres            = SUNDomEigEstimator_GetRes_Power;
-  DEE->ops->getnumiters       = SUNDomEigEstimator_GetNumIters_Power;
-  DEE->ops->getnumatimescalls = SUNDomEigEstimator_GetNumATimesCalls_Power;
-  DEE->ops->write             = SUNDomEigEstimator_Write_Power;
-  DEE->ops->destroy           = SUNDomEigEstimator_Destroy_Power;
+  DEE->ops->setreltol             = SUNDomEigEstimator_SetRelTol_Power;
+  DEE->ops->setinitialguess       = SUNDomEigEstimator_SetInitialGuess_Power;
+  DEE->ops->initialize            = SUNDomEigEstimator_Initialize_Power;
+  DEE->ops->estimate              = SUNDomEigEstimator_Estimate_Power;
+  DEE->ops->getres                = SUNDomEigEstimator_GetRes_Power;
+  DEE->ops->getnumiters           = SUNDomEigEstimator_GetNumIters_Power;
+  DEE->ops->getnumatimescalls     = SUNDomEigEstimator_GetNumATimesCalls_Power;
+  DEE->ops->write                 = SUNDomEigEstimator_Write_Power;
+  DEE->ops->destroy               = SUNDomEigEstimator_Destroy_Power;
 
   /* Create content */
   content = NULL;
@@ -233,6 +234,27 @@ SUNErrCode SUNDomEigEstimator_SetMaxIters_Power(SUNDomEigEstimator DEE,
 
   /* Set max iters */
   PI_CONTENT(DEE)->max_iters = max_iters;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNDomEigEstimator_SetInitialGuess_Power(SUNDomEigEstimator DEE,
+                                                    N_Vector q)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(q, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(PI_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
+
+  sunrealtype normq = N_VDotProd(q, q);
+  SUNCheckLastErr();
+
+  normq = SUNRsqrt(normq);
+
+  /* set the initial guess */
+  N_VScale(ONE / normq, q, PI_CONTENT(DEE)->V);
+  SUNCheckLastErr();
+
   return SUN_SUCCESS;
 }
 

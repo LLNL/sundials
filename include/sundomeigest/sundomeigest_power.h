@@ -78,6 +78,10 @@ SUNErrCode SUNDomEigEstimator_SetRelTol_Power(SUNDomEigEstimator DEE,
                                               sunrealtype tol);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstimator_SetInitialGuess_Power(SUNDomEigEstimator DEE,
+                                                    N_Vector q);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_Initialize_Power(SUNDomEigEstimator DEE);
 
 SUNDIALS_EXPORT

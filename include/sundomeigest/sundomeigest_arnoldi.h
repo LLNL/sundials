@@ -42,10 +42,13 @@ struct SUNDomEigEstimatorContent_Arnoldi_
   N_Vector* V;
   N_Vector q;
 
-  int kry_dim;     /* Krylov subspace dimension */
-  int num_warmups; /* Number of preprocessing iterations */
+  int kry_dim;        /* Krylov subspace dimension */
+  int num_warmups;    /* Number of preprocessing iterations */
+  long int num_iters; /* Number of iterations in last Estimate call */
 
   long int num_ATimes; /* Number of ATimes calls */
+
+  sunbooleantype refine_guess; /* Flag to turn on/off refined guess in the next Arnoldi Estimate*/
 
   sunrealtype* LAPACK_A; /* The vector which holds rows of the Hessenberg matrix in the given order */
   sunrealtype* LAPACK_wr;    /* Real parts of eigenvalues */
@@ -74,6 +77,13 @@ SUNErrCode SUNDomEigEstimator_SetATimes_Arnoldi(SUNDomEigEstimator DEE,
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator DEE,
                                                             int num_iters);
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstimator_SetRefineGuess_Arnoldi(SUNDomEigEstimator DEE,
+                                                     sunbooleantype boolflag);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstimator_SetInitialGuess_Arnoldi(SUNDomEigEstimator DEE,
+                                                      N_Vector q);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_Initialize_Arnoldi(SUNDomEigEstimator DEE);
@@ -82,6 +92,10 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
                                                sunrealtype* lambdaR,
                                                sunrealtype* lambdaI);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstimator_GetNumIters_Arnoldi(SUNDomEigEstimator DEE,
+                                                  long int* num_iters);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_GetNumATimesCalls_Arnoldi(SUNDomEigEstimator DEE,

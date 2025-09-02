@@ -221,6 +221,24 @@ instead of supplying a dummy routine.
       A :c:type:`SUNErrCode`.
 
 
+.. c:function:: SUNErrCode SUNDomEigEstimator_SetInitialGuess(SUNDomEigEstimator DEE, N_Vector q)
+
+   This *optional* routine sets the initial vector guess to start with.
+
+   **Arguments:**
+
+      * *DEE* -- a SUNDomEigEstimator object.
+      * *q* -- the initial guess vector.
+
+   **Return value:**
+
+      A :c:type:`SUNErrCode`.
+
+   .. note::
+
+      The vector ``q`` does not need to be normalized before this set routine. 
+
+
 .. _SUNDomEigEst.GetFn:
 
 SUNDomEigEstimator "get" functions
@@ -373,6 +391,10 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEstimator_SetRelTol`
 
+   .. c:member:: SUNErrCode (*setinitialguess)(SUNDomEigEstimator, NVector)
+
+      The function implementing :c:func:`SUNDomEigEstimator_SetInitialGuess`
+
    .. c:member:: SUNErrCode (*initialize)(SUNDomEigEstimator)
 
       The function implementing :c:func:`SUNDomEigEstimator_Initialize`
@@ -464,19 +486,21 @@ implementation detail for the interested reader.
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstimator_SetRelTol`\ :sup:`1`   |          O          |         N/A         |
    +----------------------------------------------------+---------------------+---------------------+
+   | :c:func:`SUNDomEigEstimator_SetInitialGuess`       |          O          |          0          |
+   +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstimator_Initialize`            |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstimator_Estimate`              |          X          |          X          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstimator_GetRes`\ :sup:`2`      |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstimator_GetNumIters`\ :sup:`3` |          O          |         N/A         |
+   | :c:func:`SUNDomEigEstimator_GetNumIters`           |          O          |          0          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstimator_GetNumATimesCalls`     |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
    | :c:func:`SUNDomEigEstimator_Write`                 |          O          |          O          |
    +----------------------------------------------------+---------------------+---------------------+
-   | :c:func:`SUNDomEigEstimator_Destroy`\ :sup:`4`     |                     |                     |
+   | :c:func:`SUNDomEigEstimator_Destroy`\ :sup:`3`     |                     |                     |
    +----------------------------------------------------+---------------------+---------------------+
 
 Notes:
@@ -491,10 +515,6 @@ Notes:
    implemented by the ``SUNDomEigEstimator`` then the interface will consider
    all estimates a being *exact*.
 
-3. :c:func:`SUNDomEigEstimator_GetNumIters` is optional, if it is not
-   implemented by the ``SUNDomEigEstimator`` then the interface will consider
-   all estimates as requiring zero iterations.
-
-4. Although the interface does not call :c:func:`SUNDomEigEstimator_Destroy`
+3. Although the interface does not call :c:func:`SUNDomEigEstimator_Destroy`
    directly, this routine should be available for users to call when cleaning up
    from a simulation.

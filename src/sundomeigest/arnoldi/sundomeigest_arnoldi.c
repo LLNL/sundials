@@ -100,8 +100,10 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
   DEE->ops->setatimes = SUNDomEigEstimator_SetATimes_Arnoldi;
   DEE->ops->setnumpreprocessiters =
     SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi;
+  DEE->ops->setinitialguess   = SUNDomEigEstimator_SetInitialGuess_Arnoldi;
   DEE->ops->initialize        = SUNDomEigEstimator_Initialize_Arnoldi;
   DEE->ops->estimate          = SUNDomEigEstimator_Estimate_Arnoldi;
+  DEE->ops->getnumiters       = SUNDomEigEstimator_GetNumIters_Arnoldi;
   DEE->ops->getnumatimescalls = SUNDomEigEstimator_GetNumATimesCalls_Arnoldi;
   DEE->ops->write             = SUNDomEigEstimator_Write_Arnoldi;
   DEE->ops->destroy           = SUNDomEigEstimator_Destroy_Arnoldi;
@@ -120,8 +122,10 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
   content->V            = NULL;
   content->q            = NULL;
   content->kry_dim      = kry_dim;
-  content->num_ATimes   = 0;
   content->num_warmups  = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT;
+  content->num_iters    = 0;
+  content->num_ATimes   = 0;
+  content->refine_guess = SUNFALSE;
   content->LAPACK_A     = NULL;
   content->LAPACK_wr    = NULL;
   content->LAPACK_wi    = NULL;
@@ -278,6 +282,40 @@ SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator D
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNDomEigEstimator_SetRefineGuess_Arnoldi(SUNDomEigEstimator DEE,
+                                                     sunbooleantype boolflag)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
+
+  /* set the refine_guess flag */
+  Arnoldi_CONTENT(DEE)->refine_guess = boolflag;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNDomEigEstimator_SetInitialGuess_Arnoldi(SUNDomEigEstimator DEE,
+                                                      N_Vector q)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(q, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
+
+  sunrealtype normq = N_VDotProd(q, q);
+  SUNCheckLastErr();
+
+  normq = SUNRsqrt(normq);
+
+  /* set the initial guess */
+  N_VScale(ONE / normq, q, Arnoldi_CONTENT(DEE)->V[0]);
+  SUNCheckLastErr();
+
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
                                                sunrealtype* lambdaR,
                                                sunrealtype* lambdaI)
@@ -297,6 +335,7 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
   sunindextype n = Arnoldi_CONTENT(DEE)->kry_dim;
   sunrealtype normq;
   Arnoldi_CONTENT(DEE)->num_ATimes = 0;
+  Arnoldi_CONTENT(DEE)->num_iters  = 0;
 
   /* Set the initial q = A^{num_warmups}q/||A^{num_warmups}q|| */
   for (int i = 0; i < Arnoldi_CONTENT(DEE)->num_warmups; i++)
@@ -305,6 +344,7 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
                                           Arnoldi_CONTENT(DEE)->V[0],
                                           Arnoldi_CONTENT(DEE)->q);
     Arnoldi_CONTENT(DEE)->num_ATimes++;
+    Arnoldi_CONTENT(DEE)->num_iters++;
     if (retval != 0) { return SUN_ERR_USER_FCN_FAIL; }
 
     normq = N_VDotProd(Arnoldi_CONTENT(DEE)->q, Arnoldi_CONTENT(DEE)->q);
@@ -322,6 +362,7 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
                                           Arnoldi_CONTENT(DEE)->V[i],
                                           Arnoldi_CONTENT(DEE)->V[i + 1]);
     Arnoldi_CONTENT(DEE)->num_ATimes++;
+    Arnoldi_CONTENT(DEE)->num_iters++;
     if (retval != 0) { return SUN_ERR_USER_FCN_FAIL; }
 
     SUNCheckCall(SUNModifiedGS(Arnoldi_CONTENT(DEE)->V,
@@ -391,6 +432,26 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
   *lambdaR = Arnoldi_CONTENT(DEE)->LAPACK_wr[0];
   *lambdaI = Arnoldi_CONTENT(DEE)->LAPACK_wi[0];
 
+  /* */
+  if(Arnoldi_CONTENT(DEE)->refine_guess)
+  {
+    N_VScale(ONE, Arnoldi_CONTENT(DEE)->V[Arnoldi_CONTENT(DEE)->kry_dim], Arnoldi_CONTENT(DEE)->V[0]);
+  }
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNDomEigEstimator_GetNumIters_Arnoldi(SUNDomEigEstimator DEE,
+                                                  long int* num_iters)
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
+  SUNAssert(num_iters, SUN_ERR_ARG_CORRUPT);
+
+  *num_iters = Arnoldi_CONTENT(DEE)->num_iters;
+
   return SUN_SUCCESS;
 }
 
@@ -421,6 +482,8 @@ SUNErrCode SUNDomEigEstimator_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfil
           Arnoldi_CONTENT(DEE)->kry_dim);
   fprintf(outfile, "Num. preprocessing iters = %d\n",
           Arnoldi_CONTENT(DEE)->num_warmups);
+  fprintf(outfile, "Num. iters               = %ld\n",
+          Arnoldi_CONTENT(DEE)->num_iters);
   fprintf(outfile, "Num. ATimes calls        = %ld\n\n",
           Arnoldi_CONTENT(DEE)->num_ATimes);
 

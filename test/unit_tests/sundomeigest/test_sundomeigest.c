@@ -166,6 +166,38 @@ int Test_SUNDomEigEstimator_SetRelTol(SUNDomEigEstimator DEE, sunrealtype tol,
 }
 
 /* ----------------------------------------------------------------------
+ * SUNDomEigEstimator_SetInitialGuess Test
+ * --------------------------------------------------------------------*/
+int Test_SUNDomEigEstimator_SetInitialGuess(SUNDomEigEstimator DEE, N_Vector q,
+                                      int myid)
+{
+  int failure;
+  double start_time, stop_time;
+
+  /* try calling SUNDomEigEstimator_SetInitialGuess routine: should pass/fail based on expected input */
+  start_time = get_time();
+  failure    = SUNDomEigEstimator_SetInitialGuess(DEE, q);
+  stop_time  = get_time();
+
+  if (failure)
+  {
+    printf(">>> FAILED test -- SUNDomEigEstimator_SetInitialGuess check, Proc %d \n",
+           myid);
+    PRINT_TIME("    SUNDomEigEstimator_SetInitialGuess Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else if (myid == 0)
+  {
+    printf("    PASSED test -- SUNDomEigEstimator_SetInitialGuess \n");
+    PRINT_TIME("    SUNDomEigEstimator_SetInitialGuess Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
  * SUNDomEigEstimator_Initialize Test
  * --------------------------------------------------------------------*/
 int Test_SUNDomEigEstimator_Initialize(SUNDomEigEstimator DEE, int myid)
