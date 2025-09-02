@@ -97,7 +97,8 @@ int main(int argc, char* argv[])
   num_warmups = atoi(argv[3]);
   if (num_warmups < 0)
   {
-    printf("ERROR: Number of preprocessing iters must be a nonnegative integer\n");
+    printf(
+      "ERROR: Number of preprocessing iters must be a nonnegative integer\n");
     return 1;
   }
   print_timing = atoi(argv[4]);
