@@ -38,7 +38,7 @@ Thus, in user code, SUNDIALS core API functions can be checked for errors in one
 
   // Every code that uses SUNDIALS must create a SUNContext.
   sunerr = SUNContext_Create(comm, &sunctx)
-  if (sunerr) { /* an error occured, do something */ }
+  if (sunerr) { /* an error occurred, do something */ }
 
   // Create a SUNDIALS serial vector.
   // Some functions do not return an error code.
