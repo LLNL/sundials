@@ -1298,20 +1298,24 @@ respectively, for the corresponding header files and libraries).
 To enable LAPACK support, set :cmakeop:`ENABLE_LAPACK` to ``ON``. CMake will
 attempt to find BLAS and LAPACK installations on the system and set the
 variables :cmakeop:`BLAS_LIBRARIES`, :cmakeop:`BLAS_LINKER_FLAGS`,
-:cmakeop:`LAPACK_LIBRARIES`, and :cmakeop:`LAPACK_LINKER_FLAGS`. To explicitly
-specify the LAPACK library to build with, manually set the aforementioned
-variables to the desired values when configuring the build. For example, the
-following command will configure SUNDIALS with LAPACK support:
+:cmakeop:`LAPACK_LIBRARIES`, and :cmakeop:`LAPACK_LINKER_FLAGS`. 
+You can set the `LAPACK_ROOT` CMake variable to the path of a desired LAPACK installation,
+and/or set the option :cmakeop:`BLA_VENDOR` to tell CMake to only look for LAPACK
+from a specified vendor (see the
+`CMake documentation <https://cmake.org/cmake/help/latest/module/FindLAPACK.html#input-variables>`__). 
+If necessary, to explicitly override the LAPACK library to build with, 
+manually set the aforementioned variables to the desired values when configuring
+the build. For example, this is sometimes needed when using OpenBLAS:
 
 .. code-block:: bash
 
-   cmake \
+  cmake \
      -S SOLVER_DIR \
      -B BUILD_DIR \
      -D CMAKE_INSTALL_PREFIX=INSTALL_DIR \
      -D ENABLE_LAPACK=ON \
-     -D BLAS_LIBRARIES=/path/to/lapack/installation/lib/libblas.so \
-     -D LAPACK_LIBRARIES=/path/to/lapack/installation/lib/liblapack.so
+     -D BLAS_LIBRARIES=/path/to/lapack/installation/lib/libopenblas.so \
+     -D LAPACK_LIBRARIES=/path/to/lapack/installation/lib/libopenblas.so
 
 .. note::
 
@@ -1327,6 +1331,12 @@ following command will configure SUNDIALS with LAPACK support:
    Enable LAPACK support
 
    Default: ``OFF``
+
+.. cmakeoption:: BLA_VENDOR
+
+   Set to one of the BLAS/LAPACK Vendors to search for BLAS only from the specified vendor. If not set, all vendors are considered.
+
+   Default: none
 
 .. cmakeoption:: BLAS_LIBRARIES
 
