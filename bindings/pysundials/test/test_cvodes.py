@@ -27,14 +27,6 @@ def test_bdf():
     status, tret = CVode(solver.get(), tout, nv.get(), tret, CV_NORMAL)
     print(f"status={status}, tret={tret}, ans={arr}")
 
-    nv2 = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
-    arr2 = N_VGetArrayPointer(nv2.get())
-    arr2[:] = 1.0
-
-    # TODO(CJB): figure out why the state does not change -- seems like somehow there is a copy of the vector rather than a reference?
-    status = CVodeGetCurrentState(solver.get(), [nv2.get()])
-    print(arr2)
-
     status, num_steps = CVodeGetNumSteps(solver.get(), 0)
     print(f"num_steps={num_steps}")
 

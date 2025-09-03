@@ -49,6 +49,10 @@ modules:
     - "^CVodeComputeStateSens$"
     - "^CVodeComputeStateSens1$"
     - "^CVodeGetJac$" 
+    - "^CVodeGetCurrentState$"
+    - "^CVodeGetCurrentStateSens$"
+    - "^CVodeGetNonlinearSystemData$"
+    - "^CVodeGetNonlinearSystemDataSens$"
     - "^CVodeResizeHistory$"
     # generator cannot handle setting of function pointers, so we do something custom
     - "CVodeInit.*"
