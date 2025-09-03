@@ -22,8 +22,8 @@
 #include <sundials/sundials_matrix.hpp>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 
-#if (GKO_VERSION_MAJOR < 1) || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR < 8)
-#error "Ginkgo 1.8.0 or later is required."
+#if (GKO_VERSION_MAJOR < 1) || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR < 9)
+#error "Ginkgo 1.9.0 or later is required."
 #endif
 
 namespace sundials {
@@ -43,14 +43,6 @@ namespace impl {
 //
 // Prototypes for non-class methods that operate on Matrix
 //
-
-inline std::unique_ptr<GkoBatchVecType> WrapBatchVector(
-  std::shared_ptr<const gko::Executor> gko_exec, gko::size_type num_blocks,
-  N_Vector x);
-
-inline std::unique_ptr<const GkoBatchVecType> WrapConstBatchVector(
-  std::shared_ptr<const gko::Executor> gko_exec, gko::size_type num_blocks,
-  N_Vector x);
 
 template<class GkoBatchMatType>
 void Matvec(BlockMatrix<GkoBatchMatType>& A, GkoBatchVecType* x,
@@ -231,7 +223,7 @@ private:
 };
 
 //
-// Class method specializations.
+// Class method specializations for specific types of Ginkgo matrices.
 //
 
 template<>

@@ -228,7 +228,15 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Block
 
       Get the number of linear solver iterations in the most recent solve.
 
-   .. cpp:function:: void setScalingVectors(N_Vector s1, N_Vector s2)
+   .. cpp:function:: int StddevNumIters() const
+
+      Get the standard deviation of the number of iterations across the batches during the last solve.
+
+   .. cpp:function:: int SumAvgNumIters() const
+
+      Get the running sum of the average number of iterations in this solvers lifetime.
+
+   .. cpp:function:: void SetScalingVectors(N_Vector s1, N_Vector s2)
 
       Sets the left and right scaling vector to be used.
 

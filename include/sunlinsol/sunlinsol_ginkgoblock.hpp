@@ -14,14 +14,15 @@
 
 #include <cmath>
 
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/priv/sundials_logger_impl.h>
 #include <sundials/sundials_core.hpp>
 
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <sunmatrix/sunmatrix_ginkgoblock.hpp>
 
-#if (GKO_VERSION_MAJOR < 1) || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR < 8)
-#error "Ginkgo 1.8.0 or later is required."
+#if (GKO_VERSION_MAJOR < 1) || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR < 9)
+#error "Ginkgo 1.9.0 or later is required."
 #endif
 
 #ifndef _SUNLINSOL_GINKGOBLOCK_HPP
@@ -46,18 +47,19 @@ inline SUNLinearSolver_ID SUNLinSolGetID_GinkgoBlock(SUNLinearSolver S)
 }
 
 template<class GkoBatchLinearSolverType>
-int SUNLinSolInitialize_GinkgoBlock(SUNLinearSolver S)
+SUNErrCode SUNLinSolInitialize_GinkgoBlock(SUNLinearSolver S)
 {
   return SUN_SUCCESS;
 }
 
 template<class GkoBatchLinearSolverType>
-int SUNLinSolSetScalingVectors_GinkgoBlock(SUNLinearSolver S, N_Vector s1,
-                                           N_Vector s2)
+SUNErrCode SUNLinSolSetScalingVectors_GinkgoBlock(SUNLinearSolver S,
+                                                  N_Vector s1, N_Vector s2)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
-  if (!s1 || !s2) { return SUN_ERR_ARG_INCOMPATIBLE; }
-  solver->setScalingVectors(s1, s2);
+  SUNFunctionBegin(S->sunctx);
+  SUNAssert(s1 || s2, SUN_ERR_ARG_INCOMPATIBLE);
+  solver->SetScalingVectors(s1, s2);
   return SUN_SUCCESS;
 }
 
@@ -65,7 +67,7 @@ template<class GkoBatchLinearSolverType, class GkoBatchMatType>
 int SUNLinSolSetup_GinkgoBlock(SUNLinearSolver S, SUNMatrix A)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
-  return solver->setup(static_cast<BlockMatrix<GkoBatchMatType>*>(A->content));
+  return solver->Setup(static_cast<BlockMatrix<GkoBatchMatType>*>(A->content));
 }
 
 template<class GkoBatchLinearSolverType>
@@ -73,11 +75,11 @@ int SUNLinSolSolve_GinkgoBlock(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, sunrealtype tol)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
-  return solver->solve(b, x, tol);
+  return solver->Solve(b, x, tol);
 }
 
 template<class GkoBatchLinearSolverType>
-int SUNLinSolFree_GinkgoBlock(SUNLinearSolver S)
+SUNErrCode SUNLinSolFree_GinkgoBlock(SUNLinearSolver S)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
   delete solver; // NOLINT(cppcoreguidelines-owning-memory)
@@ -236,7 +238,7 @@ public:
   sunrealtype SumAvgNumIters() const { return sum_of_avg_iters_; }
 
   /// Sets the left and right scaling vectors to be used.
-  void setScalingVectors(N_Vector s1, N_Vector s2)
+  void SetScalingVectors(N_Vector s1, N_Vector s2)
   {
     if (s1 && s2)
     {
@@ -265,7 +267,7 @@ public:
     else { scaling_ = false; }
   }
 
-  int setup(BlockMatrix<GkoBatchMatType>* A)
+  int Setup(BlockMatrix<GkoBatchMatType>* A)
   {
     if (num_blocks_ != A->NumBlocks()) { return SUN_ERR_ARG_OUTOFRANGE; }
 
@@ -286,7 +288,7 @@ public:
     return SUN_SUCCESS;
   }
 
-  int solve(N_Vector b, N_Vector x, sunrealtype tol)
+  int Solve(N_Vector b, N_Vector x, sunrealtype tol)
   {
     SUNLogInfo(sunLogger(), "linear-solver", "solver = ginkgo (batched)");
 
