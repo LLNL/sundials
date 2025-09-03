@@ -208,25 +208,26 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
   v->ops->nvgetlocallength        = w->ops->nvgetlocallength;
 
   /* standard vector operations */
-  v->ops->nvlinearsum    = w->ops->nvlinearsum;
-  v->ops->nvconst        = w->ops->nvconst;
-  v->ops->nvprod         = w->ops->nvprod;
-  v->ops->nvdiv          = w->ops->nvdiv;
-  v->ops->nvscale        = w->ops->nvscale;
-  v->ops->nvabs          = w->ops->nvabs;
-  v->ops->nvinv          = w->ops->nvinv;
-  v->ops->nvaddconst     = w->ops->nvaddconst;
-  v->ops->nvdotprod      = w->ops->nvdotprod;
-  v->ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  v->ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  v->ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  v->ops->nvmin          = w->ops->nvmin;
-  v->ops->nvwl2norm      = w->ops->nvwl2norm;
-  v->ops->nvl1norm       = w->ops->nvl1norm;
-  v->ops->nvcompare      = w->ops->nvcompare;
-  v->ops->nvinvtest      = w->ops->nvinvtest;
-  v->ops->nvconstrmask   = w->ops->nvconstrmask;
-  v->ops->nvminquotient  = w->ops->nvminquotient;
+  v->ops->nvlinearsum      = w->ops->nvlinearsum;
+  v->ops->nvconst          = w->ops->nvconst;
+  v->ops->nvprod           = w->ops->nvprod;
+  v->ops->nvdiv            = w->ops->nvdiv;
+  v->ops->nvscale          = w->ops->nvscale;
+  v->ops->nvabs            = w->ops->nvabs;
+  v->ops->nvinv            = w->ops->nvinv;
+  v->ops->nvaddconst       = w->ops->nvaddconst;
+  v->ops->nvdotprod        = w->ops->nvdotprod;
+  v->ops->nvdotprodcomplex = w->ops->nvdotprodcomplex;
+  v->ops->nvmaxnorm        = w->ops->nvmaxnorm;
+  v->ops->nvwrmsnorm       = w->ops->nvwrmsnorm;
+  v->ops->nvwrmsnormmask   = w->ops->nvwrmsnormmask;
+  v->ops->nvmin            = w->ops->nvmin;
+  v->ops->nvwl2norm        = w->ops->nvwl2norm;
+  v->ops->nvl1norm         = w->ops->nvl1norm;
+  v->ops->nvcompare        = w->ops->nvcompare;
+  v->ops->nvinvtest        = w->ops->nvinvtest;
+  v->ops->nvconstrmask     = w->ops->nvconstrmask;
+  v->ops->nvminquotient    = w->ops->nvminquotient;
 
   /*
    * OPTIONAL operations.

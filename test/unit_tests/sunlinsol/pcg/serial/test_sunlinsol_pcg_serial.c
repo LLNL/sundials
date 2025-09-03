@@ -37,8 +37,14 @@
 #endif
 
 /* constants */
+#define ZERO     SUN_RCONST(0.0)
+#define ONE      SUN_RCONST(1.0)
 #define FIVE     SUN_RCONST(5.0)
 #define THOUSAND SUN_RCONST(1000.0)
+
+#define SOMECOMPLEXNUMBERd     SUN_RCONST(10.0)
+#define SOMECOMPLEXNUMBERup    SUN_CCONST(-1.0, 2.0)
+#define SOMECOMPLEXNUMBERlow   SUN_CCONST(-1.0, -2.0)
 
 /* user data structure */
 typedef struct
@@ -46,6 +52,8 @@ typedef struct
   sunindextype N; /* problem size */
   N_Vector d;     /* matrix diagonal */
   N_Vector s;     /* scaling vector supplied to PCG */
+  sunscalartype up;   /* nondiagonal entries of the matrix */
+  sunscalartype low;  /* nondiagonal entries of the matrix */
 } UserData;
 
 /* private functions */
@@ -164,13 +172,16 @@ int main(int argc, char* argv[])
   if (check_flag(ProbData.d, "N_VNew_Serial", 0)) { return 1; }
   ProbData.s = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.s, "N_VNew_Serial", 0)) { return 1; }
+  ProbData.up  = SOMECOMPLEXNUMBERup;
+  ProbData.low = SOMECOMPLEXNUMBERlow;
 
   /* Fill xhat vector with uniform random data in [1,2] */
   vecdata = N_VGetArrayPointer(xhat);
   for (i = 0; i < ProbData.N; i++) { vecdata[i] = ONE + urand(); }
 
   /* Fill Jacobi vector with matrix diagonal */
-  N_VConst(FIVE, ProbData.d);
+  // N_VConst(FIVE, ProbData.d);
+  N_VConst(SOMECOMPLEXNUMBERd, ProbData.d);
 
   /* Create PCG linear solver */
   LS = SUNLinSol_PCG(x, SUN_PREC_RIGHT, maxl, sunctx);
@@ -347,7 +358,7 @@ int main(int argc, char* argv[])
 int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 {
   /* local variables */
-  sunscalartype *v, *z, *s;
+  sunscalartype *v, *z, *s, *diag, up, low;
   sunindextype i, N;
   UserData* ProbData;
 
@@ -359,20 +370,23 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   if (check_flag(z, "N_VGetArrayPointer", 0)) { return 1; }
   s = N_VGetArrayPointer(ProbData->s);
   if (check_flag(s, "N_VGetArrayPointer", 0)) { return 1; }
-  N = ProbData->N;
+  N    = ProbData->N;
+  up   = ProbData->up;
+  low  = ProbData->low;
+  diag = N_VGetArrayPointer(ProbData->d);
 
   /* perform product at left boundary (note: v is zero at the boundary)*/
-  z[0] = (FIVE * v[0] / s[0] - v[1] / s[1]) / s[0];
+  z[0] = (diag[0] * v[0] / s[0] - v[1] * up / s[1]) / s[0];
 
   /* iterate through interior of domain, performing product */
   for (i = 1; i < N - 1; i++)
   {
-    z[i] = (-v[i - 1] / s[i - 1] + FIVE * v[i] / s[i] - v[i + 1] / s[i + 1]) /
+    z[i] = (-v[i - 1] * low / s[i - 1] + diag[i] * v[i] / s[i] - v[i + 1] * up / s[i + 1]) /
            s[i];
   }
 
   /* perform product at right boundary (note: v is zero at the boundary)*/
-  z[N - 1] = (-v[N - 2] / s[N - 2] + FIVE * v[N - 1] / s[N - 1]) / s[N - 1];
+  z[N - 1] = (-v[N - 2] * low / s[N - 2] + diag[N-1] * v[N - 1] / s[N - 1]) / s[N - 1];
 
   /* return with success */
   return 0;
