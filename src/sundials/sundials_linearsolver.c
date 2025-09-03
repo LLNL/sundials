@@ -19,12 +19,12 @@
  * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
+#include <string.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/priv/sundials_logger_impl.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_errors.h>
-
-#include <sundials/priv/sundials_logger_impl.h>
-#include "sundials_iterative_impl.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNLinearSolver S)
