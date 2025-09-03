@@ -89,7 +89,7 @@ routines:
 
 .. c:function:: SUNErrCode SUNDomEigEstimator_SetRefineGuess_Arnoldi(SUNDomEigEstimator DEE, sunbooleantype boolflag);
 
-   This function enables the refined-guess flag, which sets the last matrix–vector product from the previous estimate call 
+   This function enables the refined-guess flag, which sets the last matrix–vector product from the previous estimate call
    as the initial guess for the next Arnoldi iteration.
 
    **Arguments:**
@@ -100,6 +100,10 @@ routines:
 
       A :c:type:`SUNErrCode`.
 
+   .. note::
+
+      This routine will be called by :c:func:`SUNDomEigEstimator_SetOptions`
+      when using the key "Did.set_refine_guess".
 
 .. _SUNDomEigEst.Arnoldi.Description:
 

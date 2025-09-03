@@ -134,6 +134,51 @@ optional routine should leave the corresponding function pointer ``NULL``
 instead of supplying a dummy routine.
 
 
+.. c:function:: SUNErrCode SUNDomEigEstimator_SetOptions(SUNDomEigEstimator DEE, const char* Did, const char* file_name, int argc, char* argv[])
+
+   Sets SUNDomEigEstimator options from an array of strings or a file.
+
+   :param DEE: the :c:type:`SUNDomEigEstimator` object.
+   :param Did: the prefix for options to read. The default is "sundomeigestimator".
+   :param file_name: the name of a file containing options to read. If this is
+                     ``NULL`` or an empty string, ``""``, then no file is read.
+   :param argc: number of command-line arguments passed to executable.
+   :param argv: an array of strings containing the options to set and their values.
+
+   :return: :c:type:`SUNErrCode` indicating success or failure.
+
+   .. note::
+
+      The ``argc`` and ``argv`` arguments are typically those supplied to the user's
+      ``main`` routine however, this is not required.  The inputs are left unchanged by
+      :c:func:`SUNDomEigEstimator_SetOptions`.
+
+      If the ``Did`` argument is ``NULL`` then the default prefix, ``sundomeigestimator``, must
+      be used for all SUNDomEigEstimator options.  Whether ``Did`` is supplied or not, a ``"."``
+      must be used to separate an option key from the prefix.  For example, when
+      using the default ``Did``, the option ``sundomeigestimator.max_iters`` followed by the value
+      can be used to set the maximum number of iterations.
+
+      SUNDomEigEstimator options set via :c:func:`SUNDomEigEstimator_SetOptions` will overwrite
+      any previously-set values.  Options are set in the order they are given in ``argv`` and,
+      if an option with the same prefix appears multiple times in ``argv``, the value of the
+      last occurrence will used.
+
+      The supported option names are noted within the documentation for the
+      corresponding SUNDomEigEstimator functions.  For options that take a
+      :c:type:`sunbooleantype` as input, use ``1`` to indicate ``true`` and
+      ``0`` for ``false``.
+
+   .. warning::
+
+      This function is not available in the Fortran interface.
+
+      File-based options are not yet supported, so the ``file_name`` argument
+      should be set to either ``NULL`` or the empty string ``""``.
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: SUNErrCode SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)
 
    This function provides a :c:type:`SUNATimesFn` function for performing
@@ -193,6 +238,9 @@ instead of supplying a dummy routine.
       the power iteration. With either implementation, supplying a ``num_iters``
       argument that is :math:`< 0`, it will reset the value to the default.
 
+      This routine will be called by :c:func:`SUNDomEigEstimator_SetOptions`
+      when using the key "Did.num_preprocess_iters".
+
 .. c:function:: SUNErrCode SUNDomEigEstimator_SetRelTol(SUNDomEigEstimator DEE, sunrealtype rel_tol)
 
    This *optional* routine sets the estimator's :ref:`relative tolerance <pi_rel_tol>`.
@@ -205,6 +253,11 @@ instead of supplying a dummy routine.
    **Return value:**
 
       A :c:type:`SUNErrCode`.
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNDomEigEstimator_SetOptions`
+      when using the key "Did.rel_tol".
 
 
 .. c:function:: SUNErrCode SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE, long int max_iters)
@@ -219,6 +272,11 @@ instead of supplying a dummy routine.
    **Return value:**
 
       A :c:type:`SUNErrCode`.
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNDomEigEstimator_SetOptions`
+      when using the key "Did.max_iters".
 
 
 .. c:function:: SUNErrCode SUNDomEigEstimator_SetInitialGuess(SUNDomEigEstimator DEE, N_Vector q)
@@ -236,7 +294,7 @@ instead of supplying a dummy routine.
 
    .. note::
 
-      The vector ``q`` does not need to be normalized before this set routine. 
+      The vector ``q`` does not need to be normalized before this set routine.
 
 
 .. _SUNDomEigEst.GetFn:

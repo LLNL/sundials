@@ -43,6 +43,8 @@ typedef _SUNDIALS_STRUCT_ SUNDomEigEstimator_* SUNDomEigEstimator;
 struct SUNDomEigEstimator_Ops_
 {
   SUNErrCode (*setatimes)(SUNDomEigEstimator, void*, SUNATimesFn);
+  SUNErrCode (*setoptions)(SUNDomEigEstimator DEE, const char* Did,
+                           const char* file_name, int argc, char* argv[]);
   SUNErrCode (*setmaxiters)(SUNDomEigEstimator, long int);
   SUNErrCode (*setnumpreprocessiters)(SUNDomEigEstimator, int);
   SUNErrCode (*setreltol)(SUNDomEigEstimator, sunrealtype);
@@ -79,6 +81,11 @@ void SUNDomEigEstimator_FreeEmpty(SUNDomEigEstimator DEE);
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* A_data,
                                         SUNATimesFn ATimes);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNDomEigEstimator_SetOptions(SUNDomEigEstimator DEE, const char* Did,
+                                         const char* file_name, int argc,
+                                         char* argv[]);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE,

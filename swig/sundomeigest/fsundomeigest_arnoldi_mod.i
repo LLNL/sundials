@@ -19,6 +19,9 @@
 // include code common to all implementations
 %include "fsundomeigest.i"
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore SUNDomEigEstimator_SetOptions_Arnoldi;
+
 %{
 #include "sundomeigest/sundomeigest_arnoldi.h"
 %}

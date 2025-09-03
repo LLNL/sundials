@@ -58,6 +58,15 @@
 
 int sundomeigest_Compare(const void* a, const void* b);
 
+static SUNErrCode setFromCommandLine_Arnoldi(SUNDomEigEstimator DEE,
+                                             const char* Did, int argc,
+                                             char* argv[]);
+
+SUNErrCode SUNDomEigEstimator_SetOptions_Arnoldi(SUNDomEigEstimator DEE,
+                                                 const char* Did,
+                                                 const char* file_name,
+                                                 int argc, char* argv[]);
+
 /*
  * -----------------------------------------------------------------
  * exported functions
@@ -98,6 +107,7 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
 
   /* Attach operations */
   DEE->ops->setatimes = SUNDomEigEstimator_SetATimes_Arnoldi;
+  DEE->ops->setoptions = SUNDomEigEstimator_SetOptions_Arnoldi;
   DEE->ops->setnumpreprocessiters =
     SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi;
   DEE->ops->setinitialguess   = SUNDomEigEstimator_SetInitialGuess_Arnoldi;
@@ -152,6 +162,68 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
  * implementation of dominant eigenvalue estimator operations
  * -----------------------------------------------------------------
  */
+
+SUNErrCode SUNDomEigEstimator_SetOptions_Arnoldi(
+  SUNDomEigEstimator DEE, const char* Did,
+  SUNDIALS_MAYBE_UNUSED const char* file_name, int argc, char* argv[])
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  /* File-based option control is currently unimplemented */
+  SUNAssert((file_name == NULL || strlen(file_name) == 0),
+            SUN_ERR_ARG_INCOMPATIBLE);
+
+  if (argc > 0 && argv != NULL)
+  {
+    SUNCheckCall(setFromCommandLine_Arnoldi(DEE, Did, argc, argv));
+  }
+
+  return SUN_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to control Soderlind parameters from the command line
+ */
+
+static SUNErrCode setFromCommandLine_Arnoldi(SUNDomEigEstimator DEE,
+                                             const char* Did, int argc,
+                                             char* argv[])
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  /* Prefix for options to set */
+  const char* default_id = "sundomeigestimator";
+  size_t offset          = strlen(default_id) + 1;
+  if (Did != NULL && strlen(Did) > 0) { offset = strlen(Did) + 1; }
+  char* prefix = (char*)malloc(sizeof(char) * (offset + 1));
+  if (Did != NULL && strlen(Did) > 0) { strcpy(prefix, Did); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+
+  int retval;
+  for (int idx = 1; idx < argc; idx++)
+  {
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
+
+    /* control over SetRefineGuess_Arnoldi function */
+    if (strcmp(argv[idx] + offset, "set_refine_guess") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval = SUNDomEigEstimator_SetRefineGuess_Arnoldi(DEE, iarg);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+  }
+
+  free(prefix);
+  return SUN_SUCCESS;
+}
 
 SUNErrCode SUNDomEigEstimator_SetATimes_Arnoldi(SUNDomEigEstimator DEE,
                                                 void* A_data, SUNATimesFn ATimes)

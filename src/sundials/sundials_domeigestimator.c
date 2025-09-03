@@ -29,6 +29,10 @@ static SUNProfiler getSUNProfiler(SUNDomEigEstimator DEE)
 }
 #endif
 
+/* internal function prototypes */
+SUNErrCode sunDEESetFromCommandLine(SUNDomEigEstimator DEE, const char* Did,
+                                    int argc, char* argv[]);
+
 /* -----------------------------------------------------------------
  * Create a new empty SUNDomEigEstimator object
  * ----------------------------------------------------------------- */
@@ -52,6 +56,7 @@ SUNDomEigEstimator SUNDomEigEstimator_NewEmpty(SUNContext sunctx)
 
   /* initialize operations to NULL */
   ops->setatimes             = NULL;
+  ops->setoptions            = NULL;
   ops->setmaxiters           = NULL;
   ops->setreltol             = NULL;
   ops->setnumpreprocessiters = NULL;
@@ -88,6 +93,78 @@ void SUNDomEigEstimator_FreeEmpty(SUNDomEigEstimator DEE)
 }
 
 /* -----------------------------------------------------------------
+ * internal utility routines
+ * ----------------------------------------------------------------- */
+
+SUNErrCode sunDEESetFromCommandLine(SUNDomEigEstimator DEE, const char* Did,
+                                    int argc, char* argv[])
+{
+  SUNFunctionBegin(DEE->sunctx);
+
+  /* Prefix for options to set */
+  const char* default_id = "sundomeigestimator";
+  size_t offset          = strlen(default_id) + 1;
+  if (Did != NULL && strlen(Did) > 0) { offset = strlen(Did) + 1; }
+  char* prefix = (char*)malloc(sizeof(char) * (offset + 1));
+  if (Did != NULL && strlen(Did) > 0) { strcpy(prefix, Did); }
+  else { strcpy(prefix, default_id); }
+  strcat(prefix, ".");
+
+  SUNErrCode retval;
+  for (int idx = 1; idx < argc; idx++)
+  {
+    /* skip command-line arguments that do not begin with correct prefix */
+    if (strncmp(argv[idx], prefix, strlen(prefix)) != 0) { continue; }
+
+    /* control over SetMaxIters function */
+    if (strcmp(argv[idx] + offset, "max_iters") == 0)
+    {
+      idx += 1;
+      long int larg = atol(argv[idx]);
+      retval        = SUNDomEigEstimator_SetMaxIters(DEE, larg);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+
+    /* control over SetNumPreprocessIters function */
+    if (strcmp(argv[idx] + offset, "num_preprocess_iters") == 0)
+    {
+      idx += 1;
+      int iarg = atoi(argv[idx]);
+      retval   = SUNDomEigEstimator_SetNumPreprocessIters(DEE, iarg);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+
+    /* control over SetRelTol function */
+    if (strcmp(argv[idx] + offset, "rel_tol") == 0)
+    {
+      idx += 1;
+      sunrealtype rarg = SUNStrToReal(argv[idx]);
+      retval           = SUNDomEigEstimator_SetRelTol(DEE, rarg);
+      if (retval != SUN_SUCCESS)
+      {
+        free(prefix);
+        return retval;
+      }
+      continue;
+    }
+
+  }
+
+  free(prefix);
+  return SUN_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
  * Functions in the 'ops' structure
  * -----------------------------------------------------------------*/
 
@@ -100,6 +177,31 @@ SUNErrCode SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* A_data,
   else { ier = SUN_SUCCESS; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(DEE));
   return (ier);
+}
+
+SUNErrCode SUNDomEigEstimator_SetOptions(SUNDomEigEstimator DEE, const char* Did,
+                                         const char* file_name, int argc,
+                                         char* argv[])
+{
+  if (DEE == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(DEE->sunctx);
+
+  /* File-based option control is currently unimplemented */
+  SUNAssert((file_name == NULL || strlen(file_name) == 0),
+            SUN_ERR_ARG_INCOMPATIBLE);
+
+  /* First, process all base-class options */
+  if (argc > 0 && argv != NULL)
+  {
+    SUNCheckCall(sunDEESetFromCommandLine(DEE, Did, argc, argv));
+  }
+
+  /* Second, ask the implementation to process any remaining options */
+  if (DEE->ops->setoptions)
+  {
+    return (DEE->ops->setoptions(DEE, Did, file_name, argc, argv));
+  }
+  else { return (SUN_SUCCESS); }
 }
 
 SUNErrCode SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE,
