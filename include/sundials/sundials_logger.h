@@ -16,6 +16,7 @@
 #define _SUNDIALS_LOGGER_H
 
 #include <stdio.h>
+
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 

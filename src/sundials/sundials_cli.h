@@ -18,8 +18,9 @@
 #define _SUNDIALS_CLI_H
 
 #include <stdio.h>
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_types.h"
+
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_types.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
