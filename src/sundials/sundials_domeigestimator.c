@@ -120,8 +120,8 @@ SUNErrCode sunDEESetFromCommandLine(SUNDomEigEstimator DEE, const char* Did,
     if (strcmp(argv[idx] + offset, "max_iters") == 0)
     {
       idx += 1;
-      long int larg = atol(argv[idx]);
-      retval        = SUNDomEigEstimator_SetMaxIters(DEE, larg);
+      long int large = atol(argv[idx]);
+      retval        = SUNDomEigEstimator_SetMaxIters(DEE, large);
       if (retval != SUN_SUCCESS)
       {
         free(prefix);
