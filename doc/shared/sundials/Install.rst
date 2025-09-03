@@ -1298,14 +1298,14 @@ respectively, for the corresponding header files and libraries).
 To enable LAPACK support, set :cmakeop:`ENABLE_LAPACK` to ``ON``. CMake will
 attempt to find BLAS and LAPACK installations on the system and set the
 variables :cmakeop:`BLAS_LIBRARIES`, :cmakeop:`BLAS_LINKER_FLAGS`,
-:cmakeop:`LAPACK_LIBRARIES`, and :cmakeop:`LAPACK_LINKER_FLAGS`. 
-You can set the `LAPACK_ROOT` CMake variable to the path of a desired LAPACK installation,
-and/or set the option :cmakeop:`BLA_VENDOR` to tell CMake to only look for LAPACK
-from a specified vendor (see the
-`CMake documentation <https://cmake.org/cmake/help/latest/module/FindLAPACK.html#input-variables>`__). 
-If necessary, to explicitly override the LAPACK library to build with, 
-manually set the aforementioned variables to the desired values when configuring
-the build. For example, this is sometimes needed when using OpenBLAS:
+:cmakeop:`LAPACK_LIBRARIES`, and :cmakeop:`LAPACK_LINKER_FLAGS`.  You can set
+the :cmakeop:`LAPACK_ROOT` CMake variable to the path of a desired LAPACK
+installation, and/or set the option :cmakeop:`BLA_VENDOR` to tell CMake to only
+look for LAPACK from a specified vendor (see the `CMake documentation
+<https://cmake.org/cmake/help/latest/module/FindLAPACK.html#input-variables>`__).
+If necessary, to explicitly override the LAPACK library to build with, manually
+set the aforementioned variables to the desired values when configuring the
+build. For example, this is sometimes needed when using OpenBLAS:
 
 .. code-block:: bash
 
@@ -1331,6 +1331,18 @@ the build. For example, this is sometimes needed when using OpenBLAS:
    Enable LAPACK support
 
    Default: ``OFF``
+
+.. cmakeoption:: LAPACK_ROOT
+
+   Path to the LAPACK installation
+
+   Default: None
+
+.. cmakeoption:: BLA_VENDOR
+
+   The LAPACK vendor to search for.
+
+   Default: All vendors
 
 .. cmakeoption:: BLAS_LIBRARIES
 
