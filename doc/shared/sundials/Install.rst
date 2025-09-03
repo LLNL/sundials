@@ -1332,12 +1332,6 @@ the build. For example, this is sometimes needed when using OpenBLAS:
 
    Default: ``OFF``
 
-.. cmakeoption:: BLA_VENDOR
-
-   Set to one of the BLAS/LAPACK Vendors to search for BLAS only from the specified vendor. If not set, all vendors are considered.
-
-   Default: none
-
 .. cmakeoption:: BLAS_LIBRARIES
 
    BLAS libraries
