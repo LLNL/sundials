@@ -1119,7 +1119,7 @@ SUNDIALS with *hypre* support:
 
    Path to the *hypre* installation
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.KLU:
 
@@ -1166,19 +1166,19 @@ following command will configure SUNDIALS with KLU support:
 
    Path to the SuiteSparse installation
 
-   Default: ``OFF``
+   Default: None
 
 .. cmakeoption:: KLU_INCLUDE_DIR
 
    Path to SuiteSparse header files
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: KLU_LIBRARY_DIR
 
    Path to SuiteSparse installed library files
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.Kokkos:
 
@@ -1348,25 +1348,25 @@ build. For example, this is sometimes needed when using OpenBLAS:
 
    BLAS libraries
 
-   Default: none (CMake will try to find a BLAS installation)
+   Default: None (CMake will try to find a BLAS installation)
 
 .. cmakeoption:: BLAS_LINKER_FLAGS
 
    BLAS required linker flags
 
-   Default: none (CMake will try to determine the necessary flags)
+   Default: None (CMake will try to determine the necessary flags)
 
 .. cmakeoption:: LAPACK_LIBRARIES
 
    LAPACK libraries
 
-   Default: none (CMake will try to find a LAPACK installation)
+   Default: None (CMake will try to find a LAPACK installation)
 
 .. cmakeoption:: LAPACK_LINKER_FLAGS
 
    LAPACK required linker flags
 
-   Default: none (CMake will try to determine the necessary flags)
+   Default: None (CMake will try to determine the necessary flags)
 
 .. cmakeoption:: SUNDIALS_LAPACK_CASE
 
@@ -1446,7 +1446,7 @@ the CUDA backend (targeting Ampere GPUs):
 
    Path to the MAGMA installation
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUNDIALS_MAGMA_BACKENDS
 
@@ -1552,14 +1552,14 @@ configure SUNDIALS with MPI support:
    Specifies flags that come directly after ``MPIEXEC_EXECUTABLE`` and before
    ``MPIEXEC_NUMPROC_FLAG`` and ``MPIEXEC_MAX_NUMPROCS``.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: MPIEXEC_POSTFLAGS
 
    Specifies flags that come after the executable to run but before any other
    program arguments.
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.OneMKL:
 
@@ -1605,7 +1605,7 @@ the following command will configure SUNDIALS with oneMKL support:
 
    Path to oneMKL installation.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUNDIALS_ONEMKL_USE_GETRF_LOOP
 
@@ -1726,7 +1726,7 @@ configure SUNDIALS with PETSc support:
 
    Path to PETSc installation
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: PETSC_LIBRARIES
 
@@ -1734,7 +1734,7 @@ configure SUNDIALS with PETSc support:
    user, this is autopopulated based on the PETSc installation found in
    :cmakeop:`PETSC_DIR`.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: PETSC_INCLUDES
 
@@ -1742,7 +1742,7 @@ configure SUNDIALS with PETSc support:
    the user, this is autopopulated based on the PETSc installation found in
    :cmakeop:`PETSC_DIR`.
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.PThreads:
 
@@ -1819,7 +1819,7 @@ the CUDA backend (targeting Ampere GPUs):
 
    Path to the RAJA installation
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUNDIALS_RAJA_BACKENDS
 
@@ -1874,13 +1874,13 @@ SuperLU_DIST support:
 
    Path to SuperLU_DIST installation.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUPERLUDIST_OpenMP
 
    Enable SUNDIALS support for SuperLU_DIST built with OpenMP
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1893,7 +1893,7 @@ SuperLU_DIST support:
    List of include paths for SuperLU_DIST (under a typical SuperLU_DIST
    install, this is typically the SuperLU_DIST ``SRC`` directory)
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1903,7 +1903,7 @@ SuperLU_DIST support:
 
    Semi-colon separated list of libraries needed for SuperLU_DIST
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1914,7 +1914,7 @@ SuperLU_DIST support:
    Path to SuperLU_DIST header files (under a typical SuperLU_DIST
    install, this is typically the SuperLU_DIST ``SRC`` directory)
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1925,7 +1925,7 @@ SuperLU_DIST support:
 
    Path to SuperLU_DIST installed library files
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1988,19 +1988,19 @@ configure SUNDIALS with SuperLU_MT support using PThreads:
    Path to SuperLU_MT header files (under a typical SuperLU_MT
    install, this is typically the SuperLU_MT ``SRC`` directory)
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUPERLUMT_LIBRARY_DIR
 
    Path to SuperLU_MT installed library files
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUPERLUMT_LIBRARIES
 
    Semi-colon separated list of libraries needed for SuperLU_MT
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUPERLUMT_THREAD_TYPE
 
@@ -2156,7 +2156,7 @@ SUNDIALS with XBraid support:
    the user, this is autopopulated based on the XBraid installation found in
    :cmakeop:`XBRAID_DIR`.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: XBRAID_LIBRARIES
 
@@ -2164,7 +2164,7 @@ SUNDIALS with XBraid support:
    the user, this is autopopulated based on the XBraid installation found in
    :cmakeop:`XBRAID_DIR`.
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.xSDK:
 
