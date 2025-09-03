@@ -45,6 +45,38 @@ void bind_arkode_mristep(nb::module_& m);
 void bind_arkode_forcingstep(nb::module_& m);
 void bind_arkode_splittingstep(nb::module_& m);
 
+// ARKODE callback binding macros (mirroring CVODES)
+#define BIND_ARKODE_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER)                     \
+  m.def(#NAME,                                                                   \
+        [](void* ark_mem, std::function<std::remove_pointer_t<FN_TYPE>> fn)      \
+        {                                                                        \
+          void* user_data = nullptr;                                             \
+          ARKodeGetUserData(ark_mem, &user_data);                                \
+          if (!user_data)                                                        \
+            throw std::runtime_error(                                            \
+              "Failed to get Python function table from ARKODE memory");         \
+          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data); \
+          fntable->MEMBER = nb::cast(fn);                                        \
+          return NAME(ark_mem, &WRAPPER);                                        \
+        })
+
+#define BIND_ARKODE_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2,       \
+                              MEMBER2, WRAPPER2)                                 \
+  m.def(#NAME,                                                                   \
+        [](void* ark_mem, std::function<std::remove_pointer_t<FN_TYPE1>> fn1,    \
+           std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                   \
+        {                                                                        \
+          void* user_data = nullptr;                                             \
+          ARKodeGetUserData(ark_mem, &user_data);                                \
+          if (!user_data)                                                        \
+            throw std::runtime_error(                                            \
+              "Failed to get Python function table from ARKODE memory");         \
+          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data); \
+          fntable->MEMBER1 = nb::cast(fn1);                                      \
+          fntable->MEMBER2 = nb::cast(fn2);                                      \
+          return NAME(ark_mem, &WRAPPER1, &WRAPPER2);                            \
+        })
+
 void bind_arkode(nb::module_& m)
 {
 #include "pysundials_arkode_generated.hpp"
@@ -74,171 +106,35 @@ void bind_arkode(nb::module_& m)
   // ARKODE user-supplied function setters
   /////////////////////////////////////////////////////////////////////////////
 
-  m.def("ARKodeSetPostprocessStepFn",
-        [](void* ark_mem, std::function<std::remove_pointer_t<ARKPostProcessFn>> fn)
-        {
-          void* user_data = nullptr;
+  BIND_ARKODE_CALLBACK(ARKodeSetPostprocessStepFn, ARKPostProcessFn,
+                       postprocessstepfn, arkode_postprocessstepfn_wrapper);
+  BIND_ARKODE_CALLBACK(ARKodeSetPostprocessStageFn, ARKPostProcessFn,
+                       postprocessstagefn, arkode_postprocessstagefn_wrapper);
+  BIND_ARKODE_CALLBACK(ARKodeSetStagePredictFn, ARKStagePredictFn,
+                       stagepredictfn, arkode_stagepredictfn_wrapper);
+  BIND_ARKODE_CALLBACK(ARKodeWFtolerances, ARKEwtFn, ewtn, arkode_ewtfn_wrapper);
+  BIND_ARKODE_CALLBACK(ARKodeSetNlsRhsFn, ARKRhsFn, nlsfi,
+                       arkode_nlsrhsfn_wrapper);
+  BIND_ARKODE_CALLBACK(ARKodeSetJacFn, ARKLsJacFn, lsjacfn,
+                       arkode_lsjacfn_wrapper);
+  BIND_ARKODE_CALLBACK(ARKodeSetMassFn, ARKLsMassFn, lsmassfn,
+                       arkode_lsmassfn_wrapper);
+  BIND_ARKODE_CALLBACK2(ARKodeSetPreconditioner, ARKLsPrecSetupFn, lsprecsetupfn,
+                        arkode_lsprecsetupfn_wrapper, ARKLsPrecSolveFn,
+                        lsprecsolvefn, arkode_lsprecsolvefn_wrapper);
+  BIND_ARKODE_CALLBACK2(ARKodeSetMassPreconditioner, ARKLsMassPrecSetupFn,
+                        lsmassprecsetupfn, arkode_lsmassprecsetupfn_wrapper,
+                        ARKLsMassPrecSolveFn, lsmassprecsolvefn,
+                        arkode_lsmassprecsolvefn_wrapper);
+  BIND_ARKODE_CALLBACK2(ARKodeSetJacTimes, ARKLsJacTimesSetupFn,
+                        lsjactimessetupfn, arkode_lsjactimessetupfn_wrapper,
+                        ARKLsJacTimesVecFn, lsjactimesvecfn,
+                        arkode_lsjactimesvecfn_wrapper);
+  BIND_ARKODE_CALLBACK(ARKodeSetJacTimesRhsFn, ARKRhsFn, lsjacrhsfn,
+                       arkode_lsjacrhsfn_wrapper);
 
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-          {
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          }
-
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-
-          // Set the user-supplied function
-          fntable->postprocessstepfn = nb::cast(fn);
-          return ARKodeSetPostprocessStepFn(ark_mem,
-                                            &arkode_postprocessstepfn_wrapper);
-        });
-
-  m.def("ARKodeSetPostprocessStageFn",
-        [](void* ark_mem, std::function<std::remove_pointer_t<ARKPostProcessFn>> fn)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->postprocessstagefn = nb::cast(fn);
-          return ARKodeSetPostprocessStageFn(ark_mem,
-                                             &arkode_postprocessstagefn_wrapper);
-        });
-
-  m.def("ARKodeSetStagePredictFn",
-        [](void* ark_mem,
-           std::function<std::remove_pointer_t<ARKStagePredictFn>> fn)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->stagepredictfn = nb::cast(fn);
-          return ARKodeSetStagePredictFn(ark_mem, &arkode_stagepredictfn_wrapper);
-        });
-
-  m.def("ARKodeWFtolerances",
-        [](void* ark_mem, std::function<std::remove_pointer_t<ARKEwtFn>> fn)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->ewtn = nb::cast(fn);
-          return ARKodeWFtolerances(ark_mem, &arkode_ewtfn_wrapper);
-        });
-
-  m.def("ARKodeSetNlsRhsFn",
-        [](void* ark_mem, std::function<std::remove_pointer_t<ARKRhsFn>> fn)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->nlsfi = nb::cast(fn);
-          return ARKodeSetNlsRhsFn(ark_mem, &arkode_nlsrhsfn_wrapper);
-        });
-
-  m.def("ARKodeSetJacFn",
-        [](void* ark_mem, std::function<std::remove_pointer_t<ARKLsJacFn>> fn)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lsjacfn = nb::cast(fn);
-          return ARKodeSetJacFn(ark_mem, &arkode_lsjacfn_wrapper);
-        });
-
-  m.def("ARKodeSetMassFn",
-        [](void* ark_mem, std::function<std::remove_pointer_t<ARKLsMassFn>> fn)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lsmassfn = nb::cast(fn);
-          return ARKodeSetMassFn(ark_mem, &arkode_lsmassfn_wrapper);
-        });
-
-  m.def("ARKodeSetPreconditioner",
-        [](void* ark_mem,
-           std::function<std::remove_pointer_t<ARKLsPrecSetupFn>> psetup,
-           std::function<std::remove_pointer_t<ARKLsPrecSolveFn>> psolve)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lsprecsetupfn = nb::cast(psetup);
-          fntable->lsprecsolvefn = nb::cast(psolve);
-          return ARKodeSetPreconditioner(ark_mem, &arkode_lsprecsetupfn_wrapper,
-                                         &arkode_lsprecsolvefn_wrapper);
-        });
-
-  m.def("ARKodeSetMassPreconditioner",
-        [](void* ark_mem,
-           std::function<std::remove_pointer_t<ARKLsMassPrecSetupFn>> psetup,
-           std::function<std::remove_pointer_t<ARKLsMassPrecSolveFn>> psolve)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lsmassprecsetupfn = nb::cast(psetup);
-          fntable->lsmassprecsolvefn = nb::cast(psolve);
-          return ARKodeSetMassPreconditioner(ark_mem,
-                                             &arkode_lsmassprecsetupfn_wrapper,
-                                             &arkode_lsmassprecsolvefn_wrapper);
-        });
-
-  m.def("ARKodeSetJacTimes",
-        [](void* ark_mem,
-           std::function<std::remove_pointer_t<ARKLsJacTimesSetupFn>> jtsetup,
-           std::function<std::remove_pointer_t<ARKLsJacTimesVecFn>> jtimes)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lsjactimessetupfn = nb::cast(jtsetup);
-          fntable->lsjactimesvecfn   = nb::cast(jtimes);
-          return ARKodeSetJacTimes(ark_mem, &arkode_lsjactimessetupfn_wrapper,
-                                   &arkode_lsjactimesvecfn_wrapper);
-        });
-
-  m.def("ARKodeSetJacTimesRhsFn",
-        [](void* ark_mem, std::function<std::remove_pointer_t<ARKRhsFn>> fn)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lsjacrhsfn = nb::cast(fn);
-          return ARKodeSetJacTimesRhsFn(ark_mem, &arkode_lsjacrhsfn_wrapper);
-        });
-
+  // ARKodeSetMassTimes doesnt fit the BIND_ARKODE_CALLBACK macro pattern(s)
+  // due to the 4th argument for user data, so we just write it out explicitly.
   m.def("ARKodeSetMassTimes",
         [](void* ark_mem,
            std::function<std::remove_pointer_t<ARKLsMassTimesSetupFn>> msetup,
@@ -256,18 +152,8 @@ void bind_arkode(nb::module_& m)
                                     &arkode_lsmasstimesvecfn_wrapper, nullptr);
         });
 
-  m.def("ARKodeSetLinSysFn",
-        [](void* ark_mem, std::function<std::remove_pointer_t<ARKLsLinSysFn>> fn)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lslinsysfn = nb::cast(fn);
-          return ARKodeSetLinSysFn(ark_mem, &arkode_lslinsysfn_wrapper);
-        });
+  BIND_ARKODE_CALLBACK(ARKodeSetLinSysFn, ARKLsLinSysFn, lslinsysfn,
+                       arkode_lslinsysfn_wrapper);
 
   /////////////////////////////////////////////////////////////////////////////
   // Additional functions that litgen cannot generate
