@@ -449,7 +449,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNDomEigEstimator_SetRelTol`
 
-   .. c:member:: SUNErrCode (*setinitialguess)(SUNDomEigEstimator, NVector)
+   .. c:member:: SUNErrCode (*setinitialguess)(SUNDomEigEstimator, N_Vector)
 
       The function implementing :c:func:`SUNDomEigEstimator_SetInitialGuess`
 
