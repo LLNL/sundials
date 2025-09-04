@@ -70,36 +70,40 @@ routines:
 
 .. c:function:: SUNDomEigEstimator SUNDomEigEstimator_Power(N_Vector q, long int max_iters, sunrealtype rel_tol, SUNContext sunctx)
 
-   This constructor function creates and allocates memory for a PI
-   ``SUNDomEigEstimator``.
+   This constructor function creates and allocates memory for the Power
+   iteration implementation of a :c:type:`SUNDomEigEstimator`.
 
-   **Arguments:**
-      * *q* -- the initial guess for the dominant eigenvector; this should not be a non-dominant eigenvector of the Jacobian.
-      * *max_iters* -- maximum number of iterations.
-      * *rel_tol* -- relative tolerance for convergence check.
-      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
+   Consistency checks are performed ensure the input vector in non-zero and
+   supplies the necessary operations.
 
-   **Return value:**
-      If successful, a ``SUNDomEigEstimator`` object.  If *q* is
-      incompatible, this routine will return ``NULL``.
+   :param q: the initial guess for the dominant eigenvector; this should not
+             be a non-dominant eigenvector of the Jacobian.
+   :param max_iters: maximum number of iterations (default 100). Supplying a
+                     value :math:`\leq 0` will result in using the default
+                     value. Although this default number is not high for large
+                     matrices, it is reasonable since (1) most solvers do not
+                     need too tight tolerances and consider a safety factor,
+                     and (2) an early (less costly) termination will be a good
+                     indicator whether the power iteration is compatible.
+   :param rel_tol: relative tolerance for convergence checks (default 0.01). A
+                   value :math:`\leq 0` will result in the default value. The
+                   default has been found to small enough for many internal
+                   applications.
+   :param sunctx: the :c:type:`SUNContext` object.
 
-   **Notes:**
-      This routine will perform consistency checks to ensure that it is
-      called with a consistent ``N_Vector`` implementation (i.e.  that it
-      supplies the requisite vector operations).
+   :returns: If successful, a :c:type:`SUNDomEigEstimator` otherwise ``NULL``.
 
-      A ``max_iters`` argument that is :math:`\le0` will result in the default
-      value (100).
+   .. note::
 
-      Although this default number is not high for large matrices,
-      it is reasonable since
+      When used in a time-dependent context, the initial guess supplied to the
+      constructor, ``q``, is used only for the first
+      :c:func:`SUNDomEigEstimator_Estimate` call and is overwritten with the
+      result of the next to last Power iteration from the most recent
+      :c:func:`SUNDomEigEstimator_Estimate` call. This new value is used as the
+      initial guess for subsequent estimates.
 
-      1.  most solvers do not need too tight tolerances and consider a safety factor,
-
-      2.  an early (less costly) termination will be a good indicator whether the power iteration is compatible.
-
-      A ``rel_tol`` argument that is :math:`\leq 0` will result in the default
-      value (0.01).  This default is found particularly small enough for many internal applications.
+      The initial guess can be reset with
+      :c:func:`SUNDomEigEstimator_SetInitialGuess`.
 
 
 .. _SUNDomEigEst.Power.Description:

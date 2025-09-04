@@ -65,26 +65,37 @@ routines:
 
 .. c:function:: SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim, SUNContext sunctx);
 
-   This constructor function creates and allocates memory for an Arnoldi
-   ``SUNDomEigEstimator``.
+   This constructor function creates and allocates memory for the Arnoldi
+   iteration implementation of a :c:type:`SUNDomEigEstimator`.
 
-   **Arguments:**
-      * *q* -- the initial guess for the dominant eigenvector; this should not be a non-dominant eigenvector of the Jacobian.
-      * *kry_dim* -- the dimension of the Krylov subspace.
-      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
+   Consistency checks are performed ensure the input vector in non-zero and
+   supplies the necessary operations.
 
-   **Return value:**
-      If successful, a ``SUNDomEigEstimator`` object.  If *q* is
-      incompatible, this routine will return ``NULL``.
+   :param q: the initial guess for the dominant eigenvector; this should not be
+             a non-dominant eigenvector of the Jacobian.
+   :param kry_dim: the dimension of the Krylov subspace (default 3). A value
+                   :math:`\leq 2` will result in using default value. This
+                   default is chosen to minimize the memory footprint.
+   :param sunctx: the :c:type:`SUNContext` object.
 
-   **Notes:**
-      This routine will perform consistency checks to ensure that it is
-      called with a consistent ``N_Vector`` implementation (i.e.  that it
-      supplies the requisite vector operations).
+   :returns: If successful, a :c:type:`SUNDomEigEstimator` otherwise ``NULL``.
 
-      A ``kry_dim`` argument that is :math:`\leq 2` will result in the default
-      value (3).  This default value is particularly chosen to minimize the memory
-      footprint.
+   .. note::
+
+      When used in a time-dependent context, the initial guess supplied to the
+      constructor, ``q``, is used only in the first
+      :c:func:`SUNDomEigEstimator_Estimate` call and is overwritten with result
+      of the most recent preprocessing iterations (see
+      :c:func:`SUNDomEigEstimator_SetNumPreprocessIters`). As an initial guess
+      too close to the dominant eigenvector may cause a breakdown in the
+      Gram–Schmidt process within the Arnoldi iteration, users should account
+      for this when setting the number of initial and subsequent preprocessing
+      iterations (e.g., with LSRKStep see
+      :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` and
+      :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`).
+
+      The initial guess can be reset with
+      :c:func:`SUNDomEigEstimator_SetInitialGuess`.
 
 
 .. c:function:: SUNErrCode SUNDomEigEstimator_SetRefineGuess_Arnoldi(SUNDomEigEstimator DEE, sunbooleantype boolflag);
