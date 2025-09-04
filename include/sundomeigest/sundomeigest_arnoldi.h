@@ -48,8 +48,6 @@ struct SUNDomEigEstimatorContent_Arnoldi_
 
   long int num_ATimes; /* Number of ATimes calls */
 
-  sunbooleantype refine_guess; /* Flag to turn on/off refined guess in the next Arnoldi Estimate*/
-
   sunrealtype* LAPACK_A; /* The vector which holds rows of the Hessenberg matrix in the given order */
   sunrealtype* LAPACK_wr;    /* Real parts of eigenvalues */
   sunrealtype* LAPACK_wi;    /* Imaginary parts of eigenvalues */
@@ -77,9 +75,6 @@ SUNErrCode SUNDomEigEstimator_SetATimes_Arnoldi(SUNDomEigEstimator DEE,
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator DEE,
                                                             int num_iters);
-SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimator_SetRefineGuess_Arnoldi(SUNDomEigEstimator DEE,
-                                                     sunbooleantype boolflag);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_SetInitialGuess_Arnoldi(SUNDomEigEstimator DEE,

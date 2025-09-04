@@ -98,20 +98,6 @@ routines:
       :c:func:`SUNDomEigEstimator_SetInitialGuess`.
 
 
-.. c:function:: SUNErrCode SUNDomEigEstimator_SetRefineGuess_Arnoldi(SUNDomEigEstimator DEE, sunbooleantype boolflag);
-
-   This function enables the refined-guess flag, which sets the last matrix–vector product from the previous estimate call 
-   as the initial guess for the next Arnoldi iteration.
-
-   **Arguments:**
-      * *DEE* -- a SUNDomEigEstimator object.
-      * *boolflag* -- boolean turn on/off flag.
-
-   **Return value:**
-
-      A :c:type:`SUNErrCode`.
-
-
 .. _SUNDomEigEst.Arnoldi.Description:
 
 SUNDomEigEstimator_Arnoldi Description
@@ -131,7 +117,6 @@ The SUNDomEigEstimator_Arnoldi module defines the *content* field of a
      int num_warmups;
      long int num_iters;
      long int num_ATimes;
-     sunbooleantype refine_guess;
      sunrealtype* LAPACK_A;
      sunrealtype* LAPACK_wr;
      sunrealtype* LAPACK_wi;
@@ -200,8 +185,6 @@ eigenvalue estimator operations listed in :numref:`SUNDomEigEst.API`:
 * ``SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi``
 
 * ``SUNDomEigEstimator_Initialize_Arnoldi``
-
-* ``SUNDomEigEstimator_SetRefineGuess_Arnoldi``
 
 * ``SUNDomEigEstimator_Estimate_Arnoldi``
 

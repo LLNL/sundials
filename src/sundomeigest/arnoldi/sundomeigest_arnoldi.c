@@ -125,7 +125,6 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
   content->num_warmups  = DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT;
   content->num_iters    = 0;
   content->num_ATimes   = 0;
-  content->refine_guess = SUNFALSE;
   content->LAPACK_A     = NULL;
   content->LAPACK_wr    = NULL;
   content->LAPACK_wi    = NULL;
@@ -282,19 +281,6 @@ SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi(SUNDomEigEstimator D
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDomEigEstimator_SetRefineGuess_Arnoldi(SUNDomEigEstimator DEE,
-                                                     sunbooleantype boolflag)
-{
-  SUNFunctionBegin(DEE->sunctx);
-
-  SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
-
-  /* set the refine_guess flag */
-  Arnoldi_CONTENT(DEE)->refine_guess = boolflag;
-  return SUN_SUCCESS;
-}
-
 SUNErrCode SUNDomEigEstimator_SetInitialGuess_Arnoldi(SUNDomEigEstimator DEE,
                                                       N_Vector q)
 {
@@ -431,13 +417,6 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
   /* Copy the dominant eigenvalue */
   *lambdaR = Arnoldi_CONTENT(DEE)->LAPACK_wr[0];
   *lambdaI = Arnoldi_CONTENT(DEE)->LAPACK_wi[0];
-
-  /* */
-  if (Arnoldi_CONTENT(DEE)->refine_guess)
-  {
-    N_VScale(ONE, Arnoldi_CONTENT(DEE)->V[Arnoldi_CONTENT(DEE)->kry_dim],
-             Arnoldi_CONTENT(DEE)->V[0]);
-  }
 
   return SUN_SUCCESS;
 }
