@@ -68,7 +68,7 @@ routines:
    This constructor function creates and allocates memory for the Arnoldi
    iteration implementation of a :c:type:`SUNDomEigEstimator`.
 
-   Consistency checks are performed ensure the input vector in non-zero and
+   Consistency checks are performed to ensure the input vector is non-zero and
    supplies the necessary operations.
 
    :param q: the initial guess for the dominant eigenvector; this should not be
@@ -84,8 +84,8 @@ routines:
 
       When used in a time-dependent context, the initial guess supplied to the
       constructor, ``q``, is used only in the first
-      :c:func:`SUNDomEigEstimator_Estimate` call and is overwritten with result
-      of the most recent preprocessing iterations (see
+      :c:func:`SUNDomEigEstimator_Estimate` call and is overwritten with the
+      result of the most recent preprocessing iterations (see
       :c:func:`SUNDomEigEstimator_SetNumPreprocessIters`). As an initial guess
       too close to the dominant eigenvector may cause a breakdown in the
       Gram–Schmidt process within the Arnoldi iteration, users should account

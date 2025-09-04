@@ -73,7 +73,7 @@ routines:
    This constructor function creates and allocates memory for the Power
    iteration implementation of a :c:type:`SUNDomEigEstimator`.
 
-   Consistency checks are performed ensure the input vector in non-zero and
+   Consistency checks are performed to ensure the input vector is non-zero and
    supplies the necessary operations.
 
    :param q: the initial guess for the dominant eigenvector; this should not
