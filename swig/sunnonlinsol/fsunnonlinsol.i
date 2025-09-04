@@ -17,9 +17,6 @@
 // Include shared configuration
 %include "../sundials/fsundials.i"
 
-// Ignore command-line processing functions since they are not supported in Fortran
-%ignore SUNNonlinSolSetOptions;
-
 %{
 #include "sundials/sundials_nonlinearsolver.h"
 %}
@@ -31,4 +28,3 @@
 %define %sunnonlinsol_impl(TYPE)
   %ignore _SUNNonlinearSolverContent_## TYPE ##;
 %enddef
-
