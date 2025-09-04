@@ -107,7 +107,7 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->setatimes = SUNDomEigEstimator_SetATimes_Arnoldi;
+  DEE->ops->setatimes  = SUNDomEigEstimator_SetATimes_Arnoldi;
   DEE->ops->setoptions = SUNDomEigEstimator_SetOptions_Arnoldi;
   DEE->ops->setnumpreprocessiters =
     SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi;
@@ -212,7 +212,7 @@ static SUNErrCode setFromCommandLine_Arnoldi(SUNDomEigEstimator DEE,
     {
       idx += 1;
       int iarg = atoi(argv[idx]);
-      retval = SUNDomEigEstimator_SetRefineGuess_Arnoldi(DEE, iarg);
+      retval   = SUNDomEigEstimator_SetRefineGuess_Arnoldi(DEE, iarg);
       if (retval != SUN_SUCCESS)
       {
         free(prefix);

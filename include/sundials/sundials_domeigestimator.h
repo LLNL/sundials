@@ -83,9 +83,9 @@ SUNErrCode SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* A_data,
                                         SUNATimesFn ATimes);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDomEigEstimator_SetOptions(SUNDomEigEstimator DEE, const char* Did,
-                                         const char* file_name, int argc,
-                                         char* argv[]);
+SUNErrCode SUNDomEigEstimator_SetOptions(SUNDomEigEstimator DEE,
+                                         const char* Did, const char* file_name,
+                                         int argc, char* argv[]);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDomEigEstimator_SetMaxIters(SUNDomEigEstimator DEE,

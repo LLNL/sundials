@@ -671,14 +671,12 @@ int lsrkStep_SetOptions(ARKodeMem ark_mem, int* argidx, char* argv[],
     {"dom_eig_frequency", LSRKStepSetDomEigFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static const struct sunKeyIntPair int_pairs[] = {{"max_num_stages",
-                                                    LSRKStepSetMaxNumStages},
-                                                   {"num_ssp_stages",
-                                                    LSRKStepSetNumSSPStages},
-                                                   {"dom_eig_est_init_preprocess_iters",
-                                                    LSRKStepSetNumDomEigEstInitPreprocessIters},
-                                                   {"dom_eig_est_preprocess_iters",
-                                                    LSRKStepSetNumDomEigEstPreprocessIters}};
+  static const struct sunKeyIntPair int_pairs[] =
+    {{"max_num_stages", LSRKStepSetMaxNumStages},
+     {"num_ssp_stages", LSRKStepSetNumSSPStages},
+     {"dom_eig_est_init_preprocess_iters",
+      LSRKStepSetNumDomEigEstInitPreprocessIters},
+     {"dom_eig_est_preprocess_iters", LSRKStepSetNumDomEigEstPreprocessIters}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static const struct sunKeyRealPair real_pairs[] = {

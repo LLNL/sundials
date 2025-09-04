@@ -122,7 +122,7 @@ SUNErrCode sunDEESetFromCommandLine(SUNDomEigEstimator DEE, const char* Did,
     {
       idx += 1;
       long int large = atol(argv[idx]);
-      retval        = SUNDomEigEstimator_SetMaxIters(DEE, large);
+      retval         = SUNDomEigEstimator_SetMaxIters(DEE, large);
       if (retval != SUN_SUCCESS)
       {
         free(prefix);
@@ -158,7 +158,6 @@ SUNErrCode sunDEESetFromCommandLine(SUNDomEigEstimator DEE, const char* Did,
       }
       continue;
     }
-
   }
 
   free(prefix);
@@ -180,9 +179,9 @@ SUNErrCode SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* A_data,
   return (ier);
 }
 
-SUNErrCode SUNDomEigEstimator_SetOptions(SUNDomEigEstimator DEE, const char* Did,
-                                         const char* file_name, int argc,
-                                         char* argv[])
+SUNErrCode SUNDomEigEstimator_SetOptions(SUNDomEigEstimator DEE,
+                                         const char* Did, const char* file_name,
+                                         int argc, char* argv[])
 {
   if (DEE == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(DEE->sunctx);
