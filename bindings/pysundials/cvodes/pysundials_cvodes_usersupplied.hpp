@@ -31,7 +31,7 @@
 struct cvode_user_supplied_fn_table
 {
   // user-supplied function pointers
-  nb::object f, rootfn, ewtn, rwtn, nlsfi, projfn;
+  nb::object f, rootfn, ewtn, rwtn, fNLS, projfn;
 
   // cvode_ls user-supplied function pointers
   nb::object lsjacfn, lsprecsetupfn, lsprecsolvefn, lsjactimessetupfn,
@@ -90,7 +90,7 @@ inline int cvode_nlsrhsfn_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<CVRhsFn>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::nlsfi, std::forward<Args>(args)...);
+    1>(&cvode_user_supplied_fn_table::fNLS, std::forward<Args>(args)...);
 }
 
 template<typename... Args>

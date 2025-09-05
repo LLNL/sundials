@@ -189,6 +189,17 @@ typedef SUNDIALS_COUNTER_TYPE suncountertype;
 #define SUNTRUE 1
 #endif
 
+
+/*
+ *------------------------------------------------------------------
+ * Type : int1d
+ *------------------------------------------------------------------
+ * typedef for an int* which should be treated as an array of int.
+ *------------------------------------------------------------------
+ */
+
+typedef int* int1d;
+
 /*
  *------------------------------------------------------------------
  * Type : SUNOutputFormat

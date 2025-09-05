@@ -170,7 +170,7 @@ void bind_cvodes(nb::module_& m)
 
   BIND_CVODE_CALLBACK(CVodeWFtolerances, CVEwtFn, ewtn, cvode_ewtfn_wrapper);
 
-  BIND_CVODE_CALLBACK(CVodeSetNlsRhsFn, CVRhsFn, nlsfi, cvode_nlsrhsfn_wrapper);
+  BIND_CVODE_CALLBACK(CVodeSetNlsRhsFn, CVRhsFn, fNLS, cvode_nlsrhsfn_wrapper);
 
   BIND_CVODE_CALLBACK(CVodeSetJacFn, CVLsJacFn, lsjacfn, cvode_lsjacfn_wrapper);
 

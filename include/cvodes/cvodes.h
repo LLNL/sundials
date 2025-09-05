@@ -377,7 +377,7 @@ SUNDIALS_EXPORT int CVodeSetSensDQMethod(void* cvode_mem, int DQtype,
 SUNDIALS_EXPORT int CVodeSetSensErrCon(void* cvode_mem, sunbooleantype errconS);
 SUNDIALS_EXPORT int CVodeSetSensMaxNonlinIters(void* cvode_mem, int maxcorS);
 SUNDIALS_EXPORT int CVodeSetSensParams(void* cvode_mem, sunrealtype1d p,
-                                       sunrealtype1d pbar, int* plist);
+                                       sunrealtype1d pbar, int1d plist);
 
 /* Integrator nonlinear solver specification functions */
 SUNDIALS_EXPORT int CVodeSetNonlinearSolverSensSim(void* cvode_mem,

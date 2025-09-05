@@ -42,6 +42,7 @@ def main():
 
     # Transform arrays of thing to std::vector<thing>
     options.fn_params_array_pointers_to_std_vector = [
+        r"int1d",
         r"N_Vector1d",
         r"N_Vector2d",
         r"sunrealtype1d",

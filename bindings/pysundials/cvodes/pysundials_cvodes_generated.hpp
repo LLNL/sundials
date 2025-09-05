@@ -812,33 +812,21 @@ m.def("CVodeSetSensMaxNonlinIters", CVodeSetSensMaxNonlinIters,
 m.def(
   "CVodeSetSensParams",
   [](void* cvode_mem, std::vector<sunrealtype> p, std::vector<sunrealtype> pbar,
-     int plist) -> std::tuple<int, int>
+     std::vector<int> plist) -> int
   {
-    auto CVodeSetSensParams_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, sunrealtype1d p, sunrealtype1d pbar,
-         int plist) -> std::tuple<int, int>
-    {
-      int* plist_adapt_modifiable = &plist;
-
-      int r = CVodeSetSensParams(cvode_mem, p, pbar, plist_adapt_modifiable);
-      return std::make_tuple(r, plist);
-    };
     auto CVodeSetSensParams_adapt_arr_ptr_to_std_vector =
-      [&CVodeSetSensParams_adapt_modifiable_immutable_to_return](void* cvode_mem,
-                                                                 std::vector<sunrealtype> p,
-                                                                 std::vector<sunrealtype>
-                                                                   pbar,
-                                                                 int plist)
-      -> std::tuple<int, int>
+      [](void* cvode_mem, std::vector<sunrealtype> p,
+         std::vector<sunrealtype> pbar, std::vector<int> plist) -> int
     {
       sunrealtype* p_ptr = reinterpret_cast<sunrealtype*>(p.empty() ? nullptr
                                                                     : p.data());
       sunrealtype* pbar_ptr =
         reinterpret_cast<sunrealtype*>(pbar.empty() ? nullptr : pbar.data());
+      int* plist_ptr = reinterpret_cast<int*>(plist.empty() ? nullptr
+                                                            : plist.data());
 
-      auto lambda_result =
-        CVodeSetSensParams_adapt_modifiable_immutable_to_return(cvode_mem, p_ptr,
-                                                                pbar_ptr, plist);
+      auto lambda_result = CVodeSetSensParams(cvode_mem, p_ptr, pbar_ptr,
+                                              plist_ptr);
       return lambda_result;
     };
 
