@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ UMBC
+ * Programmer(s): Daniel Reynolds, Sylvia Amihere @ UMBC
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2025, Lawrence Livermore National Security,
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
   if (check_flag(ProbData.s1, "N_VNew_Serial", 0)) { return 1; }
   ProbData.s2 = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.s2, "N_VNew_Serial", 0)) { return 1; }
-  ProbData.up = SOMEMATRIXNUMBERup;
+  ProbData.up  = SOMEMATRIXNUMBERup;
   ProbData.low = SOMEMATRIXNUMBERlow;
 
   /* Fill xhat vector with uniform random data in [1,2] */
@@ -194,7 +194,6 @@ int main(int argc, char* argv[])
   for (i = 0; i < ProbData.N; i++) { vecdata[i] = ONE + urand(); }
 
   /* Fill Jacobi vector with matrix diagonal */
-  // N_VConst(FIVE, ProbData.d);
   N_VConst(SOMEMATRIXNUMBERd, ProbData.d);
 
   /* Create SPBCGS linear solver */
@@ -593,7 +592,7 @@ int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
       maxerr_real = SUNMAX(SUNRabs(SUN_REAL(diff)) / SUNRabs(SUN_REAL(Xdata[i])),
                            maxerr_real);
       maxerr_imag = SUNMAX(SUNRabs(SUN_IMAG(diff)) / SUNRabs(SUN_IMAG(Xdata[i])),
-                           maxerr_real);
+                           maxerr_imag);
     }
     printf("check err failure: maxerr = %" GSYM " + %" GSYM "i (tol = %" GSYM
            ")\n",
