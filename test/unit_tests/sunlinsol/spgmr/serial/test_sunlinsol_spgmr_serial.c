@@ -201,7 +201,6 @@ int main(int argc, char* argv[])
   for (i = 0; i < ProbData.N; i++) { vecdata[i] = ONE + urand(); }
 
   /* Fill Jacobi vector with matrix diagonal */
-  // N_VConst(FIVE, ProbData.d);
   N_VConst(SOMEMATRIXNUMBERd, ProbData.d);
 
   /* Create SPGMR linear solver */
