@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
   sunscalartype** H;
   int k, l;
   sunrealtype vnorm;
+  sunscalartype dprodNorm;
 
   if (SUNContext_Create(SUN_COMM_NULL, &sunctx))
   {
@@ -148,24 +149,18 @@ int main(int argc, char* argv[])
   {
     for (l = 0; l < 3; l++)
     {
-      float vnorm = N_VDotProd(V[k], V[l]);
+      N_VDotProdComplex(V[k], V[l], &dprodNorm);
+      //unit vectors
       if ((k == l) &&
-          (SUNabs(SUNabs(SUN_REAL(vnorm)) - SUN_RCONST(1.0))) > tolerance)
-      {
-        unit_vectorsReal = 1;
-      } //unit vectors
-      if ((k == l) && (SUNabs(SUN_IMAG(vnorm)) > tolerance))
-      {
-        unit_vectorsImag = 1;
-      }
-      if ((k != l) && (SUNabs(SUN_REAL(vnorm)) > tolerance))
-      {
-        orthogonalReal = 1;
-      } //orthogonal vectors
-      if ((k != l) && (SUNabs(SUN_IMAG(vnorm)) > tolerance))
-      {
-        orthogonalImag = 1;
-      }
+          (SUNabs(SUNabs(SUN_REAL(dprodNorm)) - SUN_RCONST(1.0))) > tolerance)
+      {unit_vectorsReal = 1;} 
+      if ((k == l) && (SUNabs(SUN_IMAG(dprodNorm)) > tolerance))
+      {unit_vectorsImag = 1;}
+      //orthogonal vectors
+      if ((k != l) && (SUNabs(SUN_REAL(dprodNorm)) > tolerance))
+      {orthogonalReal = 1;} 
+      if ((k != l) && (SUNabs(SUN_IMAG(dprodNorm)) > tolerance))
+      {orthogonalImag = 1;}
     }
   }
 
@@ -272,24 +267,18 @@ int main(int argc, char* argv[])
   {
     for (l = 0; l < 5; l++)
     {
-      float vnorm = N_VDotProd(V[k], V[l]);
+      N_VDotProdComplex(V[k], V[l], &dprodNorm);
+      //unit vectors
       if ((k == l) &&
-          (SUNabs(SUNabs(SUN_REAL(vnorm)) - SUN_RCONST(1.0))) > tolerance)
-      {
-        unit_vectorsReal = 1;
-      } //unit vectors
-      if ((k == l) && (SUNabs(SUN_IMAG(vnorm)) > tolerance))
-      {
-        unit_vectorsImag = 1;
-      }
-      if ((k != l) && (SUNabs(SUN_REAL(vnorm)) > tolerance))
-      {
-        orthogonalReal = 1;
-      } //orthogonal vectors
-      if ((k != l) && (SUNabs(SUN_IMAG(vnorm)) > tolerance))
-      {
-        orthogonalImag = 1;
-      }
+          (SUNabs(SUNabs(SUN_REAL(dprodNorm)) - SUN_RCONST(1.0))) > tolerance)
+      {unit_vectorsReal = 1;} 
+      if ((k == l) && (SUNabs(SUN_IMAG(dprodNorm)) > tolerance))
+      {unit_vectorsImag = 1;}
+      //orthogonal vectors
+      if ((k != l) && (SUNabs(SUN_REAL(dprodNorm)) > tolerance))
+      {orthogonalReal = 1;} 
+      if ((k != l) && (SUNabs(SUN_IMAG(dprodNorm)) > tolerance))
+      {orthogonalImag = 1;}
     }
   }
 
