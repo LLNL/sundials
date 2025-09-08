@@ -660,7 +660,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     (*nli)++;
 
     /* sigma = r_star^T*v */
-    SUNCheckCall(N_VDotProdComplex(v, r_star, &sigma));
+    SUNCheckCall(N_VDotProdComplex(r_star, v, &sigma));
 
     /* alpha = rho[0]/sigma */
     alpha = rho[0] / sigma;
@@ -957,7 +957,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     if (converged == SUNTRUE) { break; }
 
     /* rho[1] = r_star^T*r_[1] */
-    SUNCheckCall(N_VDotProdComplex(r[1], r_star, &rho[1]));
+    SUNCheckCall(N_VDotProdComplex(r_star, r[1], &rho[1]));
 
     /* beta = rho[1]/rho[0] */
     beta = rho[1] / rho[0];
