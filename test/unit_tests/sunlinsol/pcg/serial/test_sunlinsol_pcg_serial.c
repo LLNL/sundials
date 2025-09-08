@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds, Ashley Crawford @ UMBC
+ * Programmer(s): Daniel Reynolds, Ashley Crawford, Sylvia Amihere @ UMBC
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2025, Lawrence Livermore National Security,

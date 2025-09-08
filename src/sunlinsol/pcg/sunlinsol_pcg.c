@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds, Ashley Crawford, Sylvia Amihere @ UMBC
+ * Programmer(s): Daniel Reynolds, Ashley Crawford @ UMBC
  * Based on sundials_pcg.c code, written by Daniel Reynolds @ UMBC
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
