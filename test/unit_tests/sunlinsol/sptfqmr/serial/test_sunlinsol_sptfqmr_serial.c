@@ -62,8 +62,8 @@ typedef struct
   N_Vector d;     /* matrix diagonal */
   N_Vector s1;    /* scaling vectors supplied to SPTFQMR */
   N_Vector s2;
-  suncomplextype up;    /* nondiagonal entries of the matrix */
-  suncomplextype low;  /* nondiagonal entries of the matrix */
+  sunscalartype up;    /* nondiagonal entries of the matrix */
+  sunscalartype low;  /* nondiagonal entries of the matrix */
 } UserData;
 
 /* private functions */
