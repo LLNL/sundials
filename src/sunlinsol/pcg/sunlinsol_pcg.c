@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds, Ashley Crawford, Sylvia Amihere @ SMU
+ * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * Based on sundials_pcg.c code, written by Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
