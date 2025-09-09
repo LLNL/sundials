@@ -41,7 +41,7 @@ if(BUILD_SUNLINSOL_GINKGO)
               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
   install(
     FILES ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgo.hpp
-          ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgoblock.hpp
+          ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_ginkgobatch.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunlinsol")
   set(_SUNDIALS_INSTALLED_COMPONENTS
       "sunlinsolginkgo;${_SUNDIALS_INSTALLED_COMPONENTS}"

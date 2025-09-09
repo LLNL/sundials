@@ -37,7 +37,7 @@ if(BUILD_SUNMATRIX_GINKGO)
               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
   install(
     FILES ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgo.hpp
-          ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgoblock.hpp
+          ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_ginkgobatch.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix")
   set(_SUNDIALS_INSTALLED_COMPONENTS
       "sunmatrixginkgo;${_SUNDIALS_INSTALLED_COMPONENTS}"

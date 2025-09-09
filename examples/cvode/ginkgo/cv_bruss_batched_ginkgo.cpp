@@ -43,7 +43,7 @@
  *
  * This program solves the problem with the BDF method, Newton iteration, a
  * user-supplied Jacobian routine, and since the grouping of the independent
- * systems results in a block diagonal linear system, with the Ginkgo
+ * systems results in a batch diagonal linear system, with the Ginkgo
  * SUNLinearSolver which supports batched iterative methods. 100 outputs are
  * printed at equal intervals, and run statistics are printed at the end.
  *
@@ -76,7 +76,7 @@
 #include <random>
 
 #include <cvode/cvode.h> /* prototypes for CVODE fcts., consts. */
-#include <sunlinsol/sunlinsol_ginkgoblock.hpp> /* access to Ginkgo block/batched SUNLinearSolver */
+#include <sunlinsol/sunlinsol_ginkgobatch.hpp> /* access to Ginkgo batch SUNLinearSolver */
 #include <sunlinsol/sunlinsol_spbcgs.h> /* access to SUNDIALS BiCGSTAB SUNLinearSolver */
 
 #include "cv_bruss_batched_ginkgo.hpp"
@@ -94,16 +94,16 @@ static int JacVec(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
 SERIAL_CUDA_OR_HIP(, __global__, __global__)
 static void f_kernel(sunrealtype t, sunrealtype* y, sunrealtype* ydot,
                      sunrealtype* A, sunrealtype* B, sunrealtype* Ep, int neq,
-                     int nbatches, int batchSize);
+                     int nbatches, int batchesize);
 SERIAL_CUDA_OR_HIP(, __global__, __global__)
 static void j_kernel(sunrealtype* ydata, sunrealtype* Jdata, sunrealtype* A,
                      sunrealtype* B, sunrealtype* Ep, int neq, int nbatches,
-                     int batchSize, int nnzper);
+                     int batchesize, int nnzper);
 
 SERIAL_CUDA_OR_HIP(, __global__, __global__)
 static void jv_kernel(sunrealtype* vdata, sunrealtype* Jvdata, sunrealtype* A,
                       sunrealtype* B, sunrealtype* Ep, int neq, int nbatches,
-                      int batchSize, int nnzper);
+                      int batchesize, int nnzper);
 
 /* Private function to initialize the Jacobian sparsity pattern */
 static int JacInit(SUNMatrix J);
@@ -119,11 +119,11 @@ static void PrintFinalStats(void* cvode_mem, SUNLinearSolver LS);
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* Shortcuts */
-using GkoBatchMatrixType = gko::batch::matrix::Csr<sunrealtype, sunindextype>;
-using GkoBatchSolverType = gko::batch::solver::Bicgstab<sunrealtype>;
-using SUNGkoMatrixType   = sundials::ginkgo::BlockMatrix<GkoBatchMatrixType>;
+using GkoBatchMatrixType  = gko::batch::matrix::Csr<sunrealtype, sunindextype>;
+using GkoBatchesolverType = gko::batch::solver::Bicgstab<sunrealtype>;
+using SUNGkoMatrixType    = sundials::ginkgo::BatchMatrix<GkoBatchMatrixType>;
 using SUNGkoLinearSolverType =
-  sundials::ginkgo::BlockLinearSolver<GkoBatchSolverType, GkoBatchMatrixType>;
+  sundials::ginkgo::BatchLinearSolver<GkoBatchesolverType, GkoBatchMatrixType>;
 
 /*
  *-------------------------------
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
                                                  SUNMemoryHelper_Hip(sunctx));
 
   /* Set defaults */
-  int batchSize   = 3;
+  int batchesize  = 3;
   int nbatches    = 100;
   int test_type   = 0;
   int solver_type = 0;
@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
   if (argc > 2) { solver_type = atoi(argv[++argi]); }
   if (argc > 3) { test_type = atoi(argv[++argi]); }
 
-  UserData udata{nbatches, batchSize, batchSize * batchSize, memhelper};
+  UserData udata{nbatches, batchesize, batchesize * batchesize, memhelper};
 
   /* Set the Reaction parameters according to test_type */
   std::random_device rd;
@@ -235,18 +235,18 @@ int main(int argc, char* argv[])
   sunrealtype* ydata = N_VGetArrayPointer(y);
   for (int batchj = 0; batchj < udata.nbatches; ++batchj)
   {
-    ydata[batchj * udata.batchSize]     = udata.u0[batchj];
-    ydata[batchj * udata.batchSize + 1] = udata.v0[batchj];
-    ydata[batchj * udata.batchSize + 2] = udata.w0[batchj];
+    ydata[batchj * udata.batchesize]     = udata.u0[batchj];
+    ydata[batchj * udata.batchesize + 1] = udata.v0[batchj];
+    ydata[batchj * udata.batchesize + 2] = udata.w0[batchj];
   }
 
   /* Set the vector absolute tolerance */
   sunrealtype* abstol_data = N_VGetArrayPointer(abstol);
   for (int batchj = 0; batchj < udata.nbatches; ++batchj)
   {
-    abstol_data[batchj * udata.batchSize]     = 1.0e-15;
-    abstol_data[batchj * udata.batchSize + 1] = 1.0e-15;
-    abstol_data[batchj * udata.batchSize + 2] = 1.0e-15;
+    abstol_data[batchj * udata.batchesize]     = 1.0e-15;
+    abstol_data[batchj * udata.batchesize + 1] = 1.0e-15;
+    abstol_data[batchj * udata.batchesize + 2] = 1.0e-15;
   }
 
   /* Call CVodeCreate to create the solver memory and specify the
@@ -270,12 +270,12 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVodeSVtolerances", 1)) { return (1); }
 
   /* Create SUNMatrix for use in linear solves */
-  sunindextype block_rows = udata.batchSize;
-  sunindextype block_cols = udata.batchSize;
-  auto block_size         = gko::batch_dim<2>(udata.nbatches,
-                                      gko::dim<2>(block_rows, block_cols));
+  sunindextype batch_rows = udata.batchesize;
+  sunindextype batch_cols = udata.batchesize;
+  auto batch_size         = gko::batch_dim<2>(udata.nbatches,
+                                      gko::dim<2>(batch_rows, batch_cols));
   auto gko_matA =
-    gko::share(GkoBatchMatrixType::create(gko_exec, block_size, udata.nnzper));
+    gko::share(GkoBatchMatrixType::create(gko_exec, batch_size, udata.nnzper));
   SUNGkoMatrixType A{gko_matA, sunctx};
 
   /* Initialiize the Jacobian with its fixed sparsity pattern */
@@ -311,12 +311,12 @@ int main(int argc, char* argv[])
     if (check_retval(&retval, "CVodeSetJacTimes", 1)) return (1);
   }
 
-  /* WARNING: THIS STEP IS ESSENTIAL WHEN USING SUNLINSOL_GINKGOBLOCK!
+  /* WARNING: THIS STEP IS ESSENTIAL WHEN USING SUNLINSOL_GINKGOBATCH!
      We need to adjust the norm factor to be the sqrt of the length of the batch
      instead of the sqrt of the length of the overall system, since the linear
      solver is batched.
    */
-  CVodeSetLSNormFactor(cvode_mem, std::sqrt(udata.batchSize));
+  CVodeSetLSNormFactor(cvode_mem, std::sqrt(udata.batchesize));
 
   /* Increase the max number of time steps allowed */
   CVodeSetMaxNumSteps(cvode_mem, 5000);
@@ -336,9 +336,9 @@ int main(int argc, char* argv[])
     for (int batchj = 0; batchj < udata.nbatches; batchj++)
     {
       printf("batch_%d: ", batchj);
-      PrintOutput(t, ydata[batchj * udata.batchSize],
-                  ydata[batchj * udata.batchSize + 1],
-                  ydata[batchj * udata.batchSize + 2]);
+      PrintOutput(t, ydata[batchj * udata.batchesize],
+                  ydata[batchj * udata.batchesize + 1],
+                  ydata[batchj * udata.batchesize + 2]);
     }
 
     if (check_retval(&retval, "CVode", 1)) break;
@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
 
 /*
  * Jacobian initialization routine. This sets the sparisty pattern of
- * the blocks of the Jacobian J(t,y) = df/dy. This is performed on the CPU,
+ * the batches of the Jacobian J(t,y) = df/dy. This is performed on the CPU,
  * and only occurs at the beginning of the simulation.
  */
 
@@ -395,17 +395,17 @@ int JacInit(SUNMatrix J)
 
   sunindextype colvals_host[9];
 
-  /* first row of block */
+  /* first row of batch */
   colvals_host[0] = 0;
   colvals_host[1] = 1;
   colvals_host[2] = 2;
 
-  /* second row of block */
+  /* second row of batch */
   colvals_host[3] = 0;
   colvals_host[4] = 1;
   colvals_host[5] = 2;
 
-  /* third row of block */
+  /* third row of batch */
   colvals_host[6] = 0;
   colvals_host[7] = 1;
   colvals_host[8] = 2;
@@ -420,17 +420,17 @@ int JacInit(SUNMatrix J)
   rowptrs[2] = 6;
   rowptrs[3] = 9;
 
-  /* first row of block */
+  /* first row of batch */
   colvals[0] = 0;
   colvals[1] = 1;
   colvals[2] = 2;
 
-  /* second row of block */
+  /* second row of batch */
   colvals[3] = 0;
   colvals[4] = 1;
   colvals[5] = 2;
 
-  /* third row of block */
+  /* third row of batch */
   colvals[6] = 0;
   colvals[7] = 1;
   colvals[8] = 2;
@@ -463,10 +463,10 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   unsigned threads_per_block = 256;
   unsigned num_blocks        = (udata->nbatches + threads_per_block - 1) /
                         threads_per_block;
-  f_kernel<<<num_blocks, threads_per_block>>>(t, ydata, ydotdata,
-                                              udata->a.get(), udata->b.get(),
-                                              udata->ep.get(), udata->neq,
-                                              udata->nbatches, udata->batchSize);
+  f_kernel<<<num_blocks, threads_per_block>>>(t, ydata, ydotdata, udata->a.get(),
+                                              udata->b.get(), udata->ep.get(),
+                                              udata->neq, udata->nbatches,
+                                              udata->batchesize);
 
   SERIAL_CUDA_OR_HIP(, cudaDeviceSynchronize(), hipDeviceSynchronize());
   SERIAL_CUDA_OR_HIP(, cudaError_t gpu_err = cudaGetLastError(),
@@ -480,7 +480,7 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   }
 #else
   f_kernel(t, ydata, ydotdata, udata->a.get(), udata->b.get(), udata->ep.get(),
-           udata->neq, udata->nbatches, udata->batchSize);
+           udata->neq, udata->nbatches, udata->batchesize);
 #endif
 
   return 0;
@@ -508,7 +508,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
   j_kernel<<<num_blocks, threads_per_block>>>(ydata, Jdata, udata->a.get(),
                                               udata->b.get(), udata->ep.get(),
                                               udata->neq, udata->nbatches,
-                                              udata->batchSize, udata->nnzper);
+                                              udata->batchesize, udata->nnzper);
 
   SERIAL_CUDA_OR_HIP(, cudaDeviceSynchronize(), hipDeviceSynchronize());
   SERIAL_CUDA_OR_HIP(, cudaError_t gpu_err = cudaGetLastError(),
@@ -522,7 +522,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
   }
 #else
   j_kernel(ydata, Jdata, udata->a.get(), udata->b.get(), udata->ep.get(),
-           udata->neq, udata->nbatches, udata->batchSize, udata->nnzper);
+           udata->neq, udata->nbatches, udata->batchesize, udata->nnzper);
 #endif
 
   return 0;
@@ -544,7 +544,7 @@ int JacVec(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, N_Vector fy,
   jv_kernel<<<num_blocks, threads_per_block>>>(vdata, Jvdata, udata->a.get(),
                                                udata->b.get(), udata->ep.get(),
                                                udata->neq, udata->nbatches,
-                                               udata->batchSize, udata->nnzper);
+                                               udata->batchesize, udata->nnzper);
 
   SERIAL_CUDA_OR_HIP(, cudaDeviceSynchronize(), hipDeviceSynchronize());
   SERIAL_CUDA_OR_HIP(, cudaError_t gpu_err = cudaGetLastError(),
@@ -558,7 +558,7 @@ int JacVec(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, N_Vector fy,
   }
 #else
   jv_kernel(vdata, Jvdata, udata->a.get(), udata->b.get(), udata->ep.get(),
-            udata->neq, udata->nbatches, udata->batchSize, udata->nnzper);
+            udata->neq, udata->nbatches, udata->batchesize, udata->nnzper);
 #endif
 
   return 0;
@@ -569,7 +569,7 @@ int JacVec(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, N_Vector fy,
    This kernel needs total number of threads >= nbatches. */
 __global__ void f_kernel(sunrealtype t, sunrealtype* ydata,
                          sunrealtype* ydotdata, sunrealtype* A, sunrealtype* B,
-                         sunrealtype* Ep, int neq, int nbatches, int batchSize)
+                         sunrealtype* Ep, int neq, int nbatches, int batchesize)
 {
   sunrealtype u, v, w, a, b, ep;
 
@@ -580,13 +580,13 @@ __global__ void f_kernel(sunrealtype t, sunrealtype* ydata,
     a = A[batchj];
     b = B[batchj], ep = Ep[batchj];
 
-    u = ydata[batchj * batchSize];
-    v = ydata[batchj * batchSize + 1];
-    w = ydata[batchj * batchSize + 2];
+    u = ydata[batchj * batchesize];
+    v = ydata[batchj * batchesize + 1];
+    w = ydata[batchj * batchesize + 2];
 
-    ydotdata[batchj * batchSize]     = a - (w + 1.0) * u + v * u * u;
-    ydotdata[batchj * batchSize + 1] = w * u - v * u * u;
-    ydotdata[batchj * batchSize + 2] = (b - w) / ep - w * u;
+    ydotdata[batchj * batchesize]     = a - (w + 1.0) * u + v * u * u;
+    ydotdata[batchj * batchesize + 1] = w * u - v * u * u;
+    ydotdata[batchj * batchesize + 2] = (b - w) / ep - w * u;
   }
 }
 
@@ -594,7 +594,7 @@ __global__ void f_kernel(sunrealtype t, sunrealtype* ydata,
    This kernel needs total number of threads >= nbatches. */
 __global__ void j_kernel(sunrealtype* ydata, sunrealtype* Jdata, sunrealtype* A,
                          sunrealtype* B, sunrealtype* Ep, int neq, int nbatches,
-                         int batchSize, int nnzper)
+                         int batchesize, int nnzper)
 {
   sunrealtype u, v, w, ep;
 
@@ -605,21 +605,21 @@ __global__ void j_kernel(sunrealtype* ydata, sunrealtype* Jdata, sunrealtype* A,
     ep = Ep[batchj];
 
     /* get y values */
-    u = ydata[batchSize * batchj];
-    v = ydata[batchSize * batchj + 1];
-    w = ydata[batchSize * batchj + 2];
+    u = ydata[batchesize * batchj];
+    v = ydata[batchesize * batchj + 1];
+    w = ydata[batchesize * batchj + 2];
 
-    /* first row of block */
+    /* first row of batch */
     Jdata[nnzper * batchj]     = -(w + 1.0) + 2.0 * u * v;
     Jdata[nnzper * batchj + 1] = u * u;
     Jdata[nnzper * batchj + 2] = -u;
 
-    /* second row of block */
+    /* second row of batch */
     Jdata[nnzper * batchj + 3] = w - 2.0 * u * v;
     Jdata[nnzper * batchj + 4] = -u * u;
     Jdata[nnzper * batchj + 5] = u;
 
-    /* third row of block */
+    /* third row of batch */
     Jdata[nnzper * batchj + 6] = -w;
     Jdata[nnzper * batchj + 7] = 0.0;
     Jdata[nnzper * batchj + 8] = -1.0 / ep - u;
@@ -630,7 +630,7 @@ __global__ void j_kernel(sunrealtype* ydata, sunrealtype* Jdata, sunrealtype* A,
    This kernel needs total number of threads >= nbatches. */
 __global__ void jv_kernel(sunrealtype* vdata, sunrealtype* Jvdata,
                           sunrealtype* A, sunrealtype* B, sunrealtype* Ep,
-                          int neq, int nbatches, int batchSize, int nnzper)
+                          int neq, int nbatches, int batchesize, int nnzper)
 {
   sunrealtype u, v, w, ep;
 
@@ -641,35 +641,35 @@ __global__ void jv_kernel(sunrealtype* vdata, sunrealtype* Jvdata,
     ep = Ep[batchj];
 
     /* get v values */
-    u = vdata[batchSize * batchj];
-    v = vdata[batchSize * batchj + 1];
-    w = vdata[batchSize * batchj + 2];
+    u = vdata[batchesize * batchj];
+    v = vdata[batchesize * batchj + 1];
+    w = vdata[batchesize * batchj + 2];
 
     /* initialize Jv to zero */
-    Jvdata[batchSize * batchj]     = 0.0;
-    Jvdata[batchSize * batchj + 1] = 0.0;
-    Jvdata[batchSize * batchj + 2] = 0.0;
+    Jvdata[batchesize * batchj]     = 0.0;
+    Jvdata[batchesize * batchj + 1] = 0.0;
+    Jvdata[batchesize * batchj + 2] = 0.0;
 
     /* add J[:,0]*v[0] */
-    Jvdata[batchSize * batchj] += (-(w + 1.0) + 2.0 * u * v) * u;
-    Jvdata[batchSize * batchj + 1] += (w - 2.0 * u * v) * u;
-    Jvdata[batchSize * batchj + 2] += -w * u;
+    Jvdata[batchesize * batchj] += (-(w + 1.0) + 2.0 * u * v) * u;
+    Jvdata[batchesize * batchj + 1] += (w - 2.0 * u * v) * u;
+    Jvdata[batchesize * batchj + 2] += -w * u;
 
     /* add J[:,1]*v[1] */
-    Jvdata[batchSize * batchj] += (u * u) * v;
-    Jvdata[batchSize * batchj + 1] += 0.0;
-    Jvdata[batchSize * batchj + 2] += u * v;
+    Jvdata[batchesize * batchj] += (u * u) * v;
+    Jvdata[batchesize * batchj + 1] += 0.0;
+    Jvdata[batchesize * batchj + 2] += u * v;
 
     /* add J[:,2]*v[2] */
-    Jvdata[batchSize * batchj] += -u * w;
-    Jvdata[batchSize * batchj + 1] += u * w;
-    Jvdata[batchSize * batchj + 2] += (-1.0 / ep - u) * w;
+    Jvdata[batchesize * batchj] += -u * w;
+    Jvdata[batchesize * batchj + 1] += u * w;
+    Jvdata[batchesize * batchj + 2] += (-1.0 / ep - u) * w;
   }
 }
 #else
 void f_kernel(sunrealtype t, sunrealtype* ydata, sunrealtype* ydotdata,
               sunrealtype* A, sunrealtype* B, sunrealtype* Ep, int neq,
-              int nbatches, int batchSize)
+              int nbatches, int batchesize)
 {
   sunrealtype u, v, w, a, b, ep;
 
@@ -678,36 +678,36 @@ void f_kernel(sunrealtype t, sunrealtype* ydata, sunrealtype* ydotdata,
     a = A[batchj];
     b = B[batchj], ep = Ep[batchj];
 
-    u = ydata[batchj * batchSize];
-    v = ydata[batchj * batchSize + 1];
-    w = ydata[batchj * batchSize + 2];
+    u = ydata[batchj * batchesize];
+    v = ydata[batchj * batchesize + 1];
+    w = ydata[batchj * batchesize + 2];
 
-    ydotdata[batchj * batchSize]     = a - (w + 1.0) * u + v * u * u;
-    ydotdata[batchj * batchSize + 1] = w * u - v * u * u;
-    ydotdata[batchj * batchSize + 2] = (b - w) / ep - w * u;
+    ydotdata[batchj * batchesize]     = a - (w + 1.0) * u + v * u * u;
+    ydotdata[batchj * batchesize + 1] = w * u - v * u * u;
+    ydotdata[batchj * batchesize + 2] = (b - w) / ep - w * u;
   }
 }
 
 void j_kernel(sunrealtype* ydata, sunrealtype* Jdata, sunrealtype* A,
               sunrealtype* B, sunrealtype* Ep, int neq, int nbatches,
-              int batchSize, int nnzper)
+              int batchesize, int nnzper)
 {
   sunrealtype u, v, w, ep;
   for (int batchj = 0; batchj < nbatches; batchj++)
   {
     ep = Ep[batchj];
-    u  = ydata[batchSize * batchj];
-    v  = ydata[batchSize * batchj + 1];
-    w  = ydata[batchSize * batchj + 2];
-    // first row of block
+    u  = ydata[batchesize * batchj];
+    v  = ydata[batchesize * batchj + 1];
+    w  = ydata[batchesize * batchj + 2];
+    // first row of batch
     Jdata[nnzper * batchj]     = -(w + 1.0) + 2.0 * u * v;
     Jdata[nnzper * batchj + 1] = u * u;
     Jdata[nnzper * batchj + 2] = -u;
-    // second row of block
+    // second row of batch
     Jdata[nnzper * batchj + 3] = w - 2.0 * u * v;
     Jdata[nnzper * batchj + 4] = -u * u;
     Jdata[nnzper * batchj + 5] = u;
-    // third row of block
+    // third row of batch
     Jdata[nnzper * batchj + 6] = -w;
     Jdata[nnzper * batchj + 7] = 0.0;
     Jdata[nnzper * batchj + 8] = -1.0 / ep - u;
@@ -716,32 +716,32 @@ void j_kernel(sunrealtype* ydata, sunrealtype* Jdata, sunrealtype* A,
 
 void jv_kernel(sunrealtype* vdata, sunrealtype* Jvdata, sunrealtype* A,
                sunrealtype* B, sunrealtype* Ep, int neq, int nbatches,
-               int batchSize, int nnzper)
+               int batchesize, int nnzper)
 {
   sunrealtype u, v, w, ep;
   for (int batchj = 0; batchj < nbatches; batchj++)
   {
     ep = Ep[batchj];
     // get v values
-    u = vdata[batchSize * batchj];
-    v = vdata[batchSize * batchj + 1];
-    w = vdata[batchSize * batchj + 2];
+    u = vdata[batchesize * batchj];
+    v = vdata[batchesize * batchj + 1];
+    w = vdata[batchesize * batchj + 2];
     // initialize Jv to zero
-    Jvdata[batchSize * batchj]     = 0.0;
-    Jvdata[batchSize * batchj + 1] = 0.0;
-    Jvdata[batchSize * batchj + 2] = 0.0;
+    Jvdata[batchesize * batchj]     = 0.0;
+    Jvdata[batchesize * batchj + 1] = 0.0;
+    Jvdata[batchesize * batchj + 2] = 0.0;
     // add J[:,0]*v[0]
-    Jvdata[batchSize * batchj] += (-(w + 1.0) + 2.0 * u * v) * u;
-    Jvdata[batchSize * batchj + 1] += (w - 2.0 * u * v) * u;
-    Jvdata[batchSize * batchj + 2] += -w * u;
+    Jvdata[batchesize * batchj] += (-(w + 1.0) + 2.0 * u * v) * u;
+    Jvdata[batchesize * batchj + 1] += (w - 2.0 * u * v) * u;
+    Jvdata[batchesize * batchj + 2] += -w * u;
     // add J[:,1]*v[1]
-    Jvdata[batchSize * batchj] += (u * u) * v;
-    Jvdata[batchSize * batchj + 1] += 0.0;
-    Jvdata[batchSize * batchj + 2] += u * v;
+    Jvdata[batchesize * batchj] += (u * u) * v;
+    Jvdata[batchesize * batchj + 1] += 0.0;
+    Jvdata[batchesize * batchj + 2] += u * v;
     // add J[:,2]*v[2]
-    Jvdata[batchSize * batchj] += -u * w;
-    Jvdata[batchSize * batchj + 1] += u * w;
-    Jvdata[batchSize * batchj + 2] += (-1.0 / ep - u) * w;
+    Jvdata[batchesize * batchj] += -u * w;
+    Jvdata[batchesize * batchj + 1] += u * w;
+    Jvdata[batchesize * batchj + 2] += (-1.0 / ep - u) * w;
   }
 }
 #endif

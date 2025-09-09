@@ -24,7 +24,7 @@
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <sunlinsol/sunlinsol_ginkgoblock.hpp>
+#include <sunlinsol/sunlinsol_ginkgobatch.hpp>
 
 #include "test_sunlinsol.h"
 
@@ -125,10 +125,10 @@ int main(int argc, char* argv[])
     std::cerr << "ERROR: SEVEN (7) inputs required:\n"
               << "  1) batch method\n"
               << "  2) matrix type (csr or dense)\n"
-              << "  3) number of matrix columns in a block\n"
-              << "  4) number of matrix blocks"
-              << "  5) condition number of a block\n"
-              << "  6) max iterations per block\n"
+              << "  3) number of matrix columns in a batch\n"
+              << "  4) number of matrix batches"
+              << "  5) condition number of a batch\n"
+              << "  6) max iterations per batch\n"
               << "  7) print timing\n";
     return 1;
   }
@@ -165,10 +165,10 @@ int main(int argc, char* argv[])
   }
   const auto matrows{matcols};
 
-  const auto num_blocks{static_cast<sunindextype>(atoll(argv[++argi]))};
-  if (num_blocks <= 0)
+  const auto num_batches{static_cast<sunindextype>(atoll(argv[++argi]))};
+  if (num_batches <= 0)
   {
-    std::cerr << "ERROR: number of blocks must be a positive integer\n";
+    std::cerr << "ERROR: number of batches must be a positive integer\n";
     return 1;
   }
 
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
             << "  method     = " << method.c_str() << "\n"
             << "  matrix     = " << matrix_type.c_str() << "\n"
             << "  size       = " << matrows << " x " << matcols << " x "
-            << num_blocks << " (blocks)\n"
+            << num_batches << " (batches)\n"
             << "  cond       = " << matcond << "\n"
             << "  max iters. = " << max_iters << "\n\n";
 
@@ -203,9 +203,9 @@ int main(int argc, char* argv[])
    * ------------------------------- */
 
 #if defined(USE_SYCL)
-  N_Vector x{N_VNew(num_blocks * matcols, gko_exec->get_queue(), sunctx)};
+  N_Vector x{N_VNew(num_batches * matcols, gko_exec->get_queue(), sunctx)};
 #else
-  N_Vector x{N_VNew(num_blocks * matcols, sunctx)};
+  N_Vector x{N_VNew(num_batches * matcols, sunctx)};
 #endif
   N_Vector b{N_VClone(x)};
 
@@ -213,18 +213,18 @@ int main(int argc, char* argv[])
   std::default_random_engine engine;
   std::uniform_real_distribution<sunrealtype> distribution_real(8, 10);
   sunrealtype* xdata = N_VGetArrayPointer(x);
-  for (sunindextype blocki = 0; blocki < num_blocks; blocki++)
+  for (sunindextype batchi = 0; batchi < num_batches; batchi++)
   {
     for (sunindextype i = 0; i < matcols; i++)
     {
-      xdata[blocki * matcols + i] = distribution_real(engine);
+      xdata[batchi * matcols + i] = distribution_real(engine);
     }
   }
   HIP_OR_CUDA_OR_SYCL(N_VCopyToDevice_Hip(x), N_VCopyToDevice_Cuda(x),
                       N_VCopyToDevice_Sycl(x));
 
   auto matrix_dim = gko::dim<2>(matrows, matcols);
-  //auto batch_mat_size = gko::batch_dim<2>(num_blocks, matrix_dim);
+  //auto batch_mat_size = gko::batch_dim<2>(num_batches, matrix_dim);
 
   auto gko_matdata =
     matcond > 0
@@ -253,15 +253,15 @@ int main(int argc, char* argv[])
     auto common_size = gko_matrix->get_size();
     auto gko_batch_matrix{
       GkoBatchMatrixType::create(gko_exec,
-                                 gko::batch_dim<2>(num_blocks, common_size),
+                                 gko::batch_dim<2>(num_batches, common_size),
                                  num_nnz)};
-    for (sunindextype blk = 0; blk < num_blocks; ++blk)
+    for (sunindextype blk = 0; blk < num_batches; ++blk)
     {
       gko_batch_matrix->create_view_for_item(blk)->read(gko_matdata);
     }
 
     A = std::make_unique<
-      sundials::ginkgo::BlockMatrix<GkoBatchMatrixType>>(std::move(
+      sundials::ginkgo::BatchMatrix<GkoBatchMatrixType>>(std::move(
                                                            gko_batch_matrix),
                                                          sunctx);
   }
@@ -276,14 +276,14 @@ int main(int argc, char* argv[])
     auto common_size = gko_matrix->get_size();
     auto gko_batch_matrix{
       GkoBatchMatrixType::create(gko_exec,
-                                 gko::batch_dim<2>(num_blocks, common_size))};
-    for (sunindextype blk = 0; blk < num_blocks; ++blk)
+                                 gko::batch_dim<2>(num_batches, common_size))};
+    for (sunindextype blk = 0; blk < num_batches; ++blk)
     {
       gko_batch_matrix->create_view_for_item(blk)->read(gko_matdata);
     }
 
     A = std::make_unique<
-      sundials::ginkgo::BlockMatrix<GkoBatchMatrixType>>(std::move(
+      sundials::ginkgo::BatchMatrix<GkoBatchMatrixType>>(std::move(
                                                            gko_batch_matrix),
                                                          sunctx);
   }
@@ -324,27 +324,27 @@ int main(int argc, char* argv[])
     {
       using GkoBatchMatrixType = gko::batch::matrix::Csr<sunrealtype>;
       using SUNGkoLinearSolverType =
-        BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
+        BatchLinearSolver<GkoSolverType, GkoBatchMatrixType>;
       LS =
         std::make_unique<SUNGkoLinearSolverType>(gko_exec,
                                                  gko::batch::stop::tolerance_type::absolute,
-                                                 precond_factory, num_blocks,
+                                                 precond_factory, num_batches,
                                                  sunctx);
     }
     else if (matrix_type == "dense")
     {
       using GkoBatchMatrixType = gko::batch::matrix::Dense<sunrealtype>;
       using SUNGkoLinearSolverType =
-        BlockLinearSolver<GkoSolverType, GkoBatchMatrixType>;
+        BatchLinearSolver<GkoSolverType, GkoBatchMatrixType>;
       LS =
         std::make_unique<SUNGkoLinearSolverType>(gko_exec,
                                                  gko::batch::stop::tolerance_type::absolute,
-                                                 nullptr, num_blocks, sunctx);
+                                                 nullptr, num_batches, sunctx);
     }
   }
 
   /* Run Tests */
-  fails += Test_SUNLinSolGetID(LS->Convert(), SUNLINEARSOLVER_GINKGOBLOCK, 0);
+  fails += Test_SUNLinSolGetID(LS->Convert(), SUNLINEARSOLVER_GINKGOBATCH, 0);
   fails += Test_SUNLinSolGetType(LS->Convert(),
                                  SUNLINEARSOLVER_MATRIX_ITERATIVE, 0);
   fails += Test_SUNLinSolInitialize(LS->Convert(), 0);
