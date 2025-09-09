@@ -98,7 +98,7 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  DEE->ops->setatimes  = SUNDomEigEstimator_SetATimes_Arnoldi;
+  DEE->ops->setatimes = SUNDomEigEstimator_SetATimes_Arnoldi;
   DEE->ops->setnumpreprocessiters =
     SUNDomEigEstimator_SetNumPreprocessIters_Arnoldi;
   DEE->ops->setinitialguess   = SUNDomEigEstimator_SetInitialGuess_Arnoldi;
