@@ -85,8 +85,8 @@ inline int ode_rhs(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_dat
   }
 
   sunrealtype* u_data = static_cast<sunrealtype*>(user_data);
-  sunrealtype* y_data = N_VGetArrayPointer(y_vec);
-  sunrealtype* f_data = N_VGetArrayPointer(f_vec);
+  sunscalartype* y_data = N_VGetArrayPointer(y_vec);
+  sunscalartype* f_data = N_VGetArrayPointer(f_vec);
   if (y_data == nullptr || f_data == nullptr) { return 1; }
 
   f_data[0] = l_coef(t, u_data) * (y_data[0] - phi(t)) + phi_prime(t);
