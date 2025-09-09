@@ -89,6 +89,14 @@ eigenvalue.
       `SUN_SUCCESS` for a successful call, or a relevant error code from
       :c:type:`SUNErrCode` upon failure.
 
+   .. note::
+
+      When the estimator is used in a time-dependent context, an implementation
+      may reuse the same initial guess as the initial call to
+      :c:func:`SUNDomEigEstimator_Estimate` or use an improved guess based on
+      the result of the most recent :c:func:`SUNDomEigEstimator_Estimate`
+      call. See the documentation of the specific :c:type:`SUNDomEigEstimator`
+      implementation for more details.
 
 .. c:function:: SUNErrCode SUNDomEigEstimator_FreeEmpty(SUNDomEigEstimator DEE)
 
@@ -200,14 +208,19 @@ instead of supplying a dummy routine.
 
 .. c:function:: SUNErrCode SUNDomEigEstimator_SetNumPreprocessIters(SUNDomEigEstimator DEE, int num_iters)
 
-   This *optional* routine should set the number of preprocessing matrix-vector
+   This *optional* routine sets the number of preprocessing matrix-vector
    multiplications, performed at the beginning of each
    :c:func:`SUNDomEigEstimator_Estimate` evaluation.
+
+   Applying preprocessing iterations may be useful if the initial guess used in
+   :c:func:`SUNDomEigEstimator_Estimate` is not a good approximation of the
+   dominant eigenvector and can help reduce some computational overhead.
 
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object.
-      * *num_iters* -- the number of preprocessing iterations.
+      * *num_iters* -- the number of preprocessing iterations. Supplying a value
+        :math:`< 0`, will reset the value to the implementation default.
 
    **Return value:**
 
@@ -215,28 +228,15 @@ instead of supplying a dummy routine.
 
    .. note::
 
-      Prior to computing the dominant eigenvalue in
-      :c:func:`SUNDomEigEstimator_Estimate` an implementation may perform
-      ``num_iters`` power iterations on ``q`` to generate an improved initial
-      guess.  Preprocessing iterations can help reduce some computational
-      overhead, and may be useful if the initial guess ``q`` is not a good
-      approximation of the dominant eigenvector.
-
-      When the estimator is used in a time-dependent context, it is likely that
-      the most-recent ``q`` will provide a suitable initial guess for subsequent
-      calls to :c:func:`SUNDomEigEstimator_Estimate`. Thus, when the estimator
-      is used with LSRKStep (see :c:func:`LSRKStepSetDomEigEstimator`), the
-      initial value of ``num_iters`` should be set with
+      When the estimator is used in a time-dependent context, different numbers
+      of preprocessing iterations may be desired for the initial estimate than
+      on subsequent estimations. Thus, when the estimator is used with LSRKStep
+      (see :c:func:`LSRKStepSetDomEigEstimator`), the initial value of
+      ``num_iters`` should be set with
       :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` while the number of
-      preprocessing iterations for subsequent calls should be set with
+      preprocessing iterations for subsequent estimates should be set with
       :c:func:`LSRKStepSetNumDomEigEstPreprocessIters`.
 
-      Both the Arnodli and Power implementations provided with SUNDIALS use a
-      default value of 100. This default value is particularly chosen to
-      minimize the memory footprint by lowering the required ``kry_dim`` in the
-      Arnoldi iteration, or reducing computational overhead when estimating with
-      the power iteration. With either implementation, supplying a ``num_iters``
-      argument that is :math:`< 0`, it will reset the value to the default.
 
       This routine will be called by :c:func:`SUNDomEigEstimator_SetOptions`
       when using the key "Did.num_preprocess_iters".
@@ -283,6 +283,8 @@ instead of supplying a dummy routine.
 
    This *optional* routine sets the initial vector guess to start with.
 
+   The vector ``q`` does not need to be normalized before this set routine.
+
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object.
@@ -291,10 +293,6 @@ instead of supplying a dummy routine.
    **Return value:**
 
       A :c:type:`SUNErrCode`.
-
-   .. note::
-
-      The vector ``q`` does not need to be normalized before this set routine.
 
 
 .. _SUNDomEigEst.GetFn:
