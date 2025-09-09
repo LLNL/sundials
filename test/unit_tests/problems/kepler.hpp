@@ -85,8 +85,8 @@ inline int hamiltonian(N_Vector y_vec, sunrealtype* H)
   const sunscalartype p1 = y_data[2];
   const sunscalartype p2 = y_data[3];
 
-  const sunrealtype qTq = q1 * q1 + q2 * q2;
-  const sunrealtype pTp = p1 * p1 + p2 * p2;
+  const sunscalartype qTq = q1 * q1 + q2 * q2;
+  const sunscalartype pTp = p1 * p1 + p2 * p2;
 
   *H = half * pTp - one / std::sqrt(qTq);
 
