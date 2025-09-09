@@ -155,38 +155,41 @@ public:
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     gko::size_type num_blocks, SUNContext sunctx)
-    : BlockLinearSolver(gko_exec, gko::batch::stop::tolerance_type::absolute,
-                        nullptr, default_max_iters_, num_blocks, sunctx)
+    : BlockLinearSolver(std::move(gko_exec),
+                        gko::batch::stop::tolerance_type::absolute, nullptr,
+                        default_max_iters_, num_blocks, sunctx)
   {}
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     gko::batch::stop::tolerance_type tolerance_type,
                     gko::size_type num_blocks, SUNContext sunctx)
-    : BlockLinearSolver(gko_exec, tolerance_type, nullptr, default_max_iters_,
-                        num_blocks, sunctx)
+    : BlockLinearSolver(std::move(gko_exec), tolerance_type, nullptr,
+                        default_max_iters_, num_blocks, sunctx)
   {}
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     std::shared_ptr<gko::batch::BatchLinOpFactory> precon_factory,
                     gko::size_type num_blocks, SUNContext sunctx)
-    : BlockLinearSolver(gko_exec, gko::batch::stop::tolerance_type::absolute,
+    : BlockLinearSolver(std::move(gko_exec),
+                        gko::batch::stop::tolerance_type::absolute,
                         precon_factory, default_max_iters_, num_blocks, sunctx)
   {}
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     int max_iters, gko::size_type num_blocks, SUNContext sunctx)
-    : BlockLinearSolver(gko_exec, gko::batch::stop::tolerance_type::absolute,
-                        nullptr, max_iters, num_blocks, sunctx)
+    : BlockLinearSolver(std::move(gko_exec),
+                        gko::batch::stop::tolerance_type::absolute, nullptr,
+                        max_iters, num_blocks, sunctx)
   {}
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     gko::batch::stop::tolerance_type tolerance_type,
                     int max_iters, gko::size_type num_blocks, SUNContext sunctx)
-    : BlockLinearSolver(gko_exec, tolerance_type, nullptr, max_iters,
+    : BlockLinearSolver(std::move(gko_exec), tolerance_type, nullptr, max_iters,
                         num_blocks, sunctx)
   {}
 
@@ -194,7 +197,8 @@ public:
   BlockLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     std::shared_ptr<gko::batch::BatchLinOpFactory> precon_factory,
                     int max_iters, gko::size_type num_blocks, SUNContext sunctx)
-    : BlockLinearSolver(gko_exec, gko::batch::stop::tolerance_type::absolute,
+    : BlockLinearSolver(std::move(gko_exec),
+                        gko::batch::stop::tolerance_type::absolute,
                         precon_factory, max_iters, num_blocks, sunctx)
   {}
 
@@ -203,7 +207,7 @@ public:
                     gko::batch::stop::tolerance_type tolerance_type,
                     std::shared_ptr<gko::batch::BatchLinOpFactory> precon_factory,
                     gko::size_type num_blocks, SUNContext sunctx)
-    : BlockLinearSolver(gko_exec, tolerance_type, precon_factory,
+    : BlockLinearSolver(std::move(gko_exec), tolerance_type, precon_factory,
                         default_max_iters_, num_blocks, sunctx)
   {}
 

@@ -53,7 +53,7 @@ set(CVODES_examples
 # This example doesn't succeed with extended precision due to a bug in the constraint handling
 # See https://github.com/LLNL/sundials/issues/702.
 if(NOT SUNDIALS_PRECISION STREQUAL "EXTENDED")
-  list(APPEND CVODE_examples 
+  list(APPEND CVODE_examples
        "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;exclude-single")
 endif()
 
