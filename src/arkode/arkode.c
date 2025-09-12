@@ -735,10 +735,13 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
   }
 
   /* perform stopping tests */
-  if (arkStopTests(ark_mem, tout, yout, tret, itask, &retval))
+  if (!ark_mem->initsetup)
   {
-    SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
-    return (retval);
+    if (arkStopTests(ark_mem, tout, yout, tret, itask, &retval))
+    {
+      SUNDIALS_MARK_FUNCTION_END(ARK_PROFILER);
+      return (retval);
+    }
   }
 
   /*--------------------------------------------------
@@ -1996,7 +1999,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   if (ark_mem->tstopset)
   {
     htmp = (ark_mem->h == ZERO) ? tout - ark_mem->tcur : ark_mem->h;
-    if ((ark_mem->tstop - ark_mem->tcur) * htmp <= -FUZZ_FACTOR * ark_mem->uround)
+    if ((ark_mem->tstop - ark_mem->tcur) * htmp <= ZERO)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);

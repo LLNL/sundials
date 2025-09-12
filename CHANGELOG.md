@@ -13,6 +13,10 @@ in any order.
 
 ### Bug Fixes
 
+Fixed a bug in how MRIStep interacts with an MRIHTol SUNAdaptController object
+(the previous version essentially just reverted to a decoupled multirate
+controller).
+
 The shared library version numbers for the oneMKL dense linear solver and
 matrix as well as the PETSc SNES nonlinear solver have been corrected.
 
