@@ -236,8 +236,7 @@ SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
     MRIHTOL_INNER_MIN_TOLFAC(C) = INNER_MIN_TOLFAC;
   }
   else { MRIHTOL_INNER_MIN_TOLFAC(C) = inner_min_tolfac; }
-  if ((inner_max_tolfac <= SUN_RCONST(0.0)) ||
-      (inner_max_tolfac > SUN_RCONST(1.0)))
+  if (inner_max_tolfac <= SUN_RCONST(0.0))
   {
     MRIHTOL_INNER_MAX_TOLFAC(C) = INNER_MAX_TOLFAC;
   }
