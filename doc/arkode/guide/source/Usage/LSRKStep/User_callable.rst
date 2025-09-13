@@ -505,6 +505,9 @@ dependent variable vector.
    Provides required problem specifications and re-initializes the
    LSRKStep time-stepper module when using STS methods.
 
+   All previously set options are retained but may be updated by calling
+   the appropriate "Set" functions.
+
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
       * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
@@ -522,17 +525,18 @@ dependent variable vector.
 
    .. note::
 
-      All previously set options are retained but may be updated by calling
-      the appropriate "Set" functions.
-
-      If an error occurred, :c:func:`LSRKStepReInitSTS()` also
-      sends an error message to the error handler function.
+      If using a :c:type:`SUNDomEigEstimator`, the initial guess for the
+      dominant eigenvalue should be reinitialized with
+      :c:func:`SUNDomEigEstimator_SetInitialGuess`.
 
 .. c:function:: int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0);
 
    Provides required problem specifications and re-initializes the
    LSRKStep time-stepper module when using SSP methods.
 
+   All previously set options are retained but may be updated by calling
+   the appropriate "Set" functions.
+
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
       * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
@@ -547,11 +551,3 @@ dependent variable vector.
       * *ARK_NO_MALLOC* if memory allocation failed
       * *ARK_CONTROLLER_ERR* if unable to reset error controller object
       * *ARK_ILL_INPUT* if an argument had an illegal value.
-
-   .. note::
-
-      All previously set options are retained but may be updated by calling
-      the appropriate "Set" functions.
-
-      If an error occurred, :c:func:`LSRKStepReInitSSP()` also
-      sends an error message to the error handler function.

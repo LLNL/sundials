@@ -144,8 +144,8 @@ information:
 
 * ``max_iters`` - maximum number of iterations (default is 100),
 
-* ``num_iters`` - number of power iterations in the last
-  :c:func:`SUNDomEigEstimator_Estimate` call,
+* ``num_iters`` - number of iterations (preprocessing and estimation) in the
+  last :c:func:`SUNDomEigEstimator_Estimate` call,
 
 * ``num_ATimes`` - number of calls to the ``ATimes`` function,
 
@@ -195,6 +195,8 @@ eigenvalue estimator operations listed in :numref:`SUNDomEigEst.API`:
 * ``SUNDomEigEstimator_Initialize_Power``
 
 * ``SUNDomEigEstimator_Estimate_Power``
+
+* ``SUNDomEigEstimator_SetInitialGuess_Power``
 
 * ``SUNDomEigEstimator_GetRes_Power``
 
