@@ -140,6 +140,11 @@ information:
 
 * ``num_warmups`` - number of preprocessing iterations (default is 100),
 
+* ``num_iters`` - number of iterations (preprocessing and estimation) in the
+  last :c:func:`SUNDomEigEstimator_Estimate` call,
+
+* ``num_ATimes`` - number of calls to the ``ATimes`` function,
+
 * ``LAPACK_A, LAPACK_wr, LAPACK_wi, LAPACK_work`` - ``sunrealtype`` used for workspace by LAPACK,
 
 * ``LAPACK_lwork`` - the size of the ``LAPACK_work`` requested by LAPACK,
