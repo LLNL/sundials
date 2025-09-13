@@ -668,6 +668,7 @@ module fsundials_core_mod
  ! struct struct SUNDomEigEstimator_Ops_
  type, bind(C), public :: SUNDomEigEstimator_Ops
   type(C_FUNPTR), public :: setatimes
+  type(C_FUNPTR), public :: setoptions
   type(C_FUNPTR), public :: setmaxiters
   type(C_FUNPTR), public :: setnumpreprocessiters
   type(C_FUNPTR), public :: setreltol

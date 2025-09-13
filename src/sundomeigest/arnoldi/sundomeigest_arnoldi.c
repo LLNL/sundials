@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sundomeigest/sundomeigest_arnoldi.h>
 
@@ -457,7 +458,7 @@ SUNErrCode SUNDomEigEstimator_Write_Arnoldi(SUNDomEigEstimator DEE, FILE* outfil
   SUNAssert(outfile, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
-  fprintf(outfile, "\nArnoldi Iteration SUNDomEigEstimator:");
+  fprintf(outfile, "\nArnoldi Iteration SUNDomEigEstimator:\n");
   fprintf(outfile, "Krylov dimension         = %d\n",
           Arnoldi_CONTENT(DEE)->kry_dim);
   fprintf(outfile, "Num. preprocessing iters = %d\n",

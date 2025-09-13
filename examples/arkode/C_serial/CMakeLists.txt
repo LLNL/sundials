@@ -28,6 +28,7 @@ set(ARKODE_examples
     "ark_analytic_lsrk.c\;\;develop"
     "ark_analytic_lsrk_varjac.c\;\;develop"
     "ark_analytic_lsrk_domeigest.c\;\;develop"
+    "ark_analytic_lsrk_domeigest.c\;arkid.dom_eig_est_init_preprocess_iters 1 sundomeigestimator.max_iters 1\;develop"
     "ark_analytic_mels.c\;\;develop"
     "ark_analytic_nonlin.c\;\;develop"
     "ark_analytic_partitioned.c\;forcing\;develop"

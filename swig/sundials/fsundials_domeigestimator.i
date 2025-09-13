@@ -14,6 +14,9 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
+// Ignore command-line processing functions since they are not supported in Fortran
+%ignore SUNDomEigEstimator_SetOptions;
+
 %{
 #include "sundials/sundials_domeigestimator.h"
 %}
