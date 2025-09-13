@@ -361,11 +361,11 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
     SUNCheckLastErr();
   }
 
-  /* Reshape the Hessenberg matrix as an input vector for the LAPACK dgeev_ function */
+  /* Pack the Hessenberg matrix in column-major order for LAPACK dgeev_ call */
   int k = 0;
-  for (int i = 0; i < n; i++)
+  for (int j = 0; j < n; j++)
   {
-    for (int j = 0; j < n; j++)
+    for (int i = 0; i < n; i++)
     {
       Arnoldi_CONTENT(DEE)->LAPACK_A[k] = Arnoldi_CONTENT(DEE)->Hes[i][j];
       k++;
