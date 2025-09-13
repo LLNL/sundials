@@ -381,7 +381,7 @@ SUNErrCode SUNDomEigEstimator_Write_Power(SUNDomEigEstimator DEE, FILE* outfile)
 
   if (DEE == NULL || outfile == NULL) { return SUN_ERR_ARG_CORRUPT; }
 
-  fprintf(outfile, "\nPower Iteration SUNDomEigEstimator:");
+  fprintf(outfile, "\nPower Iteration SUNDomEigEstimator:\n");
   fprintf(outfile, "Max. iters               = %ld\n",
           PI_CONTENT(DEE)->max_iters);
   fprintf(outfile, "Num. preprocessing iters = %d\n",
