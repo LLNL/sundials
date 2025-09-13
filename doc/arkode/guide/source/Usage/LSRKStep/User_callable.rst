@@ -334,7 +334,7 @@ Allowable Method Families
       resets the default.
 
       This routine will be called by :c:func:`ARKodeSetOptions`
-      when using the key "arkid.dom_eig_est_init_preprocess_iters".
+      when using the key "arkid.num_dom_eig_est_init_preprocess_iters".
 
 .. c:function:: int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_iters);
 
@@ -359,7 +359,7 @@ Allowable Method Families
       the default.
 
       This routine will be called by :c:func:`ARKodeSetOptions`
-      when using the key "arkid.dom_eig_est_preprocess_iters".
+      when using the key "arkid.num_dom_eig_est_preprocess_iters".
 
 
 .. c:function:: int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
