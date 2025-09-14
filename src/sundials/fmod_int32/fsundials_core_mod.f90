@@ -667,6 +667,42 @@ module fsundials_core_mod
  public :: FSUNAdjointStepper_GetNumRecompute
  public :: FSUNAdjointStepper_PrintAllStats
  public :: FSUNAdjointStepper_Destroy
+ ! struct struct SUNDomEigEstimator_Ops_
+ type, bind(C), public :: SUNDomEigEstimator_Ops
+  type(C_FUNPTR), public :: setatimes
+  type(C_FUNPTR), public :: setoptions
+  type(C_FUNPTR), public :: setmaxiters
+  type(C_FUNPTR), public :: setnumpreprocessiters
+  type(C_FUNPTR), public :: setreltol
+  type(C_FUNPTR), public :: setinitialguess
+  type(C_FUNPTR), public :: initialize
+  type(C_FUNPTR), public :: estimate
+  type(C_FUNPTR), public :: getres
+  type(C_FUNPTR), public :: getnumiters
+  type(C_FUNPTR), public :: getnumatimescalls
+  type(C_FUNPTR), public :: write
+  type(C_FUNPTR), public :: destroy
+ end type SUNDomEigEstimator_Ops
+ ! struct struct SUNDomEigEstimator_
+ type, bind(C), public :: SUNDomEigEstimator
+  type(C_PTR), public :: content
+  type(C_PTR), public :: ops
+  type(C_PTR), public :: sunctx
+ end type SUNDomEigEstimator
+ public :: FSUNDomEigEstimator_NewEmpty
+ public :: FSUNDomEigEstimator_FreeEmpty
+ public :: FSUNDomEigEstimator_SetATimes
+ public :: FSUNDomEigEstimator_SetMaxIters
+ public :: FSUNDomEigEstimator_SetNumPreprocessIters
+ public :: FSUNDomEigEstimator_SetRelTol
+ public :: FSUNDomEigEstimator_SetInitialGuess
+ public :: FSUNDomEigEstimator_Initialize
+ public :: FSUNDomEigEstimator_Estimate
+ public :: FSUNDomEigEstimator_GetRes
+ public :: FSUNDomEigEstimator_GetNumIters
+ public :: FSUNDomEigEstimator_GetNumATimesCalls
+ public :: FSUNDomEigEstimator_Write
+ public :: FSUNDomEigEstimator_Destroy
 
 ! WRAPPER DECLARATIONS
 interface
@@ -2833,6 +2869,128 @@ end function
 
 function swigc_FSUNAdjointStepper_Destroy(farg1) &
 bind(C, name="_wrap_FSUNAdjointStepper_Destroy") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_NewEmpty(farg1) &
+bind(C, name="_wrap_FSUNDomEigEstimator_NewEmpty") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_FSUNDomEigEstimator_FreeEmpty(farg1) &
+bind(C, name="_wrap_FSUNDomEigEstimator_FreeEmpty")
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+end subroutine
+
+function swigc_FSUNDomEigEstimator_SetATimes(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNDomEigEstimator_SetATimes") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_FUNPTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_SetMaxIters(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEstimator_SetMaxIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_SetNumPreprocessIters(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEstimator_SetNumPreprocessIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_SetRelTol(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEstimator_SetRelTol") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_SetInitialGuess(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEstimator_SetInitialGuess") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_Initialize(farg1) &
+bind(C, name="_wrap_FSUNDomEigEstimator_Initialize") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_Estimate(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNDomEigEstimator_Estimate") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_GetRes(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEstimator_GetRes") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_GetNumIters(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEstimator_GetNumIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_GetNumATimesCalls(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEstimator_GetNumATimesCalls") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_Write(farg1, farg2) &
+bind(C, name="_wrap_FSUNDomEigEstimator_Write") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNDomEigEstimator_Destroy(farg1) &
+bind(C, name="_wrap_FSUNDomEigEstimator_Destroy") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -6853,6 +7011,220 @@ type(C_PTR) :: farg1
 
 farg1 = c_loc(arg0)
 fresult = swigc_FSUNAdjointStepper_Destroy(farg1)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_NewEmpty(sunctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNDomEigEstimator), pointer :: swig_result
+type(C_PTR) :: sunctx
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = sunctx
+fresult = swigc_FSUNDomEigEstimator_NewEmpty(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+subroutine FSUNDomEigEstimator_FreeEmpty(dee)
+use, intrinsic :: ISO_C_BINDING
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(dee)
+call swigc_FSUNDomEigEstimator_FreeEmpty(farg1)
+end subroutine
+
+function FSUNDomEigEstimator_SetATimes(dee, a_data, atimes) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+type(C_PTR) :: a_data
+type(C_FUNPTR), intent(in), value :: atimes
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_FUNPTR) :: farg3 
+
+farg1 = c_loc(dee)
+farg2 = a_data
+farg3 = atimes
+fresult = swigc_FSUNDomEigEstimator_SetATimes(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_SetMaxIters(dee, max_iters) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+integer(C_LONG), intent(in) :: max_iters
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = c_loc(dee)
+farg2 = max_iters
+fresult = swigc_FSUNDomEigEstimator_SetMaxIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_SetNumPreprocessIters(dee, num_iters) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+integer(C_INT), intent(in) :: num_iters
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = c_loc(dee)
+farg2 = num_iters
+fresult = swigc_FSUNDomEigEstimator_SetNumPreprocessIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_SetRelTol(dee, tol) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+real(C_DOUBLE), intent(in) :: tol
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = c_loc(dee)
+farg2 = tol
+fresult = swigc_FSUNDomEigEstimator_SetRelTol(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_SetInitialGuess(dee, q) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+type(N_Vector), target, intent(inout) :: q
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(dee)
+farg2 = c_loc(q)
+fresult = swigc_FSUNDomEigEstimator_SetInitialGuess(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_Initialize(dee) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(dee)
+fresult = swigc_FSUNDomEigEstimator_Initialize(farg1)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_Estimate(dee, lambdar, lambdai) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+real(C_DOUBLE), dimension(*), target, intent(inout) :: lambdar
+real(C_DOUBLE), dimension(*), target, intent(inout) :: lambdai
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = c_loc(dee)
+farg2 = c_loc(lambdar(1))
+farg3 = c_loc(lambdai(1))
+fresult = swigc_FSUNDomEigEstimator_Estimate(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_GetRes(dee, res) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+real(C_DOUBLE), dimension(*), target, intent(inout) :: res
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(dee)
+farg2 = c_loc(res(1))
+fresult = swigc_FSUNDomEigEstimator_GetRes(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_GetNumIters(dee, num_iters) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+integer(C_LONG), dimension(*), target, intent(inout) :: num_iters
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(dee)
+farg2 = c_loc(num_iters(1))
+fresult = swigc_FSUNDomEigEstimator_GetNumIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_GetNumATimesCalls(dee, num_atimes) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+integer(C_LONG), dimension(*), target, intent(inout) :: num_atimes
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(dee)
+farg2 = c_loc(num_atimes(1))
+fresult = swigc_FSUNDomEigEstimator_GetNumATimesCalls(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_Write(dee, outfile) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNDomEigEstimator), target, intent(inout) :: dee
+type(C_PTR) :: outfile
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(dee)
+farg2 = outfile
+fresult = swigc_FSUNDomEigEstimator_Write(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNDomEigEstimator_Destroy(deeptr) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR), target, intent(inout) :: deeptr
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = c_loc(deeptr)
+fresult = swigc_FSUNDomEigEstimator_Destroy(farg1)
 swig_result = fresult
 end function
 
