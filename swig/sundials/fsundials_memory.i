@@ -25,7 +25,7 @@
 %apply void** { SUNMemory* };
 
 %fortran_struct(SUNMemoryHelper_Ops_);
-%typemap(ctype) SUNMemoryHelper_Ops_* "SUNAdjointCheckpointScheme_Ops";
+%typemap(ctype) SUNMemoryHelper_Ops_* "SUNMemoryHelper_Ops";
 %rename(SUNMemoryHelper_Ops) SUNMemoryHelper_Ops_;
 
 %fortran_struct(SUNMemoryHelper_);

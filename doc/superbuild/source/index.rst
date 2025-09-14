@@ -189,6 +189,7 @@ SUNDIALS License and Notices
    sunmatrix/index.rst
    sunlinsol/index.rst
    sunnonlinsol/index.rst
+   sundomeigest/index.rst
    sunadaptcontroller/index.rst
    sunstepper/index.rst
    sunadjoint/index.rst
