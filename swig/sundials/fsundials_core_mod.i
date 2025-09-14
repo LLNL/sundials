@@ -28,4 +28,5 @@
 %include "fsundials_stepper.i"
 %include "fsundials_memory.i"
 %include "fsundials_adjoint.i"
+%include "fsundials_domeigestimator.i"
 %include "fcopyright.i"

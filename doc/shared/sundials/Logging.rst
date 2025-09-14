@@ -321,7 +321,7 @@ we can direct the informational output to the file ``sun.log`` as follows
 
 .. code-block::
 
-   SUNDIALS_INFO_FILENAME=sun.log ./examples/cvode/serial/cvRoberts_dns
+   SUNLOGGER_INFO_FILENAME=sun.log ./examples/cvode/serial/cvRoberts_dns
 
 Alternatively, the following examples demonstrate how to use the logging
 interface via the C API:
