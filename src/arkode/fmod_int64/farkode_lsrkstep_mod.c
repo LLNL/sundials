@@ -372,6 +372,20 @@ SWIGEXPORT int _wrap_FLSRKStepSetDomEigFn(void *farg1, ARKDomEigFn farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FLSRKStepSetDomEigEstimator(void *farg1, SUNDomEigEstimator farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNDomEigEstimator arg2 = (SUNDomEigEstimator) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNDomEigEstimator)(farg2);
+  result = (int)LSRKStepSetDomEigEstimator(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FLSRKStepSetDomEigFrequency(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -414,6 +428,34 @@ SWIGEXPORT int _wrap_FLSRKStepSetDomEigSafetyFactor(void *farg1, double const *f
 }
 
 
+SWIGEXPORT int _wrap_FLSRKStepSetNumDomEigEstInitPreprocessIters(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)LSRKStepSetNumDomEigEstInitPreprocessIters(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepSetNumDomEigEstPreprocessIters(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)LSRKStepSetNumDomEigEstPreprocessIters(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FLSRKStepSetNumSSPStages(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -451,6 +493,34 @@ SWIGEXPORT int _wrap_FLSRKStepGetMaxNumStages(void *farg1, int *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)LSRKStepGetMaxNumStages(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepGetNumDomEigEstRhsEvals(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)LSRKStepGetNumDomEigEstRhsEvals(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepGetNumDomEigEstIters(void *farg1, long *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  result = (int)LSRKStepGetNumDomEigEstIters(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

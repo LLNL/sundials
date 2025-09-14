@@ -20,6 +20,7 @@
 #include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_context.h>
+#include <sundials/sundials_domeigestimator.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_iterative.h>
 #include <sundials/sundials_linearsolver.h>
