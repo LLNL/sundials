@@ -152,6 +152,8 @@ extern "C" {
 #define ARK_ADJ_RECOMPUTE_FAIL  -54
 #define ARK_SUNADJSTEPPER_ERR   -55
 
+#define ARK_DEE_FAIL -56
+
 #define ARK_UNRECOGNIZED_ERROR -99
 
 /* ------------------------------

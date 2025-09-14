@@ -24,6 +24,7 @@ add_subdirectory(sunnonlinsol)
 add_subdirectory(sunmemory)
 add_subdirectory(sunadaptcontroller)
 add_subdirectory(sunadjointcheckpointscheme)
+add_subdirectory(sundomeigest)
 
 # ARKODE library
 if(BUILD_ARKODE)
