@@ -31,7 +31,7 @@ in :numref:`Installation.Options.Ginkgo`.  For instructions on building and usin
 
   It is assumed that users of this module are aware of how to use Ginkgo. This module does not
   try to encapsulate Ginkgo linear solvers, rather it provides a lightweight iteroperability layer
-  between Ginkgo and SUNDIALS. Most, if not all, of the Ginkgo linear solver should work with this
+  between Ginkgo and SUNDIALS. Most, if not all, of the Ginkgo linear solvers should work with this
   interface.
 
 .. _SUNLinSol.GinkgoBatch.Usage:
