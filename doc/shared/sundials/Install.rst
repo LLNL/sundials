@@ -1119,7 +1119,7 @@ SUNDIALS with *hypre* support:
 
    Path to the *hypre* installation
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.KLU:
 
@@ -1166,19 +1166,19 @@ following command will configure SUNDIALS with KLU support:
 
    Path to the SuiteSparse installation
 
-   Default: ``OFF``
+   Default: None
 
 .. cmakeoption:: KLU_INCLUDE_DIR
 
    Path to SuiteSparse header files
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: KLU_LIBRARY_DIR
 
    Path to SuiteSparse installed library files
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.Kokkos:
 
@@ -1293,25 +1293,31 @@ When LAPACK support is enabled, the :ref:`LAPACK banded SUNLinearSolver
 <SUNLinSol_LapackDense>` will be built (see sections
 :numref:`Installation.LibrariesAndHeaders.LinearSolver.LAPACKBand` and
 :numref:`Installation.LibrariesAndHeaders.LinearSolver.LAPACKDense`,
-respectively, for the corresponding header files and libraries).
+respectively, for the corresponding header files and libraries). Additionally,
+the :ref:`Arnoldi iteration SUNDomEigEstimator <SUNDomEigEst.Arnoldi>` will be
+build (see :numref:`Installation.LibrariesAndHeaders.DomEigEst.Arnoldi`).
 
 To enable LAPACK support, set :cmakeop:`ENABLE_LAPACK` to ``ON``. CMake will
 attempt to find BLAS and LAPACK installations on the system and set the
 variables :cmakeop:`BLAS_LIBRARIES`, :cmakeop:`BLAS_LINKER_FLAGS`,
-:cmakeop:`LAPACK_LIBRARIES`, and :cmakeop:`LAPACK_LINKER_FLAGS`. To explicitly
-specify the LAPACK library to build with, manually set the aforementioned
-variables to the desired values when configuring the build. For example, the
-following command will configure SUNDIALS with LAPACK support:
+:cmakeop:`LAPACK_LIBRARIES`, and :cmakeop:`LAPACK_LINKER_FLAGS`.  You can set
+the :cmakeop:`LAPACK_ROOT` CMake variable to the path of a desired LAPACK
+installation, and/or set the option :cmakeop:`BLA_VENDOR` to tell CMake to only
+look for LAPACK from a specified vendor (see the `CMake documentation
+<https://cmake.org/cmake/help/latest/module/FindLAPACK.html#input-variables>`__).
+If necessary, to explicitly override the LAPACK library to build with, manually
+set the aforementioned variables to the desired values when configuring the
+build. For example, this is sometimes needed when using OpenBLAS:
 
 .. code-block:: bash
 
-   cmake \
+  cmake \
      -S SOLVER_DIR \
      -B BUILD_DIR \
      -D CMAKE_INSTALL_PREFIX=INSTALL_DIR \
      -D ENABLE_LAPACK=ON \
-     -D BLAS_LIBRARIES=/path/to/lapack/installation/lib/libblas.so \
-     -D LAPACK_LIBRARIES=/path/to/lapack/installation/lib/liblapack.so
+     -D BLAS_LIBRARIES=/path/to/lapack/installation/lib/libopenblas.so \
+     -D LAPACK_LIBRARIES=/path/to/lapack/installation/lib/libopenblas.so
 
 .. note::
 
@@ -1328,29 +1334,41 @@ following command will configure SUNDIALS with LAPACK support:
 
    Default: ``OFF``
 
+.. cmakeoption:: LAPACK_ROOT
+
+   Path to the LAPACK installation
+
+   Default: None
+
+.. cmakeoption:: BLA_VENDOR
+
+   The LAPACK vendor to search for.
+
+   Default: All vendors
+
 .. cmakeoption:: BLAS_LIBRARIES
 
    BLAS libraries
 
-   Default: none (CMake will try to find a BLAS installation)
+   Default: None (CMake will try to find a BLAS installation)
 
 .. cmakeoption:: BLAS_LINKER_FLAGS
 
    BLAS required linker flags
 
-   Default: none (CMake will try to determine the necessary flags)
+   Default: None (CMake will try to determine the necessary flags)
 
 .. cmakeoption:: LAPACK_LIBRARIES
 
    LAPACK libraries
 
-   Default: none (CMake will try to find a LAPACK installation)
+   Default: None (CMake will try to find a LAPACK installation)
 
 .. cmakeoption:: LAPACK_LINKER_FLAGS
 
    LAPACK required linker flags
 
-   Default: none (CMake will try to determine the necessary flags)
+   Default: None (CMake will try to determine the necessary flags)
 
 .. cmakeoption:: SUNDIALS_LAPACK_CASE
 
@@ -1430,7 +1448,7 @@ the CUDA backend (targeting Ampere GPUs):
 
    Path to the MAGMA installation
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUNDIALS_MAGMA_BACKENDS
 
@@ -1536,14 +1554,14 @@ configure SUNDIALS with MPI support:
    Specifies flags that come directly after ``MPIEXEC_EXECUTABLE`` and before
    ``MPIEXEC_NUMPROC_FLAG`` and ``MPIEXEC_MAX_NUMPROCS``.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: MPIEXEC_POSTFLAGS
 
    Specifies flags that come after the executable to run but before any other
    program arguments.
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.OneMKL:
 
@@ -1589,7 +1607,7 @@ the following command will configure SUNDIALS with oneMKL support:
 
    Path to oneMKL installation.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUNDIALS_ONEMKL_USE_GETRF_LOOP
 
@@ -1710,7 +1728,7 @@ configure SUNDIALS with PETSc support:
 
    Path to PETSc installation
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: PETSC_LIBRARIES
 
@@ -1718,7 +1736,7 @@ configure SUNDIALS with PETSc support:
    user, this is autopopulated based on the PETSc installation found in
    :cmakeop:`PETSC_DIR`.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: PETSC_INCLUDES
 
@@ -1726,7 +1744,7 @@ configure SUNDIALS with PETSc support:
    the user, this is autopopulated based on the PETSc installation found in
    :cmakeop:`PETSC_DIR`.
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.PThreads:
 
@@ -1803,7 +1821,7 @@ the CUDA backend (targeting Ampere GPUs):
 
    Path to the RAJA installation
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUNDIALS_RAJA_BACKENDS
 
@@ -1858,13 +1876,13 @@ SuperLU_DIST support:
 
    Path to SuperLU_DIST installation.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUPERLUDIST_OpenMP
 
    Enable SUNDIALS support for SuperLU_DIST built with OpenMP
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1877,7 +1895,7 @@ SuperLU_DIST support:
    List of include paths for SuperLU_DIST (under a typical SuperLU_DIST
    install, this is typically the SuperLU_DIST ``SRC`` directory)
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1887,7 +1905,7 @@ SuperLU_DIST support:
 
    Semi-colon separated list of libraries needed for SuperLU_DIST
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1898,7 +1916,7 @@ SuperLU_DIST support:
    Path to SuperLU_DIST header files (under a typical SuperLU_DIST
    install, this is typically the SuperLU_DIST ``SRC`` directory)
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1909,7 +1927,7 @@ SuperLU_DIST support:
 
    Path to SuperLU_DIST installed library files
 
-   Default: none
+   Default: None
 
    .. note::
 
@@ -1972,19 +1990,19 @@ configure SUNDIALS with SuperLU_MT support using PThreads:
    Path to SuperLU_MT header files (under a typical SuperLU_MT
    install, this is typically the SuperLU_MT ``SRC`` directory)
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUPERLUMT_LIBRARY_DIR
 
    Path to SuperLU_MT installed library files
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUPERLUMT_LIBRARIES
 
    Semi-colon separated list of libraries needed for SuperLU_MT
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: SUPERLUMT_THREAD_TYPE
 
@@ -2140,7 +2158,7 @@ SUNDIALS with XBraid support:
    the user, this is autopopulated based on the XBraid installation found in
    :cmakeop:`XBRAID_DIR`.
 
-   Default: none
+   Default: None
 
 .. cmakeoption:: XBRAID_LIBRARIES
 
@@ -2148,7 +2166,7 @@ SUNDIALS with XBraid support:
    the user, this is autopopulated based on the XBraid installation found in
    :cmakeop:`XBRAID_DIR`.
 
-   Default: none
+   Default: None
 
 .. _Installation.Options.xSDK:
 
@@ -2424,6 +2442,8 @@ make up the SUNDIALS core infrastructure.
    |              | ``sundials/sundials_config.h``                  |
    |              +-------------------------------------------------+
    |              | ``sundials/sundials_context.h``                 |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_domeigestimator.h``         |
    |              +-------------------------------------------------+
    |              | ``sundials/sundials_errors.h``                  |
    |              +-------------------------------------------------+
@@ -3886,10 +3906,14 @@ access the SYCL execution policy C++ classes.
    | Headers      | ``sundials/sundials_sycl_policies.hpp``      |
    +--------------+----------------------------------------------+
 
+.. _Installation.LibrariesAndHeaders.AdjointSensitivityCheckpointing:
+
 Adjoint Sensitivity Checkpointing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Fixed ASA checkpointing
+.. _Installation.LibrariesAndHeaders.ASACheckpointing.Fixed:
+
+Fixed ASA Checkpointing
 """""""""""""""""""""""
 
 For fixed-interval adjoint checkpointing, include the header file below:
@@ -3900,3 +3924,48 @@ For fixed-interval adjoint checkpointing, include the header file below:
    +--------------+---------------------------------------------------------------------+
    | Headers      | ``sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h``   |
    +--------------+---------------------------------------------------------------------+
+
+.. _Installation.LibrariesAndHeaders.DomEigEst:
+
+Dominant Eigenvalue Estimation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _Installation.LibrariesAndHeaders.DomEigEst.Power:
+
+Power Iteration
+"""""""""""""""
+
+To use the :ref:`Power iteration SUNDomEigEstimator <SUNDomEigEst.Power>`,
+include the header file and link to the library given below.
+
+.. table:: The SUNDIALS Power iteration SUNDomEigEstimator library, header file,
+           and CMake target
+   :align: center
+
+   +--------------+---------------------------------------+
+   | Libraries    | ``libsundials_sundomeigestpower.LIB`` |
+   +--------------+---------------------------------------+
+   | Headers      | ``sundomeigest/sundomeigest_power.h`` |
+   +--------------+---------------------------------------+
+   | CMake target | ``SUNDIALS::sundomeigestpower``       |
+   +--------------+---------------------------------------+
+
+.. _Installation.LibrariesAndHeaders.DomEigEst.Arnoldi:
+
+Arnoldi Iteration
+"""""""""""""""""
+
+To use the :ref:`Arnoldi iteration SUNDomEigEstimator <SUNDomEigEst.Arnoldi>`,
+include the header file and link to the library given below.
+
+.. table:: The SUNDIALS Arnoldi iteration SUNDomEigEstimator library, header
+           file, and CMake target
+   :align: center
+
+   +--------------+-----------------------------------------+
+   | Libraries    | ``libsundials_sundomeigestarnoldi.LIB`` |
+   +--------------+-----------------------------------------+
+   | Headers      | ``sundomeigest/sundomeigest_arnoldi.h`` |
+   +--------------+-----------------------------------------+
+   | CMake target | ``SUNDIALS::sundomeigestarnoldi``       |
+   +--------------+-----------------------------------------+
