@@ -13,16 +13,16 @@
 
 .. _SUNLinSol.GinkgoBatch:
 
-The SUNLINEARSOLVER_GINKGOBLOCK Module
+The SUNLINEARSOLVER_GINKGOBATCH Module
 =======================================
 
 .. versionadded:: X.Y.Z
 
-The SUNLINEARSOLVER_GINKGOBLOCK implementation of the ``SUNLinearSolver`` API provides an
+The SUNLINEARSOLVER_GINKGOBATCH implementation of the ``SUNLinearSolver`` API provides an
 interface to the batched linear solvers from the Ginkgo linear algebra library :cite:p:`ginkgo-toms-2022`.
 Like SUNLINEARSOLVER_GINKGO, this module is written in C++14 and is distributed as a header file.
-To use the SUNLINEARSOLVER_GINKGOBLOCK ``SUNLinearSolver``, users will need to include 
-``sunlinsol/sunlinsol_ginkgobatch.hpp``. The module is meant to be used with the SUNMATRIX_GINKGOBLOCK 
+To use the SUNLINEARSOLVER_GINKGOBATCH ``SUNLinearSolver``, users will need to include 
+``sunlinsol/sunlinsol_ginkgobatch.hpp``. The module is meant to be used with the SUNMATRIX_GINKGOBATCH 
 module described in :numref:`SUNMatrix.GinkgoBatch`. Instructions on building SUNDIALS  with Ginkgo enabled are given
 in :numref:`Installation.Options.Ginkgo`.  For instructions on building and using Ginkgo itself, refer to the
 `Ginkgo website and documentation <https://ginkgo-project.github.io/>`_.
@@ -36,11 +36,11 @@ in :numref:`Installation.Options.Ginkgo`.  For instructions on building and usin
 
 .. _SUNLinSol.GinkgoBatch.Usage:
 
-Using SUNLINEARSOLVER_GINKGOBLOCK
+Using SUNLINEARSOLVER_GINKGOBATCH
 ---------------------------------
 
 After choosing a compatible ``N_Vector`` (see :numref:`SUNMatrix.GinkgoBatch.CompatibleNVectors`) and creating a Ginkgo-enabled ``SUNMatrix`` (see
-:numref:`SUNMatrix.GinkgoBatch`) to use the SUNLINEARSOLVER_GINKGOBLOCK module, we create the linear solver object:
+:numref:`SUNMatrix.GinkgoBatch`) to use the SUNLINEARSOLVER_GINKGOBATCH module, we create the linear solver object:
 
 .. code-block:: cpp
 
@@ -63,7 +63,7 @@ expecting a ``SUNLinearSolver`` object through the implicit conversion operator 
    // Implicit conversion from sundials::ginkgo::BatchLinearSolver<GkoBatchSolverType, GkoBatchMatrixType>
    // to a SUNLinearSolver object is done.
    //
-   // For details about creating A see the SUNMATRIX_GINKGOBLOCK module.
+   // For details about creating A see the SUNMATRIX_GINKGOBATCH module.
    CVodeSetLinearSolver(cvode_mem, LS, A);
 
    // Alternatively with explicit conversion of LS to a SUNLinearSolver
@@ -96,7 +96,7 @@ since the Ginkgo linear solver will take norms over individual batches, not the 
 
 .. _SUNLinSol.GinkgoBatch.API:
 
-SUNLINEARSOLVER_GINKGOBLOCK API
+SUNLINEARSOLVER_GINKGOBATCH API
 -------------------------------
 
 In this section we list the public API of the :cpp:type:`sundials::ginkgo::BatchLinearSolver` class.

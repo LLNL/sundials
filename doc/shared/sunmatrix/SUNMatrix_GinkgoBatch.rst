@@ -1,16 +1,16 @@
 .. _SUNMatrix.GinkgoBatch:
 
-The SUNMATRIX_GINKGOBLOCK Module
+The SUNMATRIX_GINKGOBATCH Module
 ================================
 
 .. versionadded:: X.Y.Z
 
-The SUNMATRIX_GINKGOBLOCK implementation of the ``SUNMatrix`` API provides an
+The SUNMATRIX_GINKGOBATCH implementation of the ``SUNMatrix`` API provides an
 interface to the batched matrix types from the Ginkgo linear algebra library.
 This module is written in C++14 and is distributed as a header file. To use the
-SUNMATRIX_GINKGOBLOCK ``SUNMatrix``, users will need to include
+SUNMATRIX_GINKGOBATCH ``SUNMatrix``, users will need to include
 ``sunmatrix/sunmatrix_ginkgobatch.hpp``. The module is meant to be used with the
-SUNLINEARSOLVER_GINKGOBLOCK module described in :numref:`SUNLinSol.GinkgoBatch`.
+SUNLINEARSOLVER_GINKGOBATCH module described in :numref:`SUNLinSol.GinkgoBatch`.
 
 .. note::
 
@@ -24,7 +24,7 @@ SUNLINEARSOLVER_GINKGOBLOCK module described in :numref:`SUNLinSol.GinkgoBatch`.
 Compatible Vectors
 ------------------
 
-The :c:type:`N_Vector` to use with the SUNLINEARSOLVER_GINKGOBLOCK module depends on the ``gko::Executor``
+The :c:type:`N_Vector` to use with the SUNLINEARSOLVER_GINKGOBATCH module depends on the ``gko::Executor``
 utilized. That is, when using the ``gko::CudaExecutor`` you should use a CUDA capable ``N_Vector``
 (e.g., :numref:`NVectors.CUDA`), ``gko::HipExecutor`` goes with a HIP capable ``N_Vector`` (e.g.,
 :numref:`NVectors.HIP`), ``gko::DpcppExecutor`` goes with a DPC++/SYCL capable ``N_Vector`` (e.g.,
@@ -38,7 +38,7 @@ GPU memory. The CPU-only enabled Ginkgo executors (e.g, ``gko::OmpExecutor`` and
 
 .. _SUNMatrix.GinkgoBatch.API:
 
-SUNMATRIX_GINKGOBLOCK API
+SUNMATRIX_GINKGOBATCH API
 -------------------------
 
 In this section we list the public API of the

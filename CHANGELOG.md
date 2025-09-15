@@ -16,8 +16,8 @@ eigenvalue.
 
 ### New Features and Enhancements
 
-A new SUNLinearSolver, SUNLINEARSOLVER_GINKGOBLOCK, and corresponding SUNMatrix,
-SUNMATRIX_GINKGOBLOCK, were added for solving block/batched linear systems with
+A new SUNLinearSolver, SUNLINEARSOLVER_GINKGOBATCH, and corresponding SUNMatrix,
+SUNMATRIX_GINKGOBATCH, were added for solving block/batched linear systems with
 the [Ginkgo linear solver library](https://ginkgo-project.github.io/). As a
 result, Ginkgo 1.9.0 or newer is now required when enabling Ginkgo support.
 
