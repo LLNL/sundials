@@ -151,6 +151,15 @@ inline int cvode_lsjacrhsfn_wrapper(Args... args)
     1>(&cvode_user_supplied_fn_table::lsjacrhsfn, std::forward<Args>(args)...);
 }
 
+
+template<typename... Args>
+inline int cvode_projfn_wrapper(Args... args)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<CVProjFn>, cvode_user_supplied_fn_table,
+    1>(&cvode_user_supplied_fn_table::projfn, std::forward<Args>(args)...);
+}
+
 template<typename... Args>
 inline int cvode_fQ_wrapper(Args... args)
 {
@@ -185,13 +194,6 @@ inline int cvode_fS1_wrapper(Args... args)
     3>(&cvode_user_supplied_fn_table::fS1, std::forward<Args>(args)...);
 }
 
-template<typename... Args>
-inline int cvode_projfn_wrapper(Args... args)
-{
-  return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<CVProjFn>, cvode_user_supplied_fn_table,
-    1>(&cvode_user_supplied_fn_table::projfn, std::forward<Args>(args)...);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // CVODE Adjoint user-supplied functions

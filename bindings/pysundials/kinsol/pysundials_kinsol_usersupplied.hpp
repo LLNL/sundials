@@ -42,7 +42,7 @@ struct kinsol_user_supplied_fn_table
   nb::object sysfn, dampingfn, depthfn;
 
   // KINSOL LS user-supplied function pointers
-  nb::object lsjacfn, lsjactimesvecfn, lsprecsetupfn, lsprecsolvefn;
+  nb::object lsjacfn, lsjactimesvecfn, lsjtvsysfn, lsprecsetupfn, lsprecsolvefn;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -113,8 +113,17 @@ template<typename... Args>
 inline int kinsol_lsjactimesvecfn_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<KINSysFn>, kinsol_user_supplied_fn_table,
+    std::remove_pointer_t<KINLsJacTimesVecFn>, kinsol_user_supplied_fn_table,
     1>(&kinsol_user_supplied_fn_table::lsjactimesvecfn, std::forward<Args>(args)...);
 }
+
+template<typename... Args>
+inline int kinsol_lsjtvsysfn_wrapper(Args... args)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<KINSysFn>, kinsol_user_supplied_fn_table,
+    1>(&kinsol_user_supplied_fn_table::lsjtvsysfn, std::forward<Args>(args)...);
+}
+
 
 #endif // _PYSUNDIALS_KINSOL_USERSUPPLIED_HPP

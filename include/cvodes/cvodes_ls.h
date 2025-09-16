@@ -168,18 +168,18 @@ typedef int (*CVLsPrecSolveFnBS)(sunrealtype t, N_Vector y, N_Vector1d yS,
                                  sunrealtype deltaB, int lrB, void* user_dataB);
 
 typedef int (*CVLsJacTimesSetupFnB)(sunrealtype t, N_Vector y, N_Vector yB,
-                                    N_Vector fyB, void* jac_dataB);
+                                    N_Vector fyB, void* user_dataB);
 
 typedef int (*CVLsJacTimesSetupFnBS)(sunrealtype t, N_Vector y, N_Vector1d yS,
-                                     N_Vector yB, N_Vector fyB, void* jac_dataB);
+                                     N_Vector yB, N_Vector fyB, void* user_dataB);
 
 typedef int (*CVLsJacTimesVecFnB)(N_Vector vB, N_Vector JvB, sunrealtype t,
                                   N_Vector y, N_Vector yB, N_Vector fyB,
-                                  void* jac_dataB, N_Vector tmpB);
+                                  void* user_dataB, N_Vector tmpB);
 
 typedef int (*CVLsJacTimesVecFnBS)(N_Vector vB, N_Vector JvB, sunrealtype t,
                                    N_Vector y, N_Vector1d yS, N_Vector yB,
-                                   N_Vector fyB, void* jac_dataB, N_Vector tmpB);
+                                   N_Vector fyB, void* user_dataB, N_Vector tmpB);
 
 typedef int (*CVLsLinSysFnB)(sunrealtype t, N_Vector y, N_Vector yB,
                              N_Vector fyB, SUNMatrix AB, sunbooleantype jokB,

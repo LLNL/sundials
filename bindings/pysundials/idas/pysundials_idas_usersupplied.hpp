@@ -132,7 +132,7 @@ inline int idas_lsjactimesvecfn_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<IDALsJacTimesVecFn>, idas_user_supplied_fn_table,
-    2>(&idas_user_supplied_fn_table::lsjactimesvecfn,
+    3>(&idas_user_supplied_fn_table::lsjactimesvecfn,
        std::forward<Args>(args)...);
 }
 
@@ -157,7 +157,7 @@ inline int idas_resQS_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<IDAQuadSensRhsFn>, idas_user_supplied_fn_table,
-    3>(&idas_user_supplied_fn_table::resQS, std::forward<Args>(args)...);
+    4>(&idas_user_supplied_fn_table::resQS, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -165,7 +165,7 @@ inline int idas_resS_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<IDASensResFn>, idas_user_supplied_fn_table,
-    3>(&idas_user_supplied_fn_table::resS, std::forward<Args>(args)...);
+    4>(&idas_user_supplied_fn_table::resS, std::forward<Args>(args)...);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -295,7 +295,7 @@ inline int idas_lsjactimesvecfnB_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<IDALsJacTimesVecFnB>, idasa_user_supplied_fn_table,
-    2>(&idasa_user_supplied_fn_table::lsjactimesvecfnB,
+    3>(&idasa_user_supplied_fn_table::lsjactimesvecfnB,
        std::forward<Args>(args)...);
 }
 
@@ -304,7 +304,7 @@ inline int idas_lsjactimesvecfnBS_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<IDALsJacTimesVecFnBS>, idasa_user_supplied_fn_table,
-    2>(&idasa_user_supplied_fn_table::lsjactimesvecfnBS,
+    3>(&idasa_user_supplied_fn_table::lsjactimesvecfnBS,
        std::forward<Args>(args)...);
 }
 
