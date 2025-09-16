@@ -53,6 +53,8 @@ solving a problem multiple times with the same KINSOL instance. In this use
 case, the current Anderson acceleration depth from the initial solve was not
 reinitialized on subsequent solves.
 
+Fixed a logging bug in KINSOL where logging messages would not but output.
+
 Fixed a bug in the ``suntools.logs`` Python module where the ``get_history``
 function, when given a ``step_status`` for filtering output from a multirate
 method, would only extract values from the fast time scale if the slow time
