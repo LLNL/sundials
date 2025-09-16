@@ -12,7 +12,7 @@ The latter method requires building with LAPACK support enabled.
 Added the function `LSRKStepSetDomEigEstimator` in LSRKStep to attach a
 `SUNDomEigEstimator`, when using Runge-Kutta-Chebyshev or Runge-Kutta-Legendre
 methods, as an alternative to supplying a user-defined function to compute the dominant
-eigenvalue. 
+eigenvalue.
 
 ### New Features and Enhancements
 
@@ -47,6 +47,11 @@ erroneous forcing terms.
 Fixed a bug in `ARKodeSetDefaults` with LSRKStep where the stored spectral
 radius data was reset to zero, flags to update the dominant eigenvalue were
 reset to true, and a flag indicating if an SSP is being used was reset to false.
+
+Fixed a bug introduced in v7.3.0 in KINSOL when using Anderson acceleration and
+solving a problem multiple times with the same KINSOL instance. In this use
+case, the current Anderson acceleration depth from the initial solve was not
+reinitialized on subsequent solves.
 
 Fixed a bug in the `suntools.logs` Python module where the `get_history`
 function, when given a `step_status` for filtering output from a multirate

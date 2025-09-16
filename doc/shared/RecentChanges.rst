@@ -48,6 +48,11 @@ spectral radius data was reset to zero, flags to update the dominant eigenvalue
 were reset to true, and a flag indicating if an SSP is being used was reset to
 false.
 
+Fixed a bug introduced in v7.3.0 in KINSOL when using Anderson acceleration and
+solving a problem multiple times with the same KINSOL instance. In this use
+case, the current Anderson acceleration depth from the initial solve was not
+reinitialized on subsequent solves.
+
 Fixed a bug in the ``suntools.logs`` Python module where the ``get_history``
 function, when given a ``step_status`` for filtering output from a multirate
 method, would only extract values from the fast time scale if the slow time
