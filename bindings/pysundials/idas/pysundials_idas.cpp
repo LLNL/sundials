@@ -97,7 +97,8 @@ using namespace sundials::experimental;
       auto fntable     = static_cast<idasa_user_supplied_fn_table*>(user_data); \
       fntable->MEMBER1 = nb::cast(fn1);                                         \
       fntable->MEMBER2 = nb::cast(fn2);                                         \
-      return NAME(ida_mem, which, &WRAPPER1, &WRAPPER2);                        \
+      if (fn1) { return NAME(ida_mem, which, WRAPPER1, WRAPPER2); }             \
+      else { return NAME(ida_mem, which, nullptr, WRAPPER2); }                  \
     },                                                                          \
     __VA_ARGS__)
 
