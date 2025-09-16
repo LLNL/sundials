@@ -2127,7 +2127,10 @@ void KINPrintInfo(SUNDIALS_MAYBE_UNUSED KINMem kin_mem, int info_code,
     vsnprintf(msg, sizeof msg, msgfmt, ap);
   }
 
-  SUNLogInfo(KIN_LOGGER, "KINSOL", fname, "%s", msg);
+  /* Call QueueMsg directly rather than using the SUNLogInfo macro in order to
+     use the passed in function name */
+  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_INFO, fname, "KINSOL",
+                     "%s", msg);
 
   /* finalize argument processing */
 
