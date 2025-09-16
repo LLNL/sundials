@@ -184,13 +184,13 @@ void bind_cvodes(nb::module_& m)
                        cvode_lsprecsetupfn_wrapper, CVLsPrecSolveFn,
                        lsprecsolvefn, cvode_lsprecsolvefn_wrapper,
                        nb::arg("cv_mem"), nb::arg("psetup").none(),
-                       nb::arg("psolve"));
+                       nb::arg("psolve").none());
 
   BIND_CVODE_CALLBACK2(CVodeSetJacTimes, CVLsJacTimesSetupFn, lsjactimessetupfn,
                        cvode_lsjactimessetupfn_wrapper, CVLsJacTimesVecFn,
                        lsjactimesvecfn, cvode_lsjactimesvecfn_wrapper,
                        nb::arg("cv_mem"), nb::arg("jsetup").none(),
-                       nb::arg("jtimes"));
+                       nb::arg("jtimes").none());
 
   BIND_CVODE_CALLBACK(CVodeSetLinSysFn, CVLsLinSysFn, lslinsysfn,
                       cvode_lslinsysfn_wrapper);
@@ -329,14 +329,14 @@ void bind_cvodes(nb::module_& m)
                         cvode_lsprecsetupfnB_wrapper, CVLsPrecSolveFnB,
                         lsprecsolvefnB, cvode_lsprecsolvefnB_wrapper,
                         nb::arg("cv_mem"), nb::arg("which"),
-                        nb::arg("psetupB").none(), nb::arg("psolveB"));
+                        nb::arg("psetupB").none(), nb::arg("psolveB").none());
 
   BIND_CVODEB_CALLBACK2(CVodeSetJacTimesB, CVLsJacTimesSetupFnB,
                         lsjactimessetupfnB, cvode_lsjactimessetupfnB_wrapper,
                         CVLsJacTimesVecFnB, lsjactimesvecfnB,
                         cvode_lsjactimesvecfnB_wrapper, nb::arg("cv_mem"),
                         nb::arg("which"), nb::arg("jsetupB").none(),
-                        nb::arg("jtimesB"));
+                        nb::arg("jtimesB").none());
 
   BIND_CVODEB_CALLBACK(CVodeSetLinSysFnB, CVLsLinSysFnB, lslinsysfnB,
                        cvode_lslinsysfnB_wrapper);
@@ -361,7 +361,7 @@ void bind_cvodes(nb::module_& m)
                         CVLsPrecSolveStdFnBS, lsprecsolvefnBS,
                         cvode_lsprecsolvefnBS_wrapper, nb::arg("cv_mem"),
                         nb::arg("which"), nb::arg("psetupBS").none(),
-                        nb::arg("psolveBS"));
+                        nb::arg("psolveBS").none());
 
   using CVLsJacTimesSetupStdFnBS = int(sunrealtype t, N_Vector y,
                                        std::vector<N_Vector> yS, N_Vector yB,
@@ -375,7 +375,7 @@ void bind_cvodes(nb::module_& m)
                         CVLsJacTimesVecStdFnBS, lsjactimesvecfnBS,
                         cvode_lsjactimesvecfnBS_wrapper, nb::arg("cv_mem"),
                         nb::arg("which"), nb::arg("jsetupBS").none(),
-                        nb::arg("jtimesBS"));
+                        nb::arg("jtimesBS").none());
 
   using CVLsLinSysStdFnBS =
     int(sunrealtype t, N_Vector y, std::vector<N_Vector> yS, N_Vector yB,

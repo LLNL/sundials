@@ -1,3 +1,4 @@
+
 # -----------------------------------------------------------------
 # Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------
@@ -13,7 +14,7 @@
 # -----------------------------------------------------------------
 # This YAML file is used to instruct the generate.py script on
 # how to generate some of the nanobind code needed for the
-# ARKODE module of pysundials.
+# KINSOL module of pysundials.
 # -----------------------------------------------------------------
 
 modules:
@@ -24,42 +25,25 @@ modules:
     - "Space" # Space functions are deprecated, so dont expose them in Python
     macro_define_include_by_name__regex:
     - "^SUN_"
-    - "^CV_"
-  cvodes:
-    path: cvodes/pysundials_cvodes_generated.hpp
+    - "^KIN_"
+  kinsol:
+    path: kinsol/pysundials_kinsol_generated.hpp
     headers:
-    - ../../include/cvodes/cvodes.h
-    - ../../include/cvodes/cvodes_ls.h
-    - ../../include/cvodes/cvodes_proj.h
+    - ../../include/kinsol/kinsol.h
+    - ../../include/kinsol/kinsol_ls.h
     # this option describes the functions which have optional pointer arguments,
     # i.e., one where you could provide NULL
     fn_params_optional_with_default_null:
       "SetLinearSolver":
-      - "A" 
+      - "A"
     fn_exclude_by_name__regex:
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
-    - "^CVodeGetUserData$" 
-    - "^CVodeSetUserData$" 
-    - "^CVodeGetUserDataB$" 
-    - "^CVodeSetUserDataB$"
-    # this function should be deprecated
-    - "^CVodeSetMonitorFn$"
-    # generator cannot handle setting of function pointers, so we do something custom
-    - "CVodeInit.*"
-    - "^CVodeSensInit$"
-    - "^CVodeSensInit1$"
-    - "CVodeQuadInit.*"
-    - "CVodeQuadSensInit.*"
-    - "CVodeSet.*Fn" 
-    - "CVodeSet.*Preconditioner"
-    - "CVodeSetJacTimes.*"
+    - "^KINGetUserData$"
     # TODO(CJB): add support for these functions
     # nanobind doesnt support ** out of the box
-    - "^CVodeComputeStateSens$"
-    - "^CVodeComputeStateSens1$"
-    - "^CVodeGetJac$" 
-    - "^CVodeGetCurrentState$"
-    - "^CVodeGetCurrentStateSens$"
-    - "^CVodeGetNonlinearSystemData$"
-    - "^CVodeGetNonlinearSystemDataSens$"
-    - "^CVodeResizeHistory$"
+    - "^KINGetJac$" 
+    # generator cannot handle setting of function pointers, so we do something custom
+    - "KINInit.*"
+    - "KINSet.*Fn" 
+    - "KINSet.*Preconditioner"
+    - "KINSetJacTimes.*"

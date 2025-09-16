@@ -43,6 +43,15 @@ modules:
     - "^IDASetUserDataB$"
     # this function should be deprecated
     - "^IDASetMonitorFn$"
+    # generator cannot handle setting of function pointers, so we do something custom
+    - "IDAInit.*"
+    - "^IDASensInit$"
+    - "^IDASensInit1$"
+    - "IDAQuadInit.*"
+    - "IDAQuadSensInit.*"
+    - "IDASet.*Fn" 
+    - "IDASet.*Preconditioner"
+    - "IDASetJacTimes.*"
     # TODO(CJB): add support for these functions
     # nanobind doesnt support ** out of the box
     - "^IDAComputeStateSens$"
@@ -55,12 +64,3 @@ modules:
     - "^IDAGetNonlinearSystemData$"
     - "^IDAGetNonlinearSystemDataSens$"
     - "^IDAResizeHistory$"
-    # generator cannot handle setting of function pointers, so we do something custom
-    - "IDAInit.*"
-    - "^IDASensInit$"
-    - "^IDASensInit1$"
-    - "IDAQuadInit.*"
-    - "IDAQuadSensInit.*"
-    - "IDASet.*Fn" 
-    - "IDASet.*Preconditioner"
-    - "IDASetJacTimes.*"

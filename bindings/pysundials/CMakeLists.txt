@@ -85,7 +85,8 @@ set(sundials_SOURCES
     arkode/pysundials_arkode_forcingstep.cpp
     arkode/pysundials_arkode_splittingstep.cpp
     cvodes/pysundials_cvodes.cpp
-    idas/pysundials_idas.cpp)
+    idas/pysundials_idas.cpp
+    kinsol/pysundials_kinsol.cpp)
 
 # Create the Python sundials library
 nanobind_add_module(pysundials STABLE_ABI NB_STATIC ${sundials_SOURCES})
@@ -97,7 +98,7 @@ target_include_directories(pysundials PRIVATE helpers
 
 # Link against sundials libraries
 target_link_libraries(pysundials PRIVATE sundials_arkode sundials_cvodes sundials_idas
-                                         sundials_nvecserial sundials_core)
+                                         sundials_kinsol sundials_nvecserial sundials_core)
 
 # Install directive for scikit-build-core
 install(TARGETS pysundials LIBRARY DESTINATION .)

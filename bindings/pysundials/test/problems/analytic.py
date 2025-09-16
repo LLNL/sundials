@@ -175,3 +175,39 @@ class AnalyticDAE:
         z[1] = -(A[0, 0] * r[1] - A[1, 0] * r[0]) / (A[0, 1] * A[1, 0])
         print(z)
         return 0
+
+class AnalyticNonlinearSys:
+    """
+    * This implements the nonlinear system
+    *
+    * 3x - cos((y-1)z) - 1/2 = 0
+    * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
+    * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
+    *
+    * using the accelerated fixed pointer solver in KINSOL. The nonlinear fixed
+    * point function is
+    *
+    * g1(x,y,z) = 1/3 cos((y-1)z) + 1/6
+    * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9
+    * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60
+    *
+    * This system has the analytic solution x = 1/2, y = 1, z = -pi/6.
+    """
+
+    def fixed_point_fn(self, uvec, gvec):
+        u = N_VGetArrayPointer(uvec)
+        g = N_VGetArrayPointer(gvec)
+        x, y, z = u[0], u[1], u[2]
+
+        g[0] = (1.0 / 3.0) * np.cos((y - 1.0) * z) + (1.0 / 6.0)
+        g[1] = (1.0 / 9.0) * np.sqrt(x * x + np.sin(z) + 1.06) + 0.9
+        g[2] = - (1.0 / 20.0) * np.exp(-x * (y - 1.0)) - (10.0 * np.pi - 3.0) / 60.0
+        return 0
+    
+    def solution(self, uvec):
+        u = N_VGetArrayPointer(uvec)
+        u[0] = 0.5
+        u[1] = 1.0
+        u[2] = -np.pi / 6.0
+        return 0
+    

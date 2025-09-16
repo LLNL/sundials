@@ -7,6 +7,7 @@ void bind_core(nb::module_& m);
 void bind_arkode(nb::module_& m);
 void bind_cvodes(nb::module_& m);
 void bind_idas(nb::module_& m);
+void bind_kinsol(nb::module_& m);
 void bind_nvector_serial(nb::module_& m);
 void bind_sunlinsol_spgmr(nb::module_& m);
 void bind_sunlinsol_dense(nb::module_& m);
@@ -15,8 +16,8 @@ void bind_sunlinsol_spbcgs(nb::module_& m);
 void bind_sunlinsol_spfgmr(nb::module_& m);
 void bind_sunlinsol_sptfqmr(nb::module_& m);
 void bind_sunlinsol_pcg(nb::module_& m);
-void bind_sunlinsol_klu(nb::module_& m);
 
+// void bind_sunlinsol_klu(nb::module_& m);
 // void bind_sunlinsol_lapackdense(nb::module_ &m);
 // void bind_sunlinsol_lapackband(nb::module_ &m);
 
@@ -36,6 +37,11 @@ NB_MODULE(pysundials, m)
   nb::module_ idas_m = m.def_submodule("idas",
                                          "A submodule of 'pysundials'");
   bind_idas(idas_m);
+
+
+  nb::module_ kinsol_m = m.def_submodule("kinsol",
+                                         "A submodule of 'pysundials'");
+  bind_kinsol(kinsol_m);
 
   {
     // Bind N_Vector implementations

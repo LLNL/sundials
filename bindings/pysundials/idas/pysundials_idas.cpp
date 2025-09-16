@@ -12,8 +12,6 @@
  * SUNDIALS Copyright End
  *----------------------------------------------------------------------------*/
 
-#include <optional>
-
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
 #include <nanobind/stl/optional.h>
@@ -165,18 +163,21 @@ void bind_idas(nb::module_& m)
   BIND_IDA_CALLBACK2(IDASetPreconditioner, IDALsPrecSetupFn, lsprecsetupfn,
                      idas_lsprecsetupfn_wrapper, IDALsPrecSolveFn, lsprecsolvefn,
                      idas_lsprecsolvefn_wrapper, nb::arg("ida_mem"),
-                     nb::arg("psetup").none(), nb::arg("psolve"));
+                     nb::arg("psetup").none(), nb::arg("psolve").none());
 
   BIND_IDA_CALLBACK2(IDASetJacTimes, IDALsJacTimesSetupFn, lsjactimessetupfn,
                      idas_lsjactimessetupfn_wrapper, IDALsJacTimesVecFn,
                      lsjactimesvecfn, idas_lsjactimesvecfn_wrapper,
                      nb::arg("ida_mem"), nb::arg("jsetup").none(),
-                     nb::arg("psolve"));
+                     nb::arg("jtimes").none());
 
   BIND_IDA_CALLBACK(IDASetJacTimesResFn, IDALsJacTimesVecFn, lsjacresfn,
                     idas_lsjacresfn_wrapper);
 
-  // Sensitivity and quadrature sensitivity bindings (example, adapt as needed)
+  //
+  // Sensitivity and quadrature sensitivity bindings
+  //
+
   using IDAQuadSensRhsStdFn = int(sunrealtype t, N_Vector yy,
                                   std::vector<N_Vector> yQS, N_Vector yp,
                                   std::vector<N_Vector> yQSdot, void* user_data);
@@ -213,7 +214,7 @@ void bind_idas(nb::module_& m)
         });
 
   ///
-  // IDAS Adjoint Bindings
+  // IDAS adjoint bindings
   ///
 
   m.def("IDAInitB",
@@ -274,13 +275,13 @@ void bind_idas(nb::module_& m)
                       idas_lsprecsetupfnB_wrapper, IDALsPrecSolveFnB,
                       lsprecsolvefnB, idas_lsprecsolvefnB_wrapper,
                       nb::arg("ida_mem"), nb::arg("which"),
-                      nb::arg("psetupB").none(), nb::arg("psolveB"));
+                      nb::arg("psetupB").none(), nb::arg("psolveB").none());
 
   BIND_IDAB_CALLBACK2(IDASetJacTimesB, IDALsJacTimesSetupFnB, lsjactimessetupfnB,
                       idas_lsjactimessetupfnB_wrapper, IDALsJacTimesVecFnB,
                       lsjactimesvecfnB, idas_lsjactimesvecfnB_wrapper,
                       nb::arg("ida_mem"), nb::arg("which"),
-                      nb::arg("jsetupB").none(), nb::arg("jtimesB"));
+                      nb::arg("jsetupB").none(), nb::arg("jtimesB").none());
 
   using IDALsJacStdFnBS = int(sunrealtype t, N_Vector yy,
                               std::vector<N_Vector> yS, N_Vector yyB,
@@ -302,7 +303,7 @@ void bind_idas(nb::module_& m)
                       IDALsPrecSolveStdFnBS, lsprecsolvefnBS,
                       idas_lsprecsolvefnBS_wrapper, nb::arg("ida_mem"),
                       nb::arg("which"), nb::arg("psetupBS").none(),
-                      nb::arg("psolveBS"));
+                      nb::arg("psolveBS").none());
 
   using IDALsJacTimesSetupStdFnBS = int(sunrealtype t, N_Vector yy,
                                         std::vector<N_Vector> yS, N_Vector yyB,
@@ -316,5 +317,5 @@ void bind_idas(nb::module_& m)
                       IDALsJacTimesVecStdFnBS, lsjactimesvecfnBS,
                       idas_lsjactimesvecfnBS_wrapper, nb::arg("ida_mem"),
                       nb::arg("which"), nb::arg("jsetupBS").none(),
-                      nb::arg("jtimesBS"));
+                      nb::arg("jtimesBS").none());
 }
