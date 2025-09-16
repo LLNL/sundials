@@ -6,6 +6,7 @@ namespace nb = nanobind;
 void bind_core(nb::module_& m);
 void bind_arkode(nb::module_& m);
 void bind_cvodes(nb::module_& m);
+void bind_idas(nb::module_& m);
 void bind_nvector_serial(nb::module_& m);
 void bind_sunlinsol_spgmr(nb::module_& m);
 void bind_sunlinsol_dense(nb::module_& m);
@@ -31,6 +32,10 @@ NB_MODULE(pysundials, m)
   nb::module_ cvodes_m = m.def_submodule("cvodes",
                                          "A submodule of 'pysundials'");
   bind_cvodes(cvodes_m);
+
+  nb::module_ idas_m = m.def_submodule("idas",
+                                         "A submodule of 'pysundials'");
+  bind_idas(idas_m);
 
   {
     // Bind N_Vector implementations

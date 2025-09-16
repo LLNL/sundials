@@ -47,21 +47,24 @@ using namespace sundials::experimental;
         })
 
 #define BIND_IDA_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2,        \
-                           MEMBER2, WRAPPER2)                                  \
-  m.def(#NAME,                                                                 \
-        [](void* ida_mem, std::function<std::remove_pointer_t<FN_TYPE1>> fn1,  \
-           std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                 \
-        {                                                                      \
-          void* user_data = nullptr;                                           \
-          IDAGetUserData(ida_mem, &user_data);                                 \
-          if (!user_data)                                                      \
-            throw std::runtime_error(                                          \
-              "Failed to get Python function table from IDAS memory");         \
-          auto fntable = static_cast<idas_user_supplied_fn_table*>(user_data); \
-          fntable->MEMBER1 = nb::cast(fn1);                                    \
-          fntable->MEMBER2 = nb::cast(fn2);                                    \
-          return NAME(ida_mem, &WRAPPER1, &WRAPPER2);                          \
-        })
+                           MEMBER2, WRAPPER2, ...)                             \
+  m.def(                                                                       \
+    #NAME,                                                                     \
+    [](void* ida_mem, std::function<std::remove_pointer_t<FN_TYPE1>> fn1,      \
+       std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                     \
+    {                                                                          \
+      void* user_data = nullptr;                                               \
+      IDAGetUserData(ida_mem, &user_data);                                     \
+      if (!user_data)                                                          \
+        throw std::runtime_error(                                              \
+          "Failed to get Python function table from IDAS memory");             \
+      auto fntable     = static_cast<idas_user_supplied_fn_table*>(user_data); \
+      fntable->MEMBER1 = nb::cast(fn1);                                        \
+      fntable->MEMBER2 = nb::cast(fn2);                                        \
+      if (fn1) { return NAME(ida_mem, WRAPPER1, WRAPPER2); }                   \
+      else { return NAME(ida_mem, nullptr, WRAPPER2); }                        \
+    },                                                                         \
+    __VA_ARGS__)
 
 #define BIND_IDAB_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER)                      \
   m.def(#NAME,                                                                  \
@@ -79,22 +82,24 @@ using namespace sundials::experimental;
         })
 
 #define BIND_IDAB_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2,        \
-                            MEMBER2, WRAPPER2)                                  \
-  m.def(#NAME,                                                                  \
-        [](void* ida_mem, int which,                                            \
-           std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                  \
-           std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                  \
-        {                                                                       \
-          void* user_data = nullptr;                                            \
-          IDAGetUserDataB(ida_mem, which, &user_data);                          \
-          if (!user_data)                                                       \
-            throw std::runtime_error(                                           \
-              "Failed to get Python function table from IDAS memory");          \
-          auto fntable = static_cast<idasa_user_supplied_fn_table*>(user_data); \
-          fntable->MEMBER1 = nb::cast(fn1);                                     \
-          fntable->MEMBER2 = nb::cast(fn2);                                     \
-          return NAME(ida_mem, which, &WRAPPER1, &WRAPPER2);                    \
-        })
+                            MEMBER2, WRAPPER2, ...)                             \
+  m.def(                                                                        \
+    #NAME,                                                                      \
+    [](void* ida_mem, int which,                                                \
+       std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                      \
+       std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                      \
+    {                                                                           \
+      void* user_data = nullptr;                                                \
+      IDAGetUserDataB(ida_mem, which, &user_data);                              \
+      if (!user_data)                                                           \
+        throw std::runtime_error(                                               \
+          "Failed to get Python function table from IDAS memory");              \
+      auto fntable     = static_cast<idasa_user_supplied_fn_table*>(user_data); \
+      fntable->MEMBER1 = nb::cast(fn1);                                         \
+      fntable->MEMBER2 = nb::cast(fn2);                                         \
+      return NAME(ida_mem, which, &WRAPPER1, &WRAPPER2);                        \
+    },                                                                          \
+    __VA_ARGS__)
 
 void bind_idas(nb::module_& m)
 {
@@ -151,14 +156,22 @@ void bind_idas(nb::module_& m)
         });
 
   BIND_IDA_CALLBACK(IDAWFtolerances, IDAEwtFn, ewtn, idas_ewtfn_wrapper);
+
   BIND_IDA_CALLBACK(IDASetNlsResFn, IDAResFn, resNLS, idas_nlsresfn_wrapper);
+
   BIND_IDA_CALLBACK(IDASetJacFn, IDALsJacFn, lsjacfn, idas_lsjacfn_wrapper);
+
   BIND_IDA_CALLBACK2(IDASetPreconditioner, IDALsPrecSetupFn, lsprecsetupfn,
-                     idas_lsprecsetupfn_wrapper, IDALsPrecSolveFn,
-                     lsprecsolvefn, idas_lsprecsolvefn_wrapper);
+                     idas_lsprecsetupfn_wrapper, IDALsPrecSolveFn, lsprecsolvefn,
+                     idas_lsprecsolvefn_wrapper, nb::arg("ida_mem"),
+                     nb::arg("psetup").none(), nb::arg("psolve"));
+
   BIND_IDA_CALLBACK2(IDASetJacTimes, IDALsJacTimesSetupFn, lsjactimessetupfn,
                      idas_lsjactimessetupfn_wrapper, IDALsJacTimesVecFn,
-                     lsjactimesvecfn, idas_lsjactimesvecfn_wrapper);
+                     lsjactimesvecfn, idas_lsjactimesvecfn_wrapper,
+                     nb::arg("ida_mem"), nb::arg("jsetup").none(),
+                     nb::arg("psolve"));
+
   BIND_IDA_CALLBACK(IDASetJacTimesResFn, IDALsJacTimesVecFn, lsjacresfn,
                     idas_lsjacresfn_wrapper);
 
@@ -255,12 +268,18 @@ void bind_idas(nb::module_& m)
         });
 
   BIND_IDAB_CALLBACK(IDASetJacFnB, IDALsJacFnB, lsjacfnB, idas_lsjacfnB_wrapper);
+
   BIND_IDAB_CALLBACK2(IDASetPreconditionerB, IDALsPrecSetupFnB, lsprecsetupfnB,
                       idas_lsprecsetupfnB_wrapper, IDALsPrecSolveFnB,
-                      lsprecsolvefnB, idas_lsprecsolvefnB_wrapper);
+                      lsprecsolvefnB, idas_lsprecsolvefnB_wrapper,
+                      nb::arg("ida_mem"), nb::arg("which"),
+                      nb::arg("psetupB").none(), nb::arg("psolveB"));
+
   BIND_IDAB_CALLBACK2(IDASetJacTimesB, IDALsJacTimesSetupFnB, lsjactimessetupfnB,
                       idas_lsjactimessetupfnB_wrapper, IDALsJacTimesVecFnB,
-                      lsjactimesvecfnB, idas_lsjactimesvecfnB_wrapper);
+                      lsjactimesvecfnB, idas_lsjactimesvecfnB_wrapper,
+                      nb::arg("ida_mem"), nb::arg("which"),
+                      nb::arg("jsetupB").none(), nb::arg("jtimesB"));
 
   using IDALsJacStdFnBS = int(sunrealtype t, N_Vector yy,
                               std::vector<N_Vector> yS, N_Vector yyB,
@@ -268,6 +287,7 @@ void bind_idas(nb::module_& m)
                               N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
   BIND_IDAB_CALLBACK(IDASetJacFnBS, IDALsJacStdFnBS, lsjacfnBS,
                      idas_lsjacfnBS_wrapper);
+
   using IDALsPrecSetupStdFnBS = int(sunrealtype t, N_Vector yy, N_Vector yyB,
                                     N_Vector fyB, sunbooleantype jokB,
                                     sunbooleantype * jcurPtrB,
@@ -279,7 +299,10 @@ void bind_idas(nb::module_& m)
   BIND_IDAB_CALLBACK2(IDASetPreconditionerBS, IDALsPrecSetupStdFnBS,
                       lsprecsetupfnBS, idas_lsprecsetupfnBS_wrapper,
                       IDALsPrecSolveStdFnBS, lsprecsolvefnBS,
-                      idas_lsprecsolvefnBS_wrapper);
+                      idas_lsprecsolvefnBS_wrapper, nb::arg("ida_mem"),
+                      nb::arg("which"), nb::arg("psetupBS").none(),
+                      nb::arg("psolveBS"));
+
   using IDALsJacTimesSetupStdFnBS = int(sunrealtype t, N_Vector yy,
                                         std::vector<N_Vector> yS, N_Vector yyB,
                                         N_Vector fyB, void* jac_dataB);
@@ -290,5 +313,7 @@ void bind_idas(nb::module_& m)
   BIND_IDAB_CALLBACK2(IDASetJacTimesBS, IDALsJacTimesSetupStdFnBS,
                       lsjactimessetupfnBS, idas_lsjactimessetupfnBS_wrapper,
                       IDALsJacTimesVecStdFnBS, lsjactimesvecfnBS,
-                      idas_lsjactimesvecfnBS_wrapper);
+                      idas_lsjactimesvecfnBS_wrapper, nb::arg("ida_mem"),
+                      nb::arg("which"), nb::arg("jsetupBS").none(),
+                      nb::arg("jtimesBS"));
 }

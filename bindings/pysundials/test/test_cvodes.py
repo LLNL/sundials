@@ -3,7 +3,7 @@
 import numpy as np
 from pysundials.core import *
 from pysundials.cvodes import *
-from ode_problems import AnalyticODE
+from problems import AnalyticODE
 
 
 def test_bdf():

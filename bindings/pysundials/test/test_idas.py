@@ -2,34 +2,49 @@
 
 import numpy as np
 from pysundials.core import *
-from pysundials.cvodes import *
-from ode_problems import AnalyticODE
+from pysundials.idas import *
+from problems import AnalyticDAE
 
 
-def test_bdf():
+def test_bdf_idas():
     sunctx = SUNContextView.Create()
-    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
-    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
 
-    # Get the array and change a value in it
-    arr = N_VGetArrayPointer(nv.get())
-    arr[:] = 0.0  # set initial condition
+    ode_problem = AnalyticDAE()
 
-    ode_problem = AnalyticODE()
+    solver = IDAView.Create(IDACreate(sunctx.get()))
+    yy = NVectorView.Create(N_VNew_Serial(2, sunctx.get()))
+    yp = NVectorView.Create(N_VNew_Serial(2, sunctx.get()))
 
-    solver = CVodeView.Create(CVodeCreate(CV_BDF, sunctx.get()))
+    # y and y' initial conditions
+    ode_problem.set_init_cond(yy.get(), yp.get(), ode_problem.T0)
 
-    status = CVodeInit(solver.get(), lambda t, y, ydot, _: ode_problem.f(t, y, ydot), 0, nv.get())
-    status = CVodeSStolerances(solver.get(), 1e-6, 1e-6)
-    status = CVodeSetLinearSolver(solver.get(), ls.get(), None)
+    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(yy.get(), SUN_PREC_LEFT, 0, sunctx.get()))
 
-    tout, tret = 10.0, 0.0
-    status, tret = CVode(solver.get(), tout, nv.get(), tret, CV_NORMAL)
-    print(f"status={status}, tret={tret}, ans={arr}")
+    def resfn(t, y, yp, rr, _):
+        return ode_problem.res(t, y, yp, rr)
+    
+    def psetup(t, y, yp, rr, cj, _):
+        print("setup")
+        return 0
+    
+    def psolve(t, y, yp, rr, rvec, zvec, cj, delta, _):
+        print("solve")
+        return ode_problem.psolve(t, y, yp, rr, rvec, zvec, cj, delta)
 
-    status, num_steps = CVodeGetNumSteps(solver.get(), 0)
+    status = IDAInit(solver.get(), resfn, 0.0, yy.get(), yp.get())
+    status = IDASStolerances(solver.get(), 1e-4, 1e-9)
+    status = IDASetLinearSolver(solver.get(), ls.get(), None)
+    status = IDASetPreconditioner(solver.get(), None, psolve)
+
+    tout, tret = ode_problem.TF, ode_problem.T0
+    status, tret = IDASolve(solver.get(), tout, tret, yy.get(), yp.get(), IDA_NORMAL)
+    print(f"status={status}, tret={tret}")
+    N_VPrint(yy.get())
+    N_VPrint(yp.get())
+
+    status, num_steps = IDAGetNumSteps(solver.get(), 0)
     print(f"num_steps={num_steps}")
 
 
 if __name__ == "__main__":
-    test_bdf()
+    test_bdf_idas()

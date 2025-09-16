@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from pysundials.core import *
 from pysundials.arkode import *
-from ode_problems import AnalyticODE
+from problems import AnalyticODE
 
 def test_lsrkstep():
     sunctx = SUNContextView.Create()

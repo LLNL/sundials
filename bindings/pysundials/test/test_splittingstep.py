@@ -3,7 +3,7 @@
 import numpy as np
 from pysundials.core import *
 from pysundials.arkode import *
-from ode_problems import AnalyticMultiscaleODE
+from problems import AnalyticMultiscaleODE
 
 
 def test_splittingstep():

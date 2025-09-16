@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from pysundials.core import *
 from pysundials.arkode import *
-from ode_problems import HarmonicOscillatorODE
+from problems import HarmonicOscillatorODE
 
 def test_sprkstep():
     tout, tret = 2*np.pi, 0.0
