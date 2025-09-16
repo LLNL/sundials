@@ -25,7 +25,8 @@ in any order.
 
 Fixed a bug in how MRIStep interacts with an MRIHTol SUNAdaptController object
 (the previous version essentially just reverted to a decoupled multirate
-controller).
+controller). Removed the upper limit on `inner_max_tolfac` in
+`SUNAdaptController_SetParams_MRIHTol`. 
 
 The shared library version numbers for the oneMKL dense linear solver and
 matrix as well as the PETSc SNES nonlinear solver have been corrected.

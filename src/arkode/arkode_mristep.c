@@ -3574,7 +3574,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 
       /* scale the error estimate by 1/rtol to account for different inner/outer tolerances */
       step_mem->inner_dsm /= ark_mem->reltol;
-      SUNLogInfo(ARK_LOGGER, "end-fast-steps", "inner_dsm = %e",
+      SUNLogInfo(ARK_LOGGER, "accumulated-fast-error", "inner_dsm = %e",
                  step_mem->inner_dsm);
     }
   }

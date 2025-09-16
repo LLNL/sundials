@@ -156,6 +156,11 @@ also provides the following additional user-callable routines:
    :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}` (must be :math:`> 0`).
 
    :returns: :c:type:`SUNErrCode` indicating success or failure.
+   
+   .. versionchanged:: x.y.z
+   
+      Removed the requirement that ``inner_max_tolfac`` must be :math:`\le 1`
+   
 
    .. note::
 
