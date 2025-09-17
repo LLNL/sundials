@@ -1,0 +1,133 @@
+# -----------------------------------------------------------------
+# Programmer(s): Cody J. Balos @ LLNL
+# -----------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------
+# This YAML file is used to instruct the generate.py script on
+# how to generate some of the nanobind code needed for the
+# ARKODE module of pysundials.
+# -----------------------------------------------------------------
+
+modules:
+  all:
+    fn_exclude_by_name__regex:
+    - "Free" # Free and destroy functions should not need to be called as all objects on the Python side are RAII ClassView objects
+    - "Destroy"
+    - "Space" # Space functions are deprecated, so dont expose them in Python
+    macro_define_include_by_name__regex:
+    - "^SUN_"
+    - "^ARK_"
+    fn_params_optional_with_default_null:
+      "SetLinearSolver":
+      - "A" 
+  arkode:
+    path: arkode/pysundials_arkode_generated.hpp
+    headers:
+    - ../../include/arkode/arkode.h
+    - ../../include/arkode/arkode_ls.h
+    - ../../include/arkode/arkode_butcher.h
+    fn_exclude_by_name__regex:
+    # nanobind doesnt support **
+    - "ARKodeGetJac" 
+    - "ARKodeGetCurrentMassMatrix"
+    - "ARKodeGetCurrentState"
+    # we dont bind the alloc or create functions as we need to do something custom
+    - "ARKodeCreateMRIStepInnerStepper" 
+    - "ARKodeCreateSUNStepper"
+    - "ARKodeButcherTable_Create"
+    - "ARKodeButcherTable_Alloc"
+    # we use user_data for sneaking in python contexts, users can instead capture their states in a class
+    - "ARKodeGetUserData" 
+    - "ARKodeSetUserData" 
+    # generator cannot handle setting of function pointers 
+    - "ARKodeSet.*Fn" 
+    - "ARKodeSetWFtolerances"
+    - "ARKodeSet.*Preconditioner"
+    - "ARKodeSet.*Times"
+    # generator cannot handle functions with optional (i.e. NULLable) parameters that is not followed by only optional parameters
+    # so we have to do something custom
+    - "ARKodeSetMassLinearSolver"
+  arkstep:
+    path: arkode/pysundials_arkode_arkstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_arkstep.h
+    fn_exclude_by_name__regex:
+    # we dont bind the ARKStepCreate function as we need to do something custom
+    - "ARKStepCreate"
+    - "ARKStepReInit"
+    # reinit also requires custom handling due to function pointers
+    - "ARKStepReInit"
+    # nanobind doesnt support **
+    - "ARKStepGetCurrentButcherTable"
+  erkstep:
+    path: arkode/pysundials_arkode_erkstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_erkstep.h
+    fn_exclude_by_name__regex:
+    # we dont bind the ERKStepCreate function as we need to do something custom
+    - "ERKStepCreate"
+    # reinit also requires custom handling due to function pointers
+    - "ERKStepReInit"
+    # nanobind doesnt support **
+    - "ERKStepGetCurrentButcherTable"
+  sprkstep:
+    path: arkode/pysundials_arkode_sprkstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_sprkstep.h
+    fn_exclude_by_name__regex:
+    - "SPRKStepCreate"
+    # reinit also requires custom handling due to function pointers
+    - "SPRKStepReInit"
+    # nanobind doesnt support **
+    - "GetCurrentMethod"
+  lsrkstep:
+    path: arkode/pysundials_arkode_lsrkstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_lsrkstep.h
+    fn_exclude_by_name__regex:
+    # these three functions take function pointers, so we have to do something custom
+    - "LSRKStepCreate"
+    - "LSRKStepReInit"
+    - "SetDomEigFn"
+  mristep:
+    path: arkode/pysundials_arkode_mristep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_mristep.h
+    fn_exclude_by_name__regex:
+    # we dont allow alloc to be used from Python
+    - "MRIStepCoupling_Alloc"
+    # we do custom handling of Create
+    - "MRIStepCreate"
+    - "MRIStepCoupling_Create"
+    - "MRIStepInnerStepper_Create"
+    # reinit also requires custom handling due to function pointers
+    - "MRIStepReInit"
+    # We steal the MRIStepInnerStepper content for callbacks, so dont interface the set/get
+    - "MRIStepInnerStepper_GetContent"
+    - "MRIStepInnerStepper_SetContent"
+    # we cannot yet handle **s for most custom types
+    - "MRIStepGetCurrentCoupling"
+    # we have to do custom things to handle setting function pointers
+    - "MRIStepInnerStepper_Set.*Fn"
+  forcingstep:
+    path: arkode/pysundials_arkode_forcingstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_forcingstep.h
+  splittingstep:
+    path: arkode/pysundials_arkode_splittingstep_generated.hpp
+    headers:
+    - ../../include/arkode/arkode_splittingstep.h
+    fn_exclude_by_name__regex:
+    # we dont allow alloc to be used from Python
+    - "SplittingStepCoefficients_Alloc"
+    # we do custom handling of the stepper create/reinit
+    - "SplittingStepCreate"
+    - "SplittingStepReInit"

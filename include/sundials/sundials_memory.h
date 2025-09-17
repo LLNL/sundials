@@ -25,13 +25,21 @@
 extern "C" {
 #endif
 
-typedef enum
+enum SUNMemoryType_
 {
-  SUNMEMTYPE_HOST,   /* pageable memory accessible on the host     */
-  SUNMEMTYPE_PINNED, /* page-locked memory accessible on the host   */
-  SUNMEMTYPE_DEVICE, /* memory accessible from the device          */
-  SUNMEMTYPE_UVM     /* memory accessible from the host or device  */
-} SUNMemoryType;
+  SUN_MEMTYPE_HOST,   /* pageable memory accessible on the host     */
+  SUN_MEMTYPE_PINNED, /* page-locked memory accessible on the host   */
+  SUN_MEMTYPE_DEVICE, /* memory accessible from the device          */
+  SUN_MEMTYPE_UVM     /* memory accessible from the host or device  */
+};
+
+typedef enum SUNMemoryType_ SUNMemoryType;
+
+/* For backwards compatibility with the old name */
+static const int SUNMEMTYPE_HOST   = SUN_MEMTYPE_HOST;
+static const int SUNMEMTYPE_PINNED = SUN_MEMTYPE_PINNED;
+static const int SUNMEMTYPE_DEVICE = SUN_MEMTYPE_DEVICE;
+static const int SUNMEMTYPE_UVM    = SUN_MEMTYPE_UVM;
 
 /*
  * SUNMemory is a simple abstraction of a pointer to some

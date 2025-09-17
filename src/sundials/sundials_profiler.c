@@ -150,21 +150,6 @@ static void sunResetTiming(sunTimerStruct* entry)
   entry->count        = 0;
 }
 
-/*
-  SUNProfiler.
-
-  This structure holds all of the timers in a map.s
- */
-
-struct SUNProfiler_
-{
-  SUNComm comm;
-  char* title;
-  SUNHashMap map;
-  sunTimerStruct* overhead;
-  double sundials_time;
-};
-
 SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
 {
   SUNProfiler profiler;

@@ -24,8 +24,8 @@ class ConvertibleTo
 {
 public:
   // Explicit conversion to the underlying type
-  virtual T Convert()       = 0;
-  virtual T Convert() const = 0;
+  virtual T get()       = 0;
+  virtual T get() const = 0;
 
   // Implicit conversion to the underlying type
   virtual operator T()       = 0;

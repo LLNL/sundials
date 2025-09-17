@@ -28,11 +28,13 @@ namespace sundials {
 class Context : public sundials::ConvertibleTo<SUNContext>
 {
 public:
-  explicit Context(SUNComm comm = SUN_COMM_NULL)
+  Context(SUNComm comm = SUN_COMM_NULL)
   {
     sunctx_ = std::make_unique<SUNContext>();
     SUNContext_Create(comm, sunctx_.get());
   }
+
+  Context(SUNContext sunctx) { sunctx_.reset(&sunctx); }
 
   /* disallow copy, but allow move construction */
   Context(const Context&) = delete;
@@ -42,13 +44,16 @@ public:
   Context& operator=(const Context&) = delete;
   Context& operator=(Context&&)      = default;
 
-  SUNContext Convert() override { return *sunctx_.get(); }
+  SUNContext get() override { return *sunctx_.get(); }
 
-  SUNContext Convert() const override { return *sunctx_.get(); }
+  SUNContext get() const override { return *sunctx_.get(); }
 
   operator SUNContext() override { return *sunctx_.get(); }
 
   operator SUNContext() const override { return *sunctx_.get(); }
+
+  template<typename... Args>
+  static Context Create(Args&&... args);
 
   ~Context()
   {
@@ -58,6 +63,14 @@ public:
 private:
   std::unique_ptr<SUNContext> sunctx_;
 };
+
+template<typename... Args>
+Context Context::Create(Args&&... args)
+{
+  return Context(std::forward<Args>(args)...);
+}
+
+using SUNContextView = Context;
 
 } // namespace sundials
 

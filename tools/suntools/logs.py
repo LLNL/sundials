@@ -377,7 +377,6 @@ def get_history(
     """
 
     steps, times, values, levels = _get_history(log, key, step_status, time_range, step_range)
-
     if group_by_level:
         from collections import defaultdict
 

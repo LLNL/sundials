@@ -89,7 +89,7 @@ extern "C" {
 
 typedef int (*CVRhsFn)(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
-typedef int (*CVRootFn)(sunrealtype t, N_Vector y, sunrealtype* gout,
+typedef int (*CVRootFn)(sunrealtype t, N_Vector y, sunrealtype1d gout,
                         void* user_data);
 
 typedef int (*CVEwtFn)(N_Vector y, N_Vector ewt, void* user_data);
@@ -106,8 +106,8 @@ SUNDIALS_EXPORT void* CVodeCreate(int lmm, SUNContext sunctx);
 SUNDIALS_EXPORT int CVodeInit(void* cvode_mem, CVRhsFn f, sunrealtype t0,
                               N_Vector y0);
 SUNDIALS_EXPORT int CVodeReInit(void* cvode_mem, sunrealtype t0, N_Vector y0);
-SUNDIALS_EXPORT int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist,
-                                       N_Vector* y_hist, N_Vector* f_hist,
+SUNDIALS_EXPORT int CVodeResizeHistory(void* cvode_mem, sunrealtype1d t_hist,
+                                       N_Vector1d y_hist, N_Vector1d f_hist,
                                        int num_y_hist, int num_f_hist);
 
 /* Tolerance input functions */
@@ -149,6 +149,8 @@ SUNDIALS_EXPORT int CVodeClearStopTime(void* cvode_mem);
 SUNDIALS_EXPORT int CVodeSetUseIntegratorFusedKernels(void* cvode_mem,
                                                       sunbooleantype onoff);
 SUNDIALS_EXPORT int CVodeSetUserData(void* cvode_mem, void* user_data);
+SUNDIALS_EXPORT int CVodeSetOwnUserData(void* cvode_mem,
+                                        sunbooleantype own_user_data);
 
 /* Optional step adaptivity input functions */
 SUNDIALS_EXPORT

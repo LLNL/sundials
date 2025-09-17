@@ -1,5 +1,9 @@
 ..
+<<<<<<<< HEAD:doc/superbuild/source/developers/commandline/index.rst
    Author(s): Daniel R. Reynolds @ UMBC
+========
+   Author(s): David J. Gardner @ LLNL
+>>>>>>>> feature/python-nanobind:doc/superbuild/source/developers/packages/arkode/index.rst
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2025, Lawrence Livermore National Security
@@ -12,6 +16,7 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
+<<<<<<<< HEAD:doc/superbuild/source/developers/commandline/index.rst
 .. _CommandLineOptions:
 
 Command Line Options
@@ -23,3 +28,14 @@ This chapter discusses how to enable command-line control over SUNDIALS options.
    :maxdepth: 1
 
    Options
+========
+.. _ARKODE.Alg:
+
+ARKODE
+======
+
+.. toctree::
+   :maxdepth: 2
+
+   FullRhs
+>>>>>>>> feature/python-nanobind:doc/superbuild/source/developers/packages/arkode/index.rst

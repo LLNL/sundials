@@ -1287,6 +1287,41 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
    .. versionadded:: 7.3.0
 
+.. c:function:: int KINSetDampingFn(void* kin_mem, KINDampingFn damping_fn)
+
+   Sets the function used to compute the damping factor, :math:`\beta_n`, in
+   fixed-point or Picard iterations.
+
+   :param kin_mem: pointer to the KINSOL memory block.
+   :param damping_fn: the function to compute the damping parameter or ``NULL``
+                      to disable using a damping factor function. See
+                      :c:type:`KINDampingFn` for more information.
+
+   :retval KIN_SUCCESS: The damping function has been successfully set.
+   :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 7.3.0
+
+   .. note::
+
+      The function provided to :c:func:`KINSetDampingFn` will override any
+      values set with :c:func:`KINSetDamping` or :c:func:`KINSetDampingAA`.
+
+.. c:function:: int KINSetDepthFn(void* kin_mem, KINDepthFn depth_fn)
+
+   Sets the function used to compute the updated depth, :math:`m_n`, in
+   fixed-point or Picard iterations.
+
+   :param kin_mem: pointer to the KINSOL memory block.
+   :param damping_fn: the function to compute the depth parameter or ``NULL``
+                      to disable using a depth function. See
+                      :c:type:`KINDepthFn` for more information.
+
+   :retval KIN_SUCCESS: The depth function has been successfully set.
+   :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
+
+   .. versionadded:: 7.3.0
+
 .. _KINSOL.Usage.CC.optional_inputs.optin_ls:
 
 Linear solver interface optional input functions

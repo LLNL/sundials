@@ -1,0 +1,45 @@
+/*------------------------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ *------------------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ *----------------------------------------------------------------------------*/
+
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/function.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/shared_ptr.h>
+
+#include <arkode/arkode.hpp>
+#include <arkode/arkode_splittingstep.h>
+#include <sundials/sundials_core.hpp>
+
+#include "arkode_mristep_impl.h"
+
+namespace nb = nanobind;
+
+void bind_arkode_splittingstep(nb::module_& m)
+{
+#include "pysundials_arkode_splittingstep_generated.hpp"
+
+  m.def("SplittingStepCreate",
+        [](std::vector<SUNStepper> steppers, int partitions, sunrealtype t0,
+           N_Vector y0, SUNContext sunctx) -> void*
+        {
+            return SplittingStepCreate(steppers.data(), partitions, t0, y0, sunctx);
+        });
+
+  m.def("SplittingStepReInit",
+        [](void* arkode_mem, std::vector<SUNStepper> steppers, int partitions,
+           sunrealtype t0, N_Vector y0) -> int
+        {
+            return SplittingStepReInit(arkode_mem, steppers.data(), partitions, t0, y0);
+        });
+}
