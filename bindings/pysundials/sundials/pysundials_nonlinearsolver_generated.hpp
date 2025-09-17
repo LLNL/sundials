@@ -27,18 +27,6 @@ m.def("SUNNonlinSolSolve", SUNNonlinSolSolve, nb::arg("NLS"), nb::arg("y0"),
       nb::arg("y"), nb::arg("w"), nb::arg("tol"), nb::arg("callLSetup"),
       nb::arg("mem"));
 
-m.def("SUNNonlinSolSetSysFn", SUNNonlinSolSetSysFn, nb::arg("NLS"),
-      nb::arg("SysFn"));
-
-m.def("SUNNonlinSolSetLSetupFn", SUNNonlinSolSetLSetupFn, nb::arg("NLS"),
-      nb::arg("SetupFn"));
-
-m.def("SUNNonlinSolSetLSolveFn", SUNNonlinSolSetLSolveFn, nb::arg("NLS"),
-      nb::arg("SolveFn"));
-
-m.def("SUNNonlinSolSetConvTestFn", SUNNonlinSolSetConvTestFn, nb::arg("NLS"),
-      nb::arg("CTestFn"), nb::arg("ctest_data"));
-
 m.def("SUNNonlinSolSetMaxIters", SUNNonlinSolSetMaxIters, nb::arg("NLS"),
       nb::arg("maxiters"));
 

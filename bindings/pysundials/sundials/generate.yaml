@@ -107,6 +107,10 @@ modules:
     path: sundials/pysundials_nonlinearsolver_generated.hpp
     headers:
     - ../../include/sundials/sundials_nonlinearsolver.h
+    fn_exclude_by_name__regex:
+    # TODO(CJB): enable these
+    # nanobind cannot bind to functions which take a function pointer
+    - "Set.*Fn"
   sundials_nvector:
     path: sundials/pysundials_nvector_generated.hpp
     headers:
