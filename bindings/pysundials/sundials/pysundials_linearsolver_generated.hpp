@@ -19,6 +19,134 @@ auto pyEnumSUN_GRAMSCHMIDT_ID =
     .export_values();
 
 m.def(
+  "SUNModifiedGS",
+  [](std::vector<N_Vector> v, std::vector<sunrealtype> h, int k, int p,
+     double new_vk_norm) -> std::tuple<SUNErrCode, double>
+  {
+    auto SUNModifiedGS_adapt_modifiable_immutable_to_return =
+      [](N_Vector1d v, sunrealtype2d h, int k, int p,
+         double new_vk_norm) -> std::tuple<SUNErrCode, double>
+    {
+      double* new_vk_norm_adapt_modifiable = &new_vk_norm;
+
+      SUNErrCode r = SUNModifiedGS(v, h, k, p, new_vk_norm_adapt_modifiable);
+      return std::make_tuple(r, new_vk_norm);
+    };
+    auto SUNModifiedGS_adapt_arr_ptr_to_std_vector =
+      [&SUNModifiedGS_adapt_modifiable_immutable_to_return](std::vector<N_Vector> v,
+                                                            std::vector<sunrealtype> h,
+                                                            int k, int p,
+                                                            double new_vk_norm)
+      -> std::tuple<SUNErrCode, double>
+    {
+      N_Vector* v_ptr = reinterpret_cast<N_Vector*>(v.empty() ? nullptr
+                                                              : v.data());
+      sunrealtype** h_ptr =
+        reinterpret_cast<sunrealtype**>(h.empty() ? nullptr : h.data());
+
+      auto lambda_result =
+        SUNModifiedGS_adapt_modifiable_immutable_to_return(v_ptr, h_ptr, k, p,
+                                                           new_vk_norm);
+      return lambda_result;
+    };
+
+    return SUNModifiedGS_adapt_arr_ptr_to_std_vector(v, h, k, p, new_vk_norm);
+  },
+  nb::arg("v"), nb::arg("h"), nb::arg("k"), nb::arg("p"), nb::arg("new_vk_norm"));
+
+m.def(
+  "SUNClassicalGS",
+  [](std::vector<N_Vector> v, std::vector<sunrealtype> h, int k, int p,
+     double new_vk_norm, std::vector<sunrealtype> stemp,
+     std::vector<N_Vector> vtemp) -> std::tuple<SUNErrCode, double>
+  {
+    auto SUNClassicalGS_adapt_modifiable_immutable_to_return =
+      [](N_Vector1d v, sunrealtype2d h, int k, int p, double new_vk_norm,
+         sunrealtype1d stemp, N_Vector1d vtemp) -> std::tuple<SUNErrCode, double>
+    {
+      double* new_vk_norm_adapt_modifiable = &new_vk_norm;
+
+      SUNErrCode r = SUNClassicalGS(v, h, k, p, new_vk_norm_adapt_modifiable,
+                                    stemp, vtemp);
+      return std::make_tuple(r, new_vk_norm);
+    };
+    auto SUNClassicalGS_adapt_arr_ptr_to_std_vector =
+      [&SUNClassicalGS_adapt_modifiable_immutable_to_return](std::vector<N_Vector> v,
+                                                             std::vector<sunrealtype> h,
+                                                             int k, int p,
+                                                             double new_vk_norm,
+                                                             std::vector<sunrealtype> stemp,
+                                                             std::vector<N_Vector> vtemp)
+      -> std::tuple<SUNErrCode, double>
+    {
+      N_Vector* v_ptr = reinterpret_cast<N_Vector*>(v.empty() ? nullptr
+                                                              : v.data());
+      sunrealtype** h_ptr =
+        reinterpret_cast<sunrealtype**>(h.empty() ? nullptr : h.data());
+      sunrealtype* stemp_ptr =
+        reinterpret_cast<sunrealtype*>(stemp.empty() ? nullptr : stemp.data());
+      N_Vector* vtemp_ptr =
+        reinterpret_cast<N_Vector*>(vtemp.empty() ? nullptr : vtemp.data());
+
+      auto lambda_result =
+        SUNClassicalGS_adapt_modifiable_immutable_to_return(v_ptr, h_ptr, k, p,
+                                                            new_vk_norm,
+                                                            stemp_ptr, vtemp_ptr);
+      return lambda_result;
+    };
+
+    return SUNClassicalGS_adapt_arr_ptr_to_std_vector(v, h, k, p, new_vk_norm,
+                                                      stemp, vtemp);
+  },
+  nb::arg("v"), nb::arg("h"), nb::arg("k"), nb::arg("p"),
+  nb::arg("new_vk_norm"), nb::arg("stemp"), nb::arg("vtemp"));
+
+m.def(
+  "SUNQRfact",
+  [](int n, std::vector<sunrealtype> h, std::vector<sunrealtype> q, int job) -> int
+  {
+    auto SUNQRfact_adapt_arr_ptr_to_std_vector =
+      [](int n, std::vector<sunrealtype> h, std::vector<sunrealtype> q,
+         int job) -> int
+    {
+      sunrealtype** h_ptr =
+        reinterpret_cast<sunrealtype**>(h.empty() ? nullptr : h.data());
+      sunrealtype* q_ptr = reinterpret_cast<sunrealtype*>(q.empty() ? nullptr
+                                                                    : q.data());
+
+      auto lambda_result = SUNQRfact(n, h_ptr, q_ptr, job);
+      return lambda_result;
+    };
+
+    return SUNQRfact_adapt_arr_ptr_to_std_vector(n, h, q, job);
+  },
+  nb::arg("n"), nb::arg("h"), nb::arg("q"), nb::arg("job"));
+
+m.def(
+  "SUNQRsol",
+  [](int n, std::vector<sunrealtype> h, std::vector<sunrealtype> q,
+     std::vector<sunrealtype> b) -> int
+  {
+    auto SUNQRsol_adapt_arr_ptr_to_std_vector =
+      [](int n, std::vector<sunrealtype> h, std::vector<sunrealtype> q,
+         std::vector<sunrealtype> b) -> int
+    {
+      sunrealtype** h_ptr =
+        reinterpret_cast<sunrealtype**>(h.empty() ? nullptr : h.data());
+      sunrealtype* q_ptr = reinterpret_cast<sunrealtype*>(q.empty() ? nullptr
+                                                                    : q.data());
+      sunrealtype* b_ptr = reinterpret_cast<sunrealtype*>(b.empty() ? nullptr
+                                                                    : b.data());
+
+      auto lambda_result = SUNQRsol(n, h_ptr, q_ptr, b_ptr);
+      return lambda_result;
+    };
+
+    return SUNQRsol_adapt_arr_ptr_to_std_vector(n, h, q, b);
+  },
+  nb::arg("n"), nb::arg("h"), nb::arg("q"), nb::arg("b"));
+
+m.def(
   "SUNQRAdd_MGS",
   [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df, int m,
      int mMax, void* QRdata) -> SUNErrCode
