@@ -35,25 +35,26 @@ modules:
     - ../../include/arkode/arkode_ls.h
     - ../../include/arkode/arkode_butcher.h
     fn_exclude_by_name__regex:
-    # nanobind doesnt support **
+    # TODO(CJB): add support for these functions
+    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
     - "ARKodeGetJac" 
     - "ARKodeGetCurrentMassMatrix"
     - "ARKodeGetCurrentState"
-    # we dont bind the alloc or create functions as we need to do something custom
+    # we don't bind the alloc or create functions as we need to do something custom
     - "ARKodeCreateMRIStepInnerStepper" 
     - "ARKodeCreateSUNStepper"
     - "ARKodeButcherTable_Create"
     - "ARKodeButcherTable_Alloc"
-    # we use user_data for sneaking in python contexts, users can instead capture their states in a class
+    # we use user_data for sneaking in python contexts, so we don't interface these
     - "ARKodeGetUserData" 
     - "ARKodeSetUserData" 
-    # generator cannot handle setting of function pointers 
+    # generator cannot handle setting of function pointers, so we do something custom
     - "ARKodeSet.*Fn" 
     - "ARKodeSetWFtolerances"
     - "ARKodeSet.*Preconditioner"
     - "ARKodeSet.*Times"
-    # generator cannot handle functions with optional (i.e. NULLable) parameters that is not followed by only optional parameters
-    # so we have to do something custom
+    # generator cannot handle functions with optional (i.e. NULLable) parameters that is not 
+    # followed by only optional parameters, so we have to do something custom
     - "ARKodeSetMassLinearSolver"
   arkstep:
     path: arkode/pysundials_arkode_arkstep_generated.hpp
@@ -65,7 +66,8 @@ modules:
     - "ARKStepReInit"
     # reinit also requires custom handling due to function pointers
     - "ARKStepReInit"
-    # nanobind doesnt support **
+    # TODO(CJB): add support for these functions
+    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
     - "ARKStepGetCurrentButcherTable"
   erkstep:
     path: arkode/pysundials_arkode_erkstep_generated.hpp
@@ -76,7 +78,8 @@ modules:
     - "ERKStepCreate"
     # reinit also requires custom handling due to function pointers
     - "ERKStepReInit"
-    # nanobind doesnt support **
+    # TODO(CJB): add support for these functions
+    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
     - "ERKStepGetCurrentButcherTable"
   sprkstep:
     path: arkode/pysundials_arkode_sprkstep_generated.hpp
@@ -86,7 +89,7 @@ modules:
     - "SPRKStepCreate"
     # reinit also requires custom handling due to function pointers
     - "SPRKStepReInit"
-    # nanobind doesnt support **
+    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
     - "GetCurrentMethod"
   lsrkstep:
     path: arkode/pysundials_arkode_lsrkstep_generated.hpp
@@ -102,7 +105,7 @@ modules:
     headers:
     - ../../include/arkode/arkode_mristep.h
     fn_exclude_by_name__regex:
-    # we dont allow alloc to be used from Python
+    # we don't allow alloc to be used from Python
     - "MRIStepCoupling_Alloc"
     # we do custom handling of Create
     - "MRIStepCreate"
@@ -110,10 +113,11 @@ modules:
     - "MRIStepInnerStepper_Create"
     # reinit also requires custom handling due to function pointers
     - "MRIStepReInit"
-    # We steal the MRIStepInnerStepper content for callbacks, so dont interface the set/get
+    # We steal the MRIStepInnerStepper content for the callback table, so don't interface the set/get
     - "MRIStepInnerStepper_GetContent"
     - "MRIStepInnerStepper_SetContent"
-    # we cannot yet handle **s for most custom types
+    # TODO(CJB): add support for these functions
+    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
     - "MRIStepGetCurrentCoupling"
     # we have to do custom things to handle setting function pointers
     - "MRIStepInnerStepper_Set.*Fn"
@@ -126,7 +130,7 @@ modules:
     headers:
     - ../../include/arkode/arkode_splittingstep.h
     fn_exclude_by_name__regex:
-    # we dont allow alloc to be used from Python
+    # we don't allow alloc to be used from Python
     - "SplittingStepCoefficients_Alloc"
     # we do custom handling of the stepper create/reinit
     - "SplittingStepCreate"

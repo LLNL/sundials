@@ -37,12 +37,12 @@ modules:
       "SetLinearSolver":
       - "A" 
     fn_exclude_by_name__regex:
-    # we use user_data for sneaking in python contexts, users can instead capture their states in a class
+    # we use user_data for sneaking in python contexts, so we don't interface these
     - "^CVodeGetUserData$" 
     - "^CVodeSetUserData$" 
     - "^CVodeGetUserDataB$" 
     - "^CVodeSetUserDataB$"
-    # this function should be deprecated
+    # this function should be deprecated, so we don't interface it
     - "^CVodeSetMonitorFn$"
     # generator cannot handle setting of function pointers, so we do something custom
     - "CVodeInit.*"
@@ -54,7 +54,7 @@ modules:
     - "CVodeSet.*Preconditioner"
     - "CVodeSetJacTimes.*"
     # TODO(CJB): add support for these functions
-    # nanobind doesnt support ** out of the box
+    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
     - "^CVodeComputeStateSens$"
     - "^CVodeComputeStateSens1$"
     - "^CVodeGetJac$" 

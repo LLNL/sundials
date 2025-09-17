@@ -41,7 +41,7 @@ modules:
     - "^IDASetUserData$" 
     - "^IDAGetUserDataB$" 
     - "^IDASetUserDataB$"
-    # this function should be deprecated
+    # this function should be deprecated, so we don't interface it
     - "^IDASetMonitorFn$"
     # generator cannot handle setting of function pointers, so we do something custom
     - "IDAInit.*"

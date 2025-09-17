@@ -35,12 +35,14 @@ modules:
     headers:
     - ../../include/sundials/sundials_adjointcheckpointscheme.h
     fn_exclude_by_name__regex:
-    - "Create" # nanobind cannot bind to functions which take a **
-    - "Set.*Fn" # nanobind cannot bind to functions which take a function pointer
-    - "SetContent" # no need to set content from Python
-    - "GetContent" # nanobind cannot bind to functions which take a **
-    - "LoadVector" # nanobind cannot bind to functions which take a **
-    - "InsertVector" # should not need to insert a checkpoint from Python
+    - "Create" # nanobind cannot bind to functions which take a **, so we do something custom
+    - "Set.*Fn" # nanobind cannot bind to functions which take a function pointer, so we do something custom
+    - "SetContent" # no need to set content from Python, so we don't interface it
+    - "GetContent" # content should not be accessible from Python, so we don't interface it
+    # nanobind cannot bind to functions which take a **
+    - "LoadVector" 
+    # should not need to insert a checkpoint from Python
+    - "InsertVector"
   sundials_adjointstepper:
     path: sundials/pysundials_adjointstepper_generated.hpp
     headers:
@@ -52,9 +54,11 @@ modules:
     headers:
     - ../../include/sundials/sundials_context.h
     fn_exclude_by_name__regex:
-    - "Create" # nanobind cannot bind to functions which take a **
-    - "GetProfiler" # nanobind cannot bind to functions which take a **
-    - "GetLogger" # nanobind cannot bind to functions which take a **
+    - "Create" # nanobind cannot bind to functions which take a **, so we do something custom
+    # TODO(CJB): add support for these functions
+    # nanobind cannot bind to functions which take a **
+    - "GetProfiler" 
+    - "GetLogger"
   sundials_errors:
     path: sundials/pysundials_errors_generated.hpp
     headers:
@@ -67,6 +71,7 @@ modules:
     - ../../include/sundials/sundials_iterative.h
     - ../../include/sundials/sundials_linearsolver.h
     fn_exclude_by_name__regex:
+    # TODO(CJB): add support for these functions
     # nanobind cannot handle ** (2d arrays) by default
     - "^SUNClassicalGS$"
     - "^SUNModifiedGS$"
@@ -77,7 +82,7 @@ modules:
     headers:
     - ../../include/sundials/sundials_logger.h
     fn_exclude_by_name__regex:
-    - "Create" # nanobind cannot bind to functions which take a **
+    - "Create" # nanobind cannot bind to functions which take a **, so we do something custom
   sundials_matrix:
     path: sundials/pysundials_matrix_generated.hpp
     headers:
@@ -87,11 +92,12 @@ modules:
     headers:
     - ../../include/sundials/sundials_memory.h
     fn_exclude_by_name__regex:
-    - "Alias" # not needed in Python
-    - "Wrap" # not needed in Python
-    - "Alloc*" # nanobind cannot bind to functions which take a **
-    - "Dealloc" # not needed in Python
-    - "Copy*" # not needed in Python
+    # these functions are not needed in a Python code, so we don't interface them
+    - "Alias" 
+    - "Wrap" 
+    - "Alloc*"
+    - "Dealloc" 
+    - "Copy*" 
     class_exclude_by_name__regex:
     - "SUNMemory_" # not needed in Python
   sundials_nonlinearsolver:
@@ -105,11 +111,11 @@ modules:
     fn_exclude_by_name__regex:
     # we have to have custom handling for the following to get the proper dimensions set for the numpy array
     - "ArrayPointer"
-    # these operations for supporting xbraid are not needed in Python
+    # these operations for supporting xbraid are not yet available via Python, we will have to evaluate if they are useful/needed
     - "BufPack"
     - "BufUnpack"
     - "BufSize"
-    # vector arrays do not need to be created in Python
+    # vector arrays do not need to be created in Python, so we do not interface them
     - "N_VNewVectorArray"
     - "N_VCloneVectorArray"
     - "N_VCloneEmptyVectorArray"
@@ -126,11 +132,13 @@ modules:
     headers:
     - ../../include/sundials/sundials_stepper.h
     fn_exclude_by_name__regex:
-    - "Create" # nanobind cannot bind to functions which take a **
-    - "Set.*Fn" # nanobind cannot bind to functions which take a function pointer
+    - "Create" # nanobind cannot bind to functions which take a **, so we do something custom
+    - "Set.*Fn" # nanobind cannot bind to functions which take a function pointer, so we do something custom
+    # we dont allow access to content from Python
+    - "SetContent" 
+    - "GetContent"
+    # TODO(CJB): add support for these functions
     - "SetForcing" # nanobind cannot bind to functions which take a **
-    - "SetContent" # no need to set content from Python
-    - "GetContent" # nanobind cannot bind to functions which take a **
   sundials_types:
     path: sundials/pysundials_types_generated.hpp
     headers:
