@@ -20,7 +20,7 @@ The SUNLINEARSOLVER_GINKGOBATCH Module
 
 The SUNLINEARSOLVER_GINKGOBATCH implementation of the ``SUNLinearSolver`` API provides an
 interface to the batched linear solvers from the Ginkgo linear algebra library :cite:p:`ginkgo-toms-2022`.
-Like SUNLINEARSOLVER_GINKGO, this module is written in C++14 and is distributed as a header file.
+Like SUNLINEARSOLVER_GINKGO, this module is written in C++17 and is distributed as a header file.
 To use the SUNLINEARSOLVER_GINKGOBATCH ``SUNLinearSolver``, users will need to include 
 ``sunlinsol/sunlinsol_ginkgobatch.hpp``. The module is meant to be used with the SUNMATRIX_GINKGOBATCH 
 module described in :numref:`SUNMatrix.GinkgoBatch`. Instructions on building SUNDIALS  with Ginkgo enabled are given
