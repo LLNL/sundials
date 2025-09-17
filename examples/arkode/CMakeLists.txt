@@ -43,6 +43,7 @@ if(EXAMPLES_ENABLE_C)
   if(BUILD_SUNLINSOL_SUPERLUMT)
     add_subdirectory(C_superlu-mt)
   endif()
+  add_subdirectory(brusselator)
 endif()
 
 # C++ examples

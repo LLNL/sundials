@@ -38,6 +38,7 @@ if(EXAMPLES_ENABLE_C)
   if(ENABLE_PETSC AND PETSC_FOUND)
     add_subdirectory(petsc)
   endif()
+  add_subdirectory(brusselator)
 endif()
 
 # CXX examples
