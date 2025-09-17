@@ -22,6 +22,9 @@ modules:
     - "Free" # Free and destroy functions should not need to be called as all objects on the Python side are RAII ClassView objects
     - "Destroy"
     - "Space" # Space functions are deprecated, so dont expose them in Python
+    # TODO(CJB): support SetOptions
+    # Due to the need to convert between sys.argv and C argv, we need to do custom wrappers of these
+    - "SetOptions" 
     macro_define_include_by_name__regex:
     - "^SUN_"
     - "^ARK_"

@@ -79,6 +79,7 @@ m.attr("ARK_STEP_DIRECTION_ERR")     = -52;
 m.attr("ARK_ADJ_CHECKPOINT_FAIL")    = -53;
 m.attr("ARK_ADJ_RECOMPUTE_FAIL")     = -54;
 m.attr("ARK_SUNADJSTEPPER_ERR")      = -55;
+m.attr("ARK_DEE_FAIL")               = -56;
 m.attr("ARK_UNRECOGNIZED_ERROR")     = -99;
 
 m.def("ARKodeResize", ARKodeResize, nb::arg("arkode_mem"), nb::arg("ynew"),
@@ -1262,7 +1263,7 @@ m.def(
     return ARKodeSetLinearSolver_adapt_optional_arg_with_default_null(arkode_mem,
                                                                       LS, A);
   },
-  nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("A") = nb::none());
+  nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("A").none() = nb::none());
 
 m.def("ARKodeSetJacEvalFrequency", ARKodeSetJacEvalFrequency,
       nb::arg("arkode_mem"), nb::arg("msbj"));

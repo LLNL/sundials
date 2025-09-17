@@ -1612,7 +1612,7 @@ m.def(
     return IDASetLinearSolver_adapt_optional_arg_with_default_null(ida_mem, LS,
                                                                    A);
   },
-  nb::arg("ida_mem"), nb::arg("LS"), nb::arg("A") = nb::none());
+  nb::arg("ida_mem"), nb::arg("LS"), nb::arg("A").none() = nb::none());
 
 m.def("IDASetEpsLin", IDASetEpsLin, nb::arg("ida_mem"), nb::arg("eplifac"));
 
@@ -1859,7 +1859,8 @@ m.def(
     return IDASetLinearSolverB_adapt_optional_arg_with_default_null(ida_mem,
                                                                     which, LS, A);
   },
-  nb::arg("ida_mem"), nb::arg("which"), nb::arg("LS"), nb::arg("A") = nb::none());
+  nb::arg("ida_mem"), nb::arg("which"), nb::arg("LS"),
+  nb::arg("A").none() = nb::none());
 
 m.def("IDASetEpsLinB", IDASetEpsLinB, nb::arg("ida_mem"), nb::arg("which"),
       nb::arg("eplifacB"));

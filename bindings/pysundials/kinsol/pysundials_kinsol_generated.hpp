@@ -253,7 +253,7 @@ m.def(
 
     return KINSetLinearSolver_adapt_optional_arg_with_default_null(kinmem, LS, A);
   },
-  nb::arg("kinmem"), nb::arg("LS"), nb::arg("A") = nb::none());
+  nb::arg("kinmem"), nb::arg("LS"), nb::arg("A").none() = nb::none());
 
 m.def(
   "KINGetJacNumIters",

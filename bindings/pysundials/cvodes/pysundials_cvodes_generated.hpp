@@ -1651,7 +1651,7 @@ m.def(
     return CVodeSetLinearSolver_adapt_optional_arg_with_default_null(cvode_mem,
                                                                      LS, A);
   },
-  nb::arg("cvode_mem"), nb::arg("LS"), nb::arg("A") = nb::none());
+  nb::arg("cvode_mem"), nb::arg("LS"), nb::arg("A").none() = nb::none());
 
 m.def("CVodeSetJacEvalFrequency", CVodeSetJacEvalFrequency,
       nb::arg("cvode_mem"), nb::arg("msbj"));
@@ -1934,7 +1934,7 @@ m.def(
                                                                       A);
   },
   nb::arg("cvode_mem"), nb::arg("which"), nb::arg("LS"),
-  nb::arg("A") = nb::none());
+  nb::arg("A").none() = nb::none());
 
 m.def("CVodeSetEpsLinB", CVodeSetEpsLinB, nb::arg("cvode_mem"),
       nb::arg("which"), nb::arg("eplifacB"));
