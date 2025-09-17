@@ -46,11 +46,12 @@ inline SUNDomEigEstimatorFunctionTable* SUNDomEigEstimatorFunctionTable_Alloc()
   return fn_table;
 }
 
-SUNErrCode sundomeigestimator_atimes_wrapper(void* A_data, N_Vector v, N_Vector z)
+template<typename... Args>
+SUNErrCode sundomeigestimator_atimes_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<SUNATimesFn>, SUNDomEigEstimatorFunctionTable,
-    3>(&SUNDomEigEstimatorFunctionTable::atimes, A_data, v, z);
+    3>(&SUNDomEigEstimatorFunctionTable::atimes, std::forward<Args>(args)...);
 }
 
 #endif

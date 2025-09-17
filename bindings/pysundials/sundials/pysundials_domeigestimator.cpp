@@ -55,10 +55,10 @@ void bind_sundomeigestimator(nb::module_& m)
 
       if (ATimes)
       {
-        return SUNDomEigEstimator_SetATimes(dee, nullptr,
+        return SUNDomEigEstimator_SetATimes(dee, fntable,
                                             sundomeigestimator_atimes_wrapper);
       }
-      else { return SUNDomEigEstimator_SetATimes(dee, nullptr, nullptr); }
+      else { return SUNDomEigEstimator_SetATimes(dee, fntable, nullptr); }
     },
     nb::arg("DEE"), nb::arg("ATimes").none());
 }
