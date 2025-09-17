@@ -74,7 +74,7 @@ struct arkode_user_supplied_fn_table
   // sprkstep-specific user-supplied function pointers
   nb::object sprkstep_f1;
   nb::object sprkstep_f2;
-  
+
   // lsrkstep-specific user-supplied function pointers
   nb::object lsrkstep_f;
   nb::object lsrkstep_domeig;
@@ -153,8 +153,8 @@ inline int arkode_adaptfn_wrapper(N_Vector y, sunrealtype t, sunrealtype h1,
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKAdaptFn>, arkode_user_supplied_fn_table,
-    1>(&arkode_user_supplied_fn_table::adaptfn, y, t, h1, h2, h3, e1, e2, e3,
-        q, p, hnew, user_data);
+    1>(&arkode_user_supplied_fn_table::adaptfn, y, t, h1, h2, h3, e1, e2, e3, q,
+       p, hnew, user_data);
 }
 
 inline int arkode_expstabfn_wrapper(N_Vector y, sunrealtype t,
@@ -173,14 +173,16 @@ inline int arkode_vecresizefn_wrapper(N_Vector y, N_Vector ytemplate,
     1>(&arkode_user_supplied_fn_table::vecresizefn, y, ytemplate, user_data);
 }
 
-inline int arkode_postprocessstepfn_wrapper(sunrealtype t, N_Vector y, void* user_data)
+inline int arkode_postprocessstepfn_wrapper(sunrealtype t, N_Vector y,
+                                            void* user_data)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKPostProcessFn>, arkode_user_supplied_fn_table,
     1>(&arkode_user_supplied_fn_table::postprocessstepfn, t, y, user_data);
 }
 
-inline int arkode_postprocessstagefn_wrapper(sunrealtype t, N_Vector y, void* user_data)
+inline int arkode_postprocessstagefn_wrapper(sunrealtype t, N_Vector y,
+                                             void* user_data)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKPostProcessFn>, arkode_user_supplied_fn_table,
@@ -224,7 +226,7 @@ inline int arkode_lsjacfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsJacFn>, arkode_user_supplied_fn_table,
     4>(&arkode_user_supplied_fn_table::lsjacfn, t, y, fy, Jac, user_data, tmp1,
-        tmp2, tmp3);
+       tmp2, tmp3);
 }
 
 inline int arkode_lsmassfn_wrapper(sunrealtype t, SUNMatrix M, void* user_data,
@@ -233,7 +235,7 @@ inline int arkode_lsmassfn_wrapper(sunrealtype t, SUNMatrix M, void* user_data,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsMassFn>, arkode_user_supplied_fn_table,
     4>(&arkode_user_supplied_fn_table::lsmassfn, t, M, user_data, tmp1, tmp2,
-        tmp3);
+       tmp3);
 }
 
 inline int arkode_lsprecsetupfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
@@ -244,7 +246,7 @@ inline int arkode_lsprecsetupfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsPrecSetupFn>, arkode_user_supplied_fn_table,
     1>(&arkode_user_supplied_fn_table::lsprecsetupfn, t, y, fy, jok, jcurPtr,
-        gamma, user_data);
+       gamma, user_data);
 }
 
 inline int arkode_lsprecsolvefn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
@@ -255,7 +257,7 @@ inline int arkode_lsprecsolvefn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsPrecSolveFn>, arkode_user_supplied_fn_table,
     1>(&arkode_user_supplied_fn_table::lsprecsolvefn, t, y, fy, r, z, gamma,
-        delta, lr, user_data);
+       delta, lr, user_data);
 }
 
 inline int arkode_lsjactimessetupfn_wrapper(sunrealtype t, N_Vector y,
@@ -273,7 +275,7 @@ inline int arkode_lsjactimesvecfn_wrapper(N_Vector v, N_Vector Jv,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsJacTimesVecFn>, arkode_user_supplied_fn_table,
     2>(&arkode_user_supplied_fn_table::lsjactimesvecfn, v, Jv, t, y, fy,
-        user_data, tmp);
+       user_data, tmp);
 }
 
 inline int arkode_lslinsysfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
@@ -285,7 +287,7 @@ inline int arkode_lslinsysfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsLinSysFn>, arkode_user_supplied_fn_table,
     4>(&arkode_user_supplied_fn_table::lslinsysfn, t, y, fy, A, M, jok, jcur,
-        gamma, user_data, tmp1, tmp2, tmp3);
+       gamma, user_data, tmp1, tmp2, tmp3);
 }
 
 inline int arkode_lsmasstimessetupfn_wrapper(sunrealtype t, void* mtimes_data)
@@ -317,7 +319,7 @@ inline int arkode_lsmassprecsolvefn_wrapper(sunrealtype t, N_Vector r,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKLsMassPrecSolveFn>, arkode_user_supplied_fn_table,
     1>(&arkode_user_supplied_fn_table::lsmassprecsolvefn, t, r, z, delta, lr,
-        user_data);
+       user_data);
 }
 
 inline int arkode_lsjacrhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector fy,
@@ -400,7 +402,7 @@ inline int lsrkstep_domeig_wrapper(sunrealtype t, N_Vector y, N_Vector fn,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKDomEigFn>, arkode_user_supplied_fn_table,
     4>(&arkode_user_supplied_fn_table::lsrkstep_domeig, t, y, fn, lambdaR,
-        lambdaI, user_data, temp1, temp2, temp3);
+       lambdaI, user_data, temp1, temp2, temp3);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -423,11 +425,13 @@ inline int mristep_fsi_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
     1>(&arkode_user_supplied_fn_table::mristep_fsi, t, y, ydot, user_data);
 }
 
-inline int mristep_preinnerfn_wrapper(sunrealtype t, N_Vector1d f, int nvecs, void* user_data)
+inline int mristep_preinnerfn_wrapper(sunrealtype t, N_Vector1d f, int nvecs,
+                                      void* user_data)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<MRIStepPreInnerFn>, arkode_user_supplied_fn_table,
-    1>(&arkode_user_supplied_fn_table::mristep_preinnerfn, t, f, nvecs, user_data);
+    1>(&arkode_user_supplied_fn_table::mristep_preinnerfn, t, f, nvecs,
+       user_data);
 }
 
 inline int mristep_postinnerfn_wrapper(sunrealtype t, N_Vector y, void* user_data)
@@ -437,43 +441,59 @@ inline int mristep_postinnerfn_wrapper(sunrealtype t, N_Vector y, void* user_dat
     1>(&arkode_user_supplied_fn_table::mristep_postinnerfn, t, y, user_data);
 }
 
-inline int mristepinner_evolvefn_wrapper(MRIStepInnerStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector y)
+inline int mristepinner_evolvefn_wrapper(MRIStepInnerStepper stepper,
+                                         sunrealtype t0, sunrealtype tout,
+                                         N_Vector y)
 {
   void* user_data = nullptr;
   MRIStepInnerStepper_GetContent(stepper, &user_data);
 
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerEvolveFn>, mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_evolvefn, user_data,
-       stepper, t0, tout, y);
-}
-inline int mristepinner_fullrhsfn_wrapper(MRIStepInnerStepper stepper, sunrealtype t, N_Vector y, N_Vector f, int mode)
-{
-  void* user_data = nullptr;
-  MRIStepInnerStepper_GetContent(stepper, &user_data);
-
-  return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerFullRhsFn>, mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_fullrhsfn, user_data,
-       stepper, t, y, f, mode);
+    std::remove_pointer_t<MRIStepInnerEvolveFn>,
+    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
+                                                  mristepinner_evolvefn,
+                                                user_data, stepper, t0, tout, y);
 }
 
-inline int mristepinner_resetfn_wrapper(MRIStepInnerStepper stepper, sunrealtype tR, N_Vector yR)
+inline int mristepinner_fullrhsfn_wrapper(MRIStepInnerStepper stepper,
+                                          sunrealtype t, N_Vector y, N_Vector f,
+                                          int mode)
 {
   void* user_data = nullptr;
   MRIStepInnerStepper_GetContent(stepper, &user_data);
 
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerResetFn>, mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_resetfn, user_data,
-       stepper, tR, yR);
+    std::remove_pointer_t<MRIStepInnerFullRhsFn>,
+    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
+                                                  mristepinner_fullrhsfn,
+                                                user_data, stepper, t, y, f,
+                                                mode);
 }
 
-inline int mristepinner_getaccumulatederrorfn_wrapper(MRIStepInnerStepper stepper, sunrealtype* accum_error)
+inline int mristepinner_resetfn_wrapper(MRIStepInnerStepper stepper,
+                                        sunrealtype tR, N_Vector yR)
 {
   void* user_data = nullptr;
   MRIStepInnerStepper_GetContent(stepper, &user_data);
 
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerGetAccumulatedError>, mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_getaccumulatederrorfn, user_data,
-       stepper, accum_error);
+    std::remove_pointer_t<MRIStepInnerResetFn>,
+    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
+                                                  mristepinner_resetfn,
+                                                user_data, stepper, tR, yR);
+}
+
+inline int mristepinner_getaccumulatederrorfn_wrapper(MRIStepInnerStepper stepper,
+                                                      sunrealtype* accum_error)
+{
+  void* user_data = nullptr;
+  MRIStepInnerStepper_GetContent(stepper, &user_data);
+
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<MRIStepInnerGetAccumulatedError>,
+    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
+                                                  mristepinner_getaccumulatederrorfn,
+                                                user_data, stepper, accum_error);
 }
 
 inline int mristepinner_resetaccumulatederrorfn_wrapper(MRIStepInnerStepper stepper)
@@ -482,19 +502,23 @@ inline int mristepinner_resetaccumulatederrorfn_wrapper(MRIStepInnerStepper step
   MRIStepInnerStepper_GetContent(stepper, &user_data);
 
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerResetAccumulatedError>, mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_resetaccumulatederrorfn, user_data,
-       stepper);
+    std::remove_pointer_t<MRIStepInnerResetAccumulatedError>,
+    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
+                                                  mristepinner_resetaccumulatederrorfn,
+                                                user_data, stepper);
 }
 
-inline int mristepinner_setrtolfn_wrapper(MRIStepInnerStepper stepper, sunrealtype rtol)
+inline int mristepinner_setrtolfn_wrapper(MRIStepInnerStepper stepper,
+                                          sunrealtype rtol)
 {
   void* user_data = nullptr;
   MRIStepInnerStepper_GetContent(stepper, &user_data);
 
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerSetRTol>, mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_setrtolfn, user_data,
-       stepper, rtol);
+    std::remove_pointer_t<MRIStepInnerSetRTol>,
+    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
+                                                  mristepinner_setrtolfn,
+                                                user_data, stepper, rtol);
 }
-
 
 #endif
