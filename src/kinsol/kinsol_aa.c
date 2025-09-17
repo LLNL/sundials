@@ -27,6 +27,9 @@ int KINInitAA(KINMem kin_mem)
     kin_mem->kin_m_aa = kin_mem->kin_mxiter - 1;
   }
 
+  // Initialize the current depth
+  kin_mem->kin_current_depth = 0;
+
   // Do we need to (re)allocate the AA workspace?
   sunbooleantype allocate = kin_mem->kin_m_aa > kin_mem->kin_m_aa_alloc;
 
