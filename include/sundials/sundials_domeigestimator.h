@@ -64,6 +64,7 @@ struct SUNDomEigEstimator_Ops_
 struct SUNDomEigEstimator_
 {
   void* content;
+  void* python;
   SUNDomEigEstimator_Ops ops;
   SUNContext sunctx;
 };

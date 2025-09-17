@@ -46,7 +46,6 @@ void bind_arkode_mristep(nb::module_& m)
   // defined in a source file elsewhere. As such, we need to declare it here since its
   // not picked up in any header files by the generator.
   nb::class_<_MRIStepInnerStepper>(m, "_MRIStepInnerStepper");
-  // .def(nb::init<>()); // implicit default constructor
 
   nb::class_<MRIStepInnerStepperView>(m, "MRIStepInnerStepperView")
     .def_static("Create", &MRIStepInnerStepperView::Create<MRIStepInnerStepper>)

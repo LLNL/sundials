@@ -30,6 +30,7 @@ void bind_sunadaptcontroller(nb::module_& m);
 void bind_sunadjointcheckpointscheme(nb::module_& m);
 void bind_sunadjointstepper(nb::module_& m);
 void bind_suncontext(nb::module_& m);
+void bind_sundomeigestimator(nb::module_& m);
 void bind_sunlinearsolver(nb::module_& m);
 void bind_sunlogger(nb::module_& m);
 void bind_sunmatrix(nb::module_& m);
@@ -61,6 +62,7 @@ void bind_core(nb::module_& m)
   bind_sunadjointcheckpointscheme(m);
   bind_sunadjointstepper(m);
   bind_suncontext(m);
+  bind_sundomeigestimator(m);
   bind_sunlinearsolver(m);
   bind_sunlogger(m);
   bind_sunmatrix(m);

@@ -62,6 +62,13 @@ modules:
     # nanobind cannot bind to functions which take a **
     - "GetProfiler" 
     - "GetLogger"
+  sundials_domeigestimator:
+    path: sundials/pysundials_domeigestimator_generated.hpp
+    headers:
+    - ../../include/sundials/sundials_domeigestimator.h
+    fn_exclude_by_name__regex:
+    - "Create" # nanobind cannot bind to functions which take a **, so we do something custom
+    - "SUNDomEigEstimator_SetATimes" # nanobind cannot bind to functions which take a function pointer, so we do something custom
   sundials_errors:
     path: sundials/pysundials_errors_generated.hpp
     headers:

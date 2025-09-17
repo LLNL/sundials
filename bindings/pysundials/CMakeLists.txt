@@ -60,6 +60,7 @@ set(sundials_SOURCES
     sundials/pysundials_adjointstepper.cpp
     sundials/pysundials_context.cpp
     sundials/pysundials_core.cpp
+    sundials/pysundials_domeigestimator.cpp
     sundials/pysundials_linearsolver.cpp
     sundials/pysundials_logger.cpp
     sundials/pysundials_matrix.cpp
