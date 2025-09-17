@@ -19,10 +19,12 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/vector.h>
 
 #include <sundials/sundials_stepper.hpp>
-
 #include "sundials_stepper_impl.h"
+
+#include "pysundials_stepper_usersupplied.hpp"
 
 namespace nb = nanobind;
 
@@ -38,4 +40,220 @@ void bind_sunstepper(nb::module_& m)
     .def("get", nb::overload_cast<>(&SUNStepperView::get, nb::const_),
          nb::rv_policy::reference)
     .def_static("Create", SUNStepperView::Create<SUNStepper>);
+
+  m.def(
+    "SUNStepper_SetEvolveFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperEvolveFn>> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable    = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->evolve = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetEvolveFn(stepper, sunstepper_evolve_wrapper);
+      }
+      else { return SUNStepper_SetEvolveFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  m.def(
+    "SUNStepper_SetOneStepFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperOneStepFn>> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->one_step = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetOneStepFn(stepper, sunstepper_one_step_wrapper);
+      }
+      else { return SUNStepper_SetOneStepFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  m.def(
+    "SUNStepper_SetFullRhsFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperFullRhsFn>> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->full_rhs = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetFullRhsFn(stepper, sunstepper_full_rhs_wrapper);
+      }
+      else { return SUNStepper_SetFullRhsFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  m.def(
+    "SUNStepper_SetReInitFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperReInitFn>> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable    = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->reinit = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetReInitFn(stepper, sunstepper_reinit_wrapper);
+      }
+      else { return SUNStepper_SetReInitFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  m.def(
+    "SUNStepper_SetResetFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperResetFn>> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable   = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->reset = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetResetFn(stepper, sunstepper_reset_wrapper);
+      }
+      else { return SUNStepper_SetResetFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  m.def(
+    "SUNStepper_SetResetCheckpointIndexFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperResetCheckpointIndexFn>> fn)
+      -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->reset_ckpt_idx = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetResetCheckpointIndexFn(stepper,
+                                                    sunstepper_reset_ckpt_idx_wrapper);
+      }
+      else { return SUNStepper_SetResetCheckpointIndexFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  m.def(
+    "SUNStepper_SetStopTimeFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperSetStopTimeFn>> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->set_stop_time = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetStopTimeFn(stepper,
+                                        sunstepper_set_stop_time_wrapper);
+      }
+      else { return SUNStepper_SetStopTimeFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  m.def(
+    "SUNStepper_SetStepDirectionFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperSetStepDirectionFn>> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->set_step_direction = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetStepDirectionFn(stepper,
+                                             sunstepper_set_step_direction_wrapper);
+      }
+      else { return SUNStepper_SetStepDirectionFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  using SUNStepperSetForcingStdFn =
+    SUNErrCode(SUNStepper stepper, sunrealtype tshift, sunrealtype tscale,
+               std::vector<N_Vector> forcing, int nforcing);
+  m.def(
+    "SUNStepper_SetForcingFn",
+    [](SUNStepper stepper, std::function<SUNStepperSetForcingStdFn> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->set_forcing = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetForcingFn(stepper, sunstepper_set_forcing_wrapper);
+      }
+      else { return SUNStepper_SetForcingFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  m.def(
+    "SUNStepper_SetGetNumStepsFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperGetNumStepsFn>> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->get_num_steps = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetGetNumStepsFn(stepper,
+                                           sunstepper_get_num_steps_wrapper);
+      }
+      else { return SUNStepper_SetGetNumStepsFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
+
+  m.def(
+    "SUNStepper_SetDestroyFn",
+    [](SUNStepper stepper,
+       std::function<std::remove_pointer_t<SUNStepperDestroyFn>> fn) -> SUNErrCode
+    {
+      if (!stepper->python)
+      {
+        stepper->python = SUNStepperFunctionTable_Alloc();
+      }
+      auto fntable     = static_cast<SUNStepperFunctionTable*>(stepper->python);
+      fntable->destroy = nb::cast(fn);
+      if (fn)
+      {
+        return SUNStepper_SetDestroyFn(stepper, sunstepper_destroy_wrapper);
+      }
+      else { return SUNStepper_SetDestroyFn(stepper, nullptr); }
+    },
+    nb::arg("stepper"), nb::arg("fn").none());
 }

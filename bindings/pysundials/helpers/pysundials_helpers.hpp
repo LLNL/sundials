@@ -55,7 +55,7 @@ int user_supplied_fn_caller(nb::object FnTableType::*fn_member, Args... args)
 /// \tparam Args is the template parameter pack that contains all of the types of the function arguments to the C function
 ///
 /// \param fn_member is the name of the function in the FnTableType to call
-/// \param args is the arguments to the C function, which will be forwarded to the user-supplied Python function, except user_data, which is intercepted and passed as a nullptr.
+/// \param args is the arguments to the C function, which will be forwarded to the user-supplied Python function.
 template<typename FnType, typename FnTableType, typename... Args>
 int user_supplied_fn_caller(nb::object FnTableType::*fn_member, void* user_data,
                             Args... args)
@@ -64,6 +64,27 @@ int user_supplied_fn_caller(nb::object FnTableType::*fn_member, void* user_data,
 
   // Cast user_data to FnTableType*
   auto fn_table = static_cast<FnTableType*>(user_data);
+  auto fn       = nb::cast<std::function<FnType>>(fn_table->*fn_member);
+
+  return std::apply([&](auto&&... call_args) { return fn(call_args...); },
+                    args_tuple);
+}
+
+/// This function will call a user-supplied Python function through C++ side wrappers
+/// \tparam FnType is the function signature, e.g., std::remove_pointer_t<CVRhsFn>
+/// \tparam FnTableType is the struct function table that holds the user-supplied Python functions as std::function
+/// \tparam Args is the template parameter pack that contains all of the types of the function arguments to the C function
+///
+/// \param fn_member is the name of the function in the FnTableType to call
+/// \param args is the arguments to the C function, which will be forwarded to the user-supplied Python function.
+template<typename FnType, typename FnTableType, typename T, typename... Args>
+int user_supplied_fn_caller(nb::object FnTableType::*fn_member, Args... args)
+{
+  auto args_tuple = std::tuple<Args...>(args...);
+
+  // Cast object->python to FnTableType*
+  auto object   = static_cast<T>(std::get<0>(args_tuple));
+  auto fn_table = static_cast<FnTableType*>(object->python);
   auto fn       = nb::cast<std::function<FnType>>(fn_table->*fn_member);
 
   return std::apply([&](auto&&... call_args) { return fn(call_args...); },
