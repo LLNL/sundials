@@ -29,10 +29,10 @@ in :numref:`Installation.Options.Ginkgo`.  For instructions on building and usin
 
 .. note::
 
-  It is assumed that users of this module are aware of how to use Ginkgo. This module does not
-  try to encapsulate Ginkgo linear solvers, rather it provides a lightweight iteroperability layer
-  between Ginkgo and SUNDIALS. Most, if not all, of the Ginkgo linear solvers should work with this
-  interface.
+   It is assumed that users of this module are aware of how to use Ginkgo. This module does not
+   try to encapsulate Ginkgo linear solvers, rather it provides a lightweight iteroperability layer
+   between Ginkgo and SUNDIALS. Most, if not all, of the Ginkgo linear solvers should work with this
+   interface.
 
 .. _SUNLinSol.GinkgoBatch.Usage:
 
@@ -90,8 +90,8 @@ since the Ginkgo linear solver will take norms over individual batches, not the 
 
 .. warning::
 
-  :c:func:`SUNLinSolFree` should never be called on a ``SUNLinearSolver`` that was created via conversion
-  from a :cpp:type:`sundials::ginkgo::BatchLinearSolver`. Doing so may result in a double free.
+   :c:func:`SUNLinSolFree` should never be called on a ``SUNLinearSolver`` that was created via conversion
+   from a :cpp:type:`sundials::ginkgo::BatchLinearSolver`. Doing so may result in a double free.
 
 
 .. _SUNLinSol.GinkgoBatch.API:
@@ -226,7 +226,7 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Batch
 
    .. cpp:function:: int AvgNumIters() const
 
-      Get the number of linear solver iterations in the most recent solve.
+      Get the average number of linear solver iterations across the batches in the most recent solve.
 
    .. cpp:function:: int StddevNumIters() const
 
@@ -234,11 +234,11 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Batch
 
    .. cpp:function:: int SumAvgNumIters() const
 
-      Get the running sum of the average number of iterations in this solvers lifetime.
+      Get the running sum of the average number of iterations in this solver's lifetime.
 
    .. cpp:function:: void SetScalingVectors(N_Vector s1, N_Vector s2)
 
-      Sets the left and right scaling vector to be used.
+      Sets the left (``s1``) and right (``s2``) scaling vectors to use.
 
    .. cpp:function:: GkoBatchSolverType* Setup(BatchMatrix<GkoBatchMatType>* A)
 
