@@ -15,7 +15,8 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(unit_tests "kin_test_getuserdata\;")
+set(unit_tests "kin_test_getuserdata\;" "kin_test_reuse_fp\;0"
+               "kin_test_reuse_fp\;1")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})

@@ -153,9 +153,14 @@ also provides the following additional user-callable routines:
    :param C: the SUNAdaptController_MRIHTol object.
    :param inner_max_relch: the parameter :math:`relch_{\text{max}}` (must be :math:`\ge 1`).
    :param inner_min_tolfac: the parameter :math:`\text{tolfac}_{min}` (must be :math:`> 0`).
-   :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}` (must be :math:`> 0` and :math:`\le 1`).
+   :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}` (must be :math:`> 0`).
 
    :returns: :c:type:`SUNErrCode` indicating success or failure.
+   
+   .. versionchanged:: x.y.z
+   
+      Removed the requirement that ``inner_max_tolfac`` must be :math:`\le 1`
+   
 
    .. note::
 
