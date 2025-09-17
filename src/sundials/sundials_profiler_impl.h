@@ -56,12 +56,18 @@ typedef struct _sunTimespec
 } sunTimespec;
 #endif
 
+/* Private functions */
 #if SUNDIALS_MPI_ENABLED
 static SUNErrCode sunCollectTimers(SUNProfiler p);
 #endif
 static void sunPrintTimer(SUNHashMapKeyValue kv, FILE* fp, void* pvoid);
 static int sunCompareTimes(const void* l, const void* r);
 static int sunclock_gettime_monotonic(sunTimespec* tp);
+
+/*
+  sunTimerStruct.
+  A private structure holding timing information.
+ */
 
 struct _sunTimerStruct
 {
