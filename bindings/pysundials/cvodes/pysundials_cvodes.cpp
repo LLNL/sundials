@@ -35,19 +35,22 @@ namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
-#define BIND_CVODE_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER)                     \
-  m.def(#NAME,                                                                  \
-        [](void* cv_mem, std::function<std::remove_pointer_t<FN_TYPE>> fn)      \
-        {                                                                       \
-          void* user_data = nullptr;                                            \
-          CVodeGetUserData(cv_mem, &user_data);                                 \
-          if (!user_data)                                                       \
-            throw std::runtime_error(                                           \
-              "Failed to get Python function table from CVODE memory");         \
-          auto fntable = static_cast<cvode_user_supplied_fn_table*>(user_data); \
-          fntable->MEMBER = nb::cast(fn);                                       \
-          return NAME(cv_mem, &WRAPPER);                                        \
-        })
+#define BIND_CVODE_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...)               \
+  m.def(                                                                       \
+    #NAME,                                                                     \
+    [](void* cv_mem, std::function<std::remove_pointer_t<FN_TYPE>> fn)         \
+    {                                                                          \
+      void* user_data = nullptr;                                               \
+      CVodeGetUserData(cv_mem, &user_data);                                    \
+      if (!user_data)                                                          \
+        throw std::runtime_error(                                              \
+          "Failed to get Python function table from CVODE memory");            \
+      auto fntable    = static_cast<cvode_user_supplied_fn_table*>(user_data); \
+      fntable->MEMBER = nb::cast(fn);                                          \
+      if (fn) { return NAME(cv_mem, &WRAPPER); }                               \
+      else { return NAME(cv_mem, nullptr); }                                   \
+    },                                                                         \
+    __VA_ARGS__)
 
 #define BIND_CVODE_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2,       \
                              MEMBER2, WRAPPER2, ...)                            \
@@ -69,20 +72,22 @@ using namespace sundials::experimental;
     },                                                                          \
     __VA_ARGS__)
 
-#define BIND_CVODEB_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER)                     \
-  m.def(#NAME,                                                                   \
-        [](void* cv_mem, int which,                                              \
-           std::function<std::remove_pointer_t<FN_TYPE>> fn)                     \
-        {                                                                        \
-          void* user_data = nullptr;                                             \
-          CVodeGetUserDataB(cv_mem, which, &user_data);                          \
-          if (!user_data)                                                        \
-            throw std::runtime_error(                                            \
-              "Failed to get Python function table from CVODE memory");          \
-          auto fntable = static_cast<cvodea_user_supplied_fn_table*>(user_data); \
-          fntable->MEMBER = nb::cast(fn);                                        \
-          return NAME(cv_mem, which, &WRAPPER);                                  \
-        })
+#define BIND_CVODEB_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...)                 \
+  m.def(                                                                          \
+    #NAME,                                                                        \
+    [](void* cv_mem, int which, std::function<std::remove_pointer_t<FN_TYPE>> fn) \
+    {                                                                             \
+      void* user_data = nullptr;                                                  \
+      CVodeGetUserDataB(cv_mem, which, &user_data);                               \
+      if (!user_data)                                                             \
+        throw std::runtime_error(                                                 \
+          "Failed to get Python function table from CVODE memory");               \
+      auto fntable    = static_cast<cvodea_user_supplied_fn_table*>(user_data);   \
+      fntable->MEMBER = nb::cast(fn);                                             \
+      if (fn) { return NAME(cv_mem, which, &WRAPPER); }                           \
+      else { return NAME(cv_mem, which, nullptr); }                               \
+    },                                                                            \
+    __VA_ARGS__)
 
 #define BIND_CVODEB_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2,       \
                               MEMBER2, WRAPPER2, ...)                            \
@@ -174,31 +179,37 @@ void bind_cvodes(nb::module_& m)
           return CVodeQuadInit(cv_mem, &cvode_fQ_wrapper, yQ0);
         });
 
-  BIND_CVODE_CALLBACK(CVodeWFtolerances, CVEwtFn, ewtn, cvode_ewtfn_wrapper);
+  BIND_CVODE_CALLBACK(CVodeWFtolerances, CVEwtFn, ewtn, cvode_ewtfn_wrapper,
+                      nb::arg("cvode_mem"), nb::arg("efun").none());
 
-  BIND_CVODE_CALLBACK(CVodeSetNlsRhsFn, CVRhsFn, fNLS, cvode_nlsrhsfn_wrapper);
+  BIND_CVODE_CALLBACK(CVodeSetNlsRhsFn, CVRhsFn, fNLS, cvode_nlsrhsfn_wrapper,
+                      nb::arg("cvode_mem"), nb::arg("f").none());
 
-  BIND_CVODE_CALLBACK(CVodeSetJacFn, CVLsJacFn, lsjacfn, cvode_lsjacfn_wrapper);
+  BIND_CVODE_CALLBACK(CVodeSetJacFn, CVLsJacFn, lsjacfn, cvode_lsjacfn_wrapper,
+                      nb::arg("cvode_mem"), nb::arg("jac").none());
 
   BIND_CVODE_CALLBACK2(CVodeSetPreconditioner, CVLsPrecSetupFn, lsprecsetupfn,
                        cvode_lsprecsetupfn_wrapper, CVLsPrecSolveFn,
                        lsprecsolvefn, cvode_lsprecsolvefn_wrapper,
-                       nb::arg("cv_mem"), nb::arg("psetup").none(),
+                       nb::arg("cvode_mem"), nb::arg("pset").none(),
                        nb::arg("psolve").none());
 
   BIND_CVODE_CALLBACK2(CVodeSetJacTimes, CVLsJacTimesSetupFn, lsjactimessetupfn,
                        cvode_lsjactimessetupfn_wrapper, CVLsJacTimesVecFn,
                        lsjactimesvecfn, cvode_lsjactimesvecfn_wrapper,
-                       nb::arg("cv_mem"), nb::arg("jsetup").none(),
+                       nb::arg("cvode_mem"), nb::arg("jtsetup").none(),
                        nb::arg("jtimes").none());
 
   BIND_CVODE_CALLBACK(CVodeSetLinSysFn, CVLsLinSysFn, lslinsysfn,
-                      cvode_lslinsysfn_wrapper);
+                      cvode_lslinsysfn_wrapper, nb::arg("cvode_mem"),
+                      nb::arg("linsys").none());
 
   BIND_CVODE_CALLBACK(CVodeSetJacTimesRhsFn, CVLsJacTimesVecFn, lsjacrhsfn,
-                      cvode_lsjacrhsfn_wrapper);
+                      cvode_lsjacrhsfn_wrapper, nb::arg("cvode_mem"),
+                      nb::arg("jtimesRhsFn").none());
 
-  BIND_CVODE_CALLBACK(CVodeSetProjFn, CVProjFn, projfn, cvode_projfn_wrapper);
+  BIND_CVODE_CALLBACK(CVodeSetProjFn, CVProjFn, projfn, cvode_projfn_wrapper,
+                      nb::arg("cvode_mem"), nb::arg("pfun").none());
 
   // We cant use std::function<std::remove_pointer_t<CVQuadSensRhsFn>>
   // because we need to replace the N_Vector* arguments with std::vector<N_Vector>.
@@ -323,13 +334,14 @@ void bind_cvodes(nb::module_& m)
         });
 
   BIND_CVODEB_CALLBACK(CVodeSetJacFnB, CVLsJacFnB, lsjacfnB,
-                       cvode_lsjacfnB_wrapper);
+                       cvode_lsjacfnB_wrapper, nb::arg("cv_mem"),
+                       nb::arg("which"), nb::arg("jacB").none());
 
   BIND_CVODEB_CALLBACK2(CVodeSetPreconditionerB, CVLsPrecSetupFnB, lsprecsetupfnB,
                         cvode_lsprecsetupfnB_wrapper, CVLsPrecSolveFnB,
                         lsprecsolvefnB, cvode_lsprecsolvefnB_wrapper,
                         nb::arg("cv_mem"), nb::arg("which"),
-                        nb::arg("psetupB").none(), nb::arg("psolveB").none());
+                        nb::arg("psetB").none(), nb::arg("psolveB").none());
 
   BIND_CVODEB_CALLBACK2(CVodeSetJacTimesB, CVLsJacTimesSetupFnB,
                         lsjactimessetupfnB, cvode_lsjactimessetupfnB_wrapper,
@@ -339,14 +351,16 @@ void bind_cvodes(nb::module_& m)
                         nb::arg("jtimesB").none());
 
   BIND_CVODEB_CALLBACK(CVodeSetLinSysFnB, CVLsLinSysFnB, lslinsysfnB,
-                       cvode_lslinsysfnB_wrapper);
+                       cvode_lslinsysfnB_wrapper, nb::arg("cv_mem"),
+                       nb::arg("which"), nb::arg("linsysB").none());
 
   using CVLsJacStdFnBS = int(sunrealtype t, N_Vector y,
                              std::vector<N_Vector> yS, N_Vector yB,
                              N_Vector fyB, SUNMatrix JB, void* user_dataB,
                              N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
   BIND_CVODEB_CALLBACK(CVodeSetJacFnBS, CVLsJacStdFnBS, lsjacfnBS,
-                       cvode_lsjacfnBS_wrapper);
+                       cvode_lsjacfnBS_wrapper, nb::arg("cv_mem"),
+                       nb::arg("which"), nb::arg("jacBS").none());
 
   using CVLsPrecSetupStdFnBS = int(sunrealtype t, N_Vector y, N_Vector yB,
                                    N_Vector fyB, sunbooleantype jokB,
@@ -360,7 +374,7 @@ void bind_cvodes(nb::module_& m)
                         lsprecsetupfnBS, cvode_lsprecsetupfnBS_wrapper,
                         CVLsPrecSolveStdFnBS, lsprecsolvefnBS,
                         cvode_lsprecsolvefnBS_wrapper, nb::arg("cv_mem"),
-                        nb::arg("which"), nb::arg("psetupBS").none(),
+                        nb::arg("which"), nb::arg("psetBS").none(),
                         nb::arg("psolveBS").none());
 
   using CVLsJacTimesSetupStdFnBS = int(sunrealtype t, N_Vector y,
@@ -383,5 +397,6 @@ void bind_cvodes(nb::module_& m)
         sunrealtype gammaB, void* user_dataB, N_Vector tmp1B, N_Vector tmp2B,
         N_Vector tmp3B);
   BIND_CVODEB_CALLBACK(CVodeSetLinSysFnBS, CVLsLinSysStdFnBS, lslinsysfnBS,
-                       cvode_lslinsysfnBS_wrapper);
+                       cvode_lslinsysfnBS_wrapper, nb::arg("cv_mem"),
+                       nb::arg("which"), nb::arg("linsysBS").none());
 }
