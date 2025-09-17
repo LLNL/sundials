@@ -189,7 +189,6 @@ typedef SUNDIALS_COUNTER_TYPE suncountertype;
 #define SUNTRUE 1
 #endif
 
-
 /*
  *------------------------------------------------------------------
  * Type : int1d

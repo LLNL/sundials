@@ -12,7 +12,9 @@ from litgen.internal.adapt_function_params._lambda_adapter import LambdaAdapter
 from litgen.internal.adapted_types import AdaptedFunction, AdaptedParameter
 
 
-def adapt_array_pointer_to_std_vector(adapted_function: AdaptedFunction) -> Optional[LambdaAdapter]:
+def adapt_array_pointer_to_std_vector(
+    adapted_function: AdaptedFunction,
+) -> Optional[LambdaAdapter]:
     """
     Adapts functions that take pointer_type* (pointer to pointer_type) parameters to instead accept
     std::vector<pointer_type> in the Python interface. Handles multiple such parameters in one function.
@@ -62,9 +64,7 @@ def adapt_array_pointer_to_std_vector(adapted_function: AdaptedFunction) -> Opti
             new_decl.initial_value_code = ""
             new_function_params.append(new_param)
 
-            lambda_adapter.lambda_input_code += (
-                f"{base_type}{dimensions} {param_name}_ptr = reinterpret_cast<{base_type}{dimensions}>( {param_name}.empty() ? nullptr : {param_name}.data() );\n"
-            )
+            lambda_adapter.lambda_input_code += f"{base_type}{dimensions} {param_name}_ptr = reinterpret_cast<{base_type}{dimensions}>( {param_name}.empty() ? nullptr : {param_name}.data() );\n"
             lambda_adapter.adapted_cpp_parameter_list.append(f"{param_name}_ptr")
         else:
             new_function_params.append(old_param.cpp_element())
@@ -83,9 +83,7 @@ def remove_pointer(cpp_type: str) -> str:
     Removes pointer and const qualifiers from a C++ type string, e.g. 'const Foo *' -> 'Foo'.
     """
     # Remove 'const' and '*' and extra spaces
-    t = cpp_type.replace('const', '').replace('*', '').strip()
+    t = cpp_type.replace("const", "").replace("*", "").strip()
     # Remove any duplicate spaces
-    t = re.sub(r'\s+', ' ', t)
+    t = re.sub(r"\s+", " ", t)
     return t
-
-

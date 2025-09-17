@@ -726,7 +726,7 @@ int CVodeCreateB(void* cvode_mem, int lmmB, int* which)
   new_cvB_mem->cv_fQ  = NULL;
   new_cvB_mem->cv_fQs = NULL;
 
-  new_cvB_mem->cv_user_data = NULL;
+  new_cvB_mem->cv_user_data     = NULL;
   new_cvB_mem->cv_own_user_data = SUNFALSE;
 
   new_cvB_mem->cv_lmem  = NULL;

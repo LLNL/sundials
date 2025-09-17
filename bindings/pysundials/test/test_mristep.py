@@ -32,12 +32,14 @@ def test_multirate():
     status = ARKodeSetFixedStep(inner_ark.get(), 5e-3)
 
     inner_stepper = MRIStepInnerStepperView.Create(
-       ARKodeCreateMRIStepInnerStepper(inner_ark.get()) 
+        ARKodeCreateMRIStepInnerStepper(inner_ark.get())
     )
     # inner_stepper = ARKodeCreateMRIStepInnerStepper(inner_ark.get())
 
     # # create slow integrator
-    ark = ARKodeView.Create(MRIStepCreate(fslow, None, t0, yview.get(), inner_stepper.get(), sunctx.get()))
+    ark = ARKodeView.Create(
+        MRIStepCreate(fslow, None, t0, yview.get(), inner_stepper.get(), sunctx.get())
+    )
     ARKodeSetFixedStep(ark.get(), 1e-3)
 
     tret, tout = t0, tf

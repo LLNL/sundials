@@ -42,7 +42,7 @@ void bind_arkode_sprkstep(nb::module_& m)
         throw std::runtime_error("Failed to create SPRKStep memory");
       }
 
-      auto cb_fns = arkode_user_supplied_fn_table_alloc();
+      auto cb_fns    = arkode_user_supplied_fn_table_alloc();
       int ark_status = ARKodeSetUserData(ark_mem, static_cast<void*>(cb_fns));
       if (ark_status != ARK_SUCCESS)
       {
@@ -53,11 +53,13 @@ void bind_arkode_sprkstep(nb::module_& m)
       if (ark_status != ARK_SUCCESS)
       {
         free(cb_fns);
-        throw std::runtime_error("Failed to set user data ownership in SPRKStep memory");
+        throw std::runtime_error(
+          "Failed to set user data ownership in SPRKStep memory");
       }
       cb_fns->sprkstep_f1 = nb::cast(f1);
       cb_fns->sprkstep_f2 = nb::cast(f2);
       return ark_mem;
     },
-    nb::arg("f1"), nb::arg("f2"), nb::arg("t0"), nb::arg("y0"), nb::arg("sunctx"));
+    nb::arg("f1"), nb::arg("f2"), nb::arg("t0"), nb::arg("y0"),
+    nb::arg("sunctx"));
 }

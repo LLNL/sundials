@@ -14,8 +14,8 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
-#include <nanobind/stl/vector.h>
 #include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/vector.h>
 
 #include <arkode/arkode.hpp>
 #include <arkode/arkode_splittingstep.h>
@@ -31,15 +31,15 @@ void bind_arkode_splittingstep(nb::module_& m)
 
   m.def("SplittingStepCreate",
         [](std::vector<SUNStepper> steppers, int partitions, sunrealtype t0,
-           N_Vector y0, SUNContext sunctx) -> void*
-        {
-            return SplittingStepCreate(steppers.data(), partitions, t0, y0, sunctx);
+           N_Vector y0, SUNContext sunctx) -> void* {
+          return SplittingStepCreate(steppers.data(), partitions, t0, y0, sunctx);
         });
 
   m.def("SplittingStepReInit",
         [](void* arkode_mem, std::vector<SUNStepper> steppers, int partitions,
            sunrealtype t0, N_Vector y0) -> int
         {
-            return SplittingStepReInit(arkode_mem, steppers.data(), partitions, t0, y0);
+          return SplittingStepReInit(arkode_mem, steppers.data(), partitions,
+                                     t0, y0);
         });
 }

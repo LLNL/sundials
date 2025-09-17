@@ -14,6 +14,7 @@ def test_suncontext_wo_comm():
 
     assert last_err == SUN_SUCCESS
 
+
 def test_with_null_comm():
     # Create a new context with a null comm
     sunctx = SUNContextView.Create(SUN_COMM_NULL)

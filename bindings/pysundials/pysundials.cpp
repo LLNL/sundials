@@ -34,10 +34,8 @@ NB_MODULE(pysundials, m)
                                          "A submodule of 'pysundials'");
   bind_cvodes(cvodes_m);
 
-  nb::module_ idas_m = m.def_submodule("idas",
-                                         "A submodule of 'pysundials'");
+  nb::module_ idas_m = m.def_submodule("idas", "A submodule of 'pysundials'");
   bind_idas(idas_m);
-
 
   nb::module_ kinsol_m = m.def_submodule("kinsol",
                                          "A submodule of 'pysundials'");

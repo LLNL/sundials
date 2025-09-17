@@ -45,8 +45,8 @@ int user_supplied_fn_caller(nb::object FnTableType::*fn_member, Args... args)
 
   // Pass nullptr as user_data since we do not want the user to mess with user_data (which holds our function table)
   std::get<user_data_index>(args_tuple) = nullptr;
-  return std::apply([&](auto&&... call_args)
-                    { return fn(call_args...); }, args_tuple);
+  return std::apply([&](auto&&... call_args) { return fn(call_args...); },
+                    args_tuple);
 }
 
 /// This function will call a user-supplied Python function through C++ side wrappers
@@ -57,16 +57,17 @@ int user_supplied_fn_caller(nb::object FnTableType::*fn_member, Args... args)
 /// \param fn_member is the name of the function in the FnTableType to call
 /// \param args is the arguments to the C function, which will be forwarded to the user-supplied Python function, except user_data, which is intercepted and passed as a nullptr.
 template<typename FnType, typename FnTableType, typename... Args>
-int user_supplied_fn_caller(nb::object FnTableType::*fn_member, void* user_data, Args... args)
+int user_supplied_fn_caller(nb::object FnTableType::*fn_member, void* user_data,
+                            Args... args)
 {
-  auto args_tuple               = std::tuple<Args...>(args...);
+  auto args_tuple = std::tuple<Args...>(args...);
 
   // Cast user_data to FnTableType*
   auto fn_table = static_cast<FnTableType*>(user_data);
   auto fn       = nb::cast<std::function<FnType>>(fn_table->*fn_member);
 
-  return std::apply([&](auto&&... call_args)
-                    { return fn(call_args...); }, args_tuple);
+  return std::apply([&](auto&&... call_args) { return fn(call_args...); },
+                    args_tuple);
 }
 
 } // namespace pysundials

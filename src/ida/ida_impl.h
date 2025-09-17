@@ -94,9 +94,9 @@ typedef struct IDAMemRec
     Problem Specification Data
     --------------------------*/
 
-  IDAResFn ida_res;                  /* F(t,y(t),y'(t))=0; the function F     */
-  void* ida_user_data;               /* user pointer passed to res            */
-  sunbooleantype ida_own_user_data;  /* SUNTRUE if we own user_data and should free it */
+  IDAResFn ida_res;                 /* F(t,y(t),y'(t))=0; the function F     */
+  void* ida_user_data;              /* user pointer passed to res            */
+  sunbooleantype ida_own_user_data; /* SUNTRUE if we own user_data and should free it */
 
   int ida_itol;                 /* itol = IDA_SS, IDA_SV, IDA_WF, IDA_NN */
   sunrealtype ida_rtol;         /* relative tolerance                    */

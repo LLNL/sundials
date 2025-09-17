@@ -198,10 +198,9 @@ inline idasa_user_supplied_fn_table* idasa_user_supplied_fn_table_alloc()
 template<typename... Args>
 inline int idas_resB_wrapper(Args... args)
 {
-  return pysundials::user_supplied_fn_caller<std::remove_pointer_t<IDAResFnB>,
-                                             idasa_user_supplied_fn_table,
-                                             1>(&idasa_user_supplied_fn_table::resB,
-                                                std::forward<Args>(args)...);
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<IDAResFnB>, idasa_user_supplied_fn_table,
+    1>(&idasa_user_supplied_fn_table::resB, std::forward<Args>(args)...);
 }
 
 template<typename... Args>

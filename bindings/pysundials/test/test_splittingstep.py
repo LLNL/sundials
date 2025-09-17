@@ -38,19 +38,13 @@ def test_splittingstep():
     status = ARKodeSetFixedStep(nonlinear_ark.get(), 1e-3)
 
     # create SUNStepper for each partition
-    linear_stepper = SUNStepperView.Create(
-        ARKodeCreateSUNStepper(linear_ark.get())
-    )
-    nonlinear_stepper = SUNStepperView.Create(
-        ARKodeCreateSUNStepper(nonlinear_ark.get())
-    )
+    linear_stepper = SUNStepperView.Create(ARKodeCreateSUNStepper(linear_ark.get()))
+    nonlinear_stepper = SUNStepperView.Create(ARKodeCreateSUNStepper(nonlinear_ark.get()))
 
     # create the outer integrator
     steppers = [linear_stepper.get(), nonlinear_stepper.get()]
     ark = ARKodeView.Create(
-        SplittingStepCreate(
-            steppers, len(steppers), t0, yview.get(), sunctx.get()
-        )
+        SplittingStepCreate(steppers, len(steppers), t0, yview.get(), sunctx.get())
     )
 
     ARKodeSetFixedStep(ark.get(), 1e-2)
@@ -61,6 +55,7 @@ def test_splittingstep():
 
     ode_problem.solution(y0view.get(), yview.get(), tf)
     N_VPrint(yview.get())
+
 
 if __name__ == "__main__":
     test_splittingstep()

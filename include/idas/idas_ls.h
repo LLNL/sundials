@@ -175,9 +175,9 @@ typedef int (*IDALsJacTimesVecFnB)(sunrealtype t, N_Vector yy, N_Vector yp,
                                    N_Vector tmp2B);
 
 typedef int (*IDALsJacTimesVecFnBS)(sunrealtype t, N_Vector yy, N_Vector yp,
-                                    N_Vector1d yyS, N_Vector1d ypS, N_Vector yyB,
-                                    N_Vector ypB, N_Vector rrB, N_Vector vB,
-                                    N_Vector JvB, sunrealtype c_jB,
+                                    N_Vector1d yyS, N_Vector1d ypS,
+                                    N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                                    N_Vector vB, N_Vector JvB, sunrealtype c_jB,
                                     void* user_dataB, N_Vector tmp1B,
                                     N_Vector tmp2B);
 

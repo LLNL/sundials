@@ -22,11 +22,11 @@ def test_bdf_idas():
 
     def resfn(t, y, yp, rr, _):
         return ode_problem.res(t, y, yp, rr)
-    
+
     def psetup(t, y, yp, rr, cj, _):
         print("setup")
         return 0
-    
+
     def psolve(t, y, yp, rr, rvec, zvec, cj, delta, _):
         print("solve")
         return ode_problem.psolve(t, y, yp, rr, rvec, zvec, cj, delta)

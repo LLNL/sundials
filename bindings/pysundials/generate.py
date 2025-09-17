@@ -47,7 +47,7 @@ def main():
         r"N_Vector2d",
         r"sunrealtype1d",
         r"sunrealtype2d",
-        r"sunrealtype3d"
+        r"sunrealtype3d",
     ]
 
     # Don't create default constructors for any struct

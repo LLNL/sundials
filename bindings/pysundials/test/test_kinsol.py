@@ -37,14 +37,14 @@ def test_kinsol():
 
     kin_status = KINSol(kin_view.get(), u.get(), KIN_FP, scale.get(), scale.get())
     print(f"kin_status={kin_status}, solution={udata}")
-    
+
     ucor = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
     ucor_data = N_VGetArrayPointer(ucor.get())
-    
+
     problem.solution(ucor.get())
 
-    assert(np.allclose(udata, ucor_data))
-    
+    assert np.allclose(udata, ucor_data)
+
     kin_status, nni = KINGetNumNonlinSolvIters(kin_view.get(), 0)
     kin_status, nfe = KINGetNumFuncEvals(kin_view.get(), 0)
     print("Final Statistics:")

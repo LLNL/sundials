@@ -53,7 +53,8 @@ struct ARKodeButcherTableDeleter
   }
 };
 
-class ARKodeButcherTableView : public ClassView<ARKodeButcherTable, ARKodeButcherTableDeleter>
+class ARKodeButcherTableView
+  : public ClassView<ARKodeButcherTable, ARKodeButcherTableDeleter>
 {
 public:
   using ClassView<ARKodeButcherTable, ARKodeButcherTableDeleter>::ClassView;
@@ -64,7 +65,8 @@ public:
 template<typename... Args>
 ARKodeButcherTableView ARKodeButcherTableView::Create(Args&&... args)
 {
-  ARKodeButcherTable table = ARKodeButcherTable_Create(std::forward<Args>(args)...);
+  ARKodeButcherTable table =
+    ARKodeButcherTable_Create(std::forward<Args>(args)...);
   return ARKodeButcherTableView(table);
 }
 

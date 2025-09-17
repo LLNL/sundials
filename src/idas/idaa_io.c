@@ -737,7 +737,8 @@ int IDAGetUserDataB(void* ida_mem, int which, void** user_dataB)
   /* Check if IDA_mem exists */
   if (ida_mem == NULL)
   {
-    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSGAM_NULL_IDAMEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSGAM_NULL_IDAMEM);
     return (IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem)ida_mem;
@@ -745,7 +746,8 @@ int IDAGetUserDataB(void* ida_mem, int which, void** user_dataB)
   /* Was ASA initialized? */
   if (IDA_mem->ida_adjMallocDone == SUNFALSE)
   {
-    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__, MSGAM_NO_ADJ);
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
+                    MSGAM_NO_ADJ);
     return (IDA_NO_ADJ);
   }
   IDAa_mem = IDA_mem->ida_adj_mem;
@@ -754,7 +756,7 @@ int IDAGetUserDataB(void* ida_mem, int which, void** user_dataB)
   if (which >= IDAa_mem->ia_nbckpbs)
   {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
-                   MSGAM_BAD_WHICH);
+                    MSGAM_BAD_WHICH);
     return (IDA_ILL_INPUT);
   }
 

@@ -33,9 +33,9 @@ struct ARKodeButcherTableMem
   int p;           /* embedding order of accuracy    */
   int stages;      /* number of stages               */
   sunrealtype2d A; /* Butcher table coefficients     */
-  sunrealtype1d c;  /* canopy node coefficients       */
-  sunrealtype1d b;  /* root node coefficients         */
-  sunrealtype1d d;  /* embedding coefficients         */
+  sunrealtype1d c; /* canopy node coefficients       */
+  sunrealtype1d b; /* root node coefficients         */
+  sunrealtype1d d; /* embedding coefficients         */
 };
 
 typedef _SUNDIALS_STRUCT_ ARKodeButcherTableMem* ARKodeButcherTable;

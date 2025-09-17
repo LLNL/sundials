@@ -25,7 +25,6 @@
 
 #include <sundials/sundials_core.hpp>
 
-
 #include "pysundials_helpers.hpp"
 
 namespace nb = nanobind;
@@ -98,7 +97,8 @@ inline int kinsol_lsprecsetupfn_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<KINLsPrecSetupFn>, kinsol_user_supplied_fn_table,
-    1>(&kinsol_user_supplied_fn_table::lsprecsetupfn, std::forward<Args>(args)...);
+    1>(&kinsol_user_supplied_fn_table::lsprecsetupfn,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -106,7 +106,8 @@ inline int kinsol_lsprecsolvefn_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<KINLsPrecSolveFn>, kinsol_user_supplied_fn_table,
-    1>(&kinsol_user_supplied_fn_table::lsprecsolvefn, std::forward<Args>(args)...);
+    1>(&kinsol_user_supplied_fn_table::lsprecsolvefn,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -114,7 +115,8 @@ inline int kinsol_lsjactimesvecfn_wrapper(Args... args)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<KINLsJacTimesVecFn>, kinsol_user_supplied_fn_table,
-    1>(&kinsol_user_supplied_fn_table::lsjactimesvecfn, std::forward<Args>(args)...);
+    1>(&kinsol_user_supplied_fn_table::lsjactimesvecfn,
+       std::forward<Args>(args)...);
 }
 
 template<typename... Args>
@@ -124,6 +126,5 @@ inline int kinsol_lsjtvsysfn_wrapper(Args... args)
     std::remove_pointer_t<KINSysFn>, kinsol_user_supplied_fn_table,
     1>(&kinsol_user_supplied_fn_table::lsjtvsysfn, std::forward<Args>(args)...);
 }
-
 
 #endif // _PYSUNDIALS_KINSOL_USERSUPPLIED_HPP

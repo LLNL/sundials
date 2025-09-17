@@ -31,7 +31,8 @@ struct MRIStepCouplingDeleter
   }
 };
 
-class MRIStepCouplingView : public ClassView<MRIStepCoupling, MRIStepCouplingDeleter>
+class MRIStepCouplingView
+  : public ClassView<MRIStepCoupling, MRIStepCouplingDeleter>
 {
 public:
   using ClassView<MRIStepCoupling, MRIStepCouplingDeleter>::ClassView;
@@ -54,11 +55,12 @@ struct MRIStepInnerStepperDeleter
   }
 };
 
-class MRIStepInnerStepperView : public ClassView<MRIStepInnerStepper, MRIStepInnerStepperDeleter>
+class MRIStepInnerStepperView
+  : public ClassView<MRIStepInnerStepper, MRIStepInnerStepperDeleter>
 {
 public:
   using ClassView<MRIStepInnerStepper, MRIStepInnerStepperDeleter>::ClassView;
-  
+
   template<typename... Args>
   static MRIStepInnerStepperView Create(Args&&... args);
 };
@@ -68,7 +70,6 @@ MRIStepInnerStepperView MRIStepInnerStepperView::Create(Args&&... args)
 {
   return MRIStepInnerStepperView(std::forward<Args>(args)...);
 }
-
 
 } // namespace experimental
 } // namespace sundials

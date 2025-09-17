@@ -1,57 +1,76 @@
 // #ifndef _SUNADJOINT_STEPPER_H
-// 
+//
 // #ifdef __cplusplus
-// 
+//
 // #endif
-// 
+//
 
-m.def("SUNAdjointStepper_ReInit",
-    SUNAdjointStepper_ReInit, nb::arg("adj"), nb::arg("t0"), nb::arg("y0"), nb::arg("tf"), nb::arg("sf"));
+m.def("SUNAdjointStepper_ReInit", SUNAdjointStepper_ReInit, nb::arg("adj"),
+      nb::arg("t0"), nb::arg("y0"), nb::arg("tf"), nb::arg("sf"));
 
-m.def("SUNAdjointStepper_Evolve",
-    [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens, double tret) -> std::tuple<SUNErrCode, double>
+m.def(
+  "SUNAdjointStepper_Evolve",
+  [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens,
+     double tret) -> std::tuple<SUNErrCode, double>
+  {
+    auto SUNAdjointStepper_Evolve_adapt_modifiable_immutable_to_return =
+      [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens,
+         double tret) -> std::tuple<SUNErrCode, double>
     {
-        auto SUNAdjointStepper_Evolve_adapt_modifiable_immutable_to_return = [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens, double tret) -> std::tuple<SUNErrCode, double>
-        {
-            double * tret_adapt_modifiable = & tret;
+      double* tret_adapt_modifiable = &tret;
 
-            SUNErrCode r = SUNAdjointStepper_Evolve(adj_stepper, tout, sens, tret_adapt_modifiable);
-            return std::make_tuple(r, tret);
-        };
+      SUNErrCode r = SUNAdjointStepper_Evolve(adj_stepper, tout, sens,
+                                              tret_adapt_modifiable);
+      return std::make_tuple(r, tret);
+    };
 
-        return SUNAdjointStepper_Evolve_adapt_modifiable_immutable_to_return(adj_stepper, tout, sens, tret);
-    },     nb::arg("adj_stepper"), nb::arg("tout"), nb::arg("sens"), nb::arg("tret"));
+    return SUNAdjointStepper_Evolve_adapt_modifiable_immutable_to_return(adj_stepper,
+                                                                         tout,
+                                                                         sens,
+                                                                         tret);
+  },
+  nb::arg("adj_stepper"), nb::arg("tout"), nb::arg("sens"), nb::arg("tret"));
 
-m.def("SUNAdjointStepper_OneStep",
-    [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens, double tret) -> std::tuple<SUNErrCode, double>
+m.def(
+  "SUNAdjointStepper_OneStep",
+  [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens,
+     double tret) -> std::tuple<SUNErrCode, double>
+  {
+    auto SUNAdjointStepper_OneStep_adapt_modifiable_immutable_to_return =
+      [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens,
+         double tret) -> std::tuple<SUNErrCode, double>
     {
-        auto SUNAdjointStepper_OneStep_adapt_modifiable_immutable_to_return = [](SUNAdjointStepper adj_stepper, double tout, N_Vector sens, double tret) -> std::tuple<SUNErrCode, double>
-        {
-            double * tret_adapt_modifiable = & tret;
+      double* tret_adapt_modifiable = &tret;
 
-            SUNErrCode r = SUNAdjointStepper_OneStep(adj_stepper, tout, sens, tret_adapt_modifiable);
-            return std::make_tuple(r, tret);
-        };
+      SUNErrCode r = SUNAdjointStepper_OneStep(adj_stepper, tout, sens,
+                                               tret_adapt_modifiable);
+      return std::make_tuple(r, tret);
+    };
 
-        return SUNAdjointStepper_OneStep_adapt_modifiable_immutable_to_return(adj_stepper, tout, sens, tret);
-    },     nb::arg("adj_stepper"), nb::arg("tout"), nb::arg("sens"), nb::arg("tret"));
+    return SUNAdjointStepper_OneStep_adapt_modifiable_immutable_to_return(adj_stepper,
+                                                                          tout,
+                                                                          sens,
+                                                                          tret);
+  },
+  nb::arg("adj_stepper"), nb::arg("tout"), nb::arg("sens"), nb::arg("tret"));
 
-m.def("SUNAdjointStepper_RecomputeFwd",
-    SUNAdjointStepper_RecomputeFwd, nb::arg("adj_stepper"), nb::arg("start_idx"), nb::arg("t0"), nb::arg("y0"), nb::arg("tf"));
+m.def("SUNAdjointStepper_RecomputeFwd", SUNAdjointStepper_RecomputeFwd,
+      nb::arg("adj_stepper"), nb::arg("start_idx"), nb::arg("t0"),
+      nb::arg("y0"), nb::arg("tf"));
 
-m.def("SUNAdjointStepper_SetUserData",
-    SUNAdjointStepper_SetUserData, nb::arg("param_0"), nb::arg("user_data"));
+m.def("SUNAdjointStepper_SetUserData", SUNAdjointStepper_SetUserData,
+      nb::arg("param_0"), nb::arg("user_data"));
 
-m.def("SUNAdjointStepper_GetNumSteps",
-    SUNAdjointStepper_GetNumSteps, nb::arg("adj_stepper"), nb::arg("num_steps"));
+m.def("SUNAdjointStepper_GetNumSteps", SUNAdjointStepper_GetNumSteps,
+      nb::arg("adj_stepper"), nb::arg("num_steps"));
 
-m.def("SUNAdjointStepper_GetNumRecompute",
-    SUNAdjointStepper_GetNumRecompute, nb::arg("adj_stepper"), nb::arg("num_recompute"));
+m.def("SUNAdjointStepper_GetNumRecompute", SUNAdjointStepper_GetNumRecompute,
+      nb::arg("adj_stepper"), nb::arg("num_recompute"));
 
-m.def("SUNAdjointStepper_PrintAllStats",
-    SUNAdjointStepper_PrintAllStats, nb::arg("adj_stepper"), nb::arg("outfile"), nb::arg("fmt"));
+m.def("SUNAdjointStepper_PrintAllStats", SUNAdjointStepper_PrintAllStats,
+      nb::arg("adj_stepper"), nb::arg("outfile"), nb::arg("fmt"));
 // #ifdef __cplusplus
-// 
+//
 // #endif
-// 
-// #endif 
+//
+// #endif

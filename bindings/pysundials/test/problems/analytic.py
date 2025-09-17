@@ -176,6 +176,7 @@ class AnalyticDAE:
         print(z)
         return 0
 
+
 class AnalyticNonlinearSys:
     """
     * This implements the nonlinear system
@@ -201,13 +202,12 @@ class AnalyticNonlinearSys:
 
         g[0] = (1.0 / 3.0) * np.cos((y - 1.0) * z) + (1.0 / 6.0)
         g[1] = (1.0 / 9.0) * np.sqrt(x * x + np.sin(z) + 1.06) + 0.9
-        g[2] = - (1.0 / 20.0) * np.exp(-x * (y - 1.0)) - (10.0 * np.pi - 3.0) / 60.0
+        g[2] = -(1.0 / 20.0) * np.exp(-x * (y - 1.0)) - (10.0 * np.pi - 3.0) / 60.0
         return 0
-    
+
     def solution(self, uvec):
         u = N_VGetArrayPointer(uvec)
         u[0] = 0.5
         u[1] = 1.0
         u[2] = -np.pi / 6.0
         return 0
-    

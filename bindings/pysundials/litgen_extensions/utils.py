@@ -6,6 +6,7 @@
 import litgen
 import re
 
+
 def generate_code(options, source_code):
     generated_code = litgen.generate_code(options, source_code)
     return generated_code

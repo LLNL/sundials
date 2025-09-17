@@ -24,7 +24,7 @@
 namespace sundials {
 
 namespace experimental {
-  
+
 struct SUNStepperDeleter
 {
   void operator()(SUNStepper self)

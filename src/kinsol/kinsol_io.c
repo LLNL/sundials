@@ -78,7 +78,7 @@ int KINSetOwnUserData(void* kinmem, sunbooleantype own_user_data)
     return (KIN_MEM_NULL);
   }
 
-  kin_mem                = (KINMem)kinmem;
+  kin_mem                    = (KINMem)kinmem;
   kin_mem->kin_own_user_data = own_user_data;
 
   return (KIN_SUCCESS);

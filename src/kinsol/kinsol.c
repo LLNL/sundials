@@ -793,7 +793,7 @@ void KINFree(void** kinmem)
 
   /* free orthogonalization workspace */
   KINFreeOrth(kin_mem);
-  
+
   if (kin_mem->kin_own_user_data) { free(kin_mem->kin_user_data); }
 
   free(*kinmem);

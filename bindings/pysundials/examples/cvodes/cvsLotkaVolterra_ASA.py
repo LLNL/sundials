@@ -12,6 +12,7 @@ STEPS = 5
 
 params = np.array([1.5, 1.0, 3.0, 1.0], dtype=np.float64)
 
+
 # Lotka-Volterra ODE system
 def lotka_volterra(t, y, ydot, p):
     y = N_VGetArrayPointer(y)
@@ -20,6 +21,7 @@ def lotka_volterra(t, y, ydot, p):
     ydot[1] = -p[2] * y[1] + p[3] * y[0] * y[1]
     return 0
 
+
 def vjp(v, Jv, t, y, p):
     v = N_VGetArrayPointer(v)
     Jv = N_VGetArrayPointer(Jv)
@@ -27,6 +29,7 @@ def vjp(v, Jv, t, y, p):
     Jv[0] = (p[0] - p[1] * y[1]) * v[0] + p[3] * y[1] * v[1]
     Jv[1] = -p[1] * y[0] * v[0] + (-p[2] + p[3] * y[0]) * v[1]
     return 0
+
 
 def parameter_vjp(v, Jv, t, y, p):
     v = N_VGetArrayPointer(v)
@@ -38,8 +41,10 @@ def parameter_vjp(v, Jv, t, y, p):
     Jv[3] = y[0] * y[1] * v[1]
     return 0
 
+
 def dgdu(y):
     return np.array([-1.0 + y[0], -1.0 + y[1]], dtype=np.float64)
+
 
 def adjoint_rhs(t, y, l, ldot, p):
     vjp(l, ldot, t, y, p)
@@ -47,9 +52,11 @@ def adjoint_rhs(t, y, l, ldot, p):
     ldot *= -1.0
     return 0
 
+
 def quad_rhs(t, y, mu, qBdot, p):
     parameter_vjp(mu, qBdot, t, y, p)
     return 0
+
 
 def main():
     sunctx = SUNContextView.Create()
@@ -85,11 +92,19 @@ def main():
     # Backward problem
     which = 0
     CVodeCreateB(solver.get(), CV_BDF, which)
-    CVodeInitB(solver.get(), which, lambda t, y, l, ldot, _: adjoint_rhs(t, y, l, ldot, params), TF, uB.get())
+    CVodeInitB(
+        solver.get(),
+        which,
+        lambda t, y, l, ldot, _: adjoint_rhs(t, y, l, ldot, params),
+        TF,
+        uB.get(),
+    )
     CVodeSStolerancesB(solver.get(), which, RTOL, ATOL)
     lsb = SUNLinearSolverView.Create(SUNLinSol_SPGMR(uB.get(), 0, 3, sunctx.get()))
     CVodeSetLinearSolverB(solver.get(), which, lsb.get(), None)
-    CVodeQuadInitB(solver.get(), which, lambda t, y, yB, yBdot, _: quad_rhs(t, y, yB, yBdot, params), qB.get())
+    CVodeQuadInitB(
+        solver.get(), which, lambda t, y, yB, yBdot, _: quad_rhs(t, y, yB, yBdot, params), qB.get()
+    )
     CVodeSetQuadErrConB(solver.get(), which, True)
     CVodeQuadSStolerancesB(solver.get(), which, RTOL, ATOL)
 
@@ -103,6 +118,7 @@ def main():
     print(f"Adjoint Solution at t = {t}:")
     print(N_VGetArrayPointer(uB.get()))
     print(arr_qB)
+
 
 if __name__ == "__main__":
     main()

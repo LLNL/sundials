@@ -6,8 +6,9 @@ from pysundials.core import *
 from pysundials.arkode import *
 from problems import HarmonicOscillatorODE
 
+
 def test_sprkstep():
-    tout, tret = 2*np.pi, 0.0
+    tout, tret = 2 * np.pi, 0.0
     dt = 0.01
 
     sunctx = SUNContextView.Create()
@@ -28,10 +29,11 @@ def test_sprkstep():
     sprk = ARKodeView.Create(SPRKStepCreate(f1, f2, 0, nv.get(), sunctx.get()))
 
     status = ARKodeSetFixedStep(sprk.get(), dt)
-    status = ARKodeSetMaxNumSteps(sprk.get(), int(np.ceil(tout/dt)))
+    status = ARKodeSetMaxNumSteps(sprk.get(), int(np.ceil(tout / dt)))
 
     status = ARKodeEvolve(sprk.get(), tout, nv.get(), tret, ARK_NORMAL)
     print(f"status={status}, ans={arr}")
+
 
 if __name__ == "__main__":
     test_sprkstep()

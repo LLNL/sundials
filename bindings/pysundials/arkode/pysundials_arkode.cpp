@@ -161,22 +161,24 @@ void bind_arkode(nb::module_& m)
                        arkode_lsjacrhsfn_wrapper, nb::arg("arkode_mem"),
                        nb::arg("jtimesRhsFn").none());
 
-  m.def("ARKodeSetMassTimes",
-        [](void* ark_mem,
-           std::function<std::remove_pointer_t<ARKLsMassTimesSetupFn>> msetup,
-           std::function<std::remove_pointer_t<ARKLsMassTimesVecFn>> mtimes)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lsmasstimessetupfn = nb::cast(msetup);
-          fntable->lsmasstimesvecfn   = nb::cast(mtimes);
-          return ARKodeSetMassTimes(ark_mem, &arkode_lsmasstimessetupfn_wrapper,
-                                    &arkode_lsmasstimesvecfn_wrapper, nullptr);
-        }, nb::arg("arkode_mem"), nb::arg("msetup").none(), nb::arg("mtimes").none());
+  m.def(
+    "ARKodeSetMassTimes",
+    [](void* ark_mem,
+       std::function<std::remove_pointer_t<ARKLsMassTimesSetupFn>> msetup,
+       std::function<std::remove_pointer_t<ARKLsMassTimesVecFn>> mtimes)
+    {
+      void* user_data = nullptr;
+      ARKodeGetUserData(ark_mem, &user_data);
+      if (!user_data)
+        throw std::runtime_error(
+          "Failed to get Python function table from ARKODE memory");
+      auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
+      fntable->lsmasstimessetupfn = nb::cast(msetup);
+      fntable->lsmasstimesvecfn   = nb::cast(mtimes);
+      return ARKodeSetMassTimes(ark_mem, &arkode_lsmasstimessetupfn_wrapper,
+                                &arkode_lsmasstimesvecfn_wrapper, nullptr);
+    },
+    nb::arg("arkode_mem"), nb::arg("msetup").none(), nb::arg("mtimes").none());
 
   BIND_ARKODE_CALLBACK(ARKodeSetLinSysFn, ARKLsLinSysFn, lslinsysfn,
                        arkode_lslinsysfn_wrapper, nb::arg("arkode_mem"),
@@ -184,22 +186,24 @@ void bind_arkode(nb::module_& m)
 
   // ARKodeSetMassTimes doesnt fit the BIND_ARKODE_CALLBACK macro pattern(s)
   // due to the 4th argument for user data, so we just write it out explicitly.
-  m.def("ARKodeSetMassTimes",
-        [](void* ark_mem,
-           std::function<std::remove_pointer_t<ARKLsMassTimesSetupFn>> msetup,
-           std::function<std::remove_pointer_t<ARKLsMassTimesVecFn>> mtimes)
-        {
-          void* user_data = nullptr;
-          ARKodeGetUserData(ark_mem, &user_data);
-          if (!user_data)
-            throw std::runtime_error(
-              "Failed to get Python function table from ARKODE memory");
-          auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
-          fntable->lsmasstimessetupfn = nb::cast(msetup);
-          fntable->lsmasstimesvecfn   = nb::cast(mtimes);
-          return ARKodeSetMassTimes(ark_mem, &arkode_lsmasstimessetupfn_wrapper,
-                                    &arkode_lsmasstimesvecfn_wrapper, nullptr);
-        }, nb::arg("ark_mem"), nb::arg("msetup").none(), nb::arg("mtimes").none());
+  m.def(
+    "ARKodeSetMassTimes",
+    [](void* ark_mem,
+       std::function<std::remove_pointer_t<ARKLsMassTimesSetupFn>> msetup,
+       std::function<std::remove_pointer_t<ARKLsMassTimesVecFn>> mtimes)
+    {
+      void* user_data = nullptr;
+      ARKodeGetUserData(ark_mem, &user_data);
+      if (!user_data)
+        throw std::runtime_error(
+          "Failed to get Python function table from ARKODE memory");
+      auto fntable = static_cast<arkode_user_supplied_fn_table*>(user_data);
+      fntable->lsmasstimessetupfn = nb::cast(msetup);
+      fntable->lsmasstimesvecfn   = nb::cast(mtimes);
+      return ARKodeSetMassTimes(ark_mem, &arkode_lsmasstimessetupfn_wrapper,
+                                &arkode_lsmasstimesvecfn_wrapper, nullptr);
+    },
+    nb::arg("ark_mem"), nb::arg("msetup").none(), nb::arg("mtimes").none());
 
   /////////////////////////////////////////////////////////////////////////////
   // Additional functions that litgen cannot generate

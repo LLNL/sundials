@@ -82,8 +82,8 @@ extern "C" {
 typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void* user_data);
 
 typedef int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val,
-                            sunrealtype1d qt_fn, long int depth, void* user_data,
-                            sunrealtype* damping_factor);
+                            sunrealtype1d qt_fn, long int depth,
+                            void* user_data, sunrealtype* damping_factor);
 
 typedef int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val,
                           N_Vector f_val, N_Vector1d df, sunrealtype1d R_mat,

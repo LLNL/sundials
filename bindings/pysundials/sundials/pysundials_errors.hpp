@@ -19,12 +19,13 @@
 #include "pysundials_errors_generated.hpp"
 
 /* Expand SUN_ERR_CODE_LIST to enum */
-#define SUN_EXPAND_TO_NB_BINDING(name, description) .value(# name, name, description)
+#define SUN_EXPAND_TO_NB_BINDING(name, description) \
+  .value(#name, name, description)
 
-auto pyEnumSUNErrCode_ =
-    nb::enum_<SUNErrCode_>(m, "SUNErrCode", nb::is_arithmetic(), "")
-        .value("SUN_ERR_MINIMUM", SUN_ERR_MINIMUM, "")
-        SUN_ERR_CODE_LIST(SUN_EXPAND_TO_NB_BINDING)
-        .value("SUN_ERR_MAXIMUM", SUN_ERR_MAXIMUM, "")
-        .value("SUN_SUCCESS", SUN_SUCCESS, "")
-    .export_values();
+auto pyEnumSUNErrCode_ = nb::enum_<SUNErrCode_>(m, "SUNErrCode",
+                                                nb::is_arithmetic(), "")
+                           .value("SUN_ERR_MINIMUM", SUN_ERR_MINIMUM, "")
+                             SUN_ERR_CODE_LIST(SUN_EXPAND_TO_NB_BINDING)
+                           .value("SUN_ERR_MAXIMUM", SUN_ERR_MAXIMUM, "")
+                           .value("SUN_SUCCESS", SUN_SUCCESS, "")
+                           .export_values();

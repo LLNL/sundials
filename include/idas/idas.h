@@ -244,7 +244,8 @@ SUNDIALS_EXPORT int IDASolve(void* ida_mem, sunrealtype tout, sunrealtype* tret,
 /* Utility functions to update/compute y and yp based on ycor */
 SUNDIALS_EXPORT int IDAComputeY(void* ida_mem, N_Vector ycor, N_Vector y);
 SUNDIALS_EXPORT int IDAComputeYp(void* ida_mem, N_Vector ycor, N_Vector yp);
-SUNDIALS_EXPORT int IDAComputeYSens(void* ida_mem, N_Vector1d ycor, N_Vector1d yyS);
+SUNDIALS_EXPORT int IDAComputeYSens(void* ida_mem, N_Vector1d ycor,
+                                    N_Vector1d yyS);
 SUNDIALS_EXPORT int IDAComputeYpSens(void* ida_mem, N_Vector1d ycor,
                                      N_Vector1d ypS);
 
@@ -346,8 +347,8 @@ SUNDIALS_EXPORT void IDAQuadFree(void* ida_mem);
  * ------------------------------------ */
 
 /* Initialization functions */
-SUNDIALS_EXPORT int IDASensInit(void* ida_mem, int Ns, int ism,
-                                IDASensResFn resS, N_Vector1d yS0, N_Vector1d ypS0);
+SUNDIALS_EXPORT int IDASensInit(void* ida_mem, int Ns, int ism, IDASensResFn resS,
+                                N_Vector1d yS0, N_Vector1d ypS0);
 SUNDIALS_EXPORT int IDASensReInit(void* ida_mem, int ism, N_Vector1d yS0,
                                   N_Vector1d ypS0);
 

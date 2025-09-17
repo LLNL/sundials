@@ -43,11 +43,10 @@ void bind_core(nb::module_& m)
 #include "pysundials_errors.hpp"
 #include "pysundials_types_generated.hpp"
 
-  // handle opening and closing C files 
+  // handle opening and closing C files
   nb::class_<FILE>(m, "FILE");
   m.def("SUNFileOpen",
-        [](const char* filename,
-           const char* modes)
+        [](const char* filename, const char* modes)
         {
           FILE* tmp = nullptr;
           std::shared_ptr<FILE> fp;
