@@ -55,14 +55,14 @@ In this section we list the public API of the
 
    .. cpp:function:: BatchMatrix(gko::size_type num_batches, sunindextype M, sunindextype N, std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
 
-      Construct a batch matrix with the given number of batches, rows, columns,
+      Construct a batch matrix with the given number of batches, rows ``M``, columns ``N``,
       executor, and context. (Specialized for supported Ginkgo batch matrix
       types.)
 
    .. cpp:function:: BatchMatrix(gko::size_type num_batches, sunindextype M, sunindextype N, sunindextype num_nonzeros, std::shared_ptr<const gko::Executor> gko_exec, SUNContext sunctx)
 
-      Construct a batch sparse matrix with the given number of batches, rows,
-      columns, nonzeros, executor, and context. (Specialized for supported
+      Construct a batch sparse matrix with the given number of batches, rows ``M``,
+      columns ``N``, nonzeros, executor, and context. (Specialized for supported
       Ginkgo batch matrix types.)
 
    .. cpp:function:: BatchMatrix(std::shared_ptr<GkoBatchMatType> gko_mat, SUNContext sunctx)

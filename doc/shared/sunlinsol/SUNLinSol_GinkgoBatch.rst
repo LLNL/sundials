@@ -55,6 +55,7 @@ After choosing a compatible ``N_Vector`` (see :numref:`SUNMatrix.GinkgoBatch.Com
 
 Next, we can pass the instance of ``sundials::ginkgo::BatchLinearSolver`` to any function
 expecting a ``SUNLinearSolver`` object through the implicit conversion operator or explicit conversion function.
+For example,
 
 .. code-block:: cpp
 
@@ -86,7 +87,8 @@ since the Ginkgo linear solver will take norms over individual batches, not the 
 
 .. warning:: 
 
-   Setting the linear solver norm factor is essential. If this is not set, you will likely see lots of linear solver convergence failures.
+   Setting the linear solver norm factor is essential. If this is not set, you will likely see a large 
+   number of linear solver convergence failures.
 
 .. warning::
 
@@ -222,7 +224,7 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Batch
 
       .. note::
 
-         This will be `nullptr` until the linear solver setup phase.
+         This will be ``nullptr`` until the linear solver setup phase.
 
    .. cpp:function:: int AvgNumIters() const
 
