@@ -259,15 +259,6 @@ The :c:type:`SUNLogger` class provides the following methods.
    **Returns:**
       * Returns zero if successful, or non-zero if an error occurred.
 
-   .. warning::
-
-      When compiling for ANSI C / C89 / C90 (and without compiler extensions),
-      it is dangerous to pass any user input to this function because it falls
-      back to using ``sprintf`` with a fixed buffer size.
-
-      It is **highly recommended** to compile with C99 or newer if your compiler
-      does not support ``snprintf`` through extensions.
-
 
 .. c:function:: int SUNLogger_Flush(SUNLogger logger, SUNLogLevel lvl)
 
