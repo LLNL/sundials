@@ -97,7 +97,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
         # libraries to link against
         target_link_libraries(
           ${example_target}
-          PRIVATE ${arg_TARGETS} sundials_${vector} sundials_nvecserial
+          PRIVATE ${arg_TARGETS} sundials_${vector}
                   Ginkgo::ginkgo ${EXTRA_LINK_LIBS})
 
       endif()

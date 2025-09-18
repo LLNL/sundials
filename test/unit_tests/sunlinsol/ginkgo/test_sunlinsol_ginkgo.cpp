@@ -41,16 +41,6 @@ constexpr auto N_VNew = N_VNew_Cuda;
 #include <nvector/nvector_sycl.h>
 #define HIP_OR_CUDA_OR_SYCL(a, b, c) c
 constexpr auto N_VNew = N_VNew_Sycl;
-#elif defined(USE_OMP)
-#include <nvector/nvector_openmp.h>
-#define HIP_OR_CUDA_OR_SYCL(a, b, c)
-auto N_VNew = [](sunindextype length, SUNContext sunctx)
-{
-  auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
-  int num_threads{1};
-  if (omp_num_threads_var) { num_threads = std::atoi(omp_num_threads_var); }
-  return N_VNew_OpenMP(length, num_threads, sunctx);
-};
 #else
 #include <nvector/nvector_serial.h>
 #define HIP_OR_CUDA_OR_SYCL(a, b, c)
@@ -347,8 +337,6 @@ int main(int argc, char* argv[])
   auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create())};
 #elif defined(USE_SYCL)
   auto gko_exec{gko::DpcppExecutor::create(0, gko::ReferenceExecutor::create())};
-#elif defined(USE_OMP)
-  auto gko_exec{gko::OmpExecutor::create()};
 #else
   auto gko_exec{gko::ReferenceExecutor::create()};
 #endif
