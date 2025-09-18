@@ -110,6 +110,47 @@ meaning:
    (so long as the :c:type:`N_Vector` used supports printing). Depending on the
    problem size, this may result in very large logging files.
 
+.. _SUNDIALS.Logging.Example:
+
+Example Usage
+-------------
+
+As noted above, enabling logging must be done when configuring SUNDIALS by
+setting the CMake option :cmakeop:`SUNDIALS_LOGGING_LEVEL` to the desired
+logging level. When running a program with SUNDIALS logging enabled, a default
+logger is created and attached to the :c:type:`SUNContext` instance at creation.
+Environment variables or run-time functions can be used to determine where the
+logging output is written. For example, consider the CVODE Roberts example, where
+we can direct the informational output to the file ``sun.log`` as follows
+
+.. code-block::
+
+   SUNLOGGER_INFO_FILENAME=sun.log ./examples/cvode/serial/cvRoberts_dns
+
+Alternatively, the following examples demonstrate how to use the logging
+interface via the C API:
+
+.. code-block::
+
+   examples/arkode/CXX_serial/ark_analytic_sys.cpp
+   examples/cvode/serial/cvAdvDiff_bnd.c
+   examples/cvode/parallel/cvAdvDiff_diag_p.c
+   examples/kinsol/CXX_parallel/kin_em_p.cpp
+   examples/kinsol/CUDA_mpi/kin_em_mpicuda.cpp
+
+To assist with extracting informational logging data from output files the
+``tools`` directory contains a Python module, ``suntools``, that provides
+utilities for parsing log files. Some example scripts using the ``suntools``
+module are included in the ``tools`` directory. For example, we can plot the
+step size history from the CVODE Roberts problem with
+
+.. code-block::
+
+   ./log_example.py sun.log
+
+
+.. _SUNDIALS.Logging.API:
+
 Logger API
 ----------
 
@@ -295,42 +336,3 @@ The :c:type:`SUNLogger` class provides the following methods.
 
    **Returns:**
       * Returns zero if successful, or non-zero if an error occur.
-
-
-.. _SUNDIALS.Logging.Example:
-
-Example Usage
--------------
-
-As noted above, enabling logging must be done when configuring SUNDIALS by
-setting the CMake option :cmakeop:`SUNDIALS_LOGGING_LEVEL` to the desired
-logging level. When running a program with SUNDIALS logging enabled, a default
-logger is created and attached to the :c:type:`SUNContext` instance at creation.
-Environment variables or run-time functions can be used to determine where the
-logging output is written. For example, consider the CVODE Roberts example, where
-we can direct the informational output to the file ``sun.log`` as follows
-
-.. code-block::
-
-   SUNLOGGER_INFO_FILENAME=sun.log ./examples/cvode/serial/cvRoberts_dns
-
-Alternatively, the following examples demonstrate how to use the logging
-interface via the C API:
-
-.. code-block::
-
-   examples/arkode/CXX_serial/ark_analytic_sys.cpp
-   examples/cvode/serial/cvAdvDiff_bnd.c
-   examples/cvode/parallel/cvAdvDiff_diag_p.c
-   examples/kinsol/CXX_parallel/kin_em_p.cpp
-   examples/kinsol/CUDA_mpi/kin_em_mpicuda.cpp
-
-To assist with extracting informational logging data from output files the
-``tools`` directory contains a Python module, ``suntools``, that provides
-utilities for parsing log files. Some example scripts using the ``suntools``
-module are included in the ``tools`` directory. For example, we can plot the
-step size history from the CVODE Roberts problem with
-
-.. code-block::
-
-   ./log_example.py sun.log
