@@ -65,7 +65,8 @@ modules:
     - ../../include/arkode/arkode_arkstep.h
     fn_exclude_by_name__regex:
     # we dont bind the ARKStepCreate function as we need to do something custom
-    - "ARKStepCreate"
+    - "^ARKStepCreate$"
+    - "^ARKStepCreateAdjointStepper$"
     - "ARKStepReInit"
     # reinit also requires custom handling due to function pointers
     - "ARKStepReInit"
@@ -78,7 +79,8 @@ modules:
     - ../../include/arkode/arkode_erkstep.h
     fn_exclude_by_name__regex:
     # we dont bind the ERKStepCreate function as we need to do something custom
-    - "ERKStepCreate"
+    - "^ERKStepCreate$"
+    - "^ERKStepCreateAdjointStepper$"
     # reinit also requires custom handling due to function pointers
     - "ERKStepReInit"
     # TODO(CJB): add support for these functions
@@ -89,7 +91,7 @@ modules:
     headers:
     - ../../include/arkode/arkode_sprkstep.h
     fn_exclude_by_name__regex:
-    - "SPRKStepCreate"
+    - "^SPRKStepCreate$"
     # reinit also requires custom handling due to function pointers
     - "SPRKStepReInit"
     # nanobind doesn't support ** arguments directly, so these are not yet interfaced
@@ -100,7 +102,7 @@ modules:
     - ../../include/arkode/arkode_lsrkstep.h
     fn_exclude_by_name__regex:
     # these three functions take function pointers, so we have to do something custom
-    - "LSRKStepCreate"
+    - "^LSRKStepCreate.*"
     - "LSRKStepReInit"
     - "SetDomEigFn"
   mristep:
@@ -111,7 +113,7 @@ modules:
     # we don't allow alloc to be used from Python
     - "MRIStepCoupling_Alloc"
     # we do custom handling of Create
-    - "MRIStepCreate"
+    - "^MRIStepCreate$"
     - "MRIStepCoupling_Create"
     - "MRIStepInnerStepper_Create"
     # reinit also requires custom handling due to function pointers
@@ -136,5 +138,5 @@ modules:
     # we don't allow alloc to be used from Python
     - "SplittingStepCoefficients_Alloc"
     # we do custom handling of the stepper create/reinit
-    - "SplittingStepCreate"
+    - "^SplittingStepCreate$"
     - "SplittingStepReInit"

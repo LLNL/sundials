@@ -66,10 +66,13 @@ struct arkode_user_supplied_fn_table
 
   // erkstep-specific user-supplied function pointers
   nb::object erkstep_f;
+  nb::object erkstep_adjf;
 
   // arkstep-specific user-supplied function pointers
   nb::object arkstep_fe;
   nb::object arkstep_fi;
+  nb::object arkstep_adjfe;
+  nb::object arkstep_adjfi;
 
   // sprkstep-specific user-supplied function pointers
   nb::object sprkstep_f1;
@@ -342,6 +345,15 @@ inline int erkstep_f_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
     1>(&arkode_user_supplied_fn_table::erkstep_f, t, y, ydot, user_data);
 }
 
+inline int erkstep_adjf_wrapper(sunrealtype t, N_Vector y, N_Vector sens,
+                                 N_Vector sens_dot, void* user_data)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<SUNAdjRhsFn>, arkode_user_supplied_fn_table,
+    1>(&arkode_user_supplied_fn_table::erkstep_adjf, t, y, sens, sens_dot,
+       user_data);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // ARKStep user-supplied functions
 ///////////////////////////////////////////////////////////////////////////////
@@ -360,6 +372,24 @@ inline int arkstep_fi_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<ARKRhsFn>, arkode_user_supplied_fn_table,
     1>(&arkode_user_supplied_fn_table::arkstep_fi, t, y, ydot, user_data);
+}
+
+inline int arkstep_adjfe_wrapper(sunrealtype t, N_Vector y, N_Vector sens,
+                                 N_Vector sens_dot, void* user_data)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<SUNAdjRhsFn>, arkode_user_supplied_fn_table,
+    1>(&arkode_user_supplied_fn_table::arkstep_adjfe, t, y, sens, sens_dot,
+       user_data);
+}
+
+inline int arkstep_adjfi_wrapper(sunrealtype t, N_Vector y, N_Vector sens,
+                                 N_Vector sens_dot, void* user_data)
+{
+  return pysundials::user_supplied_fn_caller<
+    std::remove_pointer_t<SUNAdjRhsFn>, arkode_user_supplied_fn_table,
+    1>(&arkode_user_supplied_fn_table::arkstep_adjfi, t, y, sens, sens_dot,
+       user_data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

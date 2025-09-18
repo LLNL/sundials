@@ -70,4 +70,42 @@ void bind_arkode_arkstep(nb::module_& m)
     }, // .none() must be added to functions that accept nullptr as a valid argument
     nb::arg("fe").none(), nb::arg("fi").none(), nb::arg("t0"), nb::arg("y0"),
     nb::arg("sunctx"));
+
+  m.def(
+    "ARKStepCreateAdjointStepper",
+    [](void* arkode_mem, std::function<std::remove_pointer_t<SUNAdjRhsFn>> adj_fe,
+       std::function<std::remove_pointer_t<SUNAdjRhsFn>> adj_fi, sunrealtype tf,
+       N_Vector sf, SUNContext sunctx) -> std::tuple<int, SUNAdjointStepper>
+    {
+      auto fe_wrapper = adj_fe ? arkstep_adjfe_wrapper : nullptr;
+      auto fi_wrapper = adj_fi ? arkstep_adjfi_wrapper : nullptr;
+
+      SUNAdjointStepper adj_stepper = nullptr;
+      int ark_status = ARKStepCreateAdjointStepper(arkode_mem, fe_wrapper,
+                                                   fi_wrapper, tf, sf, sunctx,
+                                                   &adj_stepper);
+      if (ark_status != ARK_SUCCESS)
+      {
+        throw std::runtime_error(
+          "Failed to create adjoint stepper in py-sundials memory");
+      }
+      
+      // Finally, set the RHS functions
+      void* user_data = nullptr;
+      ark_status = ARKodeGetUserData(arkode_mem, &user_data);
+      if (ark_status != ARK_SUCCESS)
+      {
+        throw std::runtime_error(
+          "Failed to extract ARKODE user data");
+      }
+
+      auto cb_fns = static_cast<arkode_user_supplied_fn_table*>(user_data);
+
+      cb_fns->arkstep_adjfe = nb::cast(adj_fe);
+      cb_fns->arkstep_adjfi = nb::cast(adj_fi);
+
+      return std::make_tuple(ark_status, adj_stepper);
+    },
+    nb::arg("arkode_mem"), nb::arg("adj_fe").none(), nb::arg("adj_fi").none(),
+    nb::arg("tf"), nb::arg("sf"), nb::arg("sunctx"));
 }

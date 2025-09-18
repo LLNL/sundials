@@ -65,6 +65,30 @@ m.def("SUNStepper_SetStopTime", SUNStepper_SetStopTime, nb::arg("stepper"),
 m.def("SUNStepper_SetStepDirection", SUNStepper_SetStepDirection,
       nb::arg("stepper"), nb::arg("stepdir"));
 
+m.def(
+  "SUNStepper_SetForcing",
+  [](SUNStepper stepper, double tshift, double tscale,
+     std::vector<N_Vector> forcing, int nforcing) -> SUNErrCode
+  {
+    auto SUNStepper_SetForcing_adapt_arr_ptr_to_std_vector =
+      [](SUNStepper stepper, double tshift, double tscale,
+         std::vector<N_Vector> forcing, int nforcing) -> SUNErrCode
+    {
+      N_Vector* forcing_ptr =
+        reinterpret_cast<N_Vector*>(forcing.empty() ? nullptr : forcing.data());
+
+      auto lambda_result = SUNStepper_SetForcing(stepper, tshift, tscale,
+                                                 forcing_ptr, nforcing);
+      return lambda_result;
+    };
+
+    return SUNStepper_SetForcing_adapt_arr_ptr_to_std_vector(stepper, tshift,
+                                                             tscale, forcing,
+                                                             nforcing);
+  },
+  nb::arg("stepper"), nb::arg("tshift"), nb::arg("tscale"), nb::arg("forcing"),
+  nb::arg("nforcing"));
+
 m.def("SUNStepper_SetLastFlag", SUNStepper_SetLastFlag, nb::arg("stepper"),
       nb::arg("last_flag"));
 

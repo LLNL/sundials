@@ -63,4 +63,38 @@ void bind_arkode_erkstep(nb::module_& m)
 
           return ark_mem;
         });
+
+  m.def(
+    "ERKStepCreateAdjointStepper",
+    [](void* arkode_mem,
+       std::function<std::remove_pointer_t<SUNAdjRhsFn>> adj_f, sunrealtype tf,
+       N_Vector sf, SUNContext sunctx) -> std::tuple<int, SUNAdjointStepper>
+    {
+      auto f_wrapper = adj_f ? erkstep_adjf_wrapper : nullptr;
+
+      SUNAdjointStepper adj_stepper = nullptr;
+      int ark_status = ERKStepCreateAdjointStepper(arkode_mem, f_wrapper, tf,
+                                                   sf, sunctx, &adj_stepper);
+      if (ark_status != ARK_SUCCESS)
+      {
+        throw std::runtime_error(
+          "Failed to create adjoint stepper in py-sundials memory");
+      }
+
+      // Finally, set the RHS functions
+      void* user_data = nullptr;
+      ark_status      = ARKodeGetUserData(arkode_mem, &user_data);
+      if (ark_status != ARK_SUCCESS)
+      {
+        throw std::runtime_error("Failed to extract ARKODE user data");
+      }
+
+      auto cb_fns = static_cast<arkode_user_supplied_fn_table*>(user_data);
+
+      cb_fns->erkstep_adjf = nb::cast(adj_f);
+
+      return std::make_tuple(ark_status, adj_stepper);
+    },
+    nb::arg("arkode_mem"), nb::arg("adj_f").none(), nb::arg("tf"),
+    nb::arg("sf"), nb::arg("sunctx"));
 }

@@ -147,8 +147,6 @@ modules:
     # we dont allow access to content from Python
     - "SetContent" 
     - "GetContent"
-    # TODO(CJB): add support for these functions
-    - "SetForcing" # nanobind cannot bind to functions which take a **
   sundials_types:
     path: sundials/pysundials_types_generated.hpp
     headers:
