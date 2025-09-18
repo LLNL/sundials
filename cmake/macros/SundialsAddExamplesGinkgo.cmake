@@ -123,7 +123,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
           EXAMPLE_TYPE ${example_type}
           TEST_ARGS ${example_args}
           ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-          ANSWER_FILE ${test_name}.out
+          ANSWER_FILE ${example_target}.out
           FLOAT_PRECISION ${float_precision})
       endif()
 

@@ -65,11 +65,11 @@ using RealArray = Array<sunrealtype, int>;
    in SUNDIALS callback functions. */
 struct UserData
 {
-  UserData(int nbatches_in, int batchesize_in, int nnzper_in, SUNMemoryHelper h_in)
+  UserData(int nbatches_in, int batch_size_in, int nnzper_in, SUNMemoryHelper h_in)
     : nbatches(nbatches_in),
-      batchesize(batchesize_in),
+      batch_size(batch_size_in),
       nnzper(nnzper_in),
-      neq(batchesize_in * nbatches_in),
+      neq(batch_size_in * nbatches_in),
       u0{nbatches_in, h_in},
       v0{nbatches_in, h_in},
       w0{nbatches_in, h_in},
@@ -79,7 +79,7 @@ struct UserData
   {}
 
   int nbatches;         /* number of chemical networks  */
-  int batchesize;       /* size of each network         */
+  int batch_size;       /* size of each network         */
   int nnzper;           /* number of nonzeros per batch */
   int neq;              /* total number of equations    */
   RealArray u0, v0, w0; /* initial conditions */
