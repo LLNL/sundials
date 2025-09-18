@@ -327,7 +327,7 @@ int main(int argc, char* argv[])
       LS =
         std::make_unique<SUNGkoLinearSolverType>(gko_exec,
                                                  gko::batch::stop::tolerance_type::absolute,
-                                                 precond_factory, num_batches,
+                                                 precond_factory, max_iters, num_batches,
                                                  sunctx);
     }
     else if (matrix_type == "dense")
@@ -338,7 +338,7 @@ int main(int argc, char* argv[])
       LS =
         std::make_unique<SUNGkoLinearSolverType>(gko_exec,
                                                  gko::batch::stop::tolerance_type::absolute,
-                                                 nullptr, num_batches, sunctx);
+                                                 nullptr, max_iters, num_batches, sunctx);
     }
   }
 
