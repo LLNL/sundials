@@ -357,7 +357,8 @@ int main(int argc, char* argv[])
   }
 
   /* Print some final statistics */
-  PrintFinalStats(cvode_mem, LS.Convert());
+  printf("Final integrator statistics:\n");
+  CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   /* Free y and abstol vectors */
   N_VDestroy(y);
