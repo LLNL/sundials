@@ -126,6 +126,12 @@ step size history from the CVODE Roberts problem with
 
    ./log_example.py sun.log
 
+.. autofunction:: logs.log_file_to_list
+
+.. autofunction:: logs.print_log
+
+.. autofunction:: logs.get_history
+
 .. _SUNDIALS.Logging.Example:
 
 Example Usage

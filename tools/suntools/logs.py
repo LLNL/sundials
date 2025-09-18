@@ -142,19 +142,22 @@ class StepData:
 
 
 def log_file_to_list(filename):
-    """
-    This function takes a SUNDIALS log file and creates a list where each list
-    element represents an integrator step attempt.
+    """Parses a SUNDIALS log file and returns a list where each element is a dictionary
+    containing data for the step attempt.
 
-    E.g.,
-      [
-        {
-          step   : 1,
-          tn     : 0.0,
-          stages : [ {stage : 1, tcur : 0.0, ...}, {stage : 2, tcur : 0.5, ...}, ...]
-          ...
-        }, ...
-      ]
+    :param str filename: The name of the log file to parse.
+    :returns: A list of log entries.
+
+    .. code-block:: none
+
+       [
+         {
+           step   : 1,
+           tn     : 0.0,
+           stages : [ {stage : 1, tcur : 0.0, ...}, {stage : 2, tcur : 0.5, ...}, ...]
+           ...
+         }, ...
+       ]
     """
     with open(filename, "r") as logfile:
 
@@ -372,8 +375,14 @@ def print_log(log, indent=0):
 def get_history(
     log, key, step_status=None, time_range=None, step_range=None, group_by_level=False
 ):
-    """
-    Extract the step/time series of the requested value.
+    """Extract the step/time series of the requested value.
+
+    :param list log: The parsed log
+    :param str key: The value to extract
+    :param str step_status:
+    :param time_range:
+    :param step_range:
+    :param bool group_by_level: Group outputs by time level
     """
 
     steps, times, values, levels = _get_history(log, key, step_status, time_range, step_range)
