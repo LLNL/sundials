@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
               << "  1) batch method\n"
               << "  2) matrix type (csr or dense)\n"
               << "  3) number of matrix columns in a batch\n"
-              << "  4) number of matrix batches"
+              << "  4) number of matrix batches\n"
               << "  5) condition number of a batch\n"
               << "  6) max iterations per batch\n"
               << "  7) print timing\n";

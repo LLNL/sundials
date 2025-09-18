@@ -90,7 +90,7 @@ template<class GkoBatchLinearSolverType>
 int SUNLinSolNumIters_GinkgoBatch(SUNLinearSolver S)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
-  return static_cast<int>(std::round(solver->SumAvgNumIters()));
+  return static_cast<int>(std::round(solver->AvgNumIters()));
 }
 
 inline gko::array<sunrealtype> WrapBatchScalingArray(
@@ -470,7 +470,7 @@ private:
     return log;
   }
 
-  static constexpr int default_max_iters_ = 500;
+  static constexpr int default_max_iters_ = 5;
   static constexpr int default_restart_   = 0;
 };
 

@@ -281,18 +281,12 @@ int main(int argc, char* argv[])
     gko::share(GkoBatchMatrixType::create(gko_exec, batch_dim, udata.nnzper));
   SUNGkoMatrixType A{gko_matA, sunctx};
 
-  /* Initialiize the Jacobian with its fixed sparsity pattern */
+  /* Initialize the Jacobian with its fixed sparsity pattern */
   retval = JacInit(A);
   if (check_retval(&retval, "JacInit", 1)) { return (1); }
-
   /* Create the SUNLinearSolver object for use by CVode */
-  auto precond_factory = gko::share(
-    gko::batch::preconditioner::Jacobi<sunrealtype>::build().on(gko_exec));
-
   SUNGkoLinearSolverType LS{gko_exec, gko::batch::stop::tolerance_type::absolute,
-                            precond_factory,
-                            static_cast<gko::size_type>(udata.num_batches),
-                            sunctx};
+                            nullptr, udata.num_batches, sunctx};
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   if (solver_type == 0)
