@@ -34,10 +34,6 @@ corresponding to errors, warnings, info output, and debug output where errors <
 warnings < info output < debug output < extra debug output. By default only
 warning and error messages are logged.
 
-.. note::
-
-   As of version 7.0.0, enabling MPI in SUNDIALS enables MPI-aware logging.
-
 When SUNDIALS is built with logging enabled, then the default logger (stored in
 the :c:type:`SUNContext` object) may be configured through environment variables
 without any changes to user code. The available environment variables are:
