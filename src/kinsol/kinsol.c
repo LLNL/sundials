@@ -149,6 +149,7 @@
 #define PRNT_BETA      10
 #define PRNT_ALPHABETA 11
 #define PRNT_ADJ       12
+#define PRNT_OTHER     13
 
 /*=================================================================*/
 /* Shortcuts                                                       */
@@ -2127,7 +2128,9 @@ void KINPrintInfo(SUNDIALS_MAYBE_UNUSED KINMem kin_mem, int info_code,
     vsnprintf(msg, sizeof msg, msgfmt, ap);
   }
 
-  SUNLogInfo(KIN_LOGGER, "KINSOL", fname, "%s", msg);
+  /* Call QueueMsg directly rather than using the SUNLogInfo macro in order to
+     use the passed in function name */
+  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_INFO, fname, "KINSOL", "%s", msg);
 
   /* finalize argument processing */
 
@@ -2719,6 +2722,11 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
     kin_mem->kin_current_depth++;
   }
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
+  KINPrintInfo(kin_mem, PRNT_OTHER, "KINSOL", __func__, "current_depth = %i",
+               kin_mem->kin_current_depth);
+#endif
+
   N_VScale(ONE, gval, kin_mem->kin_gold_aa);
   N_VScale(ONE, fv, kin_mem->kin_fold_aa);
 
@@ -2793,6 +2801,11 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
 
     new_depth = SUNMIN(new_depth, kin_mem->kin_current_depth);
     new_depth = SUNMAX(new_depth, 0);
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
+    KINPrintInfo(kin_mem, PRNT_OTHER, "KINSOL", __func__, "new_depth = %i",
+                 new_depth);
+#endif
 
     if (new_depth == 0)
     {

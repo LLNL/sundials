@@ -7,7 +7,7 @@ The SUNMATRIX_GINKGOBATCH Module
 
 The SUNMATRIX_GINKGOBATCH implementation of the ``SUNMatrix`` API provides an
 interface to the batched matrix types from the Ginkgo linear algebra library.
-This module is written in C++14 and is distributed as a header file. To use the
+This module is written in C++17 and is distributed as a header file. To use the
 SUNMATRIX_GINKGOBATCH ``SUNMatrix``, users will need to include
 ``sunmatrix/sunmatrix_ginkgobatch.hpp``. The module is meant to be used with the
 SUNLINEARSOLVER_GINKGOBATCH module described in :numref:`SUNLinSol.GinkgoBatch`.

@@ -356,10 +356,10 @@ sedi "s/year =.*/year = \"${year}\"/" $fn
 
 # release history table
 fn="../doc/shared/History.rst"
-new_entry=$(printf "| %-3s %-4s | %-17s | %-17s | %-17s | %-17s | %-17s | %-17s | %-17s |" \
-    ${month} ${year} ${sun_ver} ${ark_ver} ${cv_ver} ${cvs_ver} ${ida_ver} \
+new_entry=$(printf "| %-3s %-4s | %-30s | %-17s | %-17s | %-17s | %-17s | %-17s | %-17s |" \
+    ${month} ${year} ":ref:\`${sun_ver} <Changelog.${sun_ver}>\`" ${ark_ver} ${cv_ver} ${cvs_ver} ${ida_ver} \
     ${idas_ver} ${kin_ver})
-divider="+----------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+"
+divider="+----------+--------------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+"
 
 # insert new release history row after line 23
 sedi '23 a\
