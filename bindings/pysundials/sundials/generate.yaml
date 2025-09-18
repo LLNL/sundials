@@ -108,8 +108,11 @@ modules:
     headers:
     - ../../include/sundials/sundials_nonlinearsolver.h
     fn_exclude_by_name__regex:
-    # TODO(CJB): enable these
-    # nanobind cannot bind to functions which take a function pointer
+    # nanobind cannot bind to functions which take a function pointer.
+    # Furthermore, several of the callback functions for the SUNNonlinearSolver module
+    # do not pass back user_data, instead they pass back the integrator memory. This makes
+    # it to where we cannot access our python function table stored in user_data in generic way
+    # (you'd have to call the integrator's GetUserData function, but we don't know which integrator is being used).
     - "Set.*Fn"
   sundials_nvector:
     path: sundials/pysundials_nvector_generated.hpp
