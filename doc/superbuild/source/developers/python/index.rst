@@ -56,7 +56,7 @@ The recommended method for development is to use a typical Python development wo
 $ cd sundials_root_directory
 $ python -m venv .venv  # create python virtual environment
 $ . .venv/bin/activate  # activate the python virtual environment
-$ pip install scikit-build-core[pyproject] nanobind # this is a prerequisite for the next step
+$ pip install scikit-build-core[pyproject] nanobind hatchling # this is a prerequisite for the next step
 $ pip install --no-build-isolation -Ceditable.rebuild=true -ve .[dev] # install pysundials into the virtual environment
 ```
 
