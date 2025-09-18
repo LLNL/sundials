@@ -122,11 +122,11 @@ static void PrintFinalStats(void* cvode_mem, SUNLinearSolver LS);
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* Shortcuts */
-using GkoBatchMatrixType  = gko::batch::matrix::Csr<sunrealtype, sunindextype>;
-using GkoBatchesolverType = gko::batch::solver::Bicgstab<sunrealtype>;
-using SUNGkoMatrixType    = sundials::ginkgo::BatchMatrix<GkoBatchMatrixType>;
+using GkoBatchMatrixType = gko::batch::matrix::Csr<sunrealtype, sunindextype>;
+using GkoBatchSolverType = gko::batch::solver::Bicgstab<sunrealtype>;
+using SUNGkoMatrixType   = sundials::ginkgo::BatchMatrix<GkoBatchMatrixType>;
 using SUNGkoLinearSolverType =
-  sundials::ginkgo::BatchLinearSolver<GkoBatchesolverType, GkoBatchMatrixType>;
+  sundials::ginkgo::BatchLinearSolver<GkoBatchSolverType, GkoBatchMatrixType>;
 
 /*
  *-------------------------------
