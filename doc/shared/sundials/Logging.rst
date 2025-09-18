@@ -57,36 +57,29 @@ the corresponding environment variable, then setting the environment variable
 will do nothing. For example, if the logging level is set to ``2`` (errors and
 warnings), setting ``SUNLOGGER_INFO_FILENAME`` will do nothing.
 
+Alternatively, the default logger can be accessed with
+:c:func:`SUNContext_GetLogger` and configured using the
+:ref:`SUNDIALS.Logging.API` or a user may create, configure, and attach a
+non-default logger using the :ref:`SUNDIALS.Logging.API`.
+
 .. warning::
 
-   A non-default logger should be created and attached to the context object prior
-   to any other SUNDIALS calls in order to capture all log events.
+   A non-default logger should be created and attached to the context object
+   prior to any other SUNDIALS calls in order to capture all log events.
+
+.. _SUNDIALS.Logging.Output:
+
+Logging Output
+--------------
 
 Error or warning logs are a single line output with an error or warning message
+of the form
 
 .. code-block:: text
 
    [level][rank][scope][label] message describing the error or warning
 
-Informational or debugging logs are either a single line output with a
-comma-separated list of key-value pairs of the form
-
-.. code-block:: text
-
-   [level][rank][scope][label] key1 = value, key2 = value
-
-or multiline output with one value per line for keys corresponding to a vector
-or array e.g.,
-
-.. code-block:: text
-
-   [level][rank][scope][label] y(:) =
-   y[0]
-   y[1]
-   ...
-
-In the example log outputs above, the values in brackets have the following
-meaning:
+where the values in brackets have the following meaning:
 
 * ``level`` is the log level of the message and will be ``ERROR``, ``WARNING``,
   ``INFO``, or ``DEBUG``
@@ -100,11 +93,38 @@ meaning:
 * ``label`` provides additional context or information about the logging
   output e.g., ``begin-step``, ``end-linear-solve``, etc.
 
+Informational or debugging logs are either a single line output with a
+comma-separated list of key-value pairs of the form
+
+.. code-block:: text
+
+   [level][rank][scope][label] key1 = value1, key2 = value2
+
+or multiline output with one value per line for keys corresponding to a vector
+or array e.g.,
+
+.. code-block:: text
+
+   [level][rank][scope][label] y(:) =
+   y[0]
+   y[1]
+   ...
+
 .. note::
 
    When extra debugging output is enabled, the output will include vector values
    (so long as the :c:type:`N_Vector` used supports printing). Depending on the
    problem size, this may result in very large logging files.
+
+To assist with extracting informational logging data from output files the
+``tools`` directory contains a Python module, ``suntools``, that provides
+utilities for parsing log files. Some example scripts using the ``suntools``
+module are included in the ``tools`` directory. For example, we can plot the
+step size history from the CVODE Roberts problem with
+
+.. code-block::
+
+   ./log_example.py sun.log
 
 .. _SUNDIALS.Logging.Example:
 
@@ -133,17 +153,6 @@ interface via the C API:
    examples/cvode/parallel/cvAdvDiff_diag_p.c
    examples/kinsol/CXX_parallel/kin_em_p.cpp
    examples/kinsol/CUDA_mpi/kin_em_mpicuda.cpp
-
-To assist with extracting informational logging data from output files the
-``tools`` directory contains a Python module, ``suntools``, that provides
-utilities for parsing log files. Some example scripts using the ``suntools``
-module are included in the ``tools`` directory. For example, we can plot the
-step size history from the CVODE Roberts problem with
-
-.. code-block::
-
-   ./log_example.py sun.log
-
 
 .. _SUNDIALS.Logging.API:
 
