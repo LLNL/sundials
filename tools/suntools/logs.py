@@ -33,10 +33,8 @@ def _convert_to_num(s):
 
 
 def _parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"):
-    """
-    Parse the payload of a SUNDIALS log file line into a dictionary. The payload
-    of a SUNDIALS log file line is the part after all the [ ] brackets.
-    """
+    """Parse the payload of a log file line into a dictionary. The payload of a log file
+    line is the part after all the [ ] brackets."""
     kvpstrs = payload.split(",")
     kvp_dict = {}
     for kvpstr in kvpstrs:
@@ -61,9 +59,7 @@ def _parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)
 
 
 def _parse_logfile_line(line, line_number, all_lines):
-    """
-    Parse a line from a SUNDIALS log file into a dictionary.
-
+    """Parse a line from a log file into a dictionary.
     A log file line has the form:
       [loglvl][rank][scope][label] key1 = value, key2 = value
     The log line payload (everything after the brackets) can be multiline with
@@ -86,9 +82,8 @@ def _parse_logfile_line(line, line_number, all_lines):
 
 
 class StepData:
-    """
-    Helper class for parsing a step attempt from a SUNDIALS log file into a
-    hierarchical dictionary where entries may be lists of dictionaries.
+    """Helper class for parsing a step attempt from a log file into a hierarchical
+    dictionary where entries may be lists of dictionaries.
     """
 
     def __init__(self):
@@ -142,7 +137,7 @@ class StepData:
 
 
 def log_file_to_list(filename):
-    """Parses a SUNDIALS log file and returns a list where each element is a dictionary
+    """Parses a log file and returns a list where each element is a dictionary
     containing data for the step attempt.
 
     :param str filename: The name of the log file to parse.
@@ -349,9 +344,7 @@ def _print_log_dict(a_dict, indent=0):
 
 
 def print_log(log, indent=0):
-    """
-    Print the entries from a log file list of step attempts.
-    """
+    """Print the entries from a log file list of step attempts."""
     spaces = indent * " "
     subspaces = (indent + 2) * " "
     for entry in log:
@@ -377,7 +370,7 @@ def get_history(
 ):
     """Extract the step/time series of the requested value.
 
-    :param list log: The parsed log
+    :param list log: The log list to extract values from
     :param str key: The value to extract
     :param str step_status:
     :param time_range:
@@ -403,9 +396,7 @@ def get_history(
 
 
 def _get_history(log, key, step_status, time_range, step_range):
-    """
-    Extract the step/time series of the requested value.
-    """
+    """Extract the step/time series of the requested value."""
 
     steps = []
     times = []
