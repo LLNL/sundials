@@ -224,7 +224,6 @@ int main(int argc, char* argv[])
                       N_VCopyToDevice_Sycl(x));
 
   auto matrix_dim = gko::dim<2>(matrows, matcols);
-  //auto batch_mat_size = gko::batch_dim<2>(num_batches, matrix_dim);
 
   auto gko_matdata =
     matcond > 0
