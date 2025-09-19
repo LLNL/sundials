@@ -1277,6 +1277,13 @@ void ARKodeFree(void** arkode_mem)
     ark_mem->relax_mem = NULL;
   }
 
+  /* free user data if ARKODE owns it */
+  if (ark_mem->own_user_data && (ark_mem->user_data != NULL))
+  {
+    free(ark_mem->user_data);
+    ark_mem->user_data = NULL;
+  }
+
   free(*arkode_mem);
   *arkode_mem = NULL;
 }
@@ -1592,7 +1599,8 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->ProcessStage = NULL;
 
   /* No user_data pointer yet */
-  ark_mem->user_data = NULL;
+  ark_mem->user_data     = NULL;
+  ark_mem->own_user_data = SUNFALSE;
 
   /* Allocate step adaptivity structure and note storage */
   ark_mem->hadapt_mem = arkAdaptInit();
@@ -2042,6 +2050,19 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Time stepper module is missing");
     return (ARK_ILL_INPUT);
+  }
+  retval = ark_mem->step_init(ark_mem, tout, ark_mem->init_type);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Error in initialization of time stepper module");
+    return (retval);
+  }
+
+  /* Load initial residual weights */
+  if (ark_mem->rwt_is_ewt)
+  { /* update pointer to ewt */
+    ark_mem->rwt = ark_mem->ewt;
   }
   retval = ark_mem->step_init(ark_mem, tout, ark_mem->init_type);
   if (retval != ARK_SUCCESS)

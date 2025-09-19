@@ -125,6 +125,19 @@ typedef long double sunrealtype;
 #endif
 
 /*
+ *-----------------------------------------------------------------------------
+ * Type(s): sunrealtype1d, sunrealtype2d, sunrealtype3d
+ * These types are to be used in place of sunrealtype*, sunrealtype**, and
+ * sunrealtype*** when semantically these map to arrays. I.e., if sunrealtype*
+ * refers to an array, then use sunrealtype1d. If it refers to a 
+ * a pointer to a singular value (for "out" params), use sunrealtype*.
+ *-----------------------------------------------------------------------------
+ */
+typedef sunrealtype* sunrealtype1d;
+typedef sunrealtype** sunrealtype2d;
+typedef sunrealtype*** sunrealtype3d;
+
+/*
  *------------------------------------------------------------------
  * Type : sunindextype
  *------------------------------------------------------------------
@@ -136,6 +149,20 @@ typedef long double sunrealtype;
  */
 
 typedef SUNDIALS_INDEX_TYPE sunindextype;
+
+
+/*
+ *-----------------------------------------------------------------------------
+ * Type(s): sunindextype1d, sunindextype2d, sunindextype3d
+ * These types are to be used in place of sunindextype*, sunindextype**, and
+ * sunindextype*** when semantically these map to arrays. I.e., if sunindextype*
+ * refers to an array, then use sunindextype1d. If it refers to a 
+ * a pointer to a singular value (for "out" params), use sunindextype*.
+ *-----------------------------------------------------------------------------
+ */
+typedef sunindextype* sunindextype1d;
+typedef sunindextype** sunindextype2d;
+typedef sunindextype*** sunindextype3d;
 
 /*
  *------------------------------------------------------------------
@@ -178,17 +205,29 @@ typedef SUNDIALS_COUNTER_TYPE suncountertype;
 
 /*
  *------------------------------------------------------------------
+ * Type : int1d
+ *------------------------------------------------------------------
+ * typedef for an int* which should be treated as an array of int.
+ *------------------------------------------------------------------
+ */
+
+typedef int* int1d;
+
+/*
+ *------------------------------------------------------------------
  * Type : SUNOutputFormat
  *------------------------------------------------------------------
  * Constants for different output formats
  *------------------------------------------------------------------
  */
 
-typedef enum
+enum SUNOutputFormat_
 {
   SUN_OUTPUTFORMAT_TABLE,
   SUN_OUTPUTFORMAT_CSV
-} SUNOutputFormat;
+};
+
+typedef enum SUNOutputFormat_ SUNOutputFormat;
 
 /*
  *------------------------------------------------------------------
@@ -238,15 +277,17 @@ typedef void (*SUNErrHandlerFn)(int line, const char* func, const char* file,
     because we manually insert the wrapper code for SUN_COMM_NULL
     (and %ignoring it in the SWIG code doesn't seem to work). */
 
+#ifndef SWIG
+#define SUN_COMM_NULL 0
+#endif
+
 #if SUNDIALS_MPI_ENABLED
 #ifndef SWIG
+#undef SUN_COMM_NULL
 #define SUN_COMM_NULL MPI_COMM_NULL
 #endif
 typedef MPI_Comm SUNComm;
 #else
-#ifndef SWIG
-#define SUN_COMM_NULL 0
-#endif
 typedef int SUNComm;
 #endif
 
@@ -263,9 +304,14 @@ typedef int SUNComm;
  *------------------------------------------------------------------
  */
 
-typedef enum
+enum SUNDataIOMode_
 {
-  SUNDATAIOMODE_INMEM,
-} SUNDataIOMode;
+  SUN_DATAIOMODE_INMEM,
+};
+
+/* For backwards compatibility with the old name */
+static const int SUNDATAIOMODE_INMEM = SUN_DATAIOMODE_INMEM;
+
+typedef enum SUNDataIOMode_ SUNDataIOMode;
 
 #endif /* _SUNDIALS_TYPES_H */

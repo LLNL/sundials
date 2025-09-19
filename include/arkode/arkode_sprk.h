@@ -50,17 +50,17 @@ struct ARKodeSPRKTableMem
   /* number of stages */
   int stages;
   /* the a_i coefficients generate the explicit Butcher table */
-  sunrealtype* a;
+  sunrealtype1d a;
   /* the ahat_i coefficients generate the diagonally-implicit Butcher table */
-  sunrealtype* ahat;
+  sunrealtype1d ahat;
 };
 
 typedef _SUNDIALS_STRUCT_ ARKodeSPRKTableMem* ARKodeSPRKTable;
 
 /* Utility routines to allocate/free/output SPRK structures */
 SUNDIALS_EXPORT
-ARKodeSPRKTable ARKodeSPRKTable_Create(int s, int q, const sunrealtype* a,
-                                       const sunrealtype* ahat);
+ARKodeSPRKTable ARKodeSPRKTable_Create(int s, int q, sunrealtype1d a,
+                                       sunrealtype1d ahat);
 
 SUNDIALS_EXPORT
 ARKodeSPRKTable ARKodeSPRKTable_Alloc(int stages);

@@ -17,33 +17,25 @@
 # -----------------------------------------------------------------------------
 
 import re
+import numpy as np
 from collections import ChainMap
 
 
-def _convert_to_num(s):
-    """Try to convert a string to an int or float
-
-    :param str s: The string to convert.
-    :returns: If the string is a numerical value, an integer (long long) or floating
-              point (double) value, otherwise the input string.
-    """
+def convert_to_num(s):
+    """Try to convert a string to an int or float"""
     try:
-        return int(s)
+        return np.longlong(s)
     except ValueError:
         try:
-            return float(s)
+            return np.double(s)
         except ValueError:
             return s
 
 
-def _parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"):
-    """Parse the payload of a log file line into a dictionary.
-
-    :param str payload: The payload of a log file line.
-    :param int line_number: The line number of payload in the log file.
-    :param str all_lines: All the lines in the log file.
-    :param str array_indicator: The string that denotes an array output in the log file.
-    :returns: A dictionary of key-value pairs from the payload.
+def parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"):
+    """
+    Parse the payload of a SUNDIALS log file line into a dictionary. The payload
+    of a SUNDIALS log file line is the part after all the [ ] brackets.
     """
     kvpstrs = payload.split(",")
     kvp_dict = {}
@@ -61,56 +53,42 @@ def _parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)
                 for line in all_lines[line_number + 1 :]:
                     if line.startswith("[") or not line.strip():
                         break
-                    values.append(float(line))
+                    values.append(np.double(line))
                 kvp_dict[key.strip()] = values
             else:
                 kvp_dict[key.strip()] = value.strip()
     return kvp_dict
 
 
-def _parse_logfile_line(line, line_number, all_lines):
-    """Parse a line from a log file into a dictionary.
+def parse_logfile_line(line, line_number, all_lines):
+    """
+    Parse a line from a SUNDIALS log file into a dictionary.
 
-    :param str line: The log file line to parse.
-    :param int line_number: The line number of the line in the log file.
-    :param str all_lines: All the lines in the log file.
-    :returns: A dictionary of key-value pairs from the line payload.
-
-    A log file line begins a preamble containing the logging level (ERROR, WARNING,
-    INFO, or DEBUG), the MPI rank that issued the message, the function that issued the
-    message (scope), and a label with additional context for the message. For
-    informational or debugging logs the preamble is followed by the payload which is
-    either a comma-separated list of key-value pairs
-
-    .. code-block:: none
-
-       [loglvl][rank][scope][label] key1 = value1, key2 = value2
-
-    or multiline output with one value per line for keys corresponding to a vector or
-    array
-
-    .. code-block:: none
-
-       [loglvl][rank][scope][label] y(:) =
-       y_1
-       y_2
-       ...
+    A log file line has the form:
+      [loglvl][rank][scope][label] key1 = value, key2 = value
+    The log line payload (everything after the brackets) can be multiline with
+    one value per line for keys corresponding to an array/vector:
+      [loglvl][rank][scope][label] y(:) =
+      y_1
+      y_2
+      ...
     """
     pattern = re.compile(r"\[(\w+)\]\[(rank \d+)\]\[(.*)\]\[(.*)\](.*)")
     matches = pattern.findall(line)
     line_dict = {}
     if matches:
         line_dict["loglvl"] = matches[0][0]
-        line_dict["rank"] = _convert_to_num(matches[0][1].split()[1])
+        line_dict["rank"] = convert_to_num(matches[0][1].split()[1])
         line_dict["scope"] = matches[0][2]
         line_dict["label"] = matches[0][3]
-        line_dict["payload"] = _parse_logfile_payload(matches[0][4], line_number, all_lines)
+        line_dict["payload"] = parse_logfile_payload(matches[0][4], line_number, all_lines)
     return line_dict
 
 
 class StepData:
-    """Helper class for parsing a step attempt from a log file into a hierarchical
-    dictionary where entries may be lists of dictionaries.
+    """
+    Helper class for parsing a step attempt from a SUNDIALS log file into a
+    hierarchical dictionary where entries may be lists of dictionaries.
     """
 
     def __init__(self):
@@ -164,17 +142,19 @@ class StepData:
 
 
 def log_file_to_list(filename):
-    """Parses a log file and returns a list of dictionaries.
+    """
+    This function takes a SUNDIALS log file and creates a list where each list
+    element represents an integrator step attempt.
 
-    :param str filename: The name of the log file to parse.
-    :returns: A list of dictionaries.
-
-    The list returned for a time integrator log file will contain a dictionary for each
-    step attempt e.g.,
-
-    .. code-block:: none
-
-       [ {step : 1, tn : 0.0, h : 0.01, ...}, {step : 2, tn : 0.01, h : 0.10, ...}, ...]
+    E.g.,
+      [
+        {
+          step   : 1,
+          tn     : 0.0,
+          stages : [ {stage : 1, tcur : 0.0, ...}, {stage : 2, tcur : 0.5, ...}, ...]
+          ...
+        }, ...
+      ]
     """
     with open(filename, "r") as logfile:
 
@@ -195,7 +175,7 @@ def log_file_to_list(filename):
 
         for line_number, line in enumerate(all_lines):
 
-            line_dict = _parse_logfile_line(line.rstrip(), line_number, all_lines)
+            line_dict = parse_logfile_line(line.rstrip(), line_number, all_lines)
 
             if not line_dict:
                 continue
@@ -331,45 +311,43 @@ def log_file_to_list(filename):
     return step_attempts
 
 
-def _print_log_list(a_list, indent=0):
-    """Print list value from a log entry dictionary"""
+def print_log_list(a_list, indent=0):
+    """Print list value in step attempt dictionary"""
     spaces = (indent + 2) * " "
     for entry in a_list:
         if type(entry) is list:
             print(f"{spaces}[")
-            _print_log_list(entry, indent + 2)
+            print_log_list(entry, indent + 2)
             print(f"{spaces}]")
         elif type(entry) is dict:
             print(f"{spaces}{{")
-            _print_log_dict(entry, indent + 2)
+            print_log_dict(entry, indent + 2)
             print(f"{spaces}}}")
         else:
             print(f"{spaces}{entry}")
 
 
-def _print_log_dict(a_dict, indent=0):
-    """Print dictionary value from a log entry dictionary"""
+def print_log_dict(a_dict, indent=0):
+    """Print dictionary value in step attempt dictionary"""
     spaces = (indent + 2) * " "
     for key in a_dict:
         if type(a_dict[key]) is list:
             print(f"{spaces}{key} :")
             print(f"{spaces}[")
-            _print_log_list(a_dict[key], indent=indent + 2)
+            print_log_list(a_dict[key], indent=indent + 2)
             print(f"{spaces}]")
         elif type(a_dict[key]) is dict:
             print(f"{spaces}{key} :")
             print(f"{spaces}{{")
-            _print_log_dict(a_dict[key], indent=indent + 2)
+            print_log_dict(a_dict[key], indent=indent + 2)
             print(f"{spaces}}}")
         else:
             print(f"{spaces}{key} : {a_dict[key]}")
 
 
 def print_log(log, indent=0):
-    """Print a log file list created by :py:func:`log_file_to_list`.
-
-    :param list log: The log file list to print.
-    :param int indent: The number of spaces to indent the output.
+    """
+    Print the entries from a log file list of step attempts.
     """
     spaces = indent * " "
     subspaces = (indent + 2) * " "
@@ -379,12 +357,12 @@ def print_log(log, indent=0):
             if type(entry[key]) is list:
                 print(f"{subspaces}{key} :")
                 print(f"{subspaces}[")
-                _print_log_list(entry[key], indent=indent + 2)
+                print_log_list(entry[key], indent=indent + 2)
                 print(f"{subspaces}]")
             elif type(entry[key]) is dict:
                 print(f"{subspaces}{key} :")
                 print(f"{subspaces}{{")
-                _print_log_dict(entry[key], indent=indent + 2)
+                print_log_dict(entry[key], indent=indent + 2)
                 print(f"{subspaces}}}")
             else:
                 print(f"{subspaces}{key} : {entry[key]}")
@@ -394,23 +372,11 @@ def print_log(log, indent=0):
 def get_history(
     log, key, step_status=None, time_range=None, step_range=None, group_by_level=False
 ):
-    """Extract the history of a key from a log file list created by
-    :py:func:`log_file_to_list`.
-
-    :param list log: The log file list to extract values from.
-    :param str key: The key to extract.
-    :param str step_status: Only extract values for steps which match the given status
-                            e.g., "success" or "failed".
-    :param time_range: Only extract values in the time interval, [low, high].
-    :type time_range: [float, float]
-    :param step_range: Only extract values in the step number interval, [low, high].
-    :type step_range: [int, int]
-    :param bool group_by_level: Group outputs by time level.
-    :returns: A list of steps, times, and values
+    """
+    Extract the step/time series of the requested value.
     """
 
     steps, times, values, levels = _get_history(log, key, step_status, time_range, step_range)
-
     if group_by_level:
         from collections import defaultdict
 
@@ -427,7 +393,9 @@ def get_history(
 
 
 def _get_history(log, key, step_status, time_range, step_range):
-    """Extract the step/time series of the requested value."""
+    """
+    Extract the step/time series of the requested value.
+    """
 
     steps = []
     times = []
@@ -436,8 +404,8 @@ def _get_history(log, key, step_status, time_range, step_range):
 
     for entry in log:
 
-        step = int(entry["step"])
-        time = float(entry["tn"])
+        step = np.longlong(entry["step"])
+        time = np.double(entry["tn"])
         level = entry["level"]
 
         if time_range is not None:
@@ -456,7 +424,7 @@ def _get_history(log, key, step_status, time_range, step_range):
         if key in entry and save_data:
             steps.append(step)
             times.append(time)
-            values.append(_convert_to_num(entry[key]))
+            values.append(convert_to_num(entry[key]))
             levels.append(level)
 
         if "stages" in entry:

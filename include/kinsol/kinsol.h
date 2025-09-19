@@ -81,8 +81,14 @@ extern "C" {
 
 typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void* user_data);
 
-typedef void (*KINInfoHandlerFn)(const char* module, const char* function,
-                                 char* msg, void* user_data);
+typedef int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val,
+                            sunrealtype1d qt_fn, long int depth,
+                            void* user_data, sunrealtype* damping_factor);
+
+typedef int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val,
+                          N_Vector f_val, N_Vector1d df, sunrealtype1d R_mat,
+                          long int depth, void* user_data, long int* new_depth,
+                          sunbooleantype* remove_indices);
 
 typedef int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val,
                             sunrealtype* qt_fn, long int depth, void* user_data,
@@ -111,6 +117,7 @@ SUNDIALS_EXPORT int KINSol(void* kinmem, N_Vector uu, int strategy,
 SUNDIALS_EXPORT int KINSetOptions(void* kinmem, const char* kinid,
                                   const char* file_name, int argc, char* argv[]);
 SUNDIALS_EXPORT int KINSetUserData(void* kinmem, void* user_data);
+SUNDIALS_EXPORT int KINSetOwnUserData(void* kinmem, sunbooleantype own_user_data);
 SUNDIALS_EXPORT int KINSetDamping(void* kinmem, sunrealtype beta);
 SUNDIALS_EXPORT int KINSetMAA(void* kinmem, long int maa);
 SUNDIALS_EXPORT int KINSetOrthAA(void* kinmem, int orthaa);

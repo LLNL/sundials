@@ -24,60 +24,10 @@
 #include <sundials/sundials_profiler.h>
 #include <sundials/sundials_types.h>
 
-#if SUNDIALS_MPI_ENABLED
-#include <mpi.h>
-#endif
-
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
-#include <stddef.h>
-#include <time.h>
-#include <unistd.h>
-#elif defined(WIN32) || defined(_WIN32)
-#include <windows.h>
-#else
-#error SUNProfiler needs POSIX or Windows timers
-#endif
-
 #include "sundials_debug.h"
 #include "sundials_hashmap_impl.h"
+#include "sundials_profiler_impl.h"
 #include "sundials_macros.h"
-
-#define SUNDIALS_ROOT_TIMER ((const char*)"From profiler epoch")
-
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
-typedef struct timespec sunTimespec;
-#else
-typedef struct _sunTimespec
-{
-  long int tv_sec;
-  long int tv_nsec;
-} sunTimespec;
-#endif
-
-/* Private functions */
-#if SUNDIALS_MPI_ENABLED
-static SUNErrCode sunCollectTimers(SUNProfiler p);
-#endif
-static void sunPrintTimer(SUNHashMapKeyValue kv, FILE* fp, void* pvoid);
-static int sunCompareTimes(const void* l, const void* r);
-static int sunclock_gettime_monotonic(sunTimespec* tp);
-
-/*
-  sunTimerStruct.
-  A private structure holding timing information.
- */
-
-struct _sunTimerStruct
-{
-  sunTimespec* tic;
-  sunTimespec* toc;
-  double average;
-  double maximum;
-  double elapsed;
-  long count;
-};
-
-typedef struct _sunTimerStruct sunTimerStruct;
 
 static sunTimerStruct* sunTimerStructNew(void)
 {
@@ -149,21 +99,6 @@ static void sunResetTiming(sunTimerStruct* entry)
   entry->maximum      = 0.0;
   entry->count        = 0;
 }
-
-/*
-  SUNProfiler.
-
-  This structure holds all of the timers in a map.s
- */
-
-struct SUNProfiler_
-{
-  SUNComm comm;
-  char* title;
-  SUNHashMap map;
-  sunTimerStruct* overhead;
-  double sundials_time;
-};
 
 SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
 {

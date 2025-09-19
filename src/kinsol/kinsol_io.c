@@ -64,6 +64,28 @@ int KINSetUserData(void* kinmem, void* user_data)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINSetOwnUserData
+ * -----------------------------------------------------------------
+ */
+
+int KINSetOwnUserData(void* kinmem, sunbooleantype own_user_data)
+{
+  KINMem kin_mem;
+
+  if (kinmem == NULL)
+  {
+    KINProcessError(NULL, KIN_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
+    return (KIN_MEM_NULL);
+  }
+
+  kin_mem                    = (KINMem)kinmem;
+  kin_mem->kin_own_user_data = own_user_data;
+
+  return (KIN_SUCCESS);
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINSetDamping
  * -----------------------------------------------------------------
  */

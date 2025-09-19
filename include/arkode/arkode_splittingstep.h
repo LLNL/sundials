@@ -30,8 +30,8 @@ extern "C" {
   ---------------------------------------------------------------*/
 struct SplittingStepCoefficientsMem
 {
-  sunrealtype* alpha;  /* weights for sum over sequential splitting methods */
-  sunrealtype*** beta; /* subintegration nodes, indexed by the sequential method, stage, and partition */
+  sunrealtype1d alpha; /* weights for sum over sequential splitting methods */
+  sunrealtype3d beta; /* subintegration nodes, indexed by the sequential method, stage, and partition */
   int sequential_methods; /* number of sequential splitting methods */
   int stages;     /* number of stages within each sequential splitting method */
   int partitions; /* number of RHS partitions */
@@ -42,11 +42,12 @@ typedef _SUNDIALS_STRUCT_ SplittingStepCoefficientsMem* SplittingStepCoefficient
 
 /* Splitting names use the convention
  * ARKODE_SPLITTING_<name>_<stages>_<order>_<partitions> */
-typedef enum
+enum ARKODE_SplittingCoefficientsID
 {
-  ARKODE_SPLITTING_NONE              = -1, /* ensure enum is signed int */
-  ARKODE_MIN_SPLITTING_NUM           = 0,
-  ARKODE_SPLITTING_LIE_TROTTER_1_1_2 = ARKODE_MIN_SPLITTING_NUM,
+  ARKODE_SPLITTING_NONE    = -1, /* ensure enum is signed int */
+  ARKODE_MIN_SPLITTING_NUM = 0,
+  ARKODE_SPLITTING_LIE_TROTTER_1_1_2 =
+    0, /* setting this to ARKODE_MIN_SPLITTING_NUM confuses the python interface generator */
   ARKODE_SPLITTING_STRANG_2_2_2,
   ARKODE_SPLITTING_BEST_2_2_2,
   ARKODE_SPLITTING_SUZUKI_3_3_2,
@@ -54,14 +55,16 @@ typedef enum
   ARKODE_SPLITTING_YOSHIDA_4_4_2,
   ARKODE_SPLITTING_YOSHIDA_8_6_2,
   ARKODE_MAX_SPLITTING_NUM = ARKODE_SPLITTING_YOSHIDA_8_6_2
-} ARKODE_SplittingCoefficientsID;
+};
+
+typedef enum ARKODE_SplittingCoefficientsID ARKODE_SplittingCoefficientsID;
 
 /* Coefficient memory management */
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Alloc(
   int sequential_methods, int stages, int partitions);
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Create(
   int sequential_methods, int stages, int partitions, int order,
-  sunrealtype* alpha, sunrealtype* beta);
+  sunrealtype1d alpha, sunrealtype1d beta);
 SUNDIALS_EXPORT void SplittingStepCoefficients_Destroy(
   SplittingStepCoefficients* coefficients);
 SUNDIALS_EXPORT SplittingStepCoefficients

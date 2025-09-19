@@ -31,8 +31,6 @@ def main():
 
     parser.add_argument("logfiles", type=str, nargs="+", help="Log file to plot")
 
-    parser.add_argument("--scatter", action="store_true", help="Use scatter plot for step sizes")
-
     parser.add_argument("--stats", action="store_true", help="Print step statistics")
 
     parser.add_argument("--labels", type=str, nargs="+", help="Labels for plot legend")
@@ -44,14 +42,6 @@ def main():
     parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis")
 
     parser.add_argument("--step-number", action="store_true", help="Plot value vs step number")
-
-    parser.add_argument("--timescale", type=float, help="Time scaling factor")
-
-    parser.add_argument("--stepscale", type=float, help="Step size scaling factor")
-
-    parser.add_argument("--xlabel", type=str, help="X-axis label")
-
-    parser.add_argument("--ylabel", type=str, help="Y-axis label")
 
     parser.add_argument(
         "--step-range",
@@ -133,16 +123,6 @@ def main():
             x_a = times_a
             x_f = times_f
 
-            if args.timescale:
-                for level_idx in range(len(x_a)):
-                    x_a[level_idx] = args.timescale * np.array(x_a[level_idx])
-                    x_f[level_idx] = args.timescale * np.array(x_f[level_idx])
-
-        if args.stepscale:
-            for level_idx in range(len(vals_a)):
-                vals_a[level_idx] = args.stepscale * np.array(vals_a[level_idx])
-                vals_f[level_idx] = args.stepscale * np.array(vals_f[level_idx])
-
         # now that we've read the first log, make as many subplots as time levels
         if log_idx == 0:
             _, axes = plt.subplots(len(x_a), sharex=True)
@@ -154,24 +134,14 @@ def main():
         for level_idx in range(len(x_a)):
 
             # plot step attempts
-            if args.scatter:
-                axes[level_idx].scatter(
-                    x_a[level_idx],
-                    vals_a[level_idx],
-                    color=colors(log_idx),
-                    marker=".",
-                    zorder=0.1,
-                    label="attempts",
-                )
-            else:
-                axes[level_idx].plot(
-                    x_a[level_idx],
-                    vals_a[level_idx],
-                    color=colors(log_idx),
-                    marker=".",
-                    zorder=0.1,
-                    label="attempts",
-                )
+            axes[level_idx].plot(
+                x_a[level_idx],
+                vals_a[level_idx],
+                color=colors(log_idx),
+                marker=".",
+                zorder=0.1,
+                label="attempts",
+            )
 
             # plot failed steps
             axes[level_idx].scatter(
@@ -186,19 +156,8 @@ def main():
             )
 
             axes[level_idx].grid(alpha=0.3, linestyle="--")
-
-            if args.ylabel:
-                axes[level_idx].set_ylabel(args.ylabel)
-            else:
-                axes[level_idx].set_ylabel("step size")
-
-            if len(x_a) == 2:
-                if level_idx == 0:
-                    axes[level_idx].set_title(f"Slow Time Scale")
-                else:
-                    axes[level_idx].set_title(f"Fast Time Scale")
-            else:
-                axes[level_idx].set_title(f"Level {level_idx}")
+            axes[level_idx].set_ylabel("step size")
+            axes[level_idx].set_title(f"level {level_idx}")
 
             if args.logx:
                 axes[level_idx].set_xscale("log")
@@ -222,13 +181,10 @@ def main():
                         f"Avg level {level_idx} attempts per level {level_idx - 1} attempts: {len(vals_a[level_idx])/len(vals_a[level_idx - 1]):.2f}"
                     )
 
-        if args.xlabel:
-            axes[len(x_a) - 1].set_xlabel(args.xlabel)
+        if args.step_number:
+            axes[len(x_a) - 1].set_xlabel("step")
         else:
-            if args.step_number:
-                axes[len(x_a) - 1].set_xlabel("step")
-            else:
-                axes[len(x_a) - 1].set_xlabel("time")
+            axes[len(x_a) - 1].set_xlabel("time")
 
     # number of logfiles
     nlogs = len(args.logfiles)
