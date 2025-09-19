@@ -76,7 +76,7 @@ e.g.,
 
    sundials::kokkos::DenseMatrix<> A{rows, cols, sunctx};
    SUNMatrix B = A;           // implicit conversion to SUNMatrix
-   SUNMatrix C = A.Convert(); // explicit conversion to SUNMatrix
+   SUNMatrix C = A.get(); // explicit conversion to SUNMatrix
 
 No further interaction with a ``DenseMatrix`` is required from this point, and
 it is possible to use the :c:type:`SUNMatrix` API to operate on ``B`` or ``C``.
@@ -232,11 +232,11 @@ class.
 
       Implicit conversion to a :c:type:`SUNMatrix`.
 
-   .. cpp:function:: SUNMatrix Convert() override
+   .. cpp:function:: SUNMatrix get() override
 
       Explicit conversion to a :c:type:`SUNMatrix`.
 
-   .. cpp:function:: SUNMatrix Convert() const override
+   .. cpp:function:: SUNMatrix get() const override
 
       Explicit conversion to a :c:type:`SUNMatrix`.
 

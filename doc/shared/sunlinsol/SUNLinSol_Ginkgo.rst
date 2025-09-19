@@ -89,7 +89,7 @@ expecting a ``SUNLinearSolver`` object through the implicit conversion operator 
 
    // Alternatively with explicit conversion of LS to a SUNLinearSolver
    // and A to a SUNMatrix:
-   CVodeSetLinearSolver(cvode_mem, LS->Convert(), A->Convert());
+   CVodeSetLinearSolver(cvode_mem, LS->get(), A->get());
 
 
 .. warning::
@@ -139,11 +139,11 @@ In this section we list the public API of the :cpp:type:`sundials::ginkgo::Linea
 
       Implicit conversion to a :c:type:`SUNLinearSolver`.
 
-   .. cpp:function:: SUNLinearSolver Convert() override
+   .. cpp:function:: SUNLinearSolver get() override
 
       Explicit conversion to a :c:type:`SUNLinearSolver`.
 
-   .. cpp:function:: SUNLinearSolver Convert() const override
+   .. cpp:function:: SUNLinearSolver get() const override
 
       Explicit conversion to a :c:type:`SUNLinearSolver`.
 

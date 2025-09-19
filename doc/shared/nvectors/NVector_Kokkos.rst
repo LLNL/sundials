@@ -70,8 +70,8 @@ e.g.,
 .. code-block:: cpp
 
    sundials::kokkos::Vector<> x{length, sunctx};
-   N_Vector x2 = x;           // implicit conversion to N_Vector
-   N_Vector x3 = x.Convert(); // explicit conversion to N_Vector
+   N_Vector x2 = x;       // implicit conversion to N_Vector
+   N_Vector x3 = x.get(); // explicit conversion to N_Vector
 
 No further interaction with a ``Vector`` is required from this point, and
 it is possible to use the :c:type:`N_Vector` API to operate on ``x2`` or ``x3``.
@@ -184,11 +184,11 @@ class.
 
       Implicit conversion to a :c:type:`N_Vector`.
 
-   .. cpp:function:: N_Vector Convert() override
+   .. cpp:function:: N_Vector get() override
 
       Explicit conversion to a :c:type:`N_Vector`.
 
-   .. cpp:function:: N_Vector Convert() const override
+   .. cpp:function:: N_Vector get() const override
 
       Explicit conversion to a :c:type:`N_Vector`.
 
