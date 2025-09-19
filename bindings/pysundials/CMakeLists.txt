@@ -77,6 +77,9 @@ set(sundials_SOURCES
     sunlinsol/sunlinsol_spfgmr.cpp
     sunlinsol/sunlinsol_sptfqmr.cpp
     sunlinsol/sunlinsol_pcg.cpp
+    sunmatrix/sunmatrix_band.cpp
+    sunmatrix/sunmatrix_dense.cpp
+    sunmatrix/sunmatrix_sparse.cpp
     arkode/pysundials_arkode.cpp
     arkode/pysundials_arkode_arkstep.cpp
     arkode/pysundials_arkode_erkstep.cpp
@@ -99,8 +102,23 @@ target_include_directories(
 
 # Link against sundials libraries
 target_link_libraries(
-  pysundials PRIVATE sundials_arkode sundials_cvodes sundials_idas
-                     sundials_kinsol sundials_nvecserial sundials_core)
+  pysundials
+  PRIVATE sundials_arkode
+          sundials_cvodes
+          sundials_idas
+          sundials_kinsol
+          sundials_nvecserial
+          sundials_sunlinsolspgmr
+          sundials_sunlinsoldense
+          sundials_sunlinsolband
+          sundials_sunlinsolspbcgs
+          sundials_sunlinsolspfgmr
+          sundials_sunlinsolsptfqmr
+          sundials_sunlinsolpcg
+          sundials_sunmatrixband
+          sundials_sunmatrixdense
+          sundials_sunmatrixsparse
+          sundials_core)
 
 # Install directive for scikit-build-core
 install(TARGETS pysundials LIBRARY DESTINATION .)

@@ -16,6 +16,9 @@ void bind_sunlinsol_spbcgs(nb::module_& m);
 void bind_sunlinsol_spfgmr(nb::module_& m);
 void bind_sunlinsol_sptfqmr(nb::module_& m);
 void bind_sunlinsol_pcg(nb::module_& m);
+void bind_sunmatrix_band(nb::module_& m);
+void bind_sunmatrix_dense(nb::module_& m);
+void bind_sunmatrix_sparse(nb::module_& m);
 
 // void bind_sunlinsol_klu(nb::module_& m);
 // void bind_sunlinsol_lapackdense(nb::module_ &m);
