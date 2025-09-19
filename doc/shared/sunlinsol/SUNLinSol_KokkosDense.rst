@@ -62,7 +62,7 @@ the :cpp:func:`~DenseLinearSolver::Convert` method) convertible to a
 
    sundials::kokkos::DenseLinearSolver<> LS{sunctx};
    SUNLinearSolver LSA = LS;           // implicit conversion to SUNLinearSolver
-   SUNLinearSolver LSB = LS.Convert(); // explicit conversion to SUNLinearSolver
+   SUNLinearSolver LSB = LS.get(); // explicit conversion to SUNLinearSolver
 
 .. warning::
 
@@ -118,10 +118,10 @@ In this section we list the public API of the
 
       Implicit conversion to a :c:type:`SUNLinearSolver`.
 
-   .. cpp:function:: SUNLinearSolver Convert() override
+   .. cpp:function:: SUNLinearSolver get() override
 
       Explicit conversion to a :c:type:`SUNLinearSolver`.
 
-   .. cpp:function:: SUNLinearSolver Convert() const override
+   .. cpp:function:: SUNLinearSolver get() const override
 
       Explicit conversion to a :c:type:`SUNLinearSolver`.
