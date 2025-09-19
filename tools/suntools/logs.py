@@ -405,7 +405,7 @@ def get_history(
     :param time_range: Only extract values for steps in the given time interval.
     :param step_range: Only extract values for steps in the given step number interval.
     :param bool group_by_level: Group outputs by time level.
-    :returns:
+    :returns: A list of steps, times, and values
     """
 
     steps, times, values, levels = _get_history(log, key, step_status, time_range, step_range)
