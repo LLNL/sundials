@@ -150,13 +150,19 @@ parsing log files in the ``logs`` sub-module.
 
 .. autofunction:: logs.get_history
 
-The ``tools`` directory also contains some example scripts demonstrating how to
-use these log parsing to extract and plot data. For example, we can plot the
-step size history from the CVODE Roberts problem with
+The ``tools`` directory also contains example scripts demonstrating how to use
+the log parsing functions to extract and plot data.
 
-.. code-block::
+* ``log_example_print.py`` -- parses a log file and prints the log file list.
 
-   ./log_example.py sun.log
+* ``log_example.py`` -- plots the step size, order, or error estimate history
+  from an ARKODE, CVODE(S), or IDA(S) log file.
+
+* ``log_example_mri.py`` -- plots the step size history from an ARKODE MRIStep
+  log file.
+
+For more details on using an example script, run the script with the ``--help``
+flag.
 
 .. _SUNDIALS.Logging.API:
 
