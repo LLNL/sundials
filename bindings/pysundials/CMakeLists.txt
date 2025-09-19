@@ -80,6 +80,15 @@ set(sundials_SOURCES
     sunmatrix/sunmatrix_band.cpp
     sunmatrix/sunmatrix_dense.cpp
     sunmatrix/sunmatrix_sparse.cpp
+    sunnonlinsol/sunnonlinsol_newton.cpp
+    sunnonlinsol/sunnonlinsol_fixedpoint.cpp
+    sunadaptcontroller/sunadaptcontroller_mrihtol.cpp
+    sunadaptcontroller/sunadaptcontroller_soderlind.cpp
+    sunadaptcontroller/sunadaptcontroller_imexgus.cpp
+    # TODO(CJB): enable once LAPACK is enabled
+    # sundomeigest/sundomeigest_arnoldi.cpp
+    sundomeigest/sundomeigest_power.cpp
+    sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.cpp
     arkode/pysundials_arkode.cpp
     arkode/pysundials_arkode_arkstep.cpp
     arkode/pysundials_arkode_erkstep.cpp
@@ -118,6 +127,7 @@ target_link_libraries(
           sundials_sunmatrixband
           sundials_sunmatrixdense
           sundials_sunmatrixsparse
+          sundials_sundomeigestpower
           sundials_core)
 
 # Install directive for scikit-build-core
