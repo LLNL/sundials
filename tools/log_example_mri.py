@@ -154,7 +154,7 @@ def main():
         for level_idx in range(len(x_a)):
 
             # plot step attempts
-            if (args.scatter):
+            if args.scatter:
                 axes[level_idx].scatter(
                     x_a[level_idx],
                     vals_a[level_idx],
@@ -192,8 +192,8 @@ def main():
             else:
                 axes[level_idx].set_ylabel("step size")
 
-            if (len(x_a) == 2):
-                if (level_idx == 0):
+            if len(x_a) == 2:
+                if level_idx == 0:
                     axes[level_idx].set_title(f"Slow Time Scale")
                 else:
                     axes[level_idx].set_title(f"Fast Time Scale")

@@ -42,7 +42,7 @@ extensions = [
     "sphinx.ext.graphviz",
     "sphinx_sundials",
     "sphinx_toolbox.collapse",
-    'sphinx.ext.autodoc',
+    "sphinx.ext.autodoc",
 ]
 
 intersphinx_mapping = {"sphinx": ("https://www.sphinx-doc.org/en/master/", None)}
