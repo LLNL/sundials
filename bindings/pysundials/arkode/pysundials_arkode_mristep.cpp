@@ -67,15 +67,7 @@ void bind_arkode_mristep(nb::module_& m)
 
       auto cb_fns = mristepinnerstepper_user_supplied_fn_table_alloc();
 
-      status = MRIStepInnerStepper_SetContent(stepper,
-                                              static_cast<void*>(cb_fns));
-      if (status != ARK_SUCCESS)
-      {
-        throw std::runtime_error(
-          "Failed to set content in MRIStepInnerStepper");
-      }
-
-      // TODO(CJB): need to set ownership of content so that MRIStepInnerStepper_Free frees the user-supplied function table
+      stepper->python = static_cast<void*>(cb_fns);
 
       return stepper;
     },
@@ -112,9 +104,6 @@ void bind_arkode_mristep(nb::module_& m)
       {
         throw std::runtime_error("Failed to create ARKODE memory");
       }
-
-      void* content = nullptr;
-      MRIStepInnerStepper_GetContent(stepper, &content);
 
       // Create the user-supplied function table to store the Python user functions
       auto cb_fns = arkode_user_supplied_fn_table_alloc();

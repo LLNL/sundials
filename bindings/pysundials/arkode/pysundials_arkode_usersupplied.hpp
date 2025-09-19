@@ -346,7 +346,7 @@ inline int erkstep_f_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
 }
 
 inline int erkstep_adjf_wrapper(sunrealtype t, N_Vector y, N_Vector sens,
-                                 N_Vector sens_dot, void* user_data)
+                                N_Vector sens_dot, void* user_data)
 {
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<SUNAdjRhsFn>, arkode_user_supplied_fn_table,
@@ -479,10 +479,9 @@ inline int mristepinner_evolvefn_wrapper(MRIStepInnerStepper stepper,
   MRIStepInnerStepper_GetContent(stepper, &user_data);
 
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerEvolveFn>,
-    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
-                                                  mristepinner_evolvefn,
-                                                user_data, stepper, t0, tout, y);
+    std::remove_pointer_t<MRIStepInnerEvolveFn>, mristepinnerstepper_user_supplied_fn_table,
+    MRIStepInnerStepper>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_evolvefn,
+                         stepper, t0, tout, y);
 }
 
 inline int mristepinner_fullrhsfn_wrapper(MRIStepInnerStepper stepper,
@@ -493,11 +492,9 @@ inline int mristepinner_fullrhsfn_wrapper(MRIStepInnerStepper stepper,
   MRIStepInnerStepper_GetContent(stepper, &user_data);
 
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerFullRhsFn>,
-    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
-                                                  mristepinner_fullrhsfn,
-                                                user_data, stepper, t, y, f,
-                                                mode);
+    std::remove_pointer_t<MRIStepInnerFullRhsFn>, mristepinnerstepper_user_supplied_fn_table,
+    MRIStepInnerStepper>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_fullrhsfn,
+                         stepper, t, y, f, mode);
 }
 
 inline int mristepinner_resetfn_wrapper(MRIStepInnerStepper stepper,
@@ -507,10 +504,9 @@ inline int mristepinner_resetfn_wrapper(MRIStepInnerStepper stepper,
   MRIStepInnerStepper_GetContent(stepper, &user_data);
 
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerResetFn>,
-    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
-                                                  mristepinner_resetfn,
-                                                user_data, stepper, tR, yR);
+    std::remove_pointer_t<MRIStepInnerResetFn>, mristepinnerstepper_user_supplied_fn_table,
+    MRIStepInnerStepper>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_resetfn,
+                         stepper, tR, yR);
 }
 
 inline int mristepinner_getaccumulatederrorfn_wrapper(MRIStepInnerStepper stepper,
@@ -521,9 +517,9 @@ inline int mristepinner_getaccumulatederrorfn_wrapper(MRIStepInnerStepper steppe
 
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<MRIStepInnerGetAccumulatedError>,
-    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
-                                                  mristepinner_getaccumulatederrorfn,
-                                                user_data, stepper, accum_error);
+    mristepinnerstepper_user_supplied_fn_table,
+    MRIStepInnerStepper>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_getaccumulatederrorfn,
+                         stepper, accum_error);
 }
 
 inline int mristepinner_resetaccumulatederrorfn_wrapper(MRIStepInnerStepper stepper)
@@ -533,9 +529,9 @@ inline int mristepinner_resetaccumulatederrorfn_wrapper(MRIStepInnerStepper step
 
   return pysundials::user_supplied_fn_caller<
     std::remove_pointer_t<MRIStepInnerResetAccumulatedError>,
-    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
-                                                  mristepinner_resetaccumulatederrorfn,
-                                                user_data, stepper);
+    mristepinnerstepper_user_supplied_fn_table,
+    MRIStepInnerStepper>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_resetaccumulatederrorfn,
+                         stepper);
 }
 
 inline int mristepinner_setrtolfn_wrapper(MRIStepInnerStepper stepper,
@@ -545,10 +541,9 @@ inline int mristepinner_setrtolfn_wrapper(MRIStepInnerStepper stepper,
   MRIStepInnerStepper_GetContent(stepper, &user_data);
 
   return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<MRIStepInnerSetRTol>,
-    mristepinnerstepper_user_supplied_fn_table>(&mristepinnerstepper_user_supplied_fn_table::
-                                                  mristepinner_setrtolfn,
-                                                user_data, stepper, rtol);
+    std::remove_pointer_t<MRIStepInnerSetRTol>, mristepinnerstepper_user_supplied_fn_table,
+    MRIStepInnerStepper>(&mristepinnerstepper_user_supplied_fn_table::mristepinner_setrtolfn,
+                         stepper, rtol);
 }
 
 #endif
