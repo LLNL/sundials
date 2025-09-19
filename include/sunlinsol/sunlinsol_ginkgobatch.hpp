@@ -147,7 +147,8 @@ public:
       previous_max_res_norm_(sunrealtype{0.0}),
       ones_(nullptr),
       s2inv_(nullptr),
-      scaling_(false)
+      scaling_(false),
+      matrix_updated_(true)
   {
     initSUNLinSol(sunctx);
   }
@@ -289,6 +290,8 @@ public:
       solver_ = solver_factory_->generate(matrix_->GkoMtx());
     }
 
+    matrix_updated_ = true;
+
     return SUN_SUCCESS;
   }
 
@@ -296,7 +299,8 @@ public:
   {
     SUNLogInfo(sunLogger(), "linear-solver", "solver = ginkgo (batched)");
 
-    if (scaling_)
+    // To avoid scaling an already scaled matrix, we only scale the matrix if it has been updated.
+    if (scaling_ && matrix_updated_)
     {
       solver_factory_ = GkoBatchSolverType::build()             //
                           .with_max_iterations(max_iters_)      //
@@ -305,6 +309,7 @@ public:
                           .with_preconditioner(precon_factory_) //
                           .on(GkoExec());
 
+      // This will scale the matrix in place
       // \tilde{A} = S_1 A S_2^{-1}
       matrix_->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
 
@@ -333,6 +338,8 @@ public:
     // \tilde{x} = \tilde{A}^{-1} \tilde{b}
     [[maybe_unused]] gko::batch::BatchLinOp* result =
       solver_->apply(b_vec.get(), x_vec.get());
+
+    matrix_updated_ = false;
 
     if (scaling_)
     {
@@ -441,6 +448,7 @@ private:
   sunrealtype previous_max_res_norm_;
   sundials::experimental::NVectorView ones_, s2inv_;
   bool scaling_;
+  bool matrix_updated_;
 
   void initSUNLinSol(SUNContext sunctx)
   {

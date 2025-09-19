@@ -303,7 +303,8 @@ int main(int argc, char* argv[])
      instead of the sqrt of the length of the overall system, since the linear
      solver is batched.
     */
-    CVodeSetLSNormFactor(cvode_mem, std::sqrt(udata.batch_size));
+    retval = CVodeSetLSNormFactor(cvode_mem, std::sqrt(udata.batch_size));
+    if (check_retval(&retval, "CVodeSetJacFn", 1)) return (1);
   }
   else
   {
