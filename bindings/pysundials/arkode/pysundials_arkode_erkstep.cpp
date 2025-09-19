@@ -97,4 +97,19 @@ void bind_arkode_erkstep(nb::module_& m)
     },
     nb::arg("arkode_mem"), nb::arg("adj_f").none(), nb::arg("tf"),
     nb::arg("sf"), nb::arg("sunctx"));
+
+  m.def(
+    "ERKStepGetCurrentButcherTable",
+    [](void* ark_mem)
+    {
+      ARKodeButcherTable fe = nullptr;
+
+      int status = ERKStepGetCurrentButcherTable(ark_mem, &fe);
+
+      return std::make_tuple(status, fe);
+    },
+    "WARNING: this function returns ARKodeButcherTable references, DO NOT WRAP "
+    "THEM IN A `ARKodeButcherTableView`. Doing so will result in a double free "
+    "or worse.",
+    nb::rv_policy::reference);
 }

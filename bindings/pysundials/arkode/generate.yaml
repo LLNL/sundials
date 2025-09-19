@@ -21,7 +21,7 @@ modules:
     fn_exclude_by_name__regex:
     - "Free" # Free and destroy functions should not need to be called as all objects on the Python side are RAII ClassView objects
     - "Destroy"
-    - "Space" # Space functions are deprecated, so dont expose them in Python
+    - "Space" # Space functions are deprecated, so don't expose them in Python
     # TODO(CJB): support SetOptions
     # Due to the need to convert between sys.argv and C argv, we need to do custom wrappers of these
     - "SetOptions" 
@@ -37,28 +37,31 @@ modules:
     - ../../include/arkode/arkode.h
     - ../../include/arkode/arkode_ls.h
     - ../../include/arkode/arkode_butcher.h
+    - ../../include/arkode/arkode_sprk.h
     fn_exclude_by_name__regex:
-    # TODO(CJB): add support for these functions
-    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
-    - "ARKodeGetJac" 
-    - "ARKodeGetCurrentMassMatrix"
-    - "ARKodeGetCurrentState"
     # we don't bind the alloc or create functions as we need to do something custom
-    - "ARKodeCreateMRIStepInnerStepper" 
-    - "ARKodeCreateSUNStepper"
-    - "ARKodeButcherTable_Create"
-    - "ARKodeButcherTable_Alloc"
+    - "^ARKodeGetJac$"
+    - "^ARKodeGetCurrentMassMatrix$"
+    - "^ARKodeGetCurrentState$"
+    - "^ARKodeCreateMRIStepInnerStepper$" 
+    - "^ARKodeCreateSUNStepper$"
+    - "^ARKodeButcherTable_Create$"
+    - "^ARKodeSPRKTable_Create$"
+    - "^ARKodeSPRKTable_ToButcher$"
+    # we dont interface the Alloc functions as they are not needed from Python
+    - "^ARKodeButcherTable_Alloc$"
+    - "^ARKodeSPRKTable_Alloc$"
     # we use user_data for sneaking in python contexts, so we don't interface these
-    - "ARKodeGetUserData" 
-    - "ARKodeSetUserData" 
+    - "^ARKodeGetUserData$" 
+    - "^ARKodeSetUserData$" 
     # generator cannot handle setting of function pointers, so we do something custom
-    - "ARKodeSet.*Fn" 
-    - "ARKodeSetWFtolerances"
-    - "ARKodeSet.*Preconditioner"
-    - "ARKodeSet.*Times"
+    - "^ARKodeSet.*Fn$" 
+    - "^ARKodeSetWFtolerances$"
+    - "^ARKodeSet.*Preconditioner$"
+    - "^ARKodeSet.*Times$"
     # generator cannot handle functions with optional (i.e. NULLable) parameters that is not 
     # followed by only optional parameters, so we have to do something custom
-    - "ARKodeSetMassLinearSolver"
+    - "^ARKodeSetMassLinearSolver$"
   arkstep:
     path: arkode/pysundials_arkode_arkstep_generated.hpp
     headers:
@@ -67,12 +70,11 @@ modules:
     # we dont bind the ARKStepCreate function as we need to do something custom
     - "^ARKStepCreate$"
     - "^ARKStepCreateAdjointStepper$"
-    - "ARKStepReInit"
+    - "^ARKStepReInit$"
     # reinit also requires custom handling due to function pointers
-    - "ARKStepReInit"
-    # TODO(CJB): add support for these functions
-    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
-    - "ARKStepGetCurrentButcherTable"
+    - "^ARKStepReInit$"
+    # nanobind doesn't support ** arguments directly, so we do something custom
+    - "^ARKStepGetCurrentButcherTables$"
   erkstep:
     path: arkode/pysundials_arkode_erkstep_generated.hpp
     headers:
@@ -82,10 +84,9 @@ modules:
     - "^ERKStepCreate$"
     - "^ERKStepCreateAdjointStepper$"
     # reinit also requires custom handling due to function pointers
-    - "ERKStepReInit"
-    # TODO(CJB): add support for these functions
-    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
-    - "ERKStepGetCurrentButcherTable"
+    - "^ERKStepReInit$"
+    # nanobind doesn't support ** arguments directly, so we do something custom
+    - "^ERKStepGetCurrentButcherTable$"
   sprkstep:
     path: arkode/pysundials_arkode_sprkstep_generated.hpp
     headers:
@@ -93,39 +94,39 @@ modules:
     fn_exclude_by_name__regex:
     - "^SPRKStepCreate$"
     # reinit also requires custom handling due to function pointers
-    - "SPRKStepReInit"
+    - "^SPRKStepReInit$"
     # nanobind doesn't support ** arguments directly, so these are not yet interfaced
-    - "GetCurrentMethod"
+    - "SPRKStepGetCurrentMethod$"
   lsrkstep:
     path: arkode/pysundials_arkode_lsrkstep_generated.hpp
     headers:
     - ../../include/arkode/arkode_lsrkstep.h
     fn_exclude_by_name__regex:
-    # these three functions take function pointers, so we have to do something custom
-    - "^LSRKStepCreate.*"
-    - "LSRKStepReInit"
-    - "SetDomEigFn"
+    # these functions take function pointers, so we have to do something custom
+    - "^LSRKStepCreate.*$"
+    - "^LSRKStepReInit.*$"
+    - "^LSRKStepSetDomEigFn$"
   mristep:
     path: arkode/pysundials_arkode_mristep_generated.hpp
     headers:
     - ../../include/arkode/arkode_mristep.h
     fn_exclude_by_name__regex:
     # we don't allow alloc to be used from Python
-    - "MRIStepCoupling_Alloc"
-    # we do custom handling of Create
+    - "^MRIStepCoupling_Alloc$"
+    # we do custom handling of Create routines
     - "^MRIStepCreate$"
-    - "MRIStepCoupling_Create"
-    - "MRIStepInnerStepper_Create"
+    - "^MRIStepCoupling_Create$"
+    - "^MRIStepInnerStepper_Create$"
+    - "^MRIStepInnerStepper_CreateFromSUNStepper$"
     # reinit also requires custom handling due to function pointers
-    - "MRIStepReInit"
+    - "^MRIStepReInit$"
     # We steal the MRIStepInnerStepper content for the callback table, so don't interface the set/get
-    - "MRIStepInnerStepper_GetContent"
-    - "MRIStepInnerStepper_SetContent"
-    # TODO(CJB): add support for these functions
-    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
-    - "MRIStepGetCurrentCoupling"
+    - "^MRIStepInnerStepper_GetContent$"
+    - "^MRIStepInnerStepper_SetContent$"
+    # nanobind doesn't support ** arguments directly, so we do something custom
+    - "^MRIStepGetCurrentCoupling$"
     # we have to do custom things to handle setting function pointers
-    - "MRIStepInnerStepper_Set.*Fn"
+    - "^MRIStepInnerStepper_Set.*Fn$"
   forcingstep:
     path: arkode/pysundials_arkode_forcingstep_generated.hpp
     headers:
@@ -136,7 +137,7 @@ modules:
     - ../../include/arkode/arkode_splittingstep.h
     fn_exclude_by_name__regex:
     # we don't allow alloc to be used from Python
-    - "SplittingStepCoefficients_Alloc"
+    - "^SplittingStepCoefficients_Alloc$"
     # we do custom handling of the stepper create/reinit
     - "^SplittingStepCreate$"
-    - "SplittingStepReInit"
+    - "^SplittingStepReInit$"

@@ -89,14 +89,13 @@ void bind_arkode_arkstep(nb::module_& m)
         throw std::runtime_error(
           "Failed to create adjoint stepper in py-sundials memory");
       }
-      
+
       // Finally, set the RHS functions
       void* user_data = nullptr;
-      ark_status = ARKodeGetUserData(arkode_mem, &user_data);
+      ark_status      = ARKodeGetUserData(arkode_mem, &user_data);
       if (ark_status != ARK_SUCCESS)
       {
-        throw std::runtime_error(
-          "Failed to extract ARKODE user data");
+        throw std::runtime_error("Failed to extract ARKODE user data");
       }
 
       auto cb_fns = static_cast<arkode_user_supplied_fn_table*>(user_data);
@@ -108,4 +107,20 @@ void bind_arkode_arkstep(nb::module_& m)
     },
     nb::arg("arkode_mem"), nb::arg("adj_fe").none(), nb::arg("adj_fi").none(),
     nb::arg("tf"), nb::arg("sf"), nb::arg("sunctx"));
+
+  m.def(
+    "ARKStepGetCurrentButcherTables",
+    [](void* ark_mem)
+    {
+      ARKodeButcherTable fe = nullptr;
+      ARKodeButcherTable fi = nullptr;
+
+      int status = ARKStepGetCurrentButcherTables(ark_mem, &fi, &fe);
+
+      return std::make_tuple(status, fi, fe);
+    },
+    "WARNING: this function returns ARKodeButcherTable references, DO NOT WRAP "
+    "THEM IN A `ARKodeButcherTableView`. Doing so will result in a double free "
+    "or worse.",
+    nb::rv_policy::reference);
 }

@@ -22,8 +22,6 @@ def adapt_array_pointer_to_std_vector(
     options = adapted_function.options
     function_name = adapted_function.cpp_adapted_function.function_name
 
-    # if function_name != "N_VLinearCombination": return None
-
     pointer_type_patterns = options.fn_params_array_pointers_to_std_vector
 
     # Map each parameter name to the pointer_type_pattern it matches

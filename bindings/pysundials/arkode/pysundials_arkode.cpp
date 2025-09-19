@@ -12,9 +12,6 @@
  * SUNDIALS Copyright End
  *----------------------------------------------------------------------------*/
 
-#include <optional>
-#include <stdexcept>
-
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
 #include <nanobind/stl/optional.h>
@@ -26,7 +23,9 @@ class SUNStepperView;
 
 #include <arkode/arkode.h>
 #include <arkode/arkode.hpp>
+#include <arkode/arkode_butcher.h>
 #include <arkode/arkode_ls.h>
+#include <arkode/arkode_sprk.hpp>
 
 #include "sundials_adjointcheckpointscheme_impl.h"
 
@@ -106,6 +105,13 @@ void bind_arkode(nb::module_& m)
                                                  b.data(), d.data());
                 })
     .def("get", nb::overload_cast<>(&ARKodeButcherTableView::get, nb::const_),
+         nb::rv_policy::reference);
+
+  nb::class_<ARKodeSPRKTableView>(m, "ARKodeSPRKTableView")
+    .def_static("Create", [](int s, int q, std::vector<sunrealtype> a,
+                             std::vector<sunrealtype> ahat)
+                { ARKodeSPRKTableView::Create(s, q, a.data(), ahat.data()); })
+    .def("get", nb::overload_cast<>(&ARKodeSPRKTableView::get, nb::const_),
          nb::rv_policy::reference);
 
   /////////////////////////////////////////////////////////////////////////////
@@ -209,8 +215,7 @@ void bind_arkode(nb::module_& m)
   // Additional functions that litgen cannot generate
   /////////////////////////////////////////////////////////////////////////////
 
-  // These functions have optional arguments which litgen cannot deal with because they are followed by
-  // non-optional arguments.
+  // This function has optional arguments which litgen cannot deal with because they are followed by non-optional arguments.
   m.def("ARKodeSetMassLinearSolver", ARKodeSetMassLinearSolver,
         nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M").none(),
         nb::arg("time_dep"));
@@ -222,15 +227,65 @@ void bind_arkode(nb::module_& m)
       SUNStepper stepper = nullptr;
 
       int status = ARKodeCreateSUNStepper(ark_mem, &stepper);
-      if (status != ARK_SUCCESS)
-      {
-        throw std::runtime_error(
-          "PY-SUNDIALS-OFFICIAL: ARKodeCreateSUNStepper call failed");
-      }
 
-      return stepper;
+      return std::make_tuple(status, stepper);
     },
-    nb::arg("ark_mem"), nb::rv_policy::reference);
+    nb::rv_policy::reference);
+
+  m.def(
+    "ARKodeGetJac",
+    [](void* ark_mem)
+    {
+      SUNMatrix J = nullptr;
+
+      int status = ARKodeGetJac(ark_mem, &J);
+
+      return std::make_tuple(status, J);
+    },
+    "WARNING: this function returns a SUNMatrix reference, DO NOT WRAP IT IN A "
+    "`SUNMatrixView`. Doing so will result in a double free or worse.",
+    nb::rv_policy::reference);
+
+  m.def(
+    "ARKodeGetCurrentMassMatrix",
+    [](void* ark_mem)
+    {
+      SUNMatrix M = nullptr;
+
+      int status = ARKodeGetJac(ark_mem, &M);
+
+      return std::make_tuple(status, M);
+    },
+    "WARNING: this function returns a SUNMatrix reference, DO NOT WRAP IT IN A "
+    "`SUNMatrixView`. Doing so will result in a double free or worse.",
+    nb::rv_policy::reference);
+
+  m.def(
+    "ARKodeGetCurrentState",
+    [](void* ark_mem)
+    {
+      N_Vector state = nullptr;
+
+      int status = ARKodeGetCurrentState(ark_mem, &state);
+
+      return std::make_tuple(status, state);
+    },
+    "WARNING: this function returns a N_Vector reference, DO NOT WRAP IT IN A "
+    "`NVectorView`. Doing so will result in a double free or worse.",
+    nb::rv_policy::reference);
+
+  m.def(
+    "ARKodeSPRKTable_ToButcher",
+    [](ARKodeSPRKTable sprk_table)
+    {
+      ARKodeButcherTable a = nullptr;
+      ARKodeButcherTable b = nullptr;
+
+      int status = ARKodeSPRKTable_ToButcher(sprk_table, &a, &b);
+
+      return std::make_tuple(status, a, b);
+    },
+    nb::rv_policy::reference);
 
   bind_arkode_arkstep(m);
   bind_arkode_erkstep(m);

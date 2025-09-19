@@ -91,6 +91,8 @@ int user_supplied_fn_caller(nb::object FnTableType::*fn_member, Args... args)
                     args_tuple);
 }
 
+// TODO(CJB): implement custom exception type so all messages follow a specific format
+
 } // namespace pysundials
 
 #endif

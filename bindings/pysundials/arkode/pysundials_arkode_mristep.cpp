@@ -14,6 +14,7 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
+#include <nanobind/stl/tuple.h>
 
 #include <arkode/arkode.hpp>
 #include <arkode/arkode_mristep.hpp>
@@ -58,20 +59,26 @@ void bind_arkode_mristep(nb::module_& m)
     {
       MRIStepInnerStepper stepper = nullptr;
 
-      int status = MRIStepInnerStepper_Create(sunctx, &stepper);
-      if (status != ARK_SUCCESS)
-      {
-        throw std::runtime_error(
-          "Failed to set content in MRIStepInnerStepper");
-      }
-
-      auto cb_fns = mristepinnerstepper_user_supplied_fn_table_alloc();
-
+      int status      = MRIStepInnerStepper_Create(sunctx, &stepper);
+      auto cb_fns     = mristepinnerstepper_user_supplied_fn_table_alloc();
       stepper->python = static_cast<void*>(cb_fns);
 
-      return stepper;
+      return std::make_tuple(status, stepper);
     },
-    nb::arg("sunctx"), nb::rv_policy::reference);
+    nb::rv_policy::reference);
+
+  m.def(
+    "MRIStepInnerStepper_CreateFromSUNStepper",
+    [](SUNStepper stepper)
+    {
+      MRIStepInnerStepper inner_stepper = nullptr;
+
+      int status = MRIStepInnerStepper_CreateFromSUNStepper(stepper,
+                                                            &inner_stepper);
+
+      return std::make_tuple(status, stepper);
+    },
+    nb::rv_policy::reference);
 
   m.def(
     "ARKodeCreateMRIStepInnerStepper",
@@ -80,14 +87,10 @@ void bind_arkode_mristep(nb::module_& m)
       MRIStepInnerStepper stepper = nullptr;
 
       int status = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
-      if (status != ARK_SUCCESS)
-      {
-        throw std::runtime_error("Failed to create MRIStepInnerStepper");
-      }
 
-      return stepper;
+      return std::make_tuple(status, stepper);
     },
-    nb::arg("inner_arkode_mem"), nb::rv_policy::reference);
+    nb::rv_policy::reference);
 
   m.def(
     "MRIStepCreate",
@@ -133,4 +136,19 @@ void bind_arkode_mristep(nb::module_& m)
     },
     nb::arg("fse").none(), nb::arg("fsi").none(), nb::arg("t0"), nb::arg("y0"),
     nb::arg("inner_stepper"), nb::arg("sunctx"));
+
+  m.def(
+    "MRIStepGetCurrentCoupling",
+    [](void* ark_mem)
+    {
+      MRIStepCoupling C = nullptr;
+
+      int status = MRIStepGetCurrentCoupling(ark_mem, &C);
+
+      return std::make_tuple(status, C);
+    },
+    "WARNING: this function returns a MRIStepCoupling reference, DO NOT WRAP "
+    "IT IN A `MRIStepCouplingView`. Doing so will result in a double free "
+    "or worse.",
+    nb::rv_policy::reference);
 }

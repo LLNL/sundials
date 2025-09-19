@@ -38,8 +38,10 @@ def test_forcingstep():
     status = ARKodeSetFixedStep(nonlinear_ark.get(), 1e-3)
 
     # create SUNStepper for each partition
-    linear_stepper = SUNStepperView.Create(ARKodeCreateSUNStepper(linear_ark.get()))
-    nonlinear_stepper = SUNStepperView.Create(ARKodeCreateSUNStepper(nonlinear_ark.get()))
+    status, linear_stepper = ARKodeCreateSUNStepper(linear_ark.get())
+    linear_stepper = SUNStepperView.Create(linear_stepper)
+    status, nonlinear_stepper = ARKodeCreateSUNStepper(nonlinear_ark.get())
+    nonlinear_stepper = SUNStepperView.Create(nonlinear_stepper)
 
     # create the outer integrator
     ark = ARKodeView.Create(

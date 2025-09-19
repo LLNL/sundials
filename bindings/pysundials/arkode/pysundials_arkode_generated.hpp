@@ -751,6 +751,41 @@ m.def(
   nb::arg("arkode_mem"), nb::arg("nncfails"));
 
 m.def(
+  "ARKodeGetJacTime",
+  [](void* arkode_mem, double t_J) -> std::tuple<int, double>
+  {
+    auto ARKodeGetJacTime_adapt_modifiable_immutable_to_return =
+      [](void* arkode_mem, double t_J) -> std::tuple<int, double>
+    {
+      double* t_J_adapt_modifiable = &t_J;
+
+      int r = ARKodeGetJacTime(arkode_mem, t_J_adapt_modifiable);
+      return std::make_tuple(r, t_J);
+    };
+
+    return ARKodeGetJacTime_adapt_modifiable_immutable_to_return(arkode_mem, t_J);
+  },
+  nb::arg("arkode_mem"), nb::arg("t_J"));
+
+m.def(
+  "ARKodeGetJacNumSteps",
+  [](void* arkode_mem, long nst_J) -> std::tuple<int, long>
+  {
+    auto ARKodeGetJacNumSteps_adapt_modifiable_immutable_to_return =
+      [](void* arkode_mem, long nst_J) -> std::tuple<int, long>
+    {
+      long* nst_J_adapt_modifiable = &nst_J;
+
+      int r = ARKodeGetJacNumSteps(arkode_mem, nst_J_adapt_modifiable);
+      return std::make_tuple(r, nst_J);
+    };
+
+    return ARKodeGetJacNumSteps_adapt_modifiable_immutable_to_return(arkode_mem,
+                                                                     nst_J);
+  },
+  nb::arg("arkode_mem"), nb::arg("nst_J"));
+
+m.def(
   "ARKodeGetNumJacEvals",
   [](void* arkode_mem, long njevals) -> std::tuple<int, long>
   {
@@ -1354,6 +1389,32 @@ m.def(
                                                                                  outfile);
   },
   nb::arg("B1"), nb::arg("B2"), nb::arg("q"), nb::arg("p"), nb::arg("outfile"));
+// #ifdef __cplusplus
+//
+// #endif
+//
+// #endif
+//
+// #ifndef _ARKODE_SPRKTABLE_H
+//
+// #ifdef __cplusplus
+// #endif
+//
+
+auto pyClassARKodeSPRKTableMem =
+  nb::class_<ARKodeSPRKTableMem>(m, "ARKodeSPRKTableMem", "")
+    .def(nb::init<>()) // implicit default constructor
+  ;
+
+m.def("ARKodeSPRKTable_Load", ARKodeSPRKTable_Load, nb::arg("id"));
+
+m.def("ARKodeSPRKTable_LoadByName", ARKodeSPRKTable_LoadByName,
+      nb::arg("method"));
+
+m.def("ARKodeSPRKTable_Copy", ARKodeSPRKTable_Copy, nb::arg("that_sprk_storage"));
+
+m.def("ARKodeSPRKTable_Write", ARKodeSPRKTable_Write, nb::arg("sprk_table"),
+      nb::arg("outfile"));
 // #ifdef __cplusplus
 //
 // #endif
