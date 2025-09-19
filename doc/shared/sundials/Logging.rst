@@ -46,12 +46,18 @@ without any changes to user code. The available environment variables are:
    SUNLOGGER_DEBUG_FILENAME
 
 These environment variables may be set to a filename string. There are two
-special filenames: ``stdout`` and ``stderr``. These two filenames will
-result in output going to the standard output file and standard error file.
-The different variables may all be set to the same file, or to distinct files,
-or some combination there of. To disable output for one of the streams, then
-do not set the environment variable, or set it to an empty string.
+special filenames: ``stdout`` and ``stderr``. These two filenames will result in
+output going to the standard output file and standard error file. For example,
+consider the CVODE Roberts example, where we can direct the informational output
+to the file ``sun.log`` as follows
 
+.. code-block::
+
+   SUNLOGGER_INFO_FILENAME=sun.log ./examples/cvode/serial/cvRoberts_dns
+
+The different environment variables may all be set to the same file, or to
+distinct files, or some combination there of. To disable output for one of the
+streams, then do not set the environment variable, or set it to an empty string.
 If :cmakeop:`SUNDIALS_LOGGING_LEVEL` was set at build-time to a level lower than
 the corresponding environment variable, then setting the environment variable
 will do nothing. For example, if the logging level is set to ``2`` (errors and
@@ -66,6 +72,17 @@ non-default logger using the :ref:`SUNDIALS.Logging.API`.
 
    A non-default logger should be created and attached to the context object
    prior to any other SUNDIALS calls in order to capture all log events.
+
+The following examples demonstrate how to use the logging interface via the C
+API:
+
+.. code-block::
+
+   examples/arkode/CXX_serial/ark_analytic_sys.cpp
+   examples/cvode/serial/cvAdvDiff_bnd.c
+   examples/cvode/parallel/cvAdvDiff_diag_p.c
+   examples/kinsol/CXX_parallel/kin_em_p.cpp
+   examples/kinsol/CUDA_mpi/kin_em_mpicuda.cpp
 
 .. _SUNDIALS.Logging.Output:
 
@@ -116,15 +133,16 @@ or array e.g.,
    (so long as the :c:type:`N_Vector` used supports printing). Depending on the
    problem size, this may result in very large logging files.
 
-To assist with extracting informational logging data from output files the
-``tools`` directory contains a Python module, ``suntools``, that provides
-utilities for parsing log files. Some example scripts using the ``suntools``
-module are included in the ``tools`` directory. For example, we can plot the
-step size history from the CVODE Roberts problem with
+.. _SUNDIALS.Logging.Tools:
 
-.. code-block::
+Logging Tools
+-------------
 
-   ./log_example.py sun.log
+.. versionadded:: 7.2.0
+
+To assist with extracting data from logging output files, the ``tools``
+directory contains the ``suntools`` Python module which provides utilities for
+parsing log files in the ``logs`` sub-module.
 
 .. autofunction:: logs.log_file_to_list
 
@@ -132,33 +150,13 @@ step size history from the CVODE Roberts problem with
 
 .. autofunction:: logs.get_history
 
-.. _SUNDIALS.Logging.Example:
-
-Example Usage
--------------
-
-As noted above, enabling logging must be done when configuring SUNDIALS by
-setting the CMake option :cmakeop:`SUNDIALS_LOGGING_LEVEL` to the desired
-logging level. When running a program with SUNDIALS logging enabled, a default
-logger is created and attached to the :c:type:`SUNContext` instance at creation.
-Environment variables or run-time functions can be used to determine where the
-logging output is written. For example, consider the CVODE Roberts example, where
-we can direct the informational output to the file ``sun.log`` as follows
+The ``tools`` directory also contains some example scripts demonstrating how to
+use these log parsing to extract and plot data. For example, we can plot the
+step size history from the CVODE Roberts problem with
 
 .. code-block::
 
-   SUNLOGGER_INFO_FILENAME=sun.log ./examples/cvode/serial/cvRoberts_dns
-
-Alternatively, the following examples demonstrate how to use the logging
-interface via the C API:
-
-.. code-block::
-
-   examples/arkode/CXX_serial/ark_analytic_sys.cpp
-   examples/cvode/serial/cvAdvDiff_bnd.c
-   examples/cvode/parallel/cvAdvDiff_diag_p.c
-   examples/kinsol/CXX_parallel/kin_em_p.cpp
-   examples/kinsol/CUDA_mpi/kin_em_mpicuda.cpp
+   ./log_example.py sun.log
 
 .. _SUNDIALS.Logging.API:
 
