@@ -17,7 +17,6 @@
 # -----------------------------------------------------------------------------
 
 import re
-import numpy as np
 from collections import ChainMap
 
 
@@ -29,10 +28,10 @@ def _convert_to_num(s):
               point (double) value, otherwise the input string.
     """
     try:
-        return np.longlong(s)
+        return int(s)
     except ValueError:
         try:
-            return np.double(s)
+            return float(s)
         except ValueError:
             return s
 
@@ -62,7 +61,7 @@ def _parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)
                 for line in all_lines[line_number + 1 :]:
                     if line.startswith("[") or not line.strip():
                         break
-                    values.append(np.double(line))
+                    values.append(float(line))
                 kvp_dict[key.strip()] = values
             else:
                 kvp_dict[key.strip()] = value.strip()
@@ -437,8 +436,8 @@ def _get_history(log, key, step_status, time_range, step_range):
 
     for entry in log:
 
-        step = np.longlong(entry["step"])
-        time = np.double(entry["tn"])
+        step = int(entry["step"])
+        time = float(entry["tn"])
         level = entry["level"]
 
         if time_range is not None:
