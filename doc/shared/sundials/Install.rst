@@ -784,6 +784,10 @@ For more information on logging in SUNDIALS, see :ref:`SUNDIALS.Logging`.
       understanding algorithm performance. The higher the logging level, the
       more output that may be logged, and the more performance may degrade.
 
+   .. versionchanged:: 7.0.0
+
+      Enabling MPI in SUNDIALS enables MPI-aware logging.
+
 .. _Installation.Options.Monitoring:
 
 Monitoring
