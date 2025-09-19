@@ -402,8 +402,10 @@ def get_history(
     :param str key: The key to extract.
     :param str step_status: Only extract values for steps which match the given status
                             e.g., "success" or "failed".
-    :param time_range: Only extract values for steps in the given time interval.
-    :param step_range: Only extract values for steps in the given step number interval.
+    :param time_range: Only extract values in the time interval, [low, high].
+    :type time_range: [float, float]
+    :param step_range: Only extract values in the step number interval, [low, high].
+    :type step_range: [int, int]
     :param bool group_by_level: Group outputs by time level.
     :returns: A list of steps, times, and values
     """
