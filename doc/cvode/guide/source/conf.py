@@ -17,6 +17,9 @@ from sundials_vars import *
 
 sys.path.append(os.path.dirname(os.path.abspath("../../../shared")))
 
+# Add suntools directory to import python function docstings with autodoc
+sys.path.append(os.path.abspath("../../../../tools/suntools"))
+
 # -- General configuration ----------------------------------------------------
 
 # Set variable used to determine which package documentation this is
@@ -37,6 +40,7 @@ extensions = [
     "sphinxcontrib.bibtex",
     "sphinx_copybutton",
     "sphinx_sundials",
+    "sphinx.ext.autodoc",
 ]
 
 intersphinx_mapping = {
