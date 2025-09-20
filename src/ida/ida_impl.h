@@ -447,6 +447,11 @@ sunrealtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
 
 int idaNlsInit(IDAMem IDA_mem);
 
+/* Utility function to tell IDA to free the user data.
+   This is used by the Python interfaces. */
+
+int IDASetOwnUserData(void* ida_mem, sunbooleantype own_user_data);
+
 /*
  * =================================================================
  *    E R R O R    M E S S A G E S
