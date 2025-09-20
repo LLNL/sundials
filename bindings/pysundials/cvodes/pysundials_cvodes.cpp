@@ -28,6 +28,7 @@
 #include <cvodes/cvodes_proj.h>
 
 #include "sundials_adjointcheckpointscheme_impl.h"
+#include "cvodes/cvodes_impl.h"
 
 #include "pysundials_cvodes_usersupplied.hpp"
 

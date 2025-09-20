@@ -662,6 +662,11 @@ int cvDiagSetup_buildM(const sunrealtype fract, const sunrealtype uround,
 int cvDiagSolve_updateM(const sunrealtype r, N_Vector M);
 #endif
 
+/* Utility function to tell CVODE to free the user data.
+   This is used by the Python interfaces. */
+
+int CVodeSetOwnUserData(void* cvode_mem, sunbooleantype own_user_data);
+
 /*
  * =================================================================
  *    E R R O R    M E S S A G E S

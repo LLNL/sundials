@@ -18,10 +18,13 @@
 #include <nanobind/stl/tuple.h>
 #include <nanobind/stl/vector.h>
 
+#include <sundials/sundials_core.hpp>
+
 #include <kinsol/kinsol.h>
 #include <kinsol/kinsol.hpp>
 #include <kinsol/kinsol_ls.h>
-#include <sundials/sundials_core.hpp>
+
+#include "kinsol/kinsol_impl.h"
 
 namespace nb = nanobind;
 

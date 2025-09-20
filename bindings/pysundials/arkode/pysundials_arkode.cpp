@@ -27,6 +27,8 @@ class SUNStepperView;
 #include <arkode/arkode_ls.h>
 #include <arkode/arkode_sprk.hpp>
 
+#include "arkode/arkode_impl.h"
+
 #include "sundials_adjointcheckpointscheme_impl.h"
 
 #include "pysundials_arkode_usersupplied.hpp"

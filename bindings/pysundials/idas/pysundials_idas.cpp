@@ -24,6 +24,8 @@
 #include <idas/idas.hpp>
 #include <idas/idas_ls.h>
 
+#include "idas/idas_impl.h"
+
 #include "pysundials_idas_usersupplied.hpp"
 
 namespace nb = nanobind;

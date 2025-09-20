@@ -397,6 +397,10 @@ void KINFreeAA(KINMem kin_mem);
 int KINInitOrth(KINMem kin_mem);
 void KINFreeOrth(KINMem kin_mem);
 
+/* Utility function to tell KINSOL to free the user data.
+   This is used by the Python interfaces. */
+int KINSetOwnUserData(void* kinmem, sunbooleantype own_user_data);
+
 /*
  * =================================================================
  *   K I N S O L    E R R O R    M E S S A G E S
