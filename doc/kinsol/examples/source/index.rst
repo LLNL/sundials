@@ -7,8 +7,10 @@ KINSOL Examples
 .. only:: html
 
    The KINSOL examples documentation is intended to serve as a companion
-   document to the KINSOL User Documentation. It provides details, with
-   listings, on the example programs supplied with the KINSOL package.
+   document to the KINSOL User Documentation. These example programs demonstrate
+   a large variety (but not exhaustive set) of KINSOL options and can be used as
+   templates for new problems. Further information on the KINSOL package itself
+   may be found in the KINSOL user guide.
 
 .. toctree::
    :maxdepth: 1

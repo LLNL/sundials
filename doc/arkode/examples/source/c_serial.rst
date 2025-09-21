@@ -784,7 +784,7 @@ ark_KrylovDemo_prec
 This problem is an ARKode clone of the CVODE problem,
 ``cv_KrylovDemo_prec``.  This is a demonstration program using the
 SUNLINSOL_SPGMR linear solver module.  As explained more thoroughly in
-[HSR2017]_, the problem is a stiff ODE system that arises from a
+:cite:p:`cvode_ug`, the problem is a stiff ODE system that arises from a
 system of PDEs modeling a six-species food web population model, with
 predator-prey interaction and diffusion on the unit square in two
 dimensions.  We have a system with 6 components, :math:`C = [c^1,\,

@@ -50,15 +50,6 @@ intersphinx_mapping = {
     )
 }
 
-# Ignore warnings from nonlinear solver references in change log
-nitpick_ignore.extend(
-    [
-        ("c:func", "SUNNonlinSolSysFn"),
-        ("c:func", "SUNNonlinSolLSetupFn"),
-        ("c:func", "SUNNonlinSolLSolveFn"),
-    ]
-)
-
 # References
 bibtex_bibfiles = ["../../../shared/sundials.bib"]
 
@@ -221,7 +212,7 @@ html_show_sourcelink = False
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "KINSOLExampledoc"
+htmlhelp_basename = "KINSOLExampleDoc"
 
 # -- Options for LaTeX output --------------------------------------------------
 

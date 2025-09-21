@@ -32,7 +32,7 @@ fark_diag_kry_bbd_p
 ===================================================
 
 This problem is an ARKode clone of the CVODE problem,
-``fcv_diag_kry_bbd_p``.  As described in [HSR2017]_, this problem
+``fcv_diag_kry_bbd_p``.  As described in :cite:p:`cvode_ug`, this problem
 models a stiff, linear, diagonal ODE system,
 
 .. math::
@@ -79,7 +79,7 @@ fark_diag_non_p
 ===================================================
 
 This problem is an ARKode clone of the CVODE problem,
-``fcv_diag_non_p``.  As described in [HSR2017]_, this problem models a
+``fcv_diag_non_p``.  As described in :cite:p:`cvode_ug`, this problem models a
 nonstiff, linear, diagonal ODE system,
 
 .. math::

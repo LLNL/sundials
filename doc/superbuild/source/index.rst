@@ -206,7 +206,7 @@ SUNDIALS License and Notices
    :maxdepth: 1
    :hidden:
 
-   examples/arkode/index.rst
+   examples/arkode/index-superbuild.rst
    examples/kinsol/index-superbuild.rst
 
 .. toctree::
