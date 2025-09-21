@@ -15,19 +15,19 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. ARKode_example documentation master file, created by
+.. ARKODE_example documentation master file, created by
    sphinx-quickstart on Sat Dec 22 20:38:03 2012.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-==============================================
-ARKode Example documentation
-==============================================
+===============
+ARKODE Examples
+===============
 
-This is the documentation for the ARKode examples.  ARKode is an
+This is the documentation for the ARKODE examples.  ARKODE is an
 adaptive step time integration package for stiff, nonstiff and
 multi-rate systems of ordinary differential equations (ODEs).
-The ARKode solver is a component of the `SUNDIALS
+The ARKODE solver is a component of the `SUNDIALS
 <https://computing.llnl.gov/projects/sundials>`_ suite of
 nonlinear and differential/algebraic equation solvers. It is designed
 to have a similar user experience to the `CVODE
@@ -39,24 +39,24 @@ MPI). The default integration and solver options should apply to most
 users, though complete control over all internal parameters and time
 adaptivity algorithms is enabled through optional interface routines.
 
-ARKode is developed by `Southern Methodist University
+ARKODE is developed by `Southern Methodist University
 <http://www.smu.edu>`_, with support by the `US Department of Energy
 <http://www.doe.gov>`_ through the `FASTMath
 <http://www.fastmath-scidac.org/>`_ SciDAC Institute, under subcontract
 B598130 from `Lawrence Livermore National Laboratory
 <http://www.llnl.gov>`_.
 
-Along with the ARKode solver, we have created a suite of example
+Along with the ARKODE solver, we have created a suite of example
 problems demonstrating its usage on applications written in C, C++ and
 Fortran.  These examples demonstrate a large variety
-of ARKode solver options, including explicit, implicit and ImEx
+of ARKODE solver options, including explicit, implicit and ImEx
 solvers, root-finding, Newton and fixed-point nonlinear solvers,
 direct and iterative linear solvers, adaptive resize capabilities, and
 the Fortran solver interface.  While these examples are not an
 exhaustive set of all possible usage scenarios, they are designed to
 show a variety of exemplars, and can be used as templates for new
-problems using ARKode's solvers.  Further information on the ARKode
-package itself may be found in the accompanying ARKode user guide
+problems using ARKODE's solvers.  Further information on the ARKODE
+package itself may be found in the accompanying ARKODE user guide
 [R2018]_.
 
 The following tables summarize the salient features of each of the
@@ -66,7 +66,7 @@ the problem that is most closely related to your own.  We group these
 examples according to programming language (C, C++, Fortran).
 
 
-ARKode example problems written in C are summarized in the table
+ARKODE example problems written in C are summarized in the table
 below, and are further described in the chapters :ref:`serial_c`,
 :ref:`openmp_c`, :ref:`parallel_c` and :ref:`parhyp_c`.
 
@@ -94,7 +94,7 @@ Problem                           Integrator  Nonlinear    Linear      Size     
 ================================  ==========  ===========  ==========  =============  =====================================================
 
 
-ARKode example problems written in C++ are summarized in the table
+ARKODE example problems written in C++ are summarized in the table
 below, and are further described in the chapters :ref:`serial_cpp` and
 :ref:`parallel_cpp`.
 
@@ -109,7 +109,7 @@ Problem                  Integrator  Nonlinear    Linear  Size           Extras
 
 
 ..
-   ARKode example problems written in Fortran 77 are summarized in the table
+   ARKODE example problems written in Fortran 77 are summarized in the table
    below, and are further described in the chapters :ref:`serial_f77` and
    :ref:`parallel_f77`.
 
@@ -125,7 +125,7 @@ Problem                  Integrator  Nonlinear    Linear  Size           Extras
    ==========================   ==========  ===========  ======  =============  =================================
 
 
-   ARKode example problems written in Fortran 90 are summarized in the table
+   ARKODE example problems written in Fortran 90 are summarized in the table
    below, and are further described in the chapters :ref:`serial_f90` and
    :ref:`parallel_f90`.
 
