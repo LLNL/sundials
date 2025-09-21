@@ -90,10 +90,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <kinsol/kinsol.h>             /* access to KINSOL func., consts.      */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
-#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype   */
+#include <kinsol/kinsol.h>           /* access to KINSOL func., consts.      */
+#include <nvector/nvector_serial.h>  /* access to serial N_Vector            */
+#include <sundials/sundials_dense.h> /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h> /* defs. of sunrealtype, sunindextype   */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 
 /* Math function macros */
@@ -364,8 +364,8 @@ static int func(N_Vector cc, N_Vector fval, void* user_data)
         dcxri = *(cxy + idxr + is) - *(cxy + is);
 
         /* Compute the total rate value at (xx,yy) */
-        fxy[is] = (data->coy)[is] * (dcyui - dcyli) + (data->cox)[is] * (dcxri - dcxli) +
-                  rxy[is];
+        fxy[is] = (data->coy)[is] * (dcyui - dcyli) +
+                  (data->cox)[is] * (dcxri - dcxli) + rxy[is];
 
       } /* end of is loop */
 
@@ -462,7 +462,7 @@ static int PrecSolveBD(N_Vector cc, N_Vector cscale, N_Vector fval,
 
   data = (UserData)user_data;
 
-  sunrealtype* vdata  = N_VGetArrayPointer(vv);
+  sunrealtype* vdata = N_VGetArrayPointer(vv);
 
   for (jx = 0; jx < MX; jx++)
   {
@@ -652,8 +652,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   sunrealtype *cloc, *sloc;
   sunrealtype ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
 
-  sunrealtype* ccdata  = N_VGetArrayPointer(cc);
-  sunrealtype* scdata  = N_VGetArrayPointer(sc);
+  sunrealtype* ccdata = N_VGetArrayPointer(cc);
+  sunrealtype* scdata = N_VGetArrayPointer(sc);
 
   /* Initialize arrays ctemp and stemp used in the loading process */
   for (i = 0; i < NUM_SPECIES / 2; i++)

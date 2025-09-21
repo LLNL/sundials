@@ -96,11 +96,11 @@
 
 #include <mpi.h>
 
-#include <kinsol/kinsol.h>             /* access to KINSOL func., consts.      */
-#include <kinsol/kinsol_bbdpre.h>      /* access to BBD preconditioner         */
-#include <nvector/nvector_parallel.h>  /* access to MPI parallel N_Vector      */
-#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
-#include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype   */
+#include <kinsol/kinsol.h>            /* access to KINSOL func., consts.      */
+#include <kinsol/kinsol_bbdpre.h>     /* access to BBD preconditioner         */
+#include <nvector/nvector_parallel.h> /* access to MPI parallel N_Vector      */
+#include <sundials/sundials_dense.h>  /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h>  /* defs. of sunrealtype, sunindextype   */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 
 /* Problem Constants */
@@ -345,10 +345,10 @@ int main(int argc, char* argv[])
      communication functions func_local and gcomm=NULL (all communication
      needed for the func_local is already done in func). */
   sunrealtype dq_rel_uu = ZERO;
-  sunindextype mudq = 2 * NUM_SPECIES - 1;
-  sunindextype mldq = 2 * NUM_SPECIES - 1;
-  sunindextype mukeep = NUM_SPECIES;
-  sunindextype mlkeep = NUM_SPECIES;
+  sunindextype mudq     = 2 * NUM_SPECIES - 1;
+  sunindextype mldq     = 2 * NUM_SPECIES - 1;
+  sunindextype mukeep   = NUM_SPECIES;
+  sunindextype mlkeep   = NUM_SPECIES;
 
   /* Initialize BBD preconditioner */
   retval = KINBBDPrecInit(kmem, Nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_uu,
@@ -555,8 +555,8 @@ static int func_local(sunindextype Nlocal, N_Vector cc, N_Vector fval,
         dcxri = cext[offsetcr + is] - cext[offsetc + is];
 
         /* compute the value at xx , yy */
-        fxy[is] = (data->coy)[is] * (dcyui - dcydi) + (data->cox)[is] * (dcxri - dcxli) +
-                  rxy[is];
+        fxy[is] = (data->coy)[is] * (dcyui - dcydi) +
+                  (data->cox)[is] * (dcxri - dcxli) + rxy[is];
 
       } /* end of is loop */
 
@@ -741,8 +741,8 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
   sunrealtype *cloc, *sloc;
   sunrealtype ctemp[NUM_SPECIES], stemp[NUM_SPECIES];
 
-  sunrealtype* ccdata  = N_VGetArrayPointer(cc);
-  sunrealtype* scdata  = N_VGetArrayPointer(sc);
+  sunrealtype* ccdata = N_VGetArrayPointer(cc);
+  sunrealtype* scdata = N_VGetArrayPointer(sc);
 
   /* Initialize arrays ctemp and stemp used in the loading process */
   for (i = 0; i < NUM_SPECIES / 2; i++)

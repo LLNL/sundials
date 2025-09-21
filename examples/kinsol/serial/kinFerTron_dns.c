@@ -154,12 +154,12 @@ int main(void)
   N_VConst(ONE, s); /* no scaling */
 
   sunrealtype* cdata = N_VGetArrayPointer(c);
-  cdata[0] = ZERO; /* no constraint on x1 */
-  cdata[1] = ZERO; /* no constraint on x2 */
-  cdata[2] = ONE;  /* l1 = x1 - x1_min >= 0 */
-  cdata[3] = -ONE; /* L1 = x1 - x1_max <= 0 */
-  cdata[4] = ONE;  /* l2 = x2 - x2_min >= 0 */
-  cdata[5] = -ONE; /* L2 = x2 - x22_min <= 0 */
+  cdata[0]           = ZERO; /* no constraint on x1 */
+  cdata[1]           = ZERO; /* no constraint on x2 */
+  cdata[2]           = ONE;  /* l1 = x1 - x1_min >= 0 */
+  cdata[3]           = -ONE; /* L1 = x1 - x1_max <= 0 */
+  cdata[4]           = ONE;  /* l2 = x2 - x2_min >= 0 */
+  cdata[5]           = -ONE; /* L2 = x2 - x22_min <= 0 */
 
   sunrealtype fnormtol  = FTOL; /* residual tolerance    */
   sunrealtype scsteptol = STOL; /* scaled step tolerance */
@@ -340,8 +340,7 @@ static int func(N_Vector u, N_Vector f, void* user_data)
   L2 = udata[5];
 
   fdata[0] = PT5 * sin(x1 * x2) - PT25 * x2 / PI - PT5 * x1;
-  fdata[1] = (ONE - PT25 / PI) * (EXP(TWO * x1) - E) + E * x2 / PI -
-             TWO * E * x1;
+  fdata[1] = (ONE - PT25 / PI) * (EXP(TWO * x1) - E) + E * x2 / PI - TWO * E * x1;
   fdata[2] = l1 - x1 + lb[0];
   fdata[3] = L1 - x1 + ub[0];
   fdata[4] = l2 - x2 + lb[1];
