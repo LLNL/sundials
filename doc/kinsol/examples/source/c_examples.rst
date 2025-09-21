@@ -45,10 +45,9 @@ exact and modified Newton method, with and without line search.
 Following the initial comment block, this program has a number of ``#include``
 lines, which allow access to useful items in KINSOL header files:
 
-* ``kinsol.h`` provides prototypes for the KINSOL functions to be called
-  (excluding the linear solver selection function), and also a number of
-  constants that are to be used in setting input arguments and testing the
-  return value of :c:func:`KINSol` .
+* ``kinsol.h`` provides prototypes for the KINSOL functions to be called and
+  also a number of constants that are to be used in setting input arguments and
+  testing the return value of :c:func:`KINSol` .
 
 * ``nvector_serial.h`` provides prototypes for the serial vector implementation.
 
@@ -67,38 +66,32 @@ lines, which allow access to useful items in KINSOL header files:
 Next, the program defines some problem-specific constants, which are isolated to
 this early location to make it easy to change them as needed.
 
-This program includes a user-defined accessor macro, ``Ith``, that is useful in
-writing the problem functions in a form closely matching the mathematical
-description of the system, i.e. with components numbered from 1 instead of
-from 0. The ``Ith`` macro is used to access components of a vector of type
-``N_Vector`` with a serial implementation.  It is defined using the ``nvecs``
-accessor macro ``NV_Ith_S`` which numbers components starting with 0.
-
 The program prologue ends with prototypes of the user-supplied system function
-``func`` and several private helper functions.
+``func`` and several helper functions.
 
-The ``main`` program begins with some dimensions and type declarations,
-including use of the type ``N_Vector``, initializations, and allocation and
-definitions for the user data structure ``data`` which contains two arrays with
+The ``main`` program begins with creating the SUNDIALS context object
+(``sunctx``) which must be passed to all other SUNDIALS constructors. Then we
+allocated the user data structure, ``data``, which contains two arrays with
 lower and upper bounds for :math:`x_1` and :math:`x_2`. Next, we create five
-serial vectors of type ``N_Vector`` for the two different initial guesses, the
-solution vector ``u``, the scaling factors, and the constraint specifications.
+serial vectors for the two different initial guesses (``u1`` and ``u2``), the
+solution vector (``u``), the scaling factors (``s``), and the constraint
+specifications (``c``).
 
-The initial guess vectors ``u1`` and ``u2`` are set by the private functions
+The initial guess vectors ``u1`` and ``u2`` are filled by the functions
 ``SetInitialGuess1`` and ``SetInitialGuess2`` and the constraint vector ``c`` is
 initialized to ``[0,0,1,-1,1,-1]`` indicating that there are no additional
-constraints on the first two components of ``u`` (i.e. :math:`x_1` and
+constraints on the first two components of ``u`` (i.e., :math:`x_1` and
 :math:`x_2`) and that the 3rd and 5th components should be non-negative, while
 the 4th and 6th should be non-positive.
 
 The calls to :c:func:`N_VNew_Serial`, and also later calls to various ``KIN***``
-functions, make use of a private function, ``check_flag``, which examines the
+functions, make use of a function, ``check_flag``, which examines the
 return value and prints a message if there was a failure.  The ``check_flag``
 function was written to be used for any serial SUNDIALS application.
 
-The call to :c:func:`KINCreate` creates the KINSOL solver memory block.  Its
-return value is a pointer to that memory block for this problem.  In the case of
-failure, the return value is ``NULL``.  This pointer must be passed in the
+The call to :c:func:`KINCreate` creates the KINSOL solver memory block. Its
+return value is a pointer to that memory block for this problem. In the case of
+failure, the return value is ``NULL``. This pointer must be passed in the
 remaining calls to KINSOL functions.
 
 The next four calls to KINSOL optional input functions specify the pointer to
@@ -106,38 +99,36 @@ the user data structure (to be passed to all subsequent calls to ``func``), the
 vector of additional constraints, and the function and scaled step tolerances,
 ``fnormtol`` and ``scsteptol``, respectively.
 
-Solver memory is allocated through the call to :c:func:`KINInit` which specifies
-the system function ``func`` and provides the vector ``u`` which will be used
-internally as a template for cloning additional necessary vectors of the same
-type as ``u``.
+The solver is initialized with :c:func:`KINInit` call which specifies the system
+function ``func`` and provides the vector ``u`` which will be used internally as
+a template for cloning additional necessary vectors of the same type as ``u``.
 
-The use of the dense linear solver is specified by calling ``SUNDenseMatrix`` to
-create the template Jacobian matrix (which also specifies the problem size
-``NEQ``), then calling :c:func:`SUNLinSol_Dense` to create the dense-direct
-linear solver, and finally calling :c:func:`KINSetLinearSolver` to attach these
-to KINSOL.
+The call to :c:func:`SUNDenseMatrix` to creates the Jacobian matrix to use with
+the dense linear solver which is created by :c:func:`SUNLinSol_Dense`. Finally,
+both of these objects are attached to KINSOL by calling
+:c:func:`KINSetLinearSolver`.
 
 The main program proceeds by solving the nonlinear system eight times, using
-each of the two initial guesses ``u1`` and ``u2`` (which are first copied into
-the vector ``u`` using ``N_VScale_Serial`` from the ``nvecs`` module), with and
-without globalization through line search (specified by setting ``glstr`` to
-``KIN_LINESEARCH`` and ``KIN_NONE``, respectively), and applying either an exact
-or a modified Newton method.  The switch from exact to modified Newton is done
-by changing the number of nonlinear iterations after which a Jacobian evaluation
-is enforced, a value ``mset=1`` thus resulting in re-evaluating the Jacobian at
-every single iteration of the nonlinear solver (exact Newton method). Note that
-passing ``mset=0`` indicates using the default KINSOL value of 10.
+each of the two initial guesses, ``u1`` and ``u2`` (which are first copied into
+the vector ``u`` using :c:func:`N_VScale`), with and without globalization
+through line search (specified by setting ``glstr`` to ``KIN_LINESEARCH`` and
+``KIN_NONE``, respectively), and applying either an exact or a modified Newton
+method. The switch from exact to modified Newton is done by changing the number
+of nonlinear iterations after which a Jacobian evaluation is enforced, a value
+``mset=1`` thus resulting in re-evaluating the Jacobian at every single
+iteration of the nonlinear solver (exact Newton method). Note that passing
+``mset=0`` indicates using the default KINSOL value of 10.
 
-The actual problem solution is carried out in the private function ``SolveIt``
-which calls the main solver function :c:func:`KINSol` after first setting the
-optional input ``mset``. After a successful return from :c:func:`KINSol` , the
+The actual problem solution is carried out in the function ``SolveIt`` which
+calls the main solver function, :c:func:`KINSol`, after first setting the
+optional input ``mset``. After a successful return from :c:func:`KINSol`, the
 solution :math:`[x_1, x_2]` and some solver statistics are printed.
 
 The function ``func`` is a straightforward expression of the extended nonlinear
-system. It uses the macro ``NV_DATA_S`` (defined by the ``nvecs`` module) to
-extract the pointers to the data arrays of the ``N_Vector``s ``u`` and ``f`` and
-sets the components of ``fdata`` using the current values for the components of
-``udata``.  See :c:type:`KINSysFn` for a detailed specification of ``f``.
+system. It uses the :c:func:`N_VGetArrayPointer` function to extract the data
+arrays of the vectors ``u`` and ``f`` and sets the components of ``fdata`` using
+the current values for the components of ``udata``. See :c:type:`KINSysFn` for a
+detailed specification of ``func``.
 
 The output generated by ``kinFerTron_dns`` is shown below.
 
@@ -266,7 +257,7 @@ are generally available for KINSOL user programs (for more information, see the
 comments in the header file ``sundials_dense.h``).
 
 In addition to the functions called by KINSOL, ``kinFoodWeb_kry.c`` includes
-definitions of several private functions.  These are: ``AllocUserData`` to
+definitions of several functions.  These are: ``AllocUserData`` to
 allocate space for the preconditioner and the pivot arrays; ``InitUserData`` to
 load problem constants in the ``data`` block; ``FreeUserData`` to free that
 block; ``SetInitialProfiles`` to load the initial values in ``cc``;
@@ -299,7 +290,7 @@ is ``NUM_SPECIES`` :math:`\times` ``MX`` :math:`\times` ``MY``.
 The evaluation of the nonlinear system function is performed in ``func``.  In
 this parallel setting, the processes first communicate the subgrid boundary data
 and then compute the local components of the nonlinear system function. The
-``mpi`` communication is isolated in the private function ``ccomm`` (which in
+``mpi`` communication is isolated in the function ``ccomm`` (which in
 turn calls ``BRecvPost``, ``BSend``, and ``BRecvWait``) and the subgrid boundary
 data received from neighboring processes is loaded into the work array
 ``cext``. The computation of the nonlinear system function is done in
