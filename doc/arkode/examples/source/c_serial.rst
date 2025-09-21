@@ -792,7 +792,7 @@ c^2,\,\ldots, c^6]^T` that satisfy the equations,
 
 .. math::
 
-   \frac{\partial c^i}{\partial t} &= d_i \left(\frac{\partial^2 c^i}{\partial
+   \frac{\partial c^i}{\partial t} = d_i \left(\frac{\partial^2 c^i}{\partial
       x^2} + \frac{\partial^2 c^i}{\partial y^2}\right) +
       f_i(x,y,c),\quad i=1,\ldots,6.
 
@@ -809,16 +809,16 @@ predators.  The coefficients :math:`a_{i,j}, b_i, d_i` are:
 
    a_{i,j} = \begin{cases}
                -1, \quad & i=j,\\
-	       -0.5\times10^{-6}, \quad & i\le 3, j>3, \\
-	        10^4, \quad & i>3, j\le3
+               -0.5\times10^{-6}, \quad & i\le 3, j>3, \\
+                10^4, \quad & i>3, j\le3
              \end{cases}
    b_i = \begin{cases}
             (1+xy), \quad & i\le 3,\\
-	   -(1+xy), \quad & i>3
+           -(1+xy), \quad & i>3
          \end{cases}
    d_i = \begin{cases}
             1, \quad & i\le 3,\\
-	    \frac12, \quad & i>3
+            \frac12, \quad & i>3
          \end{cases}
 
 The spatial domain is :math:`(x,y) \in [0, 1]^2`; the time domain is
@@ -826,7 +826,7 @@ The spatial domain is :math:`(x,y) \in [0, 1]^2`; the time domain is
 
 .. math::
 
-   c^i(x,y) &=  10 + i \sqrt{4x(1-x)}\sqrt{4y(1-y)}
+   c^i(x,y) =  10 + i \sqrt{4x(1-x)}\sqrt{4y(1-y)}
 
 and with homogeneous Neumann boundary conditions,
 :math:`\nabla c^i \cdot \vec{n} = 0`.

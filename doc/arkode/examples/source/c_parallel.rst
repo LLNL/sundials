@@ -38,7 +38,7 @@ in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &=
+   \frac{\partial c_i}{\partial t} =
      K_h \frac{\partial^2 c_i}{\partial x^2} +
      V \frac{\partial     c_i}{\partial x} +
      \frac{\partial}{\partial y}\left( K_v(y)
@@ -119,7 +119,7 @@ in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &=
+   \frac{\partial c_i}{\partial t} =
      K_h \frac{\partial^2 c_i}{\partial x^2} +
      V \frac{\partial     c_i}{\partial x} +
      \frac{\partial}{\partial y}\left( K_v(y)
