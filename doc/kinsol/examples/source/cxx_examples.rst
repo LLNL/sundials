@@ -3,8 +3,6 @@
 C++ Example Problems
 ====================
 
-TEST CXX
-
 Parallel Matrix-Free Example: kin_heat2D_nonlin_p
 -------------------------------------------------
 

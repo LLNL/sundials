@@ -95,7 +95,6 @@
 #include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
 #include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype   */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
-#include "sundials/sundials_nvector.h"
 
 /* Math function macros */
 
@@ -163,7 +162,7 @@ typedef struct
   sunindextype mx, my, ns, np;
 }* UserData;
 
-/* Functions Called by the KINSOL Solver */
+/* Functions called by the KINSOL Solver */
 
 static int func(N_Vector cc, N_Vector fval, void* user_data);
 
@@ -205,13 +204,16 @@ int main(void)
   if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* Allocate memory, and set problem data, initial values, tolerances */
-  int globalstrategy = KIN_NONE;
 
+  /* Allocate and initialize user data block */
   UserData data = AllocUserData();
   if (check_retval((void*)data, "AllocUserData", 2)) { return (1); }
   InitUserData(data);
 
-  /* Create serial vectors of length NEQ */
+  /* Set global strategy retval */
+  int globalstrategy = KIN_NONE;
+
+  /* Allocate and initialize vectors */
   N_Vector cc = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void*)cc, "N_VNew_Serial", 0)) { return (1); }
 
@@ -688,14 +690,14 @@ static void SetInitialProfiles(N_Vector cc, N_Vector sc)
 static void PrintHeader(int globalstrategy, int maxl, int maxlrst,
                         sunrealtype fnormtol, sunrealtype scsteptol)
 {
-  printf("\nPredator-prey test problem --  KINSol (serial version)\n\n");
+  printf("Predator-prey test problem -- KINSol (serial version)\n\n");
   printf("Mesh dimensions = %d X %d\n", MX, MY);
   printf("Number of species = %d\n", NUM_SPECIES);
   printf("Total system size = %d\n\n", NEQ);
   printf("Flag globalstrategy = %d (0 = None, 1 = Linesearch)\n", globalstrategy);
   printf("Linear solver is SPGMR with maxl = %d, maxlrst = %d\n", maxl, maxlrst);
   printf("Preconditioning uses interaction-only block-diagonal matrix\n");
-  printf("Positivity constraints imposed on all components \n");
+  printf("Positivity constraints imposed on all components\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  fnormtol = %Lg   scsteptol = %Lg\n", fnormtol,
          scsteptol);
@@ -783,7 +785,7 @@ static void PrintFinalStats(void* kmem)
   retval = KINGetNumLinFuncEvals(kmem, &nfeSG);
   check_retval(&retval, "KINGetNumLinFuncEvals", 1);
 
-  printf("Final Statistics.. \n");
+  printf("Final Statistics..\n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);
   printf("nfe    = %5ld    nfeSG = %5ld\n", nfe, nfeSG);
   printf("nps    = %5ld    npe   = %5ld     ncfl  = %5ld\n", nps, npe, ncfl);

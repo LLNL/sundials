@@ -183,7 +183,7 @@ int main(void)
   if (check_retval(&retval, "KINInit", 1)) { return (1); }
 
   /* Create dense SUNMatrix */
-  SUNMatirx J = SUNDenseMatrix(NEQ, NEQ, sunctx);
+  SUNMatrix J = SUNDenseMatrix(NEQ, NEQ, sunctx);
   if (check_retval((void*)J, "SUNDenseMatrix", 0)) { return (1); }
 
   /* Create dense SUNLinearSolver object */
