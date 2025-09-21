@@ -52,14 +52,15 @@
  * -----------------------------------------------------------------
  */
 
-#include <kinsol/kinsol.h> /* access to KINSOL func., consts. */
 #include <math.h>
-#include <nvector/nvector_serial.h> /* access to serial N_Vector       */
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <kinsol/kinsol.h>             /* access to KINSOL func., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector          */
 #include <sundials/sundials_types.h>   /* defs. of sunrealtype, sunindextype */
-#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix       */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver    */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix          */
 
 /* Problem Constants */
 

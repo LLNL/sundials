@@ -1,10 +1,7 @@
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2025, Lawrence Livermore National Security,
-# University of Maryland Baltimore County, and the SUNDIALS contributors.
-# Copyright (c) 2013-2025, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
-# Copyright (c) 2002-2013, Lawrence Livermore National Security.
 # All rights reserved.
 #
 # See the top-level LICENSE and NOTICE files for details.
@@ -15,19 +12,19 @@
 
 import sys, os
 
-sys.path.append(os.path.dirname(os.path.abspath("../../shared/sundials_vars.py")))
+sys.path.append(os.path.dirname(os.path.abspath("../../../shared/sundials_vars.py")))
 from sundials_vars import *
 
-sys.path.append(os.path.dirname(os.path.abspath("../../shared")))
+sys.path.append(os.path.dirname(os.path.abspath("../../../shared")))
 
 # Add suntools directory to import python function docstings with autodoc
-sys.path.append(os.path.abspath("../../../tools/suntools"))
+sys.path.append(os.path.abspath("../../../../tools/suntools"))
 
-# -- General configuration ----------------------------------------------------
+# -- General configuration -----------------------------------------------------
 
 # Set variable used to determine which package documentation this is
 # Can be one of 'arkode', 'cvode', 'cvodes', 'ida', 'idas', 'kinsol' or 'super'
-package_name = "super"
+package_name = "kinsol"
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = "4.0"
@@ -37,30 +34,36 @@ needs_sphinx = "4.0"
 extensions = [
     "sphinx_rtd_theme",
     "sphinx.ext.ifconfig",
-    "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
     "sphinxfortran.fortran_domain",
     "sphinxcontrib.bibtex",
     "sphinx_copybutton",
-    "sphinx.ext.graphviz",
     "sphinx_sundials",
-    "sphinx_toolbox.collapse",
     "sphinx.ext.autodoc",
 ]
 
-# Where to find cross-references to the Sphinx documentation.
 intersphinx_mapping = {
-    "sphinx": ("https://www.sphinx-doc.org/en/master", ("../objects.inv", None))
+    "sundials": (
+        f"https://sundials.readthedocs.io/en/{doc_version}",
+        ("../../../superbuild/build/html/objects.inv", None),
+    )
 }
 
-# No non-external references will be resolved by intersphinx
-intersphinx_disabled_reftypes = ["*"]
+# Ignore warnings from nonlinear solver references in change log
+nitpick_ignore.extend(
+    [
+        ("c:func", "SUNNonlinSolSysFn"),
+        ("c:func", "SUNNonlinSolLSetupFn"),
+        ("c:func", "SUNNonlinSolLSolveFn"),
+    ]
+)
 
 # References
-bibtex_bibfiles = ["../../shared/sundials.bib"]
+bibtex_bibfiles = ["../../../shared/sundials.bib"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["../../shared/_templates"]
+templates_path = ["../../../shared/_templates"]
 
 # The suffix of source filenames.
 source_suffix = ".rst"
@@ -72,8 +75,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "User Documentation for SUNDIALS"
-copyright = """2002-{year}, Lawrence Livermore National Security and Southern Methodist University""".format(
+project = "Example Programs for KINSOL"
+copyright = """2002-{year}, Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward""".format(
     year=year
 )
 
@@ -82,16 +85,15 @@ copyright = """2002-{year}, Lawrence Livermore National Security and Southern Me
 # built documents.
 #
 # The short X.Y version.
+version = "{kinsol_version}".format(kinsol_version=kinsol_version)
 sun_version = "{sundials_version}".format(sundials_version=sundials_version)
-version = sun_version
 
 # Set the date format (full-month-name day, full-year)
 today_fmt = "%B %d, %Y"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['examples/kinsol/index.rst',
-                    'examples/kinsol/references.rst']
+exclude_patterns = ['index-superbuild.rst']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 # default_role = None
@@ -120,7 +122,7 @@ numfig = True
 # Override format strings that numref/numfig uses
 numfig_format = {"section": "§%s"}
 
-rst_prolog = open("../../shared/global.rst.txt", "r").read()
+rst_prolog = open("../../../shared/global.rst.txt", "r").read()
 
 rst_epilog = """
 .. |YEAR| replace:: {year}
@@ -161,7 +163,7 @@ html_theme_options = {
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "../../shared/figs/sundials_logo_blue.png"
+html_logo = "figs/sundials_logo_blue.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -171,7 +173,7 @@ html_logo = "../../shared/figs/sundials_logo_blue.png"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["../../shared/_static"]
+html_static_path = ["../../../shared/_static"]
 
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
@@ -219,4 +221,89 @@ html_show_sourcelink = False
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "SUNDIALSdoc"
+htmlhelp_basename = "KINSOLExampledoc"
+
+# -- Options for LaTeX output --------------------------------------------------
+
+latex_additional_files = [
+    "../../../shared/latex/preamble.tex.txt",
+    "../../../shared/latex/cover_pages.tex.txt",
+]
+
+im_number = "UCRL-SM-208116"
+
+# 1. the rst file name used to generate the LaTeX file
+# 2. the name of the LaTeX file to generate (and the resulting PDF file name)
+# 3. the document title
+# 4. text for \author
+# 5. the LaTeX theme
+# 6. include the file from 1. in the output
+tex_author = r"""
+    Aaron M. Collier and Radu Serban\\
+    {\em Center for Applied Scientific Computing}\\
+    {\em Lawrence Livermore National Laboratory}
+    """
+
+# 1. the rst file name used to generate the LaTeX file
+# 2. the name of the LaTeX file to generate (and the resulting PDF file name)
+# 3. the document title
+# 4. text for \author
+# 5. the LaTeX theme
+# 6. include the file from 1. in the output
+tex_author = r"""
+Aaron M. Collier$^1$,
+Radu Serban$^1$,
+Alan C. Hindmarsh$^1$,
+Cody J. Balos$^1$,
+David J. Gardner$^1$,\\
+Daniel R. Reynolds$^2$, and
+Carol S. Woodward$^1$
+\\\\
+{\em $^1$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory}\\
+{\em $^2$Department of Mathematics, Southern Methodist University}
+"""
+
+latex_documents = [("index", "kin_examples.tex", project, tex_author, "manual", False)]
+
+# make sure the doc logo gets copied to the build directory
+latex_logo = "figs/doc_logo_blue.pdf"
+
+# LaTeX customizations
+latex_elements = {
+    # paper size option of the document class
+    "papersize": "letterpaper",
+    # font size option of the document class
+    "pointsize": "10pt",
+    # set the version number/release name
+    "releasename": version,
+    # arguments to the sphinxsetup macro
+    "sphinxsetup":
+    # the color for titles
+    "TitleColor={RGB}{0,0,0}," +
+    # disable frames around code-blocks
+    "verbatimwithframe=false," +
+    # do not wrap long lines in code-blocks
+    "verbatimwrapslines=false," +
+    # background color for code-blocks
+    "VerbatimColor={RGB}{240.0,240.0,240.0}," +
+    # font used by heading
+    "HeaderFamily=\\rmfamily\\bfseries," +
+    # line breaks are allowed inside inline literals
+    "inlineliteralwraps=true",
+    # disable the fncychap package
+    "fncychap": "",
+    # figure alignment options
+    "figure_align": "htbp",
+    # additional preamble content
+    "preamble": "\\input{preamble.tex.txt}\n"
+    + "\\newcommand{\\sunreleasename}{"
+    + sun_version
+    + "}\n"
+    + "\\newcommand{\\imnumber}{"
+    + im_number
+    + "}\n",
+    # extra class options
+    "extraclassoptions": "twoside,openright",
+    # custom maketitle
+    "maketitle": "\\input{cover_pages.tex.txt}",
+}
