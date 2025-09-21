@@ -202,6 +202,13 @@ SUNDIALS License and Notices
    FAQ_link.rst
 
 .. toctree::
+   :caption: EXAMPLES
+   :maxdepth: 1
+   :hidden:
+
+   examples/arkode/index.rst
+
+.. toctree::
    :caption: DEVELOPMENT
    :maxdepth: 1
    :hidden:
