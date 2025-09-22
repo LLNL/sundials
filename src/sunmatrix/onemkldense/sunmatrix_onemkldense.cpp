@@ -86,7 +86,7 @@ SUNMatrix SUNMatrix_OneMklDenseBlock(sunindextype num_blocks, sunindextype M,
 
   // Check inputs
   if ((M <= 0) || (N <= 0) || (num_blocks <= 0) || (!mem_helper) ||
-      ((mem_type != SUNMEMTYPE__UVM) && (mem_type != SUNMEMTYPE__DEVICE)))
+      ((mem_type != SUNMEMTYPE_UVM) && (mem_type != SUNMEMTYPE_DEVICE)))
   {
     SUNDIALS_DEBUG_ERROR("Illegal input\n");
     return NULL;
@@ -252,7 +252,7 @@ SUNErrCode SUNMatrix_OneMklDense_CopyToDevice(SUNMatrix A, sunrealtype* h_data)
 
   // Wrap the input pointer
   SUNMemory _h_data = SUNMemoryHelper_Wrap(MAT_MEMHELPER(A), h_data,
-                                           SUNMEMTYPE__HOST);
+                                           SUNMEMTYPE_HOST);
   if (!_h_data)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory wrap failed\n");
@@ -286,7 +286,7 @@ SUNErrCode SUNMatrix_OneMklDense_CopyFromDevice(SUNMatrix A, sunrealtype* h_data
   }
 
   SUNMemory _h_data = SUNMemoryHelper_Wrap(MAT_MEMHELPER(A), h_data,
-                                           SUNMEMTYPE__HOST);
+                                           SUNMEMTYPE_HOST);
   if (!_h_data)
   {
     SUNDIALS_DEBUG_ERROR("SUNMemory wrap failed\n");

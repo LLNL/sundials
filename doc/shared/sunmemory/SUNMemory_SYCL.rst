@@ -52,10 +52,10 @@ The implementation provides the following operations defined by the
    :param memptr: pointer to the allocated ``SUNMemory``.
    :param mem_size: the size in bytes of the ``ptr``.
    :param mem_type: the ``SUNMemoryType`` of the ``ptr``. Supported values are:
-     * ``SUNMEMTYPE__HOST`` -- memory is allocated with a call to ``malloc``.
-     * ``SUNMEMTYPE__PINNED`` -- memory is allocated with a call to ``sycl::malloc_host``.
-     * ``SUNMEMTYPE__DEVICE`` -- memory is allocated with a call to ``sycl::malloc_device``.
-     * ``SUNMEMTYPE__UVM`` -- memory is allocated with a call to ``sycl::malloc_shared``.
+     * ``SUNMEMTYPE_HOST`` -- memory is allocated with a call to ``malloc``.
+     * ``SUNMEMTYPE_PINNED`` -- memory is allocated with a call to ``sycl::malloc_host``.
+     * ``SUNMEMTYPE_DEVICE`` -- memory is allocated with a call to ``sycl::malloc_device``.
+     * ``SUNMEMTYPE_UVM`` -- memory is allocated with a call to ``sycl::malloc_shared``.
    :param queue: the ``sycl::queue`` handle for the stream that the allocation will be performed on.
    :return: A new :c:type:`SUNMemory` object.
 

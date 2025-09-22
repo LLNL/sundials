@@ -152,12 +152,12 @@ int main(int argc, char* argv[])
   SUNMatrix A;
   if (nblocks > 1)
   {
-    A = SUNMatrix_OneMklDenseBlock(nblocks, rows, cols, SUNMEMTYPE__DEVICE,
+    A = SUNMatrix_OneMklDenseBlock(nblocks, rows, cols, SUNMEMTYPE_DEVICE,
                                    memhelper, &myQueue, sunctx);
   }
   else
   {
-    A = SUNMatrix_OneMklDense(rows, cols, SUNMEMTYPE__DEVICE, memhelper,
+    A = SUNMatrix_OneMklDense(rows, cols, SUNMEMTYPE_DEVICE, memhelper,
                               &myQueue, sunctx);
   }
 

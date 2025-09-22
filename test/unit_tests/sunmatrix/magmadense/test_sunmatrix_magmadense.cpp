@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
     y   = HIP_OR_CUDA(N_VNew_Hip(matrows * nblocks, sunctx);
                       , N_VNew_Cuda(matrows * nblocks, sunctx);)
       A = SUNMatrix_MagmaDenseBlock(nblocks, matrows, matcols,
-                                    SUNMEMTYPE__DEVICE, memhelper, NULL, sunctx);
+                                    SUNMEMTYPE_DEVICE, memhelper, NULL, sunctx);
   if (square) { I = SUNMatClone(A); }
 
   /* Allocate host data */

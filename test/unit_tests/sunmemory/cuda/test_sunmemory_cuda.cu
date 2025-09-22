@@ -37,7 +37,7 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
   // Write to the memory
   sunrealtype host_arr[N];
   sunrealtype* some_arr = static_cast<sunrealtype*>(some_memory->ptr);
-  if (mem_type == SUNMEMTYPE__DEVICE)
+  if (mem_type == SUNMEMTYPE_DEVICE)
   {
     for (int i = 0; i < N; i++) { host_arr[i] = i * sunrealtype{1.0}; }
     cudaMemcpy(some_memory->ptr, host_arr, bytes_to_alloc,
@@ -64,7 +64,7 @@ int test_instance(SUNMemoryHelper helper, SUNMemoryType mem_type,
     }
     return -1;
   }
-  if (mem_type == SUNMEMTYPE__DEVICE)
+  if (mem_type == SUNMEMTYPE_DEVICE)
   {
     sunrealtype other_arr[N];
     cudaMemcpy(other_arr, other_memory->ptr, bytes_to_alloc,
@@ -208,17 +208,17 @@ int main(int argc, char* argv[])
   std::cout << "  SUNMemoryHelper_Cuda... PASSED\n";
 
   std::cout << "With host memory... \n";
-  test_instance(helper, SUNMEMTYPE__HOST, true);
+  test_instance(helper, SUNMEMTYPE_HOST, true);
   std::cout << "With pinned memory... \n";
-  test_instance(helper, SUNMEMTYPE__PINNED, true);
+  test_instance(helper, SUNMEMTYPE_PINNED, true);
   std::cout << "With device memory... \n";
-  test_instance(helper, SUNMEMTYPE__DEVICE, true);
+  test_instance(helper, SUNMEMTYPE_DEVICE, true);
   std::cout << "With uvm memory... \n";
-  test_instance(helper, SUNMEMTYPE__UVM, true);
+  test_instance(helper, SUNMEMTYPE_UVM, true);
 
   std::cout << "  SUNMemoryHelper_Clone... \n";
   SUNMemoryHelper helper2 = SUNMemoryHelper_Clone(helper);
-  if (!helper || test_instance(helper2, SUNMEMTYPE__HOST, false))
+  if (!helper || test_instance(helper2, SUNMEMTYPE_HOST, false))
   {
     std::cout << "  SUNMemoryHelper_Clone... FAILED\n";
     return -1;

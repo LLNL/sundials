@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
   }
 
   SUNMatrix A = SUNMatrix_OneMklDenseBlock(nblocks, matrows, matcols,
-                                           SUNMEMTYPE__DEVICE, memhelper,
+                                           SUNMEMTYPE_DEVICE, memhelper,
                                            &myQueue, sunctx);
   if (!A)
   {
