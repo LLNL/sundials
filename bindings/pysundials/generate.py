@@ -34,6 +34,9 @@ def main():
     # Export enum values to the package namespace
     options.enum_export_values = True
 
+    # Enum values should be exported with their prefix. E.g., SUNDATAIOMODE_INMEM is exported for the enum SUNDataIOMode_, instead of just INMEM.
+    options.enum_flag_remove_values_prefix = False
+
     # Allow const char to be nullable
     options.fn_params_const_char_pointer_with_default_null = True
 

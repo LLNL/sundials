@@ -27,6 +27,6 @@ m.attr("SUN_COMM_NULL") = 0;
 
 auto pyEnumSUNDataIOMode_ =
   nb::enum_<SUNDataIOMode_>(m, "SUNDataIOMode_", nb::is_arithmetic(), "")
-    .value("SUN_DATAIOMODE_INMEM", SUN_DATAIOMODE_INMEM, "")
+    .value("SUNDATAIOMODE_INMEM", SUNDATAIOMODE_INMEM, "")
     .export_values();
 // #endif

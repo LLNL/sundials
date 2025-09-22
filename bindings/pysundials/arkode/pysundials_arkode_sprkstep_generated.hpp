@@ -4,9 +4,6 @@
 // #endif
 //
 
-m.def("SPRKStepSetUseCompensatedSums", SPRKStepSetUseCompensatedSums,
-      nb::arg("arkode_mem"), nb::arg("onoff"));
-
 m.def("SPRKStepSetMethod", SPRKStepSetMethod, nb::arg("arkode_mem"),
       nb::arg("sprk_storage"));
 
