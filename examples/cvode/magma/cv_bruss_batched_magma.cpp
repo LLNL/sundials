@@ -131,7 +131,7 @@ class Array
 public:
   Array(I size, SUNMemoryHelper helper) : helper_(helper), mem_(nullptr)
   {
-    SUNMemoryHelper_Alloc(helper, &mem_, size * sizeof(T), SUNMEMTYPE__UVM, NULL);
+    SUNMemoryHelper_Alloc(helper, &mem_, size * sizeof(T), SUNMEMTYPE_UVM, NULL);
   }
 
   Array(SUNMemory mem, SUNMemoryHelper helper) : helper_(helper), mem_(mem) {}
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
   {
     /* Create SUNMatrix for use in linear solves */
     A = SUNMatrix_MagmaDenseBlock(udata.nbatches, udata.batchSize,
-                                  udata.batchSize, SUNMEMTYPE__DEVICE, memhelper,
+                                  udata.batchSize, SUNMEMTYPE_DEVICE, memhelper,
                                   NULL, sunctx);
     if (check_retval((void*)A, "SUNMatrix_MagmaDenseBlock", 0)) { return (1); }
 

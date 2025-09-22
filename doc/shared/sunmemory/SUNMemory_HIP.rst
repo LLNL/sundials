@@ -52,10 +52,10 @@ The implementation provides the following operations defined by the
    :param memptr: pointer to the allocated ``SUNMemory``.
    :param mem_size: the size in bytes of the ``ptr``.
    :param mem_type: the ``SUNMemoryType`` of the ``ptr``. Supported values are:
-     * ``SUNMEMTYPE__HOST`` -- memory is allocated with a call to ``malloc``.
-     * ``SUNMEMTYPE__PINNED`` -- memory is allocated with a call to ``hipMallocHost``.
-     * ``SUNMEMTYPE__DEVICE`` -- memory is allocated with a call to ``hipMalloc``.
-     * ``SUNMEMTYPE__UVM`` -- memory is allocated with a call to ``hipMallocManaged``.
+     * ``SUNMEMTYPE_HOST`` -- memory is allocated with a call to ``malloc``.
+     * ``SUNMEMTYPE_PINNED`` -- memory is allocated with a call to ``hipMallocHost``.
+     * ``SUNMEMTYPE_DEVICE`` -- memory is allocated with a call to ``hipMalloc``.
+     * ``SUNMEMTYPE_UVM`` -- memory is allocated with a call to ``hipMallocManaged``.
    :param queue: currently unused.
    :return: A new :c:type:`SUNMemory` object.
 

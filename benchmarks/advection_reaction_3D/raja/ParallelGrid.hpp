@@ -549,25 +549,25 @@ private:
   SUNMemoryType memoryType()
   {
     SUNMemory test;
-    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE__PINNED,
+    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_PINNED,
                                nullptr))
     {
       SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
-      return (SUNMEMTYPE__PINNED);
+      return (SUNMEMTYPE_PINNED);
     }
-    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE__DEVICE,
+    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_DEVICE,
                                nullptr))
     {
       SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
-      return (SUNMEMTYPE__DEVICE);
+      return (SUNMEMTYPE_DEVICE);
     }
-    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE__UVM,
+    if (!SUNMemoryHelper_Alloc(memhelp, &test, sizeof(REAL), SUNMEMTYPE_UVM,
                                nullptr))
     {
       SUNMemoryHelper_Dealloc(memhelp, test, nullptr);
-      return (SUNMEMTYPE__UVM);
+      return (SUNMEMTYPE_UVM);
     }
-    else { return (SUNMEMTYPE__HOST); }
+    else { return (SUNMEMTYPE_HOST); }
   }
 };
 

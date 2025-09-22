@@ -325,9 +325,9 @@ N_Vector N_VMake_Hip(sunindextype length, sunrealtype* h_vdata,
   NVEC_HIP_CONTENT(v)->length     = length;
   NVEC_HIP_CONTENT(v)->mem_helper = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->host_data =
-    SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), h_vdata, SUNMEMTYPE__HOST);
+    SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), h_vdata, SUNMEMTYPE_HOST);
   NVEC_HIP_CONTENT(v)->device_data =
-    SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), d_vdata, SUNMEMTYPE__DEVICE);
+    SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), d_vdata, SUNMEMTYPE_DEVICE);
   NVEC_HIP_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
   NVEC_HIP_CONTENT(v)->reduce_exec_policy = DEFAULT_REDUCTION_EXECPOLICY.clone();
   NVEC_HIP_CONTENT(v)->own_helper      = SUNTRUE;
@@ -366,7 +366,7 @@ N_Vector N_VMakeManaged_Hip(sunindextype length, sunrealtype* vdata,
   NVEC_HIP_CONTENT(v)->length     = length;
   NVEC_HIP_CONTENT(v)->mem_helper = SUNMemoryHelper_Hip(sunctx);
   NVEC_HIP_CONTENT(v)->host_data  = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v),
-                                                         vdata, SUNMEMTYPE__UVM);
+                                                         vdata, SUNMEMTYPE_UVM);
   NVEC_HIP_CONTENT(v)->device_data =
     SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v), NVEC_HIP_CONTENT(v)->host_data);
   NVEC_HIP_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();
@@ -411,7 +411,7 @@ void N_VSetHostArrayPointer_Hip(sunrealtype* h_vdata, N_Vector v)
     {
       NVEC_HIP_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v),
                                                             (void*)h_vdata,
-                                                            SUNMEMTYPE__UVM);
+                                                            SUNMEMTYPE_UVM);
       NVEC_HIP_CONTENT(v)->device_data =
         SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v),
                               NVEC_HIP_CONTENT(v)->host_data);
@@ -427,7 +427,7 @@ void N_VSetHostArrayPointer_Hip(sunrealtype* h_vdata, N_Vector v)
     {
       NVEC_HIP_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v),
                                                             (void*)h_vdata,
-                                                            SUNMEMTYPE__HOST);
+                                                            SUNMEMTYPE_HOST);
     }
   }
 }
@@ -449,7 +449,7 @@ void N_VSetDeviceArrayPointer_Hip(sunrealtype* d_vdata, N_Vector v)
     {
       NVEC_HIP_CONTENT(v)->device_data =
         SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*)d_vdata,
-                             SUNMEMTYPE__UVM);
+                             SUNMEMTYPE_UVM);
       NVEC_HIP_CONTENT(v)->host_data =
         SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v),
                               NVEC_HIP_CONTENT(v)->device_data);
@@ -465,7 +465,7 @@ void N_VSetDeviceArrayPointer_Hip(sunrealtype* d_vdata, N_Vector v)
     {
       NVEC_HIP_CONTENT(v)->device_data =
         SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*)d_vdata,
-                             SUNMEMTYPE__DEVICE);
+                             SUNMEMTYPE_DEVICE);
     }
   }
 }
@@ -1978,7 +1978,7 @@ SUNErrCode N_VBufPack_Hip(N_Vector x, void* buf)
   if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf,
-                                           SUNMEMTYPE__HOST);
+                                           SUNMEMTYPE_HOST);
   if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(x), buf_mem,
@@ -2004,7 +2004,7 @@ SUNErrCode N_VBufUnpack_Hip(N_Vector x, void* buf)
   if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(x), buf,
-                                           SUNMEMTYPE__HOST);
+                                           SUNMEMTYPE_HOST);
   if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
   copy_fail = SUNMemoryHelper_CopyAsync(NVEC_HIP_MEMHELP(x),
@@ -2269,33 +2269,33 @@ int AllocateData(N_Vector v)
   if (vcp->use_managed_mem)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->device_data),
-                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE__UVM,
+                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_UVM,
                                        (void*)NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc "
-                           "failed for SUNMEMTYPE__UVM\n");
+                           "failed for SUNMEMTYPE_UVM\n");
     }
     vc->host_data = SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v), vc->device_data);
   }
   else
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->host_data),
-                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE__HOST,
+                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_HOST,
                                        (void*)NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc "
-                           "failed to alloc SUNMEMTYPE__HOST\n");
+                           "failed to alloc SUNMEMTYPE_HOST\n");
     }
 
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vc->device_data),
-                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE__DEVICE,
+                                       NVEC_HIP_MEMSIZE(v), SUNMEMTYPE_DEVICE,
                                        (void*)NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc "
-                           "failed to alloc SUNMEMTYPE__DEVICE\n");
+                           "failed to alloc SUNMEMTYPE_DEVICE\n");
     }
   }
 
@@ -2331,37 +2331,37 @@ static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n)
     // Allocate pinned memory on the host
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                        &(vcp->reduce_buffer_host), bytes,
-                                       SUNMEMTYPE__PINNED,
+                                       SUNMEMTYPE_PINNED,
                                        (void*)NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT(
         "WARNING in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to "
-        "alloc SUNMEMTYPE__PINNED, using SUNMEMTYPE__HOST instead\n");
+        "alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
 
       // If pinned alloc failed, allocate plain host memory
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                          &(vcp->reduce_buffer_host), bytes,
-                                         SUNMEMTYPE__HOST,
+                                         SUNMEMTYPE_HOST,
                                          (void*)NVEC_HIP_STREAM(v));
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT(
           "ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to "
-          "alloc SUNMEMTYPE__HOST\n");
+          "alloc SUNMEMTYPE_HOST\n");
       }
     }
 
     // Allocate device memory
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                        &(vcp->reduce_buffer_dev), bytes,
-                                       SUNMEMTYPE__DEVICE,
+                                       SUNMEMTYPE_DEVICE,
                                        (void*)NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT(
         "ERROR in InitializeReductionBuffer: SUNMemoryHelper_Alloc failed to "
-        "alloc SUNMEMTYPE__DEVICE\n");
+        "alloc SUNMEMTYPE_DEVICE\n");
     }
   }
 
@@ -2453,7 +2453,7 @@ static int InitializeDeviceCounter(N_Vector v)
   {
     retval = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
                                    &(NVEC_HIP_PRIVATE(v)->device_counter),
-                                   sizeof(unsigned int), SUNMEMTYPE__DEVICE,
+                                   sizeof(unsigned int), SUNMEMTYPE_DEVICE,
                                    (void*)NVEC_HIP_STREAM(v));
   }
   hipMemsetAsync(NVEC_HIP_DCOUNTERp(v), 0, sizeof(unsigned int),

@@ -103,8 +103,8 @@ SUNMemory SUNMemoryHelper_Wrap(SUNMemoryHelper helper, void* ptr,
 {
   SUNFunctionBegin(helper->sunctx);
 
-  SUNCheckNull(mem_type == SUNMEMTYPE__HOST || mem_type == SUNMEMTYPE__PINNED ||
-                 mem_type == SUNMEMTYPE__DEVICE || mem_type == SUNMEMTYPE__UVM,
+  SUNCheckNull(mem_type == SUNMEMTYPE_HOST || mem_type == SUNMEMTYPE_PINNED ||
+                 mem_type == SUNMEMTYPE_DEVICE || mem_type == SUNMEMTYPE_UVM,
                SUN_ERR_ARG_OUTOFRANGE);
 
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);

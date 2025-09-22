@@ -179,11 +179,11 @@ int main(int argc, char* argv[])
   }
   std::cout << "  SUNMemoryHelper_Sys... PASSED\n";
 
-  test_instance(helper, SUNMEMTYPE__HOST, true);
+  test_instance(helper, SUNMEMTYPE_HOST, true);
 
   std::cout << "  SUNMemoryHelper_Clone... \n";
   SUNMemoryHelper helper2 = SUNMemoryHelper_Clone(helper);
-  if (!helper || test_instance(helper2, SUNMEMTYPE__HOST, false))
+  if (!helper || test_instance(helper2, SUNMEMTYPE_HOST, false))
   {
     std::cout << "  SUNMemoryHelper_Clone... FAILED\n";
     return -1;

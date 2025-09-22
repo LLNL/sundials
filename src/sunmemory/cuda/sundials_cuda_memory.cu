@@ -113,7 +113,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
   mem->type  = mem_type;
   mem->bytes = mem_size;
 
-  if (mem_type == SUNMEMTYPE__HOST)
+  if (mem_type == SUNMEMTYPE_HOST)
   {
     mem->ptr = malloc(mem_size);
     SUNAssert(mem->ptr, SUN_ERR_MALLOC_FAIL);
@@ -123,7 +123,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
       SUNMAX(SUNHELPER_CONTENT(helper)->bytes_allocated_host,
              SUNHELPER_CONTENT(helper)->bytes_high_watermark_host);
   }
-  else if (mem_type == SUNMEMTYPE__PINNED)
+  else if (mem_type == SUNMEMTYPE_PINNED)
   {
     if (!SUNDIALS_CUDA_VERIFY(cudaMallocHost(&(mem->ptr), mem_size)))
     {
@@ -141,7 +141,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
                SUNHELPER_CONTENT(helper)->bytes_high_watermark_pinned);
     }
   }
-  else if (mem_type == SUNMEMTYPE__DEVICE)
+  else if (mem_type == SUNMEMTYPE_DEVICE)
   {
     if (!SUNDIALS_CUDA_VERIFY(cudaMalloc(&(mem->ptr), mem_size)))
     {
@@ -159,7 +159,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Cuda(SUNMemoryHelper helper, SUNMemory* memptr,
                SUNHELPER_CONTENT(helper)->bytes_high_watermark_device);
     }
   }
-  else if (mem_type == SUNMEMTYPE__UVM)
+  else if (mem_type == SUNMEMTYPE_UVM)
   {
     if (!SUNDIALS_CUDA_VERIFY(cudaMallocManaged(&(mem->ptr), mem_size)))
     {
@@ -211,14 +211,14 @@ SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
 
   if (mem->ptr != NULL && mem->own)
   {
-    if (mem->type == SUNMEMTYPE__HOST)
+    if (mem->type == SUNMEMTYPE_HOST)
     {
       SUNHELPER_CONTENT(helper)->num_deallocations_host++;
       SUNHELPER_CONTENT(helper)->bytes_allocated_host -= mem->bytes;
       free(mem->ptr);
       mem->ptr = NULL;
     }
-    else if (mem->type == SUNMEMTYPE__PINNED)
+    else if (mem->type == SUNMEMTYPE_PINNED)
     {
       SUNHELPER_CONTENT(helper)->num_deallocations_pinned++;
       SUNHELPER_CONTENT(helper)->bytes_allocated_pinned -= mem->bytes;
@@ -230,7 +230,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       }
       mem->ptr = NULL;
     }
-    else if (mem->type == SUNMEMTYPE__DEVICE)
+    else if (mem->type == SUNMEMTYPE_DEVICE)
     {
       SUNHELPER_CONTENT(helper)->num_deallocations_device++;
       SUNHELPER_CONTENT(helper)->bytes_allocated_device -= mem->bytes;
@@ -242,7 +242,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Cuda(SUNMemoryHelper helper, SUNMemory mem,
       }
       mem->ptr = NULL;
     }
-    else if (mem->type == SUNMEMTYPE__UVM)
+    else if (mem->type == SUNMEMTYPE_UVM)
     {
       SUNHELPER_CONTENT(helper)->num_deallocations_uvm++;
       SUNHELPER_CONTENT(helper)->bytes_allocated_uvm -= mem->bytes;
@@ -275,25 +275,25 @@ SUNErrCode SUNMemoryHelper_Copy_Cuda(SUNMemoryHelper helper, SUNMemory dst,
 
   switch (src->type)
   {
-  case SUNMEMTYPE__HOST:
-  case SUNMEMTYPE__PINNED:
-    if (dst->type == SUNMEMTYPE__HOST || dst->type == SUNMEMTYPE__PINNED)
+  case SUNMEMTYPE_HOST:
+  case SUNMEMTYPE_PINNED:
+    if (dst->type == SUNMEMTYPE_HOST || dst->type == SUNMEMTYPE_PINNED)
     {
       memcpy(dst->ptr, src->ptr, memory_size);
     }
-    else if (dst->type == SUNMEMTYPE__DEVICE || dst->type == SUNMEMTYPE__UVM)
+    else if (dst->type == SUNMEMTYPE_DEVICE || dst->type == SUNMEMTYPE_UVM)
     {
       cuerr = cudaMemcpy(dst->ptr, src->ptr, memory_size, cudaMemcpyHostToDevice);
     }
     if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = SUN_ERR_EXT_FAIL; }
     break;
-  case SUNMEMTYPE__UVM:
-  case SUNMEMTYPE__DEVICE:
-    if (dst->type == SUNMEMTYPE__HOST || dst->type == SUNMEMTYPE__PINNED)
+  case SUNMEMTYPE_UVM:
+  case SUNMEMTYPE_DEVICE:
+    if (dst->type == SUNMEMTYPE_HOST || dst->type == SUNMEMTYPE_PINNED)
     {
       cuerr = cudaMemcpy(dst->ptr, src->ptr, memory_size, cudaMemcpyDeviceToHost);
     }
-    else if (dst->type == SUNMEMTYPE__DEVICE || dst->type == SUNMEMTYPE__UVM)
+    else if (dst->type == SUNMEMTYPE_DEVICE || dst->type == SUNMEMTYPE_UVM)
     {
       cuerr = cudaMemcpy(dst->ptr, src->ptr, memory_size,
                          cudaMemcpyDeviceToDevice);
@@ -322,27 +322,27 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
 
   switch (src->type)
   {
-  case SUNMEMTYPE__HOST:
-  case SUNMEMTYPE__PINNED:
-    if (dst->type == SUNMEMTYPE__HOST || dst->type == SUNMEMTYPE__PINNED)
+  case SUNMEMTYPE_HOST:
+  case SUNMEMTYPE_PINNED:
+    if (dst->type == SUNMEMTYPE_HOST || dst->type == SUNMEMTYPE_PINNED)
     {
       memcpy(dst->ptr, src->ptr, memory_size);
     }
-    else if (dst->type == SUNMEMTYPE__DEVICE || dst->type == SUNMEMTYPE__UVM)
+    else if (dst->type == SUNMEMTYPE_DEVICE || dst->type == SUNMEMTYPE_UVM)
     {
       cuerr = cudaMemcpyAsync(dst->ptr, src->ptr, memory_size,
                               cudaMemcpyHostToDevice, stream);
     }
     if (!SUNDIALS_CUDA_VERIFY(cuerr)) { retval = SUN_ERR_EXT_FAIL; }
     break;
-  case SUNMEMTYPE__UVM:
-  case SUNMEMTYPE__DEVICE:
-    if (dst->type == SUNMEMTYPE__HOST || dst->type == SUNMEMTYPE__PINNED)
+  case SUNMEMTYPE_UVM:
+  case SUNMEMTYPE_DEVICE:
+    if (dst->type == SUNMEMTYPE_HOST || dst->type == SUNMEMTYPE_PINNED)
     {
       cuerr = cudaMemcpyAsync(dst->ptr, src->ptr, memory_size,
                               cudaMemcpyDeviceToHost, stream);
     }
-    else if (dst->type == SUNMEMTYPE__DEVICE || dst->type == SUNMEMTYPE__UVM)
+    else if (dst->type == SUNMEMTYPE_DEVICE || dst->type == SUNMEMTYPE_UVM)
     {
       cuerr = cudaMemcpyAsync(dst->ptr, src->ptr, memory_size,
                               cudaMemcpyDeviceToDevice, stream);
@@ -376,28 +376,28 @@ SUNErrCode SUNMemoryHelper_GetAllocStats_Cuda(SUNMemoryHelper helper,
                                               size_t* bytes_allocated,
                                               size_t* bytes_high_watermark)
 {
-  if (mem_type == SUNMEMTYPE__HOST)
+  if (mem_type == SUNMEMTYPE_HOST)
   {
     *num_allocations   = SUNHELPER_CONTENT(helper)->num_allocations_host;
     *num_deallocations = SUNHELPER_CONTENT(helper)->num_deallocations_host;
     *bytes_allocated   = SUNHELPER_CONTENT(helper)->bytes_allocated_host;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_host;
   }
-  else if (mem_type == SUNMEMTYPE__PINNED)
+  else if (mem_type == SUNMEMTYPE_PINNED)
   {
     *num_allocations   = SUNHELPER_CONTENT(helper)->num_allocations_pinned;
     *num_deallocations = SUNHELPER_CONTENT(helper)->num_deallocations_pinned;
     *bytes_allocated   = SUNHELPER_CONTENT(helper)->bytes_allocated_pinned;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_pinned;
   }
-  else if (mem_type == SUNMEMTYPE__DEVICE)
+  else if (mem_type == SUNMEMTYPE_DEVICE)
   {
     *num_allocations   = SUNHELPER_CONTENT(helper)->num_allocations_device;
     *num_deallocations = SUNHELPER_CONTENT(helper)->num_deallocations_device;
     *bytes_allocated   = SUNHELPER_CONTENT(helper)->bytes_allocated_device;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_device;
   }
-  else if (mem_type == SUNMEMTYPE__UVM)
+  else if (mem_type == SUNMEMTYPE_UVM)
   {
     *num_allocations      = SUNHELPER_CONTENT(helper)->num_allocations_uvm;
     *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations_uvm;

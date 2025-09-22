@@ -66,19 +66,19 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
    The :c:type:`SUNMemoryType` type is an enumeration that defines the supported
    memory types:
 
-   .. c:enumerator:: SUNMEMTYPE__HOST
+   .. c:enumerator:: SUNMEMTYPE_HOST
 
       Pageable memory accessible on the host
 
-   .. c:enumerator:: SUNMEMTYPE__PINNED
+   .. c:enumerator:: SUNMEMTYPE_PINNED
 
       Page-locked memory accessible on the host
 
-   .. c:enumerator:: SUNMEMTYPE__DEVICE
+   .. c:enumerator:: SUNMEMTYPE_DEVICE
 
       Memory accessible from the device
 
-   .. c:enumerator:: SUNMEMTYPE__UVM
+   .. c:enumerator:: SUNMEMTYPE_UVM
 
       Memory accessible from the host or device
 
