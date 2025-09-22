@@ -27,20 +27,13 @@ extern "C" {
 
 enum SUNMemoryType_
 {
-  SUN_MEMTYPE_HOST,   /* pageable memory accessible on the host     */
-  SUN_MEMTYPE_PINNED, /* page-locked memory accessible on the host   */
-  SUN_MEMTYPE_DEVICE, /* memory accessible from the device          */
-  SUN_MEMTYPE_UVM     /* memory accessible from the host or device  */
+  SUNMEMTYPE_HOST,   /* pageable memory accessible on the host     */
+  SUNMEMTYPE_PINNED, /* page-locked memory accessible on the host   */
+  SUNMEMTYPE_DEVICE, /* memory accessible from the device          */
+  SUNMEMTYPE_UVM     /* memory accessible from the host or device  */
 };
 
 typedef enum SUNMemoryType_ SUNMemoryType;
-
-/* For backwards compatibility with the old name */
-#define SUN_MEMTYPE_HOST   SUN_MEMTYPE_HOST
-#define SUN_MEMTYPE_PINNED SUN_MEMTYPE_PINNED
-#define SUN_MEMTYPE_DEVICE SUN_MEMTYPE_DEVICE
-#define SUN_MEMTYPE_UVM    SUN_MEMTYPE_UVM
-
 /*
  * SUNMemory is a simple abstraction of a pointer to some
  * contiguous memory, so that we can keep track of its type

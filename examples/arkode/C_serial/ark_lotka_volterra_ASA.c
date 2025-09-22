@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
   SUNMemoryHelper mem_helper                   = SUNMemoryHelper_Sys(sunctx);
 
-  retval = SUNAdjointCheckpointScheme_Create_Fixed(SUN_DATAIOMODE_INMEM,
+  retval = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM,
                                                    mem_helper, check_interval,
                                                    ncheck, keep_check, sunctx,
                                                    &checkpoint_scheme);

@@ -29,7 +29,7 @@ and a structure of function pointers to the derived class implementations of the
 
 .. c:enum:: SUNDataIOMode
 
-   .. c:enumerator:: SUN_DATAIOMODE_INMEM
+   .. c:enumerator:: SUNDATAIOMODE_INMEM
 
       The IO mode for data that is stored in addressable random access memory.
       The location of the memory (e.g., CPU or GPU) is not specified by this mode.

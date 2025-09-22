@@ -305,11 +305,8 @@ typedef int SUNComm;
 
 enum SUNDataIOMode_
 {
-  SUN_DATAIOMODE_INMEM,
+  SUNDATAIOMODE_INMEM,
 };
-
-/* For backwards compatibility with the old name */
-#define SUNDATAIOMODE_INMEM SUN_DATAIOMODE_INMEM
 
 typedef enum SUNDataIOMode_ SUNDataIOMode;
 

@@ -354,9 +354,9 @@ N_Vector N_VMake_Raja(sunindextype length, sunrealtype* h_vdata,
 #endif
   NVEC_RAJA_CONTENT(v)->own_helper = SUNTRUE;
   NVEC_RAJA_CONTENT(v)->host_data =
-    SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), h_vdata, SUN_MEMTYPE_HOST);
+    SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), h_vdata, SUNMEMTYPE__HOST);
   NVEC_RAJA_CONTENT(v)->device_data =
-    SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), d_vdata, SUN_MEMTYPE_DEVICE);
+    SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), d_vdata, SUNMEMTYPE__DEVICE);
   NVEC_RAJA_PRIVATE(v)->use_managed_mem = SUNFALSE;
 
   if (NVEC_RAJA_MEMHELP(v) == NULL)
@@ -399,7 +399,7 @@ N_Vector N_VMakeManaged_Raja(sunindextype length, sunrealtype* vdata,
 #endif
   NVEC_RAJA_CONTENT(v)->host_data =
     SUNMemoryHelper_Wrap(NVEC_RAJA_CONTENT(v)->mem_helper, vdata,
-                         SUN_MEMTYPE_UVM);
+                         SUNMEMTYPE__UVM);
   NVEC_RAJA_CONTENT(v)->device_data =
     SUNMemoryHelper_Alias(NVEC_RAJA_CONTENT(v)->mem_helper,
                           NVEC_RAJA_CONTENT(v)->host_data);
@@ -466,7 +466,7 @@ void N_VSetHostArrayPointer_Raja(sunrealtype* h_vdata, N_Vector v)
     {
       NVEC_RAJA_CONTENT(v)->host_data =
         SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), (void*)h_vdata,
-                             SUN_MEMTYPE_UVM);
+                             SUNMEMTYPE__UVM);
       NVEC_RAJA_CONTENT(v)->device_data =
         SUNMemoryHelper_Alias(NVEC_RAJA_MEMHELP(v),
                               NVEC_RAJA_CONTENT(v)->host_data);
@@ -482,7 +482,7 @@ void N_VSetHostArrayPointer_Raja(sunrealtype* h_vdata, N_Vector v)
     {
       NVEC_RAJA_CONTENT(v)->host_data =
         SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), (void*)h_vdata,
-                             SUN_MEMTYPE_HOST);
+                             SUNMEMTYPE__HOST);
     }
   }
 }
@@ -504,7 +504,7 @@ void N_VSetDeviceArrayPointer_Raja(sunrealtype* d_vdata, N_Vector v)
     {
       NVEC_RAJA_CONTENT(v)->device_data =
         SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), (void*)d_vdata,
-                             SUN_MEMTYPE_UVM);
+                             SUNMEMTYPE__UVM);
       NVEC_RAJA_CONTENT(v)->host_data =
         SUNMemoryHelper_Alias(NVEC_RAJA_MEMHELP(v),
                               NVEC_RAJA_CONTENT(v)->device_data);
@@ -520,7 +520,7 @@ void N_VSetDeviceArrayPointer_Raja(sunrealtype* d_vdata, N_Vector v)
     {
       NVEC_RAJA_CONTENT(v)->device_data =
         SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(v), (void*)d_vdata,
-                             SUN_MEMTYPE_DEVICE);
+                             SUNMEMTYPE__DEVICE);
     }
   }
 }
@@ -1453,7 +1453,7 @@ SUNErrCode N_VBufPack_Raja(N_Vector x, void* buf)
   if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(x), buf,
-                                           SUN_MEMTYPE_HOST);
+                                           SUNMEMTYPE__HOST);
   if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
@@ -1494,7 +1494,7 @@ SUNErrCode N_VBufUnpack_Raja(N_Vector x, void* buf)
   if (x == NULL || buf == NULL) { return SUN_ERR_GENERIC; }
 
   SUNMemory buf_mem = SUNMemoryHelper_Wrap(NVEC_RAJA_MEMHELP(x), buf,
-                                           SUN_MEMTYPE_HOST);
+                                           SUNMEMTYPE__HOST);
   if (buf_mem == NULL) { return SUN_ERR_GENERIC; }
 
 #if defined(SUNDIALS_RAJA_BACKENDS_SYCL)
@@ -1716,33 +1716,33 @@ int AllocateData(N_Vector v)
   if (vcp->use_managed_mem)
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v), &(vc->device_data),
-                                       NVEC_RAJA_MEMSIZE(v), SUN_MEMTYPE_UVM,
+                                       NVEC_RAJA_MEMSIZE(v), SUNMEMTYPE__UVM,
                                        queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc "
-                           "failed for SUN_MEMTYPE_UVM\n");
+                           "failed for SUNMEMTYPE__UVM\n");
     }
     vc->host_data = SUNMemoryHelper_Alias(NVEC_RAJA_MEMHELP(v), vc->device_data);
   }
   else
   {
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v), &(vc->host_data),
-                                       NVEC_RAJA_MEMSIZE(v), SUN_MEMTYPE_HOST,
+                                       NVEC_RAJA_MEMSIZE(v), SUNMEMTYPE__HOST,
                                        queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc "
-                           "failed to alloc SUN_MEMTYPE_HOST\n");
+                           "failed to alloc SUNMEMTYPE__HOST\n");
     }
 
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v), &(vc->device_data),
-                                       NVEC_RAJA_MEMSIZE(v), SUN_MEMTYPE_DEVICE,
+                                       NVEC_RAJA_MEMSIZE(v), SUNMEMTYPE__DEVICE,
                                        queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in AllocateData: SUNMemoryHelper_Alloc "
-                           "failed to alloc SUN_MEMTYPE_DEVICE\n");
+                           "failed to alloc SUNMEMTYPE__DEVICE\n");
     }
   }
 
@@ -1776,21 +1776,21 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     // allocate pinned memory on the host
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v),
                                        &(vcp->fused_buffer_host), bytes,
-                                       SUN_MEMTYPE_PINNED, queue);
+                                       SUNMEMTYPE__PINNED, queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT(
         "WARNING in FusedBuffer_Init: SUNMemoryHelper_Alloc failed to alloc "
-        "SUN_MEMTYPE_PINNED, using SUN_MEMTYPE_HOST instead\n");
+        "SUNMEMTYPE__PINNED, using SUNMEMTYPE__HOST instead\n");
 
       // if pinned alloc failed, allocate plain host memory
       alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v),
                                          &(vcp->fused_buffer_host), bytes,
-                                         SUN_MEMTYPE_HOST, queue);
+                                         SUNMEMTYPE__HOST, queue);
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc "
-                             "failed to alloc SUN_MEMTYPE_HOST\n");
+                             "failed to alloc SUNMEMTYPE__HOST\n");
         return SUN_ERR_GENERIC;
       }
     }
@@ -1798,11 +1798,11 @@ static int FusedBuffer_Init(N_Vector v, int nreal, int nptr)
     // allocate device memory
     alloc_fail = SUNMemoryHelper_Alloc(NVEC_RAJA_MEMHELP(v),
                                        &(vcp->fused_buffer_dev), bytes,
-                                       SUN_MEMTYPE_DEVICE, queue);
+                                       SUNMEMTYPE__DEVICE, queue);
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT("ERROR in FusedBuffer_Init: SUNMemoryHelper_Alloc "
-                           "failed to alloc SUN_MEMTYPE_DEVICE\n");
+                           "failed to alloc SUNMEMTYPE__DEVICE\n");
       return SUN_ERR_GENERIC;
     }
 
