@@ -86,11 +86,13 @@ typedef int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y,
  * SUNNonlinearSolver types
  * ---------------------------------------------------------------------------*/
 
-typedef enum
+enum SUNNonlinearSolver_Type_
 {
   SUNNONLINEARSOLVER_ROOTFIND,
   SUNNONLINEARSOLVER_FIXEDPOINT
-} SUNNonlinearSolver_Type;
+};
+
+typedef enum SUNNonlinearSolver_Type_ SUNNonlinearSolver_Type;
 
 /* -----------------------------------------------------------------------------
  * Generic definition of SUNNonlinearSolver

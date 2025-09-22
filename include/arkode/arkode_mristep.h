@@ -35,21 +35,23 @@ extern "C" {
  * ----------------- */
 
 /* MRIStep method types */
-typedef enum
+enum MRISTEP_METHOD_TYPE_
 {
   MRISTEP_EXPLICIT,
   MRISTEP_IMPLICIT,
   MRISTEP_IMEX,
   MRISTEP_MERK,
   MRISTEP_SR
-} MRISTEP_METHOD_TYPE;
+};
+
+typedef enum MRISTEP_METHOD_TYPE_ MRISTEP_METHOD_TYPE;
 
 /* MRI coupling table IDs */
-typedef enum
+enum ARKODE_MRITableID_
 {
   ARKODE_MRI_NONE    = -1, /* ensure enum is signed int */
   ARKODE_MIN_MRI_NUM = 200,
-  ARKODE_MIS_KW3     = ARKODE_MIN_MRI_NUM,
+  ARKODE_MIS_KW3     = 200,
   ARKODE_MRI_GARK_ERK33a,
   ARKODE_MRI_GARK_ERK45a,
   ARKODE_MRI_GARK_IRK21a,
@@ -76,7 +78,9 @@ typedef enum
   ARKODE_IMEX_MRI_SR32,
   ARKODE_IMEX_MRI_SR43,
   ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_SR43
-} ARKODE_MRITableID;
+};
+
+typedef enum ARKODE_MRITableID_ ARKODE_MRITableID;
 
 /* Default MRI coupling tables for each order and type */
 static const int MRISTEP_DEFAULT_EXPL_1 = ARKODE_MRI_GARK_FORWARD_EULER;

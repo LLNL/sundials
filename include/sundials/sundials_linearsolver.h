@@ -69,15 +69,17 @@ extern "C" {
  * Implemented SUNLinearSolver types and IDs:
  * ----------------------------------------------------------------- */
 
-typedef enum
+enum SUNLinearSolver_Type_
 {
   SUNLINEARSOLVER_DIRECT,
   SUNLINEARSOLVER_ITERATIVE,
   SUNLINEARSOLVER_MATRIX_ITERATIVE,
   SUNLINEARSOLVER_MATRIX_EMBEDDED
-} SUNLinearSolver_Type;
+};
 
-typedef enum
+typedef enum SUNLinearSolver_Type_ SUNLinearSolver_Type;
+
+enum SUNLinearSolver_ID_
 {
   SUNLINEARSOLVER_BAND,
   SUNLINEARSOLVER_DENSE,
@@ -97,7 +99,9 @@ typedef enum
   SUNLINEARSOLVER_GINKGO,
   SUNLINEARSOLVER_KOKKOSDENSE,
   SUNLINEARSOLVER_CUSTOM
-} SUNLinearSolver_ID;
+};
+
+typedef enum SUNLinearSolver_ID_ SUNLinearSolver_ID;
 
 /* -----------------------------------------------------------------
  * Generic definition of SUNLinearSolver

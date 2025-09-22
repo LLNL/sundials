@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-typedef enum
+enum ARKODE_DIRKTableID_
 {
   ARKODE_DIRK_NONE    = -1, /* ensure enum is signed int */
   ARKODE_MIN_DIRK_NUM = 100,
@@ -55,7 +55,9 @@ typedef enum
   ARKODE_IMPLICIT_MIDPOINT_1_2,
   ARKODE_IMPLICIT_TRAPEZOIDAL_2_2,
   ARKODE_MAX_DIRK_NUM = ARKODE_IMPLICIT_TRAPEZOIDAL_2_2
-} ARKODE_DIRKTableID;
+};
+
+typedef enum ARKODE_DIRKTableID_ ARKODE_DIRKTableID;
 
 /* Accessor routine to load built-in DIRK table */
 SUNDIALS_EXPORT ARKodeButcherTable

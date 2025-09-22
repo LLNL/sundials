@@ -21,12 +21,14 @@
 extern "C" {
 #endif
 
-typedef enum
+enum SUNFullRhsMode_
 {
   SUN_FULLRHS_START,
   SUN_FULLRHS_END,
   SUN_FULLRHS_OTHER
-} SUNFullRhsMode;
+};
+
+typedef enum SUNFullRhsMode_ SUNFullRhsMode;
 
 typedef int (*SUNRhsJacFn)(sunrealtype t, N_Vector y, N_Vector fy,
                            SUNMatrix Jac, void* user_data, N_Vector tmp1,
