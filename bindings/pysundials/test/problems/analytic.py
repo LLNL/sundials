@@ -1,5 +1,18 @@
-import numpy as np
+# -----------------------------------------------------------------
+# Programmer(s): Cody J. Balos @ LLNL
+# -----------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------
 
+import numpy as np
 # import jax
 # import jax.numpy as jnp
 # from numba import jit
