@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-# Smoke tests for SUNNonlinearSolver module
+# Unit tests for SUNNonlinearSolver module
 # -----------------------------------------------------------------
 
 import pytest
@@ -131,7 +131,7 @@ def test_fixedpoint_setup_and_solve(sunctx):
 
     # Update the initial guess with the correction
     N_VLinearSum(1.0, u0.get(), 1.0, ucor.get(), ucor.get())
-    
+
     # Compare to analytic solution
     utrue = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
     problem.solution(utrue.get())
