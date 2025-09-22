@@ -1069,7 +1069,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(ARKODE_ERKTableID), intent(in) :: etable
+integer(ARKODE_ERKTableID_), intent(in) :: etable
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
@@ -2430,7 +2430,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(ARKRelaxSolver), intent(in) :: solver
+integer(ARKRelaxSolver_), intent(in) :: solver
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 

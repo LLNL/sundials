@@ -274,20 +274,6 @@ SWIGEXPORT int _wrap_FSPRKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3
 }
 
 
-SWIGEXPORT int _wrap_FSPRKStepSetUseCompensatedSums(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)SPRKStepSetUseCompensatedSums(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSPRKStepSetMethod(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -760,6 +746,20 @@ SWIGEXPORT int _wrap_FSPRKStepGetNumRhsEvals(void *farg1, long *farg2, long *far
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);
   result = (int)SPRKStepGetNumRhsEvals(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSPRKStepSetUseCompensatedSums(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)SPRKStepSetUseCompensatedSums(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

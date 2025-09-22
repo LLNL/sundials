@@ -58,10 +58,10 @@ module fsundials_core_mod
  public :: SUN_OUTPUTFORMAT_TABLE, SUN_OUTPUTFORMAT_CSV
  ! enum SUNDataIOMode_
  enum, bind(c)
-  enumerator :: SUN_DATAIOMODE_INMEM
+  enumerator :: SUNDATAIOMODE_INMEM
  end enum
- integer, parameter, public :: SUNDataIOMode_ = kind(SUN_DATAIOMODE_INMEM)
- public :: SUN_DATAIOMODE_INMEM
+ integer, parameter, public :: SUNDataIOMode_ = kind(SUNDATAIOMODE_INMEM)
+ public :: SUNDATAIOMODE_INMEM
  ! enum SUNErrCode_
  enum, bind(c)
   enumerator :: SUN_ERR_MINIMUM = -10000
@@ -132,7 +132,7 @@ module fsundials_core_mod
  public :: FSUNProfiler_GetElapsedTime
  public :: FSUNProfiler_Print
  public :: FSUNProfiler_Reset
- ! typedef enum SUNLogLevel
+ ! enum SUNLogLevel_
  enum, bind(c)
   enumerator :: SUN_LOGLEVEL_ALL = -1
   enumerator :: SUN_LOGLEVEL_NONE = 0
@@ -141,7 +141,7 @@ module fsundials_core_mod
   enumerator :: SUN_LOGLEVEL_INFO = 3
   enumerator :: SUN_LOGLEVEL_DEBUG = 4
  end enum
- integer, parameter, public :: SUNLogLevel = kind(SUN_LOGLEVEL_ALL)
+ integer, parameter, public :: SUNLogLevel_ = kind(SUN_LOGLEVEL_ALL)
  public :: SUN_LOGLEVEL_ALL, SUN_LOGLEVEL_NONE, SUN_LOGLEVEL_ERROR, SUN_LOGLEVEL_WARNING, SUN_LOGLEVEL_INFO, &
     SUN_LOGLEVEL_DEBUG
  public :: FSUNLogger_Create
@@ -313,7 +313,7 @@ module fsundials_core_mod
  public :: FN_VGetArrayPointer
  public :: FN_VGetDeviceArrayPointer
 
- ! typedef enum SUNMatrix_ID
+ ! enum SUNMatrix_ID_
  enum, bind(c)
   enumerator :: SUNMATRIX_DENSE
   enumerator :: SUNMATRIX_MAGMADENSE
@@ -326,7 +326,7 @@ module fsundials_core_mod
   enumerator :: SUNMATRIX_KOKKOSDENSE
   enumerator :: SUNMATRIX_CUSTOM
  end enum
- integer, parameter, public :: SUNMatrix_ID = kind(SUNMATRIX_DENSE)
+ integer, parameter, public :: SUNMatrix_ID_ = kind(SUNMATRIX_DENSE)
  public :: SUNMATRIX_DENSE, SUNMATRIX_MAGMADENSE, SUNMATRIX_ONEMKLDENSE, SUNMATRIX_BAND, SUNMATRIX_SPARSE, SUNMATRIX_SLUNRLOC, &
     SUNMATRIX_CUSPARSE, SUNMATRIX_GINKGO, SUNMATRIX_KOKKOSDENSE, SUNMATRIX_CUSTOM
  ! struct struct _generic_SUNMatrix_Ops
@@ -389,17 +389,17 @@ module fsundials_core_mod
  public :: FSUNQRAdd_CGS2
  public :: FSUNQRAdd_DCGS2
  public :: FSUNQRAdd_DCGS2_SB
- ! typedef enum SUNLinearSolver_Type
+ ! enum SUNLinearSolver_Type_
  enum, bind(c)
   enumerator :: SUNLINEARSOLVER_DIRECT
   enumerator :: SUNLINEARSOLVER_ITERATIVE
   enumerator :: SUNLINEARSOLVER_MATRIX_ITERATIVE
   enumerator :: SUNLINEARSOLVER_MATRIX_EMBEDDED
  end enum
- integer, parameter, public :: SUNLinearSolver_Type = kind(SUNLINEARSOLVER_DIRECT)
+ integer, parameter, public :: SUNLinearSolver_Type_ = kind(SUNLINEARSOLVER_DIRECT)
  public :: SUNLINEARSOLVER_DIRECT, SUNLINEARSOLVER_ITERATIVE, SUNLINEARSOLVER_MATRIX_ITERATIVE, &
     SUNLINEARSOLVER_MATRIX_EMBEDDED
- ! typedef enum SUNLinearSolver_ID
+ ! enum SUNLinearSolver_ID_
  enum, bind(c)
   enumerator :: SUNLINEARSOLVER_BAND
   enumerator :: SUNLINEARSOLVER_DENSE
@@ -420,7 +420,7 @@ module fsundials_core_mod
   enumerator :: SUNLINEARSOLVER_KOKKOSDENSE
   enumerator :: SUNLINEARSOLVER_CUSTOM
  end enum
- integer, parameter, public :: SUNLinearSolver_ID = kind(SUNLINEARSOLVER_BAND)
+ integer, parameter, public :: SUNLinearSolver_ID_ = kind(SUNLINEARSOLVER_BAND)
  public :: SUNLINEARSOLVER_BAND, SUNLINEARSOLVER_DENSE, SUNLINEARSOLVER_KLU, SUNLINEARSOLVER_LAPACKBAND, &
     SUNLINEARSOLVER_LAPACKDENSE, SUNLINEARSOLVER_PCG, SUNLINEARSOLVER_SPBCGS, SUNLINEARSOLVER_SPFGMR, SUNLINEARSOLVER_SPGMR, &
     SUNLINEARSOLVER_SPTFQMR, SUNLINEARSOLVER_SUPERLUDIST, SUNLINEARSOLVER_SUPERLUMT, SUNLINEARSOLVER_CUSOLVERSP_BATCHQR, &
@@ -484,12 +484,12 @@ module fsundials_core_mod
  integer(C_INT), parameter, public :: SUNLS_PACKAGE_FAIL_REC = 806_C_INT
  integer(C_INT), parameter, public :: SUNLS_QRFACT_FAIL = 807_C_INT
  integer(C_INT), parameter, public :: SUNLS_LUFACT_FAIL = 808_C_INT
- ! typedef enum SUNNonlinearSolver_Type
+ ! enum SUNNonlinearSolver_Type_
  enum, bind(c)
   enumerator :: SUNNONLINEARSOLVER_ROOTFIND
   enumerator :: SUNNONLINEARSOLVER_FIXEDPOINT
  end enum
- integer, parameter, public :: SUNNonlinearSolver_Type = kind(SUNNONLINEARSOLVER_ROOTFIND)
+ integer, parameter, public :: SUNNonlinearSolver_Type_ = kind(SUNNONLINEARSOLVER_ROOTFIND)
  public :: SUNNONLINEARSOLVER_ROOTFIND, SUNNONLINEARSOLVER_FIXEDPOINT
  ! struct struct _generic_SUNNonlinearSolver_Ops
  type, bind(C), public :: SUNNonlinearSolver_Ops
@@ -531,13 +531,13 @@ module fsundials_core_mod
  public :: FSUNNonlinSolGetNumConvFails
  integer(C_INT), parameter, public :: SUN_NLS_CONTINUE = +901_C_INT
  integer(C_INT), parameter, public :: SUN_NLS_CONV_RECVR = +902_C_INT
- ! typedef enum SUNAdaptController_Type
+ ! enum SUNAdaptController_Type_
  enum, bind(c)
   enumerator :: SUN_ADAPTCONTROLLER_NONE
   enumerator :: SUN_ADAPTCONTROLLER_H
   enumerator :: SUN_ADAPTCONTROLLER_MRI_H_TOL
  end enum
- integer, parameter, public :: SUNAdaptController_Type = kind(SUN_ADAPTCONTROLLER_NONE)
+ integer, parameter, public :: SUNAdaptController_Type_ = kind(SUN_ADAPTCONTROLLER_NONE)
  public :: SUN_ADAPTCONTROLLER_NONE, SUN_ADAPTCONTROLLER_H, SUN_ADAPTCONTROLLER_MRI_H_TOL
  ! struct struct _generic_SUNAdaptController_Ops
  type, bind(C), public :: SUNAdaptController_Ops
@@ -573,13 +573,13 @@ module fsundials_core_mod
  public :: FSUNAdaptController_UpdateH
  public :: FSUNAdaptController_UpdateMRIHTol
  public :: FSUNAdaptController_Space
- ! typedef enum SUNFullRhsMode
+ ! enum SUNFullRhsMode_
  enum, bind(c)
   enumerator :: SUN_FULLRHS_START
   enumerator :: SUN_FULLRHS_END
   enumerator :: SUN_FULLRHS_OTHER
  end enum
- integer, parameter, public :: SUNFullRhsMode = kind(SUN_FULLRHS_START)
+ integer, parameter, public :: SUNFullRhsMode_ = kind(SUN_FULLRHS_START)
  public :: SUN_FULLRHS_START, SUN_FULLRHS_END, SUN_FULLRHS_OTHER
  public :: FSUNStepper_Create
  public :: FSUNStepper_Destroy
@@ -610,13 +610,13 @@ module fsundials_core_mod
  public :: FSUNStepper_SetDestroyFn
  ! enum SUNMemoryType_
  enum, bind(c)
-  enumerator :: SUN_MEMTYPE_HOST
-  enumerator :: SUN_MEMTYPE_PINNED
-  enumerator :: SUN_MEMTYPE_DEVICE
-  enumerator :: SUN_MEMTYPE_UVM
+  enumerator :: SUNMEMTYPE_HOST
+  enumerator :: SUNMEMTYPE_PINNED
+  enumerator :: SUNMEMTYPE_DEVICE
+  enumerator :: SUNMEMTYPE_UVM
  end enum
- integer, parameter, public :: SUNMemoryType_ = kind(SUN_MEMTYPE_HOST)
- public :: SUN_MEMTYPE_HOST, SUN_MEMTYPE_PINNED, SUN_MEMTYPE_DEVICE, SUN_MEMTYPE_UVM
+ integer, parameter, public :: SUNMemoryType_ = kind(SUNMEMTYPE_HOST)
+ public :: SUNMEMTYPE_HOST, SUNMEMTYPE_PINNED, SUNMEMTYPE_DEVICE, SUNMEMTYPE_UVM
  public :: FSUNMemoryNewEmpty
  ! struct struct SUNMemoryHelper_
  type, bind(C), public :: SUNMemoryHelper_
@@ -3538,7 +3538,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: logger
-integer(SUNLogLevel), intent(in) :: lvl
+integer(SUNLogLevel_), intent(in) :: lvl
 character(kind=C_CHAR, len=*), target :: scope
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg3_chars
 character(kind=C_CHAR, len=*), target :: label
@@ -3566,7 +3566,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: logger
-integer(SUNLogLevel), intent(in) :: lvl
+integer(SUNLogLevel_), intent(in) :: lvl
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
@@ -4710,7 +4710,7 @@ end function
 function FSUNMatGetID(a) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNMatrix_ID) :: swig_result
+integer(SUNMatrix_ID_) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -5169,7 +5169,7 @@ end subroutine
 function FSUNLinSolGetType(s) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNLinearSolver_Type) :: swig_result
+integer(SUNLinearSolver_Type_) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -5182,7 +5182,7 @@ end function
 function FSUNLinSolGetID(s) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNLinearSolver_ID) :: swig_result
+integer(SUNLinearSolver_ID_) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -5431,7 +5431,7 @@ end subroutine
 function FSUNNonlinSolGetType(nls) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNNonlinearSolver_Type) :: swig_result
+integer(SUNNonlinearSolver_Type_) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -5673,7 +5673,7 @@ end subroutine
 function FSUNAdaptController_GetType(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNAdaptController_Type) :: swig_result
+integer(SUNAdaptController_Type_) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -5957,7 +5957,7 @@ type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: t
 type(N_Vector), target, intent(inout) :: v
 type(N_Vector), target, intent(inout) :: f
-integer(SUNFullRhsMode), intent(in) :: mode
+integer(SUNFullRhsMode_), intent(in) :: mode
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
