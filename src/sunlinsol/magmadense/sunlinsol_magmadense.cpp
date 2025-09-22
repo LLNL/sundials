@@ -164,7 +164,8 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
      but in device memory for the batched methods. */
   retval = SUNMemoryHelper_Alloc(content->memhelp, &content->pivots,
                                  M * nblocks * sizeof(sunindextype),
-                                 nblocks > 1 ? SUN_MEMTYPE_DEVICE : SUN_MEMTYPE_HOST,
+                                 nblocks > 1 ? SUN_MEMTYPE_DEVICE
+                                             : SUN_MEMTYPE_HOST,
                                  nullptr);
   if (retval)
   {

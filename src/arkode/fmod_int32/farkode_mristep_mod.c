@@ -233,6 +233,7 @@ enum {
 
 
 #include "arkode/arkode_mristep.h"
+#include "arkode/arkode_mristep_deprecated.h"
 
 
 typedef struct {
@@ -430,11 +431,11 @@ SWIGEXPORT int _wrap_MRIStepCouplingMem_p_get(SwigClassWrapper const *farg1) {
 
 SWIGEXPORT void _wrap_MRIStepCouplingMem_c_set(SwigClassWrapper const *farg1, double *farg2) {
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  sunrealtype1d arg2 = (sunrealtype1d) 0 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::c", return );
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  arg2 = (sunrealtype *)(farg2);
+  arg2 = (sunrealtype1d)(farg2);
   if (arg1) (arg1)->c = arg2;
 }
 
@@ -442,11 +443,11 @@ SWIGEXPORT void _wrap_MRIStepCouplingMem_c_set(SwigClassWrapper const *farg1, do
 SWIGEXPORT double * _wrap_MRIStepCouplingMem_c_get(SwigClassWrapper const *farg1) {
   double * fresult ;
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  sunrealtype *result = 0 ;
+  sunrealtype1d result;
   
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::c", return 0);
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  result = (sunrealtype *) ((arg1)->c);
+  result = (sunrealtype1d) ((arg1)->c);
   fresult = result;
   return fresult;
 }
@@ -454,11 +455,11 @@ SWIGEXPORT double * _wrap_MRIStepCouplingMem_c_get(SwigClassWrapper const *farg1
 
 SWIGEXPORT void _wrap_MRIStepCouplingMem_W_set(SwigClassWrapper const *farg1, void *farg2) {
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  sunrealtype ***arg2 = (sunrealtype ***) 0 ;
+  sunrealtype3d arg2 = (sunrealtype3d) 0 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::W", return );
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  arg2 = (sunrealtype ***)(farg2);
+  arg2 = (sunrealtype3d)(farg2);
   if (arg1) (arg1)->W = arg2;
 }
 
@@ -466,11 +467,11 @@ SWIGEXPORT void _wrap_MRIStepCouplingMem_W_set(SwigClassWrapper const *farg1, vo
 SWIGEXPORT void * _wrap_MRIStepCouplingMem_W_get(SwigClassWrapper const *farg1) {
   void * fresult ;
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  sunrealtype ***result = 0 ;
+  sunrealtype3d result;
   
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::W", return 0);
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  result = (sunrealtype ***) ((arg1)->W);
+  result = (sunrealtype3d) ((arg1)->W);
   fresult = result;
   return fresult;
 }
@@ -478,11 +479,11 @@ SWIGEXPORT void * _wrap_MRIStepCouplingMem_W_get(SwigClassWrapper const *farg1) 
 
 SWIGEXPORT void _wrap_MRIStepCouplingMem_G_set(SwigClassWrapper const *farg1, void *farg2) {
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  sunrealtype ***arg2 = (sunrealtype ***) 0 ;
+  sunrealtype3d arg2 = (sunrealtype3d) 0 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::G", return );
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  arg2 = (sunrealtype ***)(farg2);
+  arg2 = (sunrealtype3d)(farg2);
   if (arg1) (arg1)->G = arg2;
 }
 
@@ -490,11 +491,11 @@ SWIGEXPORT void _wrap_MRIStepCouplingMem_G_set(SwigClassWrapper const *farg1, vo
 SWIGEXPORT void * _wrap_MRIStepCouplingMem_G_get(SwigClassWrapper const *farg1) {
   void * fresult ;
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  sunrealtype ***result = 0 ;
+  sunrealtype3d result;
   
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::G", return 0);
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  result = (sunrealtype ***) ((arg1)->G);
+  result = (sunrealtype3d) ((arg1)->G);
   fresult = result;
   return fresult;
 }
@@ -625,18 +626,18 @@ SWIGEXPORT void * _wrap_FMRIStepCoupling_Create(int const *farg1, int const *far
   int arg2 ;
   int arg3 ;
   int arg4 ;
-  sunrealtype *arg5 = (sunrealtype *) 0 ;
-  sunrealtype *arg6 = (sunrealtype *) 0 ;
-  sunrealtype *arg7 = (sunrealtype *) 0 ;
+  sunrealtype1d arg5 = (sunrealtype1d) 0 ;
+  sunrealtype1d arg6 = (sunrealtype1d) 0 ;
+  sunrealtype1d arg7 = (sunrealtype1d) 0 ;
   MRIStepCoupling result;
   
   arg1 = (int)(*farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
   arg4 = (int)(*farg4);
-  arg5 = (sunrealtype *)(farg5);
-  arg6 = (sunrealtype *)(farg6);
-  arg7 = (sunrealtype *)(farg7);
+  arg5 = (sunrealtype1d)(farg5);
+  arg6 = (sunrealtype1d)(farg6);
+  arg7 = (sunrealtype1d)(farg7);
   result = (MRIStepCoupling)MRIStepCoupling_Create(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   fresult = result;
   return fresult;

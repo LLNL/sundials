@@ -267,6 +267,7 @@ module fcvodes_mod
  public :: FCVodeSetNonlinearSolverB
  public :: FCVodeGetB
  public :: FCVodeGetQuadB
+ public :: FCVodeGetUserDataB
  public :: FCVodeGetAdjCVodeBmem
  public :: FCVodeGetAdjY
 
@@ -2016,6 +2017,16 @@ type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FCVodeGetUserDataB(farg1, farg2, farg3) &
+bind(C, name="_wrap_FCVodeGetUserDataB") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -4118,7 +4129,7 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
 type(C_PTR) :: outfile
-integer(SUNOutputFormat), intent(in) :: fmt
+integer(SUNOutputFormat_), intent(in) :: fmt
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
@@ -5820,6 +5831,25 @@ farg2 = which
 farg3 = c_loc(tbret(1))
 farg4 = c_loc(qb)
 fresult = swigc_FCVodeGetQuadB(farg1, farg2, farg3, farg4)
+swig_result = fresult
+end function
+
+function FCVodeGetUserDataB(cvode_mem, which, user_datab) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: cvode_mem
+integer(C_INT), intent(in) :: which
+type(C_PTR), target, intent(inout) :: user_datab
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = cvode_mem
+farg2 = which
+farg3 = c_loc(user_datab)
+fresult = swigc_FCVodeGetUserDataB(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

@@ -394,8 +394,8 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, sunrealtype* vdata,
 
   NVEC_CUDA_CONTENT(v)->length     = length;
   NVEC_CUDA_CONTENT(v)->mem_helper = SUNMemoryHelper_Cuda(sunctx);
-  NVEC_CUDA_CONTENT(v)->host_data  = SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v),
-                                                          vdata, SUN_MEMTYPE_UVM);
+  NVEC_CUDA_CONTENT(v)->host_data =
+    SUNMemoryHelper_Wrap(NVEC_CUDA_MEMHELP(v), vdata, SUN_MEMTYPE_UVM);
   NVEC_CUDA_CONTENT(v)->device_data =
     SUNMemoryHelper_Alias(NVEC_CUDA_MEMHELP(v), NVEC_CUDA_CONTENT(v)->host_data);
   NVEC_CUDA_CONTENT(v)->stream_exec_policy = DEFAULT_STREAMING_EXECPOLICY.clone();

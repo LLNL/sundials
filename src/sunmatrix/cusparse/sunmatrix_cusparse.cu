@@ -412,8 +412,8 @@ SUNMatrix SUNMatrix_cuSparse_NewBlockCSR(int nblocks, int blockrows,
 
   /* Allocate device memory for the matrix */
   alloc_fail += SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &d_colind,
-                                      sizeof(int) * blocknnz, SUN_MEMTYPE_DEVICE,
-                                      nullptr);
+                                      sizeof(int) * blocknnz,
+                                      SUN_MEMTYPE_DEVICE, nullptr);
   alloc_fail += SUNMemoryHelper_Alloc(SMCU_MEMHELP(A), &d_rowptr,
                                       sizeof(int) * (blockrows + 1),
                                       SUN_MEMTYPE_DEVICE, nullptr);

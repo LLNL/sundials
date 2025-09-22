@@ -204,6 +204,7 @@
 
 
 #include "arkode/arkode_erkstep.h"
+#include "arkode/arkode_erkstep_deprecated.h"
 
 
 #include <stdlib.h>

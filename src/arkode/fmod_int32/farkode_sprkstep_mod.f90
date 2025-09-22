@@ -992,7 +992,7 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
 type(C_PTR) :: outfile
-integer(SUNOutputFormat), intent(in) :: fmt
+integer(SUNOutputFormat_), intent(in) :: fmt
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 

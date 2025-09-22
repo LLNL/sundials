@@ -289,17 +289,17 @@ SWIGEXPORT int _wrap_FCVodeReInit(void *farg1, double const *farg2, N_Vector far
 SWIGEXPORT int _wrap_FCVodeResizeHistory(void *farg1, double *farg2, void *farg3, void *farg4, int const *farg5, int const *farg6) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  sunrealtype *arg2 = (sunrealtype *) 0 ;
-  N_Vector *arg3 = (N_Vector *) 0 ;
-  N_Vector *arg4 = (N_Vector *) 0 ;
+  sunrealtype1d arg2 = (sunrealtype1d) 0 ;
+  N_Vector1d arg3 = (N_Vector1d) 0 ;
+  N_Vector1d arg4 = (N_Vector1d) 0 ;
   int arg5 ;
   int arg6 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (sunrealtype *)(farg2);
-  arg3 = (N_Vector *)(farg3);
-  arg4 = (N_Vector *)(farg4);
+  arg2 = (sunrealtype1d)(farg2);
+  arg3 = (N_Vector1d)(farg3);
+  arg4 = (N_Vector1d)(farg4);
   arg5 = (int)(*farg5);
   arg6 = (int)(*farg6);
   result = (int)CVodeResizeHistory(arg1,arg2,arg3,arg4,arg5,arg6);

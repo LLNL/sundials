@@ -273,10 +273,10 @@ SWIGEXPORT int64_t _wrap_FSUNDenseMatrix_LData(SUNMatrix farg1) {
 SWIGEXPORT void * _wrap_FSUNDenseMatrix_Cols(SUNMatrix farg1) {
   void * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  sunrealtype **result = 0 ;
+  sunrealtype2d result;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (sunrealtype **)SUNDenseMatrix_Cols(arg1);
+  result = (sunrealtype2d)SUNDenseMatrix_Cols(arg1);
   fresult = result;
   return fresult;
 }

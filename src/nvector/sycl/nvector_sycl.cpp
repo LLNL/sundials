@@ -501,8 +501,8 @@ N_Vector N_VMakeManaged_Sycl(sunindextype length, sunrealtype* vdata,
   NVEC_SYCL_CONTENT(v)->length     = length;
   NVEC_SYCL_CONTENT(v)->mem_helper = SUNMemoryHelper_Sycl(sunctx);
   NVEC_SYCL_CONTENT(v)->own_helper = SUNTRUE;
-  NVEC_SYCL_CONTENT(v)->host_data  = SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v),
-                                                          vdata, SUN_MEMTYPE_UVM);
+  NVEC_SYCL_CONTENT(v)->host_data =
+    SUNMemoryHelper_Wrap(NVEC_SYCL_MEMHELP(v), vdata, SUN_MEMTYPE_UVM);
   NVEC_SYCL_CONTENT(v)->device_data =
     SUNMemoryHelper_Alias(NVEC_SYCL_MEMHELP(v), NVEC_SYCL_CONTENT(v)->host_data);
   NVEC_SYCL_CONTENT(v)->stream_exec_policy =
