@@ -4,6 +4,16 @@
 // #endif
 //
 
+auto pyEnumARKODE_LSRKMethodType_ =
+  nb::enum_<ARKODE_LSRKMethodType_>(m, "ARKODE_LSRKMethodType_",
+                                    nb::is_arithmetic(), "")
+    .value("ARKODE_LSRK_RKC_2", ARKODE_LSRK_RKC_2, "")
+    .value("ARKODE_LSRK_RKL_2", ARKODE_LSRK_RKL_2, "")
+    .value("ARKODE_LSRK_SSP_S_2", ARKODE_LSRK_SSP_S_2, "")
+    .value("ARKODE_LSRK_SSP_S_3", ARKODE_LSRK_SSP_S_3, "")
+    .value("ARKODE_LSRK_SSP_10_4", ARKODE_LSRK_SSP_10_4, "")
+    .export_values();
+
 m.def("LSRKStepSetSTSMethod", LSRKStepSetSTSMethod, nb::arg("arkode_mem"),
       nb::arg("method"));
 

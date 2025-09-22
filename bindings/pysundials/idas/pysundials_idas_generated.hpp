@@ -105,9 +105,6 @@ m.def("IDASetMaxBacksIC", IDASetMaxBacksIC, nb::arg("ida_mem"),
 m.def("IDASetDeltaCjLSetup", IDASetDeltaCjLSetup, nb::arg("ida_max"),
       nb::arg("dcj"));
 
-m.def("IDASetOwnUserData", IDASetOwnUserData, nb::arg("ida_mem"),
-      nb::arg("own_user_data"));
-
 m.def("IDASetMaxOrd", IDASetMaxOrd, nb::arg("ida_mem"), nb::arg("maxord"));
 
 m.def("IDASetMaxNumSteps", IDASetMaxNumSteps, nb::arg("ida_mem"),
@@ -1592,6 +1589,18 @@ m.def(
 // #ifdef __cplusplus
 // #endif
 //
+m.attr("IDALS_SUCCESS")         = 0;
+m.attr("IDALS_MEM_NULL")        = -1;
+m.attr("IDALS_LMEM_NULL")       = -2;
+m.attr("IDALS_ILL_INPUT")       = -3;
+m.attr("IDALS_MEM_FAIL")        = -4;
+m.attr("IDALS_PMEM_NULL")       = -5;
+m.attr("IDALS_JACFUNC_UNRECVR") = -6;
+m.attr("IDALS_JACFUNC_RECVR")   = -7;
+m.attr("IDALS_SUNMAT_FAIL")     = -8;
+m.attr("IDALS_SUNLS_FAIL")      = -9;
+m.attr("IDALS_NO_ADJ")          = -101;
+m.attr("IDALS_LMEMB_NULL")      = -102;
 
 m.def(
   "IDASetLinearSolver",

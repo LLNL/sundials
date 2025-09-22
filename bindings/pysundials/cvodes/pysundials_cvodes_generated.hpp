@@ -139,9 +139,6 @@ m.def("CVodeSetInterpolateStopTime", CVodeSetInterpolateStopTime,
 
 m.def("CVodeClearStopTime", CVodeClearStopTime, nb::arg("cvode_mem"));
 
-m.def("CVodeSetOwnUserData", CVodeSetOwnUserData, nb::arg("cvode_mem"),
-      nb::arg("own_user_data"));
-
 m.def("CVodeSetEtaFixedStepBounds", CVodeSetEtaFixedStepBounds,
       nb::arg("cvode_mem"), nb::arg("eta_min_fx"), nb::arg("eta_max_fx"));
 
@@ -1491,9 +1488,6 @@ m.def("CVodeB", CVodeB, nb::arg("cvode_mem"), nb::arg("tBout"),
 
 m.def("CVodeSetAdjNoSensi", CVodeSetAdjNoSensi, nb::arg("cvode_mem"));
 
-m.def("CVodeSetOwnUserDataB", CVodeSetOwnUserDataB, nb::arg("cvode_mem"),
-      nb::arg("which"), nb::arg("own_user_data"));
-
 m.def("CVodeSetMaxOrdB", CVodeSetMaxOrdB, nb::arg("cvode_mem"),
       nb::arg("which"), nb::arg("maxordB"));
 
@@ -1630,6 +1624,18 @@ m.def(
 // #ifdef __cplusplus
 // #endif
 //
+m.attr("CVLS_SUCCESS")         = 0;
+m.attr("CVLS_MEM_NULL")        = -1;
+m.attr("CVLS_LMEM_NULL")       = -2;
+m.attr("CVLS_ILL_INPUT")       = -3;
+m.attr("CVLS_MEM_FAIL")        = -4;
+m.attr("CVLS_PMEM_NULL")       = -5;
+m.attr("CVLS_JACFUNC_UNRECVR") = -6;
+m.attr("CVLS_JACFUNC_RECVR")   = -7;
+m.attr("CVLS_SUNMAT_FAIL")     = -8;
+m.attr("CVLS_SUNLS_FAIL")      = -9;
+m.attr("CVLS_NO_ADJ")          = -101;
+m.attr("CVLS_LMEMB_NULL")      = -102;
 
 m.def(
   "CVodeSetLinearSolver",

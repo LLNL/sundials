@@ -45,9 +45,6 @@ m.def("KINSol", KINSol, nb::arg("kinmem"), nb::arg("uu"), nb::arg("strategy"),
 
 m.def("KINSetUserData", KINSetUserData, nb::arg("kinmem"), nb::arg("user_data"));
 
-m.def("KINSetOwnUserData", KINSetOwnUserData, nb::arg("kinmem"),
-      nb::arg("own_user_data"));
-
 m.def("KINSetDamping", KINSetDamping, nb::arg("kinmem"), nb::arg("beta"));
 
 m.def("KINSetMAA", KINSetMAA, nb::arg("kinmem"), nb::arg("maa"));
@@ -234,6 +231,15 @@ m.def("KINGetReturnFlagName", KINGetReturnFlagName, nb::arg("flag"));
 // #ifdef __cplusplus
 // #endif
 //
+m.attr("KINLS_SUCCESS")     = 0;
+m.attr("KINLS_MEM_NULL")    = -1;
+m.attr("KINLS_LMEM_NULL")   = -2;
+m.attr("KINLS_ILL_INPUT")   = -3;
+m.attr("KINLS_MEM_FAIL")    = -4;
+m.attr("KINLS_PMEM_NULL")   = -5;
+m.attr("KINLS_JACFUNC_ERR") = -6;
+m.attr("KINLS_SUNMAT_FAIL") = -7;
+m.attr("KINLS_SUNLS_FAIL")  = -8;
 
 m.def(
   "KINSetLinearSolver",

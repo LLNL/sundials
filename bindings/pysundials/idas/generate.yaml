@@ -28,6 +28,7 @@ modules:
     macro_define_include_by_name__regex:
     - "^SUN_"
     - "^IDA_"
+    - "^IDALS_"
   idas:
     path: idas/pysundials_idas_generated.hpp
     headers:

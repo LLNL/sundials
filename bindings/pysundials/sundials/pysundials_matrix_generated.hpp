@@ -4,6 +4,20 @@
 // #endif
 //
 
+auto pyEnumSUNMatrix_ID_ =
+  nb::enum_<SUNMatrix_ID_>(m, "SUNMatrix_ID_", nb::is_arithmetic(), "")
+    .value("SUNMATRIX_DENSE", SUNMATRIX_DENSE, "")
+    .value("SUNMATRIX_MAGMADENSE", SUNMATRIX_MAGMADENSE, "")
+    .value("SUNMATRIX_ONEMKLDENSE", SUNMATRIX_ONEMKLDENSE, "")
+    .value("SUNMATRIX_BAND", SUNMATRIX_BAND, "")
+    .value("SUNMATRIX_SPARSE", SUNMATRIX_SPARSE, "")
+    .value("SUNMATRIX_SLUNRLOC", SUNMATRIX_SLUNRLOC, "")
+    .value("SUNMATRIX_CUSPARSE", SUNMATRIX_CUSPARSE, "")
+    .value("SUNMATRIX_GINKGO", SUNMATRIX_GINKGO, "")
+    .value("SUNMATRIX_KOKKOSDENSE", SUNMATRIX_KOKKOSDENSE, "")
+    .value("SUNMATRIX_CUSTOM", SUNMATRIX_CUSTOM, "")
+    .export_values();
+
 auto pyClass_generic_SUNMatrix_Ops =
   nb::class_<_generic_SUNMatrix_Ops>(m, "_generic_SUNMatrix_Ops", "")
     .def(nb::init<>()) // implicit default constructor

@@ -28,6 +28,7 @@ modules:
     macro_define_include_by_name__regex:
     - "^SUN_"
     - "^CV_"
+    - "^CVLS_"
   cvodes:
     path: cvodes/pysundials_cvodes_generated.hpp
     headers:

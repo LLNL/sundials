@@ -82,6 +82,20 @@ m.attr("ARK_SUNADJSTEPPER_ERR")      = -55;
 m.attr("ARK_DEE_FAIL")               = -56;
 m.attr("ARK_UNRECOGNIZED_ERROR")     = -99;
 
+auto pyEnumARKRelaxSolver_ = nb::enum_<ARKRelaxSolver_>(m, "ARKRelaxSolver_",
+                                                        nb::is_arithmetic(), "")
+                               .value("ARK_RELAX_BRENT", ARK_RELAX_BRENT, "")
+                               .value("ARK_RELAX_NEWTON", ARK_RELAX_NEWTON, "")
+                               .export_values();
+
+auto pyEnumARKAccumError =
+  nb::enum_<ARKAccumError>(m, "ARKAccumError", nb::is_arithmetic(), "")
+    .value("ARK_ACCUMERROR_NONE", ARK_ACCUMERROR_NONE, "")
+    .value("ARK_ACCUMERROR_MAX", ARK_ACCUMERROR_MAX, "")
+    .value("ARK_ACCUMERROR_SUM", ARK_ACCUMERROR_SUM, "")
+    .value("ARK_ACCUMERROR_AVG", ARK_ACCUMERROR_AVG, "")
+    .export_values();
+
 m.def("ARKodeResize", ARKodeResize, nb::arg("arkode_mem"), nb::arg("ynew"),
       nb::arg("hscale"), nb::arg("t0"), nb::arg("resize"),
       nb::arg("resize_data"));
@@ -157,9 +171,6 @@ m.def("ARKodeSetFixedStep", ARKodeSetFixedStep, nb::arg("arkode_mem"),
 
 m.def("ARKodeSetStepDirection", ARKodeSetStepDirection, nb::arg("arkode_mem"),
       nb::arg("stepdir"));
-
-m.def("ARKodeSetOwnUserData", ARKodeSetOwnUserData, nb::arg("ark_mem"),
-      nb::arg("own_user_data"));
 
 m.def("ARKodeSetNonlinearSolver", ARKodeSetNonlinearSolver,
       nb::arg("arkode_mem"), nb::arg("NLS"));
@@ -1277,6 +1288,19 @@ m.def(
 // #ifdef __cplusplus
 // #endif
 //
+m.attr("ARKLS_SUCCESS")          = 0;
+m.attr("ARKLS_MEM_NULL")         = -1;
+m.attr("ARKLS_LMEM_NULL")        = -2;
+m.attr("ARKLS_ILL_INPUT")        = -3;
+m.attr("ARKLS_MEM_FAIL")         = -4;
+m.attr("ARKLS_PMEM_NULL")        = -5;
+m.attr("ARKLS_MASSMEM_NULL")     = -6;
+m.attr("ARKLS_JACFUNC_UNRECVR")  = -7;
+m.attr("ARKLS_JACFUNC_RECVR")    = -8;
+m.attr("ARKLS_MASSFUNC_UNRECVR") = -9;
+m.attr("ARKLS_MASSFUNC_RECVR")   = -10;
+m.attr("ARKLS_SUNMAT_FAIL")      = -11;
+m.attr("ARKLS_SUNLS_FAIL")       = -12;
 
 m.def(
   "ARKodeSetLinearSolver",
@@ -1400,6 +1424,26 @@ m.def(
 // #ifdef __cplusplus
 // #endif
 //
+
+auto pyEnumARKODE_SPRKMethodID_ =
+  nb::enum_<ARKODE_SPRKMethodID_>(m, "ARKODE_SPRKMethodID_",
+                                  nb::is_arithmetic(), "")
+    .value("ARKODE_SPRK_NONE", ARKODE_SPRK_NONE, "")
+    .value("ARKODE_MIN_SPRK_NUM", ARKODE_MIN_SPRK_NUM, "")
+    .value("ARKODE_SPRK_EULER_1_1", ARKODE_SPRK_EULER_1_1, "")
+    .value("ARKODE_SPRK_LEAPFROG_2_2", ARKODE_SPRK_LEAPFROG_2_2, "")
+    .value("ARKODE_SPRK_PSEUDO_LEAPFROG_2_2", ARKODE_SPRK_PSEUDO_LEAPFROG_2_2, "")
+    .value("ARKODE_SPRK_RUTH_3_3", ARKODE_SPRK_RUTH_3_3, "")
+    .value("ARKODE_SPRK_MCLACHLAN_2_2", ARKODE_SPRK_MCLACHLAN_2_2, "")
+    .value("ARKODE_SPRK_MCLACHLAN_3_3", ARKODE_SPRK_MCLACHLAN_3_3, "")
+    .value("ARKODE_SPRK_CANDY_ROZMUS_4_4", ARKODE_SPRK_CANDY_ROZMUS_4_4, "")
+    .value("ARKODE_SPRK_MCLACHLAN_4_4", ARKODE_SPRK_MCLACHLAN_4_4, "")
+    .value("ARKODE_SPRK_MCLACHLAN_5_6", ARKODE_SPRK_MCLACHLAN_5_6, "")
+    .value("ARKODE_SPRK_YOSHIDA_6_8", ARKODE_SPRK_YOSHIDA_6_8, "")
+    .value("ARKODE_SPRK_SUZUKI_UMENO_8_16", ARKODE_SPRK_SUZUKI_UMENO_8_16, "")
+    .value("ARKODE_SPRK_SOFRONIOU_10_36", ARKODE_SPRK_SOFRONIOU_10_36, "")
+    .value("ARKODE_MAX_SPRK_NUM", ARKODE_MAX_SPRK_NUM, "")
+    .export_values();
 
 auto pyClassARKodeSPRKTableMem =
   nb::class_<ARKodeSPRKTableMem>(m, "ARKodeSPRKTableMem", "")

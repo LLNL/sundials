@@ -28,6 +28,7 @@ modules:
     macro_define_include_by_name__regex:
     - "^SUN_"
     - "^ARK_"
+    - "^ARKLS_"
     fn_params_optional_with_default_null:
       "SetLinearSolver":
       - "A" 

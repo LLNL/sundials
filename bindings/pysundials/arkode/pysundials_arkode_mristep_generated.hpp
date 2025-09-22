@@ -4,6 +4,51 @@
 // #endif
 //
 
+auto pyEnumMRISTEP_METHOD_TYPE_ =
+  nb::enum_<MRISTEP_METHOD_TYPE_>(m, "MRISTEP_METHOD_TYPE_",
+                                  nb::is_arithmetic(), "")
+    .value("MRISTEP_EXPLICIT", MRISTEP_EXPLICIT, "")
+    .value("MRISTEP_IMPLICIT", MRISTEP_IMPLICIT, "")
+    .value("MRISTEP_IMEX", MRISTEP_IMEX, "")
+    .value("MRISTEP_MERK", MRISTEP_MERK, "")
+    .value("MRISTEP_SR", MRISTEP_SR, "")
+    .export_values();
+
+auto pyEnumARKODE_MRITableID_ =
+  nb::enum_<ARKODE_MRITableID_>(m, "ARKODE_MRITableID_", nb::is_arithmetic(), "")
+    .value("ARKODE_MRI_NONE", ARKODE_MRI_NONE, "")
+    .value("ARKODE_MIN_MRI_NUM", ARKODE_MIN_MRI_NUM, "")
+    .value("ARKODE_MIS_KW3", ARKODE_MIS_KW3, "")
+    .value("ARKODE_MRI_GARK_ERK33a", ARKODE_MRI_GARK_ERK33a, "")
+    .value("ARKODE_MRI_GARK_ERK45a", ARKODE_MRI_GARK_ERK45a, "")
+    .value("ARKODE_MRI_GARK_IRK21a", ARKODE_MRI_GARK_IRK21a, "")
+    .value("ARKODE_MRI_GARK_ESDIRK34a", ARKODE_MRI_GARK_ESDIRK34a, "")
+    .value("ARKODE_MRI_GARK_ESDIRK46a", ARKODE_MRI_GARK_ESDIRK46a, "")
+    .value("ARKODE_IMEX_MRI_GARK3a", ARKODE_IMEX_MRI_GARK3a, "")
+    .value("ARKODE_IMEX_MRI_GARK3b", ARKODE_IMEX_MRI_GARK3b, "")
+    .value("ARKODE_IMEX_MRI_GARK4", ARKODE_IMEX_MRI_GARK4, "")
+    .value("ARKODE_MRI_GARK_FORWARD_EULER", ARKODE_MRI_GARK_FORWARD_EULER, "")
+    .value("ARKODE_MRI_GARK_RALSTON2", ARKODE_MRI_GARK_RALSTON2, "")
+    .value("ARKODE_MRI_GARK_ERK22a", ARKODE_MRI_GARK_ERK22a, "")
+    .value("ARKODE_MRI_GARK_ERK22b", ARKODE_MRI_GARK_ERK22b, "")
+    .value("ARKODE_MRI_GARK_RALSTON3", ARKODE_MRI_GARK_RALSTON3, "")
+    .value("ARKODE_MRI_GARK_BACKWARD_EULER", ARKODE_MRI_GARK_BACKWARD_EULER, "")
+    .value("ARKODE_MRI_GARK_IMPLICIT_MIDPOINT",
+           ARKODE_MRI_GARK_IMPLICIT_MIDPOINT, "")
+    .value("ARKODE_IMEX_MRI_GARK_EULER", ARKODE_IMEX_MRI_GARK_EULER, "")
+    .value("ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL", ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL,
+           "")
+    .value("ARKODE_IMEX_MRI_GARK_MIDPOINT", ARKODE_IMEX_MRI_GARK_MIDPOINT, "")
+    .value("ARKODE_MERK21", ARKODE_MERK21, "")
+    .value("ARKODE_MERK32", ARKODE_MERK32, "")
+    .value("ARKODE_MERK43", ARKODE_MERK43, "")
+    .value("ARKODE_MERK54", ARKODE_MERK54, "")
+    .value("ARKODE_IMEX_MRI_SR21", ARKODE_IMEX_MRI_SR21, "")
+    .value("ARKODE_IMEX_MRI_SR32", ARKODE_IMEX_MRI_SR32, "")
+    .value("ARKODE_IMEX_MRI_SR43", ARKODE_IMEX_MRI_SR43, "")
+    .value("ARKODE_MAX_MRI_NUM", ARKODE_MAX_MRI_NUM, "")
+    .export_values();
+
 auto pyClassMRIStepCouplingMem =
   nb::class_<MRIStepCouplingMem>(m, "MRIStepCouplingMem", "")
     .def(nb::init<>()) // implicit default constructor
