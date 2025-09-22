@@ -69,7 +69,7 @@ the Kokkos dense matrix e.g.,
                                                       sunctx};
 
 Instances of the ``DenseMatrix`` class are implicitly or explicitly (using the
-:cpp:func:`~DenseMatrix::Convert` method) convertible to a :c:type:`SUNMatrix`
+:cpp:func:`~DenseMatrix::get` method) convertible to a :c:type:`SUNMatrix`
 e.g.,
 
 .. code-block:: cpp
