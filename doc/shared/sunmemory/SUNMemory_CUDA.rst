@@ -52,10 +52,10 @@ The implementation provides the following operations defined by the
    :param memptr: pointer to the allocated ``SUNMemory``.
    :param mem_size: the size in bytes of the ``ptr``.
    :param mem_type: the ``SUNMemoryType`` of the ``ptr``. Supported values are:
-     * ``SUNMEMTYPE_HOST`` -- memory is allocated with a call to ``malloc``.
-     * ``SUNMEMTYPE_PINNED`` -- memory is allocated with a call to ``cudaMallocHost``.
-     * ``SUNMEMTYPE_DEVICE`` -- memory is allocated with a call to ``cudaMalloc``.
-     * ``SUNMEMTYPE_UVM`` -- memory is allocated with a call to ``cudaMallocManaged``.
+     * ``SUN_MEMTYPE_HOST`` -- memory is allocated with a call to ``malloc``.
+     * ``SUN_MEMTYPE_PINNED`` -- memory is allocated with a call to ``cudaMallocHost``.
+     * ``SUN_MEMTYPE_DEVICE`` -- memory is allocated with a call to ``cudaMalloc``.
+     * ``SUN_MEMTYPE_UVM`` -- memory is allocated with a call to ``cudaMallocManaged``.
    :param queue: currently unused.
    :return: A new :c:type:`SUNMemory` object.
 

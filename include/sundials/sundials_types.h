@@ -150,7 +150,6 @@ typedef sunrealtype*** sunrealtype3d;
 
 typedef SUNDIALS_INDEX_TYPE sunindextype;
 
-
 /*
  *-----------------------------------------------------------------------------
  * Type(s): sunindextype1d, sunindextype2d, sunindextype3d
@@ -310,7 +309,7 @@ enum SUNDataIOMode_
 };
 
 /* For backwards compatibility with the old name */
-static const int SUNDATAIOMODE_INMEM = SUN_DATAIOMODE_INMEM;
+#define SUNDATAIOMODE_INMEM SUN_DATAIOMODE_INMEM
 
 typedef enum SUNDataIOMode_ SUNDataIOMode;
 

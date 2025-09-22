@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
   {
     // Create SUNMatrix for use in linear solves
     A = SUNMatrix_OneMklDenseBlock(ngroups, GROUPSIZE, GROUPSIZE,
-                                   SUNMEMTYPE_DEVICE, memhelper, &myQueue,
+                                   SUN_MEMTYPE_DEVICE, memhelper, &myQueue,
                                    sunctx);
     if (check_retval((void*)A, "SUNMatrix_OneMklDenseBlock", 0)) { return 1; }
 

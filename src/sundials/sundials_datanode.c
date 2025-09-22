@@ -92,7 +92,7 @@ SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
   SUNErrCode err = SUN_SUCCESS;
   switch (io_mode)
   {
-  case (SUNDATAIOMODE_INMEM):
+  case (SUN_DATAIOMODE_INMEM):
     err = SUNDataNode_CreateLeaf_InMem(mem_helper, sunctx, node_out);
     break;
   default: err = SUN_ERR_ARG_OUTOFRANGE;
@@ -123,7 +123,7 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
   SUNErrCode err = SUN_SUCCESS;
   switch (io_mode)
   {
-  case (SUNDATAIOMODE_INMEM):
+  case (SUN_DATAIOMODE_INMEM):
     err = SUNDataNode_CreateList_InMem(num_elements, sunctx, node_out);
     break;
   default: err = SUN_ERR_ARG_OUTOFRANGE;
@@ -154,7 +154,7 @@ SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
   SUNErrCode err = SUN_SUCCESS;
   switch (io_mode)
   {
-  case (SUNDATAIOMODE_INMEM):
+  case (SUN_DATAIOMODE_INMEM):
     err = SUNDataNode_CreateObject_InMem(num_elements, sunctx, node_out);
     break;
   default: err = SUN_ERR_ARG_OUTOFRANGE;

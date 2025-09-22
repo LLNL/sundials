@@ -80,7 +80,7 @@ implementation specific functions:
       * *M* -- the number of matrix rows.
       * *N* -- the number of matrix columns.
       * *memtype* -- the type of memory to use for the matrix data; can be
-        ``SUNMEMTYPE_UVM`` or ``SUNMEMTYPE_DEVICE``.
+        ``SUN_MEMTYPE_UVM`` or ``SUN_MEMTYPE_DEVICE``.
       * *memhelper* -- the memory helper used for allocating data.
       * *queue* --  a ``cudaStream_t`` when using CUDA or a ``hipStream_t`` when
         using HIP.
@@ -100,7 +100,7 @@ implementation specific functions:
       * *M_block* -- the number of matrix rows in each block.
       * *N_block* -- the number of matrix columns in each block.
       * *memtype* -- the type of memory to use for the matrix data; can be
-        ``SUNMEMTYPE_UVM`` or ``SUNMEMTYPE_DEVICE``.
+        ``SUN_MEMTYPE_UVM`` or ``SUN_MEMTYPE_DEVICE``.
       * *memhelper* -- the memory helper used for allocating data.
       * *queue* --  a ``cudaStream_t`` when using CUDA or a ``hipStream_t`` when
         using HIP.
