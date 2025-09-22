@@ -89,6 +89,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void SPRKStepFree(void** arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRhsEvals instead")
 int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetUseCompensatedSums instead")
+int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff);
 
 #ifdef __cplusplus
 }
