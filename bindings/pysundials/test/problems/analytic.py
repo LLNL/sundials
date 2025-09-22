@@ -208,6 +208,11 @@ class AnalyticNonlinearSys:
     * This system has the analytic solution x = 1/2, y = 1, z = -pi/6.
     """
 
+    NEQ = 3
+
+    def __init__(self):
+        pass
+
     def fixed_point_fn(self, uvec, gvec):
         u = N_VGetArrayPointer(uvec)
         g = N_VGetArrayPointer(gvec)

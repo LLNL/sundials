@@ -19,6 +19,8 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/tuple.h>
 
 #include <sundials/sundials_nonlinearsolver.hpp>
 
@@ -34,4 +36,11 @@ void bind_sunnonlinearsolver(nb::module_& m)
     .def_static("Create", &SUNNonlinearSolverView::Create<SUNNonlinearSolver>)
     .def("get", nb::overload_cast<>(&SUNNonlinearSolverView::get, nb::const_),
          nb::rv_policy::reference);
+
+  m.def("SUNNonlinSolSetup", SUNNonlinSolSetup, nb::arg("NLS"), nb::arg("y"),
+        nb::arg("mem").none());
+
+  m.def("SUNNonlinSolSolve", SUNNonlinSolSolve, nb::arg("NLS"), nb::arg("y0"),
+        nb::arg("y"), nb::arg("w"), nb::arg("tol"), nb::arg("callLSetup"),
+        nb::arg("mem").none());
 }

@@ -27,13 +27,6 @@ m.def("SUNNonlinSolGetType", SUNNonlinSolGetType, nb::arg("NLS"));
 
 m.def("SUNNonlinSolInitialize", SUNNonlinSolInitialize, nb::arg("NLS"));
 
-m.def("SUNNonlinSolSetup", SUNNonlinSolSetup, nb::arg("NLS"), nb::arg("y"),
-      nb::arg("mem"));
-
-m.def("SUNNonlinSolSolve", SUNNonlinSolSolve, nb::arg("NLS"), nb::arg("y0"),
-      nb::arg("y"), nb::arg("w"), nb::arg("tol"), nb::arg("callLSetup"),
-      nb::arg("mem"));
-
 m.def("SUNNonlinSolSetMaxIters", SUNNonlinSolSetMaxIters, nb::arg("NLS"),
       nb::arg("maxiters"));
 

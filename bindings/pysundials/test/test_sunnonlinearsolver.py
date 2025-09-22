@@ -11,6 +11,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
+# Smoke tests for SUNNonlinearSolver module
+# -----------------------------------------------------------------
 
 import pytest
 import numpy as np
@@ -35,31 +37,103 @@ def nls_newton(sunctx, nvec):
     nls = SUNNonlinearSolverView.Create(SUNNonlinSol_Newton(nvec.get(), sunctx.get()))
     yield nls
 
-def test_gettype(sunctx, nvec, nls_newton):
+def test_gettype(sunctx, nvec, nls_newton, nls_fixedpoint):
     typ = SUNNonlinSolGetType(nls_newton.get())
-    assert type is SUNNONLINEARSOLVER_ROOTFIND
+    assert typ is SUNNONLINEARSOLVER_ROOTFIND
 
-# def test_sunnonlinearsolver_api(sunctx):
-#     nls = SUNNonlinSol_FixedPoint(nvec.get(), 5, sunctx.get())
-#     # Type
-#     typ = SUNNonlinSolGetType(nls)
-#     assert typ is not None
-#     # Initialize
-#     ret = SUNNonlinSolInitialize(nls)
-#     # Setup (dummy args)
-#     try:
-#         SUNNonlinSolSetup(nls, nvec.get(), None)
-#     except Exception:
-#         pass  # Accept failure if memory arg is required
-#     # Set max iters
-#     ret = SUNNonlinSolSetMaxIters(nls, 10)
-#     # Get num iters
-#     err, niters = SUNNonlinSolGetNumIters(nls, 0)
-#     assert isinstance(niters, int)
-#     # Get cur iter
-#     err, iter = SUNNonlinSolGetCurIter(nls, 0)
-#     assert isinstance(iter, int)
-#     # Get num conv fails
-#     err, nconvfails = SUNNonlinSolGetNumConvFails(nls, 0)
-#     assert isinstance(nconvfails, int)
+    typ = SUNNonlinSolGetType(nls_fixedpoint.get())
+    assert typ is SUNNONLINEARSOLVER_FIXEDPOINT
+
+def test_initialize(sunctx, nvec, nls_newton, nls_fixedpoint):
+    # Test initialization of Newton solver
+    ret = SUNNonlinSolInitialize(nls_newton.get())
+    assert ret == 0  # 0 usually means success
+
+    # Test initialization of FixedPoint solver
+    ret = SUNNonlinSolInitialize(nls_fixedpoint.get())
+    assert ret == 0
+
+def test_set_max_iters_and_get_num_iters(sunctx, nvec, nls_newton, nls_fixedpoint):
+    # Set max iters for Newton solver
+    ret = SUNNonlinSolSetMaxIters(nls_newton.get(), 15)
+    assert ret == 0
+
+    # Set max iters for FixedPoint solver
+    ret = SUNNonlinSolSetMaxIters(nls_fixedpoint.get(), 20)
+    assert ret == 0
+
+    # Get num iters for Newton solver
+    err, niters = SUNNonlinSolGetNumIters(nls_newton.get(), 0)
+    assert err == 0
+    assert isinstance(niters, int)
+
+    # Get num iters for FixedPoint solver
+    err, niters = SUNNonlinSolGetNumIters(nls_fixedpoint.get(), 0)
+    assert err == 0
+    assert isinstance(niters, int)
+
+def test_get_cur_iter(sunctx, nvec, nls_newton, nls_fixedpoint):
+    # Get current iteration for Newton solver
+    err, cur_iter = SUNNonlinSolGetCurIter(nls_newton.get(), 0)
+    assert err == 0
+    assert isinstance(cur_iter, int)
+
+    # Get current iteration for FixedPoint solver
+    err, cur_iter = SUNNonlinSolGetCurIter(nls_fixedpoint.get(), 0)
+    assert err == 0
+    assert isinstance(cur_iter, int)
+
+def test_get_num_conv_fails(sunctx, nvec, nls_newton, nls_fixedpoint):
+    # Get number of convergence failures for Newton solver
+    err, nconvfails = SUNNonlinSolGetNumConvFails(nls_newton.get(), 0)
+    assert err == 0
+    assert isinstance(nconvfails, int)
+
+    # Get number of convergence failures for FixedPoint solver
+    err, nconvfails = SUNNonlinSolGetNumConvFails(nls_fixedpoint.get(), 0)
+    assert err == 0
+    assert isinstance(nconvfails, int)
+
+
+def test_fixedpoint_setup_and_solve(sunctx):
+    # Use AnalyticNonlinearSys to test SUNNonlinearSolver setup and solve
+    from problems import AnalyticNonlinearSys
+
+    NEQ = AnalyticNonlinearSys.NEQ
+    problem = AnalyticNonlinearSys()
+    ucor = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
+    u0 = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
+    w = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
+    nls = SUNNonlinearSolverView.Create(SUNNonlinSol_FixedPoint(u0.get(), 5, sunctx.get()))
+
+    # Initial guess
+    udata = N_VGetArrayPointer(u0.get())
+    udata[:] = [0.1, 0.1, -0.1]
+
+    # Initial correction
+    N_VConst(0.0, ucor.get())
+
+    # System function
+    def g_fn(u, g, _):
+        return problem.fixed_point_fn(u, g)
+
+    # Setup (should succeed)
+    ret = SUNNonlinSolSetup(nls.get(), u0.get(), None)
+    assert ret == 0
+
+    # Set the scaling vector (no scaling)
+    N_VConst(1.0, w.get()) 
+
+    # Solve
+    tol = 1e-8
+    ret = SUNNonlinSolSolve(nls.get(), u0.get(), ucor.get(), w.get(), tol, 0, None)
+    assert ret == 0
+
+    # Update the initial guess with the correction
+    N_VLinearSum(1.0, u0.get(), 1.0, ucor.get(), ucor.get())
+    
+    # Compare to analytic solution
+    utrue = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
+    problem.solution(utrue.get())
+    assert np.allclose(N_VGetArrayPointer(ucor.get()), N_VGetArrayPointer(utrue.get()), atol=1e-6)
 
