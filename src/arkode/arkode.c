@@ -2064,19 +2064,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   { /* update pointer to ewt */
     ark_mem->rwt = ark_mem->ewt;
   }
-  retval = ark_mem->step_init(ark_mem, tout, ark_mem->init_type);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Error in initialization of time stepper module");
-    return (retval);
-  }
-
-  /* Load initial residual weights */
-  if (ark_mem->rwt_is_ewt)
-  { /* update pointer to ewt */
-    ark_mem->rwt = ark_mem->ewt;
-  }
   else
   {
     retval = ark_mem->rfun(ark_mem->yn, ark_mem->rwt, ark_mem->r_data);
