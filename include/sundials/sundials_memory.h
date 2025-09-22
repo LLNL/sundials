@@ -36,10 +36,10 @@ enum SUNMemoryType_
 typedef enum SUNMemoryType_ SUNMemoryType;
 
 /* For backwards compatibility with the old name */
-static const int SUNMEMTYPE_HOST   = SUN_MEMTYPE_HOST;
-static const int SUNMEMTYPE_PINNED = SUN_MEMTYPE_PINNED;
-static const int SUNMEMTYPE_DEVICE = SUN_MEMTYPE_DEVICE;
-static const int SUNMEMTYPE_UVM    = SUN_MEMTYPE_UVM;
+#define SUNMEMTYPE_HOST   SUN_MEMTYPE_HOST
+#define SUNMEMTYPE_PINNED SUN_MEMTYPE_PINNED
+#define SUNMEMTYPE_DEVICE SUN_MEMTYPE_DEVICE
+#define SUNMEMTYPE_UVM    SUN_MEMTYPE_UVM
 
 /*
  * SUNMemory is a simple abstraction of a pointer to some
