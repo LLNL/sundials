@@ -56,8 +56,8 @@ extern "C" {
 /* -----------------------------------------------------------------
  * Implemented SUNMatrix types
  * ----------------------------------------------------------------- */
-
-typedef enum
+ 
+enum SUNMatrix_ID_
 {
   SUNMATRIX_DENSE,
   SUNMATRIX_MAGMADENSE,
@@ -69,7 +69,9 @@ typedef enum
   SUNMATRIX_GINKGO,
   SUNMATRIX_KOKKOSDENSE,
   SUNMATRIX_CUSTOM
-} SUNMatrix_ID;
+};
+
+typedef enum SUNMatrix_ID_ SUNMatrix_ID;
 
 /* -----------------------------------------------------------------
  * Generic definition of SUNMatrix

@@ -36,13 +36,15 @@ extern "C" {
  *    H    - controls a single-rate step size
  *    MRI_H_TOL - controls slow step and fast relative tolerances
  * ----------------------------------------------------------------- */
-
-typedef enum
+ 
+enum SUNAdaptController_Type_
 {
   SUN_ADAPTCONTROLLER_NONE,
   SUN_ADAPTCONTROLLER_H,
   SUN_ADAPTCONTROLLER_MRI_H_TOL
-} SUNAdaptController_Type;
+};
+
+typedef enum SUNAdaptController_Type_ SUNAdaptController_Type;
 
 /* -----------------------------------------------------------------
  * Generic definition of SUNAdaptController

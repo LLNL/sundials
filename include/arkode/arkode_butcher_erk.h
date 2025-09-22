@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-typedef enum
+enum ARKODE_ERKTableID_
 {
   ARKODE_ERK_NONE         = -1, /* ensure enum is signed int */
   ARKODE_MIN_ERK_NUM      = 0,
@@ -55,7 +55,9 @@ typedef enum
   ARKODE_RALSTON_3_1_2,
   ARKODE_TSITOURAS_7_4_5,
   ARKODE_MAX_ERK_NUM = ARKODE_TSITOURAS_7_4_5
-} ARKODE_ERKTableID;
+};
+
+typedef enum ARKODE_ERKTableID_ ARKODE_ERKTableID;
 
 /* Accessor routine to load built-in ERK table */
 SUNDIALS_EXPORT ARKodeButcherTable

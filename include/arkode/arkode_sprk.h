@@ -24,11 +24,11 @@
 extern "C" {
 #endif
 
-typedef enum
+enum ARKODE_SPRKMethodID_
 {
   ARKODE_SPRK_NONE      = -1, /* ensure enum is signed int */
   ARKODE_MIN_SPRK_NUM   = 0,
-  ARKODE_SPRK_EULER_1_1 = ARKODE_MIN_SPRK_NUM,
+  ARKODE_SPRK_EULER_1_1 = 0,
   ARKODE_SPRK_LEAPFROG_2_2,
   ARKODE_SPRK_PSEUDO_LEAPFROG_2_2,
   ARKODE_SPRK_RUTH_3_3,
@@ -41,7 +41,9 @@ typedef enum
   ARKODE_SPRK_SUZUKI_UMENO_8_16,
   ARKODE_SPRK_SOFRONIOU_10_36,
   ARKODE_MAX_SPRK_NUM = ARKODE_SPRK_SOFRONIOU_10_36
-} ARKODE_SPRKMethodID;
+};
+
+typedef enum ARKODE_SPRKMethodID_ ARKODE_SPRKMethodID;
 
 struct ARKodeSPRKTableMem
 {
