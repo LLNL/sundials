@@ -34,7 +34,7 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
   mem->ptr = NULL;
   mem->own = SUNTRUE;
 
-  if (mem_type == SUNMEMTYPE_HOST)
+  if (mem_type == SUN_MEMTYPE_HOST)
   {
     mem->ptr = malloc(mem_size);
     if (mem->ptr == NULL)
@@ -42,9 +42,9 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
       free(mem);
       return -1;
     }
-    mem->type = SUNMEMTYPE_HOST;
+    mem->type = SUN_MEMTYPE_HOST;
   }
-  else if (mem_type == SUNMEMTYPE_DEVICE)
+  else if (mem_type == SUN_MEMTYPE_DEVICE)
   {
     mem->ptr = sycl::malloc_device(mem_size, *sycl_queue);
     if (mem->ptr == NULL)
@@ -52,7 +52,7 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
       free(mem);
       return -1;
     }
-    mem->type = SUNMEMTYPE_DEVICE;
+    mem->type = SUN_MEMTYPE_DEVICE;
   }
   else
   {
@@ -74,12 +74,12 @@ int MyMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem, void* queue)
 
     sycl::queue* sycl_queue = static_cast<sycl::queue*>(queue);
 
-    if (mem->type == SUNMEMTYPE_HOST)
+    if (mem->type == SUN_MEMTYPE_HOST)
     {
       free(mem->ptr);
       mem->ptr = NULL;
     }
-    else if (mem->type == SUNMEMTYPE_DEVICE)
+    else if (mem->type == SUN_MEMTYPE_DEVICE)
     {
       sycl::free(mem->ptr, *sycl_queue);
       mem->ptr = NULL;
@@ -98,7 +98,7 @@ int MyMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst, SUNMemory src,
   if (!queue) return -1;
   sycl::queue* sycl_queue = static_cast<sycl::queue*>(queue);
 
-  if (src->type == SUNMEMTYPE_HOST && dst->type == SUNMEMTYPE_HOST)
+  if (src->type == SUN_MEMTYPE_HOST && dst->type == SUN_MEMTYPE_HOST)
   {
     memcpy(dst->ptr, src->ptr, memory_size);
   }

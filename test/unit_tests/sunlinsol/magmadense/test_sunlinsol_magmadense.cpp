@@ -97,12 +97,12 @@ int main(int argc, char* argv[])
   /* Create matrices and vectors */
   if (nblocks > 1)
   {
-    A = SUNMatrix_MagmaDenseBlock(nblocks, rows, cols, SUNMEMTYPE_DEVICE,
+    A = SUNMatrix_MagmaDenseBlock(nblocks, rows, cols, SUN_MEMTYPE_DEVICE,
                                   memhelper, NULL, sunctx);
   }
   else
   {
-    A = SUNMatrix_MagmaDense(rows, cols, SUNMEMTYPE_DEVICE, memhelper, NULL,
+    A = SUNMatrix_MagmaDense(rows, cols, SUN_MEMTYPE_DEVICE, memhelper, NULL,
                              sunctx);
   }
   I = SUNMatClone(A);

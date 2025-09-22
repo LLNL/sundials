@@ -330,14 +330,14 @@ SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v,
   SUNAssert((buffer_size + sizeof(sunrealtype)) == leaf_data->bytes,
             SUN_ERR_ARG_INCOMPATIBLE);
 
-  if (leaf_mem_type != SUNMEMTYPE_HOST)
+  if (leaf_mem_type != SUN_MEMTYPE_HOST)
   {
     /* BufUnpack assumes the data is on the host. So if the leaf has it elsewhere,
        we need to move it to the host first. */
     SUNMemory leaf_host_data = NULL;
     SUNCheckCall(SUNMemoryHelper_Alloc(IMPL_MEMBER(self, mem_helper),
                                        &leaf_host_data, leaf_data->bytes,
-                                       SUNMEMTYPE_HOST, queue));
+                                       SUN_MEMTYPE_HOST, queue));
 
     SUNCheckCall(SUNMemoryHelper_Copy(IMPL_MEMBER(self, mem_helper),
                                       leaf_host_data, leaf_data, buffer_size,
@@ -398,7 +398,7 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v,
   /* Use the default queue for the memory helper */
   void* queue = NULL;
 
-  SUNMemoryType leaf_mem_type = SUNMEMTYPE_HOST;
+  SUNMemoryType leaf_mem_type = SUN_MEMTYPE_HOST;
 
   sunindextype buffer_size = 0;
   SUNCheckCall(N_VBufSize(v, &buffer_size));

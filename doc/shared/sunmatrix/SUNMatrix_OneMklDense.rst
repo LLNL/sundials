@@ -80,7 +80,7 @@ Constructors
       * *M* -- the number of matrix rows.
       * *N* -- the number of matrix columns.
       * *memtype* -- the type of memory to use for the matrix data; can be
-        ``SUNMEMTYPE_UVM`` or ``SUNMEMTYPE_DEVICE``.
+        ``SUN_MEMTYPE_UVM`` or ``SUN_MEMTYPE_DEVICE``.
       * *memhelper* -- the memory helper used for allocating data.
       * *queue* -- the SYCL queue to which operations will be submitted.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
@@ -100,7 +100,7 @@ Constructors
       * *M_block* -- the number of matrix rows in each block.
       * *N_block* -- the number of matrix columns in each block.
       * *memtype* -- the type of memory to use for the matrix data; can be
-        ``SUNMEMTYPE_UVM`` or ``SUNMEMTYPE_DEVICE``.
+        ``SUN_MEMTYPE_UVM`` or ``SUN_MEMTYPE_DEVICE``.
       * *memhelper* -- the memory helper used for allocating data.
       * *queue* -- the SYCL queue to which operations will be submitted.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)

@@ -164,7 +164,7 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
      but in device memory for the batched methods. */
   retval = SUNMemoryHelper_Alloc(content->memhelp, &content->pivots,
                                  M * nblocks * sizeof(sunindextype),
-                                 nblocks > 1 ? SUNMEMTYPE_DEVICE : SUNMEMTYPE_HOST,
+                                 nblocks > 1 ? SUN_MEMTYPE_DEVICE : SUN_MEMTYPE_HOST,
                                  nullptr);
   if (retval)
   {
@@ -178,7 +178,7 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
   {
     retval = SUNMemoryHelper_Alloc(content->memhelp, &content->pivotsarr,
                                    nblocks * sizeof(sunindextype*),
-                                   SUNMEMTYPE_DEVICE, nullptr);
+                                   SUN_MEMTYPE_DEVICE, nullptr);
     if (retval)
     {
       SUNLinSolFree(S);
@@ -199,7 +199,7 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
        check its values on the host and we need it to have fast transfers. */
     retval = SUNMemoryHelper_Alloc(content->memhelp, &content->infoarr,
                                    nblocks * sizeof(sunindextype),
-                                   SUNMEMTYPE_PINNED, nullptr);
+                                   SUN_MEMTYPE_PINNED, nullptr);
     if (retval)
     {
       SUNLinSolFree(S);
@@ -208,7 +208,7 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
 
     retval = SUNMemoryHelper_Alloc(content->memhelp, &content->rhsarr,
                                    nblocks * sizeof(sunrealtype*),
-                                   SUNMEMTYPE_DEVICE, nullptr);
+                                   SUN_MEMTYPE_DEVICE, nullptr);
     if (retval)
     {
       SUNLinSolFree(S);
