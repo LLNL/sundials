@@ -26,7 +26,7 @@ module farkode_lsrkstep_mod
  private
 
  ! DECLARATION CONSTRUCTS
- ! typedef enum ARKODE_LSRKMethodType
+ ! enum ARKODE_LSRKMethodType_
  enum, bind(c)
   enumerator :: ARKODE_LSRK_RKC_2
   enumerator :: ARKODE_LSRK_RKL_2
@@ -34,7 +34,7 @@ module farkode_lsrkstep_mod
   enumerator :: ARKODE_LSRK_SSP_S_3
   enumerator :: ARKODE_LSRK_SSP_10_4
  end enum
- integer, parameter, public :: ARKODE_LSRKMethodType = kind(ARKODE_LSRK_RKC_2)
+ integer, parameter, public :: ARKODE_LSRKMethodType_ = kind(ARKODE_LSRK_RKC_2)
  public :: ARKODE_LSRK_RKC_2, ARKODE_LSRK_RKL_2, ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, ARKODE_LSRK_SSP_10_4
  public :: FLSRKStepCreateSTS
  public :: FLSRKStepCreateSSP
@@ -351,7 +351,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(ARKODE_LSRKMethodType), intent(in) :: method
+integer(ARKODE_LSRKMethodType_), intent(in) :: method
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
@@ -367,7 +367,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(ARKODE_LSRKMethodType), intent(in) :: method
+integer(ARKODE_LSRKMethodType_), intent(in) :: method
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 

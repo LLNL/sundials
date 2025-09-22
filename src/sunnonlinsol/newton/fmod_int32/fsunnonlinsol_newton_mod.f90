@@ -225,7 +225,7 @@ end function
 function FSUNNonlinSolGetType_Newton(nls) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNNonlinearSolver_Type) :: swig_result
+integer(SUNNonlinearSolver_Type_) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
