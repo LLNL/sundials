@@ -209,7 +209,7 @@ typedef enum ARKRelaxSolver_ ARKRelaxSolver;
  * Error Accumulation Options
  * -------------------------- */
 
-enum ARKAccumError
+enum ARKAccumError_
 {
   ARK_ACCUMERROR_NONE,
   ARK_ACCUMERROR_MAX,
