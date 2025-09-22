@@ -26,8 +26,8 @@
 
 #include "sundials_debug.h"
 #include "sundials_hashmap_impl.h"
-#include "sundials_profiler_impl.h"
 #include "sundials_macros.h"
+#include "sundials_profiler_impl.h"
 
 static sunTimerStruct* sunTimerStructNew(void)
 {

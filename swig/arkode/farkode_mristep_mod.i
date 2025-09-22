@@ -21,6 +21,7 @@
 // include the header file(s) in the c wrapper that is generated
 %{
 #include "arkode/arkode_mristep.h"
+#include "arkode/arkode_mristep_deprecated.h"
 %}
 
 // Load the typedefs and generate a "use" statements in the module
@@ -32,4 +33,5 @@
 
 // Process definitions from these files
 %include "arkode/arkode_mristep.h"
+%include "arkode/arkode_mristep_deprecated.h"
 

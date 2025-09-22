@@ -57,11 +57,11 @@ module farkode_splittingstep_mod
  interface SplittingStepCoefficientsMem
   module procedure swigf_create_SplittingStepCoefficientsMem
  end interface
- ! typedef enum ARKODE_SplittingCoefficientsID
+ ! enum ARKODE_SplittingCoefficientsID
  enum, bind(c)
   enumerator :: ARKODE_SPLITTING_NONE = -1
   enumerator :: ARKODE_MIN_SPLITTING_NUM = 0
-  enumerator :: ARKODE_SPLITTING_LIE_TROTTER_1_1_2 = ARKODE_MIN_SPLITTING_NUM
+  enumerator :: ARKODE_SPLITTING_LIE_TROTTER_1_1_2 = 0
   enumerator :: ARKODE_SPLITTING_STRANG_2_2_2
   enumerator :: ARKODE_SPLITTING_BEST_2_2_2
   enumerator :: ARKODE_SPLITTING_SUZUKI_3_3_2

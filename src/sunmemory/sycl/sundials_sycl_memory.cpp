@@ -240,8 +240,8 @@ SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
       free(mem->ptr);
       mem->ptr = nullptr;
     }
-    else if (mem->type == SUN_MEMTYPE_PINNED || mem->type == SUN_MEMTYPE_DEVICE ||
-             mem->type == SUN_MEMTYPE_UVM)
+    else if (mem->type == SUN_MEMTYPE_PINNED ||
+             mem->type == SUN_MEMTYPE_DEVICE || mem->type == SUN_MEMTYPE_UVM)
     {
       if (mem->type == SUN_MEMTYPE_PINNED)
       {
