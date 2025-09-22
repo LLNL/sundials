@@ -64,7 +64,7 @@ To use the NVECTOR_KOKKOS module, we construct an instance of the ``Vector`` cla
 
 
 Instances of the ``Vector`` class are implicitly or explicitly (using the
-:cpp:func:`~Vector::Convert` method) convertible to a :c:type:`N_Vector`
+:cpp:func:`~Vector::get` method) convertible to a :c:type:`N_Vector`
 e.g.,
 
 .. code-block:: cpp

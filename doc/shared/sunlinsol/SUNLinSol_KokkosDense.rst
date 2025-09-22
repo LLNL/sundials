@@ -55,7 +55,7 @@ instance of a dense linear solver e.g.,
     sundials::kokkos::DenseLinearSolver<> LS{sunctx};
 
 Instances of the ``DenseLinearSolver`` class are implicitly or explicitly (using
-the :cpp:func:`~DenseLinearSolver::Convert` method) convertible to a
+the :cpp:func:`~DenseLinearSolver::get` method) convertible to a
 :c:type:`SUNLinearSolver` e.g.,
 
 .. code-block:: cpp
