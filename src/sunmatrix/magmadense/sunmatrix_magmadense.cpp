@@ -91,7 +91,7 @@ SUNMatrix SUNMatrix_MagmaDenseBlock(sunindextype nblocks, sunindextype M,
   if ((M <= 0) || (N <= 0) || (nblocks <= 0)) { return (NULL); }
 
   /* Check for valid memory type options */
-  if ((memtype != SUN_MEMTYPE_UVM) && (memtype != SUN_MEMTYPE_DEVICE))
+  if ((memtype != SUNMEMTYPE__UVM) && (memtype != SUNMEMTYPE__DEVICE))
   {
     return (NULL);
   }
@@ -292,7 +292,7 @@ SUNErrCode SUNMatrix_MagmaDense_CopyToDevice(SUNMatrix Amat, sunrealtype* h_data
 
   int retval        = 0;
   SUNMemory _h_data = SUNMemoryHelper_Wrap(SMLD_CONTENT(Amat)->memhelp, h_data,
-                                           SUN_MEMTYPE_HOST);
+                                           SUNMEMTYPE__HOST);
   SUNDIALS_HIP_OR_CUDA(hipStream_t stream = magma_queue_get_hip_stream(A->q);
                        , cudaStream_t stream = magma_queue_get_cuda_stream(A->q);)
 
@@ -315,7 +315,7 @@ SUNErrCode SUNMatrix_MagmaDense_CopyFromDevice(SUNMatrix Amat, sunrealtype* h_da
 
   int retval        = 0;
   SUNMemory _h_data = SUNMemoryHelper_Wrap(SMLD_CONTENT(Amat)->memhelp, h_data,
-                                           SUN_MEMTYPE_HOST);
+                                           SUNMEMTYPE__HOST);
   SUNDIALS_HIP_OR_CUDA(hipStream_t stream = magma_queue_get_hip_stream(A->q);
                        , cudaStream_t stream = magma_queue_get_cuda_stream(A->q);)
 

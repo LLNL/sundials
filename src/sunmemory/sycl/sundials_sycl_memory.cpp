@@ -118,7 +118,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   mem->bytes = mem_size;
 
   // Allocate the data pointer
-  if (mem_type == SUN_MEMTYPE_HOST)
+  if (mem_type == SUNMEMTYPE__HOST)
   {
     mem->ptr = malloc(mem_size);
     if (!(mem->ptr))
@@ -137,7 +137,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
                SUNHELPER_CONTENT(helper)->bytes_high_watermark_host);
     }
   }
-  else if (mem_type == SUN_MEMTYPE_PINNED)
+  else if (mem_type == SUNMEMTYPE__PINNED)
   {
     mem->ptr = ::sycl::malloc_host(mem_size, *sycl_queue);
     if (!(mem->ptr))
@@ -156,7 +156,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
                SUNHELPER_CONTENT(helper)->bytes_high_watermark_pinned);
     }
   }
-  else if (mem_type == SUN_MEMTYPE_DEVICE)
+  else if (mem_type == SUNMEMTYPE__DEVICE)
   {
     mem->ptr = ::sycl::malloc_device(mem_size, *sycl_queue);
     if (!(mem->ptr))
@@ -175,7 +175,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
                SUNHELPER_CONTENT(helper)->bytes_high_watermark_device);
     }
   }
-  else if (mem_type == SUN_MEMTYPE_UVM)
+  else if (mem_type == SUNMEMTYPE__UVM)
   {
     mem->ptr = ::sycl::malloc_shared(mem_size, *sycl_queue);
     if (!(mem->ptr))
@@ -233,27 +233,27 @@ SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
     ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
     SUNAssert(sycl_queue, SUN_ERR_ARG_CORRUPT);
 
-    if (mem->type == SUN_MEMTYPE_HOST)
+    if (mem->type == SUNMEMTYPE__HOST)
     {
       SUNHELPER_CONTENT(helper)->num_deallocations_host++;
       SUNHELPER_CONTENT(helper)->bytes_allocated_host -= mem->bytes;
       free(mem->ptr);
       mem->ptr = nullptr;
     }
-    else if (mem->type == SUN_MEMTYPE_PINNED ||
-             mem->type == SUN_MEMTYPE_DEVICE || mem->type == SUN_MEMTYPE_UVM)
+    else if (mem->type == SUNMEMTYPE__PINNED ||
+             mem->type == SUNMEMTYPE__DEVICE || mem->type == SUNMEMTYPE__UVM)
     {
-      if (mem->type == SUN_MEMTYPE_PINNED)
+      if (mem->type == SUNMEMTYPE__PINNED)
       {
         SUNHELPER_CONTENT(helper)->num_deallocations_pinned++;
         SUNHELPER_CONTENT(helper)->bytes_allocated_pinned -= mem->bytes;
       }
-      else if (mem->type == SUN_MEMTYPE_DEVICE)
+      else if (mem->type == SUNMEMTYPE__DEVICE)
       {
         SUNHELPER_CONTENT(helper)->num_deallocations_device++;
         SUNHELPER_CONTENT(helper)->bytes_allocated_device -= mem->bytes;
       }
-      else if (mem->type == SUN_MEMTYPE_UVM)
+      else if (mem->type == SUNMEMTYPE__UVM)
       {
         SUNHELPER_CONTENT(helper)->num_deallocations_uvm++;
         SUNHELPER_CONTENT(helper)->bytes_allocated_uvm -= mem->bytes;
@@ -297,7 +297,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
   ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
   SUNAssert(sycl_queue, SUN_ERR_ARG_CORRUPT);
 
-  if (src->type == SUN_MEMTYPE_HOST && dst->type == SUN_MEMTYPE_HOST)
+  if (src->type == SUNMEMTYPE__HOST && dst->type == SUNMEMTYPE__HOST)
   {
     memcpy(dst->ptr, src->ptr, memory_size);
   }
@@ -323,28 +323,28 @@ SUNErrCode SUNMemoryHelper_GetAllocStats_Sycl(SUNMemoryHelper helper,
                                               size_t* bytes_allocated,
                                               size_t* bytes_high_watermark)
 {
-  if (mem_type == SUN_MEMTYPE_HOST)
+  if (mem_type == SUNMEMTYPE__HOST)
   {
     *num_allocations   = SUNHELPER_CONTENT(helper)->num_allocations_host;
     *num_deallocations = SUNHELPER_CONTENT(helper)->num_deallocations_host;
     *bytes_allocated   = SUNHELPER_CONTENT(helper)->bytes_allocated_host;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_host;
   }
-  else if (mem_type == SUN_MEMTYPE_PINNED)
+  else if (mem_type == SUNMEMTYPE__PINNED)
   {
     *num_allocations   = SUNHELPER_CONTENT(helper)->num_allocations_pinned;
     *num_deallocations = SUNHELPER_CONTENT(helper)->num_deallocations_pinned;
     *bytes_allocated   = SUNHELPER_CONTENT(helper)->bytes_allocated_pinned;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_pinned;
   }
-  else if (mem_type == SUN_MEMTYPE_DEVICE)
+  else if (mem_type == SUNMEMTYPE__DEVICE)
   {
     *num_allocations   = SUNHELPER_CONTENT(helper)->num_allocations_device;
     *num_deallocations = SUNHELPER_CONTENT(helper)->num_deallocations_device;
     *bytes_allocated   = SUNHELPER_CONTENT(helper)->bytes_allocated_device;
     *bytes_high_watermark = SUNHELPER_CONTENT(helper)->bytes_high_watermark_device;
   }
-  else if (mem_type == SUN_MEMTYPE_UVM)
+  else if (mem_type == SUNMEMTYPE__UVM)
   {
     *num_allocations      = SUNHELPER_CONTENT(helper)->num_allocations_uvm;
     *num_deallocations    = SUNHELPER_CONTENT(helper)->num_deallocations_uvm;

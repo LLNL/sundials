@@ -59,7 +59,7 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
   mem->ptr = NULL;
   mem->own = SUNTRUE;
 
-  if (mem_type == SUN_MEMTYPE_HOST)
+  if (mem_type == SUNMEMTYPE__HOST)
   {
     mem->ptr = malloc(mem_size);
     if (mem->ptr == NULL)
@@ -67,12 +67,12 @@ int MyMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
       free(mem);
       return (-1);
     }
-    mem->type = SUN_MEMTYPE_HOST;
+    mem->type = SUNMEMTYPE__HOST;
   }
-  else if (mem_type == SUN_MEMTYPE_UVM || mem_type == SUN_MEMTYPE_DEVICE)
+  else if (mem_type == SUNMEMTYPE__UVM || mem_type == SUNMEMTYPE__DEVICE)
   {
     MY_GPUCHK(MY_GPU(Malloc)(&(mem->ptr), mem_size));
-    mem->type = SUN_MEMTYPE_DEVICE;
+    mem->type = SUNMEMTYPE__DEVICE;
   }
   else
   {
@@ -90,12 +90,12 @@ int MyMemoryHelper_Dealloc(SUNMemoryHelper helper, SUNMemory mem, void* queue)
 
   if (mem->ptr && mem->own)
   {
-    if (mem->type == SUN_MEMTYPE_HOST)
+    if (mem->type == SUNMEMTYPE__HOST)
     {
       free(mem->ptr);
       mem->ptr = NULL;
     }
-    else if (mem->type == SUN_MEMTYPE_DEVICE)
+    else if (mem->type == SUNMEMTYPE__DEVICE)
     {
       MY_GPUCHK(MY_GPU(Free)(mem->ptr));
       mem->ptr = NULL;
@@ -113,24 +113,24 @@ int MyMemoryHelper_Copy(SUNMemoryHelper helper, SUNMemory dst, SUNMemory src,
 {
   switch (src->type)
   {
-  case SUN_MEMTYPE_HOST:
-    if (dst->type == SUN_MEMTYPE_HOST)
+  case SUNMEMTYPE__HOST:
+    if (dst->type == SUNMEMTYPE__HOST)
     {
       memcpy(dst->ptr, src->ptr, memory_size);
     }
-    else if (dst->type == SUN_MEMTYPE_DEVICE)
+    else if (dst->type == SUNMEMTYPE__DEVICE)
     {
       MY_GPUCHK(MY_GPU(Memcpy)(dst->ptr, src->ptr, memory_size,
                                MY_GPU(MemcpyHostToDevice)));
     }
     break;
-  case SUN_MEMTYPE_DEVICE:
-    if (dst->type == SUN_MEMTYPE_HOST)
+  case SUNMEMTYPE__DEVICE:
+    if (dst->type == SUNMEMTYPE__HOST)
     {
       MY_GPUCHK(MY_GPU(Memcpy)(dst->ptr, src->ptr, memory_size,
                                MY_GPU(MemcpyDeviceToHost)));
     }
-    else if (dst->type == SUN_MEMTYPE_DEVICE)
+    else if (dst->type == SUNMEMTYPE__DEVICE)
     {
       MY_GPUCHK(MY_GPU(Memcpy)(dst->ptr, src->ptr, memory_size,
                                MY_GPU(MemcpyDeviceToDevice)));
