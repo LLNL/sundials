@@ -56,19 +56,23 @@ set(arkode_SOURCES
 set(arkode_HEADERS
     arkode.h
     arkode_arkstep.h
+    arkode_arkstep_deprecated.h
     arkode_bandpre.h
     arkode_bbdpre.h
     arkode_butcher.h
     arkode_butcher_dirk.h
     arkode_butcher_erk.h
     arkode_erkstep.h
+    arkode_erkstep_deprecated.h
     arkode_forcingstep.h
     arkode_ls.h
     arkode_lsrkstep.h
     arkode_mristep.h
+    arkode_mristep_deprecated.h
     arkode_splittingstep.h
     arkode_sprk.h
-    arkode_sprkstep.h)
+    arkode_sprkstep.h
+    arkode_sprkstep_deprecated.h)
 
 # Add prefix with complete path to the ARKODE header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
