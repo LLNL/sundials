@@ -3273,24 +3273,16 @@ To use the :ref:`Ginkgo SUNMatrix <SUNMatrix.Ginkgo>` or :ref:`Ginkgo Batch
 SUNMatrix <SUNMatrix.GinkgoBatch>`, include the corresponding header file given
 below.
 
-.. table:: The Ginkgo SUNMatrix library, header file, and CMake target
+.. table:: The Ginkgo and Ginkgo Batch SUNMatrix header files and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_ginkgo.hpp``           |
+   |              +----------------------------------------------+
+   |              | ``sunmatrix/sunmatrix_ginkgobatch.hpp``      |
    +--------------+----------------------------------------------+
    | CMake target | ``SUNDIALS::sunmatrixginkgo``                |
    +--------------+----------------------------------------------+
-
-.. table:: The Ginkgo Batch SUNMatrix library, header file, and CMake target
-   :align: center
-
-   +--------------+----------------------------------------------+
-   | Headers      | ``sunmatrix/sunmatrix_ginkgobatch.hpp``      |
-   +--------------+----------------------------------------------+
-   | CMake target | ``SUNDIALS::sunmatrixginkgobatch``           |
-   +--------------+----------------------------------------------+
-
 
 .. _Installation.LibrariesAndHeaders.Matrix.KokkosKernels:
 
@@ -3471,22 +3463,16 @@ To use the :ref:`Ginkgo SUNLinearSolver <SUNLinSol.Ginkgo>` or :ref:`Ginkgo
 Batch SUNLinearSolver <SUNLinSol.Ginkgo>`, include the corresponding header file
 given below.
 
-.. table:: The Ginkgo SUNLinearSolver header file and CMake target
+.. table:: The Ginkgo and Ginkgo Batch SUNLinearSolver header files and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_ginkgo.hpp``           |
+   |              +----------------------------------------------+
+   |              | ``sunlinsol/sunlinsol_ginkgobatch.hpp``      |
    +--------------+----------------------------------------------+
    | CMake target | ``SUNDIALS::sunlinsolginkgo``                |
-   +--------------+----------------------------------------------+
-
-.. table:: The Ginkgo Batch SUNLinearSolver header file and CMake target
-   :align: center
-
-   +--------------+----------------------------------------------+
-   | Headers      | ``sunlinsol/sunlinsol_ginkgobatch.hpp``      |
-   +--------------+----------------------------------------------+
-   | CMake target | ``SUNDIALS::sunlinsolginkgobatch``           |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.KLU:
