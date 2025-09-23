@@ -31,7 +31,7 @@
 #define DEE_NUM_OF_WARMUPS_PI_DEFAULT 100
 
 /* Default Power Iteration parameters */
-#define DEE_TOL_DEFAULT      SUN_RCONST(0.01)
+#define DEE_TOL_DEFAULT      SUN_RCONST(0.005)
 #define DEE_MAX_ITER_DEFAULT 100
 
 /*
