@@ -4,12 +4,16 @@
 // #endif
 //
 
-auto pyEnumSUNNonlinearSolver_Type_ =
-  nb::enum_<SUNNonlinearSolver_Type_>(m, "SUNNonlinearSolver_Type_",
-                                      nb::is_arithmetic(), "")
+auto pyEnumSUNNonlinearSolver_Type =
+  nb::enum_<SUNNonlinearSolver_Type>(m, "SUNNonlinearSolver_Type",
+                                     nb::is_arithmetic(), "")
     .value("SUNNONLINEARSOLVER_ROOTFIND", SUNNONLINEARSOLVER_ROOTFIND, "")
     .value("SUNNONLINEARSOLVER_FIXEDPOINT", SUNNONLINEARSOLVER_FIXEDPOINT, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 auto pyClass_generic_SUNNonlinearSolver_Ops =
   nb::class_<_generic_SUNNonlinearSolver_Ops>(m,

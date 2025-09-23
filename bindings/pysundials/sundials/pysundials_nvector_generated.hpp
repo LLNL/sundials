@@ -24,6 +24,10 @@ auto pyEnumN_Vector_ID =
     .value("SUNDIALS_NVEC_MPIPLUSX", SUNDIALS_NVEC_MPIPLUSX, "")
     .value("SUNDIALS_NVEC_CUSTOM", SUNDIALS_NVEC_CUSTOM, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 auto pyClass_generic_N_Vector_Ops =
   nb::class_<_generic_N_Vector_Ops>(m, "_generic_N_Vector_Ops", "")

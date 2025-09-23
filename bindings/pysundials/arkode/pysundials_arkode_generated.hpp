@@ -82,11 +82,15 @@ m.attr("ARK_SUNADJSTEPPER_ERR")      = -55;
 m.attr("ARK_DEE_FAIL")               = -56;
 m.attr("ARK_UNRECOGNIZED_ERROR")     = -99;
 
-auto pyEnumARKRelaxSolver_ = nb::enum_<ARKRelaxSolver_>(m, "ARKRelaxSolver_",
-                                                        nb::is_arithmetic(), "")
-                               .value("ARK_RELAX_BRENT", ARK_RELAX_BRENT, "")
-                               .value("ARK_RELAX_NEWTON", ARK_RELAX_NEWTON, "")
-                               .export_values();
+auto pyEnumARKRelaxSolver = nb::enum_<ARKRelaxSolver>(m, "ARKRelaxSolver",
+                                                      nb::is_arithmetic(), "")
+                              .value("ARK_RELAX_BRENT", ARK_RELAX_BRENT, "")
+                              .value("ARK_RELAX_NEWTON", ARK_RELAX_NEWTON, "")
+                              .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 auto pyEnumARKAccumError =
   nb::enum_<ARKAccumError>(m, "ARKAccumError", nb::is_arithmetic(), "")
@@ -95,6 +99,10 @@ auto pyEnumARKAccumError =
     .value("ARK_ACCUMERROR_SUM", ARK_ACCUMERROR_SUM, "")
     .value("ARK_ACCUMERROR_AVG", ARK_ACCUMERROR_AVG, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 m.def("ARKodeResize", ARKodeResize, nb::arg("arkode_mem"), nb::arg("ynew"),
       nb::arg("hscale"), nb::arg("t0"), nb::arg("resize"),
@@ -1425,9 +1433,8 @@ m.def(
 // #endif
 //
 
-auto pyEnumARKODE_SPRKMethodID_ =
-  nb::enum_<ARKODE_SPRKMethodID_>(m, "ARKODE_SPRKMethodID_",
-                                  nb::is_arithmetic(), "")
+auto pyEnumARKODE_SPRKMethodID =
+  nb::enum_<ARKODE_SPRKMethodID>(m, "ARKODE_SPRKMethodID", nb::is_arithmetic(), "")
     .value("ARKODE_SPRK_NONE", ARKODE_SPRK_NONE, "")
     .value("ARKODE_MIN_SPRK_NUM", ARKODE_MIN_SPRK_NUM, "")
     .value("ARKODE_SPRK_EULER_1_1", ARKODE_SPRK_EULER_1_1, "")
@@ -1444,6 +1451,10 @@ auto pyEnumARKODE_SPRKMethodID_ =
     .value("ARKODE_SPRK_SOFRONIOU_10_36", ARKODE_SPRK_SOFRONIOU_10_36, "")
     .value("ARKODE_MAX_SPRK_NUM", ARKODE_MAX_SPRK_NUM, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 auto pyClassARKodeSPRKTableMem =
   nb::class_<ARKodeSPRKTableMem>(m, "ARKodeSPRKTableMem", "")

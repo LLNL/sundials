@@ -4,13 +4,17 @@
 // #endif
 //
 
-auto pyEnumSUNMemoryType_ = nb::enum_<SUNMemoryType_>(m, "SUNMemoryType_",
-                                                      nb::is_arithmetic(), "")
-                              .value("SUNMEMTYPE_HOST", SUNMEMTYPE_HOST, "")
-                              .value("SUNMEMTYPE_PINNED", SUNMEMTYPE_PINNED, "")
-                              .value("SUNMEMTYPE_DEVICE", SUNMEMTYPE_DEVICE, "")
-                              .value("SUNMEMTYPE_UVM", SUNMEMTYPE_UVM, "")
-                              .export_values();
+auto pyEnumSUNMemoryType = nb::enum_<SUNMemoryType>(m, "SUNMemoryType",
+                                                    nb::is_arithmetic(), "")
+                             .value("SUNMEMTYPE_HOST", SUNMEMTYPE_HOST, "")
+                             .value("SUNMEMTYPE_PINNED", SUNMEMTYPE_PINNED, "")
+                             .value("SUNMEMTYPE_DEVICE", SUNMEMTYPE_DEVICE, "")
+                             .value("SUNMEMTYPE_UVM", SUNMEMTYPE_UVM, "")
+                             .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 auto pyClassSUNMemoryHelper_ =
   nb::class_<SUNMemoryHelper_>(m, "SUNMemoryHelper_", "")

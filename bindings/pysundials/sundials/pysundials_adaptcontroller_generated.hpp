@@ -4,13 +4,17 @@
 // #endif
 //
 
-auto pyEnumSUNAdaptController_Type_ =
-  nb::enum_<SUNAdaptController_Type_>(m, "SUNAdaptController_Type_",
-                                      nb::is_arithmetic(), "")
+auto pyEnumSUNAdaptController_Type =
+  nb::enum_<SUNAdaptController_Type>(m, "SUNAdaptController_Type",
+                                     nb::is_arithmetic(), "")
     .value("SUN_ADAPTCONTROLLER_NONE", SUN_ADAPTCONTROLLER_NONE, "")
     .value("SUN_ADAPTCONTROLLER_H", SUN_ADAPTCONTROLLER_H, "")
     .value("SUN_ADAPTCONTROLLER_MRI_H_TOL", SUN_ADAPTCONTROLLER_MRI_H_TOL, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 auto pyClass_generic_SUNAdaptController_Ops =
   nb::class_<_generic_SUNAdaptController_Ops>(m,

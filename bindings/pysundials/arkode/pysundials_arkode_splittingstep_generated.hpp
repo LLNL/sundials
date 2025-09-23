@@ -24,6 +24,10 @@ auto pyEnumARKODE_SplittingCoefficientsID =
     .value("ARKODE_SPLITTING_YOSHIDA_8_6_2", ARKODE_SPLITTING_YOSHIDA_8_6_2, "")
     .value("ARKODE_MAX_SPLITTING_NUM", ARKODE_MAX_SPLITTING_NUM, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 m.def(
   "SplittingStepCoefficients_Create",

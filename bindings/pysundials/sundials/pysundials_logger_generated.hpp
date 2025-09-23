@@ -4,8 +4,8 @@
 // #endif
 //
 
-auto pyEnumSUNLogLevel_ =
-  nb::enum_<SUNLogLevel_>(m, "SUNLogLevel_", nb::is_arithmetic(), "")
+auto pyEnumSUNLogLevel =
+  nb::enum_<SUNLogLevel>(m, "SUNLogLevel", nb::is_arithmetic(), "")
     .value("SUN_LOGLEVEL_ALL", SUN_LOGLEVEL_ALL, "")
     .value("SUN_LOGLEVEL_NONE", SUN_LOGLEVEL_NONE, "")
     .value("SUN_LOGLEVEL_ERROR", SUN_LOGLEVEL_ERROR, "")
@@ -13,6 +13,10 @@ auto pyEnumSUNLogLevel_ =
     .value("SUN_LOGLEVEL_INFO", SUN_LOGLEVEL_INFO, "")
     .value("SUN_LOGLEVEL_DEBUG", SUN_LOGLEVEL_DEBUG, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 m.def("SUNLogger_SetErrorFilename", SUNLogger_SetErrorFilename,
       nb::arg("logger"), nb::arg("error_filename"));

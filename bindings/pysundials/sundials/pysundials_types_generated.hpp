@@ -10,11 +10,15 @@
 // #endif
 //
 
-auto pyEnumSUNOutputFormat_ =
-  nb::enum_<SUNOutputFormat_>(m, "SUNOutputFormat_", nb::is_arithmetic(), "")
+auto pyEnumSUNOutputFormat =
+  nb::enum_<SUNOutputFormat>(m, "SUNOutputFormat", nb::is_arithmetic(), "")
     .value("SUN_OUTPUTFORMAT_TABLE", SUN_OUTPUTFORMAT_TABLE, "")
     .value("SUN_OUTPUTFORMAT_CSV", SUN_OUTPUTFORMAT_CSV, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 // #ifndef SWIG
 //
 m.attr("SUN_COMM_NULL") = 0;
@@ -25,8 +29,12 @@ m.attr("SUN_COMM_NULL") = 0;
 // #endif
 //
 
-auto pyEnumSUNDataIOMode_ =
-  nb::enum_<SUNDataIOMode_>(m, "SUNDataIOMode_", nb::is_arithmetic(), "")
+auto pyEnumSUNDataIOMode =
+  nb::enum_<SUNDataIOMode>(m, "SUNDataIOMode", nb::is_arithmetic(), "")
     .value("SUNDATAIOMODE_INMEM", SUNDATAIOMODE_INMEM, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 // #endif

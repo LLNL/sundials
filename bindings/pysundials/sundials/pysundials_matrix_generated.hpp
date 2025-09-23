@@ -4,8 +4,8 @@
 // #endif
 //
 
-auto pyEnumSUNMatrix_ID_ =
-  nb::enum_<SUNMatrix_ID_>(m, "SUNMatrix_ID_", nb::is_arithmetic(), "")
+auto pyEnumSUNMatrix_ID =
+  nb::enum_<SUNMatrix_ID>(m, "SUNMatrix_ID", nb::is_arithmetic(), "")
     .value("SUNMATRIX_DENSE", SUNMATRIX_DENSE, "")
     .value("SUNMATRIX_MAGMADENSE", SUNMATRIX_MAGMADENSE, "")
     .value("SUNMATRIX_ONEMKLDENSE", SUNMATRIX_ONEMKLDENSE, "")
@@ -17,6 +17,10 @@ auto pyEnumSUNMatrix_ID_ =
     .value("SUNMATRIX_KOKKOSDENSE", SUNMATRIX_KOKKOSDENSE, "")
     .value("SUNMATRIX_CUSTOM", SUNMATRIX_CUSTOM, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 auto pyClass_generic_SUNMatrix_Ops =
   nb::class_<_generic_SUNMatrix_Ops>(m, "_generic_SUNMatrix_Ops", "")

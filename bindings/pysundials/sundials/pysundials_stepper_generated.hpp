@@ -5,12 +5,16 @@
 // #endif
 //
 
-auto pyEnumSUNFullRhsMode_ =
-  nb::enum_<SUNFullRhsMode_>(m, "SUNFullRhsMode_", nb::is_arithmetic(), "")
-    .value("SUN_FULLRHS_START", SUN_FULLRHS_START, "")
-    .value("SUN_FULLRHS_END", SUN_FULLRHS_END, "")
-    .value("SUN_FULLRHS_OTHER", SUN_FULLRHS_OTHER, "")
-    .export_values();
+auto pyEnumSUNFullRhsMode = nb::enum_<SUNFullRhsMode>(m, "SUNFullRhsMode",
+                                                      nb::is_arithmetic(), "")
+                              .value("SUN_FULLRHS_START", SUN_FULLRHS_START, "")
+                              .value("SUN_FULLRHS_END", SUN_FULLRHS_END, "")
+                              .value("SUN_FULLRHS_OTHER", SUN_FULLRHS_OTHER, "")
+                              .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 m.def(
   "SUNStepper_Evolve",

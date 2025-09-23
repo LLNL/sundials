@@ -4,18 +4,21 @@
 // #endif
 //
 
-auto pyEnumMRISTEP_METHOD_TYPE_ =
-  nb::enum_<MRISTEP_METHOD_TYPE_>(m, "MRISTEP_METHOD_TYPE_",
-                                  nb::is_arithmetic(), "")
+auto pyEnumMRISTEP_METHOD_TYPE =
+  nb::enum_<MRISTEP_METHOD_TYPE>(m, "MRISTEP_METHOD_TYPE", nb::is_arithmetic(), "")
     .value("MRISTEP_EXPLICIT", MRISTEP_EXPLICIT, "")
     .value("MRISTEP_IMPLICIT", MRISTEP_IMPLICIT, "")
     .value("MRISTEP_IMEX", MRISTEP_IMEX, "")
     .value("MRISTEP_MERK", MRISTEP_MERK, "")
     .value("MRISTEP_SR", MRISTEP_SR, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
-auto pyEnumARKODE_MRITableID_ =
-  nb::enum_<ARKODE_MRITableID_>(m, "ARKODE_MRITableID_", nb::is_arithmetic(), "")
+auto pyEnumARKODE_MRITableID =
+  nb::enum_<ARKODE_MRITableID>(m, "ARKODE_MRITableID", nb::is_arithmetic(), "")
     .value("ARKODE_MRI_NONE", ARKODE_MRI_NONE, "")
     .value("ARKODE_MIN_MRI_NUM", ARKODE_MIN_MRI_NUM, "")
     .value("ARKODE_MIS_KW3", ARKODE_MIS_KW3, "")
@@ -48,6 +51,10 @@ auto pyEnumARKODE_MRITableID_ =
     .value("ARKODE_IMEX_MRI_SR43", ARKODE_IMEX_MRI_SR43, "")
     .value("ARKODE_MAX_MRI_NUM", ARKODE_MAX_MRI_NUM, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 auto pyClassMRIStepCouplingMem =
   nb::class_<MRIStepCouplingMem>(m, "MRIStepCouplingMem", "")

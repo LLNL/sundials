@@ -297,18 +297,22 @@ m.def(
 // #endif
 //
 
-auto pyEnumSUNLinearSolver_Type_ =
-  nb::enum_<SUNLinearSolver_Type_>(m, "SUNLinearSolver_Type_",
-                                   nb::is_arithmetic(), "")
+auto pyEnumSUNLinearSolver_Type =
+  nb::enum_<SUNLinearSolver_Type>(m, "SUNLinearSolver_Type",
+                                  nb::is_arithmetic(), "")
     .value("SUNLINEARSOLVER_DIRECT", SUNLINEARSOLVER_DIRECT, "")
     .value("SUNLINEARSOLVER_ITERATIVE", SUNLINEARSOLVER_ITERATIVE, "")
     .value("SUNLINEARSOLVER_MATRIX_ITERATIVE", SUNLINEARSOLVER_MATRIX_ITERATIVE,
            "")
     .value("SUNLINEARSOLVER_MATRIX_EMBEDDED", SUNLINEARSOLVER_MATRIX_EMBEDDED, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
-auto pyEnumSUNLinearSolver_ID_ =
-  nb::enum_<SUNLinearSolver_ID_>(m, "SUNLinearSolver_ID_", nb::is_arithmetic(), "")
+auto pyEnumSUNLinearSolver_ID =
+  nb::enum_<SUNLinearSolver_ID>(m, "SUNLinearSolver_ID", nb::is_arithmetic(), "")
     .value("SUNLINEARSOLVER_BAND", SUNLINEARSOLVER_BAND, "")
     .value("SUNLINEARSOLVER_DENSE", SUNLINEARSOLVER_DENSE, "")
     .value("SUNLINEARSOLVER_KLU", SUNLINEARSOLVER_KLU, "")
@@ -329,6 +333,10 @@ auto pyEnumSUNLinearSolver_ID_ =
     .value("SUNLINEARSOLVER_KOKKOSDENSE", SUNLINEARSOLVER_KOKKOSDENSE, "")
     .value("SUNLINEARSOLVER_CUSTOM", SUNLINEARSOLVER_CUSTOM, "")
     .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
 
 auto pyClass_generic_SUNLinearSolver_Ops =
   nb::class_<_generic_SUNLinearSolver_Ops>(m, "_generic_SUNLinearSolver_Ops", "")
