@@ -26,7 +26,7 @@ module farkode_mristep_mod
  private
 
  ! DECLARATION CONSTRUCTS
- ! enum MRISTEP_METHOD_TYPE_
+ ! enum MRISTEP_METHOD_TYPE
  enum, bind(c)
   enumerator :: MRISTEP_EXPLICIT
   enumerator :: MRISTEP_IMPLICIT
@@ -34,9 +34,9 @@ module farkode_mristep_mod
   enumerator :: MRISTEP_MERK
   enumerator :: MRISTEP_SR
  end enum
- integer, parameter, public :: MRISTEP_METHOD_TYPE_ = kind(MRISTEP_EXPLICIT)
+ integer, parameter, public :: MRISTEP_METHOD_TYPE = kind(MRISTEP_EXPLICIT)
  public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX, MRISTEP_MERK, MRISTEP_SR
- ! enum ARKODE_MRITableID_
+ ! enum ARKODE_MRITableID
  enum, bind(c)
   enumerator :: ARKODE_MRI_NONE = -1
   enumerator :: ARKODE_MIN_MRI_NUM = 200
@@ -68,7 +68,7 @@ module farkode_mristep_mod
   enumerator :: ARKODE_IMEX_MRI_SR43
   enumerator :: ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_SR43
  end enum
- integer, parameter, public :: ARKODE_MRITableID_ = kind(ARKODE_MRI_NONE)
+ integer, parameter, public :: ARKODE_MRITableID = kind(ARKODE_MRI_NONE)
  public :: ARKODE_MRI_NONE, ARKODE_MIN_MRI_NUM, ARKODE_MIS_KW3, ARKODE_MRI_GARK_ERK33a, ARKODE_MRI_GARK_ERK45a, &
     ARKODE_MRI_GARK_IRK21a, ARKODE_MRI_GARK_ESDIRK34a, ARKODE_MRI_GARK_ESDIRK46a, ARKODE_IMEX_MRI_GARK3a, &
     ARKODE_IMEX_MRI_GARK3b, ARKODE_IMEX_MRI_GARK4, ARKODE_MRI_GARK_FORWARD_EULER, ARKODE_MRI_GARK_RALSTON2, &
@@ -1534,7 +1534,7 @@ contains
 subroutine swigf_MRIStepCouplingMem_type_set(self, type)
 use, intrinsic :: ISO_C_BINDING
 class(MRIStepCouplingMem), intent(in) :: self
-integer(MRISTEP_METHOD_TYPE_), intent(in) :: type
+integer(MRISTEP_METHOD_TYPE), intent(in) :: type
 type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 
@@ -1546,7 +1546,7 @@ end subroutine
 function swigf_MRIStepCouplingMem_type_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(MRISTEP_METHOD_TYPE_) :: swig_result
+integer(MRISTEP_METHOD_TYPE) :: swig_result
 class(MRIStepCouplingMem), intent(in) :: self
 integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
@@ -1822,7 +1822,7 @@ function FMRIStepCoupling_LoadTable(method) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-integer(ARKODE_MRITableID_), intent(in) :: method
+integer(ARKODE_MRITableID), intent(in) :: method
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 
@@ -1869,7 +1869,7 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: nmat
 integer(C_INT), intent(in) :: stages
-integer(MRISTEP_METHOD_TYPE_), intent(in) :: type
+integer(MRISTEP_METHOD_TYPE), intent(in) :: type
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT) :: farg2 
@@ -3352,7 +3352,7 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
 type(C_PTR) :: outfile
-integer(SUNOutputFormat_), intent(in) :: fmt
+integer(SUNOutputFormat), intent(in) :: fmt
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 

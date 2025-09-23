@@ -111,7 +111,7 @@ function FSUNAdjointCheckpointScheme_Create_Fixed(io_mode, mem_helper, interval,
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-integer(SUNDataIOMode_), intent(in) :: io_mode
+integer(SUNDataIOMode), intent(in) :: io_mode
 type(SUNMemoryHelper_), target, intent(inout) :: mem_helper
 integer(C_LONG), intent(in) :: interval
 integer(C_LONG), intent(in) :: estimate

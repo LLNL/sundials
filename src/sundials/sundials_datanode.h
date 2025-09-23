@@ -30,14 +30,16 @@ extern "C" {
 
 typedef int64_t sundataindex;
 
-enum SUNDataNodeType_
+enum SUNDataNodeType
 { 
   SUNDATANODE_LEAF,
   SUNDATANODE_LIST,
   SUNDATANODE_OBJECT
 };
 
-typedef enum SUNDataNodeType_ SUNDataNodeType;
+#ifndef SWIG
+typedef enum SUNDataNodeType SUNDataNodeType;
+#endif
 
 typedef struct SUNDataNode_Ops_* SUNDataNode_Ops;
 typedef struct SUNDataNode_* SUNDataNode;

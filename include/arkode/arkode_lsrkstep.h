@@ -32,7 +32,7 @@ typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn,
  * LSRKStep Constants
  * ------------------ */
 
-enum ARKODE_LSRKMethodType_
+enum ARKODE_LSRKMethodType
 {
   ARKODE_LSRK_RKC_2,
   ARKODE_LSRK_RKL_2,
@@ -41,7 +41,9 @@ enum ARKODE_LSRKMethodType_
   ARKODE_LSRK_SSP_10_4
 };
 
-typedef enum ARKODE_LSRKMethodType_ ARKODE_LSRKMethodType;
+#ifndef SWIG
+typedef enum ARKODE_LSRKMethodType ARKODE_LSRKMethodType;
+#endif
 
 /* -------------------
  * Exported Functions

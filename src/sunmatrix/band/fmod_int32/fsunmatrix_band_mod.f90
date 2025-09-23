@@ -428,7 +428,7 @@ end function
 function FSUNMatGetID_Band(a) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNMatrix_ID_) :: swig_result
+integer(SUNMatrix_ID) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 

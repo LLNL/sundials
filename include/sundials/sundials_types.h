@@ -220,13 +220,15 @@ typedef int* int1d;
  *------------------------------------------------------------------
  */
 
-enum SUNOutputFormat_
+enum SUNOutputFormat
 {
   SUN_OUTPUTFORMAT_TABLE,
   SUN_OUTPUTFORMAT_CSV
 };
 
-typedef enum SUNOutputFormat_ SUNOutputFormat;
+#ifndef SWIG
+typedef enum SUNOutputFormat SUNOutputFormat;
+#endif
 
 /*
  *------------------------------------------------------------------
@@ -303,11 +305,13 @@ typedef int SUNComm;
  *------------------------------------------------------------------
  */
 
-enum SUNDataIOMode_
+enum SUNDataIOMode
 {
   SUNDATAIOMODE_INMEM,
 };
 
-typedef enum SUNDataIOMode_ SUNDataIOMode;
+#ifndef SWIG
+typedef enum SUNDataIOMode SUNDataIOMode;
+#endif
 
 #endif /* _SUNDIALS_TYPES_H */

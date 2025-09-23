@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-enum ARKODE_SPRKMethodID_
+enum ARKODE_SPRKMethodID
 {
   ARKODE_SPRK_NONE      = -1, /* ensure enum is signed int */
   ARKODE_MIN_SPRK_NUM   = 0,
@@ -43,7 +43,9 @@ enum ARKODE_SPRKMethodID_
   ARKODE_MAX_SPRK_NUM = ARKODE_SPRK_SOFRONIOU_10_36
 };
 
-typedef enum ARKODE_SPRKMethodID_ ARKODE_SPRKMethodID;
+#ifndef SWIG
+typedef enum ARKODE_SPRKMethodID ARKODE_SPRKMethodID;
+#endif
 
 struct ARKodeSPRKTableMem
 {

@@ -273,7 +273,7 @@ end function
 function FSUNLinSolGetType_SPBCGS(s) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNLinearSolver_Type_) :: swig_result
+integer(SUNLinearSolver_Type) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -286,7 +286,7 @@ end function
 function FSUNLinSolGetID_SPBCGS(s) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNLinearSolver_ID_) :: swig_result
+integer(SUNLinearSolver_ID) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
