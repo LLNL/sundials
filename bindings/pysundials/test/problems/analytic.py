@@ -205,12 +205,34 @@ class AnalyticNonlinearSys:
     * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9
     * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60
     *
+    * Corrector form g(x,y,z):
+    *
+    * g1(x,y,z) = 1/3 cos((y-1)yz) + 1/6 - x0
+    * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9 - y0
+    * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60 - z0
+    *
     * This system has the analytic solution x = 1/2, y = 1, z = -pi/6.
     """
 
     NEQ = 3
 
-    def __init__(self):
+    def __init__(self, u0vec):
+        self.u0vec = u0vec
+
+    # CJB: __enter__ and __exit__ are defined so that this class can be
+    # use with python "with" statements. This is a workaround for the following scenario:
+    #   u0 = NVectorView.Create(N_VNew_Serial(...))
+    #   problem = AnalyticNonlinearSys(u0.get())
+    #   def g_fn(self, u, g, _):
+    #      return problem.fixed_point_fn(u, g) 
+    # Without using a "with" block, this code will cause nanobind to complain about reference
+    # leaks because `problem`, which holds a reference to u0, seems to not be garbage collected
+    # until the nanobind shutdown callback. 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.u0vec = None
         pass
 
     def fixed_point_fn(self, uvec, gvec):
@@ -221,7 +243,17 @@ class AnalyticNonlinearSys:
         g[0] = (1.0 / 3.0) * np.cos((y - 1.0) * z) + (1.0 / 6.0)
         g[1] = (1.0 / 9.0) * np.sqrt(x * x + np.sin(z) + 1.06) + 0.9
         g[2] = -(1.0 / 20.0) * np.exp(-x * (y - 1.0)) - (10.0 * np.pi - 3.0) / 60.0
+
+        N_VLinearSum(1.0, gvec, -1.0, self.u0vec, gvec)
+
         return 0
+
+    def conv_test(self, nls, yvec, delvec, tol, ewtvec):
+        delnrm = N_VMaxNorm(delvec)
+        if delnrm <= tol:
+            return SUN_SUCCESS
+        else:
+            return SUN_NLS_CONTINUE
 
     def solution(self, uvec):
         u = N_VGetArrayPointer(uvec)
@@ -229,3 +261,4 @@ class AnalyticNonlinearSys:
         u[1] = 1.0
         u[2] = -np.pi / 6.0
         return 0
+

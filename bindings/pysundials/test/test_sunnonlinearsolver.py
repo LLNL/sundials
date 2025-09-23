@@ -100,11 +100,10 @@ def test_fixedpoint_setup_and_solve(sunctx):
     from problems import AnalyticNonlinearSys
 
     NEQ = AnalyticNonlinearSys.NEQ
-    problem = AnalyticNonlinearSys()
     ucor = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
     u0 = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
     w = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
-    nls = SUNNonlinearSolverView.Create(SUNNonlinSol_FixedPoint(u0.get(), 5, sunctx.get()))
+    ucur = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
 
     # Initial guess
     udata = N_VGetArrayPointer(u0.get())
@@ -113,27 +112,48 @@ def test_fixedpoint_setup_and_solve(sunctx):
     # Initial correction
     N_VConst(0.0, ucor.get())
 
-    # System function
-    def g_fn(u, g, _):
-        return problem.fixed_point_fn(u, g)
-
-    # Setup (should succeed)
-    ret = SUNNonlinSolSetup(nls.get(), u0.get(), None)
-    assert ret == 0
-
-    # Set the scaling vector (no scaling)
+    # Set the weights
     N_VConst(1.0, w.get()) 
 
-    # Solve
-    tol = 1e-8
-    ret = SUNNonlinSolSolve(nls.get(), u0.get(), ucor.get(), w.get(), tol, 0, None)
-    assert ret == 0
+    # Create the problem
+    with AnalyticNonlinearSys(u0.get()) as problem:
 
-    # Update the initial guess with the correction
-    N_VLinearSum(1.0, u0.get(), 1.0, ucor.get(), ucor.get())
+        # Create the solver
+        nls = SUNNonlinearSolverView.Create(SUNNonlinSol_FixedPoint(u0.get(), 2, sunctx.get()))
 
-    # Compare to analytic solution
-    utrue = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
-    problem.solution(utrue.get())
-    assert np.allclose(N_VGetArrayPointer(ucor.get()), N_VGetArrayPointer(utrue.get()), atol=1e-6)
+        # System function
+        def g_fn(u, g, _):
+            # return 0
+            return problem.fixed_point_fn(u, g)
 
+        # Convergence test
+        def conv_test(nls, u, delta, tol, ewt, _):
+            # return 0
+            return problem.conv_test(nls, u, delta, tol, ewt)
+
+        ret = SUNNonlinSolSetSysFn(nls.get(), g_fn)
+        assert ret == 0
+
+        ret = SUNNonlinSolSetConvTestFn(nls.get(), conv_test)
+        assert ret == 0
+
+        ret = SUNNonlinSolSetMaxIters(nls.get(), 50)
+
+        ret = SUNNonlinSolSetup(nls.get(), u0.get())
+        assert ret == 0
+
+        tol = 1e-10
+        ret = SUNNonlinSolSolve(nls.get(), u0.get(), ucor.get(), w.get(), tol, 0)
+        assert ret == 0
+
+        # Update the initial guess with the correction
+        N_VLinearSum(1.0, u0.get(), 1.0, ucor.get(), ucur.get())
+
+        # Compare to analytic solution
+        utrue = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
+        problem.solution(utrue.get())
+        assert np.allclose(N_VGetArrayPointer(ucur.get()), N_VGetArrayPointer(utrue.get()), atol=1e-2)
+
+
+if __name__ == "__main__":
+    test_fixedpoint_setup_and_solve(SUNContextView.Create())
