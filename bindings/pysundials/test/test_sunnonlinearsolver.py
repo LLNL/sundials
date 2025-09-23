@@ -122,12 +122,10 @@ def test_fixedpoint_setup_and_solve(sunctx):
 
         # System function
         def g_fn(u, g, _):
-            # return 0
             return problem.fixed_point_fn(u, g)
 
         # Convergence test
         def conv_test(nls, u, delta, tol, ewt, _):
-            # return 0
             return problem.conv_test(nls, u, delta, tol, ewt)
 
         ret = SUNNonlinSolSetSysFn(nls.get(), g_fn)
