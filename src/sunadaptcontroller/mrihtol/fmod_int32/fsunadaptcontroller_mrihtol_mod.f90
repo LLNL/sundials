@@ -538,7 +538,7 @@ end function
 function FSUNAdaptController_GetType_MRIHTol(c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(SUNAdaptController_Type_) :: swig_result
+integer(SUNAdaptController_Type) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 

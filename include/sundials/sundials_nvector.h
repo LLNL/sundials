@@ -81,7 +81,9 @@ enum N_Vector_ID
   SUNDIALS_NVEC_CUSTOM
 };
 
+#ifndef SWIG
 typedef enum N_Vector_ID N_Vector_ID;
+#endif
 
 /* -----------------------------------------------------------------
  * Generic definition of N_Vector

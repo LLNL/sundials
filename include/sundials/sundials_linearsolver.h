@@ -69,7 +69,7 @@ extern "C" {
  * Implemented SUNLinearSolver types and IDs:
  * ----------------------------------------------------------------- */
 
-enum SUNLinearSolver_Type_
+enum SUNLinearSolver_Type
 {
   SUNLINEARSOLVER_DIRECT,
   SUNLINEARSOLVER_ITERATIVE,
@@ -77,9 +77,11 @@ enum SUNLinearSolver_Type_
   SUNLINEARSOLVER_MATRIX_EMBEDDED
 };
 
-typedef enum SUNLinearSolver_Type_ SUNLinearSolver_Type;
+#ifndef SWIG
+typedef enum SUNLinearSolver_Type SUNLinearSolver_Type;
+#endif
 
-enum SUNLinearSolver_ID_
+enum SUNLinearSolver_ID
 {
   SUNLINEARSOLVER_BAND,
   SUNLINEARSOLVER_DENSE,
@@ -101,7 +103,9 @@ enum SUNLinearSolver_ID_
   SUNLINEARSOLVER_CUSTOM
 };
 
-typedef enum SUNLinearSolver_ID_ SUNLinearSolver_ID;
+#ifndef SWIG
+typedef enum SUNLinearSolver_ID SUNLinearSolver_ID;
+#endif
 
 /* -----------------------------------------------------------------
  * Generic definition of SUNLinearSolver

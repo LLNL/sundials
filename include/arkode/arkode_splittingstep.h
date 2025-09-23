@@ -57,7 +57,9 @@ enum ARKODE_SplittingCoefficientsID
   ARKODE_MAX_SPLITTING_NUM = ARKODE_SPLITTING_YOSHIDA_8_6_2
 };
 
+#ifndef SWIG
 typedef enum ARKODE_SplittingCoefficientsID ARKODE_SplittingCoefficientsID;
+#endif
 
 /* Coefficient memory management */
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Alloc(

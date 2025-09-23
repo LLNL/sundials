@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-enum SUNLogLevel_
+enum SUNLogLevel
 {
   SUN_LOGLEVEL_ALL     = -1,
   SUN_LOGLEVEL_NONE    = 0,
@@ -33,7 +33,9 @@ enum SUNLogLevel_
   SUN_LOGLEVEL_DEBUG   = 4
 };
 
-typedef enum SUNLogLevel_ SUNLogLevel;
+#ifndef SWIG
+typedef enum SUNLogLevel SUNLogLevel;
+#endif
 
 SUNDIALS_EXPORT
 SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger);

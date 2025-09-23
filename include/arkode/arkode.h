@@ -197,19 +197,21 @@ typedef _SUNDIALS_STRUCT_ _MRIStepInnerStepper* MRIStepInnerStepper;
 /* --------------------------
  * Relaxation Solver Options
  * -------------------------- */
-enum ARKRelaxSolver_
+enum ARKRelaxSolver
 {
   ARK_RELAX_BRENT,
   ARK_RELAX_NEWTON
 };
 
-typedef enum ARKRelaxSolver_ ARKRelaxSolver;
+#ifndef SWIG
+typedef enum ARKRelaxSolver ARKRelaxSolver;
+#endif
 
 /* --------------------------
  * Error Accumulation Options
  * -------------------------- */
 
-enum ARKAccumError_
+enum ARKAccumError
 {
   ARK_ACCUMERROR_NONE,
   ARK_ACCUMERROR_MAX,
@@ -217,7 +219,9 @@ enum ARKAccumError_
   ARK_ACCUMERROR_AVG
 };
 
-typedef enum ARKAccumError_ ARKAccumError;
+#ifndef SWIG
+typedef enum ARKAccumError ARKAccumError;
+#endif
 
 /* --------------------------
  * Shared API routines
