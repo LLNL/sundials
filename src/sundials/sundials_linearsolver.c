@@ -319,7 +319,7 @@ SUNErrCode SUNLinSolFree(SUNLinearSolver S)
      try to cleanup by freeing the content, ops, and solver */
   free(S->content);
   S->content = NULL;
-  
+
   free(S->ops);
   S->ops = NULL;
 

@@ -398,8 +398,7 @@ N_Vector N_VMakeManaged_Raja(sunindextype length, sunrealtype* vdata,
   NVEC_RAJA_CONTENT(v)->mem_helper = SUNMemoryHelper_Sycl(sunctx);
 #endif
   NVEC_RAJA_CONTENT(v)->host_data =
-    SUNMemoryHelper_Wrap(NVEC_RAJA_CONTENT(v)->mem_helper, vdata,
-                         SUNMEMTYPE_UVM);
+    SUNMemoryHelper_Wrap(NVEC_RAJA_CONTENT(v)->mem_helper, vdata, SUNMEMTYPE_UVM);
   NVEC_RAJA_CONTENT(v)->device_data =
     SUNMemoryHelper_Alias(NVEC_RAJA_CONTENT(v)->mem_helper,
                           NVEC_RAJA_CONTENT(v)->host_data);

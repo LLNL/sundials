@@ -409,9 +409,8 @@ void N_VSetHostArrayPointer_Hip(sunrealtype* h_vdata, N_Vector v)
     }
     else
     {
-      NVEC_HIP_CONTENT(v)->host_data = SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v),
-                                                            (void*)h_vdata,
-                                                            SUNMEMTYPE_UVM);
+      NVEC_HIP_CONTENT(v)->host_data =
+        SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*)h_vdata, SUNMEMTYPE_UVM);
       NVEC_HIP_CONTENT(v)->device_data =
         SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v),
                               NVEC_HIP_CONTENT(v)->host_data);
@@ -448,8 +447,7 @@ void N_VSetDeviceArrayPointer_Hip(sunrealtype* d_vdata, N_Vector v)
     else
     {
       NVEC_HIP_CONTENT(v)->device_data =
-        SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*)d_vdata,
-                             SUNMEMTYPE_UVM);
+        SUNMemoryHelper_Wrap(NVEC_HIP_MEMHELP(v), (void*)d_vdata, SUNMEMTYPE_UVM);
       NVEC_HIP_CONTENT(v)->host_data =
         SUNMemoryHelper_Alias(NVEC_HIP_MEMHELP(v),
                               NVEC_HIP_CONTENT(v)->device_data);
@@ -2329,10 +2327,9 @@ static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n)
   if (alloc_mem)
   {
     // Allocate pinned memory on the host
-    alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
-                                       &(vcp->reduce_buffer_host), bytes,
-                                       SUNMEMTYPE_PINNED,
-                                       (void*)NVEC_HIP_STREAM(v));
+    alloc_fail =
+      SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vcp->reduce_buffer_host),
+                            bytes, SUNMEMTYPE_PINNED, (void*)NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT(
@@ -2340,10 +2337,9 @@ static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n)
         "alloc SUNMEMTYPE_PINNED, using SUNMEMTYPE_HOST instead\n");
 
       // If pinned alloc failed, allocate plain host memory
-      alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
-                                         &(vcp->reduce_buffer_host), bytes,
-                                         SUNMEMTYPE_HOST,
-                                         (void*)NVEC_HIP_STREAM(v));
+      alloc_fail =
+        SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vcp->reduce_buffer_host),
+                              bytes, SUNMEMTYPE_HOST, (void*)NVEC_HIP_STREAM(v));
       if (alloc_fail)
       {
         SUNDIALS_DEBUG_PRINT(
@@ -2353,10 +2349,9 @@ static int InitializeReductionBuffer(N_Vector v, sunrealtype value, size_t n)
     }
 
     // Allocate device memory
-    alloc_fail = SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v),
-                                       &(vcp->reduce_buffer_dev), bytes,
-                                       SUNMEMTYPE_DEVICE,
-                                       (void*)NVEC_HIP_STREAM(v));
+    alloc_fail =
+      SUNMemoryHelper_Alloc(NVEC_HIP_MEMHELP(v), &(vcp->reduce_buffer_dev),
+                            bytes, SUNMEMTYPE_DEVICE, (void*)NVEC_HIP_STREAM(v));
     if (alloc_fail)
     {
       SUNDIALS_DEBUG_PRINT(
