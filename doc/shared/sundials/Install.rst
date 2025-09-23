@@ -445,7 +445,7 @@ C++ Compiler
    Default: ``14`` or ``17`` if :cmakeop:`ENABLE_GINKGO` or
    :cmakeop:`ENABLE_SYCL` are ``ON``
 
-   Options: ``14``, ``17``, or ``20``
+   Options: ``14``, ``17``, ``20``, or ``23``
 
 .. cmakeoption:: CMAKE_CXX_EXTENSIONS
 
