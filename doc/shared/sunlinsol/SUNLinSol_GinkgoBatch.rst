@@ -25,7 +25,7 @@ To use the SUNLINEARSOLVER_GINKGOBATCH ``SUNLinearSolver``, users will need to i
 ``sunlinsol/sunlinsol_ginkgobatch.hpp``. The module is meant to be used with the SUNMATRIX_GINKGOBATCH 
 module described in :numref:`SUNMatrix.GinkgoBatch`. Instructions on building SUNDIALS  with Ginkgo enabled are given
 in :numref:`Installation.Options.Ginkgo`.  For instructions on building and using Ginkgo itself, refer to the
-`Ginkgo website and documentation <https://ginkgo-project.github.io/>`_.
+`Ginkgo website and documentation <https://ginkgo-project.github.io/>`__.
 
 .. note::
 
