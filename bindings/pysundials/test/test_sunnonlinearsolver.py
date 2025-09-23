@@ -96,7 +96,6 @@ def test_get_num_conv_fails(sunctx, nvec, nls_newton, nls_fixedpoint):
 
 
 def test_fixedpoint_setup_and_solve(sunctx):
-    # Use AnalyticNonlinearSys to test SUNNonlinearSolver setup and solve
     from problems import AnalyticNonlinearSys
 
     NEQ = AnalyticNonlinearSys.NEQ
