@@ -125,6 +125,7 @@ struct _generic_SUNNonlinearSolver_Ops
 struct _generic_SUNNonlinearSolver
 {
   void* content;
+  void* python;
   SUNNonlinearSolver_Ops ops;
   SUNContext sunctx;
 };

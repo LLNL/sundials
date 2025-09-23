@@ -142,6 +142,7 @@ struct _generic_SUNLinearSolver_Ops
 struct _generic_SUNLinearSolver
 {
   void* content;
+  void* python;
   SUNLinearSolver_Ops ops;
   SUNContext sunctx;
 };
