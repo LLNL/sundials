@@ -110,14 +110,14 @@ module farkode_mod
  end enum
  integer, parameter, public :: ARKRelaxSolver_ = kind(ARK_RELAX_BRENT)
  public :: ARK_RELAX_BRENT, ARK_RELAX_NEWTON
- ! enum ARKAccumError
+ ! enum ARKAccumError_
  enum, bind(c)
   enumerator :: ARK_ACCUMERROR_NONE
   enumerator :: ARK_ACCUMERROR_MAX
   enumerator :: ARK_ACCUMERROR_SUM
   enumerator :: ARK_ACCUMERROR_AVG
  end enum
- integer, parameter, public :: ARKAccumError = kind(ARK_ACCUMERROR_NONE)
+ integer, parameter, public :: ARKAccumError_ = kind(ARK_ACCUMERROR_NONE)
  public :: ARK_ACCUMERROR_NONE, ARK_ACCUMERROR_MAX, ARK_ACCUMERROR_SUM, ARK_ACCUMERROR_AVG
  public :: FARKodeResize
  public :: FARKodeReset
@@ -3576,7 +3576,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(ARKAccumError), intent(in) :: accum_type
+integer(ARKAccumError_), intent(in) :: accum_type
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
