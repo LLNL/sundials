@@ -45,7 +45,6 @@ ARKodeSPRKTableView ARKodeSPRKTableView::Create(Args&&... args)
   return ARKodeSPRKTableView(table);
 }
 
-
 } // namespace experimental
 } // namespace sundials
 

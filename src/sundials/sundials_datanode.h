@@ -31,7 +31,7 @@ extern "C" {
 typedef int64_t sundataindex;
 
 enum SUNDataNodeType
-{ 
+{
   SUNDATANODE_LEAF,
   SUNDATANODE_LIST,
   SUNDATANODE_OBJECT
