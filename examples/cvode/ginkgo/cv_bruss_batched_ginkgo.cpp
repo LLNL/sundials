@@ -790,39 +790,6 @@ void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 }
 
 /*
- * Get and print some final statistics
- */
-
-void PrintFinalStats(void* cvode_mem, SUNLinearSolver LS)
-{
-  long int nst, nfe, nsetups, nje, nni, ncfn, nli, netf;
-  int retval;
-
-  retval = CVodeGetNumSteps(cvode_mem, &nst);
-  check_retval(&retval, "CVodeGetNumSteps", 1);
-  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
-  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
-  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
-  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
-  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
-  retval = CVodeGetNumLinIters(cvode_mem, &nli);
-  check_retval(&retval, "CVodeGetNumLinIters", 1);
-  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
-  check_retval(&retval, "CVodeGetNumJacEvals", 1);
-
-  printf("\nFinal Statistics:\n");
-  printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje  = %ld\n", nst, nfe,
-         nsetups, nje);
-  printf("nni = %-6ld ncfn = %-6ld nli     = %-6ld netf = %-6ld\n \n", nni,
-         ncfn, nli, netf);
-}
-
-/*
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
