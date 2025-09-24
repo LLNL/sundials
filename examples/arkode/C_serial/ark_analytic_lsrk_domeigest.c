@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
   SUNDomEigEstimator DEE = NULL; /* domeig estimator object */
   sunindextype max_iters = 100;  /* max number of power iterations (PI)*/
   sunindextype numwarmup = 10;   /* number of preprocessing warmups */
-  sunrealtype rel_tol    = SUN_RCONST(1.0e-2); /* relative error for PI*/
+  sunrealtype rel_tol    = SUN_RCONST(5.0e-3); /* relative error for PI*/
   N_Vector q             = NULL;               /* random initial eigenvector */
 
   /* Create the SUNDIALS context object for this simulation */
