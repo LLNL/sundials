@@ -284,9 +284,12 @@ int main(int argc, char* argv[])
   /* Initialize the Jacobian with its fixed sparsity pattern */
   retval = JacInit(A);
   if (check_retval(&retval, "JacInit", 1)) { return (1); }
+
   /* Create the SUNLinearSolver object for use by CVode */
-  SUNGkoLinearSolverType LS{gko_exec, gko::batch::stop::tolerance_type::absolute,
-                            nullptr, udata.num_batches, sunctx};
+  SUNGkoLinearSolverType LS{gko_exec,
+                            gko::batch::stop::tolerance_type::absolute, nullptr,
+                            static_cast<gko::size_type>(udata.num_batches),
+                            sunctx};
 
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   if (solver_type == 0)
