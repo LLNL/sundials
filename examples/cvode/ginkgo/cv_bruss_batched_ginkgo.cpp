@@ -115,9 +115,6 @@ static int JacInit(SUNMatrix J);
 static void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2,
                         sunrealtype y3);
 
-/* Private function to print final statistics */
-static void PrintFinalStats(void* cvode_mem, SUNLinearSolver LS);
-
 /* Private function to check function return values */
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 
