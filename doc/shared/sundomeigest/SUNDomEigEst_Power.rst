@@ -85,7 +85,7 @@ routines:
                      need too tight tolerances and consider a safety factor,
                      and (2) an early (less costly) termination will be a good
                      indicator whether the power iteration is compatible.
-   :param rel_tol: relative tolerance for convergence checks (default 0.01). A
+   :param rel_tol: relative tolerance for convergence checks (default 0.005). A
                    value :math:`\leq 0` will result in the default value. The
                    default has been found to small enough for many internal
                    applications.
@@ -149,7 +149,7 @@ information:
 
 * ``num_ATimes`` - number of calls to the ``ATimes`` function,
 
-* ``rel_tol`` - relative tolerance for the convergence criteria (default is 0.01),
+* ``rel_tol`` - relative tolerance for the convergence criteria (default is 0.005),
 
 * ``res`` - the residual from the last :c:func:`SUNDomEigEstimator_Estimate`
   call.

@@ -602,7 +602,7 @@ static int InitUserData(UserData* udata)
   udata->dee_num_succ_wups = 5;
   udata->dee_max_iters     = 100;
   udata->dee_krylov_dim    = 3;
-  udata->dee_reltol        = 0.01;
+  udata->dee_reltol        = 0.005;
 
   // Timing variables
   udata->timing     = false;

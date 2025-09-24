@@ -29,7 +29,7 @@
  dee num_succ_wups = 5
  dee_max_iters     = 100
  dee_krylov_dim    = 3
- dee_reltol        = 0.01
+ dee_reltol        = 0.005
  ------------------------------------ 
 
           t                     ||u||_rms                max error      
