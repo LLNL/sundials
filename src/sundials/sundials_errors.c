@@ -20,7 +20,7 @@
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_types.h>
 
-#include <sundials/priv/sundials_logger_impl.h>
+#include "sundials_logger_impl.h"
 #include "sundials_macros.h"
 #include "sundials_utils.h"
 

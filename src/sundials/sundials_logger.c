@@ -22,7 +22,7 @@
 #include <sundials/sundials_logger.h>
 
 #include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/priv/sundials_logger_impl.h>
+#include "sundials_logger_impl.h"
 
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"

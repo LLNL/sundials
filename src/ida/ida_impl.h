@@ -24,7 +24,7 @@
 #include <ida/ida.h>
 #include <sundials/priv/sundials_context_impl.h>
 
-#include <sundials/priv/sundials_logger_impl.h>
+#include "sundials_logger_impl.h"
 #include "sundials_macros.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

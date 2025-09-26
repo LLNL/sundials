@@ -21,8 +21,8 @@
 
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/priv/sundials_logger_impl.h>
 #include <sundials/sundials_core.h>
+#include "sundials_logger_impl.h"
 
 #if defined(SUNDIALS_BUILD_WITH_PROFILING)
 static SUNProfiler getSUNProfiler(SUNNonlinearSolver NLS)

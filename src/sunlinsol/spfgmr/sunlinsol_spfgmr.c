@@ -22,9 +22,9 @@
 #include <string.h>
 
 #include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/priv/sundials_logger_impl.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_spfgmr.h>
+#include "sundials_logger_impl.h"
 
 #include "sundials_cli.h"
 #include "sundials_macros.h"

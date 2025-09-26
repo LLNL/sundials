@@ -34,11 +34,11 @@
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_types.h>
 
-#include <sundials/priv/sundials_logger_impl.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_relaxation_impl.h"
 #include "arkode_root_impl.h"
 #include "arkode_types_impl.h"
+#include "sundials_logger_impl.h"
 #include "sundials_macros.h"
 #include "sundials_stepper_impl.h"
 

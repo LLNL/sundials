@@ -15,7 +15,7 @@
 #include <cmath>
 
 #include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/priv/sundials_logger_impl.h>
+#include <sundials/priv/sundials_logger_macros.h>
 #include <sundials/sundials_core.hpp>
 
 #include <sunmatrix/sunmatrix_ginkgobatch.hpp>
@@ -298,7 +298,7 @@ public:
 
     // Applying scaling every solve requires us to redo all the Ginkgo solver setup
     // This is because the scaling happens in memory, and the Ginkgo solver needs
-    // to know about the matrix values when it is constructed. 
+    // to know about the matrix values when it is constructed.
     if (scaling_mode_ == SOLVE_SCALING) { do_setup_ = true; }
 
     if (do_setup_)
