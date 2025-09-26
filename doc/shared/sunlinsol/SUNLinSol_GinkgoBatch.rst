@@ -104,7 +104,7 @@ SUNLINEARSOLVER_GINKGOBATCH API
 All `core functions <SUNLinSol.CoreFn>` of the ``SUNLinearSolver`` API are supported by this module/class.
 However, we note a difference in behavior for :c:func:`SUNLinSolNumIters`:
 
-.. c:func:: int SUNLinSolNumIters_GinkgoBatch(SUNLinearSolver S)
+.. c:function:: int SUNLinSolNumIters_GinkgoBatch(SUNLinearSolver S)
 
    This function returns the average number of iterations across all of the batch systems.
 
