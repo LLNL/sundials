@@ -436,10 +436,12 @@ public:
     else { retval = SUN_SUCCESS; }
 
     SUNLogInfo(sunLogger(), "linear-solver",
-               "avg. iter count = " SUN_FORMAT_G ", stddev. iter count = " SUN_FORMAT_G ", "
+               "avg. iter count = " SUN_FORMAT_G
+               ", stddev. iter count = " SUN_FORMAT_G ", "
                "max iter count = %d, "
-               "min iter count = %d, max res. norm = " SUN_FORMAT_G ", min res. "
-               "norm = "SUN_FORMAT_G ", tol = " SUN_FORMAT_G ","
+               "min iter count = %d, max res. norm = " SUN_FORMAT_G
+               ", min res. "
+               "norm = " SUN_FORMAT_G ", tol = " SUN_FORMAT_G ","
                " return code = %d",
                avg_iter_count_, stddev_iter_count_, max_iter_count,
                min_iter_count, max_res_norm, min_res_norm, tol, retval);
