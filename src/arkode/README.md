@@ -2,7 +2,7 @@
 ### Version 6.4.0 (Jun 2025)
 
 **Daniel R. Reynolds,
-  Department of Mathematics, SMU**
+  Department of Mathematics and Statistics, UMBC**
 
 **David J. Gardner, Carol S. Woodward, and Cody J. Balos,
   Center for Applied Scientific Computing, LLNL**
