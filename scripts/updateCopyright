@@ -96,7 +96,7 @@ my $endyear = '2025';
 
 my $newCopyright = <<"END";
  # SUNDIALS Copyright Start
- # Copyright (c) 2025, Lawrence Livermore National Security,
+ # Copyright (c) 2025-$endyear, Lawrence Livermore National Security,
  # University of Maryland Baltimore County, and the SUNDIALS contributors.
  # Copyright (c) 2013, Lawrence Livermore National Security
  # and Southern Methodist University.
@@ -114,12 +114,12 @@ my $fileExcludePattern=q!/(.git)$!;
 
 ##############################################################################
 # Replace copyright year in cases without copyright "Start" and "End" markers
-# e.g., LICENSE file, doc file text, and python strings
+# e.g., the LICENSE file
 ##############################################################################
 
 my $docFilePattern    = q!LICENSE$!;
-my $docReplacePattern = 'Copyright \(c\) (.*?),';
-my $docNewCopyright   = "Copyright (c) 2002-$endyear,";
+my $docReplacePattern = 'Copyright \(c\) (2025.*?),';
+my $docNewCopyright   = "Copyright (c) 2025-$endyear,";
 
 replaceInFiles($docFilePattern,$fileExcludePattern,$docReplacePattern,$docNewCopyright);
 
