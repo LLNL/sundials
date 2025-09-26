@@ -216,12 +216,6 @@ typedef struct SUNProfiler_* SUNProfiler;
 /* SUNDIALS logger */
 typedef struct SUNLogger_* SUNLogger;
 
-/* SUNDIALS hashmap */
-typedef struct SUNHashMap_* SUNHashMap;
-
-/* SUNDIALS key-value pair */
-typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
-
 /* -----------------------------------------------------------------------------
  * SUNDIALS function types
  * ---------------------------------------------------------------------------*/

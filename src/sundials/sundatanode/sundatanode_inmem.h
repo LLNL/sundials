@@ -15,6 +15,7 @@
 #include <sundials/sundials_types.h>
 
 #include "sundials_datanode.h"
+#include "sundials_hashmap_impl.h"
 
 #ifndef _SUNDATANODE_INMEM_H
 #define _SUNDATANODE_INMEM_H

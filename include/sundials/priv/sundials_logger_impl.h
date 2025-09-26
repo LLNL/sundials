@@ -132,6 +132,10 @@
 #define SUNLogExtraDebugVecArray(logger, label, nvecs, vecs, msg_txt)
 #endif
 
+/* Forward declarations of the hashmap */
+typedef struct SUNHashMap_* SUNHashMap;
+typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
+
 struct SUNLogger_
 {
   /* MPI information */
