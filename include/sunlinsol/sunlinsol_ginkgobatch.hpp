@@ -289,8 +289,6 @@ public:
     matrix_   = A;
     do_setup_ = true;
 
-    printf(">>> matrix setup\n");
-
     return SUN_SUCCESS;
   }
 
@@ -305,7 +303,6 @@ public:
 
     if (do_setup_)
     {
-      printf(">>> solver setup\n");
       // Create the solver factory
       solver_factory_ = GkoBatchSolverType::build()             //
                           .with_max_iterations(max_iters_)      //
@@ -321,7 +318,6 @@ public:
         //    \tilde{A} = P_1^{-1} S_1 A S_2^{-1} P_2^{-1},
         // but in memory, we just have
         //    \tilde{A} = S_1 A S_2^{-1}.
-        printf(">>> scaling applied\n");
         matrix_->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
       }
 
@@ -351,7 +347,6 @@ public:
     }
 
     // \tilde{x} = \tilde{A}^{-1} \tilde{b}
-    printf(">>> solve\n");
     [[maybe_unused]] gko::batch::BatchLinOp* result =
       solver_->apply(b_vec.get(), x_vec.get());
 
@@ -363,13 +358,14 @@ public:
 
     if (scaling_mode_ == SOLVE_SCALING)
     {
-      // We must undo the scaling of the matrix
+      // We must undo the scaling of the matrix, so first invert the scaling vectors
       N_VInv(s2inv_, s2inv_);
       N_VInv(s1_, s1_);
 
+      // Unscale the matrix (row_scale_vec_ and col_scale_vec_ point to the same data as s2inv_ and s1_)
       matrix_->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
 
-      // Fix the scaling vectors. But do we need to? 
+      // Fix the scaling vectors
       N_VInv(s2inv_, s2inv_);
       N_VInv(s1_, s1_);
     }
