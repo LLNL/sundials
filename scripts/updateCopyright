@@ -96,9 +96,11 @@ my $endyear = '2025';
 
 my $newCopyright = <<"END";
  # SUNDIALS Copyright Start
- # Copyright (c) 2002-$endyear, Lawrence Livermore National Security,
- # Southern Methodist University, and University of Maryland Baltimore
- # County.
+ # Copyright (c) 2025, Lawrence Livermore National Security,
+ # University of Maryland Baltimore County, and the SUNDIALS contributors.
+ # Copyright (c) 2013, Lawrence Livermore National Security
+ # and Southern Methodist University.
+ # Copyright (c) 2002, Lawrence Livermore National Security.
  # All rights reserved.
  #
  # See the top-level LICENSE and NOTICE files for details.
