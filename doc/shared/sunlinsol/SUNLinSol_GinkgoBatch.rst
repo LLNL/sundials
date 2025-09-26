@@ -106,7 +106,10 @@ However, we note a difference in behavior for :c:func:`SUNLinSolNumIters`:
 
 .. c:function:: int SUNLinSolNumIters_GinkgoBatch(SUNLinearSolver S)
 
-   This function returns the average number of iterations across all of the batch systems.
+   This function returns the average number of iterations across all of the
+   batch systems. As such, functions that utilize this function to accumulate
+   statistics over steps or solve (i.e., the ``GetNumLinIters`` function in each
+   package) will return the sum of these average values.
 
 
 The public API of the :cpp:type:`sundials::ginkgo::BatchLinearSolver` class is as follows:
