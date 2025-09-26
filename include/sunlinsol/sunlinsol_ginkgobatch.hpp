@@ -144,7 +144,6 @@ public:
       sum_of_avg_iters_(sunrealtype{0.0}),
       stddev_iter_count_(sunrealtype{0.0}),
       previous_max_res_norm_(sunrealtype{0.0}),
-      ones_(nullptr),
       s2inv_(nullptr),
       scaling_(false),
       matrix_updated_(true)
@@ -244,24 +243,21 @@ public:
   /// Sets the left and right scaling vectors to be used.
   void SetScalingVectors(N_Vector s1, N_Vector s2)
   {
+    SUNFunctionBegin(sunCtx());
+
     if (s1 && s2)
     {
       col_scale_vec_ =
         std::move(impl::WrapBatchScalingArray(GkoExec(), num_batches_, s1));
-
-      if (!ones_.Convert())
-      {
-        ones_ = sundials::experimental::NVectorView(N_VClone(s2));
-        N_VConst(sunrealtype{1.0}, ones_);
-      }
 
       if (!s2inv_.Convert())
       {
         s2inv_ = sundials::experimental::NVectorView(N_VClone(s2));
       }
 
-      N_VDiv(ones_, s2,
-             s2inv_); // Need to provide s2inv to match the SUNLinearSolver API
+      // SUNLinearSolver API wants s2inv_
+      N_VInv(s2, s2inv_);
+      SUNCheckLastErrVoid();
 
       row_scale_vec_ =
         std::move(impl::WrapBatchScalingArray(GkoExec(), num_batches_, s2inv_));
@@ -308,8 +304,10 @@ public:
                           .with_preconditioner(precon_factory_) //
                           .on(GkoExec());
 
-      // This will scale the matrix in place
-      // \tilde{A} = S_1 A S_2^{-1}
+      // This will scale the matrix in place, S_1 A S_2^{-1}.
+      // So if a Ginkgo preconditioner is used, it is applied to the scaled matrix:
+      //
+      // \tilde{A} = P_1^{-1} S_1 A S_2^{-1} P_2^{-1}
       matrix_->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
 
       solver_ = solver_factory_->generate(matrix_->GkoMtx());
@@ -333,7 +331,7 @@ public:
       // \tilde{b} = S_1 b
       b_vec->scale(impl::WrapAsMultiVector(col_scale_vec_, num_batches_));
     }
-
+    
     // \tilde{x} = \tilde{A}^{-1} \tilde{b}
     [[maybe_unused]] gko::batch::BatchLinOp* result =
       solver_->apply(b_vec.get(), x_vec.get());
@@ -445,7 +443,7 @@ private:
   sunrealtype sum_of_avg_iters_;
   sunrealtype stddev_iter_count_;
   sunrealtype previous_max_res_norm_;
-  sundials::experimental::NVectorView ones_, s2inv_;
+  sundials::experimental::NVectorView s2inv_;
   bool scaling_;
   bool matrix_updated_;
 
@@ -475,6 +473,11 @@ private:
     SUNLogger log{nullptr};
     SUNContext_GetLogger(object_->sunctx, &log);
     return log;
+  }
+
+  SUNContext sunCtx()
+  {
+    return object_->sunctx;
   }
 
   static constexpr int default_max_iters_ = 5;
