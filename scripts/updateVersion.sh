@@ -164,6 +164,19 @@ else
     nls_ver="${nls_major}.${nls_minor}.${nls_patch}-${nls_label}"
 fi
 
+# Set the SUNDomEigEstimator version values. Assume the major version is six
+# less than the SUNDIALS major version.
+dee_major=$(( sun_major - 6 ))
+dee_minor=$(( sun_minor - 5 )) # TODO(DJG): Will need to remove this at the next major release
+dee_patch=$sun_patch
+dee_label=$sun_label
+
+if [ "${dee_label}" == "" ]; then
+    dee_ver="${dee_major}.${dee_minor}.${dee_patch}"
+else
+    dee_ver="${dee_major}.${dee_minor}.${dee_patch}-${dee_label}"
+fi
+
 # ------------------------------------------------------------------------------
 # Wrapper for editing inplace with different sed implementations
 # ------------------------------------------------------------------------------
@@ -216,6 +229,9 @@ sedi "/sunlinsollib_SOVERSION.*/ s/SOVERSION.*/SOVERSION \"${ls_major}\")/" $fn
 
 sedi "/sunnonlinsollib_VERSION.*/   s/VERSION.*/VERSION \"${nls_ver}\")/" $fn
 sedi "/sunnonlinsollib_SOVERSION.*/ s/SOVERSION.*/SOVERSION \"${nls_major}\")/" $fn
+
+sedi "/sundomeigestlib_VERSION.*/   s/VERSION.*/VERSION \"${dee_ver}\")/" $fn
+sedi "/sundomeigestlib_SOVERSION.*/ s/SOVERSION.*/SOVERSION \"${dee_major}\")/" $fn
 
 # ------------------------------------------------------------------------------
 # Update README files
@@ -340,10 +356,10 @@ sedi "s/year =.*/year = \"${year}\"/" $fn
 
 # release history table
 fn="../doc/shared/History.rst"
-new_entry=$(printf "| %-3s %-4s | %-17s | %-17s | %-17s | %-17s | %-17s | %-17s | %-17s |" \
-    ${month} ${year} ${sun_ver} ${ark_ver} ${cv_ver} ${cvs_ver} ${ida_ver} \
+new_entry=$(printf "| %-3s %-4s | %-30s | %-17s | %-17s | %-17s | %-17s | %-17s | %-17s |" \
+    ${month} ${year} ":ref:\`${sun_ver} <Changelog.${sun_ver}>\`" ${ark_ver} ${cv_ver} ${cvs_ver} ${ida_ver} \
     ${idas_ver} ${kin_ver})
-divider="+----------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+"
+divider="+----------+--------------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+"
 
 # insert new release history row after line 23
 sedi '23 a\

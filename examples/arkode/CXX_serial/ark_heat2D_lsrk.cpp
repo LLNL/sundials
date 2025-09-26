@@ -20,9 +20,6 @@
  *
  *   u_t = kx u_xx + ky u_yy + b,
  *
- * TO-DO: update this to kx(t) and ky(t), and determine the corresponding
- * changes required for b to ensure the same analytical solution.
- *
  * for t in [0, 1] and (x,y) in [0, 1]^2, with initial condition
  *
  *   u(0,x,y) = sin^2(pi x) sin^2(pi y),
@@ -543,7 +540,7 @@ static int InitUserData(UserData* udata)
 
   // LSRKStep options
   udata->method          = ARKODE_LSRK_RKC_2; // RKC
-  udata->eigfrequency    = 25;   // update eigenvalue at least every 20 steps
+  udata->eigfrequency    = 25;   // update eigenvalue at least every 25 steps
   udata->stage_max_limit = 1000; // allow up to 1000 stages/step
   udata->eigsafety       = SUN_RCONST(1.01); // 1% safety factor
 

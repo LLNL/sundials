@@ -182,7 +182,7 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
-   Specifies the dominant eigenvalue approximation routine to
+   Specifies the user-supplied dominant eigenvalue approximation routine to
    be used for determining the number of stages that will be used by either the
    RKC or RKL methods.
 
@@ -192,12 +192,46 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* ``dom_eig = NULL`` and LSRKStep does not currently estimate this internally.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
    .. note::
 
-      This function is currently required when either the RKC or RKL methods are used.
+      When using RKC or RKL methods, users must supply a :c:type:`ARKDomEigFn` function
+      or attach a dominant eigenvalue estimator with :c:func:`LSRKStepSetDomEigEstimator`.
+
+
+.. c:function:: int LSRKStepSetDomEigEstimator(void* arkode_mem, SUNDomEigEstimator DEE);
+
+   Specifies the dominant eigenvalue estimator (DEE) used to determine the number of
+   stages in an RKC or RKL method. This function is an alternative to supplying a
+   dominant eigenvalue function with :c:func:`LSRKStepSetDomEigFn`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *DEE* -- the dominant eigenvalue estimator to use.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g., ``DEE`` does
+        not implement the required operations)
+      * *ARK_DEE_FAIL* if the call to :c:func:`SUNDomEigEstimator_SetATimes`
+        failed
+
+   .. versionadded:: x.y.z
+
+   .. note::
+
+      When using RKC or RKL methods, users must supply a :c:type:`ARKDomEigFn`
+      function or attach a dominant eigenvalue estimator with
+      :c:func:`LSRKStepSetDomEigEstimator`.  If both are provided then the
+      estimator ``DEE`` will be used and the function ignored.
+
+      ARKODE will supply the :c:type:`SUNDomEigEstimator` with an internal
+      Jacobian-vector product approximation function. Users may supply their own
+      Jacobian-vector product function by calling
+      :c:func:`SUNDomEigEstimator_SetATimes` after attaching the estimator with
+      :c:func:`LSRKStepSetDomEigEstimator`.
 
 
 .. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps);
@@ -211,12 +245,15 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
    .. note::
 
       If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps``
-      is set to :math:`25` as recommended in :cite:p:`VSH:04`.
+      is set to :math:`25` as recommended in :cite:p:`VSH:04`. Calling this function
+      with ``nsteps < 0`` resets the default value while ``nsteps = 0`` refers to
+      constant dominant eigenvalue.
+
 
       Calling this function with ``nsteps < 0`` resets the default value while
       ``nsteps = 0`` refers to constant dominant eigenvalue.
@@ -235,11 +272,11 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
    .. note::
 
-      If LSRKStepSetMaxNumStages routine is not called, then the default ``stage_max_limit``
+      If :c:func:`LSRKStepSetMaxNumStages` is not called, the default ``stage_max_limit``
       is set to :math:`200`. Calling this function with ``stage_max_limit < 2`` resets the
       default value.
 
@@ -264,16 +301,65 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
    .. note::
 
-      If LSRKStepSetDomEigSafetyFactor routine is not called, then the default
+      If :c:func:`LSRKStepSetDomEigSafetyFactor` is not called, then the default
       ``dom_eig_safety`` is set to :math:`1.01`. Calling this function with
       ``dom_eig_safety < 1`` resets the default value.
 
       This routine will be called by :c:func:`ARKodeSetOptions`
       when using the key "arkid.dom_eig_safety_factor".
+
+
+.. c:function:: int LSRKStepSetNumDomEigEstInitPreprocessIters(void* arkode_mem, int num_iters);
+
+   Specifies the number of the preprocessing iterations before the very first estimate call.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *num_iters* -- the number of iterations.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+
+   .. versionadded:: x.y.z
+
+   .. note::
+
+      If LSRKStepSetNumDomEigEstInitPreprocessIters routine is not called, then the
+      default value of the estimator is used. Calling this function with ``num_iters < 0``
+      resets the default.
+
+      This routine will be called by :c:func:`ARKodeSetOptions`
+      when using the key "arkid.num_dom_eig_est_init_preprocess_iters".
+
+.. c:function:: int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_iters);
+
+   Specifies the number of the preprocessing iterations before each estimate call after the very first estimate.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *num_iters* -- the number of iterations.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_DEE_FAIL* if the call to
+        :c:func:`SUNDomEigEstimator_SetNumPreprocessIters` failed.
+
+   .. versionadded:: x.y.z
+
+   .. note::
+
+      If LSRKStepSetNumDomEigEstPreprocessIters routine is not called, then the
+      default value of 0 is used. Calling this function with ``num_iters < 0`` resets
+      the default.
+
+      This routine will be called by :c:func:`ARKodeSetOptions`
+      when using the key "arkid.num_dom_eig_est_preprocess_iters".
 
 
 .. c:function:: int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
@@ -290,12 +376,12 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. SSP method is not declared)
 
    .. note::
 
-      If LSRKStepSetNumSSPStages routine is not called, then the default ``num_of_stages``
+      If :c:func:`LSRKStepSetNumSSPStages` is not called, the default ``num_of_stages``
       is set. Calling this function with ``num_of_stages <= 0`` resets the default values:
 
       * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_S_2`
@@ -334,6 +420,46 @@ Optional output functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+      * *ARK_ILL_INPUT* if ``stage_max`` is illegal
+
+
+.. c:function:: int LSRKStepGetNumDomEigEstRhsEvals(void* arkode_mem, long int* nfeDQ);
+
+   Returns the number of RHS function evaluations used in the difference quotient
+   Jacobian approximations (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *nfeDQ* -- number of rhs calls.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+      * *ARK_ILL_INPUT* if ``nfeDQ`` is illegal
+
+   .. versionadded:: x.y.z
+
+   .. note::
+
+      The number of RHS evaluations is non-zero only when using a dominant eigenvalue
+      estimator and the internal Jacobian-vector product approximation.
+
+
+.. c:function:: int LSRKStepGetNumDomEigEstIters(void* arkode_mem, long int* num_iters);
+
+   Returns the number of iterations used in the dominant eigenvalue estimator (DEE) (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *num_iters* -- number of iterations.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+      * *ARK_ILL_INPUT* if ``num_iters`` is illegal
+
+   .. versionadded:: x.y.z
+
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:
 
@@ -379,6 +505,9 @@ dependent variable vector.
    Provides required problem specifications and re-initializes the
    LSRKStep time-stepper module when using STS methods.
 
+   All previously set options are retained but may be updated by calling
+   the appropriate "Set" functions.
+
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
       * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
@@ -396,17 +525,18 @@ dependent variable vector.
 
    .. note::
 
-      All previously set options are retained but may be updated by calling
-      the appropriate "Set" functions.
-
-      If an error occurred, :c:func:`LSRKStepReInitSTS()` also
-      sends an error message to the error handler function.
+      If using a :c:type:`SUNDomEigEstimator`, the initial guess for the
+      dominant eigenvalue should be reinitialized with
+      :c:func:`SUNDomEigEstimator_SetInitialGuess`.
 
 .. c:function:: int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0);
 
    Provides required problem specifications and re-initializes the
    LSRKStep time-stepper module when using SSP methods.
 
+   All previously set options are retained but may be updated by calling
+   the appropriate "Set" functions.
+
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
       * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
@@ -421,11 +551,3 @@ dependent variable vector.
       * *ARK_NO_MALLOC* if memory allocation failed
       * *ARK_CONTROLLER_ERR* if unable to reset error controller object
       * *ARK_ILL_INPUT* if an argument had an illegal value.
-
-   .. note::
-
-      All previously set options are retained but may be updated by calling
-      the appropriate "Set" functions.
-
-      If an error occurred, :c:func:`LSRKStepReInitSSP()` also
-      sends an error message to the error handler function.

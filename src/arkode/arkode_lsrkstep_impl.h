@@ -19,6 +19,7 @@
 #define _ARKODE_LSRKSTEP_IMPL_H
 
 #include <arkode/arkode_lsrkstep.h>
+#include <sundials/sundials_domeigestimator.h>
 
 #include "arkode_impl.h"
 
@@ -26,9 +27,11 @@
 extern "C" {
 #endif
 
-#define STAGE_MAX_LIMIT_DEFAULT 200
-#define DOM_EIG_SAFETY_DEFAULT  SUN_RCONST(1.01)
-#define DOM_EIG_FREQ_DEFAULT    25
+#define STAGE_MAX_LIMIT_DEFAULT          200
+#define DOM_EIG_SAFETY_DEFAULT           SUN_RCONST(1.01)
+#define DOM_EIG_FREQ_DEFAULT             25
+#define DOM_EIG_NUM_WARMUPS_DEFAULT      0
+#define DOM_EIG_NUM_INIT_WARMUPS_DEFAULT -1 /* use DEE's default value */
 
 /*===============================================================
   LSRK time step module private math function macros
@@ -138,12 +141,14 @@ typedef struct ARKodeLSRKStepMemRec
   ARKODE_LSRKMethodType LSRKmethod;
 
   /* Counters and stats*/
-  long int nfe;               /* num fe calls       */
+  long int nfe;   /* num fe calls       */
+  long int nfeDQ; /* num fe calls for difference quotient approximation */
   long int dom_eig_num_evals; /* num of dom_eig computations   */
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
   long int dom_eig_nst; /* num of step at which the last domainant eigenvalue was computed  */
-  long int step_nst; /* The number of successful steps. */
+  long int step_nst;      /* The number of successful steps. */
+  long int num_dee_iters; /* number of iterations in the DEE estimates */
 
   /* Spectral info */
   sunrealtype lambdaR;         /* Real part of the dominated eigenvalue*/
@@ -153,12 +158,17 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype spectral_radius_min; /* min spectral radius*/
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   long int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
+  int num_init_warmups; /* number of warm-ups in the first DEE estimates */
+  int num_warmups;      /* number of warm-ups in succeeding DEE estimates */
+
+  SUNDomEigEstimator DEE; /* DomEig estimator*/
 
   /* Flags */
   sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */
   sunbooleantype const_Jac;      /* flag indicating Jacobian is constant */
   sunbooleantype dom_eig_is_current; /* SUNTRUE if dom_eig has been evaluated at tn */
   sunbooleantype is_SSP;             /* flag indicating SSP method*/
+  sunbooleantype init_warmup;        /* flag indicating initial warm-up*/
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;
@@ -205,6 +215,7 @@ int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
+int lsrkStep_DQJtimes(void* arkode_mem, N_Vector v, N_Vector Jv);
 
 /*===============================================================
   Reusable LSRKStep Error Messages
