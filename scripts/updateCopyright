@@ -115,7 +115,7 @@ my $fileExcludePattern=q!/(.git)$!;
 # e.g., LICENSE file, doc file text, and python strings
 ##############################################################################
 
-my $docFilePattern    = q!(LICENSE|\.tex|\.rst|\.py)$!;
+my $docFilePattern    = q!LICENSE$!;
 my $docReplacePattern = 'Copyright \(c\) (.*?),';
 my $docNewCopyright   = "Copyright (c) 2002-$endyear,";
 
