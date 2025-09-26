@@ -36,6 +36,13 @@ GPU memory. The CPU-only enabled Ginkgo executors (e.g, ``gko::OmpExecutor`` and
 ``gko::ReferenceExecutor``) need data to reside on the CPU and will use
 :c:func:`N_VGetArrayPointer` to access the ``N_Vector`` data.
 
+Compatible Packages
+-------------------
+
+This module will work with any of the SUNDIALS packages. The only caveat is that, when using ARKODE with a
+non-identity mass matrix, the only Ginkgo matrix type currently supported is ``BatchDense``.
+
+
 .. _SUNMatrix.GinkgoBatch.API:
 
 SUNMATRIX_GINKGOBATCH API
