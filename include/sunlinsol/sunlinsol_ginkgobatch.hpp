@@ -122,6 +122,10 @@ class BatchLinearSolver : public sundials::impl::BaseLinearSolver,
                           public ConvertibleTo<SUNLinearSolver>
 {
 public:
+  constexpr static int NO_SCALING     = 0;
+  constexpr static int LAGGED_SCALING = 1;
+  constexpr static int SOLVE_SCALING  = 2;
+
   BatchLinearSolver(std::shared_ptr<const gko::Executor> gko_exec,
                     gko::batch::stop::tolerance_type tolerance_type,
                     std::shared_ptr<gko::batch::BatchLinOpFactory> precon_factory,
@@ -143,9 +147,11 @@ public:
       avg_iter_count_(sunrealtype{0.0}),
       sum_of_avg_iters_(sunrealtype{0.0}),
       stddev_iter_count_(sunrealtype{0.0}),
+      s1_(nullptr),
       s2inv_(nullptr),
-      scaling_(false),
-      matrix_updated_(true)
+      scaling_mode_(LAGGED_SCALING),
+      scaling_initialized_(false),
+      do_setup_(true)
   {
     initSUNLinSol(sunctx);
   }
@@ -239,6 +245,11 @@ public:
   /// Running sum of the average number of iterations in this solvers lifetime.
   sunrealtype SumAvgNumIters() const { return sum_of_avg_iters_; }
 
+  void SetScalingMode(int scaling_mode = LAGGED_SCALING)
+  {
+    scaling_mode_ = scaling_mode;
+  }
+
   /// Sets the left and right scaling vectors to be used.
   void SetScalingVectors(N_Vector s1, N_Vector s2)
   {
@@ -246,8 +257,9 @@ public:
 
     if (s1 && s2)
     {
+      s1_ = s1;
       col_scale_vec_ =
-        std::move(impl::WrapBatchScalingArray(GkoExec(), num_batches_, s1));
+        std::move(impl::WrapBatchScalingArray(GkoExec(), num_batches_, s1_));
 
       if (!s2inv_.Convert())
       {
@@ -261,30 +273,23 @@ public:
       row_scale_vec_ =
         std::move(impl::WrapBatchScalingArray(GkoExec(), num_batches_, s2inv_));
 
-      scaling_ = true;
+      scaling_initialized_ = true;
     }
-    else { scaling_ = false; }
+    else
+    {
+      scaling_mode_        = NO_SCALING;
+      scaling_initialized_ = false;
+    }
   }
 
   int Setup(BatchMatrix<GkoBatchMatType>* A)
   {
     if (num_batches_ != A->NumBatches()) { return SUN_ERR_ARG_OUTOFRANGE; }
 
-    matrix_ = A;
+    matrix_   = A;
+    do_setup_ = true;
 
-    if (!scaling_)
-    {
-      solver_factory_ = GkoBatchSolverType::build()             //
-                          .with_max_iterations(max_iters_)      //
-                          .with_tolerance(SUN_UNIT_ROUNDOFF)    //
-                          .with_tolerance_type(tolerance_type_) //
-                          .with_preconditioner(precon_factory_) //
-                          .on(GkoExec());
-
-      solver_ = solver_factory_->generate(matrix_->GkoMtx());
-    }
-
-    matrix_updated_ = true;
+    printf(">>> matrix setup\n");
 
     return SUN_SUCCESS;
   }
@@ -293,25 +298,39 @@ public:
   {
     SUNLogInfo(sunLogger(), "linear-solver", "solver = ginkgo (batched)");
 
-    // To avoid scaling an already scaled matrix, we only scale the matrix if it has been updated.
-    if (scaling_ && matrix_updated_)
+    // Applying scaling every solve requires us to redo all the Ginkgo solver setup
+    // This is because the scaling happens in memory, and the Ginkgo solver needs
+    // to know about the matrix values when it is constructed. 
+    if (scaling_mode_ == SOLVE_SCALING) { do_setup_ = true; }
+
+    if (do_setup_)
     {
+      printf(">>> solver setup\n");
+      // Create the solver factory
       solver_factory_ = GkoBatchSolverType::build()             //
                           .with_max_iterations(max_iters_)      //
-                          .with_tolerance(tol)                  //
+                          .with_tolerance(SUN_UNIT_ROUNDOFF)    //
                           .with_tolerance_type(tolerance_type_) //
                           .with_preconditioner(precon_factory_) //
                           .on(GkoExec());
 
-      // This will scale the matrix in place, S_1 A S_2^{-1}.
-      // So if a Ginkgo preconditioner is used, it is applied to the scaled matrix:
-      //
-      // \tilde{A} = P_1^{-1} S_1 A S_2^{-1} P_2^{-1}
-      matrix_->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
+      if (scaling_mode_ == LAGGED_SCALING || scaling_mode_ == SOLVE_SCALING)
+      {
+        // This will scale the matrix in place.
+        // So if a Ginkgo preconditioner is used, it is applied to the scaled matrix:
+        //    \tilde{A} = P_1^{-1} S_1 A S_2^{-1} P_2^{-1},
+        // but in memory, we just have
+        //    \tilde{A} = S_1 A S_2^{-1}.
+        printf(">>> scaling applied\n");
+        matrix_->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
+      }
 
       solver_ = solver_factory_->generate(matrix_->GkoMtx());
+
+      do_setup_ = false;
     }
-    else { solver_->reset_tolerance(tol); }
+
+    solver_->reset_tolerance(tol);
 
     if (!logger_)
     {
@@ -325,22 +344,34 @@ public:
     std::unique_ptr<GkoBatchVecType> b_vec{
       impl::WrapBatchVector(GkoExec(), num_batches_, b)};
 
-    if (scaling_)
+    if (scaling_mode_)
     {
       // \tilde{b} = S_1 b
       b_vec->scale(impl::WrapAsMultiVector(col_scale_vec_, num_batches_));
     }
 
     // \tilde{x} = \tilde{A}^{-1} \tilde{b}
+    printf(">>> solve\n");
     [[maybe_unused]] gko::batch::BatchLinOp* result =
       solver_->apply(b_vec.get(), x_vec.get());
 
-    matrix_updated_ = false;
-
-    if (scaling_)
+    if (scaling_mode_)
     {
       // x = S_2^{-1} \tilde{x}
       x_vec->scale(impl::WrapAsMultiVector(row_scale_vec_, num_batches_));
+    }
+
+    if (scaling_mode_ == SOLVE_SCALING)
+    {
+      // We must undo the scaling of the matrix
+      N_VInv(s2inv_, s2inv_);
+      N_VInv(s1_, s1_);
+
+      matrix_->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
+
+      // Fix the scaling vectors. But do we need to? 
+      N_VInv(s2inv_, s2inv_);
+      N_VInv(s1_, s1_);
     }
 
     // Check if any batch entry did not reach the tolerance.
@@ -432,9 +463,11 @@ private:
   sunrealtype avg_iter_count_;
   sunrealtype sum_of_avg_iters_;
   sunrealtype stddev_iter_count_;
+  N_Vector s1_;
   sundials::experimental::NVectorView s2inv_;
-  bool scaling_;
-  bool matrix_updated_;
+  int scaling_mode_;
+  bool scaling_initialized_;
+  bool do_setup_;
 
   void initSUNLinSol(SUNContext sunctx)
   {
