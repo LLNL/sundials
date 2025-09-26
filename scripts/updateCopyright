@@ -126,7 +126,7 @@ replaceInFiles($docFilePattern,$fileExcludePattern,$docReplacePattern,$docNewCop
 #############################################################################
 
 my $cFilePattern    = q!(\.[chI]|\.cpp|\.hpp|\.cu|\.cuh|\.in|\.def)$!;
-my $cReplacePattern = ' \* (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $cReplacePattern = ' \* SUNDIALS Copyright Start(.*)Copyright End\n';
 my $cNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -139,7 +139,7 @@ replaceInFiles($cFilePattern,$fileExcludePattern,$cReplacePattern,$cNewCopyright
 #############################################################################
 
 my $fFilePattern    = q!(\.f|\.f90|\.in)$!;
-my $fReplacePattern = '! (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $fReplacePattern = '! SUNDIALS Copyright Start(.*)Copyright End\n';
 my $fNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -148,7 +148,7 @@ $fNewCopyright =~ s/ #/!/g;
 replaceInFiles($fFilePattern,$fileExcludePattern,$fReplacePattern,$fNewCopyright);
 
 my $fFilePattern    = q!(\.f)$!;
-my $fReplacePattern ='(C|c)     (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $fReplacePattern ='(C|c)     SUNDIALS Copyright Start(.*)Copyright End\n';
 my $fNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -162,7 +162,7 @@ replaceInFiles($fFilePattern,$fileExcludePattern,$fReplacePattern,$fNewCopyright
 #############################################################################
 
 my $cmakeFilePattern    = q!(CMakeLists.txt|\.cmake|\.cmake.template|Makefile|\.in)$!;
-my $cmakeReplacePattern = '# (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $cmakeReplacePattern = '# SUNDIALS Copyright Start(.*)Copyright End\n';
 my $cmakeNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -175,7 +175,7 @@ replaceInFiles($cmakeFilePattern,$fileExcludePattern,$cmakeReplacePattern,$cmake
 #############################################################################
 
 my $shFilePattern    = q!(\.py|\.sh|\.yml|testRunner)$!;
-my $shReplacePattern = '# (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $shReplacePattern = '# SUNDIALS Copyright Start(.*)Copyright End\n';
 my $shNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -188,7 +188,7 @@ replaceInFiles($shFilePattern,$fileExcludePattern,$shReplacePattern,$shNewCopyri
 #############################################################################
 
 my $sFilePattern    = q!(\.i)$!;
-my $sReplacePattern = '// (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*?)Copyright End\n';
+my $sReplacePattern = '// SUNDIALS Copyright Start(.*?)Copyright End\n';
 my $sNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -197,7 +197,7 @@ $sNewCopyright =~ s| #|//|g;
 replaceInFiles($sFilePattern,$fileExcludePattern,$sReplacePattern,$sNewCopyright);
 
 my $sFilePattern    = q!(\.i)$!;
-my $sReplacePattern = ' \* (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*?)Copyright End\n';
+my $sReplacePattern = ' \* SUNDIALS Copyright Start(.*?)Copyright End\n';
 my $sNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -206,7 +206,7 @@ $sNewCopyright =~ s/ #/ */g;
 replaceInFiles($sFilePattern,$fileExcludePattern,$sReplacePattern,$sNewCopyright);
 
 my $sFilePattern    = q!(\.i)$!;
-my $sReplacePattern = '! (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*?)Copyright End\n';
+my $sReplacePattern = '! SUNDIALS Copyright Start(.*?)Copyright End\n';
 my $sNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -219,7 +219,7 @@ replaceInFiles($sFilePattern,$fileExcludePattern,$sReplacePattern,$sNewCopyright
 ##############################################################################
 
 my $rstFilePattern    = q!(\.rst|\.rest)$!;
-my $rstReplacePattern = '   (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $rstReplacePattern = '   SUNDIALS Copyright Start(.*)Copyright End\n';
 my $rstNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -233,7 +233,7 @@ replaceInFiles($rstFilePattern,$fileExcludePattern,$rstReplacePattern,$rstNewCop
 #############################################################################
 
 my $texFilePattern    = q!(\.tex|\.bib)$!;
-my $texReplacePattern = '% (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $texReplacePattern = '% SUNDIALS Copyright Start(.*)Copyright End\n';
 my $texNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
@@ -246,7 +246,7 @@ replaceInFiles($texFilePattern,$fileExcludePattern,$texReplacePattern,$texNewCop
 #############################################################################
 
 my $matlabFilePattern    = q!(\.[m]|\.in)$!;
-my $matlabReplacePattern = '% (LLNS|LLNS/UMBC|SUNDIALS) Copyright Start(.*)Copyright End\n';
+my $matlabReplacePattern = '% SUNDIALS Copyright Start(.*)Copyright End\n';
 my $matlabNewCopyright   = $newCopyright;
 
 # replace comment character(s) in new copyright
