@@ -143,7 +143,6 @@ public:
       avg_iter_count_(sunrealtype{0.0}),
       sum_of_avg_iters_(sunrealtype{0.0}),
       stddev_iter_count_(sunrealtype{0.0}),
-      previous_max_res_norm_(sunrealtype{0.0}),
       s2inv_(nullptr),
       scaling_(false),
       matrix_updated_(true)
@@ -331,7 +330,7 @@ public:
       // \tilde{b} = S_1 b
       b_vec->scale(impl::WrapAsMultiVector(col_scale_vec_, num_batches_));
     }
-    
+
     // \tilde{x} = \tilde{A}^{-1} \tilde{b}
     [[maybe_unused]] gko::batch::BatchLinOp* result =
       solver_->apply(b_vec.get(), x_vec.get());
@@ -346,7 +345,6 @@ public:
 
     // Check if any batch entry did not reach the tolerance.
     bool at_least_one_did_not_converge{false};
-    bool max_res_norm_did_not_reduce{false};
     sunrealtype max_res_norm{0.0};
     sunrealtype min_res_norm{SUN_BIG_REAL};
     gko_exec_->get_master()->copy_from(gko_exec_, num_batches_,
@@ -364,10 +362,6 @@ public:
                  res_norm[i]); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
     if (max_res_norm > tol) { at_least_one_did_not_converge = true; }
-    if (max_res_norm >= previous_max_res_norm_)
-    {
-      max_res_norm_did_not_reduce = true;
-    }
 
     // Compute the average number of iterations across all batch entries
     // as well as the maximum and minimum iteration counts.
@@ -406,11 +400,7 @@ public:
       std::sqrt(stddev_iter_count_ / static_cast<sunrealtype>(num_batches_));
 
     int retval{0};
-    if (at_least_one_did_not_converge && max_res_norm_did_not_reduce)
-    {
-      retval = SUNLS_CONV_FAIL;
-    }
-    else if (at_least_one_did_not_converge) { retval = SUNLS_RES_REDUCED; }
+    if (at_least_one_did_not_converge) { retval = SUNLS_CONV_FAIL; }
     else { retval = SUN_SUCCESS; }
 
     SUNLogInfo(sunLogger(), "linear-solver",
@@ -442,7 +432,6 @@ private:
   sunrealtype avg_iter_count_;
   sunrealtype sum_of_avg_iters_;
   sunrealtype stddev_iter_count_;
-  sunrealtype previous_max_res_norm_;
   sundials::experimental::NVectorView s2inv_;
   bool scaling_;
   bool matrix_updated_;
@@ -475,10 +464,7 @@ private:
     return log;
   }
 
-  SUNContext sunCtx()
-  {
-    return object_->sunctx;
-  }
+  SUNContext sunCtx() { return object_->sunctx; }
 
   static constexpr int default_max_iters_ = 5;
   static constexpr int default_restart_   = 0;
