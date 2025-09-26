@@ -40,3 +40,10 @@ The implementation provides the following operations defined by the
 * :c:func:`SUNMemoryHelper_Clone`
 * :c:func:`SUNMemoryHelper_GetAllocStats`
 * :c:func:`SUNMemoryHelper_Destroy`
+
+
+.. note:: 
+
+   The SUNMemoryHelper_Sys always supports ``SUNMEMTYPE_HOST``. If your system also
+   supports allocating unified/coherent memory between CPU and GPU device with ``malloc``,
+   then ``SUNMEMTYPE_UVM`` is also supported. 
