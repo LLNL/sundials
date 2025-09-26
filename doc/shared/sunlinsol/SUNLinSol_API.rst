@@ -351,6 +351,10 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
          retval = SUNLinSolSetScalingVectors(LS, s1, s2);
 
+   .. warning::
+
+      These vectors ``s1`` and ``s2`` should not be modified.
+
 
 .. c:function:: SUNErrCode SUNLinSolSetZeroGuess(SUNLinearSolver LS, sunbooleantype onoff)
 

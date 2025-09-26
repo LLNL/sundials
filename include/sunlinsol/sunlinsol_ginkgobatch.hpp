@@ -69,12 +69,13 @@ int SUNLinSolSetup_GinkgoBatch(SUNLinearSolver S, SUNMatrix A)
   return solver->Setup(static_cast<BatchMatrix<GkoBatchMatType>*>(A->content));
 }
 
-template<class GkoBatchLinearSolverType>
+template<class GkoBatchLinearSolverType, class GkoBatchMatType>
 int SUNLinSolSolve_GinkgoBatch(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, sunrealtype tol)
 {
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
-  return solver->Solve(b, x, tol);
+  return solver->Solve(static_cast<BatchMatrix<GkoBatchMatType>*>(A->content),
+                       b, x, tol);
 }
 
 template<class GkoBatchLinearSolverType>
@@ -138,7 +139,6 @@ public:
       solver_(nullptr),
       col_scale_vec_(gko_exec_),
       row_scale_vec_(gko_exec_),
-      matrix_(nullptr),
       logger_(nullptr),
       num_batches_(num_batches),
       max_iters_(max_iters),
@@ -245,9 +245,14 @@ public:
   /// Running sum of the average number of iterations in this solvers lifetime.
   sunrealtype SumAvgNumIters() const { return sum_of_avg_iters_; }
 
-  void SetScalingMode(int scaling_mode = LAGGED_SCALING)
+  SUNErrCode SetScalingMode(int scaling_mode = LAGGED_SCALING)
   {
+    SUNFunctionBegin(sunCtx());
+    SUNAssert(scaling_mode == NO_SCALING || scaling_mode == LAGGED_SCALING ||
+                scaling_mode || SOLVE_SCALING,
+              SUN_ERR_ARG_INCOMPATIBLE);
     scaling_mode_ = scaling_mode;
+    return SUN_SUCCESS;
   }
 
   /// Sets the left and right scaling vectors to be used.
@@ -286,13 +291,13 @@ public:
   {
     if (num_batches_ != A->NumBatches()) { return SUN_ERR_ARG_OUTOFRANGE; }
 
-    matrix_   = A;
     do_setup_ = true;
 
     return SUN_SUCCESS;
   }
 
-  int Solve(N_Vector b, N_Vector x, sunrealtype tol)
+  int Solve(BatchMatrix<GkoBatchMatType>* A, N_Vector b, N_Vector x,
+            sunrealtype tol)
   {
     SUNLogInfo(sunLogger(), "linear-solver", "solver = ginkgo (batched)");
 
@@ -318,10 +323,10 @@ public:
         //    \tilde{A} = P_1^{-1} S_1 A S_2^{-1} P_2^{-1},
         // but in memory, we just have
         //    \tilde{A} = S_1 A S_2^{-1}.
-        matrix_->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
+        A->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
       }
 
-      solver_ = solver_factory_->generate(matrix_->GkoMtx());
+      solver_ = solver_factory_->generate(A->GkoMtx());
 
       do_setup_ = false;
     }
@@ -340,7 +345,7 @@ public:
     std::unique_ptr<GkoBatchVecType> b_vec{
       impl::WrapBatchVector(GkoExec(), num_batches_, b)};
 
-    if (scaling_mode_)
+    if (scaling_mode_ == LAGGED_SCALING || scaling_mode_ == SOLVE_SCALING)
     {
       // \tilde{b} = S_1 b
       b_vec->scale(impl::WrapAsMultiVector(col_scale_vec_, num_batches_));
@@ -350,7 +355,7 @@ public:
     [[maybe_unused]] gko::batch::BatchLinOp* result =
       solver_->apply(b_vec.get(), x_vec.get());
 
-    if (scaling_mode_)
+    if (scaling_mode_ == LAGGED_SCALING || scaling_mode_ == SOLVE_SCALING)
     {
       // x = S_2^{-1} \tilde{x}
       x_vec->scale(impl::WrapAsMultiVector(row_scale_vec_, num_batches_));
@@ -363,7 +368,7 @@ public:
       N_VInv(s1_, s1_);
 
       // Unscale the matrix (row_scale_vec_ and col_scale_vec_ point to the same data as s2inv_ and s1_)
-      matrix_->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
+      A->GkoMtx()->scale(row_scale_vec_, col_scale_vec_);
 
       // Fix the scaling vectors
       N_VInv(s2inv_, s2inv_);
@@ -450,7 +455,6 @@ private:
   std::unique_ptr<GkoBatchSolverType> solver_;
   gko::array<sunrealtype> col_scale_vec_;
   gko::array<sunrealtype> row_scale_vec_;
-  BatchMatrix<GkoBatchMatType>* matrix_;
   std::shared_ptr<gko::batch::log::BatchConvergence<sunrealtype>> logger_;
   gko::size_type num_batches_;
   int max_iters_;
@@ -481,7 +485,8 @@ private:
     object_->ops->initialize = impl::SUNLinSolInitialize_GinkgoBatch<this_type>;
     object_->ops->setup =
       impl::SUNLinSolSetup_GinkgoBatch<this_type, GkoBatchMatType>;
-    object_->ops->solve    = impl::SUNLinSolSolve_GinkgoBatch<this_type>;
+    object_->ops->solve =
+      impl::SUNLinSolSolve_GinkgoBatch<this_type, GkoBatchMatType>;
     object_->ops->free     = impl::SUNLinSolFree_GinkgoBatch<this_type>;
     object_->ops->numiters = impl::SUNLinSolNumIters_GinkgoBatch<this_type>;
   }

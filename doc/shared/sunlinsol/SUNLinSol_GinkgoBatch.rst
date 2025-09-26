@@ -114,6 +114,12 @@ The public API of the :cpp:type:`sundials::ginkgo::BatchLinearSolver` class is a
 .. cpp:class:: template<class GkoBatchSolverType, class GkoBatchMatType> \
                sundials::ginkgo::BatchLinearSolver : public sundials::ConvertibleTo<SUNLinearSolver>
 
+   .. cpp::member:: NO_SCALING
+
+   .. cpp::member:: LAGGED_SCALING
+
+   .. cpp::member:: SOLVE_SCALING
+
    .. cpp:function:: BatchLinearSolver(std::shared_ptr<const gko::Executor> gko_exec, sunindextype num_batches, SUNContext sunctx)
 
       Constructs a new BatchLinearSolver with default tolerance type and max iterations.
@@ -266,10 +272,11 @@ The public API of the :cpp:type:`sundials::ginkgo::BatchLinearSolver` class is a
 
       :returns: Pointer to the Ginkgo solver generated from the factory
 
-   .. cpp:function:: gko::LinOp* Solve(N_Vector b, N_Vector x, sunrealtype tol)
+   .. cpp:function:: gko::LinOp* Solve(BatchMatrix<GkoBatchMatType>* A, N_Vector b, N_Vector x, sunrealtype tol)
 
       Solve the linear system Ax = b to the specified tolerance.
 
+      :param A: the linear system matrix
       :param b: the right-hand side vector
       :param x: the solution vector
       :param tol: the tolerance to solve the system to
