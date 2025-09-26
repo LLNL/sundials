@@ -18,7 +18,6 @@
 #include <sundials/priv/sundials_logger_impl.h>
 #include <sundials/sundials_core.hpp>
 
-#include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <sunmatrix/sunmatrix_ginkgobatch.hpp>
 
 #if (GKO_VERSION_MAJOR < 1) || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR < 9)
