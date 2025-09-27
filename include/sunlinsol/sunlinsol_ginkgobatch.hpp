@@ -252,7 +252,7 @@ public:
   {
     SUNFunctionBegin(sunCtx());
     SUNAssert(scaling_mode == NO_SCALING || scaling_mode == LAGGED_SCALING ||
-                scaling_mode || SOLVE_SCALING,
+                scaling_mode == SOLVE_SCALING,
               SUN_ERR_ARG_INCOMPATIBLE);
     scaling_mode_ = scaling_mode;
     return SUN_SUCCESS;
