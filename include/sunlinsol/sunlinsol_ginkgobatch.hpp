@@ -411,7 +411,7 @@ public:
 
     sunindextype max_iter_count{0};
     sunindextype min_iter_count{max_iters_};
-    avg_iter_count_ = 0.0;
+    avg_iter_count_ = sunrealtype{0.0};
     for (gko::size_type i = 0; i < num_batches_; i++)
     {
       avg_iter_count_ +=
@@ -428,7 +428,7 @@ public:
 
     // Compute the std. dev. in iteration count across all batch entries.
     // This helps us understand how varied (in difficulty to solve) the entries are.
-    stddev_iter_count_ = 0.0;
+    stddev_iter_count_ = sunrealtype{0.0};
     for (gko::size_type i = 0; i < num_batches_; i++)
     {
       // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
