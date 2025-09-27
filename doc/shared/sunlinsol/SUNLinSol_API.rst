@@ -356,7 +356,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
 
    .. warning::
 
-      These vectors ``s1`` and ``s2`` should not be modified.
+      The vectors ``s1`` and ``s2`` should not be modified.
 
 
 .. c:function:: SUNErrCode SUNLinSolSetZeroGuess(SUNLinearSolver LS, sunbooleantype onoff)
