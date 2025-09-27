@@ -309,7 +309,7 @@ public:
     // to know about the matrix values when it is constructed.
     if (scaling_mode_ == SOLVE_SCALING) { do_setup_ = true; }
 
-    // SetScaling was called and a scaling is used
+    // SetScaling was called and scaling is used
     bool apply_scaling = scaling_initialized_ && scaling_mode_ != NO_SCALING;
 
     if (do_setup_)
