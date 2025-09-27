@@ -309,6 +309,9 @@ public:
     // to know about the matrix values when it is constructed.
     if (scaling_mode_ == SOLVE_SCALING) { do_setup_ = true; }
 
+    // SetScaling was called and a scaling is used
+    bool apply_scaling = scaling_initialized_ && scaling_mode_ != NO_SCALING;
+
     if (do_setup_)
     {
       // Create the solver factory
@@ -319,7 +322,7 @@ public:
                           .with_preconditioner(precon_factory_) //
                           .on(GkoExec());
 
-      if (scaling_mode_ == LAGGED_SCALING || scaling_mode_ == SOLVE_SCALING)
+      if (apply_scaling)
       {
         // This will scale the matrix in place.
         // So if a Ginkgo preconditioner is used, it is applied to the scaled matrix:
@@ -348,7 +351,7 @@ public:
     std::unique_ptr<GkoBatchVecType> b_vec{
       impl::WrapBatchVector(GkoExec(), num_batches_, b)};
 
-    if (scaling_mode_ == LAGGED_SCALING || scaling_mode_ == SOLVE_SCALING)
+    if (apply_scaling)
     {
       // \tilde{b} = S_1 b
       b_vec->scale(impl::WrapAsMultiVector(col_scale_vec_, num_batches_));
@@ -358,13 +361,13 @@ public:
     [[maybe_unused]] gko::batch::BatchLinOp* result =
       solver_->apply(b_vec.get(), x_vec.get());
 
-    if (scaling_mode_ == LAGGED_SCALING || scaling_mode_ == SOLVE_SCALING)
+    if (apply_scaling)
     {
       // x = S_2^{-1} \tilde{x}
       x_vec->scale(impl::WrapAsMultiVector(row_scale_vec_, num_batches_));
     }
 
-    if (scaling_mode_ == SOLVE_SCALING)
+    if (apply_scaling && scaling_mode_ == SOLVE_SCALING)
     {
       // We must undo the scaling of the matrix, so first invert the scaling vectors
       N_VInv(s2inv_, s2inv_);
