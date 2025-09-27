@@ -258,7 +258,7 @@ The public API of the :cpp:type:`sundials::ginkgo::BatchLinearSolver` class is a
 
       Get the running sum of the average number of iterations in this solver's lifetime.
 
-   .. cpp:function:: void SetScalingMode(int scaling_mode)
+   .. cpp:function:: SUNErrCode SetScalingMode(int scaling_mode)
 
       Sets the matrix scaling mode. The options are:
 
@@ -266,7 +266,7 @@ The public API of the :cpp:type:`sundials::ginkgo::BatchLinearSolver` class is a
       * ``BatchLinearSolver::LAGGED_SCALING`` -- the matrix is only scaled when it is updated, this is the default
       * ``BatchLinearSolver::SOLVE_SCALING`` -- the matrix is scaled (and unscaled) every solve, this is the most expensive option on a per-solve basis
 
-   .. cpp:function:: void SetScalingVectors(N_Vector s1, N_Vector s2)
+   .. cpp:function:: SUNErrCode SetScalingVectors(N_Vector s1, N_Vector s2)
 
       Sets the left (``s1``) and right (``s2``) scaling vectors to use.
 

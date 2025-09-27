@@ -61,8 +61,7 @@ SUNErrCode SUNLinSolSetScalingVectors_GinkgoBatch(SUNLinearSolver S,
   auto solver = static_cast<GkoBatchLinearSolverType*>(S->content);
   SUNFunctionBegin(S->sunctx);
   SUNAssert(s1 || s2, SUN_ERR_ARG_INCOMPATIBLE);
-  solver->SetScalingVectors(s1, s2);
-  return SUN_SUCCESS;
+  return solver->SetScalingVectors(s1, s2);
 }
 
 template<class GkoBatchLinearSolverType, class GkoBatchMatType>
@@ -259,7 +258,7 @@ public:
   }
 
   /// Sets the left and right scaling vectors to be used.
-  void SetScalingVectors(N_Vector s1, N_Vector s2)
+  SUNErrCode SetScalingVectors(N_Vector s1, N_Vector s2)
   {
     SUNFunctionBegin(sunCtx());
 
@@ -288,6 +287,8 @@ public:
       scaling_mode_        = NO_SCALING;
       scaling_initialized_ = false;
     }
+
+    return SUN_SUCCESS;
   }
 
   int Setup(BatchMatrix<GkoBatchMatType>* A)
