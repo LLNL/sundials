@@ -275,7 +275,7 @@ public:
 
       // SUNLinearSolver API wants s2inv_
       N_VInv(s2, s2inv_);
-      SUNCheckLastErrVoid();
+      SUNCheckLastErr();
 
       row_scale_vec_ =
         std::move(impl::WrapBatchScalingArray(GkoExec(), num_batches_, s2inv_));
