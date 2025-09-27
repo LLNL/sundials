@@ -270,15 +270,15 @@ The public API of the :cpp:type:`sundials::ginkgo::BatchLinearSolver` class is a
 
       Sets the left (``s1``) and right (``s2``) scaling vectors to use.
 
-   .. cpp:function:: GkoBatchSolverType* Setup(BatchMatrix<GkoBatchMatType>* A)
+   .. cpp:function:: int Setup(BatchMatrix<GkoBatchMatType>* A)
 
       Setup the linear system.
 
       :param A: the linear system matrix
 
-      :returns: Pointer to the Ginkgo solver generated from the factory
+      :returns: Zero on success otherwise a non-zero value
 
-   .. cpp:function:: gko::LinOp* Solve(BatchMatrix<GkoBatchMatType>* A, N_Vector b, N_Vector x, sunrealtype tol)
+   .. cpp:function:: int Solve(BatchMatrix<GkoBatchMatType>* A, N_Vector b, N_Vector x, sunrealtype tol)
 
       Solve the linear system Ax = b to the specified tolerance.
 
@@ -287,4 +287,4 @@ The public API of the :cpp:type:`sundials::ginkgo::BatchLinearSolver` class is a
       :param x: the solution vector
       :param tol: the tolerance to solve the system to
 
-      :returns: ``gko::LinOp*`` the solution
+      :returns: Zero on success otherwise a non-zero value
