@@ -71,9 +71,6 @@ scale step matched the given status filter. Fixed an additional bug in
 `get_history` with MRI-GARK methods where values would not be extracted from a
 fast time scale integration associated with an embedding.
 
-### Deprecation Notices
-
-
 ## Changes to SUNDIALS in release 7.4.0
 
 ### New Features and Enhancements
