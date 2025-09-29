@@ -41,7 +41,9 @@ def main():
     options.fn_params_const_char_pointer_with_default_null = True
 
     # Transform inplace modification of values, e.g. int CVodeGetNumSteps(void* cvode_mem, long int* num_steps), to CvodeGetNumSteps(cvode_mem) -> Tuple[int, long int]
-    options.fn_params_output_modifiable_immutable_to_return__regex = r".*"
+    # Litgen original option is fn_params_output_modifiable_immutable_to_return__regex, but we use fn_params_output_modifiable_immutable_to_return__regex_custom
+    # since we override the adapt_modifiable_immutable_to_return function adapter
+    options.fn_params_output_modifiable_immutable_to_return__regex_custom = r".*"
 
     # Transform arrays of thing to std::vector<thing>
     options.fn_params_array_pointers_to_std_vector = [
@@ -61,8 +63,9 @@ def main():
 
     # Our own custom function adapters
     options.fn_custom_adapters = [
-        adapt_default_arg_pointer_with_default_null,
+        adapt_modifiable_immutable_to_return,
         adapt_array_pointer_to_std_vector,
+        adapt_default_arg_pointer_with_default_null,
     ]
 
     options.srcmlcpp_options.code_preprocess_function = preprocess_header

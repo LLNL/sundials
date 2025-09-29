@@ -32,22 +32,22 @@ auto pyEnumARKODE_SplittingCoefficientsID =
 m.def(
   "SplittingStepCoefficients_Create",
   [](int sequential_methods, int stages, int partitions, int order,
-     std::vector<sunrealtype> alpha,
-     std::vector<sunrealtype> beta) -> SplittingStepCoefficients
+     std::vector<double> alpha_1d,
+     std::vector<double> beta_1d) -> SplittingStepCoefficients
   {
     auto SplittingStepCoefficients_Create_adapt_arr_ptr_to_std_vector =
       [](int sequential_methods, int stages, int partitions, int order,
-         std::vector<sunrealtype> alpha,
-         std::vector<sunrealtype> beta) -> SplittingStepCoefficients
+         std::vector<double> alpha_1d,
+         std::vector<double> beta_1d) -> SplittingStepCoefficients
     {
-      sunrealtype* alpha_ptr =
-        reinterpret_cast<sunrealtype*>(alpha.empty() ? nullptr : alpha.data());
-      sunrealtype* beta_ptr =
-        reinterpret_cast<sunrealtype*>(beta.empty() ? nullptr : beta.data());
+      double* alpha_1d_ptr =
+        reinterpret_cast<double*>(alpha_1d.empty() ? nullptr : alpha_1d.data());
+      double* beta_1d_ptr =
+        reinterpret_cast<double*>(beta_1d.empty() ? nullptr : beta_1d.data());
 
       auto lambda_result =
         SplittingStepCoefficients_Create(sequential_methods, stages, partitions,
-                                         order, alpha_ptr, beta_ptr);
+                                         order, alpha_1d_ptr, beta_1d_ptr);
       return lambda_result;
     };
 
@@ -55,11 +55,11 @@ m.def(
                                                                         stages,
                                                                         partitions,
                                                                         order,
-                                                                        alpha,
-                                                                        beta);
+                                                                        alpha_1d,
+                                                                        beta_1d);
   },
   nb::arg("sequential_methods"), nb::arg("stages"), nb::arg("partitions"),
-  nb::arg("order"), nb::arg("alpha"), nb::arg("beta"));
+  nb::arg("order"), nb::arg("alpha_1d"), nb::arg("beta_1d"));
 
 m.def("SplittingStepCoefficients_Copy", SplittingStepCoefficients_Copy,
       nb::arg("coefficients"));

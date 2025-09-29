@@ -32,10 +32,10 @@ struct ARKodeButcherTableMem
   int q;           /* method order of accuracy       */
   int p;           /* embedding order of accuracy    */
   int stages;      /* number of stages               */
-  sunrealtype2d A; /* Butcher table coefficients     */
-  sunrealtype1d c; /* canopy node coefficients       */
-  sunrealtype1d b; /* root node coefficients         */
-  sunrealtype1d d; /* embedding coefficients         */
+  sunrealtype** A; /* Butcher table coefficients     */
+  sunrealtype* c;  /* canopy node coefficients       */
+  sunrealtype* b;  /* root node coefficients         */
+  sunrealtype* d;  /* embedding coefficients         */
 };
 
 typedef _SUNDIALS_STRUCT_ ARKodeButcherTableMem* ARKodeButcherTable;
@@ -44,10 +44,10 @@ typedef _SUNDIALS_STRUCT_ ARKodeButcherTableMem* ARKodeButcherTable;
 SUNDIALS_EXPORT ARKodeButcherTable
 ARKodeButcherTable_Alloc(int stages, sunbooleantype embedded);
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p,
-                                                             sunrealtype1d c,
-                                                             sunrealtype1d A,
-                                                             sunrealtype1d b,
-                                                             sunrealtype1d d);
+                                                             sunrealtype* c_1d,
+                                                             sunrealtype* A_1d,
+                                                             sunrealtype* b_1d,
+                                                             sunrealtype* d_1d);
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B);
 
 SUNDIALS_DEPRECATED_EXPORT_MSG(

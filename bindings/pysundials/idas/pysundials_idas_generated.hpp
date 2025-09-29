@@ -210,45 +210,47 @@ m.def("IDAComputeYp", IDAComputeYp, nb::arg("ida_mem"), nb::arg("ycor"),
 
 m.def(
   "IDAComputeYSens",
-  [](void* ida_mem, std::vector<N_Vector> ycor, std::vector<N_Vector> yyS) -> int
+  [](void* ida_mem, std::vector<N_Vector> ycor_1d,
+     std::vector<N_Vector> yyS_1d) -> int
   {
     auto IDAComputeYSens_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, std::vector<N_Vector> ycor,
-         std::vector<N_Vector> yyS) -> int
+      [](void* ida_mem, std::vector<N_Vector> ycor_1d,
+         std::vector<N_Vector> yyS_1d) -> int
     {
-      N_Vector* ycor_ptr =
-        reinterpret_cast<N_Vector*>(ycor.empty() ? nullptr : ycor.data());
-      N_Vector* yyS_ptr = reinterpret_cast<N_Vector*>(yyS.empty() ? nullptr
-                                                                  : yyS.data());
+      N_Vector* ycor_1d_ptr =
+        reinterpret_cast<N_Vector*>(ycor_1d.empty() ? nullptr : ycor_1d.data());
+      N_Vector* yyS_1d_ptr =
+        reinterpret_cast<N_Vector*>(yyS_1d.empty() ? nullptr : yyS_1d.data());
 
-      auto lambda_result = IDAComputeYSens(ida_mem, ycor_ptr, yyS_ptr);
+      auto lambda_result = IDAComputeYSens(ida_mem, ycor_1d_ptr, yyS_1d_ptr);
       return lambda_result;
     };
 
-    return IDAComputeYSens_adapt_arr_ptr_to_std_vector(ida_mem, ycor, yyS);
+    return IDAComputeYSens_adapt_arr_ptr_to_std_vector(ida_mem, ycor_1d, yyS_1d);
   },
-  nb::arg("ida_mem"), nb::arg("ycor"), nb::arg("yyS"));
+  nb::arg("ida_mem"), nb::arg("ycor_1d"), nb::arg("yyS_1d"));
 
 m.def(
   "IDAComputeYpSens",
-  [](void* ida_mem, std::vector<N_Vector> ycor, std::vector<N_Vector> ypS) -> int
+  [](void* ida_mem, std::vector<N_Vector> ycor_1d,
+     std::vector<N_Vector> ypS_1d) -> int
   {
     auto IDAComputeYpSens_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, std::vector<N_Vector> ycor,
-         std::vector<N_Vector> ypS) -> int
+      [](void* ida_mem, std::vector<N_Vector> ycor_1d,
+         std::vector<N_Vector> ypS_1d) -> int
     {
-      N_Vector* ycor_ptr =
-        reinterpret_cast<N_Vector*>(ycor.empty() ? nullptr : ycor.data());
-      N_Vector* ypS_ptr = reinterpret_cast<N_Vector*>(ypS.empty() ? nullptr
-                                                                  : ypS.data());
+      N_Vector* ycor_1d_ptr =
+        reinterpret_cast<N_Vector*>(ycor_1d.empty() ? nullptr : ycor_1d.data());
+      N_Vector* ypS_1d_ptr =
+        reinterpret_cast<N_Vector*>(ypS_1d.empty() ? nullptr : ypS_1d.data());
 
-      auto lambda_result = IDAComputeYpSens(ida_mem, ycor_ptr, ypS_ptr);
+      auto lambda_result = IDAComputeYpSens(ida_mem, ycor_1d_ptr, ypS_1d_ptr);
       return lambda_result;
     };
 
-    return IDAComputeYpSens_adapt_arr_ptr_to_std_vector(ida_mem, ycor, ypS);
+    return IDAComputeYpSens_adapt_arr_ptr_to_std_vector(ida_mem, ycor_1d, ypS_1d);
   },
-  nb::arg("ida_mem"), nb::arg("ycor"), nb::arg("ypS"));
+  nb::arg("ida_mem"), nb::arg("ycor_1d"), nb::arg("ypS_1d"));
 
 m.def("IDAGetDky", IDAGetDky, nb::arg("ida_mem"), nb::arg("t"), nb::arg("k"),
       nb::arg("dky"));
@@ -747,25 +749,26 @@ m.def(
 
 m.def(
   "IDASensReInit",
-  [](void* ida_mem, int ism, std::vector<N_Vector> yS0,
-     std::vector<N_Vector> ypS0) -> int
+  [](void* ida_mem, int ism, std::vector<N_Vector> yS0_1d,
+     std::vector<N_Vector> ypS0_1d) -> int
   {
     auto IDASensReInit_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, int ism, std::vector<N_Vector> yS0,
-         std::vector<N_Vector> ypS0) -> int
+      [](void* ida_mem, int ism, std::vector<N_Vector> yS0_1d,
+         std::vector<N_Vector> ypS0_1d) -> int
     {
-      N_Vector* yS0_ptr = reinterpret_cast<N_Vector*>(yS0.empty() ? nullptr
-                                                                  : yS0.data());
-      N_Vector* ypS0_ptr =
-        reinterpret_cast<N_Vector*>(ypS0.empty() ? nullptr : ypS0.data());
+      N_Vector* yS0_1d_ptr =
+        reinterpret_cast<N_Vector*>(yS0_1d.empty() ? nullptr : yS0_1d.data());
+      N_Vector* ypS0_1d_ptr =
+        reinterpret_cast<N_Vector*>(ypS0_1d.empty() ? nullptr : ypS0_1d.data());
 
-      auto lambda_result = IDASensReInit(ida_mem, ism, yS0_ptr, ypS0_ptr);
+      auto lambda_result = IDASensReInit(ida_mem, ism, yS0_1d_ptr, ypS0_1d_ptr);
       return lambda_result;
     };
 
-    return IDASensReInit_adapt_arr_ptr_to_std_vector(ida_mem, ism, yS0, ypS0);
+    return IDASensReInit_adapt_arr_ptr_to_std_vector(ida_mem, ism, yS0_1d,
+                                                     ypS0_1d);
   },
-  nb::arg("ida_mem"), nb::arg("ism"), nb::arg("yS0"), nb::arg("ypS0"));
+  nb::arg("ida_mem"), nb::arg("ism"), nb::arg("yS0_1d"), nb::arg("ypS0_1d"));
 
 m.def(
   "IDASensSStolerances",
@@ -788,46 +791,48 @@ m.def(
 
 m.def(
   "IDASensSVtolerances",
-  [](void* ida_mem, double reltolS, std::vector<N_Vector> abstolS) -> int
+  [](void* ida_mem, double reltolS, std::vector<N_Vector> abstolS_1d) -> int
   {
     auto IDASensSVtolerances_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double reltolS, std::vector<N_Vector> abstolS) -> int
+      [](void* ida_mem, double reltolS, std::vector<N_Vector> abstolS_1d) -> int
     {
-      N_Vector* abstolS_ptr =
-        reinterpret_cast<N_Vector*>(abstolS.empty() ? nullptr : abstolS.data());
+      N_Vector* abstolS_1d_ptr = reinterpret_cast<N_Vector*>(
+        abstolS_1d.empty() ? nullptr : abstolS_1d.data());
 
-      auto lambda_result = IDASensSVtolerances(ida_mem, reltolS, abstolS_ptr);
+      auto lambda_result = IDASensSVtolerances(ida_mem, reltolS, abstolS_1d_ptr);
       return lambda_result;
     };
 
     return IDASensSVtolerances_adapt_arr_ptr_to_std_vector(ida_mem, reltolS,
-                                                           abstolS);
+                                                           abstolS_1d);
   },
-  nb::arg("ida_mem"), nb::arg("reltolS"), nb::arg("abstolS"));
+  nb::arg("ida_mem"), nb::arg("reltolS"), nb::arg("abstolS_1d"));
 
 m.def("IDASensEEtolerances", IDASensEEtolerances, nb::arg("ida_mem"));
 
 m.def(
   "IDAGetSensConsistentIC",
-  [](void* ida_mem, std::vector<N_Vector> yyS0, std::vector<N_Vector> ypS0) -> int
+  [](void* ida_mem, std::vector<N_Vector> yyS0_1d,
+     std::vector<N_Vector> ypS0_1d) -> int
   {
     auto IDAGetSensConsistentIC_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, std::vector<N_Vector> yyS0,
-         std::vector<N_Vector> ypS0) -> int
+      [](void* ida_mem, std::vector<N_Vector> yyS0_1d,
+         std::vector<N_Vector> ypS0_1d) -> int
     {
-      N_Vector* yyS0_ptr =
-        reinterpret_cast<N_Vector*>(yyS0.empty() ? nullptr : yyS0.data());
-      N_Vector* ypS0_ptr =
-        reinterpret_cast<N_Vector*>(ypS0.empty() ? nullptr : ypS0.data());
+      N_Vector* yyS0_1d_ptr =
+        reinterpret_cast<N_Vector*>(yyS0_1d.empty() ? nullptr : yyS0_1d.data());
+      N_Vector* ypS0_1d_ptr =
+        reinterpret_cast<N_Vector*>(ypS0_1d.empty() ? nullptr : ypS0_1d.data());
 
-      auto lambda_result = IDAGetSensConsistentIC(ida_mem, yyS0_ptr, ypS0_ptr);
+      auto lambda_result = IDAGetSensConsistentIC(ida_mem, yyS0_1d_ptr,
+                                                  ypS0_1d_ptr);
       return lambda_result;
     };
 
-    return IDAGetSensConsistentIC_adapt_arr_ptr_to_std_vector(ida_mem, yyS0,
-                                                              ypS0);
+    return IDAGetSensConsistentIC_adapt_arr_ptr_to_std_vector(ida_mem, yyS0_1d,
+                                                              ypS0_1d);
   },
-  nb::arg("ida_mem"), nb::arg("yyS0"), nb::arg("ypS0"));
+  nb::arg("ida_mem"), nb::arg("yyS0_1d"), nb::arg("ypS0_1d"));
 
 m.def("IDASetSensDQMethod", IDASetSensDQMethod, nb::arg("ida_mem"),
       nb::arg("DQtype"), nb::arg("DQrhomax"));
@@ -840,27 +845,29 @@ m.def("IDASetSensMaxNonlinIters", IDASetSensMaxNonlinIters, nb::arg("ida_mem"),
 
 m.def(
   "IDASetSensParams",
-  [](void* ida_mem, std::vector<sunrealtype> p, std::vector<sunrealtype> pbar,
-     std::vector<int> plist) -> int
+  [](void* ida_mem, std::vector<double> p_1d, std::vector<double> pbar_1d,
+     std::vector<int> plist_1d) -> int
   {
     auto IDASetSensParams_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, std::vector<sunrealtype> p,
-         std::vector<sunrealtype> pbar, std::vector<int> plist) -> int
+      [](void* ida_mem, std::vector<double> p_1d, std::vector<double> pbar_1d,
+         std::vector<int> plist_1d) -> int
     {
-      sunrealtype* p_ptr = reinterpret_cast<sunrealtype*>(p.empty() ? nullptr
-                                                                    : p.data());
-      sunrealtype* pbar_ptr =
-        reinterpret_cast<sunrealtype*>(pbar.empty() ? nullptr : pbar.data());
-      int* plist_ptr = reinterpret_cast<int*>(plist.empty() ? nullptr
-                                                            : plist.data());
+      double* p_1d_ptr = reinterpret_cast<double*>(p_1d.empty() ? nullptr
+                                                                : p_1d.data());
+      double* pbar_1d_ptr =
+        reinterpret_cast<double*>(pbar_1d.empty() ? nullptr : pbar_1d.data());
+      int* plist_1d_ptr =
+        reinterpret_cast<int*>(plist_1d.empty() ? nullptr : plist_1d.data());
 
-      auto lambda_result = IDASetSensParams(ida_mem, p_ptr, pbar_ptr, plist_ptr);
+      auto lambda_result = IDASetSensParams(ida_mem, p_1d_ptr, pbar_1d_ptr,
+                                            plist_1d_ptr);
       return lambda_result;
     };
 
-    return IDASetSensParams_adapt_arr_ptr_to_std_vector(ida_mem, p, pbar, plist);
+    return IDASetSensParams_adapt_arr_ptr_to_std_vector(ida_mem, p_1d, pbar_1d,
+                                                        plist_1d);
   },
-  nb::arg("ida_mem"), nb::arg("p"), nb::arg("pbar"), nb::arg("plist"));
+  nb::arg("ida_mem"), nb::arg("p_1d"), nb::arg("pbar_1d"), nb::arg("plist_1d"));
 
 m.def("IDASetNonlinearSolverSensSim", IDASetNonlinearSolverSensSim,
       nb::arg("ida_mem"), nb::arg("NLS"));
@@ -873,34 +880,35 @@ m.def("IDASensToggleOff", IDASensToggleOff, nb::arg("ida_mem"));
 m.def(
   "IDAGetSens",
   [](void* ida_mem, double tret,
-     std::vector<N_Vector> yySout) -> std::tuple<int, double>
+     std::vector<N_Vector> yySout_1d) -> std::tuple<int, double>
   {
     auto IDAGetSens_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, double tret, N_Vector1d yySout) -> std::tuple<int, double>
+      [](void* ida_mem, double tret,
+         N_Vector* yySout_1d) -> std::tuple<int, double>
     {
       double* tret_adapt_modifiable = &tret;
 
-      int r = IDAGetSens(ida_mem, tret_adapt_modifiable, yySout);
+      int r = IDAGetSens(ida_mem, tret_adapt_modifiable, yySout_1d);
       return std::make_tuple(r, tret);
     };
     auto IDAGetSens_adapt_arr_ptr_to_std_vector =
       [&IDAGetSens_adapt_modifiable_immutable_to_return](void* ida_mem,
                                                          double tret,
-                                                         std::vector<N_Vector> yySout)
+                                                         std::vector<N_Vector> yySout_1d)
       -> std::tuple<int, double>
     {
-      N_Vector* yySout_ptr =
-        reinterpret_cast<N_Vector*>(yySout.empty() ? nullptr : yySout.data());
+      N_Vector* yySout_1d_ptr = reinterpret_cast<N_Vector*>(
+        yySout_1d.empty() ? nullptr : yySout_1d.data());
 
       auto lambda_result =
         IDAGetSens_adapt_modifiable_immutable_to_return(ida_mem, tret,
-                                                        yySout_ptr);
+                                                        yySout_1d_ptr);
       return lambda_result;
     };
 
-    return IDAGetSens_adapt_arr_ptr_to_std_vector(ida_mem, tret, yySout);
+    return IDAGetSens_adapt_arr_ptr_to_std_vector(ida_mem, tret, yySout_1d);
   },
-  nb::arg("ida_mem"), nb::arg("tret"), nb::arg("yySout"));
+  nb::arg("ida_mem"), nb::arg("tret"), nb::arg("yySout_1d"));
 
 m.def(
   "IDAGetSens1",
@@ -923,21 +931,21 @@ m.def(
 
 m.def(
   "IDAGetSensDky",
-  [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyS) -> int
+  [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyS_1d) -> int
   {
     auto IDAGetSensDky_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyS) -> int
+      [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyS_1d) -> int
     {
-      N_Vector* dkyS_ptr =
-        reinterpret_cast<N_Vector*>(dkyS.empty() ? nullptr : dkyS.data());
+      N_Vector* dkyS_1d_ptr =
+        reinterpret_cast<N_Vector*>(dkyS_1d.empty() ? nullptr : dkyS_1d.data());
 
-      auto lambda_result = IDAGetSensDky(ida_mem, t, k, dkyS_ptr);
+      auto lambda_result = IDAGetSensDky(ida_mem, t, k, dkyS_1d_ptr);
       return lambda_result;
     };
 
-    return IDAGetSensDky_adapt_arr_ptr_to_std_vector(ida_mem, t, k, dkyS);
+    return IDAGetSensDky_adapt_arr_ptr_to_std_vector(ida_mem, t, k, dkyS_1d);
   },
-  nb::arg("ida_mem"), nb::arg("t"), nb::arg("k"), nb::arg("dkyS"));
+  nb::arg("ida_mem"), nb::arg("t"), nb::arg("k"), nb::arg("dkyS_1d"));
 
 m.def("IDAGetSensDky1", IDAGetSensDky1, nb::arg("ida_mem"), nb::arg("t"),
       nb::arg("k"), nb::arg("is_"), nb::arg("dkyS"));
@@ -1016,21 +1024,21 @@ m.def(
 
 m.def(
   "IDAGetSensErrWeights",
-  [](void* ida_mem, std::vector<N_Vector> eSweight) -> int
+  [](void* ida_mem, std::vector<N_Vector> eSweight_1d) -> int
   {
     auto IDAGetSensErrWeights_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, std::vector<N_Vector> eSweight) -> int
+      [](void* ida_mem, std::vector<N_Vector> eSweight_1d) -> int
     {
-      N_Vector* eSweight_ptr = reinterpret_cast<N_Vector*>(
-        eSweight.empty() ? nullptr : eSweight.data());
+      N_Vector* eSweight_1d_ptr = reinterpret_cast<N_Vector*>(
+        eSweight_1d.empty() ? nullptr : eSweight_1d.data());
 
-      auto lambda_result = IDAGetSensErrWeights(ida_mem, eSweight_ptr);
+      auto lambda_result = IDAGetSensErrWeights(ida_mem, eSweight_1d_ptr);
       return lambda_result;
     };
 
-    return IDAGetSensErrWeights_adapt_arr_ptr_to_std_vector(ida_mem, eSweight);
+    return IDAGetSensErrWeights_adapt_arr_ptr_to_std_vector(ida_mem, eSweight_1d);
   },
-  nb::arg("ida_mem"), nb::arg("eSweight"));
+  nb::arg("ida_mem"), nb::arg("eSweight_1d"));
 
 m.def(
   "IDAGetSensStats",
@@ -1141,21 +1149,21 @@ m.def(
 
 m.def(
   "IDAQuadSensReInit",
-  [](void* ida_mem, std::vector<N_Vector> yQS0) -> int
+  [](void* ida_mem, std::vector<N_Vector> yQS0_1d) -> int
   {
     auto IDAQuadSensReInit_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, std::vector<N_Vector> yQS0) -> int
+      [](void* ida_mem, std::vector<N_Vector> yQS0_1d) -> int
     {
-      N_Vector* yQS0_ptr =
-        reinterpret_cast<N_Vector*>(yQS0.empty() ? nullptr : yQS0.data());
+      N_Vector* yQS0_1d_ptr =
+        reinterpret_cast<N_Vector*>(yQS0_1d.empty() ? nullptr : yQS0_1d.data());
 
-      auto lambda_result = IDAQuadSensReInit(ida_mem, yQS0_ptr);
+      auto lambda_result = IDAQuadSensReInit(ida_mem, yQS0_1d_ptr);
       return lambda_result;
     };
 
-    return IDAQuadSensReInit_adapt_arr_ptr_to_std_vector(ida_mem, yQS0);
+    return IDAQuadSensReInit_adapt_arr_ptr_to_std_vector(ida_mem, yQS0_1d);
   },
-  nb::arg("ida_mem"), nb::arg("yQS0"));
+  nb::arg("ida_mem"), nb::arg("yQS0_1d"));
 
 m.def(
   "IDAQuadSensSStolerances",
@@ -1180,23 +1188,23 @@ m.def(
 
 m.def(
   "IDAQuadSensSVtolerances",
-  [](void* ida_mem, double reltolQS, std::vector<N_Vector> abstolQS) -> int
+  [](void* ida_mem, double reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
   {
     auto IDAQuadSensSVtolerances_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double reltolQS, std::vector<N_Vector> abstolQS) -> int
+      [](void* ida_mem, double reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
     {
-      N_Vector* abstolQS_ptr = reinterpret_cast<N_Vector*>(
-        abstolQS.empty() ? nullptr : abstolQS.data());
+      N_Vector* abstolQS_1d_ptr = reinterpret_cast<N_Vector*>(
+        abstolQS_1d.empty() ? nullptr : abstolQS_1d.data());
 
       auto lambda_result = IDAQuadSensSVtolerances(ida_mem, reltolQS,
-                                                   abstolQS_ptr);
+                                                   abstolQS_1d_ptr);
       return lambda_result;
     };
 
     return IDAQuadSensSVtolerances_adapt_arr_ptr_to_std_vector(ida_mem, reltolQS,
-                                                               abstolQS);
+                                                               abstolQS_1d);
   },
-  nb::arg("ida_mem"), nb::arg("reltolQS"), nb::arg("abstolQS"));
+  nb::arg("ida_mem"), nb::arg("reltolQS"), nb::arg("abstolQS_1d"));
 
 m.def("IDAQuadSensEEtolerances", IDAQuadSensEEtolerances, nb::arg("ida_mem"));
 
@@ -1206,34 +1214,36 @@ m.def("IDASetQuadSensErrCon", IDASetQuadSensErrCon, nb::arg("ida_mem"),
 m.def(
   "IDAGetQuadSens",
   [](void* ida_mem, double tret,
-     std::vector<N_Vector> yyQSout) -> std::tuple<int, double>
+     std::vector<N_Vector> yyQSout_1d) -> std::tuple<int, double>
   {
     auto IDAGetQuadSens_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, double tret, N_Vector1d yyQSout) -> std::tuple<int, double>
+      [](void* ida_mem, double tret,
+         N_Vector* yyQSout_1d) -> std::tuple<int, double>
     {
       double* tret_adapt_modifiable = &tret;
 
-      int r = IDAGetQuadSens(ida_mem, tret_adapt_modifiable, yyQSout);
+      int r = IDAGetQuadSens(ida_mem, tret_adapt_modifiable, yyQSout_1d);
       return std::make_tuple(r, tret);
     };
     auto IDAGetQuadSens_adapt_arr_ptr_to_std_vector =
       [&IDAGetQuadSens_adapt_modifiable_immutable_to_return](void* ida_mem,
                                                              double tret,
-                                                             std::vector<N_Vector> yyQSout)
+                                                             std::vector<N_Vector>
+                                                               yyQSout_1d)
       -> std::tuple<int, double>
     {
-      N_Vector* yyQSout_ptr =
-        reinterpret_cast<N_Vector*>(yyQSout.empty() ? nullptr : yyQSout.data());
+      N_Vector* yyQSout_1d_ptr = reinterpret_cast<N_Vector*>(
+        yyQSout_1d.empty() ? nullptr : yyQSout_1d.data());
 
       auto lambda_result =
         IDAGetQuadSens_adapt_modifiable_immutable_to_return(ida_mem, tret,
-                                                            yyQSout_ptr);
+                                                            yyQSout_1d_ptr);
       return lambda_result;
     };
 
-    return IDAGetQuadSens_adapt_arr_ptr_to_std_vector(ida_mem, tret, yyQSout);
+    return IDAGetQuadSens_adapt_arr_ptr_to_std_vector(ida_mem, tret, yyQSout_1d);
   },
-  nb::arg("ida_mem"), nb::arg("tret"), nb::arg("yyQSout"));
+  nb::arg("ida_mem"), nb::arg("tret"), nb::arg("yyQSout_1d"));
 
 m.def(
   "IDAGetQuadSens1",
@@ -1257,21 +1267,21 @@ m.def(
 
 m.def(
   "IDAGetQuadSensDky",
-  [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyQS) -> int
+  [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyQS_1d) -> int
   {
     auto IDAGetQuadSensDky_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyQS) -> int
+      [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyQS_1d) -> int
     {
-      N_Vector* dkyQS_ptr =
-        reinterpret_cast<N_Vector*>(dkyQS.empty() ? nullptr : dkyQS.data());
+      N_Vector* dkyQS_1d_ptr = reinterpret_cast<N_Vector*>(
+        dkyQS_1d.empty() ? nullptr : dkyQS_1d.data());
 
-      auto lambda_result = IDAGetQuadSensDky(ida_mem, t, k, dkyQS_ptr);
+      auto lambda_result = IDAGetQuadSensDky(ida_mem, t, k, dkyQS_1d_ptr);
       return lambda_result;
     };
 
-    return IDAGetQuadSensDky_adapt_arr_ptr_to_std_vector(ida_mem, t, k, dkyQS);
+    return IDAGetQuadSensDky_adapt_arr_ptr_to_std_vector(ida_mem, t, k, dkyQS_1d);
   },
-  nb::arg("ida_mem"), nb::arg("t"), nb::arg("k"), nb::arg("dkyQS"));
+  nb::arg("ida_mem"), nb::arg("t"), nb::arg("k"), nb::arg("dkyQS_1d"));
 
 m.def("IDAGetQuadSensDky1", IDAGetQuadSensDky1, nb::arg("ida_mem"),
       nb::arg("t"), nb::arg("k"), nb::arg("is_"), nb::arg("dkyQS"));
@@ -1314,22 +1324,22 @@ m.def(
 
 m.def(
   "IDAGetQuadSensErrWeights",
-  [](void* ida_mem, std::vector<N_Vector> eQSweight) -> int
+  [](void* ida_mem, std::vector<N_Vector> eQSweight_1d) -> int
   {
     auto IDAGetQuadSensErrWeights_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, std::vector<N_Vector> eQSweight) -> int
+      [](void* ida_mem, std::vector<N_Vector> eQSweight_1d) -> int
     {
-      N_Vector* eQSweight_ptr = reinterpret_cast<N_Vector*>(
-        eQSweight.empty() ? nullptr : eQSweight.data());
+      N_Vector* eQSweight_1d_ptr = reinterpret_cast<N_Vector*>(
+        eQSweight_1d.empty() ? nullptr : eQSweight_1d.data());
 
-      auto lambda_result = IDAGetQuadSensErrWeights(ida_mem, eQSweight_ptr);
+      auto lambda_result = IDAGetQuadSensErrWeights(ida_mem, eQSweight_1d_ptr);
       return lambda_result;
     };
 
     return IDAGetQuadSensErrWeights_adapt_arr_ptr_to_std_vector(ida_mem,
-                                                                eQSweight);
+                                                                eQSweight_1d);
   },
-  nb::arg("ida_mem"), nb::arg("eQSweight"));
+  nb::arg("ida_mem"), nb::arg("eQSweight_1d"));
 
 m.def(
   "IDAGetQuadSensStats",
@@ -1400,27 +1410,27 @@ m.def("IDACalcICB", IDACalcICB, nb::arg("ida_mem"), nb::arg("which"),
 m.def(
   "IDACalcICBS",
   [](void* ida_mem, int which, double tout1, N_Vector yy0, N_Vector yp0,
-     std::vector<N_Vector> yyS0, std::vector<N_Vector> ypS0) -> int
+     std::vector<N_Vector> yyS0_1d, std::vector<N_Vector> ypS0_1d) -> int
   {
     auto IDACalcICBS_adapt_arr_ptr_to_std_vector =
       [](void* ida_mem, int which, double tout1, N_Vector yy0, N_Vector yp0,
-         std::vector<N_Vector> yyS0, std::vector<N_Vector> ypS0) -> int
+         std::vector<N_Vector> yyS0_1d, std::vector<N_Vector> ypS0_1d) -> int
     {
-      N_Vector* yyS0_ptr =
-        reinterpret_cast<N_Vector*>(yyS0.empty() ? nullptr : yyS0.data());
-      N_Vector* ypS0_ptr =
-        reinterpret_cast<N_Vector*>(ypS0.empty() ? nullptr : ypS0.data());
+      N_Vector* yyS0_1d_ptr =
+        reinterpret_cast<N_Vector*>(yyS0_1d.empty() ? nullptr : yyS0_1d.data());
+      N_Vector* ypS0_1d_ptr =
+        reinterpret_cast<N_Vector*>(ypS0_1d.empty() ? nullptr : ypS0_1d.data());
 
       auto lambda_result = IDACalcICBS(ida_mem, which, tout1, yy0, yp0,
-                                       yyS0_ptr, ypS0_ptr);
+                                       yyS0_1d_ptr, ypS0_1d_ptr);
       return lambda_result;
     };
 
     return IDACalcICBS_adapt_arr_ptr_to_std_vector(ida_mem, which, tout1, yy0,
-                                                   yp0, yyS0, ypS0);
+                                                   yp0, yyS0_1d, ypS0_1d);
   },
   nb::arg("ida_mem"), nb::arg("which"), nb::arg("tout1"), nb::arg("yy0"),
-  nb::arg("yp0"), nb::arg("yyS0"), nb::arg("ypS0"));
+  nb::arg("yp0"), nb::arg("yyS0_1d"), nb::arg("ypS0_1d"));
 
 m.def(
   "IDASolveF",

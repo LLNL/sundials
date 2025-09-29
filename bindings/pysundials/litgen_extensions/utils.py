@@ -60,3 +60,7 @@ def match_regex(regex_str: str, word: str) -> bool:
         return False
     matches = list(re.finditer(regex_str, word, re.MULTILINE))
     return matches
+
+
+def is_array_param(param_name):
+    return param_name.endswith("_1d") or param_name.endswith("_2d") or param_name.endswith("_3d")

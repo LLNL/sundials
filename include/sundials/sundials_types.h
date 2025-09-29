@@ -125,19 +125,6 @@ typedef long double sunrealtype;
 #endif
 
 /*
- *-----------------------------------------------------------------------------
- * Type(s): sunrealtype1d, sunrealtype2d, sunrealtype3d
- * These types are to be used in place of sunrealtype*, sunrealtype**, and
- * sunrealtype*** when semantically these map to arrays. I.e., if sunrealtype*
- * refers to an array, then use sunrealtype1d. If it refers to a 
- * a pointer to a singular value (for "out" params), use sunrealtype*.
- *-----------------------------------------------------------------------------
- */
-typedef sunrealtype* sunrealtype1d;
-typedef sunrealtype** sunrealtype2d;
-typedef sunrealtype*** sunrealtype3d;
-
-/*
  *------------------------------------------------------------------
  * Type : sunindextype
  *------------------------------------------------------------------
@@ -149,19 +136,6 @@ typedef sunrealtype*** sunrealtype3d;
  */
 
 typedef SUNDIALS_INDEX_TYPE sunindextype;
-
-/*
- *-----------------------------------------------------------------------------
- * Type(s): sunindextype1d, sunindextype2d, sunindextype3d
- * These types are to be used in place of sunindextype*, sunindextype**, and
- * sunindextype*** when semantically these map to arrays. I.e., if sunindextype*
- * refers to an array, then use sunindextype1d. If it refers to a 
- * a pointer to a singular value (for "out" params), use sunindextype*.
- *-----------------------------------------------------------------------------
- */
-typedef sunindextype* sunindextype1d;
-typedef sunindextype** sunindextype2d;
-typedef sunindextype*** sunindextype3d;
 
 /*
  *------------------------------------------------------------------
@@ -201,16 +175,6 @@ typedef SUNDIALS_COUNTER_TYPE suncountertype;
 #ifndef SUNTRUE
 #define SUNTRUE 1
 #endif
-
-/*
- *------------------------------------------------------------------
- * Type : int1d
- *------------------------------------------------------------------
- * typedef for an int* which should be treated as an array of int.
- *------------------------------------------------------------------
- */
-
-typedef int* int1d;
 
 /*
  *------------------------------------------------------------------

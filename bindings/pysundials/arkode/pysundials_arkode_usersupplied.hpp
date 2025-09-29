@@ -455,7 +455,7 @@ inline int mristep_fsi_wrapper(sunrealtype t, N_Vector y, N_Vector ydot,
     1>(&arkode_user_supplied_fn_table::mristep_fsi, t, y, ydot, user_data);
 }
 
-inline int mristep_preinnerfn_wrapper(sunrealtype t, N_Vector1d f, int nvecs,
+inline int mristep_preinnerfn_wrapper(sunrealtype t, N_Vector* f, int nvecs,
                                       void* user_data)
 {
   return pysundials::user_supplied_fn_caller<

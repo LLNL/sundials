@@ -10,6 +10,7 @@ from codemanip import code_utils
 from srcmlcpp.cpp_types import CppParameter
 from litgen.internal.adapt_function_params._lambda_adapter import LambdaAdapter
 from litgen.internal.adapted_types import AdaptedFunction, AdaptedParameter
+from .utils import is_array_param
 
 
 def adapt_array_pointer_to_std_vector(
@@ -22,18 +23,14 @@ def adapt_array_pointer_to_std_vector(
     options = adapted_function.options
     function_name = adapted_function.cpp_adapted_function.function_name
 
-    pointer_type_patterns = options.fn_params_array_pointers_to_std_vector
+    has_array_param = False
+    for param in adapted_function.adapted_parameters():
+        # print(f"     {param.cpp_element().decl}")
+        param_name = param.cpp_element().decl.decl_name
+        if is_array_param(param_name):
+            has_array_param = True
 
-    # Map each parameter name to the pointer_type_pattern it matches
-    param_to_pattern = {}
-    for pointer_type_pattern in pointer_type_patterns:
-        for param in adapted_function.adapted_parameters():
-            cpp_type = param.cpp_element().full_type()
-            param_name = param.cpp_element().decl.decl_name
-            if re.match(pointer_type_pattern, str(param.cpp_element().decl)):
-                param_to_pattern[param_name] = pointer_type_pattern
-
-    if not param_to_pattern:
+    if not has_array_param:
         return None
 
     lambda_adapter = LambdaAdapter()
@@ -44,15 +41,30 @@ def adapt_array_pointer_to_std_vector(
     for old_param in old_function_params:
         old_cpp_type = old_param.cpp_element().full_type()
         param_name = old_param.cpp_element().decl.decl_name
-        if param_name in param_to_pattern:
-            base_type = remove_pointer(old_cpp_type)
+        if is_array_param(param_name):
+            base_type, ptr_dimension = remove_pointers(old_cpp_type)
 
-            if base_type.endswith("1d"):
+            if param_name.endswith("_1d"):
+                if ptr_dimension != 1:
+                    raise RuntimeWarning(
+                        f"while processing {function_name} encountered pointer dimension ({ptr_dimension}) and param suffix (_1d) mismatch for param {old_cpp_type} {param_name}"
+                    )
                 dimensions = "*"
-                base_type = base_type.replace("1d", "")
-            elif base_type.endswith("2d"):
+                # base_type = base_type.replace("1d", "")
+            elif param_name.endswith("_2d"):
+                if ptr_dimension != 2:
+                    raise RuntimeWarning(
+                        f"while processing {function_name} encountered pointer dimension ({ptr_dimension}) and param suffix (_1d) mismatch for param {old_cpp_type} {param_name}"
+                    )
                 dimensions = "**"
-                base_type = base_type.replace("2d", "")
+                # base_type = base_type.replace("2d", "")
+            elif param_name.endswith("_3d"):
+                if ptr_dimension != 3:
+                    raise RuntimeWarning(
+                        f"while processing {function_name} encountered pointer dimension ({ptr_dimension}) and param suffix (_1d) mismatch for param {old_cpp_type} {param_name}"
+                    )
+                dimensions = "***"
+                # base_type = base_type.replace("3d", "")
 
             new_param = copy.deepcopy(old_param.cpp_element())
             new_decl = new_param.decl
@@ -76,12 +88,13 @@ def adapt_array_pointer_to_std_vector(
     return lambda_adapter
 
 
-def remove_pointer(cpp_type: str) -> str:
+def remove_pointers(cpp_type: str) -> str:
     """
     Removes pointer and const qualifiers from a C++ type string, e.g. 'const Foo *' -> 'Foo'.
     """
     # Remove 'const' and '*' and extra spaces
-    t = cpp_type.replace("const", "").replace("*", "").strip()
+    num_pointers = cpp_type.count("*")
+    t = cpp_type.replace("*", "").strip()
     # Remove any duplicate spaces
     t = re.sub(r"\s+", " ", t)
-    return t
+    return t, num_pointers

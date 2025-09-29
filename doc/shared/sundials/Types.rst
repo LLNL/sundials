@@ -88,21 +88,6 @@ code can use SUNDIALS without modifying the code to use ``sunrealtype``,
 ``SUN_RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries are built
 to use the corresponding precision (see :numref:`Installation.Options`).
 
-For implementation reasons, SUNDIALS also defines the types:
-
-.. c:type:: sunrealtype1d
-
-   This is a ``sunrealtype*`` which should be treated as 1D contiguous array.
-
-.. c:type:: sunrealtype2d
-
-   This is a ``sunrealtype**`` which should be treated as 2D contiguous array.
-
-.. c:type:: sunrealtype3d
-
-   This is a ``sunrealtype***`` which should be treated as 3D contiguous array.
-
-
 Integer types used for indexing
 -------------------------------
 

@@ -134,7 +134,7 @@ typedef int (*IDALsJacFnB)(sunrealtype tt, sunrealtype c_jB, N_Vector yy,
                            N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B);
 
 typedef int (*IDALsJacFnBS)(sunrealtype tt, sunrealtype c_jB, N_Vector yy,
-                            N_Vector yp, N_Vector1d yS, N_Vector1d ypS,
+                            N_Vector yp, N_Vector* yS_1d, N_Vector* ypS_1d,
                             N_Vector yyB, N_Vector ypB, N_Vector rrB,
                             SUNMatrix JacB, void* user_dataB, N_Vector tmp1B,
                             N_Vector tmp2B, N_Vector tmp3B);
@@ -144,9 +144,9 @@ typedef int (*IDALsPrecSetupFnB)(sunrealtype tt, N_Vector yy, N_Vector yp,
                                  sunrealtype c_jB, void* user_dataB);
 
 typedef int (*IDALsPrecSetupFnBS)(sunrealtype tt, N_Vector yy, N_Vector yp,
-                                  N_Vector1d yyS, N_Vector1d ypS, N_Vector yyB,
-                                  N_Vector ypB, N_Vector rrB, sunrealtype c_jB,
-                                  void* user_dataB);
+                                  N_Vector* yyS_1d, N_Vector* ypS_1d,
+                                  N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                                  sunrealtype c_jB, void* user_dataB);
 
 typedef int (*IDALsPrecSolveFnB)(sunrealtype tt, N_Vector yy, N_Vector yp,
                                  N_Vector yyB, N_Vector ypB, N_Vector rrB,
@@ -154,17 +154,18 @@ typedef int (*IDALsPrecSolveFnB)(sunrealtype tt, N_Vector yy, N_Vector yp,
                                  sunrealtype deltaB, void* user_dataB);
 
 typedef int (*IDALsPrecSolveFnBS)(sunrealtype tt, N_Vector yy, N_Vector yp,
-                                  N_Vector1d yyS, N_Vector1d ypS, N_Vector yyB,
-                                  N_Vector ypB, N_Vector rrB, N_Vector rvecB,
-                                  N_Vector zvecB, sunrealtype c_jB,
-                                  sunrealtype deltaB, void* user_dataB);
+                                  N_Vector* yyS_1d, N_Vector* ypS_1d,
+                                  N_Vector yyB, N_Vector ypB, N_Vector rrB,
+                                  N_Vector rvecB, N_Vector zvecB,
+                                  sunrealtype c_jB, sunrealtype deltaB,
+                                  void* user_dataB);
 
 typedef int (*IDALsJacTimesSetupFnB)(sunrealtype t, N_Vector yy, N_Vector yp,
                                      N_Vector yyB, N_Vector ypB, N_Vector rrB,
                                      sunrealtype c_jB, void* user_dataB);
 
 typedef int (*IDALsJacTimesSetupFnBS)(sunrealtype t, N_Vector yy, N_Vector yp,
-                                      N_Vector1d yyS, N_Vector1d ypS,
+                                      N_Vector* yyS_1d, N_Vector* ypS_1d,
                                       N_Vector yyB, N_Vector ypB, N_Vector rrB,
                                       sunrealtype c_jB, void* user_dataB);
 
@@ -175,7 +176,7 @@ typedef int (*IDALsJacTimesVecFnB)(sunrealtype t, N_Vector yy, N_Vector yp,
                                    N_Vector tmp2B);
 
 typedef int (*IDALsJacTimesVecFnBS)(sunrealtype t, N_Vector yy, N_Vector yp,
-                                    N_Vector1d yyS, N_Vector1d ypS,
+                                    N_Vector* yyS_1d, N_Vector* ypS_1d,
                                     N_Vector yyB, N_Vector ypB, N_Vector rrB,
                                     N_Vector vB, N_Vector JvB, sunrealtype c_jB,
                                     void* user_dataB, N_Vector tmp1B,

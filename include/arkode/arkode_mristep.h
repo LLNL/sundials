@@ -137,13 +137,13 @@ typedef int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol
 struct MRIStepCouplingMem
 {
   MRISTEP_METHOD_TYPE type; /* flag to encode the MRI method type                  */
-  int nmat;        /* number of MRI coupling matrices                     */
-  int stages;      /* size of coupling matrices ((stages+1) * stages)     */
-  int q;           /* method order of accuracy                            */
-  int p;           /* embedding order of accuracy                         */
-  sunrealtype1d c; /* stage abscissae                                     */
-  sunrealtype3d W; /* explicit coupling matrices [nmat][stages+1][stages] */
-  sunrealtype3d G; /* implicit coupling matrices [nmat][stages+1][stages] */
+  int nmat;         /* number of MRI coupling matrices                     */
+  int stages;       /* size of coupling matrices ((stages+1) * stages)     */
+  int q;            /* method order of accuracy                            */
+  int p;            /* embedding order of accuracy                         */
+  sunrealtype* c;   /* stage abscissae                                     */
+  sunrealtype*** W; /* explicit coupling matrices [nmat][stages+1][stages] */
+  sunrealtype*** G; /* implicit coupling matrices [nmat][stages+1][stages] */
 
   int ngroup;  /* number of stage groups (MERK-specific)              */
   int** group; /* stages to integrate together (MERK-specific)        */
@@ -162,9 +162,9 @@ SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
                                                       MRISTEP_METHOD_TYPE type);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages,
                                                        int q, int p,
-                                                       sunrealtype1d W,
-                                                       sunrealtype1d G,
-                                                       sunrealtype1d c);
+                                                       sunrealtype* W_1d,
+                                                       sunrealtype* G_1d,
+                                                       sunrealtype* c_1d);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B,
                                                          int q, int p);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Copy(MRIStepCoupling MRIC);
@@ -179,7 +179,7 @@ SUNDIALS_EXPORT void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile);
  * User-Supplied Function Types
  * ------------------------------ */
 
-typedef int (*MRIStepPreInnerFn)(sunrealtype t, N_Vector1d f, int nvecs,
+typedef int (*MRIStepPreInnerFn)(sunrealtype t, N_Vector* f_1d, int nvecs,
                                  void* user_data);
 
 typedef int (*MRIStepPostInnerFn)(sunrealtype t, N_Vector y, void* user_data);

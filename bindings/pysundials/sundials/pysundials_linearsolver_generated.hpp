@@ -19,272 +19,151 @@ auto pyEnumSUN_GRAMSCHMIDT_ID =
     .export_values();
 
 m.def(
-  "SUNModifiedGS",
-  [](std::vector<N_Vector> v, std::vector<sunrealtype> h, int k, int p,
-     double new_vk_norm) -> std::tuple<SUNErrCode, double>
-  {
-    auto SUNModifiedGS_adapt_modifiable_immutable_to_return =
-      [](N_Vector1d v, sunrealtype2d h, int k, int p,
-         double new_vk_norm) -> std::tuple<SUNErrCode, double>
-    {
-      double* new_vk_norm_adapt_modifiable = &new_vk_norm;
-
-      SUNErrCode r = SUNModifiedGS(v, h, k, p, new_vk_norm_adapt_modifiable);
-      return std::make_tuple(r, new_vk_norm);
-    };
-    auto SUNModifiedGS_adapt_arr_ptr_to_std_vector =
-      [&SUNModifiedGS_adapt_modifiable_immutable_to_return](std::vector<N_Vector> v,
-                                                            std::vector<sunrealtype> h,
-                                                            int k, int p,
-                                                            double new_vk_norm)
-      -> std::tuple<SUNErrCode, double>
-    {
-      N_Vector* v_ptr = reinterpret_cast<N_Vector*>(v.empty() ? nullptr
-                                                              : v.data());
-      sunrealtype** h_ptr =
-        reinterpret_cast<sunrealtype**>(h.empty() ? nullptr : h.data());
-
-      auto lambda_result =
-        SUNModifiedGS_adapt_modifiable_immutable_to_return(v_ptr, h_ptr, k, p,
-                                                           new_vk_norm);
-      return lambda_result;
-    };
-
-    return SUNModifiedGS_adapt_arr_ptr_to_std_vector(v, h, k, p, new_vk_norm);
-  },
-  nb::arg("v"), nb::arg("h"), nb::arg("k"), nb::arg("p"), nb::arg("new_vk_norm"));
-
-m.def(
-  "SUNClassicalGS",
-  [](std::vector<N_Vector> v, std::vector<sunrealtype> h, int k, int p,
-     double new_vk_norm, std::vector<sunrealtype> stemp,
-     std::vector<N_Vector> vtemp) -> std::tuple<SUNErrCode, double>
-  {
-    auto SUNClassicalGS_adapt_modifiable_immutable_to_return =
-      [](N_Vector1d v, sunrealtype2d h, int k, int p, double new_vk_norm,
-         sunrealtype1d stemp, N_Vector1d vtemp) -> std::tuple<SUNErrCode, double>
-    {
-      double* new_vk_norm_adapt_modifiable = &new_vk_norm;
-
-      SUNErrCode r = SUNClassicalGS(v, h, k, p, new_vk_norm_adapt_modifiable,
-                                    stemp, vtemp);
-      return std::make_tuple(r, new_vk_norm);
-    };
-    auto SUNClassicalGS_adapt_arr_ptr_to_std_vector =
-      [&SUNClassicalGS_adapt_modifiable_immutable_to_return](std::vector<N_Vector> v,
-                                                             std::vector<sunrealtype> h,
-                                                             int k, int p,
-                                                             double new_vk_norm,
-                                                             std::vector<sunrealtype> stemp,
-                                                             std::vector<N_Vector> vtemp)
-      -> std::tuple<SUNErrCode, double>
-    {
-      N_Vector* v_ptr = reinterpret_cast<N_Vector*>(v.empty() ? nullptr
-                                                              : v.data());
-      sunrealtype** h_ptr =
-        reinterpret_cast<sunrealtype**>(h.empty() ? nullptr : h.data());
-      sunrealtype* stemp_ptr =
-        reinterpret_cast<sunrealtype*>(stemp.empty() ? nullptr : stemp.data());
-      N_Vector* vtemp_ptr =
-        reinterpret_cast<N_Vector*>(vtemp.empty() ? nullptr : vtemp.data());
-
-      auto lambda_result =
-        SUNClassicalGS_adapt_modifiable_immutable_to_return(v_ptr, h_ptr, k, p,
-                                                            new_vk_norm,
-                                                            stemp_ptr, vtemp_ptr);
-      return lambda_result;
-    };
-
-    return SUNClassicalGS_adapt_arr_ptr_to_std_vector(v, h, k, p, new_vk_norm,
-                                                      stemp, vtemp);
-  },
-  nb::arg("v"), nb::arg("h"), nb::arg("k"), nb::arg("p"),
-  nb::arg("new_vk_norm"), nb::arg("stemp"), nb::arg("vtemp"));
-
-m.def(
-  "SUNQRfact",
-  [](int n, std::vector<sunrealtype> h, std::vector<sunrealtype> q, int job) -> int
-  {
-    auto SUNQRfact_adapt_arr_ptr_to_std_vector =
-      [](int n, std::vector<sunrealtype> h, std::vector<sunrealtype> q,
-         int job) -> int
-    {
-      sunrealtype** h_ptr =
-        reinterpret_cast<sunrealtype**>(h.empty() ? nullptr : h.data());
-      sunrealtype* q_ptr = reinterpret_cast<sunrealtype*>(q.empty() ? nullptr
-                                                                    : q.data());
-
-      auto lambda_result = SUNQRfact(n, h_ptr, q_ptr, job);
-      return lambda_result;
-    };
-
-    return SUNQRfact_adapt_arr_ptr_to_std_vector(n, h, q, job);
-  },
-  nb::arg("n"), nb::arg("h"), nb::arg("q"), nb::arg("job"));
-
-m.def(
-  "SUNQRsol",
-  [](int n, std::vector<sunrealtype> h, std::vector<sunrealtype> q,
-     std::vector<sunrealtype> b) -> int
-  {
-    auto SUNQRsol_adapt_arr_ptr_to_std_vector =
-      [](int n, std::vector<sunrealtype> h, std::vector<sunrealtype> q,
-         std::vector<sunrealtype> b) -> int
-    {
-      sunrealtype** h_ptr =
-        reinterpret_cast<sunrealtype**>(h.empty() ? nullptr : h.data());
-      sunrealtype* q_ptr = reinterpret_cast<sunrealtype*>(q.empty() ? nullptr
-                                                                    : q.data());
-      sunrealtype* b_ptr = reinterpret_cast<sunrealtype*>(b.empty() ? nullptr
-                                                                    : b.data());
-
-      auto lambda_result = SUNQRsol(n, h_ptr, q_ptr, b_ptr);
-      return lambda_result;
-    };
-
-    return SUNQRsol_adapt_arr_ptr_to_std_vector(n, h, q, b);
-  },
-  nb::arg("n"), nb::arg("h"), nb::arg("q"), nb::arg("b"));
-
-m.def(
   "SUNQRAdd_MGS",
-  [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df, int m,
+  [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df, int m,
      int mMax, void* QRdata) -> SUNErrCode
   {
     auto SUNQRAdd_MGS_adapt_arr_ptr_to_std_vector =
-      [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df,
+      [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df,
          int m, int mMax, void* QRdata) -> SUNErrCode
     {
-      N_Vector* Q_ptr    = reinterpret_cast<N_Vector*>(Q.empty() ? nullptr
-                                                                 : Q.data());
-      sunrealtype* R_ptr = reinterpret_cast<sunrealtype*>(R.empty() ? nullptr
-                                                                    : R.data());
+      N_Vector* Q_1d_ptr =
+        reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.empty() ? nullptr
+                                                                : R_1d.data());
 
-      auto lambda_result = SUNQRAdd_MGS(Q_ptr, R_ptr, df, m, mMax, QRdata);
+      auto lambda_result = SUNQRAdd_MGS(Q_1d_ptr, R_1d_ptr, df, m, mMax, QRdata);
       return lambda_result;
     };
 
-    return SUNQRAdd_MGS_adapt_arr_ptr_to_std_vector(Q, R, df, m, mMax, QRdata);
+    return SUNQRAdd_MGS_adapt_arr_ptr_to_std_vector(Q_1d, R_1d, df, m, mMax,
+                                                    QRdata);
   },
-  nb::arg("Q"), nb::arg("R"), nb::arg("df"), nb::arg("m"), nb::arg("mMax"),
-  nb::arg("QRdata"));
+  nb::arg("Q_1d"), nb::arg("R_1d"), nb::arg("df"), nb::arg("m"),
+  nb::arg("mMax"), nb::arg("QRdata"));
 
 m.def(
   "SUNQRAdd_ICWY",
-  [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df, int m,
+  [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df, int m,
      int mMax, void* QRdata) -> SUNErrCode
   {
     auto SUNQRAdd_ICWY_adapt_arr_ptr_to_std_vector =
-      [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df,
+      [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df,
          int m, int mMax, void* QRdata) -> SUNErrCode
     {
-      N_Vector* Q_ptr    = reinterpret_cast<N_Vector*>(Q.empty() ? nullptr
-                                                                 : Q.data());
-      sunrealtype* R_ptr = reinterpret_cast<sunrealtype*>(R.empty() ? nullptr
-                                                                    : R.data());
+      N_Vector* Q_1d_ptr =
+        reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.empty() ? nullptr
+                                                                : R_1d.data());
 
-      auto lambda_result = SUNQRAdd_ICWY(Q_ptr, R_ptr, df, m, mMax, QRdata);
+      auto lambda_result = SUNQRAdd_ICWY(Q_1d_ptr, R_1d_ptr, df, m, mMax, QRdata);
       return lambda_result;
     };
 
-    return SUNQRAdd_ICWY_adapt_arr_ptr_to_std_vector(Q, R, df, m, mMax, QRdata);
+    return SUNQRAdd_ICWY_adapt_arr_ptr_to_std_vector(Q_1d, R_1d, df, m, mMax,
+                                                     QRdata);
   },
-  nb::arg("Q"), nb::arg("R"), nb::arg("df"), nb::arg("m"), nb::arg("mMax"),
-  nb::arg("QRdata"));
+  nb::arg("Q_1d"), nb::arg("R_1d"), nb::arg("df"), nb::arg("m"),
+  nb::arg("mMax"), nb::arg("QRdata"));
 
 m.def(
   "SUNQRAdd_ICWY_SB",
-  [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df, int m,
+  [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df, int m,
      int mMax, void* QRdata) -> SUNErrCode
   {
     auto SUNQRAdd_ICWY_SB_adapt_arr_ptr_to_std_vector =
-      [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df,
+      [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df,
          int m, int mMax, void* QRdata) -> SUNErrCode
     {
-      N_Vector* Q_ptr    = reinterpret_cast<N_Vector*>(Q.empty() ? nullptr
-                                                                 : Q.data());
-      sunrealtype* R_ptr = reinterpret_cast<sunrealtype*>(R.empty() ? nullptr
-                                                                    : R.data());
+      N_Vector* Q_1d_ptr =
+        reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.empty() ? nullptr
+                                                                : R_1d.data());
 
-      auto lambda_result = SUNQRAdd_ICWY_SB(Q_ptr, R_ptr, df, m, mMax, QRdata);
+      auto lambda_result = SUNQRAdd_ICWY_SB(Q_1d_ptr, R_1d_ptr, df, m, mMax,
+                                            QRdata);
       return lambda_result;
     };
 
-    return SUNQRAdd_ICWY_SB_adapt_arr_ptr_to_std_vector(Q, R, df, m, mMax,
+    return SUNQRAdd_ICWY_SB_adapt_arr_ptr_to_std_vector(Q_1d, R_1d, df, m, mMax,
                                                         QRdata);
   },
-  nb::arg("Q"), nb::arg("R"), nb::arg("df"), nb::arg("m"), nb::arg("mMax"),
-  nb::arg("QRdata"));
+  nb::arg("Q_1d"), nb::arg("R_1d"), nb::arg("df"), nb::arg("m"),
+  nb::arg("mMax"), nb::arg("QRdata"));
 
 m.def(
   "SUNQRAdd_CGS2",
-  [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df, int m,
+  [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df, int m,
      int mMax, void* QRdata) -> SUNErrCode
   {
     auto SUNQRAdd_CGS2_adapt_arr_ptr_to_std_vector =
-      [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df,
+      [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df,
          int m, int mMax, void* QRdata) -> SUNErrCode
     {
-      N_Vector* Q_ptr    = reinterpret_cast<N_Vector*>(Q.empty() ? nullptr
-                                                                 : Q.data());
-      sunrealtype* R_ptr = reinterpret_cast<sunrealtype*>(R.empty() ? nullptr
-                                                                    : R.data());
+      N_Vector* Q_1d_ptr =
+        reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.empty() ? nullptr
+                                                                : R_1d.data());
 
-      auto lambda_result = SUNQRAdd_CGS2(Q_ptr, R_ptr, df, m, mMax, QRdata);
+      auto lambda_result = SUNQRAdd_CGS2(Q_1d_ptr, R_1d_ptr, df, m, mMax, QRdata);
       return lambda_result;
     };
 
-    return SUNQRAdd_CGS2_adapt_arr_ptr_to_std_vector(Q, R, df, m, mMax, QRdata);
+    return SUNQRAdd_CGS2_adapt_arr_ptr_to_std_vector(Q_1d, R_1d, df, m, mMax,
+                                                     QRdata);
   },
-  nb::arg("Q"), nb::arg("R"), nb::arg("df"), nb::arg("m"), nb::arg("mMax"),
-  nb::arg("QRdata"));
+  nb::arg("Q_1d"), nb::arg("R_1d"), nb::arg("df"), nb::arg("m"),
+  nb::arg("mMax"), nb::arg("QRdata"));
 
 m.def(
   "SUNQRAdd_DCGS2",
-  [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df, int m,
+  [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df, int m,
      int mMax, void* QRdata) -> SUNErrCode
   {
     auto SUNQRAdd_DCGS2_adapt_arr_ptr_to_std_vector =
-      [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df,
+      [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df,
          int m, int mMax, void* QRdata) -> SUNErrCode
     {
-      N_Vector* Q_ptr    = reinterpret_cast<N_Vector*>(Q.empty() ? nullptr
-                                                                 : Q.data());
-      sunrealtype* R_ptr = reinterpret_cast<sunrealtype*>(R.empty() ? nullptr
-                                                                    : R.data());
+      N_Vector* Q_1d_ptr =
+        reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.empty() ? nullptr
+                                                                : R_1d.data());
 
-      auto lambda_result = SUNQRAdd_DCGS2(Q_ptr, R_ptr, df, m, mMax, QRdata);
+      auto lambda_result = SUNQRAdd_DCGS2(Q_1d_ptr, R_1d_ptr, df, m, mMax,
+                                          QRdata);
       return lambda_result;
     };
 
-    return SUNQRAdd_DCGS2_adapt_arr_ptr_to_std_vector(Q, R, df, m, mMax, QRdata);
+    return SUNQRAdd_DCGS2_adapt_arr_ptr_to_std_vector(Q_1d, R_1d, df, m, mMax,
+                                                      QRdata);
   },
-  nb::arg("Q"), nb::arg("R"), nb::arg("df"), nb::arg("m"), nb::arg("mMax"),
-  nb::arg("QRdata"));
+  nb::arg("Q_1d"), nb::arg("R_1d"), nb::arg("df"), nb::arg("m"),
+  nb::arg("mMax"), nb::arg("QRdata"));
 
 m.def(
   "SUNQRAdd_DCGS2_SB",
-  [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df, int m,
+  [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df, int m,
      int mMax, void* QRdata) -> SUNErrCode
   {
     auto SUNQRAdd_DCGS2_SB_adapt_arr_ptr_to_std_vector =
-      [](std::vector<N_Vector> Q, std::vector<sunrealtype> R, N_Vector df,
+      [](std::vector<N_Vector> Q_1d, std::vector<double> R_1d, N_Vector df,
          int m, int mMax, void* QRdata) -> SUNErrCode
     {
-      N_Vector* Q_ptr    = reinterpret_cast<N_Vector*>(Q.empty() ? nullptr
-                                                                 : Q.data());
-      sunrealtype* R_ptr = reinterpret_cast<sunrealtype*>(R.empty() ? nullptr
-                                                                    : R.data());
+      N_Vector* Q_1d_ptr =
+        reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.empty() ? nullptr
+                                                                : R_1d.data());
 
-      auto lambda_result = SUNQRAdd_DCGS2_SB(Q_ptr, R_ptr, df, m, mMax, QRdata);
+      auto lambda_result = SUNQRAdd_DCGS2_SB(Q_1d_ptr, R_1d_ptr, df, m, mMax,
+                                             QRdata);
       return lambda_result;
     };
 
-    return SUNQRAdd_DCGS2_SB_adapt_arr_ptr_to_std_vector(Q, R, df, m, mMax,
-                                                         QRdata);
+    return SUNQRAdd_DCGS2_SB_adapt_arr_ptr_to_std_vector(Q_1d, R_1d, df, m,
+                                                         mMax, QRdata);
   },
-  nb::arg("Q"), nb::arg("R"), nb::arg("df"), nb::arg("m"), nb::arg("mMax"),
-  nb::arg("QRdata"));
+  nb::arg("Q_1d"), nb::arg("R_1d"), nb::arg("df"), nb::arg("m"),
+  nb::arg("mMax"), nb::arg("QRdata"));
 // #ifdef __cplusplus
 //
 // #endif

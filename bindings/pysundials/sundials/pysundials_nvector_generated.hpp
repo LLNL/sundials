@@ -93,256 +93,200 @@ m.def("N_VMinQuotient", N_VMinQuotient, nb::arg("num"), nb::arg("denom"));
 
 m.def(
   "N_VLinearCombination",
-  [](int nvec, std::vector<sunrealtype> c_arr, std::vector<N_Vector> X_arr,
+  [](int nvec, std::vector<double> c_1d, std::vector<N_Vector> X_1d,
      N_Vector z) -> SUNErrCode
   {
     auto N_VLinearCombination_adapt_arr_ptr_to_std_vector =
-      [](int nvec, std::vector<sunrealtype> c_arr, std::vector<N_Vector> X_arr,
+      [](int nvec, std::vector<double> c_1d, std::vector<N_Vector> X_1d,
          N_Vector z) -> SUNErrCode
     {
-      sunrealtype* c_arr_ptr =
-        reinterpret_cast<sunrealtype*>(c_arr.empty() ? nullptr : c_arr.data());
-      N_Vector* X_arr_ptr =
-        reinterpret_cast<N_Vector*>(X_arr.empty() ? nullptr : X_arr.data());
+      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.empty() ? nullptr
+                                                                : c_1d.data());
+      N_Vector* X_1d_ptr =
+        reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
 
-      auto lambda_result = N_VLinearCombination(nvec, c_arr_ptr, X_arr_ptr, z);
+      auto lambda_result = N_VLinearCombination(nvec, c_1d_ptr, X_1d_ptr, z);
       return lambda_result;
     };
 
-    return N_VLinearCombination_adapt_arr_ptr_to_std_vector(nvec, c_arr, X_arr,
-                                                            z);
+    return N_VLinearCombination_adapt_arr_ptr_to_std_vector(nvec, c_1d, X_1d, z);
   },
-  nb::arg("nvec"), nb::arg("c_arr"), nb::arg("X_arr"), nb::arg("z"));
+  nb::arg("nvec"), nb::arg("c_1d"), nb::arg("X_1d"), nb::arg("z"));
 
 m.def(
   "N_VScaleAddMulti",
-  [](int nvec, std::vector<sunrealtype> a, N_Vector x,
-     std::vector<N_Vector> Y_arr, std::vector<N_Vector> Z_arr) -> SUNErrCode
+  [](int nvec, std::vector<double> a_1d, N_Vector x, std::vector<N_Vector> Y_1d,
+     std::vector<N_Vector> Z_1d) -> SUNErrCode
   {
     auto N_VScaleAddMulti_adapt_arr_ptr_to_std_vector =
-      [](int nvec, std::vector<sunrealtype> a, N_Vector x,
-         std::vector<N_Vector> Y_arr, std::vector<N_Vector> Z_arr) -> SUNErrCode
+      [](int nvec, std::vector<double> a_1d, N_Vector x,
+         std::vector<N_Vector> Y_1d, std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
-      sunrealtype* a_ptr = reinterpret_cast<sunrealtype*>(a.empty() ? nullptr
-                                                                    : a.data());
-      N_Vector* Y_arr_ptr =
-        reinterpret_cast<N_Vector*>(Y_arr.empty() ? nullptr : Y_arr.data());
-      N_Vector* Z_arr_ptr =
-        reinterpret_cast<N_Vector*>(Z_arr.empty() ? nullptr : Z_arr.data());
+      double* a_1d_ptr = reinterpret_cast<double*>(a_1d.empty() ? nullptr
+                                                                : a_1d.data());
+      N_Vector* Y_1d_ptr =
+        reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
+      N_Vector* Z_1d_ptr =
+        reinterpret_cast<N_Vector*>(Z_1d.empty() ? nullptr : Z_1d.data());
 
-      auto lambda_result = N_VScaleAddMulti(nvec, a_ptr, x, Y_arr_ptr, Z_arr_ptr);
+      auto lambda_result = N_VScaleAddMulti(nvec, a_1d_ptr, x, Y_1d_ptr,
+                                            Z_1d_ptr);
       return lambda_result;
     };
 
-    return N_VScaleAddMulti_adapt_arr_ptr_to_std_vector(nvec, a, x, Y_arr, Z_arr);
+    return N_VScaleAddMulti_adapt_arr_ptr_to_std_vector(nvec, a_1d, x, Y_1d,
+                                                        Z_1d);
   },
-  nb::arg("nvec"), nb::arg("a"), nb::arg("x"), nb::arg("Y_arr"),
-  nb::arg("Z_arr"));
+  nb::arg("nvec"), nb::arg("a_1d"), nb::arg("x"), nb::arg("Y_1d"),
+  nb::arg("Z_1d"));
 
 m.def(
   "N_VDotProdMulti",
-  [](int nvec, N_Vector x, std::vector<N_Vector> Y_arr,
-     std::vector<sunrealtype> dotprods) -> SUNErrCode
+  [](int nvec, N_Vector x, std::vector<N_Vector> Y_1d,
+     std::vector<double> dotprods_1d) -> SUNErrCode
   {
     auto N_VDotProdMulti_adapt_arr_ptr_to_std_vector =
-      [](int nvec, N_Vector x, std::vector<N_Vector> Y_arr,
-         std::vector<sunrealtype> dotprods) -> SUNErrCode
+      [](int nvec, N_Vector x, std::vector<N_Vector> Y_1d,
+         std::vector<double> dotprods_1d) -> SUNErrCode
     {
-      N_Vector* Y_arr_ptr =
-        reinterpret_cast<N_Vector*>(Y_arr.empty() ? nullptr : Y_arr.data());
-      sunrealtype* dotprods_ptr = reinterpret_cast<sunrealtype*>(
-        dotprods.empty() ? nullptr : dotprods.data());
+      N_Vector* Y_1d_ptr =
+        reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
+      double* dotprods_1d_ptr = reinterpret_cast<double*>(
+        dotprods_1d.empty() ? nullptr : dotprods_1d.data());
 
-      auto lambda_result = N_VDotProdMulti(nvec, x, Y_arr_ptr, dotprods_ptr);
+      auto lambda_result = N_VDotProdMulti(nvec, x, Y_1d_ptr, dotprods_1d_ptr);
       return lambda_result;
     };
 
-    return N_VDotProdMulti_adapt_arr_ptr_to_std_vector(nvec, x, Y_arr, dotprods);
+    return N_VDotProdMulti_adapt_arr_ptr_to_std_vector(nvec, x, Y_1d,
+                                                       dotprods_1d);
   },
-  nb::arg("nvec"), nb::arg("x"), nb::arg("Y_arr"), nb::arg("dotprods"));
+  nb::arg("nvec"), nb::arg("x"), nb::arg("Y_1d"), nb::arg("dotprods_1d"));
 
 m.def(
   "N_VLinearSumVectorArray",
-  [](int nvec, double a, std::vector<N_Vector> X_arr, double b,
-     std::vector<N_Vector> Y_arr, std::vector<N_Vector> Z_arr) -> SUNErrCode
+  [](int nvec, double a, std::vector<N_Vector> X_1d, double b,
+     std::vector<N_Vector> Y_1d, std::vector<N_Vector> Z_1d) -> SUNErrCode
   {
     auto N_VLinearSumVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, double a, std::vector<N_Vector> X_arr, double b,
-         std::vector<N_Vector> Y_arr, std::vector<N_Vector> Z_arr) -> SUNErrCode
+      [](int nvec, double a, std::vector<N_Vector> X_1d, double b,
+         std::vector<N_Vector> Y_1d, std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
-      N_Vector* X_arr_ptr =
-        reinterpret_cast<N_Vector*>(X_arr.empty() ? nullptr : X_arr.data());
-      N_Vector* Y_arr_ptr =
-        reinterpret_cast<N_Vector*>(Y_arr.empty() ? nullptr : Y_arr.data());
-      N_Vector* Z_arr_ptr =
-        reinterpret_cast<N_Vector*>(Z_arr.empty() ? nullptr : Z_arr.data());
+      N_Vector* X_1d_ptr =
+        reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
+      N_Vector* Y_1d_ptr =
+        reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
+      N_Vector* Z_1d_ptr =
+        reinterpret_cast<N_Vector*>(Z_1d.empty() ? nullptr : Z_1d.data());
 
-      auto lambda_result = N_VLinearSumVectorArray(nvec, a, X_arr_ptr, b,
-                                                   Y_arr_ptr, Z_arr_ptr);
+      auto lambda_result = N_VLinearSumVectorArray(nvec, a, X_1d_ptr, b,
+                                                   Y_1d_ptr, Z_1d_ptr);
       return lambda_result;
     };
 
-    return N_VLinearSumVectorArray_adapt_arr_ptr_to_std_vector(nvec, a, X_arr,
-                                                               b, Y_arr, Z_arr);
+    return N_VLinearSumVectorArray_adapt_arr_ptr_to_std_vector(nvec, a, X_1d, b,
+                                                               Y_1d, Z_1d);
   },
-  nb::arg("nvec"), nb::arg("a"), nb::arg("X_arr"), nb::arg("b"),
-  nb::arg("Y_arr"), nb::arg("Z_arr"));
+  nb::arg("nvec"), nb::arg("a"), nb::arg("X_1d"), nb::arg("b"), nb::arg("Y_1d"),
+  nb::arg("Z_1d"));
 
 m.def(
   "N_VScaleVectorArray",
-  [](int nvec, std::vector<sunrealtype> c, std::vector<N_Vector> X_arr,
-     std::vector<N_Vector> Z_arr) -> SUNErrCode
+  [](int nvec, std::vector<double> c_1d, std::vector<N_Vector> X_1d,
+     std::vector<N_Vector> Z_1d) -> SUNErrCode
   {
     auto N_VScaleVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, std::vector<sunrealtype> c, std::vector<N_Vector> X_arr,
-         std::vector<N_Vector> Z_arr) -> SUNErrCode
+      [](int nvec, std::vector<double> c_1d, std::vector<N_Vector> X_1d,
+         std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
-      sunrealtype* c_ptr = reinterpret_cast<sunrealtype*>(c.empty() ? nullptr
-                                                                    : c.data());
-      N_Vector* X_arr_ptr =
-        reinterpret_cast<N_Vector*>(X_arr.empty() ? nullptr : X_arr.data());
-      N_Vector* Z_arr_ptr =
-        reinterpret_cast<N_Vector*>(Z_arr.empty() ? nullptr : Z_arr.data());
+      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.empty() ? nullptr
+                                                                : c_1d.data());
+      N_Vector* X_1d_ptr =
+        reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
+      N_Vector* Z_1d_ptr =
+        reinterpret_cast<N_Vector*>(Z_1d.empty() ? nullptr : Z_1d.data());
 
-      auto lambda_result = N_VScaleVectorArray(nvec, c_ptr, X_arr_ptr, Z_arr_ptr);
+      auto lambda_result = N_VScaleVectorArray(nvec, c_1d_ptr, X_1d_ptr,
+                                               Z_1d_ptr);
       return lambda_result;
     };
 
-    return N_VScaleVectorArray_adapt_arr_ptr_to_std_vector(nvec, c, X_arr, Z_arr);
+    return N_VScaleVectorArray_adapt_arr_ptr_to_std_vector(nvec, c_1d, X_1d,
+                                                           Z_1d);
   },
-  nb::arg("nvec"), nb::arg("c"), nb::arg("X_arr"), nb::arg("Z_arr"));
+  nb::arg("nvec"), nb::arg("c_1d"), nb::arg("X_1d"), nb::arg("Z_1d"));
 
 m.def(
   "N_VConstVectorArray",
-  [](int nvec, double c, std::vector<N_Vector> Z_arr) -> SUNErrCode
+  [](int nvec, double c, std::vector<N_Vector> Z_1d) -> SUNErrCode
   {
     auto N_VConstVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, double c, std::vector<N_Vector> Z_arr) -> SUNErrCode
+      [](int nvec, double c, std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
-      N_Vector* Z_arr_ptr =
-        reinterpret_cast<N_Vector*>(Z_arr.empty() ? nullptr : Z_arr.data());
+      N_Vector* Z_1d_ptr =
+        reinterpret_cast<N_Vector*>(Z_1d.empty() ? nullptr : Z_1d.data());
 
-      auto lambda_result = N_VConstVectorArray(nvec, c, Z_arr_ptr);
+      auto lambda_result = N_VConstVectorArray(nvec, c, Z_1d_ptr);
       return lambda_result;
     };
 
-    return N_VConstVectorArray_adapt_arr_ptr_to_std_vector(nvec, c, Z_arr);
+    return N_VConstVectorArray_adapt_arr_ptr_to_std_vector(nvec, c, Z_1d);
   },
-  nb::arg("nvec"), nb::arg("c"), nb::arg("Z_arr"));
+  nb::arg("nvec"), nb::arg("c"), nb::arg("Z_1d"));
 
 m.def(
   "N_VWrmsNormVectorArray",
-  [](int nvec, std::vector<N_Vector> X_arr, std::vector<N_Vector> W_arr,
-     std::vector<sunrealtype> nrm) -> SUNErrCode
+  [](int nvec, std::vector<N_Vector> X_1d, std::vector<N_Vector> W_1d,
+     std::vector<double> nrm_1d) -> SUNErrCode
   {
     auto N_VWrmsNormVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, std::vector<N_Vector> X_arr, std::vector<N_Vector> W_arr,
-         std::vector<sunrealtype> nrm) -> SUNErrCode
+      [](int nvec, std::vector<N_Vector> X_1d, std::vector<N_Vector> W_1d,
+         std::vector<double> nrm_1d) -> SUNErrCode
     {
-      N_Vector* X_arr_ptr =
-        reinterpret_cast<N_Vector*>(X_arr.empty() ? nullptr : X_arr.data());
-      N_Vector* W_arr_ptr =
-        reinterpret_cast<N_Vector*>(W_arr.empty() ? nullptr : W_arr.data());
-      sunrealtype* nrm_ptr =
-        reinterpret_cast<sunrealtype*>(nrm.empty() ? nullptr : nrm.data());
+      N_Vector* X_1d_ptr =
+        reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
+      N_Vector* W_1d_ptr =
+        reinterpret_cast<N_Vector*>(W_1d.empty() ? nullptr : W_1d.data());
+      double* nrm_1d_ptr =
+        reinterpret_cast<double*>(nrm_1d.empty() ? nullptr : nrm_1d.data());
 
-      auto lambda_result = N_VWrmsNormVectorArray(nvec, X_arr_ptr, W_arr_ptr,
-                                                  nrm_ptr);
+      auto lambda_result = N_VWrmsNormVectorArray(nvec, X_1d_ptr, W_1d_ptr,
+                                                  nrm_1d_ptr);
       return lambda_result;
     };
 
-    return N_VWrmsNormVectorArray_adapt_arr_ptr_to_std_vector(nvec, X_arr,
-                                                              W_arr, nrm);
+    return N_VWrmsNormVectorArray_adapt_arr_ptr_to_std_vector(nvec, X_1d, W_1d,
+                                                              nrm_1d);
   },
-  nb::arg("nvec"), nb::arg("X_arr"), nb::arg("W_arr"), nb::arg("nrm"));
+  nb::arg("nvec"), nb::arg("X_1d"), nb::arg("W_1d"), nb::arg("nrm_1d"));
 
 m.def(
   "N_VWrmsNormMaskVectorArray",
-  [](int nvec, std::vector<N_Vector> X_arr, std::vector<N_Vector> W_arr,
-     N_Vector id, std::vector<sunrealtype> nrm) -> SUNErrCode
+  [](int nvec, std::vector<N_Vector> X_1d, std::vector<N_Vector> W_1d,
+     N_Vector id, std::vector<double> nrm_1d) -> SUNErrCode
   {
     auto N_VWrmsNormMaskVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, std::vector<N_Vector> X_arr, std::vector<N_Vector> W_arr,
-         N_Vector id, std::vector<sunrealtype> nrm) -> SUNErrCode
+      [](int nvec, std::vector<N_Vector> X_1d, std::vector<N_Vector> W_1d,
+         N_Vector id, std::vector<double> nrm_1d) -> SUNErrCode
     {
-      N_Vector* X_arr_ptr =
-        reinterpret_cast<N_Vector*>(X_arr.empty() ? nullptr : X_arr.data());
-      N_Vector* W_arr_ptr =
-        reinterpret_cast<N_Vector*>(W_arr.empty() ? nullptr : W_arr.data());
-      sunrealtype* nrm_ptr =
-        reinterpret_cast<sunrealtype*>(nrm.empty() ? nullptr : nrm.data());
+      N_Vector* X_1d_ptr =
+        reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
+      N_Vector* W_1d_ptr =
+        reinterpret_cast<N_Vector*>(W_1d.empty() ? nullptr : W_1d.data());
+      double* nrm_1d_ptr =
+        reinterpret_cast<double*>(nrm_1d.empty() ? nullptr : nrm_1d.data());
 
-      auto lambda_result = N_VWrmsNormMaskVectorArray(nvec, X_arr_ptr,
-                                                      W_arr_ptr, id, nrm_ptr);
+      auto lambda_result = N_VWrmsNormMaskVectorArray(nvec, X_1d_ptr, W_1d_ptr,
+                                                      id, nrm_1d_ptr);
       return lambda_result;
     };
 
-    return N_VWrmsNormMaskVectorArray_adapt_arr_ptr_to_std_vector(nvec, X_arr,
-                                                                  W_arr, id, nrm);
+    return N_VWrmsNormMaskVectorArray_adapt_arr_ptr_to_std_vector(nvec, X_1d,
+                                                                  W_1d, id,
+                                                                  nrm_1d);
   },
-  nb::arg("nvec"), nb::arg("X_arr"), nb::arg("W_arr"), nb::arg("id"),
-  nb::arg("nrm"));
-
-m.def(
-  "N_VScaleAddMultiVectorArray",
-  [](int nvec, int nsum, std::vector<sunrealtype> a, std::vector<N_Vector> X_arr,
-     std::vector<N_Vector> Y_arr, std::vector<N_Vector> Z_arr) -> SUNErrCode
-  {
-    auto N_VScaleAddMultiVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, int nsum, std::vector<sunrealtype> a,
-         std::vector<N_Vector> X_arr, std::vector<N_Vector> Y_arr,
-         std::vector<N_Vector> Z_arr) -> SUNErrCode
-    {
-      sunrealtype* a_ptr = reinterpret_cast<sunrealtype*>(a.empty() ? nullptr
-                                                                    : a.data());
-      N_Vector* X_arr_ptr =
-        reinterpret_cast<N_Vector*>(X_arr.empty() ? nullptr : X_arr.data());
-      N_Vector** Y_arr_ptr =
-        reinterpret_cast<N_Vector**>(Y_arr.empty() ? nullptr : Y_arr.data());
-      N_Vector** Z_arr_ptr =
-        reinterpret_cast<N_Vector**>(Z_arr.empty() ? nullptr : Z_arr.data());
-
-      auto lambda_result = N_VScaleAddMultiVectorArray(nvec, nsum, a_ptr,
-                                                       X_arr_ptr, Y_arr_ptr,
-                                                       Z_arr_ptr);
-      return lambda_result;
-    };
-
-    return N_VScaleAddMultiVectorArray_adapt_arr_ptr_to_std_vector(nvec, nsum,
-                                                                   a, X_arr,
-                                                                   Y_arr, Z_arr);
-  },
-  nb::arg("nvec"), nb::arg("nsum"), nb::arg("a"), nb::arg("X_arr"),
-  nb::arg("Y_arr"), nb::arg("Z_arr"));
-
-m.def(
-  "N_VLinearCombinationVectorArray",
-  [](int nvec, int nsum, std::vector<sunrealtype> c_arr,
-     std::vector<N_Vector> X_arr, std::vector<N_Vector> Z_arr) -> SUNErrCode
-  {
-    auto N_VLinearCombinationVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, int nsum, std::vector<sunrealtype> c_arr,
-         std::vector<N_Vector> X_arr, std::vector<N_Vector> Z_arr) -> SUNErrCode
-    {
-      sunrealtype* c_arr_ptr =
-        reinterpret_cast<sunrealtype*>(c_arr.empty() ? nullptr : c_arr.data());
-      N_Vector** X_arr_ptr =
-        reinterpret_cast<N_Vector**>(X_arr.empty() ? nullptr : X_arr.data());
-      N_Vector* Z_arr_ptr =
-        reinterpret_cast<N_Vector*>(Z_arr.empty() ? nullptr : Z_arr.data());
-
-      auto lambda_result = N_VLinearCombinationVectorArray(nvec, nsum, c_arr_ptr,
-                                                           X_arr_ptr, Z_arr_ptr);
-      return lambda_result;
-    };
-
-    return N_VLinearCombinationVectorArray_adapt_arr_ptr_to_std_vector(nvec, nsum,
-                                                                       c_arr,
-                                                                       X_arr,
-                                                                       Z_arr);
-  },
-  nb::arg("nvec"), nb::arg("nsum"), nb::arg("c_arr"), nb::arg("X_arr"),
-  nb::arg("Z_arr"));
+  nb::arg("nvec"), nb::arg("X_1d"), nb::arg("W_1d"), nb::arg("id"),
+  nb::arg("nrm_1d"));
 
 m.def("N_VDotProdLocal", N_VDotProdLocal, nb::arg("x"), nb::arg("y"));
 
@@ -367,45 +311,46 @@ m.def("N_VMinQuotientLocal", N_VMinQuotientLocal, nb::arg("num"),
 
 m.def(
   "N_VDotProdMultiLocal",
-  [](int nvec, N_Vector x, std::vector<N_Vector> Y_arr,
-     std::vector<sunrealtype> dotprods) -> SUNErrCode
+  [](int nvec, N_Vector x, std::vector<N_Vector> Y_1d,
+     std::vector<double> dotprods_1d) -> SUNErrCode
   {
     auto N_VDotProdMultiLocal_adapt_arr_ptr_to_std_vector =
-      [](int nvec, N_Vector x, std::vector<N_Vector> Y_arr,
-         std::vector<sunrealtype> dotprods) -> SUNErrCode
+      [](int nvec, N_Vector x, std::vector<N_Vector> Y_1d,
+         std::vector<double> dotprods_1d) -> SUNErrCode
     {
-      N_Vector* Y_arr_ptr =
-        reinterpret_cast<N_Vector*>(Y_arr.empty() ? nullptr : Y_arr.data());
-      sunrealtype* dotprods_ptr = reinterpret_cast<sunrealtype*>(
-        dotprods.empty() ? nullptr : dotprods.data());
+      N_Vector* Y_1d_ptr =
+        reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
+      double* dotprods_1d_ptr = reinterpret_cast<double*>(
+        dotprods_1d.empty() ? nullptr : dotprods_1d.data());
 
-      auto lambda_result = N_VDotProdMultiLocal(nvec, x, Y_arr_ptr, dotprods_ptr);
+      auto lambda_result = N_VDotProdMultiLocal(nvec, x, Y_1d_ptr,
+                                                dotprods_1d_ptr);
       return lambda_result;
     };
 
-    return N_VDotProdMultiLocal_adapt_arr_ptr_to_std_vector(nvec, x, Y_arr,
-                                                            dotprods);
+    return N_VDotProdMultiLocal_adapt_arr_ptr_to_std_vector(nvec, x, Y_1d,
+                                                            dotprods_1d);
   },
-  nb::arg("nvec"), nb::arg("x"), nb::arg("Y_arr"), nb::arg("dotprods"));
+  nb::arg("nvec"), nb::arg("x"), nb::arg("Y_1d"), nb::arg("dotprods_1d"));
 
 m.def(
   "N_VDotProdMultiAllReduce",
-  [](int nvec_total, N_Vector x, std::vector<sunrealtype> sum) -> SUNErrCode
+  [](int nvec_total, N_Vector x, std::vector<double> sum_1d) -> SUNErrCode
   {
     auto N_VDotProdMultiAllReduce_adapt_arr_ptr_to_std_vector =
-      [](int nvec_total, N_Vector x, std::vector<sunrealtype> sum) -> SUNErrCode
+      [](int nvec_total, N_Vector x, std::vector<double> sum_1d) -> SUNErrCode
     {
-      sunrealtype* sum_ptr =
-        reinterpret_cast<sunrealtype*>(sum.empty() ? nullptr : sum.data());
+      double* sum_1d_ptr =
+        reinterpret_cast<double*>(sum_1d.empty() ? nullptr : sum_1d.data());
 
-      auto lambda_result = N_VDotProdMultiAllReduce(nvec_total, x, sum_ptr);
+      auto lambda_result = N_VDotProdMultiAllReduce(nvec_total, x, sum_1d_ptr);
       return lambda_result;
     };
 
     return N_VDotProdMultiAllReduce_adapt_arr_ptr_to_std_vector(nvec_total, x,
-                                                                sum);
+                                                                sum_1d);
   },
-  nb::arg("nvec_total"), nb::arg("x"), nb::arg("sum"));
+  nb::arg("nvec_total"), nb::arg("x"), nb::arg("sum_1d"));
 
 m.def("N_VPrint", N_VPrint, nb::arg("v"));
 

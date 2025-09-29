@@ -79,26 +79,26 @@ m.def("SUNStepper_SetStepDirection", SUNStepper_SetStepDirection,
 m.def(
   "SUNStepper_SetForcing",
   [](SUNStepper stepper, double tshift, double tscale,
-     std::vector<N_Vector> forcing, int nforcing) -> SUNErrCode
+     std::vector<N_Vector> forcing_1d, int nforcing) -> SUNErrCode
   {
     auto SUNStepper_SetForcing_adapt_arr_ptr_to_std_vector =
       [](SUNStepper stepper, double tshift, double tscale,
-         std::vector<N_Vector> forcing, int nforcing) -> SUNErrCode
+         std::vector<N_Vector> forcing_1d, int nforcing) -> SUNErrCode
     {
-      N_Vector* forcing_ptr =
-        reinterpret_cast<N_Vector*>(forcing.empty() ? nullptr : forcing.data());
+      N_Vector* forcing_1d_ptr = reinterpret_cast<N_Vector*>(
+        forcing_1d.empty() ? nullptr : forcing_1d.data());
 
       auto lambda_result = SUNStepper_SetForcing(stepper, tshift, tscale,
-                                                 forcing_ptr, nforcing);
+                                                 forcing_1d_ptr, nforcing);
       return lambda_result;
     };
 
     return SUNStepper_SetForcing_adapt_arr_ptr_to_std_vector(stepper, tshift,
-                                                             tscale, forcing,
+                                                             tscale, forcing_1d,
                                                              nforcing);
   },
-  nb::arg("stepper"), nb::arg("tshift"), nb::arg("tscale"), nb::arg("forcing"),
-  nb::arg("nforcing"));
+  nb::arg("stepper"), nb::arg("tshift"), nb::arg("tscale"),
+  nb::arg("forcing_1d"), nb::arg("nforcing"));
 
 m.def("SUNStepper_SetLastFlag", SUNStepper_SetLastFlag, nb::arg("stepper"),
       nb::arg("last_flag"));

@@ -741,59 +741,61 @@ m.def(
 
 m.def(
   "CVodeSensReInit",
-  [](void* cvode_mem, int ism, std::vector<N_Vector> yS0) -> int
+  [](void* cvode_mem, int ism, std::vector<N_Vector> yS0_1d) -> int
   {
     auto CVodeSensReInit_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, int ism, std::vector<N_Vector> yS0) -> int
+      [](void* cvode_mem, int ism, std::vector<N_Vector> yS0_1d) -> int
     {
-      N_Vector* yS0_ptr = reinterpret_cast<N_Vector*>(yS0.empty() ? nullptr
-                                                                  : yS0.data());
+      N_Vector* yS0_1d_ptr =
+        reinterpret_cast<N_Vector*>(yS0_1d.empty() ? nullptr : yS0_1d.data());
 
-      auto lambda_result = CVodeSensReInit(cvode_mem, ism, yS0_ptr);
+      auto lambda_result = CVodeSensReInit(cvode_mem, ism, yS0_1d_ptr);
       return lambda_result;
     };
 
-    return CVodeSensReInit_adapt_arr_ptr_to_std_vector(cvode_mem, ism, yS0);
+    return CVodeSensReInit_adapt_arr_ptr_to_std_vector(cvode_mem, ism, yS0_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("ism"), nb::arg("yS0"));
+  nb::arg("cvode_mem"), nb::arg("ism"), nb::arg("yS0_1d"));
 
 m.def(
   "CVodeSensSStolerances",
-  [](void* cvode_mem, double reltolS, std::vector<sunrealtype> abstolS) -> int
+  [](void* cvode_mem, double reltolS, std::vector<double> abstolS_1d) -> int
   {
     auto CVodeSensSStolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolS, std::vector<sunrealtype> abstolS) -> int
+      [](void* cvode_mem, double reltolS, std::vector<double> abstolS_1d) -> int
     {
-      sunrealtype* abstolS_ptr = reinterpret_cast<sunrealtype*>(
-        abstolS.empty() ? nullptr : abstolS.data());
+      double* abstolS_1d_ptr = reinterpret_cast<double*>(
+        abstolS_1d.empty() ? nullptr : abstolS_1d.data());
 
-      auto lambda_result = CVodeSensSStolerances(cvode_mem, reltolS, abstolS_ptr);
+      auto lambda_result = CVodeSensSStolerances(cvode_mem, reltolS,
+                                                 abstolS_1d_ptr);
       return lambda_result;
     };
 
     return CVodeSensSStolerances_adapt_arr_ptr_to_std_vector(cvode_mem, reltolS,
-                                                             abstolS);
+                                                             abstolS_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("reltolS"), nb::arg("abstolS"));
+  nb::arg("cvode_mem"), nb::arg("reltolS"), nb::arg("abstolS_1d"));
 
 m.def(
   "CVodeSensSVtolerances",
-  [](void* cvode_mem, double reltolS, std::vector<N_Vector> abstolS) -> int
+  [](void* cvode_mem, double reltolS, std::vector<N_Vector> abstolS_1d) -> int
   {
     auto CVodeSensSVtolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolS, std::vector<N_Vector> abstolS) -> int
+      [](void* cvode_mem, double reltolS, std::vector<N_Vector> abstolS_1d) -> int
     {
-      N_Vector* abstolS_ptr =
-        reinterpret_cast<N_Vector*>(abstolS.empty() ? nullptr : abstolS.data());
+      N_Vector* abstolS_1d_ptr = reinterpret_cast<N_Vector*>(
+        abstolS_1d.empty() ? nullptr : abstolS_1d.data());
 
-      auto lambda_result = CVodeSensSVtolerances(cvode_mem, reltolS, abstolS_ptr);
+      auto lambda_result = CVodeSensSVtolerances(cvode_mem, reltolS,
+                                                 abstolS_1d_ptr);
       return lambda_result;
     };
 
     return CVodeSensSVtolerances_adapt_arr_ptr_to_std_vector(cvode_mem, reltolS,
-                                                             abstolS);
+                                                             abstolS_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("reltolS"), nb::arg("abstolS"));
+  nb::arg("cvode_mem"), nb::arg("reltolS"), nb::arg("abstolS_1d"));
 
 m.def("CVodeSensEEtolerances", CVodeSensEEtolerances, nb::arg("cvode_mem"));
 
@@ -808,29 +810,29 @@ m.def("CVodeSetSensMaxNonlinIters", CVodeSetSensMaxNonlinIters,
 
 m.def(
   "CVodeSetSensParams",
-  [](void* cvode_mem, std::vector<sunrealtype> p, std::vector<sunrealtype> pbar,
-     std::vector<int> plist) -> int
+  [](void* cvode_mem, std::vector<double> p_1d, std::vector<double> pbar_1d,
+     std::vector<int> plist_1d) -> int
   {
     auto CVodeSetSensParams_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, std::vector<sunrealtype> p,
-         std::vector<sunrealtype> pbar, std::vector<int> plist) -> int
+      [](void* cvode_mem, std::vector<double> p_1d, std::vector<double> pbar_1d,
+         std::vector<int> plist_1d) -> int
     {
-      sunrealtype* p_ptr = reinterpret_cast<sunrealtype*>(p.empty() ? nullptr
-                                                                    : p.data());
-      sunrealtype* pbar_ptr =
-        reinterpret_cast<sunrealtype*>(pbar.empty() ? nullptr : pbar.data());
-      int* plist_ptr = reinterpret_cast<int*>(plist.empty() ? nullptr
-                                                            : plist.data());
+      double* p_1d_ptr = reinterpret_cast<double*>(p_1d.empty() ? nullptr
+                                                                : p_1d.data());
+      double* pbar_1d_ptr =
+        reinterpret_cast<double*>(pbar_1d.empty() ? nullptr : pbar_1d.data());
+      int* plist_1d_ptr =
+        reinterpret_cast<int*>(plist_1d.empty() ? nullptr : plist_1d.data());
 
-      auto lambda_result = CVodeSetSensParams(cvode_mem, p_ptr, pbar_ptr,
-                                              plist_ptr);
+      auto lambda_result = CVodeSetSensParams(cvode_mem, p_1d_ptr, pbar_1d_ptr,
+                                              plist_1d_ptr);
       return lambda_result;
     };
 
-    return CVodeSetSensParams_adapt_arr_ptr_to_std_vector(cvode_mem, p, pbar,
-                                                          plist);
+    return CVodeSetSensParams_adapt_arr_ptr_to_std_vector(cvode_mem, p_1d,
+                                                          pbar_1d, plist_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("p"), nb::arg("pbar"), nb::arg("plist"));
+  nb::arg("cvode_mem"), nb::arg("p_1d"), nb::arg("pbar_1d"), nb::arg("plist_1d"));
 
 m.def("CVodeSetNonlinearSolverSensSim", CVodeSetNonlinearSolverSensSim,
       nb::arg("cvode_mem"), nb::arg("NLS"));
@@ -846,34 +848,35 @@ m.def("CVodeSensToggleOff", CVodeSensToggleOff, nb::arg("cvode_mem"));
 m.def(
   "CVodeGetSens",
   [](void* cvode_mem, double tret,
-     std::vector<N_Vector> ySout) -> std::tuple<int, double>
+     std::vector<N_Vector> ySout_1d) -> std::tuple<int, double>
   {
     auto CVodeGetSens_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, double tret, N_Vector1d ySout) -> std::tuple<int, double>
+      [](void* cvode_mem, double tret,
+         N_Vector* ySout_1d) -> std::tuple<int, double>
     {
       double* tret_adapt_modifiable = &tret;
 
-      int r = CVodeGetSens(cvode_mem, tret_adapt_modifiable, ySout);
+      int r = CVodeGetSens(cvode_mem, tret_adapt_modifiable, ySout_1d);
       return std::make_tuple(r, tret);
     };
     auto CVodeGetSens_adapt_arr_ptr_to_std_vector =
       [&CVodeGetSens_adapt_modifiable_immutable_to_return](void* cvode_mem,
                                                            double tret,
-                                                           std::vector<N_Vector> ySout)
+                                                           std::vector<N_Vector> ySout_1d)
       -> std::tuple<int, double>
     {
-      N_Vector* ySout_ptr =
-        reinterpret_cast<N_Vector*>(ySout.empty() ? nullptr : ySout.data());
+      N_Vector* ySout_1d_ptr = reinterpret_cast<N_Vector*>(
+        ySout_1d.empty() ? nullptr : ySout_1d.data());
 
       auto lambda_result =
         CVodeGetSens_adapt_modifiable_immutable_to_return(cvode_mem, tret,
-                                                          ySout_ptr);
+                                                          ySout_1d_ptr);
       return lambda_result;
     };
 
-    return CVodeGetSens_adapt_arr_ptr_to_std_vector(cvode_mem, tret, ySout);
+    return CVodeGetSens_adapt_arr_ptr_to_std_vector(cvode_mem, tret, ySout_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("tret"), nb::arg("ySout"));
+  nb::arg("cvode_mem"), nb::arg("tret"), nb::arg("ySout_1d"));
 
 m.def(
   "CVodeGetSens1",
@@ -897,21 +900,21 @@ m.def(
 
 m.def(
   "CVodeGetSensDky",
-  [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyA) -> int
+  [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyA_1d) -> int
   {
     auto CVodeGetSensDky_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyA) -> int
+      [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyA_1d) -> int
     {
-      N_Vector* dkyA_ptr =
-        reinterpret_cast<N_Vector*>(dkyA.empty() ? nullptr : dkyA.data());
+      N_Vector* dkyA_1d_ptr =
+        reinterpret_cast<N_Vector*>(dkyA_1d.empty() ? nullptr : dkyA_1d.data());
 
-      auto lambda_result = CVodeGetSensDky(cvode_mem, t, k, dkyA_ptr);
+      auto lambda_result = CVodeGetSensDky(cvode_mem, t, k, dkyA_1d_ptr);
       return lambda_result;
     };
 
-    return CVodeGetSensDky_adapt_arr_ptr_to_std_vector(cvode_mem, t, k, dkyA);
+    return CVodeGetSensDky_adapt_arr_ptr_to_std_vector(cvode_mem, t, k, dkyA_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("t"), nb::arg("k"), nb::arg("dkyA"));
+  nb::arg("cvode_mem"), nb::arg("t"), nb::arg("k"), nb::arg("dkyA_1d"));
 
 m.def("CVodeGetSensDky1", CVodeGetSensDky1, nb::arg("cvode_mem"), nb::arg("t"),
       nb::arg("k"), nb::arg("is_"), nb::arg("dky"));
@@ -991,22 +994,22 @@ m.def(
 
 m.def(
   "CVodeGetSensErrWeights",
-  [](void* cvode_mem, std::vector<N_Vector> eSweight) -> int
+  [](void* cvode_mem, std::vector<N_Vector> eSweight_1d) -> int
   {
     auto CVodeGetSensErrWeights_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, std::vector<N_Vector> eSweight) -> int
+      [](void* cvode_mem, std::vector<N_Vector> eSweight_1d) -> int
     {
-      N_Vector* eSweight_ptr = reinterpret_cast<N_Vector*>(
-        eSweight.empty() ? nullptr : eSweight.data());
+      N_Vector* eSweight_1d_ptr = reinterpret_cast<N_Vector*>(
+        eSweight_1d.empty() ? nullptr : eSweight_1d.data());
 
-      auto lambda_result = CVodeGetSensErrWeights(cvode_mem, eSweight_ptr);
+      auto lambda_result = CVodeGetSensErrWeights(cvode_mem, eSweight_1d_ptr);
       return lambda_result;
     };
 
     return CVodeGetSensErrWeights_adapt_arr_ptr_to_std_vector(cvode_mem,
-                                                              eSweight);
+                                                              eSweight_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("eSweight"));
+  nb::arg("cvode_mem"), nb::arg("eSweight_1d"));
 
 m.def(
   "CVodeGetSensStats",
@@ -1201,63 +1204,63 @@ m.def(
 
 m.def(
   "CVodeQuadSensReInit",
-  [](void* cvode_mem, std::vector<N_Vector> yQS0) -> int
+  [](void* cvode_mem, std::vector<N_Vector> yQS0_1d) -> int
   {
     auto CVodeQuadSensReInit_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, std::vector<N_Vector> yQS0) -> int
+      [](void* cvode_mem, std::vector<N_Vector> yQS0_1d) -> int
     {
-      N_Vector* yQS0_ptr =
-        reinterpret_cast<N_Vector*>(yQS0.empty() ? nullptr : yQS0.data());
+      N_Vector* yQS0_1d_ptr =
+        reinterpret_cast<N_Vector*>(yQS0_1d.empty() ? nullptr : yQS0_1d.data());
 
-      auto lambda_result = CVodeQuadSensReInit(cvode_mem, yQS0_ptr);
+      auto lambda_result = CVodeQuadSensReInit(cvode_mem, yQS0_1d_ptr);
       return lambda_result;
     };
 
-    return CVodeQuadSensReInit_adapt_arr_ptr_to_std_vector(cvode_mem, yQS0);
+    return CVodeQuadSensReInit_adapt_arr_ptr_to_std_vector(cvode_mem, yQS0_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("yQS0"));
+  nb::arg("cvode_mem"), nb::arg("yQS0_1d"));
 
 m.def(
   "CVodeQuadSensSStolerances",
-  [](void* cvode_mem, double reltolQS, std::vector<sunrealtype> abstolQS) -> int
+  [](void* cvode_mem, double reltolQS, std::vector<double> abstolQS_1d) -> int
   {
     auto CVodeQuadSensSStolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolQS, std::vector<sunrealtype> abstolQS) -> int
+      [](void* cvode_mem, double reltolQS, std::vector<double> abstolQS_1d) -> int
     {
-      sunrealtype* abstolQS_ptr = reinterpret_cast<sunrealtype*>(
-        abstolQS.empty() ? nullptr : abstolQS.data());
+      double* abstolQS_1d_ptr = reinterpret_cast<double*>(
+        abstolQS_1d.empty() ? nullptr : abstolQS_1d.data());
 
       auto lambda_result = CVodeQuadSensSStolerances(cvode_mem, reltolQS,
-                                                     abstolQS_ptr);
+                                                     abstolQS_1d_ptr);
       return lambda_result;
     };
 
     return CVodeQuadSensSStolerances_adapt_arr_ptr_to_std_vector(cvode_mem,
                                                                  reltolQS,
-                                                                 abstolQS);
+                                                                 abstolQS_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("reltolQS"), nb::arg("abstolQS"));
+  nb::arg("cvode_mem"), nb::arg("reltolQS"), nb::arg("abstolQS_1d"));
 
 m.def(
   "CVodeQuadSensSVtolerances",
-  [](void* cvode_mem, double reltolQS, std::vector<N_Vector> abstolQS) -> int
+  [](void* cvode_mem, double reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
   {
     auto CVodeQuadSensSVtolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolQS, std::vector<N_Vector> abstolQS) -> int
+      [](void* cvode_mem, double reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
     {
-      N_Vector* abstolQS_ptr = reinterpret_cast<N_Vector*>(
-        abstolQS.empty() ? nullptr : abstolQS.data());
+      N_Vector* abstolQS_1d_ptr = reinterpret_cast<N_Vector*>(
+        abstolQS_1d.empty() ? nullptr : abstolQS_1d.data());
 
       auto lambda_result = CVodeQuadSensSVtolerances(cvode_mem, reltolQS,
-                                                     abstolQS_ptr);
+                                                     abstolQS_1d_ptr);
       return lambda_result;
     };
 
     return CVodeQuadSensSVtolerances_adapt_arr_ptr_to_std_vector(cvode_mem,
                                                                  reltolQS,
-                                                                 abstolQS);
+                                                                 abstolQS_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("reltolQS"), nb::arg("abstolQS"));
+  nb::arg("cvode_mem"), nb::arg("reltolQS"), nb::arg("abstolQS_1d"));
 
 m.def("CVodeQuadSensEEtolerances", CVodeQuadSensEEtolerances,
       nb::arg("cvode_mem"));
@@ -1268,35 +1271,37 @@ m.def("CVodeSetQuadSensErrCon", CVodeSetQuadSensErrCon, nb::arg("cvode_mem"),
 m.def(
   "CVodeGetQuadSens",
   [](void* cvode_mem, double tret,
-     std::vector<N_Vector> yQSout) -> std::tuple<int, double>
+     std::vector<N_Vector> yQSout_1d) -> std::tuple<int, double>
   {
     auto CVodeGetQuadSens_adapt_modifiable_immutable_to_return =
       [](void* cvode_mem, double tret,
-         N_Vector1d yQSout) -> std::tuple<int, double>
+         N_Vector* yQSout_1d) -> std::tuple<int, double>
     {
       double* tret_adapt_modifiable = &tret;
 
-      int r = CVodeGetQuadSens(cvode_mem, tret_adapt_modifiable, yQSout);
+      int r = CVodeGetQuadSens(cvode_mem, tret_adapt_modifiable, yQSout_1d);
       return std::make_tuple(r, tret);
     };
     auto CVodeGetQuadSens_adapt_arr_ptr_to_std_vector =
       [&CVodeGetQuadSens_adapt_modifiable_immutable_to_return](void* cvode_mem,
                                                                double tret,
-                                                               std::vector<N_Vector> yQSout)
+                                                               std::vector<N_Vector>
+                                                                 yQSout_1d)
       -> std::tuple<int, double>
     {
-      N_Vector* yQSout_ptr =
-        reinterpret_cast<N_Vector*>(yQSout.empty() ? nullptr : yQSout.data());
+      N_Vector* yQSout_1d_ptr = reinterpret_cast<N_Vector*>(
+        yQSout_1d.empty() ? nullptr : yQSout_1d.data());
 
       auto lambda_result =
         CVodeGetQuadSens_adapt_modifiable_immutable_to_return(cvode_mem, tret,
-                                                              yQSout_ptr);
+                                                              yQSout_1d_ptr);
       return lambda_result;
     };
 
-    return CVodeGetQuadSens_adapt_arr_ptr_to_std_vector(cvode_mem, tret, yQSout);
+    return CVodeGetQuadSens_adapt_arr_ptr_to_std_vector(cvode_mem, tret,
+                                                        yQSout_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("tret"), nb::arg("yQSout"));
+  nb::arg("cvode_mem"), nb::arg("tret"), nb::arg("yQSout_1d"));
 
 m.def(
   "CVodeGetQuadSens1",
@@ -1320,22 +1325,23 @@ m.def(
 
 m.def(
   "CVodeGetQuadSensDky",
-  [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyQS_all) -> int
+  [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyQS_all_1d) -> int
   {
     auto CVodeGetQuadSensDky_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyQS_all) -> int
+      [](void* cvode_mem, double t, int k,
+         std::vector<N_Vector> dkyQS_all_1d) -> int
     {
-      N_Vector* dkyQS_all_ptr = reinterpret_cast<N_Vector*>(
-        dkyQS_all.empty() ? nullptr : dkyQS_all.data());
+      N_Vector* dkyQS_all_1d_ptr = reinterpret_cast<N_Vector*>(
+        dkyQS_all_1d.empty() ? nullptr : dkyQS_all_1d.data());
 
-      auto lambda_result = CVodeGetQuadSensDky(cvode_mem, t, k, dkyQS_all_ptr);
+      auto lambda_result = CVodeGetQuadSensDky(cvode_mem, t, k, dkyQS_all_1d_ptr);
       return lambda_result;
     };
 
     return CVodeGetQuadSensDky_adapt_arr_ptr_to_std_vector(cvode_mem, t, k,
-                                                           dkyQS_all);
+                                                           dkyQS_all_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("t"), nb::arg("k"), nb::arg("dkyQS_all"));
+  nb::arg("cvode_mem"), nb::arg("t"), nb::arg("k"), nb::arg("dkyQS_all_1d"));
 
 m.def("CVodeGetQuadSensDky1", CVodeGetQuadSensDky1, nb::arg("cvode_mem"),
       nb::arg("t"), nb::arg("k"), nb::arg("is_"), nb::arg("dkyQS"));
@@ -1379,22 +1385,23 @@ m.def(
 
 m.def(
   "CVodeGetQuadSensErrWeights",
-  [](void* cvode_mem, std::vector<N_Vector> eQSweight) -> int
+  [](void* cvode_mem, std::vector<N_Vector> eQSweight_1d) -> int
   {
     auto CVodeGetQuadSensErrWeights_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, std::vector<N_Vector> eQSweight) -> int
+      [](void* cvode_mem, std::vector<N_Vector> eQSweight_1d) -> int
     {
-      N_Vector* eQSweight_ptr = reinterpret_cast<N_Vector*>(
-        eQSweight.empty() ? nullptr : eQSweight.data());
+      N_Vector* eQSweight_1d_ptr = reinterpret_cast<N_Vector*>(
+        eQSweight_1d.empty() ? nullptr : eQSweight_1d.data());
 
-      auto lambda_result = CVodeGetQuadSensErrWeights(cvode_mem, eQSweight_ptr);
+      auto lambda_result = CVodeGetQuadSensErrWeights(cvode_mem,
+                                                      eQSweight_1d_ptr);
       return lambda_result;
     };
 
     return CVodeGetQuadSensErrWeights_adapt_arr_ptr_to_std_vector(cvode_mem,
-                                                                  eQSweight);
+                                                                  eQSweight_1d);
   },
-  nb::arg("cvode_mem"), nb::arg("eQSweight"));
+  nb::arg("cvode_mem"), nb::arg("eQSweight_1d"));
 
 m.def(
   "CVodeGetQuadSensStats",

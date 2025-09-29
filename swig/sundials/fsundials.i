@@ -52,7 +52,6 @@
 
 // Assume sunrealtype* is an array of doubles
 %apply double[] { sunrealtype* };
-%apply double[] { sunrealtype1d };
 
 #ifdef GENERATE_INT32
 %apply int[] { sunindextype* };
