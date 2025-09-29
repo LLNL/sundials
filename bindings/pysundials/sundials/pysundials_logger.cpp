@@ -23,8 +23,8 @@
 #include <nanobind/nanobind.h>
 
 #include <sundials/sundials_logger.hpp>
+#include <sundials/sundials_types.h>
 
-#include "sundials/sundials_types.h"
 #include "sundials_logger_impl.h"
 
 namespace nb = nanobind;
