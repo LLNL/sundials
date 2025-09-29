@@ -2,8 +2,11 @@
    Programmer(s): David J. Gardner @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   Copyright (c) 2025, Lawrence Livermore National Security,
+   University of Maryland Baltimore County, and the SUNDIALS contributors.
+   Copyright (c) 2013-2025, Lawrence Livermore National Security
    and Southern Methodist University.
+   Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
 
    See the top-level LICENSE and NOTICE files for details.
@@ -21,6 +24,8 @@ Release History
 +----------+--------------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+
 | Date     | SUNDIALS                       | ARKODE            | CVODE             | CVODES            | IDA               | IDAS              | KINSOL            |
 +==========+================================+===================+===================+===================+===================+===================+===================+
+| Sep 2025 | :ref:`7.5.0 <Changelog.7.5.0>` | 6.5.0             | 7.5.0             | 7.5.0             | 7.5.0             | 6.5.0             | 7.5.0             |
++----------+--------------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+
 | Jun 2025 | :ref:`7.4.0 <Changelog.7.4.0>` | 6.4.0             | 7.4.0             | 7.4.0             | 7.4.0             | 6.4.0             | 7.4.0             |
 +----------+--------------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+
 | Apr 2025 | :ref:`7.3.0 <Changelog.7.3.0>` | 6.3.0             | 7.3.0             | 7.3.0             | 7.3.0             | 6.3.0             | 7.3.0             |

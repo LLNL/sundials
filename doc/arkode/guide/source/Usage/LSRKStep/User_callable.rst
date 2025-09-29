@@ -1,9 +1,12 @@
 .. ----------------------------------------------------------------
-   Programmer(s): Mustafa Aggul @ SMU
+   Programmer(s): Mustafa Aggul @ UMBC
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   Copyright (c) 2025, Lawrence Livermore National Security,
+   University of Maryland Baltimore County, and the SUNDIALS contributors.
+   Copyright (c) 2013-2025, Lawrence Livermore National Security
    and Southern Methodist University.
+   Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
 
    See the top-level LICENSE and NOTICE files for details.
@@ -218,7 +221,7 @@ Allowable Method Families
       * *ARK_DEE_FAIL* if the call to :c:func:`SUNDomEigEstimator_SetATimes`
         failed
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
    .. note::
 
@@ -325,7 +328,7 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
    .. note::
 
@@ -350,7 +353,7 @@ Allowable Method Families
       * *ARK_DEE_FAIL* if the call to
         :c:func:`SUNDomEigEstimator_SetNumPreprocessIters` failed.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
    .. note::
 
@@ -437,7 +440,7 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
       * *ARK_ILL_INPUT* if ``nfeDQ`` is illegal
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
    .. note::
 
@@ -458,7 +461,7 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
       * *ARK_ILL_INPUT* if ``num_iters`` is illegal
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:

@@ -1,7 +1,10 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   Copyright (c) 2025, Lawrence Livermore National Security,
+   University of Maryland Baltimore County, and the SUNDIALS contributors.
+   Copyright (c) 2013-2025, Lawrence Livermore National Security
    and Southern Methodist University.
+   Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
 
    See the top-level LICENSE and NOTICE files for details.
@@ -589,7 +592,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.5.0
 
 .. c:function:: int KINSetUserData(void * kin_mem, void * user_data)
 
@@ -1161,7 +1164,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       This routine will be called by :c:func:`KINSetOptions`
       when using the key "kinid.m_aa".
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 7.5.0
 
       This function can now be called any time after :c:func:`KINCreate` (i.e.,
       it no longer needs to be call before :c:func:`KINInit`) and may be called
@@ -1244,7 +1247,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
    * ``examples/kinsol/serial/kinAnalytic_fp.c``
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 7.5.0
 
       This function can now be called any time after :c:func:`KINCreate` (i.e.,
       it no longer needs to be call before :c:func:`KINInit`).
@@ -2192,6 +2195,15 @@ supplied, the default is a difference quotient approximation to these products.
       * ``v`` -- is the vector by which the Jacobian must be multiplied to the right.
       * ``Jv`` -- is the computed output vector.
       * ``u`` -- is the current value of the dependent variable vector.
+      * ``new_u`` -- is a flag, input from KINSOL and possibly reset by this
+        function, indicating whether the iterate vector ``u`` has been updated
+        since the last call to this function. This is useful if this function
+        computes and saves Jacobian data that depends on ``u`` for use in
+        computing :math:`J(u) v`. The input value of ``new_u`` is ``SUNTRUE``
+        following an update by KINSOL, and in that case any saved Jacobian data
+        depending on ``u`` should be recomputed. This function should then set
+        ``new_u`` to ``SUNFALSE``, so that on subsequent calls with the same
+        ``u``, the saved data can be reused.
       * ``user_data`` -- is a pointer to user data, the same as the ``user_data``
         parameter passed to :c:func:`KINSetUserData`.
 

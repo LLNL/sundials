@@ -3,8 +3,11 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# Copyright (c) 2025, Lawrence Livermore National Security,
+# University of Maryland Baltimore County, and the SUNDIALS contributors.
+# Copyright (c) 2013-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
+# Copyright (c) 2002-2013, Lawrence Livermore National Security.
 # All rights reserved.
 #
 # See the top-level LICENSE and NOTICE files for details.
@@ -19,7 +22,7 @@
 # development releases the label string is of the form "-dev.#" and for full
 # releases the label string is "".
 sun_major=${1:-7}
-sun_minor=${2:-4}
+sun_minor=${2:-5}
 sun_patch=${3:-0}
 sun_label=${4:-""}
 month=${5:-$(date +"%b")}
@@ -361,10 +364,10 @@ new_entry=$(printf "| %-3s %-4s | %-30s | %-17s | %-17s | %-17s | %-17s | %-17s 
     ${idas_ver} ${kin_ver})
 divider="+----------+--------------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+"
 
-# insert new release history row after line 23
-sedi '23 a\
+# insert new release history row after line 26
+sedi '26 a\
 '"${divider}"''$'\n' $fn
-sedi '23 a\
+sedi '26 a\
 '"${new_entry}"''$'\n' $fn
 
 # Update CITATIONS.md

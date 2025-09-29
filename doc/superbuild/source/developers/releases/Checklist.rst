@@ -2,8 +2,11 @@
    Author(s): David J. Gardner, Cody J. Balos @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   Copyright (c) 2025, Lawrence Livermore National Security,
+   University of Maryland Baltimore County, and the SUNDIALS contributors.
+   Copyright (c) 2013-2025, Lawrence Livermore National Security
    and Southern Methodist University.
+   Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
 
    See the top-level LICENSE and NOTICE files for details.
@@ -17,7 +20,7 @@
 Versioning
 ==========
 
-SUNDIALS follows the `semantic versioning <https://semver.org/>`_ scheme and
+SUNDIALS follows the `semantic versioning <https://semver.org/>`__ scheme and
 each release is given a version number ``x.y.z`` where
 
 * ``x`` is the major version number and is incremented when the release includes
@@ -80,6 +83,9 @@ web pages.
    functions should be removed (unless this is the first version
    that they are deprecated).
 
+#. Remove any empty sections from the ``CHANGELOG.md`` and
+   ``doc/shared/RecentChanges.rst`` files.
+
 #. Update version numbers of third party libraries in the Install Guide
    in doc directory.
 
@@ -132,20 +138,10 @@ Release Procedure
    as well as the example documentation PDFs. The description of the release is just a
    copy of the ``CHANGELOG.md`` notes for the release with hard line-wraps removed.
 
-#. On the GitHub [milestones](https://github.com/LLNL/sundials/milestones) page
-   rename the "SUNDIALS Next" milestone "SUNDIALS X.Y.Z", close the renamed
-   milestone, and create a new "SUNDIALS Next" milestone.
-
-#. Now prepare SUNDIALS for the next release cycle using the following steps:
-
-   .. code-block:: shell
-
-      git checkout develop
-      git checkout -b maintenance/start-new-release-cycle
-      pushd scripts/ && ./startReleaseCycle.sh && popd
-      git add . && git commit -m 'start new release cycle'
-      git push -u origin maintenance/start-new-release-cycle
-      # Now open the PR to develop on GitHub.
+#. On the `GitHub milestones page
+   <https://github.com/LLNL/sundials/milestones>`__ page rename the "SUNDIALS
+   Next" milestone "SUNDIALS X.Y.Z", close the renamed milestone, and create a
+   new "SUNDIALS Next" milestone.
 
 #. Update Internal Drupal Web pages for SUNDIALS:
    https://computing-staging.llnl.gov/user
@@ -173,3 +169,17 @@ Release Procedure
 
 #. After final push, ensure web content and behavior is as expected on the main
    page: http://computing.llnl.gov/projects/sundials
+
+Post-Release Tasks
+==================
+
+#. Prepare SUNDIALS for the next release cycle using the following steps:
+
+   .. code-block:: shell
+
+      git checkout develop
+      git checkout -b maintenance/start-new-release-cycle
+      pushd scripts/ && ./startReleaseCycle.sh && popd
+      git add . && git commit -m 'start new release cycle'
+      git push -u origin maintenance/start-new-release-cycle
+      # Now open the PR to develop on GitHub.

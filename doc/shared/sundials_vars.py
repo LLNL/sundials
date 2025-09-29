@@ -1,7 +1,10 @@
 # ----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# Copyright (c) 2025, Lawrence Livermore National Security,
+# University of Maryland Baltimore County, and the SUNDIALS contributors.
+# Copyright (c) 2013-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
+# Copyright (c) 2002-2013, Lawrence Livermore National Security.
 # All rights reserved.
 #
 # See the top-level LICENSE and NOTICE files for details.
@@ -9,14 +12,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ----------------------------------------------------------------
-doc_version = "develop"
-sundials_version = "v7.4.0"
-arkode_version = "v6.4.0"
-cvode_version = "v7.4.0"
-cvodes_version = "v7.4.0"
-ida_version = "v7.4.0"
-idas_version = "v6.4.0"
-kinsol_version = "v7.4.0"
+doc_version = "v7.5.0"
+sundials_version = "v7.5.0"
+arkode_version = "v6.5.0"
+cvode_version = "v7.5.0"
+cvodes_version = "v7.5.0"
+ida_version = "v7.5.0"
+idas_version = "v6.5.0"
+kinsol_version = "v7.5.0"
 year = "2025"
 
 # Warn about all references where the target cannot be found
@@ -40,6 +43,12 @@ nitpick_ignore = [
     ("cpp:identifier", "gko::dim<2>"),
     ("cpp:identifier", "gko::Executor"),
     ("cpp:identifier", "gko::LinOp"),
+    ("cpp:identifier", "gko::size_type"),
+    ("cpp:identifier", "gko::batch_dim<2>"),
+    ("cpp:identifier", "gko::batch"),
+    ("cpp:identifier", "gko::batch::stop"),
+    ("cpp:identifier", "gko::batch::stop::tolerance_type"),
+    ("cpp:identifier", "gko::batch::BatchLinOpFactory"),
     # HIP
     ("cpp:identifier", "hipStream_t"),
     # hypre

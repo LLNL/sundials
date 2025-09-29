@@ -2,8 +2,11 @@
  * Programmer(s): Steven B. Roberts @ LLNL
  *------------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * Copyright (c) 2025, Lawrence Livermore National Security,
+ * University of Maryland Baltimore County, and the SUNDIALS contributors.
+ * Copyright (c) 2013-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
+ * Copyright (c) 2002-2013, Lawrence Livermore National Security.
  * All rights reserved.
  *
  * See the top-level LICENSE and NOTICE files for details.
@@ -14,11 +17,14 @@
  * This is the implementation file for ARKODE's operator splitting module
  *----------------------------------------------------------------------------*/
 
+#include <string.h>
+
 #include <arkode/arkode_splittingstep.h>
 #include <sundials/sundials_nvector.h>
 
 #include "arkode_impl.h"
 #include "arkode_splittingstep_impl.h"
+#include "sundials_utils.h"
 
 /*------------------------------------------------------------------------------
   Shortcut routine to unpack step_mem structure from ark_mem. If missing it

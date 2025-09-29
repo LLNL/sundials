@@ -2,8 +2,11 @@
    Mustafa Aggul @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   Copyright (c) 2025, Lawrence Livermore National Security,
+   University of Maryland Baltimore County, and the SUNDIALS contributors.
+   Copyright (c) 2013-2025, Lawrence Livermore National Security
    and Southern Methodist University.
+   Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
 
    See the top-level LICENSE and NOTICE files for details.
@@ -17,7 +20,7 @@
 The SUNDomEigEstimator API
 =============================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.5.0
 
 The SUNDomEigEst API defines several dominant eigenvalue estimation operations that enable
 SUNDIALS packages to utilize this API.  These functions can be divided into three categories.
@@ -184,7 +187,7 @@ instead of supplying a dummy routine.
       File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.5.0
 
 
 .. c:function:: SUNErrCode SUNDomEigEstimator_SetATimes(SUNDomEigEstimator DEE, void* A_data, SUNATimesFn ATimes)

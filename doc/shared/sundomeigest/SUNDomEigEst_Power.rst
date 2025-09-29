@@ -2,8 +2,11 @@
    Programmer(s): Mustafa Aggul @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   Copyright (c) 2025, Lawrence Livermore National Security,
+   University of Maryland Baltimore County, and the SUNDIALS contributors.
+   Copyright (c) 2013-2025, Lawrence Livermore National Security
    and Southern Methodist University.
+   Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
 
    See the top-level LICENSE and NOTICE files for details.
@@ -17,7 +20,7 @@
 The SUNDomEigEstimator_Power Module
 ======================================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.5.0
 
 The SUNDomEigEstimator_Power implementation of the :c:type:`SUNDomEigEstimator`
 class performs the Power Iteration (PI) method :cite:p:`vonmises29`; this is an
@@ -85,7 +88,7 @@ routines:
                      need too tight tolerances and consider a safety factor,
                      and (2) an early (less costly) termination will be a good
                      indicator whether the power iteration is compatible.
-   :param rel_tol: relative tolerance for convergence checks (default 0.01). A
+   :param rel_tol: relative tolerance for convergence checks (default 0.005). A
                    value :math:`\leq 0` will result in the default value. The
                    default has been found to small enough for many internal
                    applications.
@@ -149,7 +152,7 @@ information:
 
 * ``num_ATimes`` - number of calls to the ``ATimes`` function,
 
-* ``rel_tol`` - relative tolerance for the convergence criteria (default is 0.01),
+* ``rel_tol`` - relative tolerance for the convergence criteria (default is 0.005),
 
 * ``res`` - the residual from the last :c:func:`SUNDomEigEstimator_Estimate`
   call.

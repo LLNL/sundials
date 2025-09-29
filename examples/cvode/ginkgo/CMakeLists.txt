@@ -2,8 +2,11 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# Copyright (c) 2025, Lawrence Livermore National Security,
+# University of Maryland Baltimore County, and the SUNDIALS contributors.
+# Copyright (c) 2013-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
+# Copyright (c) 2002-2013, Lawrence Livermore National Security.
 # All rights reserved.
 #
 # See the top-level LICENSE and NOTICE files for details.
@@ -15,7 +18,8 @@
 # Example lists are tuples "name\;args\;type"
 
 # Examples that support CPU and GPU Ginkgo backends
-set(cpu_gpu_examples "cv_heat2D_ginkgo.cpp\;\;develop")
+set(cpu_gpu_examples "cv_heat2D_ginkgo.cpp\;\;develop"
+                     "cv_bruss_batched_ginkgo.cpp\;\;develop")
 
 sundials_add_examples_ginkgo(
   cpu_gpu_examples

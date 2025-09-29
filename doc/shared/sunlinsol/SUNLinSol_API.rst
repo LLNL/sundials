@@ -1,9 +1,12 @@
 ..
-   Daniel R. Reynolds @ SMU
+   Daniel R. Reynolds @ UMBC
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   Copyright (c) 2025, Lawrence Livermore National Security,
+   University of Maryland Baltimore County, and the SUNDIALS contributors.
+   Copyright (c) 2013-2025, Lawrence Livermore National Security
    and Southern Methodist University.
+   Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
 
    See the top-level LICENSE and NOTICE files for details.
@@ -285,7 +288,7 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.5.0
 
 
 .. c:function:: SUNErrCode SUNLinSolSetATimes(SUNLinearSolver LS, void* A_data, SUNATimesFn ATimes)
@@ -350,6 +353,10 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       .. code-block:: c
 
          retval = SUNLinSolSetScalingVectors(LS, s1, s2);
+
+   .. warning::
+
+      The vectors ``s1`` and ``s2`` should not be modified.
 
 
 .. c:function:: SUNErrCode SUNLinSolSetZeroGuess(SUNLinearSolver LS, sunbooleantype onoff)
