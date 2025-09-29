@@ -15,12 +15,12 @@
 
 #include <string.h>
 
+#include <sundials/sundials_errors.h>
+#include <sundials/sundials_memory.h>
+#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_types.h>
+
 #include "sundatanode/sundatanode_inmem.h"
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_memory.h"
-#include "sundials/sundials_nvector.h"
-#include "sundials/sundials_types.h"
 #include "sundials_datanode.h"
 #include "sundials_hashmap_impl.h"
 #include "sundials_macros.h"

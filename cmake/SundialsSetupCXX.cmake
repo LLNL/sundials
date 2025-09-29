@@ -32,11 +32,12 @@ sundials_option(CMAKE_CXX_STANDARD_REQUIRED BOOL "Require C++ standard version"
                 ON)
 
 if(ENABLE_SYCL OR ENABLE_GINKGO)
-  set(DOCSTR "The C++ standard to use if C++ is enabled (17, 20)")
-  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "17" OPTIONS "17;20")
+  set(DOCSTR "The C++ standard to use if C++ is enabled (17, 20, 23)")
+  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "17" OPTIONS "17;20;23")
 else()
-  set(DOCSTR "The C++ standard to use if C++ is enabled (14, 17, 20)")
-  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "14" OPTIONS "14;17;20")
+  set(DOCSTR "The C++ standard to use if C++ is enabled (14, 17, 20, 23)")
+  sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "14"
+                  OPTIONS "14;17;20;23")
 endif()
 message(STATUS "CXX standard set to ${CMAKE_CXX_STANDARD}")
 

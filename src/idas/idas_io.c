@@ -21,10 +21,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
+
 #include "idas_impl.h"
 #include "idas_ls_impl.h"
-#include "sundials/sundials_math.h"
-#include "sundials/sundials_types.h"
+#include "sundials_utils.h"
 
 #define ZERO   SUN_RCONST(0.0)
 #define HALF   SUN_RCONST(0.5)

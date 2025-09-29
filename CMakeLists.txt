@@ -29,6 +29,11 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
   cmake_policy(SET CMP0135 NEW)
 endif()
 
+# Address <Package>_ROOT warning with CMake 3.27+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+  cmake_policy(SET CMP0144 NEW)
+endif()
+
 # Project SUNDIALS (initially only C supported) sets PROJECT_SOURCE_DIR and
 # PROJECT_BINARY_DIR variables.
 project(SUNDIALS C)

@@ -20,20 +20,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_errors.h>
 #include <sundials/sundials_logger.h>
 
+#include <sundials/priv/sundials_errors_impl.h>
+#include "sundials_logger_impl.h"
+
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_types.h"
-#include "sundials_hashmap_impl.h"
 
 #if SUNDIALS_MPI_ENABLED
 #include <mpi.h>
 #endif
 
-#include "sundials_logger_impl.h"
+#include "sundials_hashmap_impl.h"
 #include "sundials_macros.h"
 #include "sundials_utils.h"
 

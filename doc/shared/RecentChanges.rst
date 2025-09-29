@@ -14,6 +14,11 @@ function to compute the dominant eigenvalue.
 
 **New Features and Enhancements**
 
+A new SUNLinearSolver, SUNLINEARSOLVER_GINKGOBATCH, and corresponding SUNMatrix,
+SUNMATRIX_GINKGOBATCH, were added for solving block/batched linear systems with
+the `Ginkgo linear solver library <https://ginkgo-project.github.io/>`__. As a
+result, Ginkgo 1.9.0 or newer is now required when enabling Ginkgo support.
+
 The functions :c:func:`KINSetMAA` and :c:func:`KINSetOrthAA` have been updated
 to allow for setting the Anderson acceleration depth and orthogonalization
 method after :c:func:`KINInit`. Additionally, :c:func:`KINSetMAA` and

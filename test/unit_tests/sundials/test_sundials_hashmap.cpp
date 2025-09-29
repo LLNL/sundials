@@ -13,12 +13,14 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <iostream>
 #include <limits.h>
-#include <nvector/nvector_serial.h>
 #include <string>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+#include <nvector/nvector_serial.h>
 #include <sundials/sundials_core.hpp>
 
 #include "sundials_hashmap_impl.h"

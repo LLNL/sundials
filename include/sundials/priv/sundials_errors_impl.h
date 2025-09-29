@@ -23,13 +23,12 @@
 #ifndef _SUNDIALS_ERRORS_IMPL_H
 #define _SUNDIALS_ERRORS_IMPL_H
 
+#include <sundials/sundials_config.h>
+#include <sundials/sundials_context.h>
 #include <sundials/sundials_errors.h>
-
-#include "sundials/sundials_config.h"
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_export.h"
-#include "sundials/sundials_logger.h"
-#include "sundials/sundials_types.h"
+#include <sundials/sundials_export.h>
+#include <sundials/sundials_logger.h>
+#include <sundials/sundials_types.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {

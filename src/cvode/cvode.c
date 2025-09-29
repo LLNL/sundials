@@ -22,17 +22,18 @@
 /* Import Header Files                                             */
 /*=================================================================*/
 
-#include "cvode/cvode.h"
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <cvode/cvode.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_types.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include "cvode_impl.h"
-#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials_utils.h"
 
 /*=================================================================*/
 /* CVODE Private Constants                                         */

@@ -21,6 +21,7 @@
 #define _SUNDIALS_LOGGER_IMPL_H
 
 #include <stdarg.h>
+#include <sundials/priv/sundials_logger_macros.h>
 #include <sundials/sundials_logger.h>
 #include <sundials/sundials_types.h>
 

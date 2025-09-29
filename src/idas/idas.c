@@ -139,18 +139,19 @@
  * =================================================================
  */
 
-#include "idas/idas.h"
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <idas/idas.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_nvector_senswrapper.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include "idas_impl.h"
-#include "sundials/priv/sundials_errors_impl.h"
+#include "sundials_utils.h"
 
 /*
  * =================================================================

@@ -17,11 +17,14 @@
  * This is the implementation file for ARKODE's operator splitting module
  *----------------------------------------------------------------------------*/
 
+#include <string.h>
+
 #include <arkode/arkode_splittingstep.h>
 #include <sundials/sundials_nvector.h>
 
 #include "arkode_impl.h"
 #include "arkode_splittingstep_impl.h"
+#include "sundials_utils.h"
 
 /*------------------------------------------------------------------------------
   Shortcut routine to unpack step_mem structure from ark_mem. If missing it

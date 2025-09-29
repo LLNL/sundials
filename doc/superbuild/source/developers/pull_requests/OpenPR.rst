@@ -48,6 +48,13 @@ merged, delete the local copy the branch:
    $ git branch -D <branch-name>
 
 
+.. note::
+
+   When you open a PR, various "checks" will run on your code. You can see the status of these
+   checks at the bottom of the PR page on GitHub. Any fixes needed to pass the checks for
+   formatting, spelling, and SWIG updates can be downloaded as git patches under "artifacts".
+   These patches can be applied to your branch using ``git apply <patch>`` and then committed.
+
 .. warning::
 
    Almost all pull requests should be issued against the ``develop`` branch.

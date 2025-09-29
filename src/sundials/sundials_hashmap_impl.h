@@ -34,25 +34,25 @@ extern "C" {
 #define SUNHASHMAP_KEYNOTFOUND -1
 #define SUNHASHMAP_DUPLICATE   -2
 
-typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
-
 struct SUNHashMapKeyValue_
 {
   char* key;
   void* value;
 };
 
+typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
+
 #define TTYPE SUNHashMapKeyValue
 #include "stl/sunstl_vector.h"
 #undef TTYPE
-
-typedef struct SUNHashMap_* SUNHashMap;
 
 struct SUNHashMap_
 {
   SUNErrCode (*destroyKeyValue)(SUNHashMapKeyValue*);
   SUNStlVector_SUNHashMapKeyValue buckets;
 };
+
+typedef struct SUNHashMap_* SUNHashMap;
 
 SUNErrCode SUNHashMap_New(int64_t capacity,
                           SUNErrCode (*destroyValue)(SUNHashMapKeyValue* value_ptr),
