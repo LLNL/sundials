@@ -364,10 +364,10 @@ new_entry=$(printf "| %-3s %-4s | %-30s | %-17s | %-17s | %-17s | %-17s | %-17s 
     ${idas_ver} ${kin_ver})
 divider="+----------+--------------------------------+-------------------+-------------------+-------------------+-------------------+-------------------+-------------------+"
 
-# insert new release history row after line 23
-sedi '23 a\
+# insert new release history row after line 26
+sedi '26 a\
 '"${divider}"''$'\n' $fn
-sedi '23 a\
+sedi '26 a\
 '"${new_entry}"''$'\n' $fn
 
 # Update CITATIONS.md
