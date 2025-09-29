@@ -26,10 +26,7 @@ namespace experimental {
 
 struct ARKodeSPRKTableDeleter
 {
-  void operator()(ARKodeSPRKTable t)
-  {
-    if (t) { ARKodeSPRKTable_Free(t); }
-  }
+  void operator()(ARKodeSPRKTable t) { ARKodeSPRKTable_Free(t); }
 };
 
 class ARKodeSPRKTableView

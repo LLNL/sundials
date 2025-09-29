@@ -32,10 +32,7 @@ using BaseMemoryHelper = BaseObject<SUNMemoryHelper_, SUNMemoryHelper_Ops_>;
 namespace experimental {
 struct SUNMemoryHelperDeleter
 {
-  void operator()(SUNMemoryHelper helper)
-  {
-    if (helper) { SUNMemoryHelper_Destroy(helper); }
-  }
+  void operator()(SUNMemoryHelper helper) { SUNMemoryHelper_Destroy(helper); }
 };
 
 class SUNMemoryHelperView

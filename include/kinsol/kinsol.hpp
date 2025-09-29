@@ -31,10 +31,7 @@ namespace experimental {
 
 struct KINDeleter
 {
-  void operator()(void* v)
-  {
-    if (v) { KINFree(&v); }
-  }
+  void operator()(void* v) { KINFree(&v); }
 };
 
 class KINView : public ClassView<void*, KINDeleter>

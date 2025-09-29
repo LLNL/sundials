@@ -28,10 +28,7 @@ namespace experimental {
 
 struct SUNAdjointStepperDeleter
 {
-  void operator()(SUNAdjointStepper self)
-  {
-    if (self) { SUNAdjointStepper_Destroy(&self); }
-  }
+  void operator()(SUNAdjointStepper self) { SUNAdjointStepper_Destroy(&self); }
 };
 
 class SUNAdjointStepperView

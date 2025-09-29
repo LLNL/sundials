@@ -28,10 +28,7 @@ namespace experimental {
 
 struct MRIStepCouplingDeleter
 {
-  void operator()(MRIStepCoupling t)
-  {
-    if (t) { MRIStepCoupling_Free(t); }
-  }
+  void operator()(MRIStepCoupling t) { MRIStepCoupling_Free(t); }
 };
 
 class MRIStepCouplingView
@@ -52,10 +49,7 @@ MRIStepCouplingView MRIStepCouplingView::Create(Args&&... args)
 
 struct MRIStepInnerStepperDeleter
 {
-  void operator()(MRIStepInnerStepper s)
-  {
-    if (s) { MRIStepInnerStepper_Free(&s); }
-  }
+  void operator()(MRIStepInnerStepper s) { MRIStepInnerStepper_Free(&s); }
 };
 
 class MRIStepInnerStepperView

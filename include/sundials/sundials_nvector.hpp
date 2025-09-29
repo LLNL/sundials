@@ -33,10 +33,7 @@ namespace experimental {
 
 struct NVectorDeleter
 {
-  void operator()(N_Vector v)
-  {
-    if (v) { N_VDestroy(v); }
-  }
+  void operator()(N_Vector v) { N_VDestroy(v); }
 };
 
 class NVectorView : public ClassView<N_Vector, NVectorDeleter>

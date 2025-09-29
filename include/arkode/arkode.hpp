@@ -28,10 +28,7 @@ namespace experimental {
 
 struct ARKodeDeleter
 {
-  void operator()(void* v)
-  {
-    if (v) { ARKodeFree(&v); }
-  }
+  void operator()(void* v) { ARKodeFree(&v); }
 };
 
 class ARKodeView : public ClassView<void*, ARKodeDeleter>
@@ -50,10 +47,7 @@ ARKodeView ARKodeView::Create(Args&&... args)
 
 struct ARKodeButcherTableDeleter
 {
-  void operator()(ARKodeButcherTable t)
-  {
-    if (t) { ARKodeButcherTable_Free(t); }
-  }
+  void operator()(ARKodeButcherTable t) { ARKodeButcherTable_Free(t); }
 };
 
 class ARKodeButcherTableView

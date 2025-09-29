@@ -33,10 +33,7 @@ using BaseLinearSolver =
 namespace experimental {
 struct SUNLinearSolverDeleter
 {
-  void operator()(SUNLinearSolver LS)
-  {
-    if (LS) { SUNLinSolFree(LS); }
-  }
+  void operator()(SUNLinearSolver LS) { SUNLinSolFree(LS); }
 };
 
 class SUNLinearSolverView

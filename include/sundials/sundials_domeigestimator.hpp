@@ -33,10 +33,7 @@ using BaseDomEigEstimator =
 namespace experimental {
 struct SUNDomEigEstimatorDeleter
 {
-  void operator()(SUNDomEigEstimator DEE)
-  {
-    if (DEE) { SUNDomEigEstimator_Destroy(&DEE); }
-  }
+  void operator()(SUNDomEigEstimator DEE) { SUNDomEigEstimator_Destroy(&DEE); }
 };
 
 class SUNDomEigEstimatorView
