@@ -20,9 +20,9 @@
  *    du/dt = a - (w+1)*u + v*u^2
  *    dv/dt = w*u - v*u^2
  *    dw/dt = (b-w)/ep - w*u
- * for t in the interval [0.0, 10.0], with initial conditions Y0 = [u0,v0,w0].  
- * We replicate this ODE system num_batches times, with each batch using a 
- * different value of ep, to eventually construct an ODE system with 
+ * for t in the interval [0.0, 10.0], with initial conditions Y0 = [u0,v0,w0].
+ * We replicate this ODE system num_batches times, with each batch using a
+ * different value of ep, to eventually construct an ODE system with
  * 3*num_batches components.
  *
  * The problem is stiff. We have 3 different reactors for testing:
@@ -54,7 +54,7 @@
  *
  * The program takes three optional arguments, the number of independent ODE
  * systems (i.e. number of batches), the linear solver type
- * (ginkgo batched BiCGSTAB, non-batched SUNDIALS BiCGSTAB with the Jaocbian 
+ * (ginkgo batched BiCGSTAB, non-batched SUNDIALS BiCGSTAB with the Jaocbian
  * computed by difference quotients, or non-batched BiCGSTAB with an analytical Jacobian)
  * , and the test type (uniform_1, uniform_2, uniform_3, or random).
  *
@@ -136,19 +136,12 @@ using SUNGkoLinearSolverType =
 
 int main(int argc, char* argv[])
 {
-  const sunrealtype T0 = SUN_RCONST(0.0);    /* initial time                  */
-  const sunrealtype Tf = SUN_RCONST(10.0);   /* final time                    */
-  const sunrealtype dTout = SUN_RCONST(5.0); /* time between outputs          */
-  const int Nt = (int)ceil(Tf / dTout);      /* number of output times        */
-  const sunrealtype reltol = 1.0e-6;         /* relative integrator tolerance */
+  const sunrealtype T0 = SUN_RCONST(0.0);        /* initial time                  */
+  const sunrealtype Tf = SUN_RCONST(10.0);       /* final time                    */
+  const sunrealtype dTout = SUN_RCONST(5.0);     /* time between outputs          */
+  const int Nt = (int)ceil(Tf / dTout);          /* number of output times        */
+  const sunrealtype reltol = SUN_RCONST(1.0e-6); /* relative integrator tolerance */
   int retval;
-  N_Vector y, abstol;
-  SUNLinearSolver SUNLS;
-  void* cvode_mem;
-
-  y = abstol = NULL;
-  SUNLS      = NULL;
-  cvode_mem  = NULL;
 
   /* Create the SUNDIALS context */
   sundials::Context sunctx;
@@ -187,7 +180,7 @@ int main(int argc, char* argv[])
   /* Set the Reaction parameters according to test_type */
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<sunrealtype> dist(0.0, 8.0);
+  std::uniform_real_distribution<sunrealtype> dist(SUN_RCONST(0.0), SUN_RCONST(8.0));
   std::uniform_int_distribution<> dist_int(0, 2);
 
   bool random_reactors  = test_type == 3 || test_type == 7;
@@ -203,7 +196,7 @@ int main(int argc, char* argv[])
       udata.w0[batchj] = SUN_RCONST(2.8);
       udata.a[batchj]  = SUN_RCONST(1.2);
       udata.b[batchj]  = SUN_RCONST(2.5);
-      udata.ep[batchj] = random_stiffness ? std::pow(10.0, -dist(gen))
+      udata.ep[batchj] = random_stiffness ? std::pow(SUN_RCONST(10.0), -dist(gen))
                                           : SUN_RCONST(1.0e-5);
     }
     else if (reactor_type == 1)
@@ -213,7 +206,7 @@ int main(int argc, char* argv[])
       udata.w0[batchj] = SUN_RCONST(3.5);
       udata.a[batchj]  = SUN_RCONST(0.5);
       udata.b[batchj]  = SUN_RCONST(3.0);
-      udata.ep[batchj] = random_stiffness ? std::pow(10.0, -dist(gen))
+      udata.ep[batchj] = random_stiffness ? std::pow(SUN_RCONST(10.0), -dist(gen))
                                           : SUN_RCONST(5.0e-4);
     }
     else if (reactor_type == 2)
@@ -223,16 +216,17 @@ int main(int argc, char* argv[])
       udata.w0[batchj] = SUN_RCONST(3.0);
       udata.a[batchj]  = SUN_RCONST(1.0);
       udata.b[batchj]  = SUN_RCONST(3.5);
-      udata.ep[batchj] = random_stiffness ? std::pow(10.0, -dist(gen))
+      udata.ep[batchj] = random_stiffness ? std::pow(SUN_RCONST(10.0), -dist(gen))
                                           : SUN_RCONST(5.0e-6);
     }
   }
 
   /* Create CUDA or HIP vector of length neq for I.C. and abstol vector */
-  y = N_VNew(udata.neq, sunctx);
-  if (check_retval((void*)y, "N_VNew", 0)) { return (1); }
-  abstol = N_VClone(y);
-  if (check_retval((void*)abstol, "N_VClone", 0)) { return (1); }
+  N_Vector y = N_VNew(udata.neq, sunctx);
+  if (check_retval((void*)y, "N_VNew", 0)) { return 1; }
+
+  N_Vector abstol = N_VClone(y);
+  if (check_retval((void*)abstol, "N_VClone", 0)) { return 1; }
 
   /* Initialize y */
   sunrealtype* ydata = N_VGetArrayPointer(y);
@@ -254,23 +248,23 @@ int main(int argc, char* argv[])
 
   /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula */
-  cvode_mem = CVodeCreate(CV_BDF, sunctx);
-  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
+  void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
+  if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return 1; }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the initial time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
-  if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
+  if (check_retval(&retval, "CVodeInit", 1)) { return 1; }
 
   /* Call CVodeSetUserData to attach the user data structure */
   retval = CVodeSetUserData(cvode_mem, &udata);
-  if (check_retval(&retval, "CVodeSetUserData", 1)) { return (1); }
+  if (check_retval(&retval, "CVodeSetUserData", 1)) { return 1; }
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
   retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (check_retval(&retval, "CVodeSVtolerances", 1)) { return (1); }
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) { return 1; }
 
   /* Create SUNMatrix for use in linear solves */
   sunindextype batch_rows = udata.batch_size;
@@ -283,7 +277,7 @@ int main(int argc, char* argv[])
 
   /* Initialize the Jacobian with its fixed sparsity pattern */
   retval = JacInit(A);
-  if (check_retval(&retval, "JacInit", 1)) { return (1); }
+  if (check_retval(&retval, "JacInit", 1)) { return 1; }
 
   /* Create the SUNLinearSolver object for use by CVode */
   SUNGkoLinearSolverType LS{gko_exec,
@@ -291,15 +285,17 @@ int main(int argc, char* argv[])
                             static_cast<gko::size_type>(udata.num_batches),
                             sunctx};
 
+  SUNLinearSolver SUNLS = NULL;
+
   /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
   if (solver_type == 0)
   {
     retval = CVodeSetLinearSolver(cvode_mem, LS.Convert(), A.Convert());
-    if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
+    if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
     /* Set the user-supplied Jacobian routine Jac */
     retval = CVodeSetJacFn(cvode_mem, Jac);
-    if (check_retval(&retval, "CVodeSetJacFn", 1)) return (1);
+    if (check_retval(&retval, "CVodeSetJacFn", 1)) return 1;
 
     /* WARNING: THIS STEP IS ESSENTIAL WHEN USING SUNLINSOL_GINKGOBATCH!
      We need to adjust the norm factor to be the sqrt of the length of the batch
@@ -307,24 +303,25 @@ int main(int argc, char* argv[])
      solver is batched.
     */
     retval = CVodeSetLSNormFactor(cvode_mem, std::sqrt(udata.batch_size));
-    if (check_retval(&retval, "CVodeSetJacFn", 1)) return (1);
+    if (check_retval(&retval, "CVodeSetJacFn", 1)) return 1;
   }
   else
   {
     SUNLS  = SUNLinSol_SPBCGS(y, SUN_PREC_NONE, 0, sunctx);
     retval = CVodeSetLinearSolver(cvode_mem, SUNLS, NULL);
-    if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
+    if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
     if (solver_type == 2)
     {
       /* Set the user-supplied Jacobian-vector product routine */
       retval = CVodeSetJacTimes(cvode_mem, NULL, JacVec);
-      if (check_retval(&retval, "CVodeSetJacTimes", 1)) return (1);
+      if (check_retval(&retval, "CVodeSetJacTimes", 1)) return 1;
     }
   }
 
   /* Increase the max number of time steps allowed */
-  CVodeSetMaxNumSteps(cvode_mem, 5000);
+  retval = CVodeSetMaxNumSteps(cvode_mem, 5000);
+  if (check_retval(&retval, "CVodeSetMaxNumSteps", 1)) return 1;
 
   /* In loop, call CVode, print results, and test_type for error.
      Break out of loop when preset output times have been reached.  */
@@ -356,7 +353,8 @@ int main(int argc, char* argv[])
 
   /* Print some final statistics */
   printf("Final integrator statistics:\n");
-  CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  retval = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  if (check_retval(&retval, "CVodePrintAllStats", 1)) return 1;
 
   /* Free y and abstol vectors */
   N_VDestroy(y);
@@ -780,8 +778,6 @@ void PrintOutput(sunrealtype t, sunrealtype y1, sunrealtype y2, sunrealtype y3)
 {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("At t = %0.4Le      y =%14.6Le  %14.6Le  %14.6Le\n", t, y1, y2, y3);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
 #else
   printf("At t = %0.4e      y =%14.6e  %14.6e  %14.6e\n", t, y1, y2, y3);
 #endif
@@ -808,7 +804,7 @@ int check_retval(void* returnvalue, const char* funcname, int opt)
   {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s(failed - returned NULL pointer\n\n",
             funcname);
-    return (1);
+    return 1;
   }
 
   /* Check if retval < 0 */
@@ -819,7 +815,7 @@ int check_retval(void* returnvalue, const char* funcname, int opt)
     {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return (1);
+      return 1;
     }
   }
 
@@ -828,7 +824,7 @@ int check_retval(void* returnvalue, const char* funcname, int opt)
   {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
-    return (1);
+    return 1;
   }
 
   return 0;
