@@ -130,11 +130,5 @@ done
 # Update install guide
 # ------------------------------------------------------------------------------
 
-sedi "s/SOLVER-.*.gz/SOLVER-x.y.z.tar.gz/g" \
-     ../doc/shared/sundials/Install.rst
-
-sedi "s/SOLVER-[0-9]\.[0-9]\.[0-9]/SOLVER-x.y.z/g" \
-     ../doc/shared/sundials/Install.rst
-
-sedi "s/\`\`[0-9]\.[0-9]\.[0-9]\`\`/\`\`x.y.z\`\`/g" \
+sedi "s/sundials-[0-9]\.[0-9]\.[0-9]/sundials-x.y.z/g" \
      ../doc/shared/sundials/Install.rst
