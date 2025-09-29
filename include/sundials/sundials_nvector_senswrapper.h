@@ -39,7 +39,7 @@ extern "C" {
 
 struct _N_VectorContent_SensWrapper
 {
-  N_Vector1d vecs;         /* array of wrapped vectors                */
+  N_Vector* vecs;          /* array of wrapped vectors                */
   int nvecs;               /* number of wrapped vectors               */
   sunbooleantype own_vecs; /* flag indicating if wrapper owns vectors */
 };

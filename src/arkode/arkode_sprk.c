@@ -401,8 +401,8 @@ static ARKodeSPRKTable arkodeSymplecticSofroniou10(void)
   return sprk_table;
 }
 
-ARKodeSPRKTable ARKodeSPRKTable_Create(int s, int q, sunrealtype1d a,
-                                       sunrealtype1d ahat)
+ARKodeSPRKTable ARKodeSPRKTable_Create(int s, int q, sunrealtype* a,
+                                       sunrealtype* ahat)
 {
   if (s < 1 || !a || !ahat) { return NULL; }
 

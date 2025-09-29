@@ -85,9 +85,9 @@ SUNDIALS_EXPORT void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile);
 SUNDIALS_EXPORT sunindextype SUNDenseMatrix_Rows(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNDenseMatrix_Columns(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNDenseMatrix_LData(SUNMatrix A);
-SUNDIALS_EXPORT sunrealtype1d SUNDenseMatrix_Data(SUNMatrix A);
-SUNDIALS_EXPORT sunrealtype2d SUNDenseMatrix_Cols(SUNMatrix A);
-SUNDIALS_EXPORT sunrealtype1d SUNDenseMatrix_Column(SUNMatrix A, sunindextype j);
+SUNDIALS_EXPORT sunrealtype* SUNDenseMatrix_Data(SUNMatrix A);
+SUNDIALS_EXPORT sunrealtype** SUNDenseMatrix_Cols(SUNMatrix A);
+SUNDIALS_EXPORT sunrealtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j);
 
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Dense(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_Dense(SUNMatrix A);
