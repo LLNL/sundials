@@ -20,7 +20,7 @@
 The SUNDomEigEstimator_Arnoldi Module
 =====================================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.5.0
 
 The SUNDomEigEstimator_Arnoldi implementation of the
 :c:type:`SUNDomEigEstimator` class performs the Arnoldi Iteration method

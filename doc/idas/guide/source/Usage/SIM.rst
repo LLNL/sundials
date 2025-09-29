@@ -1011,7 +1011,7 @@ Main solver optional input functions
       File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
 
 .. c:function:: int IDASetUserData(void * ida_mem, void * user_data)

@@ -592,7 +592,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.5.0
 
 .. c:function:: int KINSetUserData(void * kin_mem, void * user_data)
 
@@ -1164,7 +1164,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       This routine will be called by :c:func:`KINSetOptions`
       when using the key "kinid.m_aa".
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 7.5.0
 
       This function can now be called any time after :c:func:`KINCreate` (i.e.,
       it no longer needs to be call before :c:func:`KINInit`) and may be called
@@ -1247,7 +1247,7 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
    * ``examples/kinsol/serial/kinAnalytic_fp.c``
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 7.5.0
 
       This function can now be called any time after :c:func:`KINCreate` (i.e.,
       it no longer needs to be call before :c:func:`KINInit`).
