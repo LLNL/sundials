@@ -20,8 +20,8 @@
 #ifndef _SUNDIALS_MEMORY_HPP
 #define _SUNDIALS_MEMORY_HPP
 
-#include <memory>
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_memory.h>
 
 namespace sundials {

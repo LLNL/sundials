@@ -30,6 +30,20 @@ public:
   virtual T get()       = 0;
   virtual T get() const = 0;
 
+  [[deprecated("This function will be removed in the next major release, use "
+               "get() instead.")]] T
+  Convert()
+  {
+    return get();
+  }
+
+  [[deprecated("This function will be removed in the next major release, use "
+               "get() instead.")]] T
+  Convert() const
+  {
+    return get();
+  }
+
   // Implicit conversion to the underlying type
   virtual operator T()       = 0;
   virtual operator T() const = 0;

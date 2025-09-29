@@ -19,7 +19,7 @@
 #define _SUNDIALS_ARKODE_SPRKSTEP_HPP
 
 #include <arkode/arkode_sprk.h>
-#include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 
 namespace sundials {
 namespace experimental {

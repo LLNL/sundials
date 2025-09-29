@@ -21,8 +21,8 @@
 #define _SUNDIALS_NVECTOR_HPP
 
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_nvector.h>
-#include "sundials_nvector.h"
 
 namespace sundials {
 namespace impl {

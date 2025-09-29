@@ -24,7 +24,7 @@ extern "C" {
 #include <ida/ida.h>
 }
 
-#include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 
 namespace sundials {
 namespace experimental {

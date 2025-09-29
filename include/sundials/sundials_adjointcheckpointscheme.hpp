@@ -21,7 +21,7 @@
 #define _SUNDIALS_ADJOINTCHECKPOINTSCHEME_HPP
 
 #include <sundials/sundials_adjointcheckpointscheme.h>
-#include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 
 namespace sundials {
 namespace experimental {

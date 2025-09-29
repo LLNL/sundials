@@ -18,56 +18,32 @@
 #ifndef _SUNDIALS_LOGGER_HPP
 #define _SUNDIALS_LOGGER_HPP
 
-#include <sundials/sundials_base.hpp>
-#include <sundials/sundials_config.h>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_logger.h>
 
 namespace sundials {
 namespace experimental {
 
-class SUNLoggerView : public sundials::ConvertibleTo<SUNLogger>
+struct SUNLoggerDeleter
+{
+  void operator()(SUNLogger logger) { SUNLogger_Destroy(&logger); }
+};
+
+class SUNLoggerView
+  : public sundials::experimental::ClassView<SUNLogger, SUNLoggerDeleter>
 {
 public:
+  using sundials::experimental::ClassView<SUNLogger, SUNLoggerDeleter>::ClassView;
+
   SUNLoggerView(SUNComm comm, int output_rank)
   {
-    logger_ = std::make_unique<SUNLogger>();
-    SUNLogger_Create(comm, output_rank, logger_.get());
+    SUNLogger_Create(comm, output_rank, &object_);
   }
 
-  SUNLoggerView(SUNComm comm)
-  {
-    logger_ = std::make_unique<SUNLogger>();
-    SUNLogger_CreateFromEnv(comm, logger_.get());
-  }
-
-  SUNLoggerView(SUNLogger sunlogger) { logger_.reset(&sunlogger); }
-
-  /* disallow copy, but allow move construction */
-  SUNLoggerView(const SUNLoggerView&) = delete;
-  SUNLoggerView(SUNLoggerView&&)      = default;
-
-  /* disallow copy, but allow move operators */
-  SUNLoggerView& operator=(const SUNLoggerView&) = delete;
-  SUNLoggerView& operator=(SUNLoggerView&&)      = default;
-
-  SUNLogger get() override { return *logger_.get(); }
-
-  SUNLogger get() const override { return *logger_.get(); }
-
-  operator SUNLogger() override { return *logger_.get(); }
-
-  operator SUNLogger() const override { return *logger_.get(); }
+  SUNLoggerView(SUNComm comm) { SUNLogger_CreateFromEnv(comm, &object_); }
 
   template<typename... Args>
   static SUNLoggerView Create(Args&&... args);
-
-  ~SUNLoggerView()
-  {
-    if (logger_) { SUNLogger_Destroy(logger_.get()); }
-  }
-
-private:
-  std::unique_ptr<SUNLogger> logger_;
 };
 
 template<typename... Args>

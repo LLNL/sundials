@@ -21,6 +21,7 @@
 #define _SUNDIALS_DOMEIGESTIMATOR_HPP
 
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_domeigestimator.h>
 
 namespace sundials {

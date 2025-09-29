@@ -20,8 +20,8 @@
 #ifndef _SUNDIALS_LINEARSOLVER_HPP
 #define _SUNDIALS_LINEARSOLVER_HPP
 
-#include <memory>
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_linearsolver.h>
 
 namespace sundials {
