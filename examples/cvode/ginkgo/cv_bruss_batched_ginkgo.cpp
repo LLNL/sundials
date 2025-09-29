@@ -136,10 +136,10 @@ using SUNGkoLinearSolverType =
 
 int main(int argc, char* argv[])
 {
-  const sunrealtype T0 = SUN_RCONST(0.0);        /* initial time                  */
-  const sunrealtype Tf = SUN_RCONST(10.0);       /* final time                    */
-  const sunrealtype dTout = SUN_RCONST(5.0);     /* time between outputs          */
-  const int Nt = (int)ceil(Tf / dTout);          /* number of output times        */
+  const sunrealtype T0 = SUN_RCONST(0.0);    /* initial time                  */
+  const sunrealtype Tf = SUN_RCONST(10.0);   /* final time                    */
+  const sunrealtype dTout = SUN_RCONST(5.0); /* time between outputs          */
+  const int Nt = (int)ceil(Tf / dTout);      /* number of output times        */
   const sunrealtype reltol = SUN_RCONST(1.0e-6); /* relative integrator tolerance */
   int retval;
 
@@ -180,7 +180,8 @@ int main(int argc, char* argv[])
   /* Set the Reaction parameters according to test_type */
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<sunrealtype> dist(SUN_RCONST(0.0), SUN_RCONST(8.0));
+  std::uniform_real_distribution<sunrealtype> dist(SUN_RCONST(0.0),
+                                                   SUN_RCONST(8.0));
   std::uniform_int_distribution<> dist_int(0, 2);
 
   bool random_reactors  = test_type == 3 || test_type == 7;
@@ -196,8 +197,9 @@ int main(int argc, char* argv[])
       udata.w0[batchj] = SUN_RCONST(2.8);
       udata.a[batchj]  = SUN_RCONST(1.2);
       udata.b[batchj]  = SUN_RCONST(2.5);
-      udata.ep[batchj] = random_stiffness ? std::pow(SUN_RCONST(10.0), -dist(gen))
-                                          : SUN_RCONST(1.0e-5);
+      udata.ep[batchj] = random_stiffness
+                           ? std::pow(SUN_RCONST(10.0), -dist(gen))
+                           : SUN_RCONST(1.0e-5);
     }
     else if (reactor_type == 1)
     {
@@ -206,8 +208,9 @@ int main(int argc, char* argv[])
       udata.w0[batchj] = SUN_RCONST(3.5);
       udata.a[batchj]  = SUN_RCONST(0.5);
       udata.b[batchj]  = SUN_RCONST(3.0);
-      udata.ep[batchj] = random_stiffness ? std::pow(SUN_RCONST(10.0), -dist(gen))
-                                          : SUN_RCONST(5.0e-4);
+      udata.ep[batchj] = random_stiffness
+                           ? std::pow(SUN_RCONST(10.0), -dist(gen))
+                           : SUN_RCONST(5.0e-4);
     }
     else if (reactor_type == 2)
     {
@@ -216,8 +219,9 @@ int main(int argc, char* argv[])
       udata.w0[batchj] = SUN_RCONST(3.0);
       udata.a[batchj]  = SUN_RCONST(1.0);
       udata.b[batchj]  = SUN_RCONST(3.5);
-      udata.ep[batchj] = random_stiffness ? std::pow(SUN_RCONST(10.0), -dist(gen))
-                                          : SUN_RCONST(5.0e-6);
+      udata.ep[batchj] = random_stiffness
+                           ? std::pow(SUN_RCONST(10.0), -dist(gen))
+                           : SUN_RCONST(5.0e-6);
     }
   }
 
