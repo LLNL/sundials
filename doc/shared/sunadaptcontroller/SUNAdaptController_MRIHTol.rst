@@ -160,7 +160,7 @@ also provides the following additional user-callable routines:
 
    :returns: :c:type:`SUNErrCode` indicating success or failure.
    
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 7.5.0
    
       Removed the requirement that ``inner_max_tolfac`` must be :math:`\le 1`
    
