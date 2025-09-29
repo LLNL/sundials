@@ -3,7 +3,7 @@
 The SUNMATRIX_GINKGOBATCH Module
 ================================
 
-.. versionadded:: X.Y.Z
+.. versionadded:: 7.5.0
 
 The SUNMATRIX_GINKGOBATCH implementation of the ``SUNMatrix`` API provides an
 interface to the batched matrix types from the Ginkgo linear algebra library.

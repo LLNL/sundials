@@ -19,7 +19,7 @@
 The SUNLINEARSOLVER_GINKGOBATCH Module
 =======================================
 
-.. versionadded:: X.Y.Z
+.. versionadded:: 7.5.0
 
 The SUNLINEARSOLVER_GINKGOBATCH implementation of the ``SUNLinearSolver`` API provides an
 interface to the batched linear solvers from the Ginkgo linear algebra library :cite:p:`ginkgo-toms-2022`.

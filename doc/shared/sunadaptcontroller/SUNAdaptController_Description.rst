@@ -100,7 +100,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNAdaptController_SetOptions`
 
-      .. versionadded:: x.y.z
+      .. versionadded:: 7.5.0
 
    .. c:member:: SUNErrCode (*setdefaults)(SUNAdaptController C)
 
@@ -315,7 +315,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
       File-based options are not yet supported, so the ``file_name`` argument
       should be set to either ``NULL`` or the empty string ``""``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.5.0
 
 
 .. c:function:: SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)

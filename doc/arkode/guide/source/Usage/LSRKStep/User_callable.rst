@@ -221,7 +221,7 @@ Allowable Method Families
       * *ARK_DEE_FAIL* if the call to :c:func:`SUNDomEigEstimator_SetATimes`
         failed
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
    .. note::
 
@@ -328,7 +328,7 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
    .. note::
 
@@ -353,7 +353,7 @@ Allowable Method Families
       * *ARK_DEE_FAIL* if the call to
         :c:func:`SUNDomEigEstimator_SetNumPreprocessIters` failed.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
    .. note::
 
@@ -440,7 +440,7 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
       * *ARK_ILL_INPUT* if ``nfeDQ`` is illegal
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
    .. note::
 
@@ -461,7 +461,7 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
       * *ARK_ILL_INPUT* if ``num_iters`` is illegal
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.5.0
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:

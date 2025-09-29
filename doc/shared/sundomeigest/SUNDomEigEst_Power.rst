@@ -20,7 +20,7 @@
 The SUNDomEigEstimator_Power Module
 ======================================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.5.0
 
 The SUNDomEigEstimator_Power implementation of the :c:type:`SUNDomEigEstimator`
 class performs the Power Iteration (PI) method :cite:p:`vonmises29`; this is an

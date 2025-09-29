@@ -1,7 +1,6 @@
 # SUNDIALS Changelog
 
-
-## Changes to SUNDIALS in release X.Y.Z
+## Changes to SUNDIALS in release 7.5.0
 
 ### Major Features
 
@@ -31,7 +30,7 @@ in any order.
 Fixed a bug in how MRIStep interacts with an MRIHTol SUNAdaptController object
 (the previous version essentially just reverted to a decoupled multirate
 controller). Removed the upper limit on `inner_max_tolfac` in
-`SUNAdaptController_SetParams_MRIHTol`. 
+`SUNAdaptController_SetParams_MRIHTol`.
 
 The shared library version numbers for the oneMKL dense linear solver and
 matrix as well as the PETSc SNES nonlinear solver have been corrected.
@@ -71,9 +70,6 @@ method, would only extract values from the fast time scale if the slow time
 scale step matched the given status filter. Fixed an additional bug in
 `get_history` with MRI-GARK methods where values would not be extracted from a
 fast time scale integration associated with an embedding.
-
-### Deprecation Notices
-
 
 ## Changes to SUNDIALS in release 7.4.0
 
