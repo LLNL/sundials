@@ -13,6 +13,7 @@
 # -----------------------------------------------------------------
 
 import numpy as np
+
 # import jax
 # import jax.numpy as jnp
 # from numba import jit
@@ -224,10 +225,10 @@ class AnalyticNonlinearSys:
     #   u0 = NVectorView.Create(N_VNew_Serial(...))
     #   problem = AnalyticNonlinearSys(u0.get())
     #   def g_fn(self, u, g, _):
-    #      return problem.fixed_point_fn(u, g) 
+    #      return problem.fixed_point_fn(u, g)
     # Without using a "with" block, this code will cause nanobind to complain about reference
     # leaks because `problem`, which holds a reference to u0, seems to not be garbage collected
-    # until the nanobind shutdown callback. 
+    # until the nanobind shutdown callback.
     def __enter__(self):
         return self
 
@@ -261,4 +262,3 @@ class AnalyticNonlinearSys:
         u[1] = 1.0
         u[2] = -np.pi / 6.0
         return 0
-

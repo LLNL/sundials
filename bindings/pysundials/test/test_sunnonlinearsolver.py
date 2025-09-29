@@ -19,23 +19,28 @@ import numpy as np
 from fixtures import *
 from pysundials.core import *
 
+
 def test_create_fixedpoint(sunctx, nvec):
     nls = SUNNonlinearSolverView.Create(SUNNonlinSol_FixedPoint(nvec.get(), 5, sunctx.get()))
     assert nls is not None
 
+
 def test_create_newton(sunctx, nvec):
     nls = SUNNonlinearSolverView.Create(SUNNonlinSol_Newton(nvec.get(), sunctx.get()))
     assert nls is not None
+
 
 @pytest.fixture
 def nls_fixedpoint(sunctx, nvec):
     nls = SUNNonlinearSolverView.Create(SUNNonlinSol_FixedPoint(nvec.get(), 5, sunctx.get()))
     yield nls
 
+
 @pytest.fixture
 def nls_newton(sunctx, nvec):
     nls = SUNNonlinearSolverView.Create(SUNNonlinSol_Newton(nvec.get(), sunctx.get()))
     yield nls
+
 
 def test_gettype(sunctx, nvec, nls_newton, nls_fixedpoint):
     typ = SUNNonlinSolGetType(nls_newton.get())
@@ -43,6 +48,7 @@ def test_gettype(sunctx, nvec, nls_newton, nls_fixedpoint):
 
     typ = SUNNonlinSolGetType(nls_fixedpoint.get())
     assert typ is SUNNONLINEARSOLVER_FIXEDPOINT
+
 
 def test_initialize(sunctx, nvec, nls_newton, nls_fixedpoint):
     # Test initialization of Newton solver
@@ -52,6 +58,7 @@ def test_initialize(sunctx, nvec, nls_newton, nls_fixedpoint):
     # Test initialization of FixedPoint solver
     ret = SUNNonlinSolInitialize(nls_fixedpoint.get())
     assert ret == 0
+
 
 def test_set_max_iters_and_get_num_iters(sunctx, nvec, nls_newton, nls_fixedpoint):
     # Set max iters for Newton solver
@@ -72,6 +79,7 @@ def test_set_max_iters_and_get_num_iters(sunctx, nvec, nls_newton, nls_fixedpoin
     assert err == 0
     assert isinstance(niters, int)
 
+
 def test_get_cur_iter(sunctx, nvec, nls_newton, nls_fixedpoint):
     # Get current iteration for Newton solver
     err, cur_iter = SUNNonlinSolGetCurIter(nls_newton.get(), 0)
@@ -82,6 +90,7 @@ def test_get_cur_iter(sunctx, nvec, nls_newton, nls_fixedpoint):
     err, cur_iter = SUNNonlinSolGetCurIter(nls_fixedpoint.get(), 0)
     assert err == 0
     assert isinstance(cur_iter, int)
+
 
 def test_get_num_conv_fails(sunctx, nvec, nls_newton, nls_fixedpoint):
     # Get number of convergence failures for Newton solver
@@ -112,7 +121,7 @@ def test_fixedpoint_setup_and_solve(sunctx):
     N_VConst(0.0, ucor.get())
 
     # Set the weights
-    N_VConst(1.0, w.get()) 
+    N_VConst(1.0, w.get())
 
     # Create the problem
     with AnalyticNonlinearSys(u0.get()) as problem:
@@ -149,7 +158,9 @@ def test_fixedpoint_setup_and_solve(sunctx):
         # Compare to analytic solution
         utrue = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
         problem.solution(utrue.get())
-        assert np.allclose(N_VGetArrayPointer(ucur.get()), N_VGetArrayPointer(utrue.get()), atol=1e-2)
+        assert np.allclose(
+            N_VGetArrayPointer(ucur.get()), N_VGetArrayPointer(utrue.get()), atol=1e-2
+        )
 
 
 if __name__ == "__main__":

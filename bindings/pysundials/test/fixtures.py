@@ -16,10 +16,12 @@ import pytest
 
 from pysundials.core import *
 
+
 @pytest.fixture
 def sunctx():
     sunctx = SUNContextView.Create()
     yield sunctx
+
 
 @pytest.fixture
 def nvec(sunctx):
