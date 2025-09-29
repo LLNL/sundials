@@ -21,7 +21,7 @@
 #define _SUNDIALS_STEPPER_HPP
 
 #include <memory>
-#include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_stepper.h>
 
 namespace sundials {

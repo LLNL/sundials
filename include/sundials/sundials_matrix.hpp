@@ -20,8 +20,8 @@
 #ifndef _SUNDIALS_MATRIX_HPP
 #define _SUNDIALS_MATRIX_HPP
 
-#include <memory>
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_matrix.h>
 
 namespace sundials {

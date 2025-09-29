@@ -32,6 +32,7 @@ set(sundials_HEADERS
     sundials_adjointstepper.hpp
     sundials_band.h
     sundials_base.hpp
+    sundials_classview.hpp
     sundials_context.h
     sundials_context.hpp
     sundials_convertibleto.hpp

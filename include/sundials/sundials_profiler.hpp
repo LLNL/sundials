@@ -19,7 +19,7 @@
 #define _SUNDIALS_PROFILER_HPP
 
 #include <cstring>
-#include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_profiler.h>
 
@@ -54,43 +54,24 @@ private:
 
 namespace experimental {
 
-class SUNProfilerView : public sundials::ConvertibleTo<SUNProfiler>
+struct SUNProfilerDeleter
+{
+  void operator()(SUNProfiler profiler) { SUNProfiler_Free(&profiler); }
+};
+
+class SUNProfilerView
+  : public sundials::experimental::ClassView<SUNProfiler, SUNProfilerDeleter>
 {
 public:
+  using sundials::experimental::ClassView<SUNProfiler, SUNProfilerDeleter>::ClassView;
+
   SUNProfilerView(SUNComm comm, const char* title)
   {
-    profiler_ = std::make_unique<SUNProfiler>();
-    SUNProfiler_Create(comm, title, profiler_.get());
+    SUNProfiler_Create(comm, title, &object_);
   }
-
-  SUNProfilerView(SUNProfiler sunctx) { profiler_.reset(&sunctx); }
-
-  /* disallow copy, but allow move construction */
-  SUNProfilerView(const SUNProfilerView&) = delete;
-  SUNProfilerView(SUNProfilerView&&)      = default;
-
-  /* disallow copy, but allow move operators */
-  SUNProfilerView& operator=(const SUNProfilerView&) = delete;
-  SUNProfilerView& operator=(SUNProfilerView&&)      = default;
-
-  SUNProfiler get() override { return *profiler_.get(); }
-
-  SUNProfiler get() const override { return *profiler_.get(); }
-
-  operator SUNProfiler() override { return *profiler_.get(); }
-
-  operator SUNProfiler() const override { return *profiler_.get(); }
 
   template<typename... Args>
   static SUNProfilerView Create(Args&&... args);
-
-  ~SUNProfilerView()
-  {
-    if (profiler_) { SUNProfiler_Free(profiler_.get()); }
-  }
-
-private:
-  std::unique_ptr<SUNProfiler> profiler_;
 };
 
 template<typename... Args>

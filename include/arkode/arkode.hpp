@@ -21,7 +21,7 @@
 #define _SUNDIALS_ARKODE_HPP
 
 #include <arkode/arkode.h>
-#include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 
 namespace sundials {
 namespace experimental {

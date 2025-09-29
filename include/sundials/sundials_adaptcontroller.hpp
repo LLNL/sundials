@@ -21,7 +21,7 @@
 #define _SUNDIALS_ADAPTCONTROLLER_HPP
 
 #include <sundials/sundials_adaptcontroller.h>
-#include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include "sundials_nvector.h"
 
 namespace sundials {

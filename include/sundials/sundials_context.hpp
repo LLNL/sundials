@@ -20,60 +20,41 @@
 #ifndef _SUNDIALS_CONTEXT_HPP
 #define _SUNDIALS_CONTEXT_HPP
 
-#include <memory>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_convertibleto.hpp>
-
-#include "sundials/sundials_types.h"
+#include <sundials/sundials_types.h>
 
 namespace sundials {
 
-class Context : public sundials::ConvertibleTo<SUNContext>
+struct SUNContextDeleter
+{
+  void operator()(SUNContext sunctx) { SUNContext_Free(&sunctx); }
+};
+
+class SUNContextView
+  : public sundials::experimental::ClassView<SUNContext, SUNContextDeleter>
 {
 public:
-  Context(SUNComm comm = SUN_COMM_NULL)
+  using ClassView<SUNContext, SUNContextDeleter>::ClassView;
+
+  SUNContextView(SUNComm comm = SUN_COMM_NULL)
   {
-    sunctx_ = std::make_unique<SUNContext>();
-    SUNContext_Create(comm, sunctx_.get());
+    SUNContext_Create(comm, &object_);
   }
-
-  Context(SUNContext sunctx) { sunctx_.reset(&sunctx); }
-
-  /* disallow copy, but allow move construction */
-  Context(const Context&) = delete;
-  Context(Context&&)      = default;
-
-  /* disallow copy, but allow move operators */
-  Context& operator=(const Context&) = delete;
-  Context& operator=(Context&&)      = default;
-
-  SUNContext get() override { return *sunctx_.get(); }
-
-  SUNContext get() const override { return *sunctx_.get(); }
-
-  operator SUNContext() override { return *sunctx_.get(); }
-
-  operator SUNContext() const override { return *sunctx_.get(); }
 
   template<typename... Args>
-  static Context Create(Args&&... args);
-
-  ~Context()
-  {
-    if (sunctx_) { SUNContext_Free(sunctx_.get()); }
-  }
-
-private:
-  std::unique_ptr<SUNContext> sunctx_;
+  static SUNContextView Create(Args&&... args);
 };
 
 template<typename... Args>
-Context Context::Create(Args&&... args)
+SUNContextView SUNContextView::Create(Args&&... args)
 {
-  return Context(std::forward<Args>(args)...);
+  return SUNContextView(std::forward<Args>(args)...);
 }
 
-using SUNContextView = Context;
+// We provide this for backwards compatibility
+using Context = SUNContextView;
 
 } // namespace sundials
 
