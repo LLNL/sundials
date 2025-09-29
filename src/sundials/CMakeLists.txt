@@ -2,8 +2,11 @@
 # Programmer(s): Radu Serban and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# Copyright (c) 2025, Lawrence Livermore National Security,
+# University of Maryland Baltimore County, and the SUNDIALS contributors.
+# Copyright (c) 2013-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
+# Copyright (c) 2002-2013, Lawrence Livermore National Security.
 # All rights reserved.
 #
 # See the top-level LICENSE and NOTICE files for details.
@@ -150,6 +153,7 @@ sundials_add_library(
 install(
   FILES ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_context_impl.h
         ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_errors_impl.h
+        ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_logger_macros.h
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv")
 
 if(ENABLE_MPI)

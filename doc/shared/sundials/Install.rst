@@ -1,9 +1,12 @@
 ..
-   Programmer(s): Daniel R. Reynolds @ SMU
+   Programmer(s): Daniel R. Reynolds @ UMBC
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   Copyright (c) 2025, Lawrence Livermore National Security,
+   University of Maryland Baltimore County, and the SUNDIALS contributors.
+   Copyright (c) 2013-2025, Lawrence Livermore National Security
    and Southern Methodist University.
+   Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
 
    See the top-level LICENSE and NOTICE files for details.
@@ -445,7 +448,7 @@ C++ Compiler
    Default: ``14`` or ``17`` if :cmakeop:`ENABLE_GINKGO` or
    :cmakeop:`ENABLE_SYCL` are ``ON``
 
-   Options: ``14``, ``17``, or ``20``
+   Options: ``14``, ``17``, ``20``, or ``23``
 
 .. cmakeoption:: CMAKE_CXX_EXTENSIONS
 
@@ -973,11 +976,13 @@ version 1.9.0 or newer and is regularly tested with the latest versions of
 Ginkgo, specifically versions 1.9.0 and 1.10.0.
 
 When Ginkgo support is enabled, the :ref:`Ginkgo SUNMatrix <SUNMatrix.Ginkgo>`
-and the :ref:`Ginkgo SUNLinearSolver <SUNLinSol.Ginkgo>` header files will be
-installed (see sections :numref:`Installation.LibrariesAndHeaders.Matrix.Ginkgo`
-and :numref:`Installation.LibrariesAndHeaders.LinearSolver.Ginkgo`,
-respectively, for the corresponding header files). For more information on using
-SUNDIALS with GPUs, see :ref:`SUNDIALS.GPU`.
+and :ref:`SUNLinearSolver <SUNLinSol.Ginkgo>` as well as the :ref:`Ginkgo
+Batch SUNMatrix <SUNMatrix.GinkgoBatch>` and :ref:`SUNLinearSolver
+<SUNLinSol.GinkgoBatch>` header files will be installed (see sections
+:numref:`Installation.LibrariesAndHeaders.Matrix.Ginkgo` and
+:numref:`Installation.LibrariesAndHeaders.LinearSolver.Ginkgo`, respectively,
+for the corresponding header files). For more information on using SUNDIALS with
+GPUs, see :ref:`SUNDIALS.GPU`.
 
 To enable Ginkgo support, set :cmakeop:`ENABLE_GINKGO` to ``ON`` and set
 :cmakeop:`Ginkgo_DIR` to the root path of the Ginkgo installation. Additionally,
@@ -3267,14 +3272,17 @@ the library below when using those packages.
 Ginkgo
 """"""
 
-To use the :ref:`Ginkgo SUNMatrix <SUNMatrix.Ginkgo>`, include the header file
-given below.
+To use the :ref:`Ginkgo SUNMatrix <SUNMatrix.Ginkgo>` or :ref:`Ginkgo Batch
+SUNMatrix <SUNMatrix.GinkgoBatch>`, include the corresponding header file given
+below.
 
-.. table:: The Ginkgo SUNMatrix library, header file, and CMake target
+.. table:: The Ginkgo and Ginkgo Batch SUNMatrix header files and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_ginkgo.hpp``           |
+   |              +----------------------------------------------+
+   |              | ``sunmatrix/sunmatrix_ginkgobatch.hpp``      |
    +--------------+----------------------------------------------+
    | CMake target | ``SUNDIALS::sunmatrixginkgo``                |
    +--------------+----------------------------------------------+
@@ -3454,14 +3462,18 @@ link to the library below when using those packages.
 Ginkgo
 """"""
 
-To use the :ref:`Ginkgo SUNLinearSolver <SUNLinSol.Ginkgo>`, include the header
-file given below.
+To use the :ref:`Ginkgo SUNLinearSolver <SUNLinSol.Ginkgo>` or :ref:`Ginkgo
+Batch SUNLinearSolver <SUNLinSol.Ginkgo>`, include the corresponding header file
+given below.
 
-.. table:: The Ginkgo SUNLinearSolver header file and CMake target
+.. table:: The Ginkgo and Ginkgo Batch SUNLinearSolver header files and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_ginkgo.hpp``           |
+   |              +----------------------------------------------+
+   |              | ``sunlinsol/sunlinsol_ginkgobatch.hpp``      |
    +--------------+----------------------------------------------+
    | CMake target | ``SUNDIALS::sunlinsolginkgo``                |
    +--------------+----------------------------------------------+

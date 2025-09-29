@@ -16,6 +16,11 @@ eigenvalue.
 
 ### New Features and Enhancements
 
+A new SUNLinearSolver, SUNLINEARSOLVER_GINKGOBATCH, and corresponding SUNMatrix,
+SUNMATRIX_GINKGOBATCH, were added for solving block/batched linear systems with
+the [Ginkgo linear solver library](https://ginkgo-project.github.io/). As a
+result, Ginkgo 1.9.0 or newer is now required when enabling Ginkgo support.
+
 The functions `KINSetMAA` and `KINSetOrthAA` have been updated to allow for
 setting the Anderson acceleration depth and orthogonalization method after
 `KINInit`. Additionally, `KINSetMAA` and `KINSetNumMaxIters` may now be called

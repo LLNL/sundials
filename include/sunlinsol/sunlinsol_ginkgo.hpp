@@ -2,8 +2,11 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * Copyright (c) 2025, Lawrence Livermore National Security,
+ * University of Maryland Baltimore County, and the SUNDIALS contributors.
+ * Copyright (c) 2013-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
+ * Copyright (c) 2002-2013, Lawrence Livermore National Security.
  * All rights reserved.
  *
  * See the top-level LICENSE and NOTICE files for details.
@@ -332,19 +335,11 @@ public:
     }
 
     iter_count_ = static_cast<int>(logger->get_num_iterations());
-#if (GKO_VERSION_MAJOR == 1) && (GKO_VERSION_MINOR < 6)
-    GkoExec()->get_master()->copy_from(gko::lend(GkoExec()), 1,
-                                       gko::as<impl::GkoDenseMat>(
-                                         logger->get_residual_norm())
-                                         ->get_const_values(),
-                                       &res_norm_);
-#else
     GkoExec()->get_master()->copy_from(GkoExec(), 1,
-                                       gko::as<impl::GkoDenseMat>(
+                                       gko::as<GkoDenseMat>(
                                          logger->get_residual_norm())
                                          ->get_const_values(),
                                        &res_norm_);
-#endif
 
     return result;
   }

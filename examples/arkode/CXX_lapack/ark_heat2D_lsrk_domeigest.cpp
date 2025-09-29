@@ -5,8 +5,11 @@
  * co-authored by Daniel Reynolds and David Gardner (LLNL))
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * Copyright (c) 2025, Lawrence Livermore National Security,
+ * University of Maryland Baltimore County, and the SUNDIALS contributors.
+ * Copyright (c) 2013-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
+ * Copyright (c) 2002-2013, Lawrence Livermore National Security.
  * All rights reserved.
  *
  * See the top-level LICENSE and NOTICE files for details.
@@ -602,7 +605,7 @@ static int InitUserData(UserData* udata)
   udata->dee_num_succ_wups = 5;
   udata->dee_max_iters     = 100;
   udata->dee_krylov_dim    = 3;
-  udata->dee_reltol        = 0.01;
+  udata->dee_reltol        = 0.005;
 
   // Timing variables
   udata->timing     = false;

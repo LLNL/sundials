@@ -3,8 +3,11 @@
 #                and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# Copyright (c) 2025, Lawrence Livermore National Security,
+# University of Maryland Baltimore County, and the SUNDIALS contributors.
+# Copyright (c) 2013-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
+# Copyright (c) 2002-2013, Lawrence Livermore National Security.
 # All rights reserved.
 #
 # See the top-level LICENSE and NOTICE files for details.
@@ -24,6 +27,11 @@ cmake_minimum_required(VERSION 3.18)
 # Address DOWNLOAD_EXTRACT_TIMESTAMP warning with CMake 3.24+
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
   cmake_policy(SET CMP0135 NEW)
+endif()
+
+# Address <Package>_ROOT warning with CMake 3.27+
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
+  cmake_policy(SET CMP0144 NEW)
 endif()
 
 # Project SUNDIALS (initially only C supported) sets PROJECT_SOURCE_DIR and
