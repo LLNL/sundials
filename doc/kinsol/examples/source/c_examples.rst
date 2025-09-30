@@ -214,7 +214,7 @@ are specified through a call to :c:func:`KINSetPreconditioner`.  The ``data``
 pointer passed to :c:func:`KINSetUserData` is passed to ``PrecSetupBD`` and
 ``PrecSolveBD`` whenever these are called.
 
-Next, :c:func:`KINSol` is called to solve the sytem, the return value is tested
+Next, :c:func:`KINSol` is called to solve the system, the return value is tested
 for error conditions, and the approximate solution vector is printed via a call
 to ``PrintOutput``. After that, ``PrintFinalStats`` is called to get and print
 final statistics, and memory is freed by calls to :c:func:`N_VDestroy`,
