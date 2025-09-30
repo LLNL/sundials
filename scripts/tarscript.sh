@@ -224,14 +224,9 @@ cp $sundialsdir/CONTRIBUTING.md $tmpdir/
 cp $sundialsdir/LICENSE $tmpdir/
 cp $sundialsdir/NOTICE $tmpdir/
 cp $sundialsdir/README.md $tmpdir/
-cp $sundialsdir/.readthedocs.yaml $tmpdir/
 
 cp -r $sundialsdir/benchmarks $tmpdir/
 cp -r $sundialsdir/cmake $tmpdir/
-
-cp -r $sundialsdir/doc/shared $tmpdir/doc
-cp -r $sundialsdir/doc/superbuild $tmpdir/doc
-cp -r $sundialsdir/doc/requirements.txt $tmpdir/doc
 
 cp    $sundialsdir/examples/CMakeLists.txt $tmpdir/examples/
 cp -r $sundialsdir/examples/utilities $tmpdir/examples/
@@ -307,7 +302,6 @@ do
         cp -r $sundialsdir/src/$pkg $tmpdir/src/
         cp -r $sundialsdir/examples/$pkg $tmpdir/examples/
         mkdir -p $tmpdir/doc/$pkg
-        cp -r $sundialsdir/doc/$pkg/guide $tmpdir/doc/$pkg
         if [ $doc = "T" ]; then
             echo -e "--- ${pkg} documentation"
             cd $sundialsdir/doc/$pkg/guide
@@ -333,7 +327,6 @@ do
         cp -r $sundialsdir/src/$pkg $tmpdir/src/
         cp -r $sundialsdir/examples/$pkg $tmpdir/examples/
         mkdir -p $tmpdir/doc/$pkg
-        cp -r $sundialsdir/doc/$pkg/guide $tmpdir/doc/$pkg
         if [ $doc = "T" ]; then
             echo -e "--- ${pkg} documentation"
             cd $sundialsdir/doc/$pkg/guide
@@ -368,7 +361,7 @@ if [ $do_sundials = "T" ]; then
     filename="sundials-"$SUN_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared.sh $tarfile $distrobase $doc "T" $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc $tar
     $scriptdir/arkode.sh $tarfile $distrobase $doc $tar
     $scriptdir/cvode.sh  $tarfile $distrobase $doc $tar
     $scriptdir/cvodes.sh $tarfile $distrobase $doc $tar
