@@ -50,10 +50,7 @@ extensions = [
 
 # Where to find cross-references to the Sphinx documentation.
 intersphinx_mapping = {
-    "sphinx": (
-        "https://www.sphinx-doc.org/en/master",
-        ("../objects.inv", None),
-    )
+    "sphinx": ("https://www.sphinx-doc.org/en/master", ("../objects.inv", None))
 }
 
 # No non-external references will be resolved by intersphinx
