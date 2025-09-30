@@ -20,6 +20,8 @@
 #ifndef _SUNDIALS_MATRIX_HPP
 #define _SUNDIALS_MATRIX_HPP
 
+#include <utility>
+
 #include <sundials/sundials_base.hpp>
 #include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_matrix.h>
@@ -39,15 +41,13 @@ class SUNMatrixView : public ClassView<SUNMatrix, SUNMatrixDeleter>
 {
 public:
   using ClassView<SUNMatrix, SUNMatrixDeleter>::ClassView;
-  template<typename... Args>
-  static SUNMatrixView Create(Args&&... args);
-};
 
-template<typename... Args>
-SUNMatrixView SUNMatrixView::Create(Args&&... args)
-{
-  return SUNMatrixView(std::forward<Args>(args)...);
-}
+  template<typename... Args>
+  static SUNMatrixView Create(Args&&... args)
+  {
+    return SUNMatrixView(std::forward<Args>(args)...);
+  }
+};
 
 } // namespace experimental
 } // namespace sundials

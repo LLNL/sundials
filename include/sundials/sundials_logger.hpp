@@ -18,6 +18,8 @@
 #ifndef _SUNDIALS_LOGGER_HPP
 #define _SUNDIALS_LOGGER_HPP
 
+#include <utility>
+
 #include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_logger.h>
 
@@ -43,14 +45,12 @@ public:
   SUNLoggerView(SUNComm comm) { SUNLogger_CreateFromEnv(comm, &object_); }
 
   template<typename... Args>
-  static SUNLoggerView Create(Args&&... args);
+  static SUNLoggerView Create(Args&&... args)
+  {
+    return SUNLoggerView(std::forward<Args>(args)...);
+  }
 };
 
-template<typename... Args>
-SUNLoggerView SUNLoggerView::Create(Args&&... args)
-{
-  return SUNLoggerView(std::forward<Args>(args)...);
-}
 
 } // namespace experimental
 } // namespace sundials

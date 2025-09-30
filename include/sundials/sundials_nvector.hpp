@@ -20,6 +20,8 @@
 #ifndef _SUNDIALS_NVECTOR_HPP
 #define _SUNDIALS_NVECTOR_HPP
 
+#include <utility>
+
 #include <sundials/sundials_base.hpp>
 #include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_nvector.h>
@@ -40,15 +42,13 @@ class NVectorView : public ClassView<N_Vector, NVectorDeleter>
 {
 public:
   using ClassView<N_Vector, NVectorDeleter>::ClassView;
-  template<typename... Args>
-  static NVectorView Create(Args&&... args);
-};
 
-template<typename... Args>
-NVectorView NVectorView::Create(Args&&... args)
-{
-  return NVectorView(std::forward<Args>(args)...);
-}
+  template<typename... Args>
+  static NVectorView Create(Args&&... args)
+  {
+    return NVectorView(std::forward<Args>(args)...);
+  }
+};
 
 } // namespace experimental
 } // namespace sundials
