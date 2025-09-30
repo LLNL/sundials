@@ -543,7 +543,7 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
 
 .. c:function:: SUNErrCode SUNDIALSFileClose(FILE** fp)
 
-   Deprecated alias to :c:func:`SUNFileOpen`
+   Deprecated alias to :c:func:`SUNFileClose`
 
    .. deprecated:: X.Y.Z
 
