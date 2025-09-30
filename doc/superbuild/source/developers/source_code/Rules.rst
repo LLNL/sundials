@@ -24,7 +24,7 @@ These rules should be followed for all new code. Unfortunately, old code might
 not adhere to all of these rules.
 
 
-#. Identifiers should follow our `Naming Conventions <SourceCode.Naming>`.
+#. Identifiers should follow our :ref:`Naming Conventions <SourceCode.Naming>`.
 
 #. Do not use language features that are not compatible with C99, C++14,
    and MSVC v1900+ (Visual Studio 2015). Examples of such features include
@@ -208,12 +208,7 @@ not adhere to all of these rules.
    SUNDIALS API that will be interfaced to Fortran since the Fortran standard does
    not include unsigned integers.
 
-#. Use the print functions, format macros, and output guidelines detailed in
-   :ref:`Style.Output`.
-
-#. Follow the logging style detailed in :ref:`Style.Logging`.
-
-#. Use `sizeof(variable)` rather than `sizeof(type)`. E.g.,
+#. Use ``sizeof(variable)`` rather than ``sizeof(type)``. E.g.,
 
    .. code-block:: c
 
@@ -222,3 +217,28 @@ not adhere to all of these rules.
       int* array1 = malloc(array_length * sizeof(a)); // Do this
       int* array2 = malloc(array_length * sizeof(int)); // Don't do this
       
+#. Do not use anonymous ``enum`` s in public header files (the Python interface generator doesn't like it).
+   Wrap typedef statements in SWIG guards. E.g.,
+
+   .. code-block:: c
+
+      // Don't do this
+      typedef enum {
+         ARK_RELAX_BRENT,
+         ARK_RELAX_NEWTON
+      } ARKRelaxSolver;
+
+      // Do this
+      enum ARKRelaxSolver {
+         ARK_RELAX_BRENT,
+         ARK_RELAX_NEWTON
+      };
+
+      #ifndef SWIG
+      typedef enum ARKRelaxSolver ARKRelaxSolver;
+      #endif
+
+#. Use the print functions, format macros, and output guidelines detailed in
+   :ref:`Style.Output`.
+
+#. Follow the logging style detailed in :ref:`Style.Logging`.
