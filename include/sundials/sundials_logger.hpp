@@ -51,7 +51,6 @@ public:
   }
 };
 
-
 } // namespace experimental
 } // namespace sundials
 
