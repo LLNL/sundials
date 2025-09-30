@@ -346,10 +346,10 @@ SWIGEXPORT int32_t _wrap_FSUNBandMatrix_LData(SUNMatrix farg1) {
 SWIGEXPORT void * _wrap_FSUNBandMatrix_Cols(SUNMatrix farg1) {
   void * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-  sunrealtype2d result;
+  sunrealtype **result = 0 ;
   
   arg1 = (SUNMatrix)(farg1);
-  result = (sunrealtype2d)SUNBandMatrix_Cols(arg1);
+  result = (sunrealtype **)SUNBandMatrix_Cols(arg1);
   fresult = result;
   return fresult;
 }

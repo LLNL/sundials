@@ -3785,14 +3785,14 @@ farg3 = c_loc(liw(1))
 call swigc_FN_VSpace(farg1, farg2, farg3)
 end subroutine
 
-subroutine FN_VSetArrayPointer(v_data, v)
+subroutine FN_VSetArrayPointer(v_data_1d, v)
 use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), dimension(*), target, intent(inout) :: v_data
+real(C_DOUBLE), dimension(*), target, intent(inout) :: v_data_1d
 type(N_Vector), target, intent(inout) :: v
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = c_loc(v_data(1))
+farg1 = c_loc(v_data_1d(1))
 farg2 = c_loc(v)
 call swigc_FN_VSetArrayPointer(farg1, farg2)
 end subroutine
@@ -4125,13 +4125,13 @@ fresult = swigc_FN_VMinQuotient(farg1, farg2)
 swig_result = fresult
 end function
 
-function FN_VLinearCombination(nvec, c_arr, x_arr, z) &
+function FN_VLinearCombination(nvec, c_1d, x_1d, z) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
-real(C_DOUBLE), dimension(*), target, intent(inout) :: c_arr
-type(C_PTR) :: x_arr
+real(C_DOUBLE), dimension(*), target, intent(inout) :: c_1d
+type(C_PTR) :: x_1d
 type(N_Vector), target, intent(inout) :: z
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
@@ -4140,22 +4140,22 @@ type(C_PTR) :: farg3
 type(C_PTR) :: farg4 
 
 farg1 = nvec
-farg2 = c_loc(c_arr(1))
-farg3 = x_arr
+farg2 = c_loc(c_1d(1))
+farg3 = x_1d
 farg4 = c_loc(z)
 fresult = swigc_FN_VLinearCombination(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FN_VScaleAddMulti(nvec, a, x, y_arr, z_arr) &
+function FN_VScaleAddMulti(nvec, a_1d, x, y_1d, z_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
-real(C_DOUBLE), dimension(*), target, intent(inout) :: a
+real(C_DOUBLE), dimension(*), target, intent(inout) :: a_1d
 type(N_Vector), target, intent(inout) :: x
-type(C_PTR) :: y_arr
-type(C_PTR) :: z_arr
+type(C_PTR) :: y_1d
+type(C_PTR) :: z_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
@@ -4164,22 +4164,22 @@ type(C_PTR) :: farg4
 type(C_PTR) :: farg5 
 
 farg1 = nvec
-farg2 = c_loc(a(1))
+farg2 = c_loc(a_1d(1))
 farg3 = c_loc(x)
-farg4 = y_arr
-farg5 = z_arr
+farg4 = y_1d
+farg5 = z_1d
 fresult = swigc_FN_VScaleAddMulti(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FN_VDotProdMulti(nvec, x, y_arr, dotprods) &
+function FN_VDotProdMulti(nvec, x, y_1d, dotprods_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
 type(N_Vector), target, intent(inout) :: x
-type(C_PTR) :: y_arr
-real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
+type(C_PTR) :: y_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
@@ -4188,22 +4188,22 @@ type(C_PTR) :: farg4
 
 farg1 = nvec
 farg2 = c_loc(x)
-farg3 = y_arr
-farg4 = c_loc(dotprods(1))
+farg3 = y_1d
+farg4 = c_loc(dotprods_1d(1))
 fresult = swigc_FN_VDotProdMulti(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FN_VLinearSumVectorArray(nvec, a, x_arr, b, y_arr, z_arr) &
+function FN_VLinearSumVectorArray(nvec, a, x_1d, b, y_1d, z_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
 real(C_DOUBLE), intent(in) :: a
-type(C_PTR) :: x_arr
+type(C_PTR) :: x_1d
 real(C_DOUBLE), intent(in) :: b
-type(C_PTR) :: y_arr
-type(C_PTR) :: z_arr
+type(C_PTR) :: y_1d
+type(C_PTR) :: z_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 real(C_DOUBLE) :: farg2 
@@ -4214,22 +4214,22 @@ type(C_PTR) :: farg6
 
 farg1 = nvec
 farg2 = a
-farg3 = x_arr
+farg3 = x_1d
 farg4 = b
-farg5 = y_arr
-farg6 = z_arr
+farg5 = y_1d
+farg6 = z_1d
 fresult = swigc_FN_VLinearSumVectorArray(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
-function FN_VScaleVectorArray(nvec, c, x_arr, z_arr) &
+function FN_VScaleVectorArray(nvec, c_1d, x_1d, z_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
-real(C_DOUBLE), dimension(*), target, intent(inout) :: c
-type(C_PTR) :: x_arr
-type(C_PTR) :: z_arr
+real(C_DOUBLE), dimension(*), target, intent(inout) :: c_1d
+type(C_PTR) :: x_1d
+type(C_PTR) :: z_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
@@ -4237,20 +4237,20 @@ type(C_PTR) :: farg3
 type(C_PTR) :: farg4 
 
 farg1 = nvec
-farg2 = c_loc(c(1))
-farg3 = x_arr
-farg4 = z_arr
+farg2 = c_loc(c_1d(1))
+farg3 = x_1d
+farg4 = z_1d
 fresult = swigc_FN_VScaleVectorArray(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FN_VConstVectorArray(nvec, c, z_arr) &
+function FN_VConstVectorArray(nvec, c, z_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
 real(C_DOUBLE), intent(in) :: c
-type(C_PTR) :: z_arr
+type(C_PTR) :: z_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 real(C_DOUBLE) :: farg2 
@@ -4258,19 +4258,19 @@ type(C_PTR) :: farg3
 
 farg1 = nvec
 farg2 = c
-farg3 = z_arr
+farg3 = z_1d
 fresult = swigc_FN_VConstVectorArray(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FN_VWrmsNormVectorArray(nvec, x_arr, w_arr, nrm) &
+function FN_VWrmsNormVectorArray(nvec, x_1d, w_1d, nrm_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
-type(C_PTR) :: x_arr
-type(C_PTR) :: w_arr
-real(C_DOUBLE), dimension(*), target, intent(inout) :: nrm
+type(C_PTR) :: x_1d
+type(C_PTR) :: w_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: nrm_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
@@ -4278,22 +4278,22 @@ type(C_PTR) :: farg3
 type(C_PTR) :: farg4 
 
 farg1 = nvec
-farg2 = x_arr
-farg3 = w_arr
-farg4 = c_loc(nrm(1))
+farg2 = x_1d
+farg3 = w_1d
+farg4 = c_loc(nrm_1d(1))
 fresult = swigc_FN_VWrmsNormVectorArray(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FN_VWrmsNormMaskVectorArray(nvec, x_arr, w_arr, id, nrm) &
+function FN_VWrmsNormMaskVectorArray(nvec, x_1d, w_1d, id, nrm_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
-type(C_PTR) :: x_arr
-type(C_PTR) :: w_arr
+type(C_PTR) :: x_1d
+type(C_PTR) :: w_1d
 type(N_Vector), target, intent(inout) :: id
-real(C_DOUBLE), dimension(*), target, intent(inout) :: nrm
+real(C_DOUBLE), dimension(*), target, intent(inout) :: nrm_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
@@ -4302,10 +4302,10 @@ type(C_PTR) :: farg4
 type(C_PTR) :: farg5 
 
 farg1 = nvec
-farg2 = x_arr
-farg3 = w_arr
+farg2 = x_1d
+farg3 = w_1d
 farg4 = c_loc(id)
-farg5 = c_loc(nrm(1))
+farg5 = c_loc(nrm_1d(1))
 fresult = swigc_FN_VWrmsNormMaskVectorArray(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
@@ -4451,14 +4451,14 @@ fresult = swigc_FN_VMinQuotientLocal(farg1, farg2)
 swig_result = fresult
 end function
 
-function FN_VDotProdMultiLocal(nvec, x, y_arr, dotprods) &
+function FN_VDotProdMultiLocal(nvec, x, y_1d, dotprods_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
 type(N_Vector), target, intent(inout) :: x
-type(C_PTR) :: y_arr
-real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
+type(C_PTR) :: y_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
@@ -4467,19 +4467,19 @@ type(C_PTR) :: farg4
 
 farg1 = nvec
 farg2 = c_loc(x)
-farg3 = y_arr
-farg4 = c_loc(dotprods(1))
+farg3 = y_1d
+farg4 = c_loc(dotprods_1d(1))
 fresult = swigc_FN_VDotProdMultiLocal(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FN_VDotProdMultiAllReduce(nvec_total, x, sum) &
+function FN_VDotProdMultiAllReduce(nvec_total, x, sum_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec_total
 type(N_Vector), target, intent(inout) :: x
-real(C_DOUBLE), dimension(*), target, intent(inout) :: sum
+real(C_DOUBLE), dimension(*), target, intent(inout) :: sum_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
@@ -4487,7 +4487,7 @@ type(C_PTR) :: farg3
 
 farg1 = nvec_total
 farg2 = c_loc(x)
-farg3 = c_loc(sum(1))
+farg3 = c_loc(sum_1d(1))
 fresult = swigc_FN_VDotProdMultiAllReduce(farg1, farg2, farg3)
 swig_result = fresult
 end function
@@ -4588,44 +4588,44 @@ fresult = swigc_FN_VCloneVectorArray(farg1, farg2)
 swig_result = fresult
 end function
 
-subroutine FN_VDestroyVectorArray(vs_arr, count)
+subroutine FN_VDestroyVectorArray(vs_1d, count)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: vs_arr
+type(C_PTR) :: vs_1d
 integer(C_INT), intent(in) :: count
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = vs_arr
+farg1 = vs_1d
 farg2 = count
 call swigc_FN_VDestroyVectorArray(farg1, farg2)
 end subroutine
 
-function FN_VGetVecAtIndexVectorArray(vs_arr, index) &
+function FN_VGetVecAtIndexVectorArray(vs_1d, index) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
-type(C_PTR) :: vs_arr
+type(C_PTR) :: vs_1d
 integer(C_INT), intent(in) :: index
 type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = vs_arr
+farg1 = vs_1d
 farg2 = index
 fresult = swigc_FN_VGetVecAtIndexVectorArray(farg1, farg2)
 call c_f_pointer(fresult, swig_result)
 end function
 
-subroutine FN_VSetVecAtIndexVectorArray(vs_arr, index, w)
+subroutine FN_VSetVecAtIndexVectorArray(vs_1d, index, w)
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: vs_arr
+type(C_PTR) :: vs_1d
 integer(C_INT), intent(in) :: index
 type(N_Vector), target, intent(inout) :: w
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = vs_arr
+farg1 = vs_1d
 farg2 = index
 farg3 = c_loc(w)
 call swigc_FN_VSetVecAtIndexVectorArray(farg1, farg2, farg3)
@@ -4886,12 +4886,12 @@ fresult = swigc_FSUNMatSpace(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNModifiedGS(v, h, k, p, new_vk_norm) &
+function FSUNModifiedGS(v_1d, h_2d, k, p, new_vk_norm) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR) :: v
-type(C_PTR), target, intent(inout) :: h
+type(C_PTR) :: v_1d
+type(C_PTR), target, intent(inout) :: h_2d
 integer(C_INT), intent(in) :: k
 integer(C_INT), intent(in) :: p
 real(C_DOUBLE), dimension(*), target, intent(inout) :: new_vk_norm
@@ -4902,8 +4902,8 @@ integer(C_INT) :: farg3
 integer(C_INT) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = v
-farg2 = c_loc(h)
+farg1 = v_1d
+farg2 = c_loc(h_2d)
 farg3 = k
 farg4 = p
 farg5 = c_loc(new_vk_norm(1))
@@ -4911,17 +4911,17 @@ fresult = swigc_FSUNModifiedGS(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FSUNClassicalGS(v, h, k, p, new_vk_norm, stemp, vtemp) &
+function FSUNClassicalGS(v_1d, h_2d, k, p, new_vk_norm, stemp_1d, vtemp_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR) :: v
-type(C_PTR), target, intent(inout) :: h
+type(C_PTR) :: v_1d
+type(C_PTR), target, intent(inout) :: h_2d
 integer(C_INT), intent(in) :: k
 integer(C_INT), intent(in) :: p
 real(C_DOUBLE), dimension(*), target, intent(inout) :: new_vk_norm
-real(C_DOUBLE), dimension(*), target, intent(inout) :: stemp
-type(C_PTR) :: vtemp
+real(C_DOUBLE), dimension(*), target, intent(inout) :: stemp_1d
+type(C_PTR) :: vtemp_1d
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
@@ -4931,24 +4931,24 @@ type(C_PTR) :: farg5
 type(C_PTR) :: farg6 
 type(C_PTR) :: farg7 
 
-farg1 = v
-farg2 = c_loc(h)
+farg1 = v_1d
+farg2 = c_loc(h_2d)
 farg3 = k
 farg4 = p
 farg5 = c_loc(new_vk_norm(1))
-farg6 = c_loc(stemp(1))
-farg7 = vtemp
+farg6 = c_loc(stemp_1d(1))
+farg7 = vtemp_1d
 fresult = swigc_FSUNClassicalGS(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
 
-function FSUNQRfact(n, h, q, job) &
+function FSUNQRfact(n, h_2d, q_1d, job) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: n
-type(C_PTR), target, intent(inout) :: h
-real(C_DOUBLE), dimension(*), target, intent(inout) :: q
+type(C_PTR), target, intent(inout) :: h_2d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: q_1d
 integer(C_INT), intent(in) :: job
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
@@ -4957,21 +4957,21 @@ type(C_PTR) :: farg3
 integer(C_INT) :: farg4 
 
 farg1 = n
-farg2 = c_loc(h)
-farg3 = c_loc(q(1))
+farg2 = c_loc(h_2d)
+farg3 = c_loc(q_1d(1))
 farg4 = job
 fresult = swigc_FSUNQRfact(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FSUNQRsol(n, h, q, b) &
+function FSUNQRsol(n, h_2d, q_1d, b_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: n
-type(C_PTR), target, intent(inout) :: h
-real(C_DOUBLE), dimension(*), target, intent(inout) :: q
-real(C_DOUBLE), dimension(*), target, intent(inout) :: b
+type(C_PTR), target, intent(inout) :: h_2d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: q_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: b_1d
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
@@ -4979,19 +4979,19 @@ type(C_PTR) :: farg3
 type(C_PTR) :: farg4 
 
 farg1 = n
-farg2 = c_loc(h)
-farg3 = c_loc(q(1))
-farg4 = c_loc(b(1))
+farg2 = c_loc(h_2d)
+farg3 = c_loc(q_1d(1))
+farg4 = c_loc(b_1d(1))
 fresult = swigc_FSUNQRsol(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FSUNQRAdd_MGS(q, r, df, m, mmax, qrdata) &
+function FSUNQRAdd_MGS(q_1d, r_1d, df, m, mmax, qrdata) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR) :: q
-real(C_DOUBLE), dimension(*), target, intent(inout) :: r
+type(C_PTR) :: q_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: r_1d
 type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
@@ -5004,8 +5004,8 @@ integer(C_INT) :: farg4
 integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 
-farg1 = q
-farg2 = c_loc(r(1))
+farg1 = q_1d
+farg2 = c_loc(r_1d(1))
 farg3 = c_loc(df)
 farg4 = m
 farg5 = mmax
@@ -5014,12 +5014,12 @@ fresult = swigc_FSUNQRAdd_MGS(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
-function FSUNQRAdd_ICWY(q, r, df, m, mmax, qrdata) &
+function FSUNQRAdd_ICWY(q_1d, r_1d, df, m, mmax, qrdata) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR) :: q
-real(C_DOUBLE), dimension(*), target, intent(inout) :: r
+type(C_PTR) :: q_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: r_1d
 type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
@@ -5032,8 +5032,8 @@ integer(C_INT) :: farg4
 integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 
-farg1 = q
-farg2 = c_loc(r(1))
+farg1 = q_1d
+farg2 = c_loc(r_1d(1))
 farg3 = c_loc(df)
 farg4 = m
 farg5 = mmax
@@ -5042,12 +5042,12 @@ fresult = swigc_FSUNQRAdd_ICWY(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
-function FSUNQRAdd_ICWY_SB(q, r, df, m, mmax, qrdata) &
+function FSUNQRAdd_ICWY_SB(q_1d, r_1d, df, m, mmax, qrdata) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR) :: q
-real(C_DOUBLE), dimension(*), target, intent(inout) :: r
+type(C_PTR) :: q_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: r_1d
 type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
@@ -5060,8 +5060,8 @@ integer(C_INT) :: farg4
 integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 
-farg1 = q
-farg2 = c_loc(r(1))
+farg1 = q_1d
+farg2 = c_loc(r_1d(1))
 farg3 = c_loc(df)
 farg4 = m
 farg5 = mmax
@@ -5070,12 +5070,12 @@ fresult = swigc_FSUNQRAdd_ICWY_SB(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
-function FSUNQRAdd_CGS2(q, r, df, m, mmax, qrdata) &
+function FSUNQRAdd_CGS2(q_1d, r_1d, df, m, mmax, qrdata) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR) :: q
-real(C_DOUBLE), dimension(*), target, intent(inout) :: r
+type(C_PTR) :: q_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: r_1d
 type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
@@ -5088,8 +5088,8 @@ integer(C_INT) :: farg4
 integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 
-farg1 = q
-farg2 = c_loc(r(1))
+farg1 = q_1d
+farg2 = c_loc(r_1d(1))
 farg3 = c_loc(df)
 farg4 = m
 farg5 = mmax
@@ -5098,12 +5098,12 @@ fresult = swigc_FSUNQRAdd_CGS2(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
-function FSUNQRAdd_DCGS2(q, r, df, m, mmax, qrdata) &
+function FSUNQRAdd_DCGS2(q_1d, r_1d, df, m, mmax, qrdata) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR) :: q
-real(C_DOUBLE), dimension(*), target, intent(inout) :: r
+type(C_PTR) :: q_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: r_1d
 type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
@@ -5116,8 +5116,8 @@ integer(C_INT) :: farg4
 integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 
-farg1 = q
-farg2 = c_loc(r(1))
+farg1 = q_1d
+farg2 = c_loc(r_1d(1))
 farg3 = c_loc(df)
 farg4 = m
 farg5 = mmax
@@ -5126,12 +5126,12 @@ fresult = swigc_FSUNQRAdd_DCGS2(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
-function FSUNQRAdd_DCGS2_SB(q, r, df, m, mmax, qrdata) &
+function FSUNQRAdd_DCGS2_SB(q_1d, r_1d, df, m, mmax, qrdata) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(C_PTR) :: q
-real(C_DOUBLE), dimension(*), target, intent(inout) :: r
+type(C_PTR) :: q_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: r_1d
 type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
@@ -5144,8 +5144,8 @@ integer(C_INT) :: farg4
 integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 
-farg1 = q
-farg2 = c_loc(r(1))
+farg1 = q_1d
+farg2 = c_loc(r_1d(1))
 farg3 = c_loc(df)
 farg4 = m
 farg5 = mmax
@@ -6070,14 +6070,14 @@ fresult = swigc_FSUNStepper_SetStepDirection(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNStepper_SetForcing(stepper, tshift, tscale, forcing, nforcing) &
+function FSUNStepper_SetForcing(stepper, tshift, tscale, forcing_1d, nforcing) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tshift
 real(C_DOUBLE), intent(in) :: tscale
-type(C_PTR) :: forcing
+type(C_PTR) :: forcing_1d
 integer(C_INT), intent(in) :: nforcing
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -6089,7 +6089,7 @@ integer(C_INT) :: farg5
 farg1 = stepper
 farg2 = tshift
 farg3 = tscale
-farg4 = forcing
+farg4 = forcing_1d
 farg5 = nforcing
 fresult = swigc_FSUNStepper_SetForcing(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult

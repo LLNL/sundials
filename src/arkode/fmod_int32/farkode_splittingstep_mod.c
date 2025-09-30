@@ -313,11 +313,11 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 SWIGEXPORT void _wrap_SplittingStepCoefficientsMem_alpha_set(SwigClassWrapper const *farg1, double *farg2) {
   struct SplittingStepCoefficientsMem *arg1 = (struct SplittingStepCoefficientsMem *) 0 ;
-  sunrealtype1d arg2 = (sunrealtype1d) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct SplittingStepCoefficientsMem *", "SplittingStepCoefficientsMem", "SplittingStepCoefficientsMem::alpha", return );
   arg1 = (struct SplittingStepCoefficientsMem *)(farg1->cptr);
-  arg2 = (sunrealtype1d)(farg2);
+  arg2 = (sunrealtype *)(farg2);
   if (arg1) (arg1)->alpha = arg2;
 }
 
@@ -325,11 +325,11 @@ SWIGEXPORT void _wrap_SplittingStepCoefficientsMem_alpha_set(SwigClassWrapper co
 SWIGEXPORT double * _wrap_SplittingStepCoefficientsMem_alpha_get(SwigClassWrapper const *farg1) {
   double * fresult ;
   struct SplittingStepCoefficientsMem *arg1 = (struct SplittingStepCoefficientsMem *) 0 ;
-  sunrealtype1d result;
+  sunrealtype *result = 0 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct SplittingStepCoefficientsMem *", "SplittingStepCoefficientsMem", "SplittingStepCoefficientsMem::alpha", return 0);
   arg1 = (struct SplittingStepCoefficientsMem *)(farg1->cptr);
-  result = (sunrealtype1d) ((arg1)->alpha);
+  result = (sunrealtype *) ((arg1)->alpha);
   fresult = result;
   return fresult;
 }
@@ -337,11 +337,11 @@ SWIGEXPORT double * _wrap_SplittingStepCoefficientsMem_alpha_get(SwigClassWrappe
 
 SWIGEXPORT void _wrap_SplittingStepCoefficientsMem_beta_set(SwigClassWrapper const *farg1, void *farg2) {
   struct SplittingStepCoefficientsMem *arg1 = (struct SplittingStepCoefficientsMem *) 0 ;
-  sunrealtype3d arg2 = (sunrealtype3d) 0 ;
+  sunrealtype ***arg2 = (sunrealtype ***) 0 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct SplittingStepCoefficientsMem *", "SplittingStepCoefficientsMem", "SplittingStepCoefficientsMem::beta", return );
   arg1 = (struct SplittingStepCoefficientsMem *)(farg1->cptr);
-  arg2 = (sunrealtype3d)(farg2);
+  arg2 = (sunrealtype ***)(farg2);
   if (arg1) (arg1)->beta = arg2;
 }
 
@@ -349,11 +349,11 @@ SWIGEXPORT void _wrap_SplittingStepCoefficientsMem_beta_set(SwigClassWrapper con
 SWIGEXPORT void * _wrap_SplittingStepCoefficientsMem_beta_get(SwigClassWrapper const *farg1) {
   void * fresult ;
   struct SplittingStepCoefficientsMem *arg1 = (struct SplittingStepCoefficientsMem *) 0 ;
-  sunrealtype3d result;
+  sunrealtype ***result = 0 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct SplittingStepCoefficientsMem *", "SplittingStepCoefficientsMem", "SplittingStepCoefficientsMem::beta", return 0);
   arg1 = (struct SplittingStepCoefficientsMem *)(farg1->cptr);
-  result = (sunrealtype3d) ((arg1)->beta);
+  result = (sunrealtype ***) ((arg1)->beta);
   fresult = result;
   return fresult;
 }
@@ -509,16 +509,16 @@ SWIGEXPORT SwigClassWrapper _wrap_FSplittingStepCoefficients_Create(int const *f
   int arg2 ;
   int arg3 ;
   int arg4 ;
-  sunrealtype1d arg5 = (sunrealtype1d) 0 ;
-  sunrealtype1d arg6 = (sunrealtype1d) 0 ;
+  sunrealtype *arg5 = (sunrealtype *) 0 ;
+  sunrealtype *arg6 = (sunrealtype *) 0 ;
   SplittingStepCoefficients result;
   
   arg1 = (int)(*farg1);
   arg2 = (int)(*farg2);
   arg3 = (int)(*farg3);
   arg4 = (int)(*farg4);
-  arg5 = (sunrealtype1d)(farg5);
-  arg6 = (sunrealtype1d)(farg6);
+  arg5 = (sunrealtype *)(farg5);
+  arg6 = (sunrealtype *)(farg6);
   result = (SplittingStepCoefficients)SplittingStepCoefficients_Create(arg1,arg2,arg3,arg4,arg5,arg6);
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (0 ? SWIG_MEM_OWN : 0);

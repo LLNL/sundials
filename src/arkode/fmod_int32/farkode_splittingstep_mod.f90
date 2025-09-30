@@ -629,7 +629,7 @@ fresult = swigc_FSplittingStepCoefficients_Alloc(farg1, farg2, farg3)
 swig_result%swigdata = fresult
 end function
 
-function FSplittingStepCoefficients_Create(sequential_methods, stages, partitions, order, alpha, beta) &
+function FSplittingStepCoefficients_Create(sequential_methods, stages, partitions, order, alpha_1d, beta_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SplittingStepCoefficientsMem) :: swig_result
@@ -637,8 +637,8 @@ integer(C_INT), intent(in) :: sequential_methods
 integer(C_INT), intent(in) :: stages
 integer(C_INT), intent(in) :: partitions
 integer(C_INT), intent(in) :: order
-real(C_DOUBLE), dimension(*), target, intent(inout) :: alpha
-real(C_DOUBLE), dimension(*), target, intent(inout) :: beta
+real(C_DOUBLE), dimension(*), target, intent(inout) :: alpha_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: beta_1d
 type(SwigClassWrapper) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT) :: farg2 
@@ -651,8 +651,8 @@ farg1 = sequential_methods
 farg2 = stages
 farg3 = partitions
 farg4 = order
-farg5 = c_loc(alpha(1))
-farg6 = c_loc(beta(1))
+farg5 = c_loc(alpha_1d(1))
+farg6 = c_loc(beta_1d(1))
 fresult = swigc_FSplittingStepCoefficients_Create(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result%swigdata = fresult
 end function
