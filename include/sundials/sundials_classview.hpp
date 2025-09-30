@@ -34,7 +34,7 @@ public:
 
   ClassView(T& object) : object_(object) {}
 
-  ClassView(T&& object) : object_(object) {}
+  ClassView(T&& object) : object_(std::forward<T>(object)) {}
 
   ClassView(const ClassView&) = delete;
 
