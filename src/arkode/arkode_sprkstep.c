@@ -561,19 +561,23 @@ int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     SUNLogExtraDebugVec(ARK_LOGGER, "stage", prev_stage, "z2_%i(:) =", is);
 
     /* evaluate p' with the previous velocity */
-    N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
-                                        set other outputs to zero */
-    retval = sprkStep_f1(step_mem, ark_mem->tn + chati * ark_mem->h, prev_stage,
-                         step_mem->sdata, ark_mem->user_data);
-
-    SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->sdata,
-                        "f1_%i(:) =", is);
-
-    if (retval != 0)
+    if (ahati != 0.0)
     {
-      SUNLogInfo(ARK_LOGGER, "end-stage",
-                 "status = failed rhs eval, retval = %i", retval);
-      return ARK_RHSFUNC_FAIL;
+      N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
+                                          set other outputs to zero */
+
+      retval = sprkStep_f1(step_mem, ark_mem->tn + chati * ark_mem->h,
+                           prev_stage, step_mem->sdata, ark_mem->user_data);
+
+      SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->sdata,
+                          "f1_%i(:) =", is);
+
+      if (retval != 0)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed rhs eval, retval = %i", retval);
+        return ARK_RHSFUNC_FAIL;
+      }
     }
 
     /* position update */
@@ -585,24 +589,28 @@ int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
     SUNLogExtraDebugVec(ARK_LOGGER, "stage", curr_stage, "z1_%i(:) =", is);
 
-    /* evaluate q' with the current positions */
-    N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
-                                        set other outputs to zero */
-    retval = sprkStep_f2(step_mem, ark_mem->tn + ci * ark_mem->h, curr_stage,
-                         step_mem->sdata, ark_mem->user_data);
-
-    SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->sdata,
-                        "f2_%i(:) =", is);
-
-    if (retval != 0)
+    /* evaluate q' with the current positions and update velocity */
+    if (ai != 0.0)
     {
-      SUNLogInfo(ARK_LOGGER, "end-stage",
-                 "status = failed rhs eval, retval = %i", retval);
-      return ARK_RHSFUNC_FAIL;
-    }
+      N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
+                                        set other outputs to zero */
 
-    /* velocity update */
-    N_VLinearSum(ONE, curr_stage, ark_mem->h * ai, step_mem->sdata, curr_stage);
+      retval = sprkStep_f2(step_mem, ark_mem->tn + ci * ark_mem->h, curr_stage,
+                           step_mem->sdata, ark_mem->user_data);
+
+      SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->sdata,
+                          "f2_%i(:) =", is);
+
+      if (retval != 0)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed rhs eval, retval = %i", retval);
+        return ARK_RHSFUNC_FAIL;
+      }
+
+      /* velocity update */
+      N_VLinearSum(ONE, curr_stage, ark_mem->h * ai, step_mem->sdata, curr_stage);
+    }
 
     /* apply user-supplied stage postprocessing function (if supplied) */
     if (ark_mem->ProcessStage != NULL)
