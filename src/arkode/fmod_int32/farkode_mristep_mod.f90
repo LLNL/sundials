@@ -1885,7 +1885,7 @@ fresult = swigc_FMRIStepCoupling_Alloc(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FMRIStepCoupling_Create(nmat, stages, q, p, w, g, c) &
+function FMRIStepCoupling_Create(nmat, stages, q, p, w_1d, g_1d, c_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
@@ -1893,9 +1893,9 @@ integer(C_INT), intent(in) :: nmat
 integer(C_INT), intent(in) :: stages
 integer(C_INT), intent(in) :: q
 integer(C_INT), intent(in) :: p
-real(C_DOUBLE), dimension(*), target, intent(inout) :: w
-real(C_DOUBLE), dimension(*), target, intent(inout) :: g
-real(C_DOUBLE), dimension(*), target, intent(inout) :: c
+real(C_DOUBLE), dimension(*), target, intent(inout) :: w_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: g_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: c_1d
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT) :: farg2 
@@ -1909,9 +1909,9 @@ farg1 = nmat
 farg2 = stages
 farg3 = q
 farg4 = p
-farg5 = c_loc(w(1))
-farg6 = c_loc(g(1))
-farg7 = c_loc(c(1))
+farg5 = c_loc(w_1d(1))
+farg6 = c_loc(g_1d(1))
+farg7 = c_loc(c_1d(1))
 fresult = swigc_FMRIStepCoupling_Create(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function

@@ -5333,17 +5333,17 @@ fresult = swigc_FARKodeButcherTable_Alloc(farg1, farg2)
 swig_result = fresult
 end function
 
-function FARKodeButcherTable_Create(s, q, p, c, a, b, d) &
+function FARKodeButcherTable_Create(s, q, p, c_1d, a_1d, b_1d, d_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: s
 integer(C_INT), intent(in) :: q
 integer(C_INT), intent(in) :: p
-real(C_DOUBLE), dimension(*), target, intent(inout) :: c
-real(C_DOUBLE), dimension(*), target, intent(inout) :: a
-real(C_DOUBLE), dimension(*), target, intent(inout) :: b
-real(C_DOUBLE), dimension(*), target, intent(inout) :: d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: c_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: a_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: b_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: d_1d
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT) :: farg2 
@@ -5356,10 +5356,10 @@ type(C_PTR) :: farg7
 farg1 = s
 farg2 = q
 farg3 = p
-farg4 = c_loc(c(1))
-farg5 = c_loc(a(1))
-farg6 = c_loc(b(1))
-farg7 = c_loc(d(1))
+farg4 = c_loc(c_1d(1))
+farg5 = c_loc(a_1d(1))
+farg6 = c_loc(b_1d(1))
+farg7 = c_loc(d_1d(1))
 fresult = swigc_FARKodeButcherTable_Create(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
@@ -5692,14 +5692,14 @@ call swigc_ARKodeSPRKTableMem_op_assign__(farg1, farg2)
 self%swigdata = farg1
 end subroutine
 
-function FARKodeSPRKTable_Create(s, q, a, ahat) &
+function FARKodeSPRKTable_Create(s, q, a_1d, ahat_1d) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: s
 integer(C_INT), intent(in) :: q
-real(C_DOUBLE), dimension(*), target, intent(inout) :: a
-real(C_DOUBLE), dimension(*), target, intent(inout) :: ahat
+real(C_DOUBLE), dimension(*), target, intent(inout) :: a_1d
+real(C_DOUBLE), dimension(*), target, intent(inout) :: ahat_1d
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT) :: farg2 
@@ -5708,8 +5708,8 @@ type(C_PTR) :: farg4
 
 farg1 = s
 farg2 = q
-farg3 = c_loc(a(1))
-farg4 = c_loc(ahat(1))
+farg3 = c_loc(a_1d(1))
+farg4 = c_loc(ahat_1d(1))
 fresult = swigc_FARKodeSPRKTable_Create(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
