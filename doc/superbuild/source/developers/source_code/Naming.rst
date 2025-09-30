@@ -50,6 +50,31 @@ Variable names
 
 Snake case is preferred for local variable names e.g. ``foo_bar``.
 
+Variables which are pointers to an array, and are effectively treated/index
+as a contiguous array, should use the suffix `_<1|2|3>d`. E.g.,
+
+.. code-block:: c
+
+   sunrealtype my_array[3] = {1.0, 2.0, 3.0};
+   sunrealtype* sequence_1d = my_array;
+
+
+Variables which are purely pointers should use the suffix, ``_ptr``. E.g.,
+
+.. code-block:: c
+
+   N_Vector y = N_VNew_Serial(2, sunctx);
+   N_Vector y_ptr = &y;
+
+
+.. warning::
+
+   The suffixes are **required** in public header files because the Python interface
+   generator relies on the suffixes to determine the proper way to expose the parameter
+   to Python users. It is preferable to follow this convention within other code,
+   but not required.
+
+
 C function names
 ----------------
 

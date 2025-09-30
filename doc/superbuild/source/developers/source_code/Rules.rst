@@ -23,6 +23,9 @@ Coding Conventions and Rules
 These rules should be followed for all new code. Unfortunately, old code might
 not adhere to all of these rules.
 
+
+#. Identifiers should follow our `Naming Conventions <SourceCode.Naming>`.
+
 #. Do not use language features that are not compatible with C99, C++14,
    and MSVC v1900+ (Visual Studio 2015). Examples of such features include
    variable-length arrays. Exceptions are allowed when interfacing with a
