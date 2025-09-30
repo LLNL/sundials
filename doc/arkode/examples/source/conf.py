@@ -233,23 +233,9 @@ im_number = "LLNL-SM-668082"
 # 5. the LaTeX theme
 # 6. include the file from 1. in the output
 tex_author = r"""
-    Daniel R. Reynolds\\
-    {\em Department of Mathematics} \\
-    {\em Southern Methodist University}
+    Daniel R. Reynolds$^1$\\
+    {\em $^1$Department of Mathematics and Statistics, University of Maryland Baltimore County}
     """
-
-# 1. the rst file name used to generate the LaTeX file
-# 2. the name of the LaTeX file to generate (and the resulting PDF file name)
-# 3. the document title
-# 4. text for \author
-# 5. the LaTeX theme
-# 6. include the file from 1. in the output
-tex_author = r"""
-Daniel R. Reynolds$^1$
-\\\\
-{\em $^1$Department of Mathematics, Southern Methodist University}
-"""
-
 latex_documents = [("index", "ark_examples.tex", project, tex_author, "manual", False)]
 
 # make sure the doc logo gets copied to the build directory
