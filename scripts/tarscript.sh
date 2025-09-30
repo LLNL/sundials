@@ -298,28 +298,33 @@ if [ $doc = "T" ]; then
     cd -
 fi
 
-if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
-    cp -r $sundialsdir/include/arkode $tmpdir/include/
-    cp -r $sundialsdir/src/arkode $tmpdir/src/
-    cp -r $sundialsdir/examples/arkode $tmpdir/examples/
-    mkdir -p $tmpdir/doc/arkode
-    cp -r $sundialsdir/doc/arkode/guide $tmpdir/doc/arkode
-    if [ $doc = "T" ]; then
-        echo -e "--- ARKODE documentation"
-        cd $sundialsdir/doc/arkode/guide
-        make clean
-        make latexpdf
-        cp build/latex/ark_guide.pdf $tmpdir/doc/arkode/
-        cd -
-        cd $sundialsdir/doc/arkode/examples
-        make clean
-        make latexpdf
-        cp build/latex/ark_examples.pdf $tmpdir/doc/arkode/
-        cd -
+declare -a packages_rst=('arkode' 'kinsol')
+for pkg in "${packages_rst[@]}";
+do
+    do_package=do_${pkg}
+    if [ $do_sundials = "T" -o ${!do_package} = "T" ]; then
+        cp -r $sundialsdir/include/$pkg $tmpdir/include/
+        cp -r $sundialsdir/src/$pkg $tmpdir/src/
+        cp -r $sundialsdir/examples/$pkg $tmpdir/examples/
+        mkdir -p $tmpdir/doc/$pkg
+        cp -r $sundialsdir/doc/$pkg/guide $tmpdir/doc/$pkg
+        if [ $doc = "T" ]; then
+            echo -e "--- ${pkg} documentation"
+            cd $sundialsdir/doc/$pkg/guide
+            make clean
+            make latexpdf
+            cp build/latex/*_guide.pdf $tmpdir/doc/$pkg/
+            cd -
+            cd $sundialsdir/doc/$pkg/examples
+            make clean
+            make latexpdf
+            cp build/latex/*_examples.pdf $tmpdir/doc/$pkg/
+            cd -
+        fi
     fi
-fi
+done
 
-declare -a packages=('cvode' 'cvodes' 'ida' 'idas' 'kinsol')
+declare -a packages=('cvode' 'cvodes' 'ida' 'idas')
 for pkg in "${packages[@]}";
 do
     do_package=do_${pkg}
