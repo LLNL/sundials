@@ -20,6 +20,8 @@
 #ifndef _SUNDIALS_LINEARSOLVER_HPP
 #define _SUNDIALS_LINEARSOLVER_HPP
 
+#include <utility>
+
 #include <sundials/sundials_base.hpp>
 #include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_linearsolver.h>
@@ -41,15 +43,13 @@ class SUNLinearSolverView
 {
 public:
   using ClassView<SUNLinearSolver, SUNLinearSolverDeleter>::ClassView;
-  template<typename... Args>
-  static SUNLinearSolverView Create(Args&&... args);
-};
 
-template<typename... Args>
-SUNLinearSolverView SUNLinearSolverView::Create(Args&&... args)
-{
-  return SUNLinearSolverView(std::forward<Args>(args)...);
-}
+  template<typename... Args>
+  static SUNLinearSolverView Create(Args&&... args)
+  {
+    return SUNLinearSolverView(std::forward<Args>(args)...);
+  }
+};
 
 } // namespace experimental
 } // namespace sundials

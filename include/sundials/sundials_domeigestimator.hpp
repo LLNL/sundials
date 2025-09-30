@@ -20,6 +20,8 @@
 #ifndef _SUNDIALS_DOMEIGESTIMATOR_HPP
 #define _SUNDIALS_DOMEIGESTIMATOR_HPP
 
+#include <utility>
+
 #include <sundials/sundials_base.hpp>
 #include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_domeigestimator.h>
@@ -41,15 +43,13 @@ class SUNDomEigEstimatorView
 {
 public:
   using ClassView<SUNDomEigEstimator, SUNDomEigEstimatorDeleter>::ClassView;
-  template<typename... Args>
-  static SUNDomEigEstimatorView Create(Args&&... args);
-};
 
-template<typename... Args>
-SUNDomEigEstimatorView SUNDomEigEstimatorView::Create(Args&&... args)
-{
-  return SUNDomEigEstimatorView(std::forward<Args>(args)...);
-}
+  template<typename... Args>
+  static SUNDomEigEstimatorView Create(Args&&... args)
+  {
+    return SUNDomEigEstimatorView(std::forward<Args>(args)...);
+  }
+};
 
 } // namespace experimental
 } // namespace sundials

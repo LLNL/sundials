@@ -20,6 +20,8 @@
 #ifndef _SUNDIALS_ADJOINTSTEPPER_HPP
 #define _SUNDIALS_ADJOINTSTEPPER_HPP
 
+#include <utility>
+
 #include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_classview.hpp>
 
@@ -36,17 +38,15 @@ class SUNAdjointStepperView
 {
 public:
   using ClassView<SUNAdjointStepper, SUNAdjointStepperDeleter>::ClassView;
-  template<typename... Args>
-  static SUNAdjointStepperView Create(Args&&... args);
-};
 
-template<typename... Args>
-SUNAdjointStepperView SUNAdjointStepperView::Create(Args&&... args)
-{
-  SUNAdjointStepper stepper;
-  SUNAdjointStepper_Create(std::forward<Args>(args)..., &stepper);
-  return SUNAdjointStepperView(stepper);
-}
+  template<typename... Args>
+  static SUNAdjointStepperView Create(Args&&... args)
+  {
+    SUNAdjointStepper stepper;
+    SUNAdjointStepper_Create(std::forward<Args>(args)..., &stepper);
+    return SUNAdjointStepperView(stepper);
+  }
+};
 
 } // namespace experimental
 } // namespace sundials

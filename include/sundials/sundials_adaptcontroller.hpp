@@ -20,9 +20,10 @@
 #ifndef _SUNDIALS_ADAPTCONTROLLER_HPP
 #define _SUNDIALS_ADAPTCONTROLLER_HPP
 
+#include <utility>
+
 #include <sundials/sundials_adaptcontroller.h>
 #include <sundials/sundials_classview.hpp>
-#include "sundials_nvector.h"
 
 namespace sundials {
 namespace experimental {
@@ -37,15 +38,13 @@ class SUNAdaptControllerView
 {
 public:
   using ClassView<SUNAdaptController, SUNAdaptControllerDeleter>::ClassView;
-  template<typename... Args>
-  static SUNAdaptControllerView Create(Args&&... args);
-};
 
-template<typename... Args>
-SUNAdaptControllerView SUNAdaptControllerView::Create(Args&&... args)
-{
-  return SUNAdaptControllerView(std::forward<Args>(args)...);
-}
+  template<typename... Args>
+  static SUNAdaptControllerView Create(Args&&... args)
+  {
+    return SUNAdaptControllerView(std::forward<Args>(args)...);
+  }
+};
 
 } // namespace experimental
 } // namespace sundials

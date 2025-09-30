@@ -20,6 +20,8 @@
 #ifndef _SUNDIALS_ADJOINTCHECKPOINTSCHEME_HPP
 #define _SUNDIALS_ADJOINTCHECKPOINTSCHEME_HPP
 
+#include <utility>
+
 #include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_classview.hpp>
 
@@ -39,15 +41,13 @@ class SUNAdjointCheckpointSchemeView
 {
 public:
   using ClassView<SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeDeleter>::ClassView;
-  template<typename... Args>
-  static SUNAdjointCheckpointSchemeView Create(Args&&... args);
-};
 
-template<typename... Args>
-SUNAdjointCheckpointSchemeView SUNAdjointCheckpointSchemeView::Create(Args&&... args)
-{
-  return SUNAdjointCheckpointSchemeView(std::forward<Args>(args)...);
-}
+  template<typename... Args>
+  static SUNAdjointCheckpointSchemeView Create(Args&&... args)
+  {
+    return SUNAdjointCheckpointSchemeView(std::forward<Args>(args)...);
+  }
+};
 
 } // namespace experimental
 } // namespace sundials

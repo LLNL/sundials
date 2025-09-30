@@ -19,6 +19,8 @@
 #define _SUNDIALS_PROFILER_HPP
 
 #include <cstring>
+#include <utility>
+
 #include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_profiler.h>
@@ -71,17 +73,13 @@ public:
   }
 
   template<typename... Args>
-  static SUNProfilerView Create(Args&&... args);
+  static SUNProfilerView Create(Args&&... args)
+  {
+    return SUNProfilerView(std::forward<Args>(args)...);
+  }
 };
 
-template<typename... Args>
-SUNProfilerView SUNProfilerView::Create(Args&&... args)
-{
-  return SUNProfilerView(std::forward<Args>(args)...);
-}
-
 } // namespace experimental
-
 } // namespace sundials
 
 #endif /* SUNDIALS_PROFILER_HPP */

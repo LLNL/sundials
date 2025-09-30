@@ -44,14 +44,11 @@ public:
   }
 
   template<typename... Args>
-  static SUNContextView Create(Args&&... args);
+  static SUNContextView Create(Args&&... args)
+  {
+    return SUNContextView(std::forward<Args>(args)...);
+  }
 };
-
-template<typename... Args>
-SUNContextView SUNContextView::Create(Args&&... args)
-{
-  return SUNContextView(std::forward<Args>(args)...);
-}
 
 // We provide this for backwards compatibility
 using Context = SUNContextView;
