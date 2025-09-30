@@ -32,10 +32,7 @@ using BaseMatrix = BaseObject<_generic_SUNMatrix, _generic_SUNMatrix_Ops>;
 namespace experimental {
 struct SUNMatrixDeleter
 {
-  void operator()(SUNMatrix A)
-  {
-    if (A) { SUNMatDestroy(A); }
-  }
+  void operator()(SUNMatrix A) { SUNMatDestroy(A); }
 };
 
 class SUNMatrixView : public ClassView<SUNMatrix, SUNMatrixDeleter>

@@ -30,7 +30,7 @@ struct SUNAdjointCheckpointSchemeDeleter
 {
   void operator()(SUNAdjointCheckpointScheme self)
   {
-    if (self) { SUNAdjointCheckpointScheme_Destroy(&self); }
+    SUNAdjointCheckpointScheme_Destroy(&self);
   }
 };
 

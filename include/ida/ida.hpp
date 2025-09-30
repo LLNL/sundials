@@ -31,10 +31,7 @@ namespace experimental {
 
 struct IDADeleter
 {
-  void operator()(void* v)
-  {
-    if (v) { IDAFree(&v); }
-  }
+  void operator()(void* v) { IDAFree(&v); }
 };
 
 class IDAView : public ClassView<void*, IDADeleter>

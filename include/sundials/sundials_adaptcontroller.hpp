@@ -29,10 +29,7 @@ namespace experimental {
 
 struct SUNAdaptControllerDeleter
 {
-  void operator()(SUNAdaptController C)
-  {
-    if (C) { SUNAdaptController_Destroy(C); }
-  }
+  void operator()(SUNAdaptController C) { SUNAdaptController_Destroy(C); }
 };
 
 class SUNAdaptControllerView

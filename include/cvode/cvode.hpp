@@ -31,10 +31,7 @@ namespace experimental {
 
 struct CVodeDeleter
 {
-  void operator()(void* v)
-  {
-    if (v) { CVodeFree(&v); }
-  }
+  void operator()(void* v) { CVodeFree(&v); }
 };
 
 class CVodeView : public ClassView<void*, CVodeDeleter>

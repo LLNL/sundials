@@ -146,7 +146,7 @@ SUNDIALS_EXPORT
 int SUNSparseMatrix_SparseType(SUNMatrix A);
 
 SUNDIALS_EXPORT
-sunrealtype* SUNSparseMatrix_Data_1d(SUNMatrix A);
+sunrealtype* SUNSparseMatrix_Data(SUNMatrix A);
 
 SUNDIALS_EXPORT
 sunindextype* SUNSparseMatrix_IndexValues(SUNMatrix A);
