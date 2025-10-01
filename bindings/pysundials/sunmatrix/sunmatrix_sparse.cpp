@@ -16,6 +16,8 @@
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+
 #include <sundials/sundials_core.hpp>
 #include <sunmatrix/sunmatrix_sparse.h>
 
@@ -23,5 +25,45 @@ namespace nb = nanobind;
 
 void bind_sunmatrix_sparse(nb::module_& m)
 {
-  m.def("SUNSparseMatrix", &SUNSparseMatrix, nb::rv_policy::reference);
+#include "pysundials_sunmatrix_sparse_generated.hpp"
+
+  m.def(
+    "SUNSparseMatrix_Data",
+    [](SUNMatrix A)
+    {
+      auto nnz   = static_cast<size_t>(SUNSparseMatrix_NNZ(A));
+      auto owner = nb::find(A);
+      auto ptr   = SUNSparseMatrix_Data(A);
+      // SUNSparseMatrix_Data returns data that cannot be directly indexed as a 2-dimensional numpy array
+      return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig>(ptr,
+                                                                            {nnz},
+                                                                            owner);
+    },
+    nb::arg("A"), nb::rv_policy::reference);
+
+  m.def(
+    "SUNSparseMatrix_IndexValues",
+    [](SUNMatrix A)
+    {
+      auto nnz   = static_cast<size_t>(SUNSparseMatrix_NNZ(A));
+      auto owner = nb::find(A);
+      auto ptr   = SUNSparseMatrix_IndexValues(A);
+      return nb::ndarray<sunindextype, nb::numpy, nb::ndim<1>, nb::c_contig>(ptr,
+                                                                             {nnz},
+                                                                             owner);
+    },
+    nb::arg("A"), nb::rv_policy::reference);
+
+  m.def(
+    "SUNSparseMatrix_IndexPointers",
+    [](SUNMatrix A)
+    {
+      auto nnz   = static_cast<size_t>(SUNSparseMatrix_NP(A) + 1);
+      auto owner = nb::find(A);
+      auto ptr   = SUNSparseMatrix_IndexPointers(A);
+      return nb::ndarray<sunindextype, nb::numpy, nb::ndim<1>, nb::c_contig>(ptr,
+                                                                             {nnz},
+                                                                             owner);
+    },
+    nb::arg("A"), nb::rv_policy::reference);
 }

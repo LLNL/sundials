@@ -16,6 +16,8 @@
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+
 #include <sundials/sundials_core.hpp>
 #include <sunmatrix/sunmatrix_dense.h>
 
@@ -23,5 +25,19 @@ namespace nb = nanobind;
 
 void bind_sunmatrix_dense(nb::module_& m)
 {
-  m.def("SUNDenseMatrix", &SUNDenseMatrix, nb::rv_policy::reference);
+#include "pysundials_sunmatrix_dense_generated.hpp"
+
+  m.def(
+    "SUNDenseMatrix_Data",
+    [](SUNMatrix A)
+    {
+      auto rows  = static_cast<size_t>(SUNDenseMatrix_Rows(A));
+      auto cols  = static_cast<size_t>(SUNDenseMatrix_Columns(A));
+      auto owner = nb::find(A);
+      auto ptr   = SUNDenseMatrix_Data(A);
+      // SUNDenseMatrix_Data returns a column-major ordered array (i.e., Fortran style)
+      return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<2>,
+                         nb::f_contig>(ptr, {rows, cols}, owner);
+    },
+    nb::arg("A"), nb::rv_policy::reference);
 }
