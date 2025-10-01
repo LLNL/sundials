@@ -209,6 +209,7 @@ auto pyEnumSUNLinearSolver_ID =
     .value("SUNLINEARSOLVER_MAGMADENSE", SUNLINEARSOLVER_MAGMADENSE, "")
     .value("SUNLINEARSOLVER_ONEMKLDENSE", SUNLINEARSOLVER_ONEMKLDENSE, "")
     .value("SUNLINEARSOLVER_GINKGO", SUNLINEARSOLVER_GINKGO, "")
+    .value("SUNLINEARSOLVER_GINKGOBATCH", SUNLINEARSOLVER_GINKGOBATCH, "")
     .value("SUNLINEARSOLVER_KOKKOSDENSE", SUNLINEARSOLVER_KOKKOSDENSE, "")
     .value("SUNLINEARSOLVER_CUSTOM", SUNLINEARSOLVER_CUSTOM, "")
     .export_values();
@@ -254,7 +255,7 @@ m.def("SUNLinSolNumIters", SUNLinSolNumIters, nb::arg("S"));
 
 m.def("SUNLinSolResNorm", SUNLinSolResNorm, nb::arg("S"));
 
-m.def("SUNLinSolResid", SUNLinSolResid, nb::arg("S"));
+m.def("SUNLinSolResid", SUNLinSolResid, nb::arg("S"), nb::rv_policy::reference);
 
 m.def("SUNLinSolLastFlag", SUNLinSolLastFlag, nb::arg("S"));
 // #ifdef __cplusplus

@@ -39,6 +39,9 @@ modules:
     - ../../include/arkode/arkode_ls.h
     - ../../include/arkode/arkode_butcher.h
     - ../../include/arkode/arkode_sprk.h
+    sundials_pointer_types:
+    - "ARKodeButcherTable"
+    - "ARKodeSPRKTable"
     fn_exclude_by_name__regex:
     # we don't bind the alloc or create functions as we need to do something custom
     - "^ARKodeGetJac$"
@@ -111,6 +114,9 @@ modules:
     path: arkode/pysundials_arkode_mristep_generated.hpp
     headers:
     - ../../include/arkode/arkode_mristep.h
+    sundials_pointer_types:
+    - "MRIStepCoupling"
+    - "MRIStepInnerStepper"
     fn_exclude_by_name__regex:
     # we don't allow alloc to be used from Python
     - "^MRIStepCoupling_Alloc$"
@@ -136,6 +142,8 @@ modules:
     path: arkode/pysundials_arkode_splittingstep_generated.hpp
     headers:
     - ../../include/arkode/arkode_splittingstep.h
+    sundials_pointer_types:
+    - "SplittingStepCoefficients"
     fn_exclude_by_name__regex:
     # we don't allow alloc to be used from Python
     - "^SplittingStepCoefficients_Alloc$"

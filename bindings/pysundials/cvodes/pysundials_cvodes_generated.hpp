@@ -73,7 +73,8 @@ m.attr("CV_REIFWD_FAIL")         = -105;
 m.attr("CV_FWD_FAIL")            = -106;
 m.attr("CV_GETY_BADT")           = -107;
 
-m.def("CVodeCreate", CVodeCreate, nb::arg("lmm"), nb::arg("sunctx"));
+m.def("CVodeCreate", CVodeCreate, nb::arg("lmm"), nb::arg("sunctx"),
+      nb::rv_policy::reference);
 
 m.def("CVodeReInit", CVodeReInit, nb::arg("cvode_mem"), nb::arg("t0"),
       nb::arg("y0"));
@@ -644,7 +645,8 @@ m.def(
 m.def("CVodePrintAllStats", CVodePrintAllStats, nb::arg("cvode_mem"),
       nb::arg("outfile"), nb::arg("fmt"));
 
-m.def("CVodeGetReturnFlagName", CVodeGetReturnFlagName, nb::arg("flag"));
+m.def("CVodeGetReturnFlagName", CVodeGetReturnFlagName, nb::arg("flag"),
+      nb::rv_policy::reference);
 
 m.def("CVodeQuadReInit", CVodeQuadReInit, nb::arg("cvode_mem"), nb::arg("yQ0"));
 
@@ -1563,7 +1565,7 @@ m.def(
   nb::arg("cvode_mem"), nb::arg("which"), nb::arg("tBret"), nb::arg("qB"));
 
 m.def("CVodeGetAdjCVodeBmem", CVodeGetAdjCVodeBmem, nb::arg("cvode_mem"),
-      nb::arg("which"));
+      nb::arg("which"), nb::rv_policy::reference);
 
 m.def("CVodeGetAdjY", CVodeGetAdjY, nb::arg("cvode_mem"), nb::arg("t"),
       nb::arg("y"));
@@ -1923,7 +1925,8 @@ m.def(
   },
   nb::arg("cvode_mem"), nb::arg("flag"));
 
-m.def("CVodeGetLinReturnFlagName", CVodeGetLinReturnFlagName, nb::arg("flag"));
+m.def("CVodeGetLinReturnFlagName", CVodeGetLinReturnFlagName, nb::arg("flag"),
+      nb::rv_policy::reference);
 
 m.def(
   "CVodeSetLinearSolverB",

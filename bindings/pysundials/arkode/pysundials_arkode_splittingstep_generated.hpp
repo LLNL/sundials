@@ -59,45 +59,51 @@ m.def(
                                                                         beta_1d);
   },
   nb::arg("sequential_methods"), nb::arg("stages"), nb::arg("partitions"),
-  nb::arg("order"), nb::arg("alpha_1d"), nb::arg("beta_1d"));
+  nb::arg("order"), nb::arg("alpha_1d"), nb::arg("beta_1d"),
+  nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_Copy", SplittingStepCoefficients_Copy,
-      nb::arg("coefficients"));
+      nb::arg("coefficients"), nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_Write", SplittingStepCoefficients_Write,
       nb::arg("coefficients"), nb::arg("outfile"));
 
 m.def("SplittingStepCoefficients_LoadCoefficients",
-      SplittingStepCoefficients_LoadCoefficients, nb::arg("id"));
+      SplittingStepCoefficients_LoadCoefficients, nb::arg("id"),
+      nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_LoadCoefficientsByName",
-      SplittingStepCoefficients_LoadCoefficientsByName, nb::arg("name"));
+      SplittingStepCoefficients_LoadCoefficientsByName, nb::arg("name"),
+      nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_IDToName", SplittingStepCoefficients_IDToName,
-      nb::arg("id"));
+      nb::arg("id"), nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_LieTrotter",
-      SplittingStepCoefficients_LieTrotter, nb::arg("partitions"));
+      SplittingStepCoefficients_LieTrotter, nb::arg("partitions"),
+      nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_Strang", SplittingStepCoefficients_Strang,
-      nb::arg("partitions"));
+      nb::arg("partitions"), nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_Parallel", SplittingStepCoefficients_Parallel,
-      nb::arg("partitions"));
+      nb::arg("partitions"), nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_SymmetricParallel",
-      SplittingStepCoefficients_SymmetricParallel, nb::arg("partitions"));
+      SplittingStepCoefficients_SymmetricParallel, nb::arg("partitions"),
+      nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_ThirdOrderSuzuki",
-      SplittingStepCoefficients_ThirdOrderSuzuki, nb::arg("partitions"));
+      SplittingStepCoefficients_ThirdOrderSuzuki, nb::arg("partitions"),
+      nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_TripleJump",
       SplittingStepCoefficients_TripleJump, nb::arg("partitions"),
-      nb::arg("order"));
+      nb::arg("order"), nb::rv_policy::reference);
 
 m.def("SplittingStepCoefficients_SuzukiFractal",
       SplittingStepCoefficients_SuzukiFractal, nb::arg("partitions"),
-      nb::arg("order"));
+      nb::arg("order"), nb::rv_policy::reference);
 
 m.def("SplittingStepSetCoefficients", SplittingStepSetCoefficients,
       nb::arg("arkode_mem"), nb::arg("coefficients"));

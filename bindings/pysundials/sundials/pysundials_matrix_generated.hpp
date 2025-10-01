@@ -14,6 +14,7 @@ auto pyEnumSUNMatrix_ID =
     .value("SUNMATRIX_SLUNRLOC", SUNMATRIX_SLUNRLOC, "")
     .value("SUNMATRIX_CUSPARSE", SUNMATRIX_CUSPARSE, "")
     .value("SUNMATRIX_GINKGO", SUNMATRIX_GINKGO, "")
+    .value("SUNMATRIX_GINKGOBATCH", SUNMATRIX_GINKGOBATCH, "")
     .value("SUNMATRIX_KOKKOSDENSE", SUNMATRIX_KOKKOSDENSE, "")
     .value("SUNMATRIX_CUSTOM", SUNMATRIX_CUSTOM, "")
     .export_values();
@@ -34,7 +35,7 @@ auto pyClass_generic_SUNMatrix =
 
 m.def("SUNMatGetID", SUNMatGetID, nb::arg("A"));
 
-m.def("SUNMatClone", SUNMatClone, nb::arg("A"));
+m.def("SUNMatClone", SUNMatClone, nb::arg("A"), nb::rv_policy::reference);
 
 m.def("SUNMatZero", SUNMatZero, nb::arg("A"));
 

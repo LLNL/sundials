@@ -41,9 +41,9 @@ auto pyClass_generic_N_Vector =
 
 m.def("N_VGetVectorID", N_VGetVectorID, nb::arg("w"));
 
-m.def("N_VClone", N_VClone, nb::arg("w"));
+m.def("N_VClone", N_VClone, nb::arg("w"), nb::rv_policy::reference);
 
-m.def("N_VCloneEmpty", N_VCloneEmpty, nb::arg("w"));
+m.def("N_VCloneEmpty", N_VCloneEmpty, nb::arg("w"), nb::rv_policy::reference);
 
 m.def("N_VGetCommunicator", N_VGetCommunicator, nb::arg("v"));
 

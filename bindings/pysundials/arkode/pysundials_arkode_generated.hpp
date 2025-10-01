@@ -475,7 +475,8 @@ m.def(
 m.def("ARKodePrintAllStats", ARKodePrintAllStats, nb::arg("arkode_mem"),
       nb::arg("outfile"), nb::arg("fmt"));
 
-m.def("ARKodeGetReturnFlagName", ARKodeGetReturnFlagName, nb::arg("flag"));
+m.def("ARKodeGetReturnFlagName", ARKodeGetReturnFlagName, nb::arg("flag"),
+      nb::rv_policy::reference);
 
 m.def("ARKodeWriteParameters", ARKodeWriteParameters, nb::arg("arkode_mem"),
       nb::arg("fp"));
@@ -966,7 +967,8 @@ m.def(
   },
   nb::arg("arkode_mem"), nb::arg("flag"));
 
-m.def("ARKodeGetLinReturnFlagName", ARKodeGetLinReturnFlagName, nb::arg("flag"));
+m.def("ARKodeGetLinReturnFlagName", ARKodeGetLinReturnFlagName, nb::arg("flag"),
+      nb::rv_policy::reference);
 
 m.def("ARKodeGetResWeights", ARKodeGetResWeights, nb::arg("arkode_mem"),
       nb::arg("rweight"));
@@ -1366,7 +1368,8 @@ auto pyClassARKodeButcherTableMem =
     .def(nb::init<>()) // implicit default constructor
   ;
 
-m.def("ARKodeButcherTable_Copy", ARKodeButcherTable_Copy, nb::arg("B"));
+m.def("ARKodeButcherTable_Copy", ARKodeButcherTable_Copy, nb::arg("B"),
+      nb::rv_policy::reference);
 
 m.def("ARKodeButcherTable_Write", ARKodeButcherTable_Write, nb::arg("B"),
       nb::arg("outfile"));
@@ -1461,12 +1464,14 @@ auto pyClassARKodeSPRKTableMem =
     .def(nb::init<>()) // implicit default constructor
   ;
 
-m.def("ARKodeSPRKTable_Load", ARKodeSPRKTable_Load, nb::arg("id"));
+m.def("ARKodeSPRKTable_Load", ARKodeSPRKTable_Load, nb::arg("id"),
+      nb::rv_policy::reference);
 
 m.def("ARKodeSPRKTable_LoadByName", ARKodeSPRKTable_LoadByName,
-      nb::arg("method"));
+      nb::arg("method"), nb::rv_policy::reference);
 
-m.def("ARKodeSPRKTable_Copy", ARKodeSPRKTable_Copy, nb::arg("that_sprk_storage"));
+m.def("ARKodeSPRKTable_Copy", ARKodeSPRKTable_Copy,
+      nb::arg("that_sprk_storage"), nb::rv_policy::reference);
 
 m.def("ARKodeSPRKTable_Write", ARKodeSPRKTable_Write, nb::arg("sprk_table"),
       nb::arg("outfile"));

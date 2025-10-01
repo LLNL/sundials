@@ -26,7 +26,8 @@ auto pyClassSUNMemoryHelper_Ops_ =
     .def(nb::init<>()) // implicit default constructor
   ;
 
-m.def("SUNMemoryHelper_Clone", SUNMemoryHelper_Clone, nb::arg("param_0"));
+m.def("SUNMemoryHelper_Clone", SUNMemoryHelper_Clone, nb::arg("param_0"),
+      nb::rv_policy::reference);
 
 m.def("SUNMemoryHelper_SetDefaultQueue", SUNMemoryHelper_SetDefaultQueue,
       nb::arg("param_0"), nb::arg("queue"));

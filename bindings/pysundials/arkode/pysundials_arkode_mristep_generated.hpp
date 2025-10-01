@@ -61,15 +61,17 @@ auto pyClassMRIStepCouplingMem =
     .def(nb::init<>()) // implicit default constructor
   ;
 
-m.def("MRIStepCoupling_LoadTable", MRIStepCoupling_LoadTable, nb::arg("method"));
+m.def("MRIStepCoupling_LoadTable", MRIStepCoupling_LoadTable, nb::arg("method"),
+      nb::rv_policy::reference);
 
 m.def("MRIStepCoupling_LoadTableByName", MRIStepCoupling_LoadTableByName,
-      nb::arg("method"));
+      nb::arg("method"), nb::rv_policy::reference);
 
 m.def("MRIStepCoupling_MIStoMRI", MRIStepCoupling_MIStoMRI, nb::arg("B"),
-      nb::arg("q"), nb::arg("p"));
+      nb::arg("q"), nb::arg("p"), nb::rv_policy::reference);
 
-m.def("MRIStepCoupling_Copy", MRIStepCoupling_Copy, nb::arg("MRIC"));
+m.def("MRIStepCoupling_Copy", MRIStepCoupling_Copy, nb::arg("MRIC"),
+      nb::rv_policy::reference);
 
 m.def("MRIStepCoupling_Write", MRIStepCoupling_Write, nb::arg("MRIC"),
       nb::arg("outfile"));

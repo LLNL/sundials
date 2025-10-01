@@ -65,7 +65,7 @@ m.attr("IDA_REIFWD_FAIL")        = -105;
 m.attr("IDA_FWD_FAIL")           = -106;
 m.attr("IDA_GETY_BADT")          = -107;
 
-m.def("IDACreate", IDACreate, nb::arg("sunctx"));
+m.def("IDACreate", IDACreate, nb::arg("sunctx"), nb::rv_policy::reference);
 
 m.def("IDAReInit", IDAReInit, nb::arg("ida_mem"), nb::arg("t0"), nb::arg("yy0"),
       nb::arg("yp0"));
@@ -653,7 +653,8 @@ m.def(
 m.def("IDAPrintAllStats", IDAPrintAllStats, nb::arg("ida_mem"),
       nb::arg("outfile"), nb::arg("fmt"));
 
-m.def("IDAGetReturnFlagName", IDAGetReturnFlagName, nb::arg("flag"));
+m.def("IDAGetReturnFlagName", IDAGetReturnFlagName, nb::arg("flag"),
+      nb::rv_policy::reference);
 
 m.def("IDAQuadReInit", IDAQuadReInit, nb::arg("ida_mem"), nb::arg("yQ0"));
 
@@ -1528,7 +1529,8 @@ m.def(
   },
   nb::arg("ida_mem"), nb::arg("which"), nb::arg("tret"), nb::arg("qB"));
 
-m.def("IDAGetAdjIDABmem", IDAGetAdjIDABmem, nb::arg("ida_mem"), nb::arg("which"));
+m.def("IDAGetAdjIDABmem", IDAGetAdjIDABmem, nb::arg("ida_mem"),
+      nb::arg("which"), nb::rv_policy::reference);
 
 m.def("IDAGetConsistentICB", IDAGetConsistentICB, nb::arg("ida_mem"),
       nb::arg("which"), nb::arg("yyB0"), nb::arg("ypB0"));
@@ -1856,7 +1858,8 @@ m.def(
   },
   nb::arg("ida_mem"), nb::arg("flag"));
 
-m.def("IDAGetLinReturnFlagName", IDAGetLinReturnFlagName, nb::arg("flag"));
+m.def("IDAGetLinReturnFlagName", IDAGetLinReturnFlagName, nb::arg("flag"),
+      nb::rv_policy::reference);
 
 m.def(
   "IDASetLinearSolverB",
