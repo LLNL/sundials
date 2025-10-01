@@ -50,7 +50,7 @@ Variable names
 
 Snake case is preferred for local variable names e.g. ``foo_bar``.
 
-Variables which are pointers to an array, and are effectively treated/index
+Variables which are pointers to an array, and are effectively treated/indexed
 as a contiguous array, should use the suffix `_<1|2|3>d`. E.g.,
 
 .. code-block:: c
