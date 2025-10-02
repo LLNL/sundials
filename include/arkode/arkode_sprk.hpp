@@ -36,7 +36,7 @@ class ARKodeSPRKTableView
 {
 public:
   using ClassView<ARKodeSPRKTable, ARKodeSPRKTableDeleter>::ClassView;
-  
+
   template<typename... Args>
   static ARKodeSPRKTableView Create(Args&&... args)
   {

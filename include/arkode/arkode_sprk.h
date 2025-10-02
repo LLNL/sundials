@@ -29,7 +29,7 @@ extern "C" {
 
 enum ARKODE_SPRKMethodID
 {
-  ARKODE_SPRK_NONE      = -1, /* ensure enum is signed int */
+  ARKODE_SPRK_NONE = -1, /* ensure enum is signed int */
   /* WARNING:  ARKODE_MIN_SPRK_NUM must come after the first entry, ARKODE_SPRK_EULER_1_1,
      because Python enums will only expose the member that is defined first. Due to
      this and how pybind/nanobind handle the enums, if we defined ARKODE_MRI_NUM first,
