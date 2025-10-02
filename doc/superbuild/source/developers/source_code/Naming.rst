@@ -51,7 +51,7 @@ Variable names
 Snake case is preferred for local variable names e.g. ``foo_bar``.
 
 Variables which are pointers to an array, and are effectively treated/indexed
-as a contiguous array, should use the suffix `_<1|2|3>d`. E.g.,
+as a contiguous array, should use the suffix `_<1|2|3>d`, e.g.
 
 .. code-block:: c
 
@@ -63,14 +63,14 @@ as a contiguous array, should use the suffix `_<1|2|3>d`. E.g.,
    sunrealtype** sequence_2d = my_matrix_rows;
 
 
-Variables which are purely pointers should use the suffix, ``_ptr``. E.g.,
+Variables which are purely pointers should use the suffix, ``_ptr``, e.g.
 
 .. code-block:: c
 
    N_Vector y = N_VNew_Serial(2, sunctx);
    N_Vector y_ptr = &y;
 
-When combining the two rules, the ``_ptr`` suffix should come last. E.g.,
+When combining the two rules, the ``_ptr`` suffix should come last, e.g.
 
 .. code-block:: c
 

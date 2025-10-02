@@ -163,6 +163,14 @@ In this section we list the public API of the ``sundials::ginkgo::Matrix`` class
 
       Explicit conversion to a :c:type:`SUNMatrix`.
 
+      .. versionadded:: x.y.z
+      
+         Replaces the ``Convert`` method which was deprecated and moved to the ``ConvertibleTo`` class.
+
   .. cpp:function:: SUNMatrix get() const override
 
       Explicit conversion to a :c:type:`SUNMatrix`.
+
+      .. versionadded:: x.y.z
+      
+         Replaces the ``Convert`` method which was deprecated and moved to the ``ConvertibleTo`` class.

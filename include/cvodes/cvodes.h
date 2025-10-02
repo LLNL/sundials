@@ -284,7 +284,7 @@ SUNDIALS_EXPORT int CVodeGetNumStabLimOrderReds(void* cvode_mem,
 SUNDIALS_EXPORT int CVodeGetActualInitStep(void* cvode_mem, sunrealtype* hinused);
 SUNDIALS_EXPORT int CVodeGetLastStep(void* cvode_mem, sunrealtype* hlast);
 SUNDIALS_EXPORT int CVodeGetCurrentStep(void* cvode_mem, sunrealtype* hcur);
-SUNDIALS_EXPORT int CVodeGetCurrentState(void* cvode_mem, N_Vector* y_1d);
+SUNDIALS_EXPORT int CVodeGetCurrentState(void* cvode_mem, N_Vector* y);
 SUNDIALS_EXPORT int CVodeGetCurrentStateSens(void* cvode_mem,
                                              N_Vector** yS_1d_out);
 SUNDIALS_EXPORT int CVodeGetCurrentSensSolveIndex(void* cvode_mem, int* index);
@@ -299,8 +299,8 @@ SUNDIALS_EXPORT int CVodeGetIntegratorStats(
   long int* netfails, int* qlast, int* qcur, sunrealtype* hinused,
   sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur);
 SUNDIALS_EXPORT int CVodeGetNonlinearSystemData(
-  void* cvode_mem, sunrealtype* tcur, N_Vector* ypred_1d, N_Vector* yn_1d,
-  N_Vector* fn_1d, sunrealtype* gamma, sunrealtype* rl1, N_Vector* zn1_1d,
+  void* cvode_mem, sunrealtype* tcur, N_Vector* ypred, N_Vector* yn,
+  N_Vector* fn, sunrealtype* gamma, sunrealtype* rl1, N_Vector* zn1,
   void** user_data);
 SUNDIALS_EXPORT int CVodeGetNonlinearSystemDataSens(
   void* cvode_mem, sunrealtype* tcur, N_Vector** ySpred_1d_out,

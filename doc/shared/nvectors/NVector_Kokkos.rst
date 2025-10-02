@@ -190,10 +190,18 @@ class.
    .. cpp:function:: N_Vector get() override
 
       Explicit conversion to a :c:type:`N_Vector`.
+      
+      .. versionadded:: x.y.z
+      
+         Replaces the ``Convert`` method which was deprecated and moved to the ``ConvertibleTo`` class.
 
    .. cpp:function:: N_Vector get() const override
 
       Explicit conversion to a :c:type:`N_Vector`.
+      
+      .. versionadded:: x.y.z
+
+         Replaces the ``Convert`` method which was deprecated and moved to the ``ConvertibleTo`` class.
 
 
 .. cpp:function:: template<class VectorType> inline VectorType* GetVec(N_Vector v)
