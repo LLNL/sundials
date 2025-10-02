@@ -114,15 +114,15 @@ Names for Vectors, Matrices, and Solvers
 The SUNDIALS vector, matrix, linear solver, and nonlinear solver classes use the
 naming convention ``<short class name><method>`` for base class methods where
 each component of the name uses Pascal case. See
-:numref:`Style.Table.OldBaseClassMethodNaming` for examples.
+:numref:`_SourceCode.Table.OldBaseClassMethodNaming` for examples.
 
 .. note::
 
    This naming convention *only* applies to the vector, matrix, and solver
    classes. All other classes should follow the naming convention described in
-   :ref:`Style.Naming.NewClasses`.
+   :ref:`SourceCode.Naming.NewClasses`.
 
-.. _Style.Table.OldBaseClassMethodNaming:
+.. _SourceCode.Table.OldBaseClassMethodNaming:
 
 .. Table:: SUNDIALS base class naming convention examples for vectors, matrices,
            linear solvers and nonlinear solvers.
@@ -141,9 +141,9 @@ each component of the name uses Pascal case. See
 
 Derived class implementations of the base class methods should follow the naming
 convention ``<short class name><method>_<implementation>``. See
-:numref:`Style.Table.OldDerivedClassMethodNaming` for examples.
+:numref:`SourceCode.Table.OldDerivedClassMethodNaming` for examples.
 
-.. _Style.Table.OldDerivedClassMethodNaming:
+.. _SourceCode.Table.OldDerivedClassMethodNaming:
 
 .. Table:: SUNDIALS derived class naming convention examples for vectors,
            matrices, linear solvers and nonlinear solvers.
@@ -166,16 +166,16 @@ existing class, follow the naming style used within that class. When adding a
 new derived class, use the same style as above for implementations of the base
 class method i.e., ``<short class name><method>_<implementation>``.
 
-.. _Style.Naming.NewClasses:
+.. _SourceCode.Naming.NewClasses:
 
 Names for New Classes
 ---------------------
 
 All new base classes should use the naming convention ``<class name>_<method>``
 for the base class methods. See
-:numref:`Style.Table.NewBaseClassMethodNaming` for examples.
+:numref:`SourceCode.Table.NewBaseClassMethodNaming` for examples.
 
-.. _Style.Table.NewBaseClassMethodNaming:
+.. _SourceCode.Naming.Table.NewBaseClassMethodNaming:
 
 .. Table:: SUNDIALS naming conventions for methods in new base classes.
 
@@ -187,9 +187,9 @@ for the base class methods. See
 
 Derived class implementations of the base class methods should follow the naming
 convention  ``<class name>_<method>_<implementation>``. See
-:numref:`Style.Table.NewDerivedClassMethodNaming` for examples.
+:numref:`SourceCode.Table.NewDerivedClassMethodNaming` for examples.
 
-.. _Style.Table.NewDerivedClassMethodNaming:
+.. _SourceCode.Naming.Table.NewDerivedClassMethodNaming:
 
 .. Table:: SUNDIALS naming conventions for derived class implementations of
            methods in new base classes.
@@ -203,7 +203,7 @@ convention  ``<class name>_<method>_<implementation>``. See
 For destructor functions, use ``Destroy`` rather than ``Free`` or some other alternative.
 
 
-.. _Style.Classes.Cpp:
+.. _SourceCode.Naming.CppClasses:
 
 Naming Convention for C++ Classes
 ---------------------------------
@@ -215,3 +215,12 @@ Private C++ class functions should use camelcase (e.g. ``doSomething``).
 
 C++ private class members should use snake case with a trailing underscore
 (e.g. ``some_var_``).
+
+
+.. _SourceCode.Naming.Enums:
+
+Enums
+-----
+
+Enum tags/identifiers should follow class naming rules and use Pascal case.
+Enum values should follow the rules for macros and constants.
