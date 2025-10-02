@@ -5,6 +5,8 @@
 
 **New Features and Enhancements**
 
+The functions :c:func:`IDAGetUserDataB` and :c:func:`CVodeGetUserDataB` were added.
+
 **Bug Fixes**
 
 **Deprecation Notices**

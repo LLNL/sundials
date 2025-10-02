@@ -6,6 +6,8 @@
 
 ### New Features and Enhancements
 
+The functions `IDAGetUserDataB` and `CVodeGetUserDataB` were added.
+
 ### Bug Fixes
 
 ### Deprecation Notices
