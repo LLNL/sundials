@@ -3785,18 +3785,18 @@ fresult = swigc_FCVodeGetCurrentStep(farg1, farg2)
 swig_result = fresult
 end function
 
-function FCVodeGetCurrentState(cvode_mem, y_1d) &
+function FCVodeGetCurrentState(cvode_mem, y) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
-type(C_PTR) :: y_1d
+type(C_PTR) :: y
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = cvode_mem
-farg2 = y_1d
+farg2 = y
 fresult = swigc_FCVodeGetCurrentState(farg1, farg2)
 swig_result = fresult
 end function
@@ -3972,18 +3972,18 @@ fresult = swigc_FCVodeGetIntegratorStats(farg1, farg2, farg3, farg4, farg5, farg
 swig_result = fresult
 end function
 
-function FCVodeGetNonlinearSystemData(cvode_mem, tcur, ypred_1d, yn_1d, fn_1d, gamma, rl1, zn1_1d, user_data) &
+function FCVodeGetNonlinearSystemData(cvode_mem, tcur, ypred, yn, fn, gamma, rl1, zn1, user_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: cvode_mem
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tcur
-type(C_PTR) :: ypred_1d
-type(C_PTR) :: yn_1d
-type(C_PTR) :: fn_1d
+type(C_PTR) :: ypred
+type(C_PTR) :: yn
+type(C_PTR) :: fn
 real(C_DOUBLE), dimension(*), target, intent(inout) :: gamma
 real(C_DOUBLE), dimension(*), target, intent(inout) :: rl1
-type(C_PTR) :: zn1_1d
+type(C_PTR) :: zn1
 type(C_PTR), target, intent(inout) :: user_data
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -3998,12 +3998,12 @@ type(C_PTR) :: farg9
 
 farg1 = cvode_mem
 farg2 = c_loc(tcur(1))
-farg3 = ypred_1d
-farg4 = yn_1d
-farg5 = fn_1d
+farg3 = ypred
+farg4 = yn
+farg5 = fn
 farg6 = c_loc(gamma(1))
 farg7 = c_loc(rl1(1))
-farg8 = zn1_1d
+farg8 = zn1
 farg9 = c_loc(user_data)
 fresult = swigc_FCVodeGetNonlinearSystemData(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9)
 swig_result = fresult
