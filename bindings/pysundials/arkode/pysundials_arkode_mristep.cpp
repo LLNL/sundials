@@ -36,13 +36,7 @@ void bind_arkode_mristep(nb::module_& m)
 #include "pysundials_arkode_mristep_generated.hpp"
 
   nb::class_<MRIStepCouplingView>(m, "MRIStepCouplingView")
-    .def_static("Create",
-                [](int nmat, int stages, int q, int p, std::vector<sunrealtype> W,
-                   std::vector<sunrealtype> G, std::vector<sunrealtype> c)
-                {
-                  return MRIStepCouplingView::Create(nmat, stages, q, p, W.data(),
-                                                     G.data(), c.data());
-                })
+    .def_static("Create", &MRIStepCouplingView::Create<MRIStepCouplingView>)
     .def("get", nb::overload_cast<>(&MRIStepCouplingView::get, nb::const_),
          nb::rv_policy::reference);
 

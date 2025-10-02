@@ -20,8 +20,8 @@ auto pyEnumMRISTEP_METHOD_TYPE =
 auto pyEnumARKODE_MRITableID =
   nb::enum_<ARKODE_MRITableID>(m, "ARKODE_MRITableID", nb::is_arithmetic(), "")
     .value("ARKODE_MRI_NONE", ARKODE_MRI_NONE, "")
-    .value("ARKODE_MIN_MRI_NUM", ARKODE_MIN_MRI_NUM, "")
     .value("ARKODE_MIS_KW3", ARKODE_MIS_KW3, "")
+    .value("ARKODE_MIN_MRI_NUM", ARKODE_MIN_MRI_NUM, "")
     .value("ARKODE_MRI_GARK_ERK33a", ARKODE_MRI_GARK_ERK33a, "")
     .value("ARKODE_MRI_GARK_ERK45a", ARKODE_MRI_GARK_ERK45a, "")
     .value("ARKODE_MRI_GARK_IRK21a", ARKODE_MRI_GARK_IRK21a, "")
@@ -66,6 +66,33 @@ m.def("MRIStepCoupling_LoadTable", MRIStepCoupling_LoadTable, nb::arg("method"),
 
 m.def("MRIStepCoupling_LoadTableByName", MRIStepCoupling_LoadTableByName,
       nb::arg("method"), nb::rv_policy::reference);
+
+m.def(
+  "MRIStepCoupling_Create",
+  [](int nmat, int stages, int q, int p, std::vector<double> W_1d,
+     std::vector<double> G_1d, std::vector<double> c_1d) -> MRIStepCoupling
+  {
+    auto MRIStepCoupling_Create_adapt_arr_ptr_to_std_vector =
+      [](int nmat, int stages, int q, int p, std::vector<double> W_1d,
+         std::vector<double> G_1d, std::vector<double> c_1d) -> MRIStepCoupling
+    {
+      double* W_1d_ptr = reinterpret_cast<double*>(W_1d.empty() ? nullptr
+                                                                : W_1d.data());
+      double* G_1d_ptr = reinterpret_cast<double*>(G_1d.empty() ? nullptr
+                                                                : G_1d.data());
+      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.empty() ? nullptr
+                                                                : c_1d.data());
+
+      auto lambda_result = MRIStepCoupling_Create(nmat, stages, q, p, W_1d_ptr,
+                                                  G_1d_ptr, c_1d_ptr);
+      return lambda_result;
+    };
+
+    return MRIStepCoupling_Create_adapt_arr_ptr_to_std_vector(nmat, stages, q, p,
+                                                              W_1d, G_1d, c_1d);
+  },
+  nb::arg("nmat"), nb::arg("stages"), nb::arg("q"), nb::arg("p"),
+  nb::arg("W_1d"), nb::arg("G_1d"), nb::arg("c_1d"), nb::rv_policy::reference);
 
 m.def("MRIStepCoupling_MIStoMRI", MRIStepCoupling_MIStoMRI, nb::arg("B"),
       nb::arg("q"), nb::arg("p"), nb::rv_policy::reference);

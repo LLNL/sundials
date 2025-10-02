@@ -29,6 +29,7 @@ modules:
     - "^SUN_"
     - "^ARK_"
     - "^ARKLS_"
+    - "^ARKODE_"
     fn_params_optional_with_default_null:
       "SetLinearSolver":
       - "A" 
@@ -38,6 +39,8 @@ modules:
     - ../../include/arkode/arkode.h
     - ../../include/arkode/arkode_ls.h
     - ../../include/arkode/arkode_butcher.h
+    - ../../include/arkode/arkode_butcher_erk.h
+    - ../../include/arkode/arkode_butcher_dirk.h
     - ../../include/arkode/arkode_sprk.h
     sundials_pointer_types:
     - "ARKodeButcherTable"
@@ -49,8 +52,6 @@ modules:
     - "^ARKodeGetCurrentState$"
     - "^ARKodeCreateMRIStepInnerStepper$" 
     - "^ARKodeCreateSUNStepper$"
-    - "^ARKodeButcherTable_Create$"
-    - "^ARKodeSPRKTable_Create$"
     - "^ARKodeSPRKTable_ToButcher$"
     # we dont interface the Alloc functions as they are not needed from Python
     - "^ARKodeButcherTable_Alloc$"
@@ -122,7 +123,6 @@ modules:
     - "^MRIStepCoupling_Alloc$"
     # we do custom handling of Create routines
     - "^MRIStepCreate$"
-    - "^MRIStepCoupling_Create$"
     - "^MRIStepInnerStepper_Create$"
     - "^MRIStepInnerStepper_CreateFromSUNStepper$"
     # reinit also requires custom handling due to function pointers

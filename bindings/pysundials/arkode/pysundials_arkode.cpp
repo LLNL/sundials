@@ -101,21 +101,12 @@ void bind_arkode(nb::module_& m)
          nb::rv_policy::reference);
 
   nb::class_<ARKodeButcherTableView>(m, "ARKodeButcherTableView")
-    .def_static("Create",
-                [](int s, int q, int p, std::vector<sunrealtype> c,
-                   std::vector<sunrealtype> A, std::vector<sunrealtype> b,
-                   std::vector<sunrealtype> d)
-                {
-                  ARKodeButcherTableView::Create(s, q, p, c.data(), A.data(),
-                                                 b.data(), d.data());
-                })
+    .def_static("Create", &ARKodeButcherTableView::Create<ARKodeButcherTable>)
     .def("get", nb::overload_cast<>(&ARKodeButcherTableView::get, nb::const_),
          nb::rv_policy::reference);
 
   nb::class_<ARKodeSPRKTableView>(m, "ARKodeSPRKTableView")
-    .def_static("Create", [](int s, int q, std::vector<sunrealtype> a,
-                             std::vector<sunrealtype> ahat)
-                { ARKodeSPRKTableView::Create(s, q, a.data(), ahat.data()); })
+    .def_static("Create", &ARKodeSPRKTableView::Create<ARKodeSPRKTable>)
     .def("get", nb::overload_cast<>(&ARKodeSPRKTableView::get, nb::const_),
          nb::rv_policy::reference);
 

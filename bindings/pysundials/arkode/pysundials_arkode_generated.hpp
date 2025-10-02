@@ -1368,6 +1368,36 @@ auto pyClassARKodeButcherTableMem =
     .def(nb::init<>()) // implicit default constructor
   ;
 
+m.def(
+  "ARKodeButcherTable_Create",
+  [](int s, int q, int p, std::vector<double> c_1d, std::vector<double> A_1d,
+     std::vector<double> b_1d, std::vector<double> d_1d) -> ARKodeButcherTable
+  {
+    auto ARKodeButcherTable_Create_adapt_arr_ptr_to_std_vector =
+      [](int s, int q, int p, std::vector<double> c_1d, std::vector<double> A_1d,
+         std::vector<double> b_1d, std::vector<double> d_1d) -> ARKodeButcherTable
+    {
+      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.empty() ? nullptr
+                                                                : c_1d.data());
+      double* A_1d_ptr = reinterpret_cast<double*>(A_1d.empty() ? nullptr
+                                                                : A_1d.data());
+      double* b_1d_ptr = reinterpret_cast<double*>(b_1d.empty() ? nullptr
+                                                                : b_1d.data());
+      double* d_1d_ptr = reinterpret_cast<double*>(d_1d.empty() ? nullptr
+                                                                : d_1d.data());
+
+      auto lambda_result = ARKodeButcherTable_Create(s, q, p, c_1d_ptr, A_1d_ptr,
+                                                     b_1d_ptr, d_1d_ptr);
+      return lambda_result;
+    };
+
+    return ARKodeButcherTable_Create_adapt_arr_ptr_to_std_vector(s, q, p, c_1d,
+                                                                 A_1d, b_1d,
+                                                                 d_1d);
+  },
+  nb::arg("s"), nb::arg("q"), nb::arg("p"), nb::arg("c_1d"), nb::arg("A_1d"),
+  nb::arg("b_1d"), nb::arg("d_1d"), nb::rv_policy::reference);
+
 m.def("ARKodeButcherTable_Copy", ARKodeButcherTable_Copy, nb::arg("B"),
       nb::rv_policy::reference);
 
@@ -1430,6 +1460,123 @@ m.def(
 //
 // #endif
 //
+// #ifndef _ARKODE_ERK_TABLES_H
+//
+// #ifdef __cplusplus
+// #endif
+//
+
+auto pyEnumARKODE_ERKTableID =
+  nb::enum_<ARKODE_ERKTableID>(m, "ARKODE_ERKTableID", nb::is_arithmetic(), "")
+    .value("ARKODE_ERK_NONE", ARKODE_ERK_NONE, "")
+    .value("ARKODE_HEUN_EULER_2_1_2", ARKODE_HEUN_EULER_2_1_2, "")
+    .value("ARKODE_MIN_ERK_NUM", ARKODE_MIN_ERK_NUM, "")
+    .value("ARKODE_BOGACKI_SHAMPINE_4_2_3", ARKODE_BOGACKI_SHAMPINE_4_2_3, "")
+    .value("ARKODE_ARK324L2SA_ERK_4_2_3", ARKODE_ARK324L2SA_ERK_4_2_3, "")
+    .value("ARKODE_ZONNEVELD_5_3_4", ARKODE_ZONNEVELD_5_3_4, "")
+    .value("ARKODE_ARK436L2SA_ERK_6_3_4", ARKODE_ARK436L2SA_ERK_6_3_4, "")
+    .value("ARKODE_SAYFY_ABURUB_6_3_4", ARKODE_SAYFY_ABURUB_6_3_4, "")
+    .value("ARKODE_CASH_KARP_6_4_5", ARKODE_CASH_KARP_6_4_5, "")
+    .value("ARKODE_FEHLBERG_6_4_5", ARKODE_FEHLBERG_6_4_5, "")
+    .value("ARKODE_DORMAND_PRINCE_7_4_5", ARKODE_DORMAND_PRINCE_7_4_5, "")
+    .value("ARKODE_ARK548L2SA_ERK_8_4_5", ARKODE_ARK548L2SA_ERK_8_4_5, "")
+    .value("ARKODE_VERNER_8_5_6", ARKODE_VERNER_8_5_6, "")
+    .value("ARKODE_FEHLBERG_13_7_8", ARKODE_FEHLBERG_13_7_8, "")
+    .value("ARKODE_KNOTH_WOLKE_3_3", ARKODE_KNOTH_WOLKE_3_3, "")
+    .value("ARKODE_ARK437L2SA_ERK_7_3_4", ARKODE_ARK437L2SA_ERK_7_3_4, "")
+    .value("ARKODE_ARK548L2SAb_ERK_8_4_5", ARKODE_ARK548L2SAb_ERK_8_4_5, "")
+    .value("ARKODE_ARK2_ERK_3_1_2", ARKODE_ARK2_ERK_3_1_2, "")
+    .value("ARKODE_SOFRONIOU_SPALETTA_5_3_4", ARKODE_SOFRONIOU_SPALETTA_5_3_4, "")
+    .value("ARKODE_SHU_OSHER_3_2_3", ARKODE_SHU_OSHER_3_2_3, "")
+    .value("ARKODE_VERNER_9_5_6", ARKODE_VERNER_9_5_6, "")
+    .value("ARKODE_VERNER_10_6_7", ARKODE_VERNER_10_6_7, "")
+    .value("ARKODE_VERNER_13_7_8", ARKODE_VERNER_13_7_8, "")
+    .value("ARKODE_VERNER_16_8_9", ARKODE_VERNER_16_8_9, "")
+    .value("ARKODE_FORWARD_EULER_1_1", ARKODE_FORWARD_EULER_1_1, "")
+    .value("ARKODE_RALSTON_EULER_2_1_2", ARKODE_RALSTON_EULER_2_1_2, "")
+    .value("ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2",
+           ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2, "")
+    .value("ARKODE_RALSTON_3_1_2", ARKODE_RALSTON_3_1_2, "")
+    .value("ARKODE_TSITOURAS_7_4_5", ARKODE_TSITOURAS_7_4_5, "")
+    .value("ARKODE_MAX_ERK_NUM", ARKODE_MAX_ERK_NUM, "")
+    .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
+
+m.def("ARKodeButcherTable_LoadERK", ARKodeButcherTable_LoadERK,
+      nb::arg("emethod"), nb::rv_policy::reference);
+
+m.def("ARKodeButcherTable_LoadERKByName", ARKodeButcherTable_LoadERKByName,
+      nb::arg("emethod"), nb::rv_policy::reference);
+
+m.def("ARKodeButcherTable_ERKIDToName", ARKodeButcherTable_ERKIDToName,
+      nb::arg("emethod"), nb::rv_policy::reference);
+// #ifdef __cplusplus
+//
+// #endif
+//
+// #endif
+//
+// #ifndef _ARKODE_DIRK_TABLES_H
+//
+// #ifdef __cplusplus
+// #endif
+//
+
+auto pyEnumARKODE_DIRKTableID =
+  nb::enum_<ARKODE_DIRKTableID>(m, "ARKODE_DIRKTableID", nb::is_arithmetic(), "")
+    .value("ARKODE_DIRK_NONE", ARKODE_DIRK_NONE, "")
+    .value("ARKODE_SDIRK_2_1_2", ARKODE_SDIRK_2_1_2, "")
+    .value("ARKODE_MIN_DIRK_NUM", ARKODE_MIN_DIRK_NUM, "")
+    .value("ARKODE_BILLINGTON_3_3_2", ARKODE_BILLINGTON_3_3_2, "")
+    .value("ARKODE_TRBDF2_3_3_2", ARKODE_TRBDF2_3_3_2, "")
+    .value("ARKODE_KVAERNO_4_2_3", ARKODE_KVAERNO_4_2_3, "")
+    .value("ARKODE_ARK324L2SA_DIRK_4_2_3", ARKODE_ARK324L2SA_DIRK_4_2_3, "")
+    .value("ARKODE_CASH_5_2_4", ARKODE_CASH_5_2_4, "")
+    .value("ARKODE_CASH_5_3_4", ARKODE_CASH_5_3_4, "")
+    .value("ARKODE_SDIRK_5_3_4", ARKODE_SDIRK_5_3_4, "")
+    .value("ARKODE_KVAERNO_5_3_4", ARKODE_KVAERNO_5_3_4, "")
+    .value("ARKODE_ARK436L2SA_DIRK_6_3_4", ARKODE_ARK436L2SA_DIRK_6_3_4, "")
+    .value("ARKODE_KVAERNO_7_4_5", ARKODE_KVAERNO_7_4_5, "")
+    .value("ARKODE_ARK548L2SA_DIRK_8_4_5", ARKODE_ARK548L2SA_DIRK_8_4_5, "")
+    .value("ARKODE_ARK437L2SA_DIRK_7_3_4", ARKODE_ARK437L2SA_DIRK_7_3_4, "")
+    .value("ARKODE_ARK548L2SAb_DIRK_8_4_5", ARKODE_ARK548L2SAb_DIRK_8_4_5, "")
+    .value("ARKODE_ESDIRK324L2SA_4_2_3", ARKODE_ESDIRK324L2SA_4_2_3, "")
+    .value("ARKODE_ESDIRK325L2SA_5_2_3", ARKODE_ESDIRK325L2SA_5_2_3, "")
+    .value("ARKODE_ESDIRK32I5L2SA_5_2_3", ARKODE_ESDIRK32I5L2SA_5_2_3, "")
+    .value("ARKODE_ESDIRK436L2SA_6_3_4", ARKODE_ESDIRK436L2SA_6_3_4, "")
+    .value("ARKODE_ESDIRK43I6L2SA_6_3_4", ARKODE_ESDIRK43I6L2SA_6_3_4, "")
+    .value("ARKODE_QESDIRK436L2SA_6_3_4", ARKODE_QESDIRK436L2SA_6_3_4, "")
+    .value("ARKODE_ESDIRK437L2SA_7_3_4", ARKODE_ESDIRK437L2SA_7_3_4, "")
+    .value("ARKODE_ESDIRK547L2SA_7_4_5", ARKODE_ESDIRK547L2SA_7_4_5, "")
+    .value("ARKODE_ESDIRK547L2SA2_7_4_5", ARKODE_ESDIRK547L2SA2_7_4_5, "")
+    .value("ARKODE_ARK2_DIRK_3_1_2", ARKODE_ARK2_DIRK_3_1_2, "")
+    .value("ARKODE_BACKWARD_EULER_1_1", ARKODE_BACKWARD_EULER_1_1, "")
+    .value("ARKODE_IMPLICIT_MIDPOINT_1_2", ARKODE_IMPLICIT_MIDPOINT_1_2, "")
+    .value("ARKODE_IMPLICIT_TRAPEZOIDAL_2_2", ARKODE_IMPLICIT_TRAPEZOIDAL_2_2, "")
+    .value("ARKODE_MAX_DIRK_NUM", ARKODE_MAX_DIRK_NUM, "")
+    .export_values();
+// #ifndef SWIG
+//
+// #endif
+//
+
+m.def("ARKodeButcherTable_LoadDIRK", ARKodeButcherTable_LoadDIRK,
+      nb::arg("imethod"), nb::rv_policy::reference);
+
+m.def("ARKodeButcherTable_LoadDIRKByName", ARKodeButcherTable_LoadDIRKByName,
+      nb::arg("imethod"), nb::rv_policy::reference);
+
+m.def("ARKodeButcherTable_DIRKIDToName", ARKodeButcherTable_DIRKIDToName,
+      nb::arg("imethod"), nb::rv_policy::reference);
+// #ifdef __cplusplus
+//
+// #endif
+//
+// #endif
+//
 // #ifndef _ARKODE_SPRKTABLE_H
 //
 // #ifdef __cplusplus
@@ -1463,6 +1610,30 @@ auto pyClassARKodeSPRKTableMem =
   nb::class_<ARKodeSPRKTableMem>(m, "ARKodeSPRKTableMem", "")
     .def(nb::init<>()) // implicit default constructor
   ;
+
+m.def(
+  "ARKodeSPRKTable_Create",
+  [](int s, int q, std::vector<double> a_1d,
+     std::vector<double> ahat_1d) -> ARKodeSPRKTable
+  {
+    auto ARKodeSPRKTable_Create_adapt_arr_ptr_to_std_vector =
+      [](int s, int q, std::vector<double> a_1d,
+         std::vector<double> ahat_1d) -> ARKodeSPRKTable
+    {
+      double* a_1d_ptr = reinterpret_cast<double*>(a_1d.empty() ? nullptr
+                                                                : a_1d.data());
+      double* ahat_1d_ptr =
+        reinterpret_cast<double*>(ahat_1d.empty() ? nullptr : ahat_1d.data());
+
+      auto lambda_result = ARKodeSPRKTable_Create(s, q, a_1d_ptr, ahat_1d_ptr);
+      return lambda_result;
+    };
+
+    return ARKodeSPRKTable_Create_adapt_arr_ptr_to_std_vector(s, q, a_1d,
+                                                              ahat_1d);
+  },
+  nb::arg("s"), nb::arg("q"), nb::arg("a_1d"), nb::arg("ahat_1d"),
+  nb::rv_policy::reference);
 
 m.def("ARKodeSPRKTable_Load", ARKodeSPRKTable_Load, nb::arg("id"),
       nb::rv_policy::reference);
