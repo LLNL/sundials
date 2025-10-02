@@ -491,7 +491,9 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
 
 .. c:function:: SUNErrCode SUNDIALSFileOpen(const char* filename, const char* mode, FILE** fp)
 
-   Deprecated alias to :c:func:`SUNFileOpen`.
+   .. deprecated:: x.y.z
+
+      See :c:func:`SUNFileOpen`.
 
 
 .. c:function:: SUNErrCode SUNFileOpen(const char* filename, const char* mode, FILE** fp)
@@ -539,13 +541,15 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
       ierr = FSUNDIALSFileClose(fp)
 
    .. versionadded:: X.Y.Z
+   
+      Replaces ``SUNDIALSFileOpen``
 
 
 .. c:function:: SUNErrCode SUNDIALSFileClose(FILE** fp)
 
-   Deprecated alias to :c:func:`SUNFileClose`
-
    .. deprecated:: X.Y.Z
+
+      See :c:func:`SUNFileClose`
 
 
 .. c:function:: SUNErrCode SUNFileClose(FILE** fp)
@@ -560,6 +564,8 @@ a C file pointer, SUNDIALS provides two utility functions for creating a
    :return: A :c:type:`SUNErrCode`
    
    .. versionadded:: X.Y.Z
+   
+      Replaces ``SUNDIALSFileClose``
 
 
 .. _SUNDIALS.Fortran.Portability:
