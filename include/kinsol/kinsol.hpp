@@ -20,11 +20,9 @@
 #ifndef _KINSOL_HPP
 #define _KINSOL_HPP
 
-extern "C" {
-#include <kinsol/kinsol.h>
-}
-
 #include <sundials/sundials_classview.hpp>
+
+#include <kinsol/kinsol.h>
 
 namespace sundials {
 namespace experimental {
@@ -38,6 +36,7 @@ class KINView : public ClassView<void*, KINDeleter>
 {
 public:
   using ClassView<void*, KINDeleter>::ClassView;
+
   template<typename... Args>
   static KINView Create(Args&&... args);
 };

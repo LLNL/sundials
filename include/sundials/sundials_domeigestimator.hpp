@@ -27,12 +27,8 @@
 #include <sundials/sundials_domeigestimator.h>
 
 namespace sundials {
-namespace impl {
-using BaseDomEigEstimator =
-  BaseObject<SUNDomEigEstimator_, SUNDomEigEstimator_Ops_>;
-} // namespace impl
-
 namespace experimental {
+
 struct SUNDomEigEstimatorDeleter
 {
   void operator()(SUNDomEigEstimator DEE) { SUNDomEigEstimator_Destroy(&DEE); }

@@ -52,6 +52,12 @@ public:
 };
 
 template<>
+SUNStepperView SUNStepperView::Create(SUNStepper& stepper)
+{
+  return SUNStepperView(std::forward<SUNStepper>(stepper));
+}
+
+template<>
 SUNStepperView SUNStepperView::Create(SUNStepper&& stepper)
 {
   return SUNStepperView(std::forward<SUNStepper>(stepper));

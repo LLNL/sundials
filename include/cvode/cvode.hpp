@@ -20,11 +20,9 @@
 #ifndef _CVODE_HPP
 #define _CVODE_HPP
 
-extern "C" {
-#include <cvode/cvode.h>
-}
-
 #include <sundials/sundials_classview.hpp>
+
+#include <cvode/cvode.h>
 
 namespace sundials {
 namespace experimental {
@@ -38,6 +36,7 @@ class CVodeView : public ClassView<void*, CVodeDeleter>
 {
 public:
   using ClassView<void*, CVodeDeleter>::ClassView;
+
   template<typename... Args>
   static CVodeView Create(Args&&... args);
 };

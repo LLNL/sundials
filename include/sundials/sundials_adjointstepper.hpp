@@ -48,6 +48,18 @@ public:
   }
 };
 
+template<>
+SUNAdjointStepperView SUNAdjointStepperView::Create(SUNAdjointStepper& stepper)
+{
+  return SUNAdjointStepperView(std::forward<SUNAdjointStepper>(stepper));
+}
+
+template<>
+SUNAdjointStepperView SUNAdjointStepperView::Create(SUNAdjointStepper&& stepper)
+{
+  return SUNAdjointStepperView(std::forward<SUNAdjointStepper>(stepper));
+}
+
 } // namespace experimental
 } // namespace sundials
 

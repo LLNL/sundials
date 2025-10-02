@@ -20,11 +20,9 @@
 #ifndef _IDAS_HPP
 #define _IDAS_HPP
 
-extern "C" {
-#include <idas/idas.h>
-}
-
 #include <sundials/sundials_classview.hpp>
+
+#include <idas/idas.h>
 
 namespace sundials {
 namespace experimental {
@@ -38,6 +36,7 @@ class IDAView : public ClassView<void*, IDADeleter>
 {
 public:
   using ClassView<void*, IDADeleter>::ClassView;
+
   template<typename... Args>
   static IDAView Create(Args&&... args);
 };
