@@ -5,7 +5,8 @@
 
 **New Features and Enhancements**
 
-The functions :c:func:`IDAGetUserDataB` and :c:func:`CVodeGetUserDataB` were added.
+The functions ``CVodeGetUserDataB`` and ``IDAGetUserDataB`` were added to CVODES
+and IDAS, respectively.
 
 **Bug Fixes**
 
