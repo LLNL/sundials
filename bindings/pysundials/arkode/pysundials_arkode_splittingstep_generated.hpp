@@ -13,9 +13,9 @@ auto pyEnumARKODE_SplittingCoefficientsID =
   nb::enum_<ARKODE_SplittingCoefficientsID>(m, "ARKODE_SplittingCoefficientsID",
                                             nb::is_arithmetic(), "")
     .value("ARKODE_SPLITTING_NONE", ARKODE_SPLITTING_NONE, "")
-    .value("ARKODE_MIN_SPLITTING_NUM", ARKODE_MIN_SPLITTING_NUM, "")
     .value("ARKODE_SPLITTING_LIE_TROTTER_1_1_2",
            ARKODE_SPLITTING_LIE_TROTTER_1_1_2, "")
+    .value("ARKODE_MIN_SPLITTING_NUM", ARKODE_MIN_SPLITTING_NUM, "")
     .value("ARKODE_SPLITTING_STRANG_2_2_2", ARKODE_SPLITTING_STRANG_2_2_2, "")
     .value("ARKODE_SPLITTING_BEST_2_2_2", ARKODE_SPLITTING_BEST_2_2_2, "")
     .value("ARKODE_SPLITTING_SUZUKI_3_3_2", ARKODE_SPLITTING_SUZUKI_3_3_2, "")
