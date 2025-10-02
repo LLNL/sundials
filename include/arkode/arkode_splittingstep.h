@@ -47,10 +47,14 @@ typedef _SUNDIALS_STRUCT_ SplittingStepCoefficientsMem* SplittingStepCoefficient
  * ARKODE_SPLITTING_<name>_<stages>_<order>_<partitions> */
 enum ARKODE_SplittingCoefficientsID
 {
-  ARKODE_SPLITTING_NONE    = -1, /* ensure enum is signed int */
-  ARKODE_MIN_SPLITTING_NUM = 0,
-  ARKODE_SPLITTING_LIE_TROTTER_1_1_2 =
-    0, /* setting this to ARKODE_MIN_SPLITTING_NUM confuses the python interface generator */
+  ARKODE_SPLITTING_NONE = -1, /* ensure enum is signed int */
+  /* WARNING:  ARKODE_MIN_SPLITTING_NUM must come after the first entry, ARKODE_SPLITTING_LIE_TROTTER_1_1_2,
+     because Python enums will only expose the member that is defined first. Due to
+     this and how pybind/nanobind handle the enums, if we defined ARKODE_MRI_NUM first,
+     then ARKODE_SPLITTING_LIE_TROTTER_1_1_2 would not be usable from the module scope (the MIN/MAX) entries
+     will still be usable when accessing through the IntEnum object, but not from module scope. */
+  ARKODE_SPLITTING_LIE_TROTTER_1_1_2 = 0,
+  ARKODE_MIN_SPLITTING_NUM           = 0,
   ARKODE_SPLITTING_STRANG_2_2_2,
   ARKODE_SPLITTING_BEST_2_2_2,
   ARKODE_SPLITTING_SUZUKI_3_3_2,
