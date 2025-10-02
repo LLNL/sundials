@@ -99,6 +99,7 @@ typedef _SUNDIALS_STRUCT_ _generic_N_Vector_Ops* N_Vector_Ops;
 typedef _SUNDIALS_STRUCT_ _generic_N_Vector* N_Vector;
 
 /* Define array of N_Vectors */
+/* DEPRECATION NOTICE: N_Vector_S will be removed in the next major release */
 typedef N_Vector* N_Vector_S;
 
 /* Structure containing function pointers to vector operations  */
