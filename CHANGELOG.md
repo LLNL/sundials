@@ -1,5 +1,26 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release X.Y.Z
+
+### Major Features
+
+### New Features and Enhancements
+
+The functions `IDAGetUserDataB` and `CVodeGetUserDataB` were added.
+
+### Bug Fixes
+
+### Deprecation Notices
+
+`SUNDIALSFileOpen` and `SUNDIALSFileClose` will be removed in the next major release. 
+Use `SUNFileOpen` and `SUNFileClose` instead.
+
+The `Convert` methods on the `sundials::kokkos:Vector`, `sundials::kokkos::DenseMatrix`,
+`sundials::ginkgo::Matrix`, `sundials::ginkgo::BatchMatrix`, `sundials::kokkos::DenseLinearSolver`,
+`sundials::ginkgo::LinearSolver`, and `sundials::ginkgo::BatchLinearSolver` classes have
+been deprecated and will be removed in the next major release. The method `get`, should
+be used instead.
+
 ## Changes to SUNDIALS in release 7.5.0
 
 ### Major Features

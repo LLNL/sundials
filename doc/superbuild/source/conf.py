@@ -48,7 +48,10 @@ extensions = [
     "sphinx.ext.autodoc",
 ]
 
-intersphinx_mapping = {"sphinx": ("https://www.sphinx-doc.org/en/master/", None)}
+# Where to find cross-references to the Sphinx documentation.
+intersphinx_mapping = {
+    "sphinx": ("https://www.sphinx-doc.org/en/master", ("../objects.inv", None))
+}
 
 # No non-external references will be resolved by intersphinx
 intersphinx_disabled_reftypes = ["*"]
