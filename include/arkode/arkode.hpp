@@ -20,8 +20,9 @@
 #ifndef _SUNDIALS_ARKODE_HPP
 #define _SUNDIALS_ARKODE_HPP
 
-#include <arkode/arkode.h>
 #include <sundials/sundials_classview.hpp>
+
+#include <arkode/arkode.h>
 
 namespace sundials {
 namespace experimental {
@@ -35,15 +36,13 @@ class ARKodeView : public ClassView<void*, ARKodeDeleter>
 {
 public:
   using ClassView<void*, ARKodeDeleter>::ClassView;
-  template<typename... Args>
-  static ARKodeView Create(Args&&... args);
-};
 
-template<typename... Args>
-ARKodeView ARKodeView::Create(Args&&... args)
-{
-  return ARKodeView(std::forward<Args>(args)...);
-}
+  template<typename... Args>
+  static ARKodeView Create(Args&&... args)
+  {
+    return ARKodeView(std::forward<Args>(args)...);
+  }
+};
 
 struct ARKodeButcherTableDeleter
 {
@@ -55,17 +54,14 @@ class ARKodeButcherTableView
 {
 public:
   using ClassView<ARKodeButcherTable, ARKodeButcherTableDeleter>::ClassView;
+
   template<typename... Args>
-  static ARKodeButcherTableView Create(Args&&... args);
+  static ARKodeButcherTableView Create(Args&&... args)
+  {
+    return ARKodeButcherTableView(std::forward<Args>(args)...);
+  }
 };
 
-template<typename... Args>
-ARKodeButcherTableView ARKodeButcherTableView::Create(Args&&... args)
-{
-  ARKodeButcherTable table =
-    ARKodeButcherTable_Create(std::forward<Args>(args)...);
-  return ARKodeButcherTableView(table);
-}
 
 } // namespace experimental
 } // namespace sundials

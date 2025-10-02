@@ -46,6 +46,7 @@ public:
 
   ClassView& operator=(ClassView&& rhs) noexcept
   {
+    if (object_) { Deleter{}(this->get()); }
     this->object_ = std::exchange(rhs.object_, nullptr);
     return *this;
   };
@@ -67,12 +68,6 @@ public:
 protected:
   T object_;
 };
-
-template<typename T, typename Deleter, typename Func, typename... Args>
-T Create(Args&&... args)
-{
-  return ClassView<T, Deleter>(Func(std::forward<Args>(args)...));
-}
 
 } // namespace experimental
 } // namespace sundials

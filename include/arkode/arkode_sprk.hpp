@@ -18,6 +18,8 @@
 #ifndef _SUNDIALS_ARKODE_SPRKSTEP_HPP
 #define _SUNDIALS_ARKODE_SPRKSTEP_HPP
 
+#include <utility>
+
 #include <arkode/arkode_sprk.h>
 #include <sundials/sundials_classview.hpp>
 
@@ -34,16 +36,13 @@ class ARKodeSPRKTableView
 {
 public:
   using ClassView<ARKodeSPRKTable, ARKodeSPRKTableDeleter>::ClassView;
+  
   template<typename... Args>
-  static ARKodeSPRKTableView Create(Args&&... args);
+  static ARKodeSPRKTableView Create(Args&&... args)
+  {
+    return ARKodeSPRKTableView(std::forward<Args>(args)...);
+  }
 };
-
-template<typename... Args>
-ARKodeSPRKTableView ARKodeSPRKTableView::Create(Args&&... args)
-{
-  ARKodeSPRKTable table = ARKodeSPRKTable_Create(std::forward<Args>(args)...);
-  return ARKodeSPRKTableView(table);
-}
 
 } // namespace experimental
 } // namespace sundials
