@@ -561,7 +561,7 @@ int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     SUNLogExtraDebugVec(ARK_LOGGER, "stage", prev_stage, "z2_%i(:) =", is);
 
     /* evaluate p' with the previous velocity */
-    if (SUNRabs(ahati) <= TINY)
+    if (SUNRabs(ahati) >= TINY)
     {
       N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
                                           set other outputs to zero */
@@ -590,7 +590,7 @@ int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     SUNLogExtraDebugVec(ARK_LOGGER, "stage", curr_stage, "z1_%i(:) =", is);
 
     /* evaluate q' with the current positions and update velocity */
-    if (SUNRabs(ai) <= TINY)
+    if (SUNRabs(ai) >= TINY)
     {
       N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
                                         set other outputs to zero */
@@ -692,7 +692,7 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
     SUNLogExtraDebugVec(ARK_LOGGER, "stage", yn_plus_delta_Yi, "z2_%i(:) =", is);
 
-    if (SUNRabs(ahati) <= TINY)
+    if (SUNRabs(ahati) >= TINY)
     {
       /* Evaluate p' with the previous velocity */
       N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
@@ -725,7 +725,7 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     /* set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + chati * ark_mem->h;
 
-    if (SUNRabs(ai) <= TINY)
+    if (SUNRabs(ai) >= TINY)
     {
       /* Evaluate q' with the current positions */
       N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
