@@ -29,8 +29,13 @@ extern "C" {
 enum ARKODE_ERKTableID
 {
   ARKODE_ERK_NONE         = -1, /* ensure enum is signed int */
+  /* WARNING:  ARKODE_MIN_ERK_NUM must come after the first entry, ARKODE_HEUN_EULER_2_1_2,
+     because Python enums will only expose the member that is defined first. Due to
+     this and how pybind/nanobind handle the enums, if we defined ARKODE_MRI_NUM first,
+     then ARKODE_HEUN_EULER_2_1_2 would not be usable from the module scope (the MIN/MAX) entries
+     will still be usable when accessing through the IntEnum object, but not from module scope. */
+  ARKODE_HEUN_EULER_2_1_2 = 0,
   ARKODE_MIN_ERK_NUM      = 0,
-  ARKODE_HEUN_EULER_2_1_2 = ARKODE_MIN_ERK_NUM,
   ARKODE_BOGACKI_SHAMPINE_4_2_3,
   ARKODE_ARK324L2SA_ERK_4_2_3,
   ARKODE_ZONNEVELD_5_3_4,
