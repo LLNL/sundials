@@ -216,9 +216,9 @@ not adhere to all of these rules.
       int array_length = 10;
       int* array1 = malloc(array_length * sizeof(a)); // Do this
       int* array2 = malloc(array_length * sizeof(int)); // Don't do this
-      
-#. Do not use anonymous ``enum`` s in public header files (the Python interface generator doesn't like it).
-   Wrap typedef statements in SWIG guards, e.g. 
+
+#. Do not use anonymous ``enum`` s in public header files (the Python interface
+   generator doesn't like it). Wrap typedef statements in SWIG guards, e.g.
 
    .. code-block:: c
 
