@@ -22,7 +22,6 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <nanobind/ndarray.h>
 
 #include <sundials/sundials_memory.hpp>
 
