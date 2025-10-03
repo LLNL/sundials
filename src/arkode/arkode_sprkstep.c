@@ -709,12 +709,12 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                    "status = failed rhs eval, retval = %i", retval);
         return (ARK_RHSFUNC_FAIL);
       }
-    }
 
-    /* Incremental position update:
-       [ \Delta P_i ] = [ \Delta P_{i-1} ] + [ sdata ]
-       [            ] = [                ] + [       ] */
-    N_VLinearSum(ONE, delta_Yi, ark_mem->h * ahati, step_mem->sdata, delta_Yi);
+      /* Incremental position update:
+         [ \Delta P_i ] = [ \Delta P_{i-1} ] + [ sdata ]
+         [            ] = [                ] + [       ] */
+      N_VLinearSum(ONE, delta_Yi, ark_mem->h * ahati, step_mem->sdata, delta_Yi);
+    }
 
     /* [ p_n ] + [ \Delta P_i ]
        [     ] + [            ] */
@@ -742,12 +742,12 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                    "status = failed rhs eval, retval = %i", retval);
         return (ARK_RHSFUNC_FAIL);
       }
-    }
 
-    /* Incremental velocity update:
-       [            ] = [                ] + [       ]
-       [ \Delta Q_i ] = [ \Delta Q_{i-1} ] + [ sdata ] */
-    N_VLinearSum(ONE, delta_Yi, ark_mem->h * ai, step_mem->sdata, delta_Yi);
+      /* Incremental velocity update:
+         [            ] = [                ] + [       ]
+         [ \Delta Q_i ] = [ \Delta Q_{i-1} ] + [ sdata ] */
+      N_VLinearSum(ONE, delta_Yi, ark_mem->h * ai, step_mem->sdata, delta_Yi);
+    }
 
     /* if user-supplied stage postprocessing function, we error out since it
      * won't work with the increment form */
