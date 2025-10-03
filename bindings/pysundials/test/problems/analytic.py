@@ -16,14 +16,20 @@
 # -----------------------------------------------------------------
 
 import numpy as np
-
-# import jax
-# import jax.numpy as jnp
-# from numba import jit
 from pysundials.core import *
 
-
 class AnalyticODE:
+    """
+    * The following is a simple example problem with analytical
+    * solution,
+    *    dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
+    * for t in the interval [0.0, 10.0], with initial condition: y=0.
+    *
+    * The stiffness of the problem is directly proportional to the
+    * value of "lambda".  The value of lambda should be negative to
+    * result in a well-posed ODE; for values with magnitude larger
+    * than 100 the problem becomes quite stiff.
+    """
     def __init__(self, lamb=1.0):
         self.lamb = lamb
 
@@ -38,46 +44,14 @@ class AnalyticODE:
         lamdbaI = 0.0
         return 0
 
-
-# class AnalyticODEJaxJit:
-#   lamb = 1.0
-
-#   def f(t, yvec, ydotvec, user_data):
-#     y = N_VGetArrayPointer(yvec)
-#     ydot = N_VGetArrayPointer(ydotvec)
-#     ydot[:] = AnalyticODEJaxJit.f_jit(t, y, ydot)
-#     return 0
-
-#   @jax.jit
-#   def f_jit(t, y, ydot):
-#     return ydot.at[0].set(AnalyticODEJaxJit.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * jnp.arctan(t))
-
-# class AnalyticODENumbaJit:
-#   lamb = 1.0
-
-#   @jit(nopython=True)
-#   def f(t, yvec, ydotvec, user_data):
-#     # NOTE: user_data should not be messed with since we use it for the callback wrapper
-#     y = N_VGetArrayPointer(yvec)
-#     ydot = N_VGetArrayPointer(ydotvec)
-#     ydot[0] = AnalyticODENumbaJit.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.arctan(t)
-#     return 0
-
-
-class AnalyticIMEXODE:
-    def __init__(self, lamb=1.0):
-        self.lamb = lamb
-
-    def fe(self, t, yvec, ydotvec):
+    def solution(self, y0vec, yvec, t):
         y = N_VGetArrayPointer(yvec)
-        ydot = N_VGetArrayPointer(ydotvec)
-        ydot[0] = self.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.arctan(t)
+        y[0] = np.atan(t)
         return 0
 
-    def fi(self, t, yvec, ydotvec):
-        # y = N_VGetArrayPointer(yvec)
-        # ydot = N_VGetArrayPointer(ydotvec)
-        # ydot[0] = self.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.arctan(t)
+    def set_init_cond(self, y0vec):
+        y0 = N_VGetArrayPointer(y0vec)
+        y0[0] = 0.0
         return 0
 
 
@@ -189,7 +163,6 @@ class AnalyticDAE:
         A = np.array([[-cj - (alpha - 1.0) / (t - 2.0) - 1.0, alpha - 1.0], [t + 2.0, 0.0]])
         z[0] = r[1] / A[1, 0]
         z[1] = -(A[0, 0] * r[1] - A[1, 0] * r[0]) / (A[0, 1] * A[1, 0])
-        print(z)
         return 0
 
 

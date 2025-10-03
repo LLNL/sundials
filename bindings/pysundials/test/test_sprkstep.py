@@ -16,22 +16,18 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 
-import sys
+import pytest
 import numpy as np
+from fixtures import *
 from pysundials.core import *
 from pysundials.arkode import *
 from problems import HarmonicOscillatorODE
 
 
-def test_sprkstep():
+def test_sprkstep(sunctx):
     tout, tret = 2 * np.pi, 0.0
     dt = 0.01
-
-    sunctx = SUNContextView.Create()
-
-    nv = NVectorView.Create(N_VNew_Serial(2, sunctx.get()))
-    arr = N_VGetArrayPointer(nv.get())
-
+    y = NVectorView.Create(N_VNew_Serial(2, sunctx.get()))
     ode_problem = HarmonicOscillatorODE()
 
     def f1(t, y, ydot, _):
@@ -40,16 +36,16 @@ def test_sprkstep():
     def f2(t, y, ydot, _):
         return ode_problem.vdot(t, y, ydot)
 
+    arr = N_VGetArrayPointer(y.get())
     ode_problem.initial_conditions(arr)
 
-    sprk = ARKodeView.Create(SPRKStepCreate(f1, f2, 0, nv.get(), sunctx.get()))
+    sprk = ARKodeView.Create(SPRKStepCreate(f1, f2, 0, y.get(), sunctx.get()))
 
     status = ARKodeSetFixedStep(sprk.get(), dt)
+    assert status == 0
+
     status = ARKodeSetMaxNumSteps(sprk.get(), int(np.ceil(tout / dt)))
+    assert status == 0
 
-    status = ARKodeEvolve(sprk.get(), tout, nv.get(), tret, ARK_NORMAL)
-    print(f"status={status}, ans={arr}")
-
-
-if __name__ == "__main__":
-    test_sprkstep()
+    status, tret = ARKodeEvolve(sprk.get(), tout, y.get(), tret, ARK_NORMAL)
+    assert status == 0

@@ -16,21 +16,18 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 
-import sys
+import pytest
 import numpy as np
+from fixtures import *
 from pysundials.core import *
 from pysundials.arkode import *
 from problems import AnalyticODE
 
 
-def test_erkstep_with_postprocess():
-    sunctx = SUNContextView.Create()
-    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
-
-    arr = N_VGetArrayPointer(nv.get())
-    arr[0] = 0.0
-
+def test_erkstep_with_postprocess(sunctx):
+    y = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
     ode_problem = AnalyticODE()
+    ode_problem.set_init_cond(y.get())
 
     def rhs(t, y, ydot, _):
         return ode_problem.f(t, y, ydot)
@@ -41,39 +38,37 @@ def test_erkstep_with_postprocess():
         postprocess_called["count"] += 1
         return 0  # success
 
-    erk = ARKodeView.Create(ERKStepCreate(rhs, 0, nv.get(), sunctx.get()))
+    erk = ARKodeView.Create(ERKStepCreate(rhs, 0, y.get(), sunctx.get()))
     ARKodeSetPostprocessStepFn(erk.get(), postprocess_fn)
-    status = ARKodeSStolerances(erk.get(), 1e-6, 1e-6)
+    status = ARKodeSStolerances(erk.get(), 1e-10, 1e-10)
+    assert status == ARK_SUCCESS
+
     tout, tret = 10.0, 0.0
-    status = ARKodeEvolve(erk.get(), tout, nv.get(), tret, ARK_NORMAL)
-    print(f"status={status}, ans={arr}, postprocess_called={postprocess_called['count']}")
+    status, tret = ARKodeEvolve(erk.get(), tout, y.get(), tret, ARK_NORMAL)
+    assert status == ARK_SUCCESS
+    assert postprocess_called["count"] > 0
 
-    # TODO(CJB): interface functions which take FILE* args
-    # ARKodePrintAllStats(erk.get(), sys.stdout, SUN_OUTPUTFORMAT_TABLE)
+    sol = NVectorView.Create(N_VClone(y.get()))
+    ode_problem.solution(y.get(), sol.get(), tret)
+    assert np.allclose(N_VGetArrayPointer(sol.get()), N_VGetArrayPointer(y.get()), atol=1e-2)
 
 
-def test_erkstep():
-    sunctx = SUNContextView.Create()
-    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
-
-    arr = N_VGetArrayPointer(nv.get())
-    arr[0] = 0.0
-
+def test_erkstep(sunctx):
+    y = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
     ode_problem = AnalyticODE()
+    ode_problem.set_init_cond(y.get())
 
     def rhs(t, y, ydot, _):
         return ode_problem.f(t, y, ydot)
 
-    erk = ARKodeView.Create(ERKStepCreate(rhs, 0, nv.get(), sunctx.get()))
-    status = ARKodeSStolerances(erk.get(), 1e-6, 1e-6)
+    erk = ARKodeView.Create(ERKStepCreate(rhs, 0, y.get(), sunctx.get()))
+    status = ARKodeSStolerances(erk.get(), 1e-10, 1e-10)
+    assert status == ARK_SUCCESS
+
     tout, tret = 10.0, 0.0
-    status = ARKodeEvolve(erk.get(), tout, nv.get(), tret, ARK_NORMAL)
-    print(f"status={status}, ans={arr}")
+    status, tret = ARKodeEvolve(erk.get(), tout, y.get(), tret, ARK_NORMAL)
+    assert status == ARK_SUCCESS
 
-    # TODO(CJB): interface functions which take FILE* args
-    # ARKodePrintAllStats(erk.get(), sys.stdout, SUN_OUTPUTFORMAT_TABLE)
-
-
-if __name__ == "__main__":
-    test_erkstep()
-    test_erkstep_with_postprocess()
+    sol = NVectorView.Create(N_VClone(y.get()))
+    ode_problem.solution(y.get(), sol.get(), tret)
+    assert np.allclose(N_VGetArrayPointer(sol.get()), N_VGetArrayPointer(y.get()), atol=1e-2)

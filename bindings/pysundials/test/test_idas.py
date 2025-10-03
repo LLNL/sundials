@@ -55,8 +55,6 @@ def test_bdf_idas():
     tout, tret = ode_problem.TF, ode_problem.T0
     status, tret = IDASolve(solver.get(), tout, tret, yy.get(), yp.get(), IDA_NORMAL)
     print(f"status={status}, tret={tret}")
-    N_VPrint(yy.get())
-    N_VPrint(yp.get())
 
     status, num_steps = IDAGetNumSteps(solver.get(), 0)
     print(f"num_steps={num_steps}")

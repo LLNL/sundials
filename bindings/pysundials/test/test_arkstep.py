@@ -16,86 +16,100 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 
+import pytest
 import numpy as np
+from fixtures import *
 from pysundials.core import *
 from pysundials.arkode import *
-from problems import AnalyticIMEXODE
+from problems import AnalyticODE, AnalyticMultiscaleODE
 
 
-def test_explicit():
-    print("  testing explicit")
-    sunctx = SUNContextView.Create()
-    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+def test_explicit(sunctx):
+    y = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
 
-    # Get the array and change a value in it
-    arr = N_VGetArrayPointer(nv.get())
-    arr[0] = 0.0  # set initial condition
+    ode_problem = AnalyticODE()
 
-    ode_problem = AnalyticIMEXODE()
+    ode_problem.set_init_cond(y.get())
+
     ark = ARKodeView.Create(
         ARKStepCreate(
-            lambda t, y, ydot, _: ode_problem.fe(t, y, ydot), None, 0, nv.get(), sunctx.get()
+            lambda t, y, ydot, _: ode_problem.f(t, y, ydot), None, 0, y.get(), sunctx.get()
         )
     )
-    status = ARKodeSStolerances(ark.get(), 1e-6, 1e-6)
+
+    status = ARKodeSStolerances(ark.get(), 1e-10, 1e-10)
+    assert status == ARK_SUCCESS
+
     tout, tret = 10.0, 0.0
-    status = ARKodeEvolve(ark.get(), tout, nv.get(), tret, ARK_NORMAL)
-    print(f"status={status}, ans={arr}")
+    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), tret, ARK_NORMAL)
+    assert status == ARK_SUCCESS
+
+    sol = NVectorView.Create(N_VClone(y.get()))
+    ode_problem.solution(y.get(), sol.get(), tret)
+
+    assert np.allclose(N_VGetArrayPointer(sol.get()), N_VGetArrayPointer(y.get()), atol=1e-2)
 
 
-def test_implicit():
-    print("  testing implicit")
-    sunctx = SUNContextView.Create()
-    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
-    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
+def test_implicit(sunctx):
+    y = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(y.get(), 0, 0, sunctx.get()))
 
-    # Get the array and change a value in it
-    arr = N_VGetArrayPointer(nv.get())
-    arr[0] = 0.0  # set initial condition
+    ode_problem = AnalyticODE()
 
-    ode_problem = AnalyticIMEXODE()
+    ode_problem.set_init_cond(y.get())
+
     ark = ARKodeView.Create(
         ARKStepCreate(
-            None, lambda t, y, ydot, _: ode_problem.fe(t, y, ydot), 0, nv.get(), sunctx.get()
+            None, lambda t, y, ydot, _: ode_problem.f(t, y, ydot), 0, y.get(), sunctx.get()
         )
     )
-    status = ARKodeSStolerances(ark.get(), 1e-6, 1e-6)
+
+    status = ARKodeSStolerances(ark.get(), 1e-10, 1e-10)
+    assert status == ARK_SUCCESS
+
     status = ARKodeSetLinearSolver(ark.get(), ls.get(), None)
+    assert status == ARK_SUCCESS
 
     tout, tret = 10.0, 0.0
-    status = ARKodeEvolve(ark.get(), tout, nv.get(), tret, ARK_NORMAL)
-    print(f"status={status}, ans={arr}")
+    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), tret, ARK_NORMAL)
+    assert status == ARK_SUCCESS
+
+    sol = NVectorView.Create(N_VClone(y.get()))
+    ode_problem.solution(y.get(), sol.get(), tret)
+
+    assert np.allclose(N_VGetArrayPointer(sol.get()), N_VGetArrayPointer(y.get()), atol=1e-2)
 
 
-def test_imex():
-    print("  testing imex")
+def test_imex(sunctx):
     sunctx = SUNContextView.Create()
-    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
-    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
+    y = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(y.get(), 0, 0, sunctx.get()))
 
-    # Get the array and change a value in it
-    arr = N_VGetArrayPointer(nv.get())
-    arr[0] = 0.0  # set initial condition
+    ode_problem = AnalyticMultiscaleODE()
 
-    ode_problem = AnalyticIMEXODE()
+    ode_problem.set_init_cond(y.get())
+
     ark = ARKodeView.Create(
         ARKStepCreate(
-            lambda t, y, ydot, _: ode_problem.fe(t, y, ydot),
-            lambda t, y, ydot, _: ode_problem.fi(t, y, ydot),
+            lambda t, y, ydot, _: ode_problem.f_nonlinear(t, y, ydot),
+            lambda t, y, ydot, _: ode_problem.f_linear(t, y, ydot),
             0,
-            nv.get(),
+            y.get(),
             sunctx.get(),
         )
     )
-    status = ARKodeSStolerances(ark.get(), 1e-6, 1e-6)
+
+    status = ARKodeSStolerances(ark.get(), 1e-10, 1e-10)
+    assert status == ARK_SUCCESS
+
     status = ARKodeSetLinearSolver(ark.get(), ls.get(), None)
+    assert status == ARK_SUCCESS
 
     tout, tret = 10.0, 0.0
-    status = ARKodeEvolve(ark.get(), tout, nv.get(), tret, ARK_NORMAL)
-    print(f"status={status}, ans={arr}")
+    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), tret, ARK_NORMAL)
+    assert status == 0
 
+    sol = NVectorView.Create(N_VClone(y.get()))
+    ode_problem.solution(y.get(), sol.get(), tret)
 
-if __name__ == "__main__":
-    test_explicit()
-    test_implicit()
-    test_imex()
+    assert np.allclose(N_VGetArrayPointer(sol.get()), N_VGetArrayPointer(y.get()), atol=1e-2)

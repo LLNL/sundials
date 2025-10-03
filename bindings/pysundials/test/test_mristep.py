@@ -59,10 +59,8 @@ def test_multirate():
 
     tret, tout = t0, tf
     status = ARKodeEvolve(ark.get(), tout, yview.get(), tret, ARK_NORMAL)
-    N_VPrint(yview.get())
 
     ode_problem.solution(y0view.get(), yview.get(), tf)
-    N_VPrint(yview.get())
 
 
 if __name__ == "__main__":

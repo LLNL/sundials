@@ -16,36 +16,40 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 
+import pytest
 import numpy as np
+from fixtures import *
 from pysundials.core import *
 from pysundials.cvodes import *
 from problems import AnalyticODE
 
 
-def test_bdf():
-    sunctx = SUNContextView.Create()
-    nv = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
-    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nv.get(), 0, 0, sunctx.get()))
-
-    # Get the array and change a value in it
-    arr = N_VGetArrayPointer(nv.get())
-    arr[:] = 0.0  # set initial condition
+def test_bdf(sunctx):
+    y = NVectorView.Create(N_VNew_Serial(1, sunctx.get()))
+    ls = SUNLinearSolverView.Create(SUNLinSol_SPGMR(y.get(), 0, 0, sunctx.get()))
 
     ode_problem = AnalyticODE()
+    ode_problem.set_init_cond(y.get())
 
     solver = CVodeView.Create(CVodeCreate(CV_BDF, sunctx.get()))
 
-    status = CVodeInit(solver.get(), lambda t, y, ydot, _: ode_problem.f(t, y, ydot), 0, nv.get())
-    status = CVodeSStolerances(solver.get(), 1e-6, 1e-6)
+    status = CVodeInit(solver.get(), lambda t, y, ydot, _: ode_problem.f(t, y, ydot), 0, y.get())
+    assert status == CV_SUCCESS
+
+    status = CVodeSStolerances(solver.get(), 1e-10, 1e-10)
+    assert status == CV_SUCCESS
+
     status = CVodeSetLinearSolver(solver.get(), ls.get(), None)
+    assert status == CV_SUCCESS
 
     tout, tret = 10.0, 0.0
-    status, tret = CVode(solver.get(), tout, nv.get(), tret, CV_NORMAL)
-    print(f"status={status}, tret={tret}, ans={arr}")
+    status, tret = CVode(solver.get(), tout, y.get(), tret, CV_NORMAL)
+    assert status == CV_SUCCESS
+
+    sol = NVectorView.Create(N_VClone(y.get()))
+    ode_problem.solution(y.get(), sol.get(), tret)
+    assert np.allclose(N_VGetArrayPointer(sol.get()), N_VGetArrayPointer(y.get()), atol=1e-2)
 
     status, num_steps = CVodeGetNumSteps(solver.get(), 0)
-    print(f"num_steps={num_steps}")
-
-
-if __name__ == "__main__":
-    test_bdf()
+    assert status == CV_SUCCESS
+    assert num_steps > 0
