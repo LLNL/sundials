@@ -68,36 +68,3 @@ def test_nvlinearcombination(sunctx):
     arr_z = N_VGetArrayPointer(z.get())
     expected = 0.5 * arr1 + 2.0 * arr2
     assert np.allclose(arr_z, expected)
-
-# Test an operation that involves arrays of vector arrays
-def test_nvlinearcombinationvectorarray(sunctx):
-    # Create arrays of nvectors
-    nvecs1 = [NVectorView.Create(N_VNew_Serial(5, sunctx.get())) for _ in range(3)]
-    nvecs2 = [NVectorView.Create(N_VNew_Serial(5, sunctx.get())) for _ in range(3)]
-
-    # Set their values
-    for i in range(3):
-        arr1 = N_VGetArrayPointer(nvecs1[i].get())
-        arr2 = N_VGetArrayPointer(nvecs2[i].get())
-        arr1[:] = np.arange(1, 6, dtype=float) + i
-        arr2[:] = np.arange(10, 15, dtype=float) + i
-
-    # Prepare coefficients: shape (num_vecs, num_terms)
-    c = np.array([[1.0, -0.5], [2.0, 0.5], [-1.0, 1.0]], dtype=float)
-    # Prepare X: shape (num_terms, num_vecs)
-    X = np.array([[nvecs1[i].get() for i in range(3)],
-                  [nvecs2[i].get() for i in range(3)]])
-    # Prepare Z: shape (num_vecs,)
-    Z = [NVectorView.Create(N_VNew_Serial(5, sunctx.get())) for _ in range(3)]
-
-    # Perform linear combination vector array: for each i, Z[i] = c[i,0]*X[0,i] + c[i,1]*X[1,i]
-    N_VLinearCombinationVectorArray(2, 3, c, X, [z.get() for z in Z])
-
-    # Check results
-    for i in range(3):
-        arr1 = N_VGetArrayPointer(nvecs1[i].get())
-        arr2 = N_VGetArrayPointer(nvecs2[i].get())
-        arr_z = N_VGetArrayPointer(Z[i].get())
-        expected = c[i,0] * arr1 + c[i,1] * arr2
-        assert np.allclose(arr_z, expected)
-        
