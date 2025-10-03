@@ -13,7 +13,7 @@
 # -----------------------------------------------------------------
 # This YAML file is used to instruct the generate.py script on
 # how to generate some of the nanobind code needed for the
-# ARKODE module of pysundials.
+# CVODES module of pysundials.
 # -----------------------------------------------------------------
 
 modules:
