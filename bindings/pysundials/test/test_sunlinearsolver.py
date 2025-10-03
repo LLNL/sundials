@@ -30,22 +30,18 @@ def test_smoke_create_band(sunctx, nvec):
 	assert LS is not None
 
 def test_smoke_create_spgmr(sunctx, nvec):
-	# SUNLinSol_SPGMR expects (N_Vector, int, int, SUNContext)
 	LS = SUNLinearSolverView.Create(SUNLinSol_SPGMR(nvec.get(), SUN_PREC_NONE, 0, sunctx.get()))
 	assert LS is not None
 
 def test_smoke_create_pcg(sunctx, nvec):
-	# SUNLinSol_PCG expects (N_Vector, int, SUNContext)
 	LS = SUNLinearSolverView.Create(SUNLinSol_PCG(nvec.get(), SUN_PREC_NONE, 0, sunctx.get()))
 	assert LS is not None
 
 def test_smoke_create_spbcgs(sunctx, nvec):
-	# SUNLinSol_SPBCGS expects (N_Vector, int, SUNContext)
 	LS = SUNLinearSolverView.Create(SUNLinSol_SPBCGS(nvec.get(), SUN_PREC_NONE, 0, sunctx.get()))
 	assert LS is not None
 
 def test_smoke_create_sptfqmr(sunctx, nvec):
-	# SUNLinSol_SPTFQMR expects (N_Vector, int, SUNContext)
 	LS = SUNLinearSolverView.Create(SUNLinSol_SPTFQMR(nvec.get(), SUN_PREC_NONE, 0, sunctx.get()))
 	assert LS is not None
 
