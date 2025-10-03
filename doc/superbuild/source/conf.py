@@ -53,6 +53,12 @@ intersphinx_mapping = {
     "sphinx": ("https://www.sphinx-doc.org/en/master", ("../objects.inv", None))
 }
 
+# Google analytics
+if os.getenv("GITHUB_ACTIONS"):
+    extensions.append("sphinxcontrib-googleanalytics")
+    googleanalytics_id = "G-3KESEG9QED"
+    googleanalytics_enabled = True
+
 # No non-external references will be resolved by intersphinx
 intersphinx_disabled_reftypes = ["*"]
 
