@@ -58,7 +58,7 @@ modules:
     - "CVodeSet.*Preconditioner"
     - "CVodeSetJacTimes.*"
     # TODO(CJB): add support for these functions
-    # nanobind doesn't support ** arguments directly, so these are not yet interfaced
+    #  ** parameters are not yet supported by litgen
     - "^CVodeComputeStateSens$"
     - "^CVodeComputeStateSens1$"
     - "^CVodeGetJac$" 

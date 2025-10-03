@@ -76,8 +76,8 @@ def main():
 
     # Our own custom function adapters
     options.fn_custom_adapters = [
+        adapt_array_pointer_to_std_vector, # this must go first!
         adapt_modifiable_immutable_to_return,
-        adapt_array_pointer_to_std_vector,
         adapt_default_arg_pointer_with_default_null,
     ]
 

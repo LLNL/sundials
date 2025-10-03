@@ -25,9 +25,7 @@ def adapt_array_pointer_to_std_vector(
 
     has_array_param = False
     for param in adapted_function.adapted_parameters():
-        # print(f"     {param.cpp_element().decl}")
-        param_name = param.cpp_element().decl.decl_name
-        if is_array_param(param_name):
+        if is_array_param(param.cpp_element().decl.decl_name):
             has_array_param = True
 
     if not has_array_param:
@@ -39,32 +37,29 @@ def adapt_array_pointer_to_std_vector(
     new_function_params: list[CppParameter] = []
 
     for old_param in old_function_params:
-        old_cpp_type = old_param.cpp_element().full_type()
         param_name = old_param.cpp_element().decl.decl_name
         if is_array_param(param_name):
-            base_type, ptr_dimension = remove_pointers(old_cpp_type)
+            base_type = " ".join(old_param.cpp_element().decl.cpp_type.typenames)
+            ptr_dimension = old_param.cpp_element().decl.cpp_type.modifiers.count("*")
 
             if param_name.endswith("_1d"):
                 if ptr_dimension != 1:
                     raise RuntimeWarning(
-                        f"while processing {function_name} encountered pointer dimension ({ptr_dimension}) and param suffix (_1d) mismatch for param {old_cpp_type} {param_name}"
+                        f"while processing {function_name} encountered pointer dimension ({ptr_dimension}) and param suffix (_1d) mismatch for param {old_param.cpp_element().full_type()} {param_name}"
                     )
                 dimensions = "*"
-                # base_type = base_type.replace("1d", "")
             elif param_name.endswith("_2d"):
                 if ptr_dimension != 2:
                     raise RuntimeWarning(
-                        f"while processing {function_name} encountered pointer dimension ({ptr_dimension}) and param suffix (_1d) mismatch for param {old_cpp_type} {param_name}"
+                        f"while processing {function_name} encountered pointer dimension ({ptr_dimension}) and param suffix (_2d) mismatch for param {old_param.cpp_element().full_type()} {param_name}"
                     )
                 dimensions = "**"
-                # base_type = base_type.replace("2d", "")
             elif param_name.endswith("_3d"):
                 if ptr_dimension != 3:
                     raise RuntimeWarning(
-                        f"while processing {function_name} encountered pointer dimension ({ptr_dimension}) and param suffix (_1d) mismatch for param {old_cpp_type} {param_name}"
+                        f"while processing {function_name} encountered pointer dimension ({ptr_dimension}) and param suffix (_3d) mismatch for param {old_param.cpp_element().full_type()} {param_name}"
                     )
                 dimensions = "***"
-                # base_type = base_type.replace("3d", "")
 
             new_param = copy.deepcopy(old_param.cpp_element())
             new_decl = new_param.decl
@@ -88,13 +83,10 @@ def adapt_array_pointer_to_std_vector(
     return lambda_adapter
 
 
-def remove_pointers(cpp_type: str) -> str:
+def count_stars(cpp_type: str) -> str:
     """
-    Removes pointer and const qualifiers from a C++ type string, e.g. 'const Foo *' -> 'Foo'.
+    Counts the number of *
     """
     # Remove 'const' and '*' and extra spaces
     num_pointers = cpp_type.count("*")
-    t = cpp_type.replace("*", "").strip()
-    # Remove any duplicate spaces
-    t = re.sub(r"\s+", " ", t)
-    return t, num_pointers
+    return num_pointers

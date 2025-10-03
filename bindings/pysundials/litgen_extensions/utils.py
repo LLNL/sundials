@@ -50,6 +50,7 @@ def load_nullable_params_from_yaml(config_object, module):
         opt_dict = opt_dict | module_section.get(opt, {})
     return opt_dict
 
+
 def load_pointer_types_from_yaml(config_object, module):
     opt = "sundials_pointer_types"
     opt_list = []
@@ -60,6 +61,7 @@ def load_pointer_types_from_yaml(config_object, module):
     if module_section:
         opt_list.extend(module_section.get(opt, []))
     return opt_list
+
 
 def match_regex(regex_str: str, word: str) -> bool:
     if regex_str.startswith("|"):

@@ -852,31 +852,30 @@ m.def(
   [](void* cvode_mem, double tret,
      std::vector<N_Vector> ySout_1d) -> std::tuple<int, double>
   {
-    auto CVodeGetSens_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, double tret,
-         N_Vector* ySout_1d) -> std::tuple<int, double>
-    {
-      double* tret_adapt_modifiable = &tret;
-
-      int r = CVodeGetSens(cvode_mem, tret_adapt_modifiable, ySout_1d);
-      return std::make_tuple(r, tret);
-    };
     auto CVodeGetSens_adapt_arr_ptr_to_std_vector =
-      [&CVodeGetSens_adapt_modifiable_immutable_to_return](void* cvode_mem,
-                                                           double tret,
-                                                           std::vector<N_Vector> ySout_1d)
-      -> std::tuple<int, double>
+      [](void* cvode_mem, double* tret, std::vector<N_Vector> ySout_1d) -> int
     {
       N_Vector* ySout_1d_ptr = reinterpret_cast<N_Vector*>(
         ySout_1d.empty() ? nullptr : ySout_1d.data());
 
-      auto lambda_result =
-        CVodeGetSens_adapt_modifiable_immutable_to_return(cvode_mem, tret,
-                                                          ySout_1d_ptr);
+      auto lambda_result = CVodeGetSens(cvode_mem, tret, ySout_1d_ptr);
       return lambda_result;
     };
+    auto CVodeGetSens_adapt_modifiable_immutable_to_return =
+      [&CVodeGetSens_adapt_arr_ptr_to_std_vector](void* cvode_mem, double tret,
+                                                  std::vector<N_Vector> ySout_1d)
+      -> std::tuple<int, double>
+    {
+      double* tret_adapt_modifiable = &tret;
 
-    return CVodeGetSens_adapt_arr_ptr_to_std_vector(cvode_mem, tret, ySout_1d);
+      int r = CVodeGetSens_adapt_arr_ptr_to_std_vector(cvode_mem,
+                                                       tret_adapt_modifiable,
+                                                       ySout_1d);
+      return std::make_tuple(r, tret);
+    };
+
+    return CVodeGetSens_adapt_modifiable_immutable_to_return(cvode_mem, tret,
+                                                             ySout_1d);
   },
   nb::arg("cvode_mem"), nb::arg("tret"), nb::arg("ySout_1d"));
 
@@ -1275,33 +1274,31 @@ m.def(
   [](void* cvode_mem, double tret,
      std::vector<N_Vector> yQSout_1d) -> std::tuple<int, double>
   {
-    auto CVodeGetQuadSens_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, double tret,
-         N_Vector* yQSout_1d) -> std::tuple<int, double>
-    {
-      double* tret_adapt_modifiable = &tret;
-
-      int r = CVodeGetQuadSens(cvode_mem, tret_adapt_modifiable, yQSout_1d);
-      return std::make_tuple(r, tret);
-    };
     auto CVodeGetQuadSens_adapt_arr_ptr_to_std_vector =
-      [&CVodeGetQuadSens_adapt_modifiable_immutable_to_return](void* cvode_mem,
-                                                               double tret,
-                                                               std::vector<N_Vector>
-                                                                 yQSout_1d)
-      -> std::tuple<int, double>
+      [](void* cvode_mem, double* tret, std::vector<N_Vector> yQSout_1d) -> int
     {
       N_Vector* yQSout_1d_ptr = reinterpret_cast<N_Vector*>(
         yQSout_1d.empty() ? nullptr : yQSout_1d.data());
 
-      auto lambda_result =
-        CVodeGetQuadSens_adapt_modifiable_immutable_to_return(cvode_mem, tret,
-                                                              yQSout_1d_ptr);
+      auto lambda_result = CVodeGetQuadSens(cvode_mem, tret, yQSout_1d_ptr);
       return lambda_result;
     };
+    auto CVodeGetQuadSens_adapt_modifiable_immutable_to_return =
+      [&CVodeGetQuadSens_adapt_arr_ptr_to_std_vector](void* cvode_mem,
+                                                      double tret,
+                                                      std::vector<N_Vector> yQSout_1d)
+      -> std::tuple<int, double>
+    {
+      double* tret_adapt_modifiable = &tret;
 
-    return CVodeGetQuadSens_adapt_arr_ptr_to_std_vector(cvode_mem, tret,
-                                                        yQSout_1d);
+      int r = CVodeGetQuadSens_adapt_arr_ptr_to_std_vector(cvode_mem,
+                                                           tret_adapt_modifiable,
+                                                           yQSout_1d);
+      return std::make_tuple(r, tret);
+    };
+
+    return CVodeGetQuadSens_adapt_modifiable_immutable_to_return(cvode_mem, tret,
+                                                                 yQSout_1d);
   },
   nb::arg("cvode_mem"), nb::arg("tret"), nb::arg("yQSout_1d"));
 

@@ -883,31 +883,30 @@ m.def(
   [](void* ida_mem, double tret,
      std::vector<N_Vector> yySout_1d) -> std::tuple<int, double>
   {
-    auto IDAGetSens_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, double tret,
-         N_Vector* yySout_1d) -> std::tuple<int, double>
-    {
-      double* tret_adapt_modifiable = &tret;
-
-      int r = IDAGetSens(ida_mem, tret_adapt_modifiable, yySout_1d);
-      return std::make_tuple(r, tret);
-    };
     auto IDAGetSens_adapt_arr_ptr_to_std_vector =
-      [&IDAGetSens_adapt_modifiable_immutable_to_return](void* ida_mem,
-                                                         double tret,
-                                                         std::vector<N_Vector> yySout_1d)
-      -> std::tuple<int, double>
+      [](void* ida_mem, double* tret, std::vector<N_Vector> yySout_1d) -> int
     {
       N_Vector* yySout_1d_ptr = reinterpret_cast<N_Vector*>(
         yySout_1d.empty() ? nullptr : yySout_1d.data());
 
-      auto lambda_result =
-        IDAGetSens_adapt_modifiable_immutable_to_return(ida_mem, tret,
-                                                        yySout_1d_ptr);
+      auto lambda_result = IDAGetSens(ida_mem, tret, yySout_1d_ptr);
       return lambda_result;
     };
+    auto IDAGetSens_adapt_modifiable_immutable_to_return =
+      [&IDAGetSens_adapt_arr_ptr_to_std_vector](void* ida_mem, double tret,
+                                                std::vector<N_Vector> yySout_1d)
+      -> std::tuple<int, double>
+    {
+      double* tret_adapt_modifiable = &tret;
 
-    return IDAGetSens_adapt_arr_ptr_to_std_vector(ida_mem, tret, yySout_1d);
+      int r = IDAGetSens_adapt_arr_ptr_to_std_vector(ida_mem,
+                                                     tret_adapt_modifiable,
+                                                     yySout_1d);
+      return std::make_tuple(r, tret);
+    };
+
+    return IDAGetSens_adapt_modifiable_immutable_to_return(ida_mem, tret,
+                                                           yySout_1d);
   },
   nb::arg("ida_mem"), nb::arg("tret"), nb::arg("yySout_1d"));
 
@@ -1217,32 +1216,30 @@ m.def(
   [](void* ida_mem, double tret,
      std::vector<N_Vector> yyQSout_1d) -> std::tuple<int, double>
   {
-    auto IDAGetQuadSens_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, double tret,
-         N_Vector* yyQSout_1d) -> std::tuple<int, double>
-    {
-      double* tret_adapt_modifiable = &tret;
-
-      int r = IDAGetQuadSens(ida_mem, tret_adapt_modifiable, yyQSout_1d);
-      return std::make_tuple(r, tret);
-    };
     auto IDAGetQuadSens_adapt_arr_ptr_to_std_vector =
-      [&IDAGetQuadSens_adapt_modifiable_immutable_to_return](void* ida_mem,
-                                                             double tret,
-                                                             std::vector<N_Vector>
-                                                               yyQSout_1d)
-      -> std::tuple<int, double>
+      [](void* ida_mem, double* tret, std::vector<N_Vector> yyQSout_1d) -> int
     {
       N_Vector* yyQSout_1d_ptr = reinterpret_cast<N_Vector*>(
         yyQSout_1d.empty() ? nullptr : yyQSout_1d.data());
 
-      auto lambda_result =
-        IDAGetQuadSens_adapt_modifiable_immutable_to_return(ida_mem, tret,
-                                                            yyQSout_1d_ptr);
+      auto lambda_result = IDAGetQuadSens(ida_mem, tret, yyQSout_1d_ptr);
       return lambda_result;
     };
+    auto IDAGetQuadSens_adapt_modifiable_immutable_to_return =
+      [&IDAGetQuadSens_adapt_arr_ptr_to_std_vector](void* ida_mem, double tret,
+                                                    std::vector<N_Vector> yyQSout_1d)
+      -> std::tuple<int, double>
+    {
+      double* tret_adapt_modifiable = &tret;
 
-    return IDAGetQuadSens_adapt_arr_ptr_to_std_vector(ida_mem, tret, yyQSout_1d);
+      int r = IDAGetQuadSens_adapt_arr_ptr_to_std_vector(ida_mem,
+                                                         tret_adapt_modifiable,
+                                                         yyQSout_1d);
+      return std::make_tuple(r, tret);
+    };
+
+    return IDAGetQuadSens_adapt_modifiable_immutable_to_return(ida_mem, tret,
+                                                               yyQSout_1d);
   },
   nb::arg("ida_mem"), nb::arg("tret"), nb::arg("yyQSout_1d"));
 

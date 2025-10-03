@@ -80,6 +80,13 @@ modules:
     headers:
     - ../../include/sundials/sundials_iterative.h
     - ../../include/sundials/sundials_linearsolver.h
+    fn_exclude_by_name__regex:
+    # TODO(CJB): interface these
+    # ** parameters are not yet supported by litgen
+    - "^SUNModifiedGS$"
+    - "^SUNClassicalGS$"
+    - "^SUNQRfact$"
+    - "^SUNQRsol$"
   sundials_logger:
     path: sundials/pysundials_logger_generated.hpp
     headers:
@@ -124,17 +131,23 @@ modules:
     - ../../include/sundials/sundials_nvector.h
     fn_exclude_by_name__regex:
     # we have to have custom handling for the following to get the proper dimensions set for the numpy array
-    - "ArrayPointer"
+    - "^N_VGetArrayPointer$"
+    - "^N_VSetArrayPointer$"
+    - "^N_VGetDeviceArrayPointer$"
     # these operations for supporting xbraid are not yet available via Python, we will have to evaluate if they are useful/needed
-    - "BufPack"
-    - "BufUnpack"
-    - "BufSize"
-    # vector arrays do not need to be created in Python, so we do not interface them
-    - "N_VNewVectorArray"
-    - "N_VCloneVectorArray"
-    - "N_VCloneEmptyVectorArray"
-    - "N_VGetVecAtIndexVectorArray"
-    - "N_VSetVecAtIndexVectorArray"
+    - "^N_VBufPack$"
+    - "^N_VBufUnpack$"
+    - "^N_VBufSize$"
+    # vector arrays do not need to be allocated through these in Python, so we do not interface them
+    - "^N_VNewVectorArray$"
+    - "^N_VCloneVectorArray$"
+    - "^N_VCloneEmptyVectorArray$"
+    - "^N_VGetVecAtIndexVectorArray$"
+    - "^N_VSetVecAtIndexVectorArray$"
+    # TODO(CJB): interface these
+    # ** parameters are not yet supported by litgen
+    - "^N_VLinearCombinationVectorArray$"
+    - "^N_VScaleAddMultiVectorArray$"
   sundials_profiler:
     path: sundials/pysundials_profiler_generated.hpp
     headers:
