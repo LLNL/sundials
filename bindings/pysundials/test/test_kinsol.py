@@ -30,7 +30,7 @@ def test_kinsol():
     sunctx = SUNContextView.Create()
     kin_view = KINView.Create(KINCreate(sunctx.get()))
 
-    problem = AnalyticNonlinearSys()
+    problem = AnalyticNonlinearSys(None)
 
     u = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
 
@@ -44,22 +44,22 @@ def test_kinsol():
     kin_status = KINSetFuncNormTol(kin_view.get(), tol)
 
     # initial guess
-    udata = N_VGetArrayPointer(u.get())
-    udata[:] = [0.1, 0.1, -0.1]
+    u_data = N_VGetArrayPointer(u.get())
+    u_data[:] = [0.1, 0.1, -0.1]
 
     # no scaling used
     scale = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
     N_VConst(1.0, scale.get())
 
     kin_status = KINSol(kin_view.get(), u.get(), KIN_FP, scale.get(), scale.get())
-    print(f"kin_status={kin_status}, solution={udata}")
+    print(f"kin_status={kin_status}, solution={u_data}")
 
-    ucor = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
-    ucor_data = N_VGetArrayPointer(ucor.get())
+    u_expected = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
+    u_expected_data = N_VGetArrayPointer(u_expected.get())
 
-    problem.solution(ucor.get())
+    problem.solution(u_expected.get())
 
-    assert np.allclose(udata, ucor_data)
+    assert np.allclose(u_data, u_expected_data)
 
     kin_status, nni = KINGetNumNonlinSolvIters(kin_view.get(), 0)
     kin_status, nfe = KINGetNumFuncEvals(kin_view.get(), 0)

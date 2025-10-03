@@ -93,7 +93,6 @@ class AnalyticMultiscaleODE:
     * The parameter lambda is positive, t is in [0, 1], and the exact solution is
     *
     *    y(t) = lambda*y / (y(0) - (y(0) - lambda)*exp(lambda*t))
-    *
     """
 
     T0 = 0.0
@@ -202,8 +201,7 @@ class AnalyticNonlinearSys:
     * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
     * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
     *
-    * using the accelerated fixed pointer solver in KINSOL. The nonlinear fixed
-    * point function is
+    * The nonlinear fixed point function is
     *
     * g1(x,y,z) = 1/3 cos((y-1)z) + 1/6
     * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9
@@ -220,7 +218,7 @@ class AnalyticNonlinearSys:
 
     NEQ = 3
 
-    def __init__(self, u0vec):
+    def __init__(self, u0vec=None):
         self.u0vec = u0vec
 
     # CJB: __enter__ and __exit__ are defined so that this class can be
@@ -237,7 +235,6 @@ class AnalyticNonlinearSys:
 
     def __exit__(self, type, value, traceback):
         self.u0vec = None
-        pass
 
     def fixed_point_fn(self, uvec, gvec):
         u = N_VGetArrayPointer(uvec)
@@ -248,8 +245,11 @@ class AnalyticNonlinearSys:
         g[1] = (1.0 / 9.0) * np.sqrt(x * x + np.sin(z) + 1.06) + 0.9
         g[2] = -(1.0 / 20.0) * np.exp(-x * (y - 1.0)) - (10.0 * np.pi - 3.0) / 60.0
 
-        N_VLinearSum(1.0, gvec, -1.0, self.u0vec, gvec)
+        return 0
 
+    def corrector_fp_fn(self, uvec, gvec):
+        self.fixed_point_fn(uvec, gvec)
+        N_VLinearSum(1.0, gvec, -1.0, self.u0vec, gvec)
         return 0
 
     def conv_test(self, nls, yvec, delvec, tol, ewtvec):

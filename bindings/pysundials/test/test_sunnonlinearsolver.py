@@ -134,7 +134,7 @@ def test_fixedpoint_setup_and_solve(sunctx):
 
         # System function
         def g_fn(u, g, _):
-            return problem.fixed_point_fn(u, g)
+            return problem.corrector_fp_fn(u, g)
 
         # Convergence test
         def conv_test(nls, u, delta, tol, ewt, _):
