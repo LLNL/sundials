@@ -86,7 +86,7 @@ When combining the two rules, the ``_ptr`` suffix should come last, e.g.
 
 .. warning::
 
-   The suffixes are **required** for parameters of functions within public header 
+   The suffixes are **required** for parameters of functions within public header
    files because the Python interface generator relies on the suffixes to determine
    the proper way to expose the parameter to Python users. It is preferable to follow
    this convention within other code, but not required.
@@ -114,7 +114,7 @@ Names for Vectors, Matrices, and Solvers
 The SUNDIALS vector, matrix, linear solver, and nonlinear solver classes use the
 naming convention ``<short class name><method>`` for base class methods where
 each component of the name uses Pascal case. See
-:numref:`_SourceCode.Table.OldBaseClassMethodNaming` for examples.
+:numref:`SourceCode.Naming.Table.OldBaseClassMethodNaming` for examples.
 
 .. note::
 
@@ -122,7 +122,7 @@ each component of the name uses Pascal case. See
    classes. All other classes should follow the naming convention described in
    :ref:`SourceCode.Naming.NewClasses`.
 
-.. _SourceCode.Table.OldBaseClassMethodNaming:
+.. _SourceCode.Naming.Table.OldBaseClassMethodNaming:
 
 .. Table:: SUNDIALS base class naming convention examples for vectors, matrices,
            linear solvers and nonlinear solvers.
@@ -141,9 +141,9 @@ each component of the name uses Pascal case. See
 
 Derived class implementations of the base class methods should follow the naming
 convention ``<short class name><method>_<implementation>``. See
-:numref:`SourceCode.Table.OldDerivedClassMethodNaming` for examples.
+:numref:`SourceCode.Naming.Table.OldDerivedClassMethodNaming` for examples.
 
-.. _SourceCode.Table.OldDerivedClassMethodNaming:
+.. _SourceCode.Naming.Table.OldDerivedClassMethodNaming:
 
 .. Table:: SUNDIALS derived class naming convention examples for vectors,
            matrices, linear solvers and nonlinear solvers.
@@ -173,7 +173,7 @@ Names for New Classes
 
 All new base classes should use the naming convention ``<class name>_<method>``
 for the base class methods. See
-:numref:`SourceCode.Table.NewBaseClassMethodNaming` for examples.
+:numref:`SourceCode.Naming.Table.NewBaseClassMethodNaming` for examples.
 
 .. _SourceCode.Naming.Table.NewBaseClassMethodNaming:
 
@@ -187,7 +187,7 @@ for the base class methods. See
 
 Derived class implementations of the base class methods should follow the naming
 convention  ``<class name>_<method>_<implementation>``. See
-:numref:`SourceCode.Table.NewDerivedClassMethodNaming` for examples.
+:numref:`SourceCode.Naming.Table.NewDerivedClassMethodNaming` for examples.
 
 .. _SourceCode.Naming.Table.NewDerivedClassMethodNaming:
 
