@@ -298,10 +298,12 @@ SUNDIALS_EXPORT int CVodeGetIntegratorStats(
   void* cvode_mem, long int* nsteps, long int* nfevals, long int* nlinsetups,
   long int* netfails, int* qlast, int* qcur, sunrealtype* hinused,
   sunrealtype* hlast, sunrealtype* hcur, sunrealtype* tcur);
-SUNDIALS_EXPORT int CVodeGetNonlinearSystemData(
-  void* cvode_mem, sunrealtype* tcur, N_Vector* ypred, N_Vector* yn,
-  N_Vector* fn, sunrealtype* gamma, sunrealtype* rl1, N_Vector* zn1,
-  void** user_data);
+SUNDIALS_EXPORT int CVodeGetNonlinearSystemData(void* cvode_mem,
+                                                sunrealtype* tcur,
+                                                N_Vector* ypred, N_Vector* yn,
+                                                N_Vector* fn, sunrealtype* gamma,
+                                                sunrealtype* rl1, N_Vector* zn1,
+                                                void** user_data);
 SUNDIALS_EXPORT int CVodeGetNonlinearSystemDataSens(
   void* cvode_mem, sunrealtype* tcur, N_Vector** ySpred_1d_out,
   N_Vector** ySn_1d_out, sunrealtype* gamma, sunrealtype* rl1,

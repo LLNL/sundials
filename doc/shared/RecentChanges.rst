@@ -5,7 +5,8 @@
 
 **New Features and Enhancements**
 
-The functions :c:func:`IDAGetUserDataB` and :c:func:`CVodeGetUserDataB` were added.
+The functions ``CVodeGetUserDataB`` and ``IDAGetUserDataB`` were added to CVODES
+and IDAS, respectively.
 
 **Bug Fixes**
 
@@ -19,3 +20,6 @@ The ``Convert`` methods on the ``sundials::kokkos:Vector``, ``sundials::kokkos::
 ``sundials::ginkgo::LinearSolver``, and ``sundials::ginkgo::BatchLinearSolver`` classes have
 been deprecated and will be removed in the next major release. The method ``get``, should
 be used instead.
+
+The ``CSC_MAT`` and ``CSR_MAT`` macros defined in ``sunmatrix_sparse.h`` will be removed in
+the next major release. Use ``SUN_CSC_MAT`` and ``SUN_CSR_MAT`` instead.
