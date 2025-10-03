@@ -20,6 +20,29 @@ m.def("ARKStepSetTableName", ARKStepSetTableName, nb::arg("arkode_mem"),
       nb::arg("itable"), nb::arg("etable"));
 
 m.def(
+  "ARKStepGetCurrentButcherTables",
+  [](void* arkode_mem, ARKodeButcherTable Bi, ARKodeButcherTable Be)
+    -> std::tuple<int, ARKodeButcherTable, ARKodeButcherTable>
+  {
+    auto ARKStepGetCurrentButcherTables_adapt_modifiable_immutable_to_return =
+      [](void* arkode_mem, ARKodeButcherTable Bi, ARKodeButcherTable Be)
+      -> std::tuple<int, ARKodeButcherTable, ARKodeButcherTable>
+    {
+      ARKodeButcherTable* Bi_adapt_modifiable = &Bi;
+      ARKodeButcherTable* Be_adapt_modifiable = &Be;
+
+      int r = ARKStepGetCurrentButcherTables(arkode_mem, Bi_adapt_modifiable,
+                                             Be_adapt_modifiable);
+      return std::make_tuple(r, Bi, Be);
+    };
+
+    return ARKStepGetCurrentButcherTables_adapt_modifiable_immutable_to_return(arkode_mem,
+                                                                               Bi,
+                                                                               Be);
+  },
+  nb::arg("arkode_mem"), nb::arg("Bi"), nb::arg("Be"));
+
+m.def(
   "ARKStepGetTimestepperStats",
   [](void* arkode_mem, long expsteps, long accsteps, long step_attempts,
      long nfe_evals, long nfi_evals, long nlinsetups,

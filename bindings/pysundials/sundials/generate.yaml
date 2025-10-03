@@ -42,8 +42,6 @@ modules:
     - "Set.*Fn" # nanobind cannot bind to functions which take a function pointer, so we do something custom
     - "SetContent" # no need to set content from Python, so we don't interface it
     - "GetContent" # content should not be accessible from Python, so we don't interface it
-    # nanobind cannot bind to functions which take a **
-    - "LoadVector" 
     # should not need to insert a checkpoint from Python
     - "InsertVector"
   sundials_adjointstepper:
@@ -58,10 +56,6 @@ modules:
     - ../../include/sundials/sundials_context.h
     fn_exclude_by_name__regex:
     - "Create" # nanobind cannot bind to functions which take a **, so we do something custom
-    # TODO(CJB): add support for these functions
-    # nanobind cannot bind to functions which take a **
-    - "GetProfiler" 
-    - "GetLogger"
   sundials_domeigestimator:
     path: sundials/pysundials_domeigestimator_generated.hpp
     headers:

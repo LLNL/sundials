@@ -60,9 +60,21 @@ def adapt_modifiable_immutable_to_return(
 
     needs_adapt = False
 
+    # is_modifiable_python_immutable_ref_or_pointer only recognizes some built in types
+    # but we would like to also transform functions that return SUNDIALS objects as outputs,
+    # e.g., SUNErrCode SUNSparseMatrix_ToCSC(SUNMatrix A, SUNMatrix* Bout) becomes
+    # std::tuple<SUNErrCode, SUNMatrix> SUNSparseMatrix_ToCSC(SUNMatrix A, SUNMatrix B); . 
+    def is_immutable_ref_or_pointer(param):
+        a = param.is_modifiable_python_immutable_ref_or_pointer() 
+        b = param.cpp_element().decl.cpp_type.name_without_modifier_specifier() in options.sundials_pointer_types
+        c = param.cpp_element().decl.cpp_type.modifiers == ["*"]
+        if a or (b and c):
+            return True
+        return False
+
     for old_adapted_param in adapted_function.adapted_parameters():
         if (
-            old_adapted_param.is_modifiable_python_immutable_ref_or_pointer()
+            is_immutable_ref_or_pointer(old_adapted_param)
             or old_adapted_param.is_modifiable_python_immutable_fixed_size_array()
         ) and not is_array_param(old_adapted_param.cpp_element().decl.decl_name):
             needs_adapt = True
@@ -79,7 +91,7 @@ def adapt_modifiable_immutable_to_return(
     new_function_params: list[CppParameter] = []
     new_output_function_params: list[CppParameter] = []
     for old_adapted_param in old_function_params:
-        if old_adapted_param.is_modifiable_python_immutable_ref_or_pointer():
+        if is_immutable_ref_or_pointer(old_adapted_param):
             is_pointer = old_adapted_param.cpp_element().decl.cpp_type.modifiers == ["*"]
 
             # For signatures like

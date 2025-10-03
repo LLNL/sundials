@@ -57,14 +57,9 @@ modules:
     - "IDASet.*Preconditioner"
     - "IDASetJacTimes.*"
     # TODO(CJB): add support for these functions
-    # nanobind doesnt support ** out of the box
+    #  ** parameters are not yet supported by litgen
     - "^IDAComputeStateSens$"
     - "^IDAComputeStateSens1$"
-    - "^IDAGetJac$" 
-    - "^IDAGetCurrentY$"
-    - "^IDAGetCurrentYp$"
     - "^IDAGetCurrentYSens$"
     - "^IDAGetCurrentYpSens$"
-    - "^IDAGetNonlinearSystemData$"
     - "^IDAGetNonlinearSystemDataSens$"
-    - "^IDAResizeHistory$"

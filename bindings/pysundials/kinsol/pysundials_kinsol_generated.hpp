@@ -263,6 +263,23 @@ m.def(
   nb::arg("kinmem"), nb::arg("LS"), nb::arg("A").none() = nb::none());
 
 m.def(
+  "KINGetJac",
+  [](void* kinmem, SUNMatrix J) -> std::tuple<int, SUNMatrix>
+  {
+    auto KINGetJac_adapt_modifiable_immutable_to_return =
+      [](void* kinmem, SUNMatrix J) -> std::tuple<int, SUNMatrix>
+    {
+      SUNMatrix* J_adapt_modifiable = &J;
+
+      int r = KINGetJac(kinmem, J_adapt_modifiable);
+      return std::make_tuple(r, J);
+    };
+
+    return KINGetJac_adapt_modifiable_immutable_to_return(kinmem, J);
+  },
+  nb::arg("kinmem"), nb::arg("J"));
+
+m.def(
   "KINGetJacNumIters",
   [](void* kinmem, long nni_J) -> std::tuple<int, long>
   {

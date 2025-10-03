@@ -9,6 +9,26 @@ m.def("SPRKStepSetMethod", SPRKStepSetMethod, nb::arg("arkode_mem"),
 
 m.def("SPRKStepSetMethodName", SPRKStepSetMethodName, nb::arg("arkode_mem"),
       nb::arg("method"));
+
+m.def(
+  "SPRKStepGetCurrentMethod",
+  [](void* arkode_mem,
+     ARKodeSPRKTable sprk_storage) -> std::tuple<int, ARKodeSPRKTable>
+  {
+    auto SPRKStepGetCurrentMethod_adapt_modifiable_immutable_to_return =
+      [](void* arkode_mem,
+         ARKodeSPRKTable sprk_storage) -> std::tuple<int, ARKodeSPRKTable>
+    {
+      ARKodeSPRKTable* sprk_storage_adapt_modifiable = &sprk_storage;
+
+      int r = SPRKStepGetCurrentMethod(arkode_mem, sprk_storage_adapt_modifiable);
+      return std::make_tuple(r, sprk_storage);
+    };
+
+    return SPRKStepGetCurrentMethod_adapt_modifiable_immutable_to_return(arkode_mem,
+                                                                         sprk_storage);
+  },
+  nb::arg("arkode_mem"), nb::arg("sprk_storage"));
 // #ifdef __cplusplus
 //
 // #endif

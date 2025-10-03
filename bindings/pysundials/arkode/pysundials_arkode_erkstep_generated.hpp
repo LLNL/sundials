@@ -13,6 +13,25 @@ m.def("ERKStepSetTableName", ERKStepSetTableName, nb::arg("arkode_mem"),
       nb::arg("etable"));
 
 m.def(
+  "ERKStepGetCurrentButcherTable",
+  [](void* arkode_mem, ARKodeButcherTable B) -> std::tuple<int, ARKodeButcherTable>
+  {
+    auto ERKStepGetCurrentButcherTable_adapt_modifiable_immutable_to_return =
+      [](void* arkode_mem,
+         ARKodeButcherTable B) -> std::tuple<int, ARKodeButcherTable>
+    {
+      ARKodeButcherTable* B_adapt_modifiable = &B;
+
+      int r = ERKStepGetCurrentButcherTable(arkode_mem, B_adapt_modifiable);
+      return std::make_tuple(r, B);
+    };
+
+    return ERKStepGetCurrentButcherTable_adapt_modifiable_immutable_to_return(arkode_mem,
+                                                                              B);
+  },
+  nb::arg("arkode_mem"), nb::arg("B"));
+
+m.def(
   "ERKStepGetTimestepperStats",
   [](void* arkode_mem, long expsteps, long accsteps, long step_attempts,
      long nfevals, long netfails) -> std::tuple<int, long, long, long, long, long>

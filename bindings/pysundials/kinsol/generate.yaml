@@ -43,9 +43,6 @@ modules:
     fn_exclude_by_name__regex:
     # we use user_data for sneaking in python contexts, users can instead capture their states in a class
     - "^KINGetUserData$"
-    # TODO(CJB): add support for these functions
-    # nanobind doesnt support ** out of the box
-    - "^KINGetJac$" 
     # generator cannot handle setting of function pointers, so we do something custom
     - "KINInit.*"
     - "KINSet.*Fn" 

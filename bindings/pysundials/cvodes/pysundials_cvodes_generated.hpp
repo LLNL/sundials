@@ -79,6 +79,37 @@ m.def("CVodeCreate", CVodeCreate, nb::arg("lmm"), nb::arg("sunctx"),
 m.def("CVodeReInit", CVodeReInit, nb::arg("cvode_mem"), nb::arg("t0"),
       nb::arg("y0"));
 
+m.def(
+  "CVodeResizeHistory",
+  [](void* cvode_mem, std::vector<double> t_hist_1d,
+     std::vector<N_Vector> y_hist_1d, std::vector<N_Vector> f_hist_1d,
+     int num_y_hist, int num_f_hist) -> int
+  {
+    auto CVodeResizeHistory_adapt_arr_ptr_to_std_vector =
+      [](void* cvode_mem, std::vector<double> t_hist_1d,
+         std::vector<N_Vector> y_hist_1d, std::vector<N_Vector> f_hist_1d,
+         int num_y_hist, int num_f_hist) -> int
+    {
+      double* t_hist_1d_ptr = reinterpret_cast<double*>(
+        t_hist_1d.empty() ? nullptr : t_hist_1d.data());
+      N_Vector* y_hist_1d_ptr = reinterpret_cast<N_Vector*>(
+        y_hist_1d.empty() ? nullptr : y_hist_1d.data());
+      N_Vector* f_hist_1d_ptr = reinterpret_cast<N_Vector*>(
+        f_hist_1d.empty() ? nullptr : f_hist_1d.data());
+
+      auto lambda_result = CVodeResizeHistory(cvode_mem, t_hist_1d_ptr,
+                                              y_hist_1d_ptr, f_hist_1d_ptr,
+                                              num_y_hist, num_f_hist);
+      return lambda_result;
+    };
+
+    return CVodeResizeHistory_adapt_arr_ptr_to_std_vector(cvode_mem, t_hist_1d,
+                                                          y_hist_1d, f_hist_1d,
+                                                          num_y_hist, num_f_hist);
+  },
+  nb::arg("cvode_mem"), nb::arg("t_hist_1d"), nb::arg("y_hist_1d"),
+  nb::arg("f_hist_1d"), nb::arg("num_y_hist"), nb::arg("num_f_hist"));
+
 m.def("CVodeSStolerances", CVodeSStolerances, nb::arg("cvode_mem"),
       nb::arg("reltol"), nb::arg("abstol"));
 
@@ -417,6 +448,24 @@ m.def(
                                                                     hcur);
   },
   nb::arg("cvode_mem"), nb::arg("hcur"));
+
+m.def(
+  "CVodeGetCurrentState",
+  [](void* cvode_mem, N_Vector y) -> std::tuple<int, N_Vector>
+  {
+    auto CVodeGetCurrentState_adapt_modifiable_immutable_to_return =
+      [](void* cvode_mem, N_Vector y) -> std::tuple<int, N_Vector>
+    {
+      N_Vector* y_adapt_modifiable = &y;
+
+      int r = CVodeGetCurrentState(cvode_mem, y_adapt_modifiable);
+      return std::make_tuple(r, y);
+    };
+
+    return CVodeGetCurrentState_adapt_modifiable_immutable_to_return(cvode_mem,
+                                                                     y);
+  },
+  nb::arg("cvode_mem"), nb::arg("y"));
 
 m.def(
   "CVodeGetCurrentSensSolveIndex",
@@ -1678,6 +1727,23 @@ m.def("CVodeSetEpsLin", CVodeSetEpsLin, nb::arg("cvode_mem"), nb::arg("eplifac")
 
 m.def("CVodeSetLSNormFactor", CVodeSetLSNormFactor, nb::arg("arkode_mem"),
       nb::arg("nrmfac"));
+
+m.def(
+  "CVodeGetJac",
+  [](void* cvode_mem, SUNMatrix J) -> std::tuple<int, SUNMatrix>
+  {
+    auto CVodeGetJac_adapt_modifiable_immutable_to_return =
+      [](void* cvode_mem, SUNMatrix J) -> std::tuple<int, SUNMatrix>
+    {
+      SUNMatrix* J_adapt_modifiable = &J;
+
+      int r = CVodeGetJac(cvode_mem, J_adapt_modifiable);
+      return std::make_tuple(r, J);
+    };
+
+    return CVodeGetJac_adapt_modifiable_immutable_to_return(cvode_mem, J);
+  },
+  nb::arg("cvode_mem"), nb::arg("J"));
 
 m.def(
   "CVodeGetJacTime",

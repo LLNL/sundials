@@ -61,9 +61,5 @@ modules:
     #  ** parameters are not yet supported by litgen
     - "^CVodeComputeStateSens$"
     - "^CVodeComputeStateSens1$"
-    - "^CVodeGetJac$" 
-    - "^CVodeGetCurrentState$"
     - "^CVodeGetCurrentStateSens$"
-    - "^CVodeGetNonlinearSystemData$"
     - "^CVodeGetNonlinearSystemDataSens$"
-    - "^CVodeResizeHistory$"

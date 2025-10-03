@@ -399,6 +399,40 @@ m.def(
   nb::arg("ida_mem"), nb::arg("cj"));
 
 m.def(
+  "IDAGetCurrentY",
+  [](void* ida_mem, N_Vector ycur) -> std::tuple<int, N_Vector>
+  {
+    auto IDAGetCurrentY_adapt_modifiable_immutable_to_return =
+      [](void* ida_mem, N_Vector ycur) -> std::tuple<int, N_Vector>
+    {
+      N_Vector* ycur_adapt_modifiable = &ycur;
+
+      int r = IDAGetCurrentY(ida_mem, ycur_adapt_modifiable);
+      return std::make_tuple(r, ycur);
+    };
+
+    return IDAGetCurrentY_adapt_modifiable_immutable_to_return(ida_mem, ycur);
+  },
+  nb::arg("ida_mem"), nb::arg("ycur"));
+
+m.def(
+  "IDAGetCurrentYp",
+  [](void* ida_mem, N_Vector ypcur) -> std::tuple<int, N_Vector>
+  {
+    auto IDAGetCurrentYp_adapt_modifiable_immutable_to_return =
+      [](void* ida_mem, N_Vector ypcur) -> std::tuple<int, N_Vector>
+    {
+      N_Vector* ypcur_adapt_modifiable = &ypcur;
+
+      int r = IDAGetCurrentYp(ida_mem, ypcur_adapt_modifiable);
+      return std::make_tuple(r, ypcur);
+    };
+
+    return IDAGetCurrentYp_adapt_modifiable_immutable_to_return(ida_mem, ypcur);
+  },
+  nb::arg("ida_mem"), nb::arg("ypcur"));
+
+m.def(
   "IDAGetActualInitStep",
   [](void* ida_mem, double hinused) -> std::tuple<int, double>
   {
@@ -1642,6 +1676,23 @@ m.def("IDASetLinearSolutionScaling", IDASetLinearSolutionScaling,
 
 m.def("IDASetIncrementFactor", IDASetIncrementFactor, nb::arg("ida_mem"),
       nb::arg("dqincfac"));
+
+m.def(
+  "IDAGetJac",
+  [](void* ida_mem, SUNMatrix J) -> std::tuple<int, SUNMatrix>
+  {
+    auto IDAGetJac_adapt_modifiable_immutable_to_return =
+      [](void* ida_mem, SUNMatrix J) -> std::tuple<int, SUNMatrix>
+    {
+      SUNMatrix* J_adapt_modifiable = &J;
+
+      int r = IDAGetJac(ida_mem, J_adapt_modifiable);
+      return std::make_tuple(r, J);
+    };
+
+    return IDAGetJac_adapt_modifiable_immutable_to_return(ida_mem, J);
+  },
+  nb::arg("ida_mem"), nb::arg("J"));
 
 m.def(
   "IDAGetJacCj",

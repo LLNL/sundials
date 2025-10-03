@@ -113,6 +113,25 @@ m.def("MRIStepSetPostInnerFn", MRIStepSetPostInnerFn, nb::arg("arkode_mem"),
       nb::arg("postfn"));
 
 m.def(
+  "MRIStepGetCurrentCoupling",
+  [](void* arkode_mem, MRIStepCoupling MRIC) -> std::tuple<int, MRIStepCoupling>
+  {
+    auto MRIStepGetCurrentCoupling_adapt_modifiable_immutable_to_return =
+      [](void* arkode_mem,
+         MRIStepCoupling MRIC) -> std::tuple<int, MRIStepCoupling>
+    {
+      MRIStepCoupling* MRIC_adapt_modifiable = &MRIC;
+
+      int r = MRIStepGetCurrentCoupling(arkode_mem, MRIC_adapt_modifiable);
+      return std::make_tuple(r, MRIC);
+    };
+
+    return MRIStepGetCurrentCoupling_adapt_modifiable_immutable_to_return(arkode_mem,
+                                                                          MRIC);
+  },
+  nb::arg("arkode_mem"), nb::arg("MRIC"));
+
+m.def(
   "MRIStepGetLastInnerStepFlag",
   [](void* arkode_mem, int flag) -> std::tuple<int, int>
   {
