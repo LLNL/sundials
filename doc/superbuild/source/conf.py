@@ -55,7 +55,7 @@ intersphinx_mapping = {
 
 # Google analytics
 if os.getenv("GITHUB_ACTIONS"):
-    extensions.append("sphinxcontrib-googleanalytics")
+    extensions.append("sphinxcontrib.googleanalytics")
     googleanalytics_id = "G-3KESEG9QED"
     googleanalytics_enabled = True
 
