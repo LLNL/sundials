@@ -53,7 +53,7 @@ intersphinx_mapping = {
     "sphinx": ("https://www.sphinx-doc.org/en/master", ("../objects.inv", None))
 }
 
-# Google analytics
+# Only setup Google analytics for the deplpoyed readthedocs (not local)
 if os.getenv("GITHUB_ACTIONS"):
     extensions.append("sphinxcontrib.googleanalytics")
     googleanalytics_id = "G-3KESEG9QED"
