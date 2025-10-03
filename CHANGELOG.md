@@ -21,6 +21,9 @@ The `Convert` methods on the `sundials::kokkos:Vector`, `sundials::kokkos::Dense
 been deprecated and will be removed in the next major release. The method `get`, should
 be used instead.
 
+The `CSC_MAT` and `CSR_MAT` macros defined in `sunmatrix_sparse.h` will be removed in
+the next major release. Use `SUN_CSC_MAT` and `SUN_CSR_MAT` instead.
+
 ## Changes to SUNDIALS in release 7.5.0
 
 ### Major Features
