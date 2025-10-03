@@ -880,17 +880,20 @@ m.def("IDASetSensMaxNonlinIters", IDASetSensMaxNonlinIters, nb::arg("ida_mem"),
 
 m.def(
   "IDASetSensParams",
-  [](void* ida_mem, std::vector<double> p_1d, std::vector<double> pbar_1d,
+  [](void* ida_mem, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
      std::vector<int> plist_1d) -> int
   {
     auto IDASetSensParams_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, std::vector<double> p_1d, std::vector<double> pbar_1d,
+      [](void* ida_mem,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
          std::vector<int> plist_1d) -> int
     {
-      double* p_1d_ptr = reinterpret_cast<double*>(p_1d.empty() ? nullptr
-                                                                : p_1d.data());
+      double* p_1d_ptr =
+        reinterpret_cast<double*>(p_1d.is_valid() ? nullptr : p_1d.data());
       double* pbar_1d_ptr =
-        reinterpret_cast<double*>(pbar_1d.empty() ? nullptr : pbar_1d.data());
+        reinterpret_cast<double*>(pbar_1d.is_valid() ? nullptr : pbar_1d.data());
       int* plist_1d_ptr =
         reinterpret_cast<int*>(plist_1d.empty() ? nullptr : plist_1d.data());
 

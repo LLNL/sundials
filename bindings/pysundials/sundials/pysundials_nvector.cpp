@@ -22,6 +22,7 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/ndarray.h>
 #include <nanobind/stl/vector.h>
 
 #include <sundials/sundials_nvector.hpp>
@@ -61,7 +62,7 @@ void bind_nvector(nb::module_& m)
           size_t shape[1]{static_cast<size_t>(N_VGetLength(v))};
           return pysundials::array1d(ptr, 1, shape, owner);
         });
- 
+
   m.def("N_VSetArrayPointer",
         [](pysundials::array1d arr, N_Vector v)
         {

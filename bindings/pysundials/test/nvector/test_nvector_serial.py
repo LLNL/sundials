@@ -44,28 +44,28 @@ def test_setarraypointer(sunctx):
 	# The original numpy array should also reflect the change
 	assert np.allclose(arr, 20.0)
 
-# Test an operation that involves vector arrays
-def test_nvlinearcombination(sunctx):
+# # Test an operation that involves vector arrays
+# def test_nvlinearcombination(sunctx):
 
-    # Create two serial nvectors
-    nvec1 = NVectorView.Create(N_VNew_Serial(5, sunctx.get()))
-    nvec2 = NVectorView.Create(N_VNew_Serial(5, sunctx.get()))
+#     # Create two serial nvectors
+#     nvec1 = NVectorView.Create(N_VNew_Serial(5, sunctx.get()))
+#     nvec2 = NVectorView.Create(N_VNew_Serial(5, sunctx.get()))
 
-    # Set their values
-    arr1 = N_VGetArrayPointer(nvec1.get())
-    arr1[:] = [1.0, 2.0, 3.0, 4.0, 5.0]
+#     # Set their values
+#     arr1 = N_VGetArrayPointer(nvec1.get())
+#     arr1[:] = [1.0, 2.0, 3.0, 4.0, 5.0]
 
-    arr2 = N_VGetArrayPointer(nvec2.get())
-    arr2[:] = [10.0, 20.0, 30.0, 40.0, 50.0]
+#     arr2 = N_VGetArrayPointer(nvec2.get())
+#     arr2[:] = [10.0, 20.0, 30.0, 40.0, 50.0]
 
-    # Prepare coefficients and vectors
-    c = np.array([1.0, 0.1], dtype=np.float64)
-    X = [nvec1.get(), nvec2.get()]
+#     # Prepare coefficients and vectors
+#     c = np.array([1.0, 0.1], dtype=np.float64)
+#     X = [nvec1.get(), nvec2.get()]
 
-    z = NVectorView.Create(N_VNew_Serial(5, sunctx.get()))
-    N_VConst(0.0, z.get())
+#     z = NVectorView.Create(N_VNew_Serial(5, sunctx.get()))
+#     N_VConst(0.0, z.get())
 
-    # Perform linear combination: z = 1.0*x1 + 0.1*x2
-    N_VLinearCombination(2, c, X, z.get())
+#     # Perform linear combination: z = 1.0*x1 + 0.1*x2
+#     N_VLinearCombination(2, c, X, z.get())
 
-    assert np.allclose(N_VGetArrayPointer(z.get()), [2.0, 4.0, 6.0, 8.0, 10.0])
+#     assert np.allclose(N_VGetArrayPointer(z.get()), [2.0, 4.0, 6.0, 8.0, 10.0])

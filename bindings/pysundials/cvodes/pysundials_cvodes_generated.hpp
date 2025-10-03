@@ -81,17 +81,19 @@ m.def("CVodeReInit", CVodeReInit, nb::arg("cvode_mem"), nb::arg("t0"),
 
 m.def(
   "CVodeResizeHistory",
-  [](void* cvode_mem, std::vector<double> t_hist_1d,
+  [](void* cvode_mem,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> t_hist_1d,
      std::vector<N_Vector> y_hist_1d, std::vector<N_Vector> f_hist_1d,
      int num_y_hist, int num_f_hist) -> int
   {
     auto CVodeResizeHistory_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, std::vector<double> t_hist_1d,
+      [](void* cvode_mem,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> t_hist_1d,
          std::vector<N_Vector> y_hist_1d, std::vector<N_Vector> f_hist_1d,
          int num_y_hist, int num_f_hist) -> int
     {
       double* t_hist_1d_ptr = reinterpret_cast<double*>(
-        t_hist_1d.empty() ? nullptr : t_hist_1d.data());
+        t_hist_1d.is_valid() ? nullptr : t_hist_1d.data());
       N_Vector* y_hist_1d_ptr = reinterpret_cast<N_Vector*>(
         y_hist_1d.empty() ? nullptr : y_hist_1d.data());
       N_Vector* f_hist_1d_ptr = reinterpret_cast<N_Vector*>(
@@ -810,13 +812,15 @@ m.def(
 
 m.def(
   "CVodeSensSStolerances",
-  [](void* cvode_mem, double reltolS, std::vector<double> abstolS_1d) -> int
+  [](void* cvode_mem, double reltolS,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolS_1d) -> int
   {
     auto CVodeSensSStolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolS, std::vector<double> abstolS_1d) -> int
+      [](void* cvode_mem, double reltolS,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolS_1d) -> int
     {
       double* abstolS_1d_ptr = reinterpret_cast<double*>(
-        abstolS_1d.empty() ? nullptr : abstolS_1d.data());
+        abstolS_1d.is_valid() ? nullptr : abstolS_1d.data());
 
       auto lambda_result = CVodeSensSStolerances(cvode_mem, reltolS,
                                                  abstolS_1d_ptr);
@@ -861,17 +865,21 @@ m.def("CVodeSetSensMaxNonlinIters", CVodeSetSensMaxNonlinIters,
 
 m.def(
   "CVodeSetSensParams",
-  [](void* cvode_mem, std::vector<double> p_1d, std::vector<double> pbar_1d,
+  [](void* cvode_mem,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
      std::vector<int> plist_1d) -> int
   {
     auto CVodeSetSensParams_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, std::vector<double> p_1d, std::vector<double> pbar_1d,
+      [](void* cvode_mem,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
          std::vector<int> plist_1d) -> int
     {
-      double* p_1d_ptr = reinterpret_cast<double*>(p_1d.empty() ? nullptr
-                                                                : p_1d.data());
+      double* p_1d_ptr =
+        reinterpret_cast<double*>(p_1d.is_valid() ? nullptr : p_1d.data());
       double* pbar_1d_ptr =
-        reinterpret_cast<double*>(pbar_1d.empty() ? nullptr : pbar_1d.data());
+        reinterpret_cast<double*>(pbar_1d.is_valid() ? nullptr : pbar_1d.data());
       int* plist_1d_ptr =
         reinterpret_cast<int*>(plist_1d.empty() ? nullptr : plist_1d.data());
 
@@ -1272,13 +1280,15 @@ m.def(
 
 m.def(
   "CVodeQuadSensSStolerances",
-  [](void* cvode_mem, double reltolQS, std::vector<double> abstolQS_1d) -> int
+  [](void* cvode_mem, double reltolQS,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolQS_1d) -> int
   {
     auto CVodeQuadSensSStolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolQS, std::vector<double> abstolQS_1d) -> int
+      [](void* cvode_mem, double reltolQS,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolQS_1d) -> int
     {
       double* abstolQS_1d_ptr = reinterpret_cast<double*>(
-        abstolQS_1d.empty() ? nullptr : abstolQS_1d.data());
+        abstolQS_1d.is_valid() ? nullptr : abstolQS_1d.data());
 
       auto lambda_result = CVodeQuadSensSStolerances(cvode_mem, reltolQS,
                                                      abstolQS_1d_ptr);

@@ -1370,21 +1370,28 @@ auto pyClassARKodeButcherTableMem =
 
 m.def(
   "ARKodeButcherTable_Create",
-  [](int s, int q, int p, std::vector<double> c_1d, std::vector<double> A_1d,
-     std::vector<double> b_1d, std::vector<double> d_1d) -> ARKodeButcherTable
+  [](int s, int q, int p,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> A_1d,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> b_1d,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> d_1d) -> ARKodeButcherTable
   {
     auto ARKodeButcherTable_Create_adapt_arr_ptr_to_std_vector =
-      [](int s, int q, int p, std::vector<double> c_1d, std::vector<double> A_1d,
-         std::vector<double> b_1d, std::vector<double> d_1d) -> ARKodeButcherTable
+      [](int s, int q, int p,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> A_1d,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> b_1d,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> d_1d)
+      -> ARKodeButcherTable
     {
-      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.empty() ? nullptr
-                                                                : c_1d.data());
-      double* A_1d_ptr = reinterpret_cast<double*>(A_1d.empty() ? nullptr
-                                                                : A_1d.data());
-      double* b_1d_ptr = reinterpret_cast<double*>(b_1d.empty() ? nullptr
-                                                                : b_1d.data());
-      double* d_1d_ptr = reinterpret_cast<double*>(d_1d.empty() ? nullptr
-                                                                : d_1d.data());
+      double* c_1d_ptr =
+        reinterpret_cast<double*>(c_1d.is_valid() ? nullptr : c_1d.data());
+      double* A_1d_ptr =
+        reinterpret_cast<double*>(A_1d.is_valid() ? nullptr : A_1d.data());
+      double* b_1d_ptr =
+        reinterpret_cast<double*>(b_1d.is_valid() ? nullptr : b_1d.data());
+      double* d_1d_ptr =
+        reinterpret_cast<double*>(d_1d.is_valid() ? nullptr : d_1d.data());
 
       auto lambda_result = ARKodeButcherTable_Create(s, q, p, c_1d_ptr, A_1d_ptr,
                                                      b_1d_ptr, d_1d_ptr);
@@ -1586,8 +1593,8 @@ m.def("ARKodeButcherTable_DIRKIDToName", ARKodeButcherTable_DIRKIDToName,
 auto pyEnumARKODE_SPRKMethodID =
   nb::enum_<ARKODE_SPRKMethodID>(m, "ARKODE_SPRKMethodID", nb::is_arithmetic(), "")
     .value("ARKODE_SPRK_NONE", ARKODE_SPRK_NONE, "")
-    .value("ARKODE_MIN_SPRK_NUM", ARKODE_MIN_SPRK_NUM, "")
     .value("ARKODE_SPRK_EULER_1_1", ARKODE_SPRK_EULER_1_1, "")
+    .value("ARKODE_MIN_SPRK_NUM", ARKODE_MIN_SPRK_NUM, "")
     .value("ARKODE_SPRK_LEAPFROG_2_2", ARKODE_SPRK_LEAPFROG_2_2, "")
     .value("ARKODE_SPRK_PSEUDO_LEAPFROG_2_2", ARKODE_SPRK_PSEUDO_LEAPFROG_2_2, "")
     .value("ARKODE_SPRK_RUTH_3_3", ARKODE_SPRK_RUTH_3_3, "")
@@ -1613,17 +1620,19 @@ auto pyClassARKodeSPRKTableMem =
 
 m.def(
   "ARKodeSPRKTable_Create",
-  [](int s, int q, std::vector<double> a_1d,
-     std::vector<double> ahat_1d) -> ARKodeSPRKTable
+  [](int s, int q, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> ahat_1d) -> ARKodeSPRKTable
   {
     auto ARKodeSPRKTable_Create_adapt_arr_ptr_to_std_vector =
-      [](int s, int q, std::vector<double> a_1d,
-         std::vector<double> ahat_1d) -> ARKodeSPRKTable
+      [](int s, int q,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> ahat_1d)
+      -> ARKodeSPRKTable
     {
-      double* a_1d_ptr = reinterpret_cast<double*>(a_1d.empty() ? nullptr
-                                                                : a_1d.data());
+      double* a_1d_ptr =
+        reinterpret_cast<double*>(a_1d.is_valid() ? nullptr : a_1d.data());
       double* ahat_1d_ptr =
-        reinterpret_cast<double*>(ahat_1d.empty() ? nullptr : ahat_1d.data());
+        reinterpret_cast<double*>(ahat_1d.is_valid() ? nullptr : ahat_1d.data());
 
       auto lambda_result = ARKodeSPRKTable_Create(s, q, a_1d_ptr, ahat_1d_ptr);
       return lambda_result;

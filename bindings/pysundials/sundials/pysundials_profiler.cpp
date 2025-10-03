@@ -21,6 +21,7 @@
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
 
 #include <sundials/sundials_profiler.hpp>
 

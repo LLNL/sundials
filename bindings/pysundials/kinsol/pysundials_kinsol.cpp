@@ -16,6 +16,7 @@
  *----------------------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
 #include <nanobind/stl/function.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/tuple.h>
@@ -28,6 +29,8 @@
 #include <kinsol/kinsol_ls.h>
 
 #include "kinsol/kinsol_impl.h"
+
+#include "pysundials_types.hpp"
 
 namespace nb = nanobind;
 
@@ -108,7 +111,7 @@ void bind_kinsol(nb::module_& m)
 
   using KINDepthStdFn =
     int(long int iter, N_Vector u_val, N_Vector g_val, N_Vector f_val,
-        std::vector<N_Vector> df, std::vector<sunrealtype> R_mat, long int depth,
+        std::vector<N_Vector> df, pysundials::array1d R_mat, long int depth,
         void* user_data, long int* new_depth, sunbooleantype* remove_indices);
   m.def(
     "KINSetDepthFn",

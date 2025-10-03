@@ -32,18 +32,20 @@ auto pyEnumARKODE_SplittingCoefficientsID =
 m.def(
   "SplittingStepCoefficients_Create",
   [](int sequential_methods, int stages, int partitions, int order,
-     std::vector<double> alpha_1d,
-     std::vector<double> beta_1d) -> SplittingStepCoefficients
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> alpha_1d,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> beta_1d)
+    -> SplittingStepCoefficients
   {
     auto SplittingStepCoefficients_Create_adapt_arr_ptr_to_std_vector =
       [](int sequential_methods, int stages, int partitions, int order,
-         std::vector<double> alpha_1d,
-         std::vector<double> beta_1d) -> SplittingStepCoefficients
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> alpha_1d,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> beta_1d)
+      -> SplittingStepCoefficients
     {
-      double* alpha_1d_ptr =
-        reinterpret_cast<double*>(alpha_1d.empty() ? nullptr : alpha_1d.data());
+      double* alpha_1d_ptr = reinterpret_cast<double*>(
+        alpha_1d.is_valid() ? nullptr : alpha_1d.data());
       double* beta_1d_ptr =
-        reinterpret_cast<double*>(beta_1d.empty() ? nullptr : beta_1d.data());
+        reinterpret_cast<double*>(beta_1d.is_valid() ? nullptr : beta_1d.data());
 
       auto lambda_result =
         SplittingStepCoefficients_Create(sequential_methods, stages, partitions,

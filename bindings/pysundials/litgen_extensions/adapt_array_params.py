@@ -61,16 +61,29 @@ def adapt_array_pointer_to_std_vector(
                     )
                 dimensions = "***"
 
-            new_param = copy.deepcopy(old_param.cpp_element())
-            new_decl = new_param.decl
-            new_decl.cpp_type.modifiers = []
-            new_decl.cpp_type.specifiers = []
-            new_decl.cpp_type.typenames = [f"std::vector<{base_type}>"]
-            new_decl.initial_value_code = ""
-            new_function_params.append(new_param)
 
-            lambda_adapter.lambda_input_code += f"{base_type}{dimensions} {param_name}_ptr = reinterpret_cast<{base_type}{dimensions}>( {param_name}.empty() ? nullptr : {param_name}.data() );\n"
-            lambda_adapter.adapted_cpp_parameter_list.append(f"{param_name}_ptr")
+            if is_float_type(base_type):
+                new_param = copy.deepcopy(old_param.cpp_element())
+                new_decl = new_param.decl
+                new_decl.cpp_type.modifiers = []
+                new_decl.cpp_type.specifiers = []
+                new_decl.cpp_type.typenames = [f"nb::ndarray<{base_type}, nb::numpy, nb::ndim<1>, nb::c_contig>"]
+                new_decl.initial_value_code = ""
+                new_function_params.append(new_param)
+
+                lambda_adapter.lambda_input_code += f"{base_type}{dimensions} {param_name}_ptr = reinterpret_cast<{base_type}{dimensions}>( {param_name}.is_valid() ? nullptr : {param_name}.data() );\n"
+                lambda_adapter.adapted_cpp_parameter_list.append(f"{param_name}_ptr")
+            else:
+                new_param = copy.deepcopy(old_param.cpp_element())
+                new_decl = new_param.decl
+                new_decl.cpp_type.modifiers = []
+                new_decl.cpp_type.specifiers = []
+                new_decl.cpp_type.typenames = [f"std::vector<{base_type}>"]
+                new_decl.initial_value_code = ""
+                new_function_params.append(new_param)
+
+                lambda_adapter.lambda_input_code += f"{base_type}{dimensions} {param_name}_ptr = reinterpret_cast<{base_type}{dimensions}>( {param_name}.empty() ? nullptr : {param_name}.data() );\n"
+                lambda_adapter.adapted_cpp_parameter_list.append(f"{param_name}_ptr")
         else:
             new_function_params.append(old_param.cpp_element())
             lambda_adapter.adapted_cpp_parameter_list.append(param_name)
@@ -83,7 +96,10 @@ def adapt_array_pointer_to_std_vector(
     return lambda_adapter
 
 
-def count_stars(cpp_type: str) -> str:
+def is_float_type(cpp_type: str):
+    return cpp_type in ["float", "double", "sunrealtype"]
+
+def count_stars(cpp_type: str):
     """
     Counts the number of *
     """
