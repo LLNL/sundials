@@ -50,6 +50,7 @@ SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
                                               SUNAdaptController TolControl,
                                               SUNContext sunctx);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
                                                 sunrealtype inner_max_relch,
@@ -89,6 +90,7 @@ SUNDIALS_EXPORT
 int SUNAdaptController_UpdateMRIHTol_MRIHTol(SUNAdaptController C,
                                              sunrealtype H, sunrealtype tolfac,
                                              sunrealtype DSM, sunrealtype dsm);
+
 SUNDIALS_DEPRECATED_EXPORT_MSG(
   "Work space functions will be removed in version 8.0.0")
 int SUNAdaptController_Space_MRIHTol(SUNAdaptController C, long int* lenrw,
