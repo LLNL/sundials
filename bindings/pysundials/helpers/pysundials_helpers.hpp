@@ -19,6 +19,7 @@
 #define _PYSUNDIALS_HELPERS_HPP
 
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/function.h>
 
 namespace nb = nanobind;
 

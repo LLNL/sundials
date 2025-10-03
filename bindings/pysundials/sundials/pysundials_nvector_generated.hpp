@@ -93,15 +93,23 @@ m.def("N_VMinQuotient", N_VMinQuotient, nb::arg("num"), nb::arg("denom"));
 
 m.def(
   "N_VLinearCombination",
-  [](int nvec, std::vector<double> c_1d, std::vector<N_Vector> X_1d,
+  [](int nvec, pysundials::array1d c_1d, std::vector<N_Vector> X_1d,
      N_Vector z) -> SUNErrCode
   {
+    // for (size_t i = 0; i < c_1d.size(); ++i) {
+    //   printf("c_1d[%zu] = %f\n", i, c_1d[i]);
+    // }
+    for (size_t i = 0; i < X_1d.size(); ++i) {
+      printf("X_1d[%zu] = %p\n", i, (void*)X_1d[i]);
+      printf("X_1d[%zu] data array address = %p\n", i, (void*)N_VGetArrayPointer(X_1d[i]));
+      N_VPrint(X_1d[i]);
+    }
+    
     auto N_VLinearCombination_adapt_arr_ptr_to_std_vector =
-      [](int nvec, std::vector<double> c_1d, std::vector<N_Vector> X_1d,
+      [](int nvec,  pysundials::array1d  c_1d, std::vector<N_Vector> X_1d,
          N_Vector z) -> SUNErrCode
     {
-      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.empty() ? nullptr
-                                                                : c_1d.data());
+      double* c_1d_ptr = c_1d.data();
       N_Vector* X_1d_ptr =
         reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
 

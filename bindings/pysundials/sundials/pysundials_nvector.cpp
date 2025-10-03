@@ -26,6 +26,8 @@
 
 #include <sundials/sundials_nvector.hpp>
 
+#include "pysundials_types.hpp"
+
 namespace nb = nanobind;
 
 using namespace sundials::experimental;
@@ -47,22 +49,21 @@ void bind_nvector(nb::module_& m)
           if (!ptr) { throw std::runtime_error("Failed to get array pointer"); }
           auto owner = nb::find(v);
           size_t shape[1]{static_cast<size_t>(N_VGetLength(v))};
-          return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>,
-                             nb::c_contig>(ptr, 1, shape, owner);
+          return pysundials::array1d(ptr, 1, shape, owner);
         });
+
   m.def("N_VGetDeviceArrayPointer",
-        [](N_Vector v)
+        [](N_Vector v) -> pysundials::array1d
         {
           auto ptr = N_VGetDeviceArrayPointer(v);
           if (!ptr) { throw std::runtime_error("Failed to get array pointer"); }
           auto owner = nb::find(v);
           size_t shape[1]{static_cast<size_t>(N_VGetLength(v))};
-          return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>,
-                             nb::c_contig>(ptr, 1, shape, owner);
+          return pysundials::array1d(ptr, 1, shape, owner);
         });
+ 
   m.def("N_VSetArrayPointer",
-        [](nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> arr,
-           N_Vector v)
+        [](pysundials::array1d arr, N_Vector v)
         {
           if (arr.shape(0) != N_VGetLength(v))
           {

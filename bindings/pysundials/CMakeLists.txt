@@ -72,7 +72,7 @@ set(sundials_SOURCES
     sundials/pysundials_nvector.cpp
     sundials/pysundials_profiler.cpp
     sundials/pysundials_stepper.cpp
-    nvector/nvector_serial.cpp
+    nvector/pysundials_nvector_serial.cpp
     sunlinsol/sunlinsol_spgmr.cpp
     sunlinsol/sunlinsol_dense.cpp
     sunlinsol/sunlinsol_band.cpp
