@@ -35,8 +35,8 @@ enum ARKODE_SPRKMethodID
      this and how pybind/nanobind handle the enums, if we defined ARKODE_MRI_NUM first,
      then ARKODE_SPRK_EULER_1_1 would not be usable from the module scope (the MIN/MAX) entries
      will still be usable when accessing through the IntEnum object, but not from module scope. */
-  ARKODE_MIN_SPRK_NUM   = 0,
   ARKODE_SPRK_EULER_1_1 = 0,
+  ARKODE_MIN_SPRK_NUM   = 0,
   ARKODE_SPRK_LEAPFROG_2_2,
   ARKODE_SPRK_PSEUDO_LEAPFROG_2_2,
   ARKODE_SPRK_RUTH_3_3,
