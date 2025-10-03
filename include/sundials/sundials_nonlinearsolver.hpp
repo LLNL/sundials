@@ -20,8 +20,10 @@
 #ifndef _SUNDIALS_NONLINEARSOLVER_HPP
 #define _SUNDIALS_NONLINEARSOLVER_HPP
 
-#include <memory>
+#include <utility>
+
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_nonlinearsolver.h>
 
 namespace sundials {
@@ -39,8 +41,19 @@ struct SUNNonlinearSolverDeleter
   }
 };
 
-using SUNNonlinearSolverView =
-  ClassView<SUNNonlinearSolver, SUNNonlinearSolverDeleter>;
+class SUNNonlinearSolverView
+  : public ClassView<SUNNonlinearSolver, SUNNonlinearSolverDeleter>
+{
+public:
+  using ClassView<SUNNonlinearSolver, SUNNonlinearSolverDeleter>::ClassView;
+
+  template<typename... Args>
+  static SUNNonlinearSolverView Create(Args&&... args)
+  {
+    return SUNNonlinearSolverView(std::forward<Args>(args)...);
+  }
+};
+
 } // namespace experimental
 } // namespace sundials
 

@@ -229,10 +229,10 @@ public:
   operator SUNLinearSolver() const override { return object_.get(); }
 
   /// Explicit conversion to a :c:type:`SUNLinearSolver`
-  SUNLinearSolver Convert() override { return object_.get(); }
+  SUNLinearSolver get() override { return object_.get(); }
 
   /// Explicit conversion to a :c:type:`SUNLinearSolver`
-  SUNLinearSolver Convert() const override { return object_.get(); }
+  SUNLinearSolver get() const override { return object_.get(); }
 
   /// Get the underlying Ginkgo solver
   /// \note This will be `nullptr` until the linear solver setup phase.
@@ -268,7 +268,7 @@ public:
       col_scale_vec_ =
         std::move(impl::WrapBatchScalingArray(GkoExec(), num_batches_, s1_));
 
-      if (!s2inv_.Convert())
+      if (!s2inv_.get())
       {
         s2inv_ = sundials::experimental::NVectorView(N_VClone(s2));
       }

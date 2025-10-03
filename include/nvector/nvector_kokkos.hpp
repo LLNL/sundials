@@ -78,7 +78,7 @@ N_Vector N_VClone_Kokkos(N_Vector w)
 {
   auto vec{GetVec<VectorType>(w)};
   auto new_vec{new VectorType(*vec)};
-  return new_vec->Convert();
+  return new_vec->get();
 }
 
 template<class VectorType>
@@ -570,9 +570,9 @@ public:
 
   operator N_Vector() const override { return object_.get(); }
 
-  N_Vector Convert() override { return object_.get(); }
+  N_Vector get() override { return object_.get(); }
 
-  N_Vector Convert() const override { return object_.get(); }
+  N_Vector get() const override { return object_.get(); }
 
 private:
   view_type view_;

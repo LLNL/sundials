@@ -32,6 +32,7 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
   SUNAssert(stepper, SUN_ERR_MALLOC_FAIL);
 
   stepper->content   = NULL;
+  stepper->python    = NULL;
   stepper->sunctx    = sunctx;
   stepper->last_flag = SUN_SUCCESS;
 
@@ -59,6 +60,7 @@ SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
     const SUNStepper_Ops ops = (*stepper_ptr)->ops;
     if (ops && ops->destroy) { ops->destroy(*stepper_ptr); }
     free(ops);
+    free((*stepper_ptr)->python);
     free(*stepper_ptr);
     *stepper_ptr = NULL;
   }

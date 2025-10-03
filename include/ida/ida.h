@@ -91,7 +91,7 @@ typedef int (*IDAResFn)(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
                         void* user_data);
 
 typedef int (*IDARootFn)(sunrealtype t, N_Vector y, N_Vector yp,
-                         sunrealtype* gout, void* user_data);
+                         sunrealtype* gout_1d, void* user_data);
 
 typedef int (*IDAEwtFn)(N_Vector y, N_Vector ewt, void* user_data);
 

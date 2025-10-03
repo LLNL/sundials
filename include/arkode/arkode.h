@@ -166,7 +166,7 @@ extern "C" {
 typedef int (*ARKRhsFn)(sunrealtype t, N_Vector y, N_Vector ydot,
                         void* user_data);
 
-typedef int (*ARKRootFn)(sunrealtype t, N_Vector y, sunrealtype* gout,
+typedef int (*ARKRootFn)(sunrealtype t, N_Vector y, sunrealtype* gout_1d,
                          void* user_data);
 
 typedef int (*ARKEwtFn)(N_Vector y, N_Vector ewt, void* user_data);
@@ -200,24 +200,31 @@ typedef _SUNDIALS_STRUCT_ _MRIStepInnerStepper* MRIStepInnerStepper;
 /* --------------------------
  * Relaxation Solver Options
  * -------------------------- */
-
-typedef enum
+enum ARKRelaxSolver
 {
   ARK_RELAX_BRENT,
   ARK_RELAX_NEWTON
-} ARKRelaxSolver;
+};
+
+#ifndef SWIG
+typedef enum ARKRelaxSolver ARKRelaxSolver;
+#endif
 
 /* --------------------------
  * Error Accumulation Options
  * -------------------------- */
 
-typedef enum
+enum ARKAccumError
 {
   ARK_ACCUMERROR_NONE,
   ARK_ACCUMERROR_MAX,
   ARK_ACCUMERROR_SUM,
   ARK_ACCUMERROR_AVG
-} ARKAccumError;
+};
+
+#ifndef SWIG
+typedef enum ARKAccumError ARKAccumError;
+#endif
 
 /* --------------------------
  * Shared API routines

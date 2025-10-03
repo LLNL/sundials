@@ -95,7 +95,7 @@ SUNMatrix SUNMatClone_Ginkgo(SUNMatrix A)
 {
   auto A_mat{static_cast<Matrix<GkoMatType>*>(A->content)};
   auto new_mat{new Matrix<GkoMatType>(*A_mat)}; // NOLINT
-  return new_mat->Convert();
+  return new_mat->get();
 }
 
 template<typename GkoMatType>
@@ -232,10 +232,10 @@ public:
   operator SUNMatrix() const override { return object_.get(); }
 
   /// Explicit conversion to a :c:type:`SUNMatrix`
-  SUNMatrix Convert() override { return object_.get(); }
+  SUNMatrix get() override { return object_.get(); }
 
   /// Explicit conversion to a :c:type:`SUNMatrix`
-  SUNMatrix Convert() const override { return object_.get(); }
+  SUNMatrix get() const override { return object_.get(); }
 
 private:
   std::shared_ptr<GkoMatType> gkomtx_;

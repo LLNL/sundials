@@ -20,8 +20,10 @@
 #ifndef _SUNDIALS_MATRIX_HPP
 #define _SUNDIALS_MATRIX_HPP
 
-#include <memory>
+#include <utility>
+
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_matrix.h>
 
 namespace sundials {
@@ -32,13 +34,21 @@ using BaseMatrix = BaseObject<_generic_SUNMatrix, _generic_SUNMatrix_Ops>;
 namespace experimental {
 struct SUNMatrixDeleter
 {
-  void operator()(SUNMatrix A)
+  void operator()(SUNMatrix A) { SUNMatDestroy(A); }
+};
+
+class SUNMatrixView : public ClassView<SUNMatrix, SUNMatrixDeleter>
+{
+public:
+  using ClassView<SUNMatrix, SUNMatrixDeleter>::ClassView;
+
+  template<typename... Args>
+  static SUNMatrixView Create(Args&&... args)
   {
-    if (A) { SUNMatDestroy(A); }
+    return SUNMatrixView(std::forward<Args>(args)...);
   }
 };
 
-using SUNMatrixView = ClassView<SUNMatrix, SUNMatrixDeleter>;
 } // namespace experimental
 } // namespace sundials
 

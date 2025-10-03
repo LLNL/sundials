@@ -20,47 +20,38 @@
 #ifndef _SUNDIALS_CONTEXT_HPP
 #define _SUNDIALS_CONTEXT_HPP
 
-#include <memory>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_convertibleto.hpp>
-
-#include "sundials/sundials_types.h"
+#include <sundials/sundials_types.h>
 
 namespace sundials {
 
-class Context : public sundials::ConvertibleTo<SUNContext>
+struct SUNContextDeleter
+{
+  void operator()(SUNContext sunctx) { SUNContext_Free(&sunctx); }
+};
+
+class SUNContextView
+  : public sundials::experimental::ClassView<SUNContext, SUNContextDeleter>
 {
 public:
-  explicit Context(SUNComm comm = SUN_COMM_NULL)
+  using ClassView<SUNContext, SUNContextDeleter>::ClassView;
+
+  SUNContextView(SUNComm comm = SUN_COMM_NULL)
   {
-    sunctx_ = std::make_unique<SUNContext>();
-    SUNContext_Create(comm, sunctx_.get());
+    SUNContext_Create(comm, &object_);
   }
 
-  /* disallow copy, but allow move construction */
-  Context(const Context&) = delete;
-  Context(Context&&)      = default;
-
-  /* disallow copy, but allow move operators */
-  Context& operator=(const Context&) = delete;
-  Context& operator=(Context&&)      = default;
-
-  SUNContext Convert() override { return *sunctx_.get(); }
-
-  SUNContext Convert() const override { return *sunctx_.get(); }
-
-  operator SUNContext() override { return *sunctx_.get(); }
-
-  operator SUNContext() const override { return *sunctx_.get(); }
-
-  ~Context()
+  template<typename... Args>
+  static SUNContextView Create(Args&&... args)
   {
-    if (sunctx_) { SUNContext_Free(sunctx_.get()); }
+    return SUNContextView(std::forward<Args>(args)...);
   }
-
-private:
-  std::unique_ptr<SUNContext> sunctx_;
 };
+
+// We provide this for backwards compatibility
+using Context = SUNContextView;
 
 } // namespace sundials
 
