@@ -224,14 +224,9 @@ cp $sundialsdir/CONTRIBUTING.md $tmpdir/
 cp $sundialsdir/LICENSE $tmpdir/
 cp $sundialsdir/NOTICE $tmpdir/
 cp $sundialsdir/README.md $tmpdir/
-cp $sundialsdir/.readthedocs.yaml $tmpdir/
 
 cp -r $sundialsdir/benchmarks $tmpdir/
 cp -r $sundialsdir/cmake $tmpdir/
-
-cp -r $sundialsdir/doc/shared $tmpdir/doc
-cp -r $sundialsdir/doc/superbuild $tmpdir/doc
-cp -r $sundialsdir/doc/requirements.txt $tmpdir/doc
 
 cp    $sundialsdir/examples/CMakeLists.txt $tmpdir/examples/
 cp -r $sundialsdir/examples/utilities $tmpdir/examples/
@@ -298,28 +293,32 @@ if [ $doc = "T" ]; then
     cd -
 fi
 
-if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
-    cp -r $sundialsdir/include/arkode $tmpdir/include/
-    cp -r $sundialsdir/src/arkode $tmpdir/src/
-    cp -r $sundialsdir/examples/arkode $tmpdir/examples/
-    mkdir -p $tmpdir/doc/arkode
-    cp -r $sundialsdir/doc/arkode/guide $tmpdir/doc/arkode
-    if [ $doc = "T" ]; then
-        echo -e "--- ARKODE documentation"
-        cd $sundialsdir/doc/arkode/guide
-        make clean
-        make latexpdf
-        cp build/latex/ark_guide.pdf $tmpdir/doc/arkode/
-        cd -
-        cd $sundialsdir/doc/arkode/examples
-        make clean
-        make latexpdf
-        cp build/latex/ark_examples.pdf $tmpdir/doc/arkode/
-        cd -
+declare -a packages_rst=('arkode' 'kinsol')
+for pkg in "${packages_rst[@]}";
+do
+    do_package=do_${pkg}
+    if [ $do_sundials = "T" -o ${!do_package} = "T" ]; then
+        cp -r $sundialsdir/include/$pkg $tmpdir/include/
+        cp -r $sundialsdir/src/$pkg $tmpdir/src/
+        cp -r $sundialsdir/examples/$pkg $tmpdir/examples/
+        mkdir -p $tmpdir/doc/$pkg
+        if [ $doc = "T" ]; then
+            echo -e "--- ${pkg} documentation"
+            cd $sundialsdir/doc/$pkg/guide
+            make clean
+            make latexpdf
+            cp build/latex/*_guide.pdf $tmpdir/doc/$pkg/
+            cd -
+            cd $sundialsdir/doc/$pkg/examples
+            make clean
+            make latexpdf
+            cp build/latex/*_examples.pdf $tmpdir/doc/$pkg/
+            cd -
+        fi
     fi
-fi
+done
 
-declare -a packages=('cvode' 'cvodes' 'ida' 'idas' 'kinsol')
+declare -a packages=('cvode' 'cvodes' 'ida' 'idas')
 for pkg in "${packages[@]}";
 do
     do_package=do_${pkg}
@@ -328,7 +327,6 @@ do
         cp -r $sundialsdir/src/$pkg $tmpdir/src/
         cp -r $sundialsdir/examples/$pkg $tmpdir/examples/
         mkdir -p $tmpdir/doc/$pkg
-        cp -r $sundialsdir/doc/$pkg/guide $tmpdir/doc/$pkg
         if [ $doc = "T" ]; then
             echo -e "--- ${pkg} documentation"
             cd $sundialsdir/doc/$pkg/guide
@@ -363,7 +361,7 @@ if [ $do_sundials = "T" ]; then
     filename="sundials-"$SUN_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared.sh $tarfile $distrobase $doc "T" $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc $tar
     $scriptdir/arkode.sh $tarfile $distrobase $doc $tar
     $scriptdir/cvode.sh  $tarfile $distrobase $doc $tar
     $scriptdir/cvodes.sh $tarfile $distrobase $doc $tar

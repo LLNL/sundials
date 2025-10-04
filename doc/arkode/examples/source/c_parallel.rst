@@ -32,13 +32,13 @@ ark_diurnal_kry_bbd_p
 
 
 This problem is an ARKode clone of the CVODE problem,
-``cv_diurnal_kry_bbd_p``.  As described in [HSR2017]_, this problem
+``cv_diurnal_kry_bbd_p``.  As described in :cite:p:`cvode_ug`, this problem
 models a two-species diurnal kinetics advection-diffusion PDE system
 in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &=
+   \frac{\partial c_i}{\partial t} =
      K_h \frac{\partial^2 c_i}{\partial x^2} +
      V \frac{\partial     c_i}{\partial x} +
      \frac{\partial}{\partial y}\left( K_v(y)
@@ -113,13 +113,13 @@ ark_diurnal_kry_p
 ===================================================
 
 This problem is an ARKode clone of the CVODE problem,
-``cv_diurnal_kry_p``.  As described in [HSR2017]_, this test problem
+``cv_diurnal_kry_p``.  As described in :cite:p:`cvode_ug`, this test problem
 models a two-species diurnal kinetics advection-diffusion PDE system
 in two spatial dimensions,
 
 .. math::
 
-   \frac{\partial c_i}{\partial t} &=
+   \frac{\partial c_i}{\partial t} =
      K_h \frac{\partial^2 c_i}{\partial x^2} +
      V \frac{\partial     c_i}{\partial x} +
      \frac{\partial}{\partial y}\left( K_v(y)

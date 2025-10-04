@@ -35,8 +35,6 @@ if [ $doc = "T" ]; then
     $tar $tarfile $distrobase/doc/idas/idas_guide.pdf
     $tar $tarfile $distrobase/doc/idas/idas_examples.pdf
 fi
-$tar $tarfile $distrobase/doc/idas/guide/Makefile
-$tar $tarfile $distrobase/doc/idas/guide/source
 
 echo "   --- Add idas include files to $tarfile"
 $tar $tarfile $distrobase/include/idas

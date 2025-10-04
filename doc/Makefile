@@ -18,11 +18,11 @@
 # ------------------------------------------------------------------------------
 
 DIRS = arkode/guide arkode/examples \
-       cvode/guide \
-       cvodes/guide \
-       ida/guide \
-       idas/guide \
-       kinsol/guide
+       cvode/guide cvode/examples \
+       cvodes/guide cvodes/examples \
+       ida/guide ida/examples \
+       idas/guide idas/examples \
+       kinsol/guide kinsol/examples
 
 # prefix with desired command to create unique dependencies/targets
 LATEXDIRS = $(DIRS:%=latexpdf-%) latexpdf-install_guide

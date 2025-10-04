@@ -35,8 +35,6 @@ if [ $doc = "T" ]; then
     $tar $tarfile $distrobase/doc/arkode/ark_guide.pdf
     $tar $tarfile $distrobase/doc/arkode/ark_examples.pdf
 fi
-$tar $tarfile $distrobase/doc/arkode/guide/Makefile
-$tar $tarfile $distrobase/doc/arkode/guide/source
 
 echo "   --- Add arkode include files to $tarfile"
 $tar $tarfile $distrobase/include/arkode

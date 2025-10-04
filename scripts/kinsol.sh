@@ -35,8 +35,6 @@ if [ $doc = "T" ]; then
     $tar $tarfile $distrobase/doc/kinsol/kin_guide.pdf
     $tar $tarfile $distrobase/doc/kinsol/kin_examples.pdf
 fi
-$tar $tarfile $distrobase/doc/kinsol/guide/Makefile
-$tar $tarfile $distrobase/doc/kinsol/guide/source
 
 echo "   --- Add kinsol include files to $tarfile"
 $tar $tarfile $distrobase/include/kinsol

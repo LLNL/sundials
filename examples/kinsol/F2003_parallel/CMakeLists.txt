@@ -20,9 +20,7 @@
 
 # Example lists are tuples "name\;nodes\;tasks\;type" where the type is develop
 # for examples excluded from 'make test' in releases
-if(SUNDIALS_INDEX_SIZE MATCHES "64")
-  set(FKINSOL_examples "kin_diagon_kry_f2003\;\;1\;4\;develop\;2")
-endif()
+set(FKINSOL_examples "kin_diagon_kry_f2003\;\;1\;4\;develop\;2")
 
 # Specify libraries to link against
 set(KINSOL_LIBS sundials_kinsol sundials_fkinsol_mod sundials_nvecparallel

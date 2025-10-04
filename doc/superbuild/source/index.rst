@@ -202,6 +202,18 @@ SUNDIALS License and Notices
    FAQ_link.rst
 
 .. toctree::
+   :caption: EXAMPLES
+   :maxdepth: 1
+   :hidden:
+
+   examples/arkode/index-superbuild.rst
+   examples/cvode/index-superbuild.rst
+   examples/cvodes/index-superbuild.rst
+   examples/ida/index-superbuild.rst
+   examples/idas/index-superbuild.rst
+   examples/kinsol/index-superbuild.rst
+
+.. toctree::
    :caption: DEVELOPMENT
    :maxdepth: 1
    :hidden:
