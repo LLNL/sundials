@@ -226,37 +226,19 @@ latex_additional_files = [
 
 im_number = "UCRL-SM-208116"
 
-# 1. the rst file name used to generate the LaTeX file
-# 2. the name of the LaTeX file to generate (and the resulting PDF file name)
-# 3. the document title
-# 4. text for \author
-# 5. the LaTeX theme
-# 6. include the file from 1. in the output
 tex_author = r"""
-    Aaron M. Collier and Radu Serban\\
-    {\em Center for Applied Scientific Computing}\\
-    {\em Lawrence Livermore National Laboratory}
-    """
-
-# 1. the rst file name used to generate the LaTeX file
-# 2. the name of the LaTeX file to generate (and the resulting PDF file name)
-# 3. the document title
-# 4. text for \author
-# 5. the LaTeX theme
-# 6. include the file from 1. in the output
-tex_author = r"""
-Aaron M. Collier$^1$,
-Radu Serban$^1$,
-Alan C. Hindmarsh$^1$,
-Cody J. Balos$^1$,
-David J. Gardner$^1$,\\
-Daniel R. Reynolds$^2$, and
-Carol S. Woodward$^1$
+Aaron M. Collier$^1$ and
+Radu Serban$^1$
 \\\\
-{\em $^1$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory}\\
-{\em $^2$Department of Mathematics, Southern Methodist University}
+{\em $^1$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory}
 """
 
+# 1. the rst file name used to generate the LaTeX file
+# 2. the name of the LaTeX file to generate (and the resulting PDF file name)
+# 3. the document title
+# 4. text for \author
+# 5. the LaTeX theme
+# 6. include the file from 1. in the output
 latex_documents = [("index", "kin_examples.tex", project, tex_author, "manual", False)]
 
 # make sure the doc logo gets copied to the build directory
