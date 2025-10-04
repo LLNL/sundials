@@ -201,15 +201,14 @@ SUNDIALS License and Notices
    Changelog_link.rst
    FAQ_link.rst
 
-..
-   Uncomment once all example docs are updated
-   .. toctree::
-      :caption: EXAMPLES
-      :maxdepth: 1
-      :hidden:
+.. toctree::
+   :caption: EXAMPLES
+   :maxdepth: 1
+   :hidden:
 
-      examples/arkode/index-superbuild.rst
-      examples/kinsol/index-superbuild.rst
+   examples/arkode/index-superbuild.rst
+   examples/cvode/index-superbuild.rst
+   examples/kinsol/index-superbuild.rst
 
 .. toctree::
    :caption: DEVELOPMENT
