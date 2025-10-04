@@ -208,6 +208,7 @@ SUNDIALS License and Notices
 
    examples/arkode/index-superbuild.rst
    examples/cvode/index-superbuild.rst
+   examples/cvodes/index-superbuild.rst
    examples/kinsol/index-superbuild.rst
 
 .. toctree::
