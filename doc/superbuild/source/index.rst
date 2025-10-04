@@ -210,6 +210,7 @@ SUNDIALS License and Notices
    examples/cvode/index-superbuild.rst
    examples/cvodes/index-superbuild.rst
    examples/ida/index-superbuild.rst
+   examples/idas/index-superbuild.rst
    examples/kinsol/index-superbuild.rst
 
 .. toctree::
