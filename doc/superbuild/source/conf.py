@@ -49,8 +49,12 @@ extensions = [
     "sphinx.ext.autodoc",
 ]
 
-extlinks = {"pdfdoc":
-    (f"https://github.com/LLNL/sundials/releases/download/{sundials_version}/%s.pdf", None)}
+extlinks = {
+    "pdfdoc": (
+        f"https://github.com/LLNL/sundials/releases/download/{sundials_version}/%s.pdf",
+        None,
+    )
+}
 
 # Where to find cross-references to the Sphinx documentation.
 intersphinx_mapping = {

@@ -47,8 +47,12 @@ extensions = [
     "sphinx.ext.autodoc",
 ]
 
-extlinks = {"pdfdoc":
-    (f"https://github.com/LLNL/sundials/releases/download/{sundials_version}/%s.pdf", None)}
+extlinks = {
+    "pdfdoc": (
+        f"https://github.com/LLNL/sundials/releases/download/{sundials_version}/%s.pdf",
+        None,
+    )
+}
 
 intersphinx_mapping = {
     "sundials": (
@@ -74,9 +78,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Example Programs for CVODE"
-copyright = """2002-{year}, Alan C. Hindmarsh and Radu Serban""".format(
-    year=year
-)
+copyright = """2002-{year}, Alan C. Hindmarsh and Radu Serban""".format(year=year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
