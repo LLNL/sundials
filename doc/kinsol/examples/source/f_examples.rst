@@ -14,7 +14,7 @@
 
 .. _KINSOL.Examples.Fortran:
 
-Fortran example problems
+Fortran Example Problems
 ========================
 
 The Fortran example problem programs supplied with the KINSOL package are all

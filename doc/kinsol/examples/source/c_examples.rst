@@ -14,7 +14,7 @@
 
 .. _KINSOL.Examples.C:
 
-C example problems
+C Example Problems
 ==================
 
 A serial dense example: kinFerTron_dns
