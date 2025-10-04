@@ -78,7 +78,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Example Programs for IDA"
-copyright = """2002-{year}, Alan C. Hindmarsh and Radu Serban""".format(year=year)
+copyright = """2002-{year}, Alan C. Hindmarsh, Radu Serban, and Aaron Collier""".format(year=year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
