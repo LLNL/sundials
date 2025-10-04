@@ -245,7 +245,7 @@ Radu Serban$^1$
 # 4. text for \author
 # 5. the LaTeX theme
 # 6. include the file from 1. in the output
-latex_documents = [("index", "kin_examples.tex", project, tex_author, "manual", False)]
+latex_documents = [("index", "cv_examples.tex", project, tex_author, "manual", False)]
 
 # make sure the doc logo gets copied to the build directory
 latex_logo = "figs/doc_logo_blue.pdf"
