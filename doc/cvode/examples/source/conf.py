@@ -237,7 +237,6 @@ Alan C. Hindmarsh$^1$ and
 Radu Serban$^1$
 \\\\
 {\em $^1$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory}\\
-{\em $^2$Department of Mathematics, Southern Methodist University}
 """
 
 # 1. the rst file name used to generate the LaTeX file
