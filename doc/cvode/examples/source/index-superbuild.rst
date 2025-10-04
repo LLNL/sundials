@@ -31,3 +31,8 @@ CVODE user guide.
    The online version of the CVODE examples documentation is currently under
    development. For sections not available online yet, see the :pdfdoc:`PDF
    version <cv_examples>` of the examples documentation.
+
+.. toctree::
+   :maxdepth: 1
+
+   introduction.rst
