@@ -7,7 +7,9 @@
    and Southern Methodist University.
    Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
+
    See the top-level LICENSE and NOTICE files for details.
+
    SPDX-License-Identifier: BSD-3-Clause
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
@@ -20,8 +22,8 @@ Introduction
 KINSOL includes examples of many types, to illustrate the use of various
 nonlinear and linear solver options and vector implementations.
 
-With the exception of "demo"-type example files, the names of all the examples
-are of the form ``[slv][PbName]_[strat]_[ls]_[prec]_[p]``, where:
+With the exception of "demo"-type example files, the names of the examples are
+generally of the form ``[slv][PbName]_[strat]_[ls]_[prec]_[p]``, where:
 
 - ``[slv]`` identifies the solver (in this case ``kin``).
 - ``[PbName]`` identifies the problem.
