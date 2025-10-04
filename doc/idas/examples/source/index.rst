@@ -7,7 +7,9 @@
    and Southern Methodist University.
    Copyright (c) 2002-2013, Lawrence Livermore National Security.
    All rights reserved.
+
    See the top-level LICENSE and NOTICE files for details.
+
    SPDX-License-Identifier: BSD-3-Clause
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
