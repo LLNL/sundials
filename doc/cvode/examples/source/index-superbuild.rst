@@ -27,5 +27,5 @@ CVODE user guide.
 .. note::
 
    The online version of the CVODE examples documentation is currently under
-   development. For sections on available online yet, see the :pdfdoc:`PDF
+   development. For sections not available online yet, see the :pdfdoc:`PDF
    version <cv_examples>` of the examples documentation.

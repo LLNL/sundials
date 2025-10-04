@@ -27,5 +27,5 @@ in the CVODES user guide.
 .. note::
 
    The online version of the CVODES examples documentation is currently under
-   development. For sections on available online yet, see the :pdfdoc:`PDF
+   development. For sections not available online yet, see the :pdfdoc:`PDF
    version <cvs_examples>` of the examples documentation.
