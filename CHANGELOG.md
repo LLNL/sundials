@@ -8,6 +8,9 @@
 
 ### Bug Fixes
 
+The SPRKStep module now accounts for zero coefficients in the SPRK tables, eliminating
+extraneous function evaluations.
+
 ### Deprecation Notices
 
 ## Changes to SUNDIALS in release 7.5.0

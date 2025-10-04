@@ -7,4 +7,7 @@
 
 **Bug Fixes**
 
+The SPRKStep module now accounts for zero coefficients in the SPRK tables, eliminating
+extraneous function evaluations.
+
 **Deprecation Notices**
