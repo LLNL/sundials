@@ -2309,6 +2309,8 @@ static void CVAbckpbDelete(CVodeBMem* cvB_memPtr)
     /* Free workspace Nvector */
     N_VDestroy(tmp->cv_y);
 
+    if (tmp->cv_own_user_data) { free(tmp->cv_user_data); }
+
     free(tmp);
     tmp = NULL;
   }
