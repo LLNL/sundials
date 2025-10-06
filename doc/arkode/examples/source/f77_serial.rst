@@ -32,7 +32,7 @@ fark_diurnal_kry_bp
 ===================================================
 
 This problem is an ARKode clone of the CVODE problem,
-``fcv_diurnal_kry_bp``.  As described in [HSR2017]_, this problem
+``fcv_diurnal_kry_bp``.  As described in :cite:p:`cvode_ug`, this problem
 models a two-species diurnal kinetics advection-diffusion PDE system
 in two spatial dimensions,
 
@@ -107,7 +107,7 @@ fark_roberts_dnsL
 ===================================================
 
 This problem is an ARKode clone of the CVODE problem,
-``fcv_roberts_dnsL``.  As described in [HSR2017]_, this problem models
+``fcv_roberts_dnsL``.  As described in :cite:p:`cvode_ug`, this problem models
 the kinetics of a three-species autocatalytic reaction.  This is an
 ODE system with 3 components, :math:`Y = [y_1,\, y_2,\, y_3]^T`,
 satisfying the equations,

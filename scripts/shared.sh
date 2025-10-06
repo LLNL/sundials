@@ -24,14 +24,13 @@ set -o pipefail
 tarfile=$1
 distrobase=$2
 doc=$3
-doc_sundials=$4
 
 echo ">>>>>>"
 echo $distrobase
 echo ">>>>>>"
 
 # all remaining inputs are for tar command
-shift 4
+shift 3
 tar=$*
 
 echo "   --- Add top-level files to $tarfile"
@@ -45,19 +44,10 @@ $tar $tarfile $distrobase/CONTRIBUTING.md
 $tar $tarfile $distrobase/LICENSE
 $tar $tarfile $distrobase/NOTICE
 $tar $tarfile $distrobase/README.md
-$tar $tarfile $distrobase/.readthedocs.yaml
 
 if [ $doc = "T" ]; then
     $tar $tarfile $distrobase/INSTALL_GUIDE.pdf
 fi
-
-if [ $doc_sundials = "T" ]; then
-    $tar $tarfile $distrobase/doc/superbuild/Makefile
-    $tar $tarfile $distrobase/doc/superbuild/source
-fi
-
-$tar $tarfile $distrobase/doc/shared
-$tar $tarfile $distrobase/doc/requirements.txt
 
 echo "   --- Add benchmark files to $tarfile"
 $tar $tarfile $distrobase/benchmarks

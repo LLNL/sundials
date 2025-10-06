@@ -35,8 +35,6 @@ if [ $doc = "T" ]; then
     $tar $tarfile $distrobase/doc/cvodes/cvs_guide.pdf
     $tar $tarfile $distrobase/doc/cvodes/cvs_examples.pdf
 fi
-$tar $tarfile $distrobase/doc/cvodes/guide/Makefile
-$tar $tarfile $distrobase/doc/cvodes/guide/source
 
 echo "   --- Add cvodes include files to $tarfile"
 $tar $tarfile $distrobase/include/cvodes

@@ -36,6 +36,7 @@ needs_sphinx = "4.0"
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     "sphinx_rtd_theme",
+    "sphinx.ext.extlinks",
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
@@ -47,6 +48,13 @@ extensions = [
     "sphinx_toolbox.collapse",
     "sphinx.ext.autodoc",
 ]
+
+extlinks = {
+    "pdfdoc": (
+        f"https://github.com/LLNL/sundials/releases/download/{sundials_version}/%s.pdf",
+        None,
+    )
+}
 
 # Where to find cross-references to the Sphinx documentation.
 intersphinx_mapping = {
@@ -97,7 +105,20 @@ today_fmt = "%B %d, %Y"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = [
+    "examples/arkode/index.rst",
+    "examples/arkode/References.rst",
+    "examples/cvode/index.rst",
+    "examples/cvode/references.rst",
+    "examples/cvodes/index.rst",
+    "examples/cvodes/references.rst",
+    "examples/ida/index.rst",
+    "examples/ida/references.rst",
+    "examples/idas/index.rst",
+    "examples/idas/references.rst",
+    "examples/kinsol/index.rst",
+    "examples/kinsol/references.rst",
+]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 # default_role = None
