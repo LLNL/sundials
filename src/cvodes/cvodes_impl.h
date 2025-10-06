@@ -1190,8 +1190,7 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
 
 int cvSetOwnUserData(void* cvode_mem, sunbooleantype own_user_data);
 
-int cvSetOwnUserDataB(void* cvode_mem, int which,
-                         sunbooleantype own_user_data);
+int cvSetOwnUserDataB(void* cvode_mem, int which, sunbooleantype own_user_data);
 
 /*
  * =================================================================
