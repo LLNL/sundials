@@ -453,7 +453,7 @@ int idaNlsInit(IDAMem IDA_mem);
 /* Utility function to tell IDA to free the user data.
    This is used by the Python interfaces. */
 
-int IDASetOwnUserData(void* ida_mem, sunbooleantype own_user_data);
+int idaSetOwnUserData(void* ida_mem, sunbooleantype own_user_data);
 
 /*
  * =================================================================

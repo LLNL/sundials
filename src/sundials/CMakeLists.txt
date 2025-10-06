@@ -62,6 +62,7 @@ set(sundials_HEADERS
     sundials_profiler.h
     sundials_profiler.hpp
     sundials_stepper.h
+    sundials_stepper.hpp
     sundials_types_deprecated.h
     sundials_types.h
     sundials_version.h)

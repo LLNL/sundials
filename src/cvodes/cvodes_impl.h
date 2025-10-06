@@ -1188,9 +1188,9 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
 /* Utility functions to tell CVODE to free the user data.
    This is used by the Python interfaces. */
 
-int CVodeSetOwnUserData(void* cvode_mem, sunbooleantype own_user_data);
+int cvSetOwnUserData(void* cvode_mem, sunbooleantype own_user_data);
 
-int CVodeSetOwnUserDataB(void* cvode_mem, int which,
+int cvSetOwnUserDataB(void* cvode_mem, int which,
                          sunbooleantype own_user_data);
 
 /*

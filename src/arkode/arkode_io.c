@@ -886,13 +886,13 @@ int ARKodeSetUserData(void* arkode_mem, void* user_data)
 }
 
 /*---------------------------------------------------------------
-  ARKodeSetOwnUserData:
+  arkSetOwnUserData:
 
   Set whether the ARKodeMem structure owns the user data pointer.
   If set to SUNTRUE, ARKode will free the user data pointer when
   ARKodeFree is called.
   ---------------------------------------------------------------*/
-int ARKodeSetOwnUserData(void* arkode_mem, sunbooleantype own_user_data)
+int arkSetOwnUserData(void* arkode_mem, sunbooleantype own_user_data)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)

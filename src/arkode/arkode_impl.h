@@ -700,7 +700,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
 
 /* Utility function to tell ARKode to free the user data.
    This is used by the Python interfaces. */
-int ARKodeSetOwnUserData(void* ark_mem, sunbooleantype own_user_data);
+int arkSetOwnUserData(void* ark_mem, sunbooleantype own_user_data);
 
 /*===============================================================
   Reusable ARKODE Error Messages
