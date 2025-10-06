@@ -22,9 +22,11 @@
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/tuple.h>
 #include <nanobind/stl/vector.h>
 
 #include <sundials/sundials_stepper.hpp>
+
 #include "sundials_stepper_impl.h"
 
 #include "pysundials_stepper_usersupplied.hpp"

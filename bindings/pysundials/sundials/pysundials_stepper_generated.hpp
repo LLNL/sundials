@@ -17,46 +17,63 @@ auto pyEnumSUNFullRhsMode = nb::enum_<SUNFullRhsMode>(m, "SUNFullRhsMode",
 //
 
 m.def(
+  "SUNStepper_Create",
+  [](SUNContext sunctx) -> std::tuple<SUNErrCode, SUNStepper>
+  {
+    auto SUNStepper_Create_adapt_modifiable_immutable_to_return =
+      [](SUNContext sunctx) -> std::tuple<SUNErrCode, SUNStepper>
+    {
+      SUNStepper stepper_adapt_modifiable;
+
+      SUNErrCode r = SUNStepper_Create(sunctx, &stepper_adapt_modifiable);
+      return std::make_tuple(r, stepper_adapt_modifiable);
+    };
+
+    return SUNStepper_Create_adapt_modifiable_immutable_to_return(sunctx);
+  },
+  nb::arg("sunctx"));
+
+m.def(
   "SUNStepper_Evolve",
-  [](SUNStepper stepper, double tout, N_Vector vret,
-     double tret) -> std::tuple<SUNErrCode, double>
+  [](SUNStepper stepper, double tout,
+     N_Vector vret) -> std::tuple<SUNErrCode, double>
   {
     auto SUNStepper_Evolve_adapt_modifiable_immutable_to_return =
-      [](SUNStepper stepper, double tout, N_Vector vret,
-         double tret) -> std::tuple<SUNErrCode, double>
+      [](SUNStepper stepper, double tout,
+         N_Vector vret) -> std::tuple<SUNErrCode, double>
     {
-      double* tret_adapt_modifiable = &tret;
+      double tret_adapt_modifiable;
 
       SUNErrCode r = SUNStepper_Evolve(stepper, tout, vret,
-                                       tret_adapt_modifiable);
-      return std::make_tuple(r, tret);
+                                       &tret_adapt_modifiable);
+      return std::make_tuple(r, tret_adapt_modifiable);
     };
 
     return SUNStepper_Evolve_adapt_modifiable_immutable_to_return(stepper, tout,
-                                                                  vret, tret);
+                                                                  vret);
   },
-  nb::arg("stepper"), nb::arg("tout"), nb::arg("vret"), nb::arg("tret"));
+  nb::arg("stepper"), nb::arg("tout"), nb::arg("vret"));
 
 m.def(
   "SUNStepper_OneStep",
-  [](SUNStepper stepper, double tout, N_Vector vret,
-     double tret) -> std::tuple<SUNErrCode, double>
+  [](SUNStepper stepper, double tout,
+     N_Vector vret) -> std::tuple<SUNErrCode, double>
   {
     auto SUNStepper_OneStep_adapt_modifiable_immutable_to_return =
-      [](SUNStepper stepper, double tout, N_Vector vret,
-         double tret) -> std::tuple<SUNErrCode, double>
+      [](SUNStepper stepper, double tout,
+         N_Vector vret) -> std::tuple<SUNErrCode, double>
     {
-      double* tret_adapt_modifiable = &tret;
+      double tret_adapt_modifiable;
 
       SUNErrCode r = SUNStepper_OneStep(stepper, tout, vret,
-                                        tret_adapt_modifiable);
-      return std::make_tuple(r, tret);
+                                        &tret_adapt_modifiable);
+      return std::make_tuple(r, tret_adapt_modifiable);
     };
 
-    return SUNStepper_OneStep_adapt_modifiable_immutable_to_return(stepper, tout,
-                                                                   vret, tret);
+    return SUNStepper_OneStep_adapt_modifiable_immutable_to_return(stepper,
+                                                                   tout, vret);
   },
-  nb::arg("stepper"), nb::arg("tout"), nb::arg("vret"), nb::arg("tret"));
+  nb::arg("stepper"), nb::arg("tout"), nb::arg("vret"));
 
 m.def("SUNStepper_FullRhs", SUNStepper_FullRhs, nb::arg("stepper"),
       nb::arg("t"), nb::arg("v"), nb::arg("f"), nb::arg("mode"));
@@ -105,21 +122,20 @@ m.def("SUNStepper_SetLastFlag", SUNStepper_SetLastFlag, nb::arg("stepper"),
 
 m.def(
   "SUNStepper_GetLastFlag",
-  [](SUNStepper stepper, int last_flag) -> std::tuple<SUNErrCode, int>
+  [](SUNStepper stepper) -> std::tuple<SUNErrCode, int>
   {
     auto SUNStepper_GetLastFlag_adapt_modifiable_immutable_to_return =
-      [](SUNStepper stepper, int last_flag) -> std::tuple<SUNErrCode, int>
+      [](SUNStepper stepper) -> std::tuple<SUNErrCode, int>
     {
-      int* last_flag_adapt_modifiable = &last_flag;
+      int last_flag_adapt_modifiable;
 
-      SUNErrCode r = SUNStepper_GetLastFlag(stepper, last_flag_adapt_modifiable);
-      return std::make_tuple(r, last_flag);
+      SUNErrCode r = SUNStepper_GetLastFlag(stepper, &last_flag_adapt_modifiable);
+      return std::make_tuple(r, last_flag_adapt_modifiable);
     };
 
-    return SUNStepper_GetLastFlag_adapt_modifiable_immutable_to_return(stepper,
-                                                                       last_flag);
+    return SUNStepper_GetLastFlag_adapt_modifiable_immutable_to_return(stepper);
   },
-  nb::arg("stepper"), nb::arg("last_flag"));
+  nb::arg("stepper"));
 
 m.def("SUNStepper_GetNumSteps", SUNStepper_GetNumSteps, nb::arg("stepper"),
       nb::arg("nst"));

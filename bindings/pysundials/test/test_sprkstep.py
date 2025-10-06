@@ -25,7 +25,7 @@ from problems import HarmonicOscillatorODE
 
 
 def test_sprkstep(sunctx):
-    tout, tret = 2 * np.pi, 0.0
+    tout = 2 * np.pi
     dt = 0.01
     y = NVectorView.Create(N_VNew_Serial(2, sunctx.get()))
     ode_problem = HarmonicOscillatorODE()
@@ -47,5 +47,5 @@ def test_sprkstep(sunctx):
     status = ARKodeSetMaxNumSteps(sprk.get(), int(np.ceil(tout / dt)))
     assert status == 0
 
-    status, tret = ARKodeEvolve(sprk.get(), tout, y.get(), tret, ARK_NORMAL)
+    status, tret = ARKodeEvolve(sprk.get(), tout, y.get(), ARK_NORMAL)
     assert status == 0

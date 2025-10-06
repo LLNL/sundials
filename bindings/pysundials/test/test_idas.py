@@ -51,8 +51,8 @@ def test_bdf_idas(sunctx):
     status = IDASetLinearSolver(solver.get(), ls.get(), None)
     status = IDASetPreconditioner(solver.get(), None, psolve)
 
-    tout, tret = ode_problem.TF, ode_problem.T0
-    status, tret = IDASolve(solver.get(), tout, tret, yy.get(), yp.get(), IDA_NORMAL)
+    tout = ode_problem.TF
+    status, tret = IDASolve(solver.get(), tout, yy.get(), yp.get(), IDA_NORMAL)
     assert status == 0
 
     status, num_steps = IDAGetNumSteps(solver.get(), 0)

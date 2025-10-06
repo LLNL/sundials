@@ -153,7 +153,7 @@ modules:
     headers:
     - ../../include/sundials/sundials_stepper.h
     fn_exclude_by_name__regex:
-    - "Create" # nanobind cannot bind to functions which take a **, so we do something custom
+    # - "Create" # nanobind cannot bind to functions which take a **, so we do something custom
     - "Set.*Fn" # nanobind cannot bind to functions which take a function pointer, so we do something custom
     # we dont allow access to content from Python
     - "SetContent" 

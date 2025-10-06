@@ -43,8 +43,8 @@ def test_erkstep_with_postprocess(sunctx):
     status = ARKodeSStolerances(erk.get(), 1e-10, 1e-10)
     assert status == ARK_SUCCESS
 
-    tout, tret = 10.0, 0.0
-    status, tret = ARKodeEvolve(erk.get(), tout, y.get(), tret, ARK_NORMAL)
+    tout = 10.0
+    status, tret = ARKodeEvolve(erk.get(), tout, y.get(), ARK_NORMAL)
     assert status == ARK_SUCCESS
     assert postprocess_called["count"] > 0
 
@@ -65,8 +65,8 @@ def test_erkstep(sunctx):
     status = ARKodeSStolerances(erk.get(), 1e-10, 1e-10)
     assert status == ARK_SUCCESS
 
-    tout, tret = 10.0, 0.0
-    status, tret = ARKodeEvolve(erk.get(), tout, y.get(), tret, ARK_NORMAL)
+    tout = 10.0
+    status, tret = ARKodeEvolve(erk.get(), tout, y.get(), ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = NVectorView.Create(N_VClone(y.get()))

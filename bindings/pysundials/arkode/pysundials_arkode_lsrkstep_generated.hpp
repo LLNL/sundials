@@ -55,77 +55,78 @@ m.def("LSRKStepSetNumSSPStages", LSRKStepSetNumSSPStages, nb::arg("arkode_mem"),
 
 m.def(
   "LSRKStepGetNumDomEigUpdates",
-  [](void* arkode_mem, long dom_eig_num_evals) -> std::tuple<int, long>
+  [](void* arkode_mem) -> std::tuple<int, long>
   {
     auto LSRKStepGetNumDomEigUpdates_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem, long dom_eig_num_evals) -> std::tuple<int, long>
+      [](void* arkode_mem) -> std::tuple<int, long>
     {
-      long* dom_eig_num_evals_adapt_modifiable = &dom_eig_num_evals;
+      long dom_eig_num_evals_adapt_modifiable;
 
       int r = LSRKStepGetNumDomEigUpdates(arkode_mem,
-                                          dom_eig_num_evals_adapt_modifiable);
-      return std::make_tuple(r, dom_eig_num_evals);
+                                          &dom_eig_num_evals_adapt_modifiable);
+      return std::make_tuple(r, dom_eig_num_evals_adapt_modifiable);
     };
 
-    return LSRKStepGetNumDomEigUpdates_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                            dom_eig_num_evals);
+    return LSRKStepGetNumDomEigUpdates_adapt_modifiable_immutable_to_return(
+      arkode_mem);
   },
-  nb::arg("arkode_mem"), nb::arg("dom_eig_num_evals"));
+  nb::arg("arkode_mem"));
 
 m.def(
   "LSRKStepGetMaxNumStages",
-  [](void* arkode_mem, int stage_max) -> std::tuple<int, int>
+  [](void* arkode_mem) -> std::tuple<int, int>
   {
     auto LSRKStepGetMaxNumStages_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem, int stage_max) -> std::tuple<int, int>
+      [](void* arkode_mem) -> std::tuple<int, int>
     {
-      int* stage_max_adapt_modifiable = &stage_max;
+      int stage_max_adapt_modifiable;
 
-      int r = LSRKStepGetMaxNumStages(arkode_mem, stage_max_adapt_modifiable);
-      return std::make_tuple(r, stage_max);
+      int r = LSRKStepGetMaxNumStages(arkode_mem, &stage_max_adapt_modifiable);
+      return std::make_tuple(r, stage_max_adapt_modifiable);
     };
 
-    return LSRKStepGetMaxNumStages_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                        stage_max);
+    return LSRKStepGetMaxNumStages_adapt_modifiable_immutable_to_return(
+      arkode_mem);
   },
-  nb::arg("arkode_mem"), nb::arg("stage_max"));
+  nb::arg("arkode_mem"));
 
 m.def(
   "LSRKStepGetNumDomEigEstRhsEvals",
-  [](void* arkode_mem, long nfeDQ) -> std::tuple<int, long>
+  [](void* arkode_mem) -> std::tuple<int, long>
   {
     auto LSRKStepGetNumDomEigEstRhsEvals_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem, long nfeDQ) -> std::tuple<int, long>
+      [](void* arkode_mem) -> std::tuple<int, long>
     {
-      long* nfeDQ_adapt_modifiable = &nfeDQ;
+      long nfeDQ_adapt_modifiable;
 
-      int r = LSRKStepGetNumDomEigEstRhsEvals(arkode_mem, nfeDQ_adapt_modifiable);
-      return std::make_tuple(r, nfeDQ);
+      int r = LSRKStepGetNumDomEigEstRhsEvals(arkode_mem,
+                                              &nfeDQ_adapt_modifiable);
+      return std::make_tuple(r, nfeDQ_adapt_modifiable);
     };
 
-    return LSRKStepGetNumDomEigEstRhsEvals_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                                nfeDQ);
+    return LSRKStepGetNumDomEigEstRhsEvals_adapt_modifiable_immutable_to_return(
+      arkode_mem);
   },
-  nb::arg("arkode_mem"), nb::arg("nfeDQ"));
+  nb::arg("arkode_mem"));
 
 m.def(
   "LSRKStepGetNumDomEigEstIters",
-  [](void* arkode_mem, long num_iters) -> std::tuple<int, long>
+  [](void* arkode_mem) -> std::tuple<int, long>
   {
     auto LSRKStepGetNumDomEigEstIters_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem, long num_iters) -> std::tuple<int, long>
+      [](void* arkode_mem) -> std::tuple<int, long>
     {
-      long* num_iters_adapt_modifiable = &num_iters;
+      long num_iters_adapt_modifiable;
 
       int r = LSRKStepGetNumDomEigEstIters(arkode_mem,
-                                           num_iters_adapt_modifiable);
-      return std::make_tuple(r, num_iters);
+                                           &num_iters_adapt_modifiable);
+      return std::make_tuple(r, num_iters_adapt_modifiable);
     };
 
-    return LSRKStepGetNumDomEigEstIters_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                             num_iters);
+    return LSRKStepGetNumDomEigEstIters_adapt_modifiable_immutable_to_return(
+      arkode_mem);
   },
-  nb::arg("arkode_mem"), nb::arg("num_iters"));
+  nb::arg("arkode_mem"));
 // #ifdef __cplusplus
 //
 // #endif

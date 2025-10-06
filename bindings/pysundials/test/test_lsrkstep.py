@@ -44,8 +44,8 @@ def test_lsrkstep(sunctx):
 
     status = ARKodeSetMaxNumSteps(lsrk.get(), 100000)
 
-    tout, tret = 10.0, 0.0
-    status, tret = ARKodeEvolve(lsrk.get(), tout, y.get(), tret, ARK_NORMAL)
+    tout = 10.0
+    status, tret = ARKodeEvolve(lsrk.get(), tout, y.get(), ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = NVectorView.Create(N_VClone(y.get()))

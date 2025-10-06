@@ -52,7 +52,7 @@ def test_get_type(controller_type, sunctx):
 @pytest.mark.parametrize("controller_type", ["soderlind", "imexgus", "mrihtol"])
 def test_estimate_step(controller_type, sunctx):
 	c_view, c1_view, c2_view = make_controller(controller_type, sunctx)
-	err, hnew = SUNAdaptController_EstimateStep(c_view.get(), 1.0, 1, 0.1, 1.0)
+	err, hnew = SUNAdaptController_EstimateStep(c_view.get(), 1.0, 1, 0.1)
 	assert isinstance(err, int)
 	assert isinstance(hnew, float)
 
@@ -83,7 +83,7 @@ def test_update_h(controller_type, sunctx):
 @pytest.mark.parametrize("controller_type", ["soderlind", "imexgus", "mrihtol"])
 def test_estimate_step_tol(controller_type, sunctx):
     c_view, c1_view, c2_view = make_controller(controller_type, sunctx)
-    err, hnew, tolfacnew = SUNAdaptController_EstimateStepTol(c_view.get(), 1.0, 1.0, 1, 0.1, 0.1, 1.0, 1.0)
+    err, hnew, tolfacnew = SUNAdaptController_EstimateStepTol(c_view.get(), 1.0, 1.0, 1, 0.1, 0.1)
     assert isinstance(err, int)
     assert isinstance(hnew, float)
     assert isinstance(tolfacnew, float)

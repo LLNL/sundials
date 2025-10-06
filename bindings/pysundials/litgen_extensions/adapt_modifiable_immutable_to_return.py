@@ -107,27 +107,29 @@ def adapt_modifiable_immutable_to_return(
             #
             # Create new calling param same type, without pointer or reference
             #
+            param_name_value = old_adapted_param.cpp_element().decl.decl_name + "_adapt_modifiable"
+
             new_param = copy.deepcopy(old_adapted_param.cpp_element())
-            new_decl = new_param.decl
             old_decl = old_adapted_param.cpp_element().decl
+            new_decl = new_param.decl
+            new_decl.decl_name = param_name_value
             new_decl.cpp_type.typenames = old_decl.cpp_type.typenames
             new_decl.cpp_type.modifiers = []
             new_decl.cpp_type.specifiers = []
             if is_optional_type:
                 new_decl.cpp_type.typenames = [f"std::optional<{new_decl.cpp_type.str_code()}>"]
                 new_decl.initial_value_code = "std::nullopt"
-
-            new_function_params.append(new_param)
+                new_function_params.append(new_param)
 
             #
             # Fill lambda_input_code
             #
             """
             lambda_input_code will look like
-                value_adapt_modifiable = & value;
+                value_adapt_modifiable;
             """
-            param_original_type = old_adapted_param.cpp_element().full_type()
-            param_name_value = old_adapted_param.cpp_element().decl.decl_name + "_adapt_modifiable"
+            # param_original_type = old_adapted_param.cpp_element().full_type()
+            param_original_type = " ".join(old_adapted_param.cpp_element().decl.cpp_type.typenames)
             param_name = old_adapted_param.cpp_element().decl.decl_name
             _i_ = options._indent_cpp_spaces()
             if is_optional_type:
@@ -139,11 +141,11 @@ def adapt_modifiable_immutable_to_return(
             else:
                 if is_pointer:
                     lambda_input_code = f"""
-                        {param_original_type} {param_name_value} = & {param_name};
+                        {param_original_type} {param_name_value};
                         """
                 else:
                     lambda_input_code = f"""
-                        {param_original_type} {param_name_value} = {param_name};
+                        {param_original_type} {param_name_value};
                         """
 
             lambda_adapter.lambda_input_code += (
@@ -153,7 +155,7 @@ def adapt_modifiable_immutable_to_return(
             #
             # Fill adapted_cpp_parameter_list (those that will call the original C style function)
             #
-            lambda_adapter.adapted_cpp_parameter_list.append(f"{param_name_value}")
+            lambda_adapter.adapted_cpp_parameter_list.append(f"&{param_name_value}")
 
             #
             # Fill new_output_function_params

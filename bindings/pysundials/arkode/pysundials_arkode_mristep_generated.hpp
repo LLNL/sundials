@@ -118,59 +118,58 @@ m.def("MRIStepSetPostInnerFn", MRIStepSetPostInnerFn, nb::arg("arkode_mem"),
 
 m.def(
   "MRIStepGetCurrentCoupling",
-  [](void* arkode_mem, MRIStepCoupling MRIC) -> std::tuple<int, MRIStepCoupling>
+  [](void* arkode_mem) -> std::tuple<int, MRIStepCoupling>
   {
     auto MRIStepGetCurrentCoupling_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem,
-         MRIStepCoupling MRIC) -> std::tuple<int, MRIStepCoupling>
+      [](void* arkode_mem) -> std::tuple<int, MRIStepCoupling>
     {
-      MRIStepCoupling* MRIC_adapt_modifiable = &MRIC;
+      MRIStepCoupling MRIC_adapt_modifiable;
 
-      int r = MRIStepGetCurrentCoupling(arkode_mem, MRIC_adapt_modifiable);
-      return std::make_tuple(r, MRIC);
+      int r = MRIStepGetCurrentCoupling(arkode_mem, &MRIC_adapt_modifiable);
+      return std::make_tuple(r, MRIC_adapt_modifiable);
     };
 
-    return MRIStepGetCurrentCoupling_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                          MRIC);
+    return MRIStepGetCurrentCoupling_adapt_modifiable_immutable_to_return(
+      arkode_mem);
   },
-  nb::arg("arkode_mem"), nb::arg("MRIC"));
+  nb::arg("arkode_mem"));
 
 m.def(
   "MRIStepGetLastInnerStepFlag",
-  [](void* arkode_mem, int flag) -> std::tuple<int, int>
+  [](void* arkode_mem) -> std::tuple<int, int>
   {
     auto MRIStepGetLastInnerStepFlag_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem, int flag) -> std::tuple<int, int>
+      [](void* arkode_mem) -> std::tuple<int, int>
     {
-      int* flag_adapt_modifiable = &flag;
+      int flag_adapt_modifiable;
 
-      int r = MRIStepGetLastInnerStepFlag(arkode_mem, flag_adapt_modifiable);
-      return std::make_tuple(r, flag);
+      int r = MRIStepGetLastInnerStepFlag(arkode_mem, &flag_adapt_modifiable);
+      return std::make_tuple(r, flag_adapt_modifiable);
     };
 
-    return MRIStepGetLastInnerStepFlag_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                            flag);
+    return MRIStepGetLastInnerStepFlag_adapt_modifiable_immutable_to_return(
+      arkode_mem);
   },
-  nb::arg("arkode_mem"), nb::arg("flag"));
+  nb::arg("arkode_mem"));
 
 m.def(
   "MRIStepGetNumInnerStepperFails",
-  [](void* arkode_mem, long inner_fails) -> std::tuple<int, long>
+  [](void* arkode_mem) -> std::tuple<int, long>
   {
     auto MRIStepGetNumInnerStepperFails_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem, long inner_fails) -> std::tuple<int, long>
+      [](void* arkode_mem) -> std::tuple<int, long>
     {
-      long* inner_fails_adapt_modifiable = &inner_fails;
+      long inner_fails_adapt_modifiable;
 
       int r = MRIStepGetNumInnerStepperFails(arkode_mem,
-                                             inner_fails_adapt_modifiable);
-      return std::make_tuple(r, inner_fails);
+                                             &inner_fails_adapt_modifiable);
+      return std::make_tuple(r, inner_fails_adapt_modifiable);
     };
 
-    return MRIStepGetNumInnerStepperFails_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                               inner_fails);
+    return MRIStepGetNumInnerStepperFails_adapt_modifiable_immutable_to_return(
+      arkode_mem);
   },
-  nb::arg("arkode_mem"), nb::arg("inner_fails"));
+  nb::arg("arkode_mem"));
 
 m.def("MRIStepInnerStepper_AddForcing", MRIStepInnerStepper_AddForcing,
       nb::arg("stepper"), nb::arg("t"), nb::arg("f"));

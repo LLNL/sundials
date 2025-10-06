@@ -42,15 +42,15 @@ def test_bdf(sunctx):
     status = CVodeSetLinearSolver(solver.get(), ls.get(), None)
     assert status == CV_SUCCESS
 
-    tout, tret = 10.0, 0.0
-    status, tret = CVode(solver.get(), tout, y.get(), tret, CV_NORMAL)
+    tout = 10.0
+    status, tret = CVode(solver.get(), tout, y.get(), CV_NORMAL)
     assert status == CV_SUCCESS
 
     sol = NVectorView.Create(N_VClone(y.get()))
     ode_problem.solution(y.get(), sol.get(), tret)
     assert np.allclose(N_VGetArrayPointer(sol.get()), N_VGetArrayPointer(y.get()), atol=1e-2)
 
-    status, num_steps = CVodeGetNumSteps(solver.get(), 0)
+    status, num_steps = CVodeGetNumSteps(solver.get())
     assert status == CV_SUCCESS
     assert num_steps > 0
 

@@ -76,20 +76,20 @@ def test_initialize(estimator_type, sunctx):
 @pytest.mark.parametrize("estimator_type", ["power"])
 def test_get_res(estimator_type, sunctx):
 	e_view, nv_view = make_estimator(estimator_type, sunctx)
-	err, res = SUNDomEigEstimator_GetRes(e_view.get(), 0.0)
+	err, res = SUNDomEigEstimator_GetRes(e_view.get())
 	assert isinstance(err, int)
 	assert isinstance(res, float)
 
 @pytest.mark.parametrize("estimator_type", ["power"])
 def test_get_num_iters(estimator_type, sunctx):
 	e_view, nv_view = make_estimator(estimator_type, sunctx)
-	err, num_iters = SUNDomEigEstimator_GetNumIters(e_view.get(), 0)
+	err, num_iters = SUNDomEigEstimator_GetNumIters(e_view.get())
 	assert isinstance(err, int)
 	assert isinstance(num_iters, int)
 
 @pytest.mark.parametrize("estimator_type", ["power"])
 def test_get_num_atimes_calls(estimator_type, sunctx):
 	e_view, nv_view = make_estimator(estimator_type, sunctx)
-	err, num_atimes = SUNDomEigEstimator_GetNumATimesCalls(e_view.get(), 0)
+	err, num_atimes = SUNDomEigEstimator_GetNumATimesCalls(e_view.get())
 	assert isinstance(err, int)
 	assert isinstance(num_atimes, int)

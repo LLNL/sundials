@@ -40,8 +40,8 @@ def test_explicit(sunctx):
     status = ARKodeSStolerances(ark.get(), 1e-10, 1e-10)
     assert status == ARK_SUCCESS
 
-    tout, tret = 10.0, 0.0
-    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), tret, ARK_NORMAL)
+    tout = 10.0
+    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = NVectorView.Create(N_VClone(y.get()))
@@ -70,8 +70,8 @@ def test_implicit(sunctx):
     status = ARKodeSetLinearSolver(ark.get(), ls.get(), None)
     assert status == ARK_SUCCESS
 
-    tout, tret = 10.0, 0.0
-    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), tret, ARK_NORMAL)
+    tout = 10.0
+    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = NVectorView.Create(N_VClone(y.get()))
@@ -105,8 +105,8 @@ def test_imex(sunctx):
     status = ARKodeSetLinearSolver(ark.get(), ls.get(), None)
     assert status == ARK_SUCCESS
 
-    tout, tret = 10.0, 0.0
-    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), tret, ARK_NORMAL)
+    tout = 10.0
+    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), ARK_NORMAL)
     assert status == 0
 
     sol = NVectorView.Create(N_VClone(y.get()))

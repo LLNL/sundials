@@ -61,8 +61,8 @@ def test_splittingstep(sunctx):
     status = ARKodeSetFixedStep(ark.get(), 1e-2)
     assert status == 0
 
-    tret, tout = t0, tf
-    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), tret, ARK_NORMAL)
+    tout = tf
+    status, tret = ARKodeEvolve(ark.get(), tout, y.get(), ARK_NORMAL)
     assert status == 0
 
     sol = NVectorView.Create(N_VClone(y.get()))

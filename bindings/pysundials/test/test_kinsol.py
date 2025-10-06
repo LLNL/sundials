@@ -58,6 +58,6 @@ def test_kinsol(sunctx):
     problem.solution(u_expected.get())
     assert np.allclose(u_data, u_expected_data, atol=1e-6)
 
-    kin_status, nni = KINGetNumNonlinSolvIters(kin_view.get(), 0)
-    kin_status, nfe = KINGetNumFuncEvals(kin_view.get(), 0)
+    kin_status, nni = KINGetNumNonlinSolvIters(kin_view.get())
+    kin_status, nfe = KINGetNumFuncEvals(kin_view.get())
     assert kin_status == 0

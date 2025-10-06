@@ -73,36 +73,36 @@ def test_set_max_iters_and_get_num_iters(sunctx, nvec, nls_newton, nls_fixedpoin
     assert ret == 0
 
     # Get num iters for Newton solver
-    err, niters = SUNNonlinSolGetNumIters(nls_newton.get(), 0)
+    err, niters = SUNNonlinSolGetNumIters(nls_newton.get())
     assert err == 0
     assert isinstance(niters, int)
 
     # Get num iters for FixedPoint solver
-    err, niters = SUNNonlinSolGetNumIters(nls_fixedpoint.get(), 0)
+    err, niters = SUNNonlinSolGetNumIters(nls_fixedpoint.get())
     assert err == 0
     assert isinstance(niters, int)
 
 
 def test_get_cur_iter(sunctx, nvec, nls_newton, nls_fixedpoint):
     # Get current iteration for Newton solver
-    err, cur_iter = SUNNonlinSolGetCurIter(nls_newton.get(), 0)
+    err, cur_iter = SUNNonlinSolGetCurIter(nls_newton.get())
     assert err == 0
     assert isinstance(cur_iter, int)
 
     # Get current iteration for FixedPoint solver
-    err, cur_iter = SUNNonlinSolGetCurIter(nls_fixedpoint.get(), 0)
+    err, cur_iter = SUNNonlinSolGetCurIter(nls_fixedpoint.get())
     assert err == 0
     assert isinstance(cur_iter, int)
 
 
 def test_get_num_conv_fails(sunctx, nvec, nls_newton, nls_fixedpoint):
     # Get number of convergence failures for Newton solver
-    err, nconvfails = SUNNonlinSolGetNumConvFails(nls_newton.get(), 0)
+    err, nconvfails = SUNNonlinSolGetNumConvFails(nls_newton.get())
     assert err == 0
     assert isinstance(nconvfails, int)
 
     # Get number of convergence failures for FixedPoint solver
-    err, nconvfails = SUNNonlinSolGetNumConvFails(nls_fixedpoint.get(), 0)
+    err, nconvfails = SUNNonlinSolGetNumConvFails(nls_fixedpoint.get())
     assert err == 0
     assert isinstance(nconvfails, int)
 

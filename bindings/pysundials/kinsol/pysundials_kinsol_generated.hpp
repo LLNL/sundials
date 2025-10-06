@@ -111,110 +111,105 @@ m.def("KINSetSysFunc", KINSetSysFunc, nb::arg("kinmem"), nb::arg("func"));
 
 m.def(
   "KINGetNumNonlinSolvIters",
-  [](void* kinmem, long nniters) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumNonlinSolvIters_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long nniters) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* nniters_adapt_modifiable = &nniters;
+      long nniters_adapt_modifiable;
 
-      int r = KINGetNumNonlinSolvIters(kinmem, nniters_adapt_modifiable);
-      return std::make_tuple(r, nniters);
+      int r = KINGetNumNonlinSolvIters(kinmem, &nniters_adapt_modifiable);
+      return std::make_tuple(r, nniters_adapt_modifiable);
     };
 
-    return KINGetNumNonlinSolvIters_adapt_modifiable_immutable_to_return(kinmem,
-                                                                         nniters);
+    return KINGetNumNonlinSolvIters_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("nniters"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumFuncEvals",
-  [](void* kinmem, long nfevals) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumFuncEvals_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long nfevals) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* nfevals_adapt_modifiable = &nfevals;
+      long nfevals_adapt_modifiable;
 
-      int r = KINGetNumFuncEvals(kinmem, nfevals_adapt_modifiable);
-      return std::make_tuple(r, nfevals);
+      int r = KINGetNumFuncEvals(kinmem, &nfevals_adapt_modifiable);
+      return std::make_tuple(r, nfevals_adapt_modifiable);
     };
 
-    return KINGetNumFuncEvals_adapt_modifiable_immutable_to_return(kinmem,
-                                                                   nfevals);
+    return KINGetNumFuncEvals_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("nfevals"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumBetaCondFails",
-  [](void* kinmem, long nbcfails) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumBetaCondFails_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long nbcfails) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* nbcfails_adapt_modifiable = &nbcfails;
+      long nbcfails_adapt_modifiable;
 
-      int r = KINGetNumBetaCondFails(kinmem, nbcfails_adapt_modifiable);
-      return std::make_tuple(r, nbcfails);
+      int r = KINGetNumBetaCondFails(kinmem, &nbcfails_adapt_modifiable);
+      return std::make_tuple(r, nbcfails_adapt_modifiable);
     };
 
-    return KINGetNumBetaCondFails_adapt_modifiable_immutable_to_return(kinmem,
-                                                                       nbcfails);
+    return KINGetNumBetaCondFails_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("nbcfails"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumBacktrackOps",
-  [](void* kinmem, long nbacktr) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumBacktrackOps_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long nbacktr) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* nbacktr_adapt_modifiable = &nbacktr;
+      long nbacktr_adapt_modifiable;
 
-      int r = KINGetNumBacktrackOps(kinmem, nbacktr_adapt_modifiable);
-      return std::make_tuple(r, nbacktr);
+      int r = KINGetNumBacktrackOps(kinmem, &nbacktr_adapt_modifiable);
+      return std::make_tuple(r, nbacktr_adapt_modifiable);
     };
 
-    return KINGetNumBacktrackOps_adapt_modifiable_immutable_to_return(kinmem,
-                                                                      nbacktr);
+    return KINGetNumBacktrackOps_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("nbacktr"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetFuncNorm",
-  [](void* kinmem, double fnorm) -> std::tuple<int, double>
+  [](void* kinmem) -> std::tuple<int, double>
   {
     auto KINGetFuncNorm_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, double fnorm) -> std::tuple<int, double>
+      [](void* kinmem) -> std::tuple<int, double>
     {
-      double* fnorm_adapt_modifiable = &fnorm;
+      double fnorm_adapt_modifiable;
 
-      int r = KINGetFuncNorm(kinmem, fnorm_adapt_modifiable);
-      return std::make_tuple(r, fnorm);
+      int r = KINGetFuncNorm(kinmem, &fnorm_adapt_modifiable);
+      return std::make_tuple(r, fnorm_adapt_modifiable);
     };
 
-    return KINGetFuncNorm_adapt_modifiable_immutable_to_return(kinmem, fnorm);
+    return KINGetFuncNorm_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("fnorm"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetStepLength",
-  [](void* kinmem, double steplength) -> std::tuple<int, double>
+  [](void* kinmem) -> std::tuple<int, double>
   {
     auto KINGetStepLength_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, double steplength) -> std::tuple<int, double>
+      [](void* kinmem) -> std::tuple<int, double>
     {
-      double* steplength_adapt_modifiable = &steplength;
+      double steplength_adapt_modifiable;
 
-      int r = KINGetStepLength(kinmem, steplength_adapt_modifiable);
-      return std::make_tuple(r, steplength);
+      int r = KINGetStepLength(kinmem, &steplength_adapt_modifiable);
+      return std::make_tuple(r, steplength_adapt_modifiable);
     };
 
-    return KINGetStepLength_adapt_modifiable_immutable_to_return(kinmem,
-                                                                 steplength);
+    return KINGetStepLength_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("steplength"));
+  nb::arg("kinmem"));
 
 m.def("KINPrintAllStats", KINPrintAllStats, nb::arg("kinmem"),
       nb::arg("outfile"), nb::arg("fmt"));
@@ -264,180 +259,173 @@ m.def(
 
 m.def(
   "KINGetJac",
-  [](void* kinmem, SUNMatrix J) -> std::tuple<int, SUNMatrix>
+  [](void* kinmem) -> std::tuple<int, SUNMatrix>
   {
     auto KINGetJac_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, SUNMatrix J) -> std::tuple<int, SUNMatrix>
+      [](void* kinmem) -> std::tuple<int, SUNMatrix>
     {
-      SUNMatrix* J_adapt_modifiable = &J;
+      SUNMatrix J_adapt_modifiable;
 
-      int r = KINGetJac(kinmem, J_adapt_modifiable);
-      return std::make_tuple(r, J);
+      int r = KINGetJac(kinmem, &J_adapt_modifiable);
+      return std::make_tuple(r, J_adapt_modifiable);
     };
 
-    return KINGetJac_adapt_modifiable_immutable_to_return(kinmem, J);
+    return KINGetJac_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("J"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetJacNumIters",
-  [](void* kinmem, long nni_J) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetJacNumIters_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long nni_J) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* nni_J_adapt_modifiable = &nni_J;
+      long nni_J_adapt_modifiable;
 
-      int r = KINGetJacNumIters(kinmem, nni_J_adapt_modifiable);
-      return std::make_tuple(r, nni_J);
+      int r = KINGetJacNumIters(kinmem, &nni_J_adapt_modifiable);
+      return std::make_tuple(r, nni_J_adapt_modifiable);
     };
 
-    return KINGetJacNumIters_adapt_modifiable_immutable_to_return(kinmem, nni_J);
+    return KINGetJacNumIters_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("nni_J"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumJacEvals",
-  [](void* kinmem, long njevals) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumJacEvals_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long njevals) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* njevals_adapt_modifiable = &njevals;
+      long njevals_adapt_modifiable;
 
-      int r = KINGetNumJacEvals(kinmem, njevals_adapt_modifiable);
-      return std::make_tuple(r, njevals);
+      int r = KINGetNumJacEvals(kinmem, &njevals_adapt_modifiable);
+      return std::make_tuple(r, njevals_adapt_modifiable);
     };
 
-    return KINGetNumJacEvals_adapt_modifiable_immutable_to_return(kinmem,
-                                                                  njevals);
+    return KINGetNumJacEvals_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("njevals"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumLinFuncEvals",
-  [](void* kinmem, long nfevals) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumLinFuncEvals_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long nfevals) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* nfevals_adapt_modifiable = &nfevals;
+      long nfevals_adapt_modifiable;
 
-      int r = KINGetNumLinFuncEvals(kinmem, nfevals_adapt_modifiable);
-      return std::make_tuple(r, nfevals);
+      int r = KINGetNumLinFuncEvals(kinmem, &nfevals_adapt_modifiable);
+      return std::make_tuple(r, nfevals_adapt_modifiable);
     };
 
-    return KINGetNumLinFuncEvals_adapt_modifiable_immutable_to_return(kinmem,
-                                                                      nfevals);
+    return KINGetNumLinFuncEvals_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("nfevals"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumPrecEvals",
-  [](void* kinmem, long npevals) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumPrecEvals_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long npevals) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* npevals_adapt_modifiable = &npevals;
+      long npevals_adapt_modifiable;
 
-      int r = KINGetNumPrecEvals(kinmem, npevals_adapt_modifiable);
-      return std::make_tuple(r, npevals);
+      int r = KINGetNumPrecEvals(kinmem, &npevals_adapt_modifiable);
+      return std::make_tuple(r, npevals_adapt_modifiable);
     };
 
-    return KINGetNumPrecEvals_adapt_modifiable_immutable_to_return(kinmem,
-                                                                   npevals);
+    return KINGetNumPrecEvals_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("npevals"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumPrecSolves",
-  [](void* kinmem, long npsolves) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumPrecSolves_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long npsolves) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* npsolves_adapt_modifiable = &npsolves;
+      long npsolves_adapt_modifiable;
 
-      int r = KINGetNumPrecSolves(kinmem, npsolves_adapt_modifiable);
-      return std::make_tuple(r, npsolves);
+      int r = KINGetNumPrecSolves(kinmem, &npsolves_adapt_modifiable);
+      return std::make_tuple(r, npsolves_adapt_modifiable);
     };
 
-    return KINGetNumPrecSolves_adapt_modifiable_immutable_to_return(kinmem,
-                                                                    npsolves);
+    return KINGetNumPrecSolves_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("npsolves"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumLinIters",
-  [](void* kinmem, long nliters) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumLinIters_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long nliters) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* nliters_adapt_modifiable = &nliters;
+      long nliters_adapt_modifiable;
 
-      int r = KINGetNumLinIters(kinmem, nliters_adapt_modifiable);
-      return std::make_tuple(r, nliters);
+      int r = KINGetNumLinIters(kinmem, &nliters_adapt_modifiable);
+      return std::make_tuple(r, nliters_adapt_modifiable);
     };
 
-    return KINGetNumLinIters_adapt_modifiable_immutable_to_return(kinmem,
-                                                                  nliters);
+    return KINGetNumLinIters_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("nliters"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumLinConvFails",
-  [](void* kinmem, long nlcfails) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumLinConvFails_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long nlcfails) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* nlcfails_adapt_modifiable = &nlcfails;
+      long nlcfails_adapt_modifiable;
 
-      int r = KINGetNumLinConvFails(kinmem, nlcfails_adapt_modifiable);
-      return std::make_tuple(r, nlcfails);
+      int r = KINGetNumLinConvFails(kinmem, &nlcfails_adapt_modifiable);
+      return std::make_tuple(r, nlcfails_adapt_modifiable);
     };
 
-    return KINGetNumLinConvFails_adapt_modifiable_immutable_to_return(kinmem,
-                                                                      nlcfails);
+    return KINGetNumLinConvFails_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("nlcfails"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetNumJtimesEvals",
-  [](void* kinmem, long njvevals) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetNumJtimesEvals_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long njvevals) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* njvevals_adapt_modifiable = &njvevals;
+      long njvevals_adapt_modifiable;
 
-      int r = KINGetNumJtimesEvals(kinmem, njvevals_adapt_modifiable);
-      return std::make_tuple(r, njvevals);
+      int r = KINGetNumJtimesEvals(kinmem, &njvevals_adapt_modifiable);
+      return std::make_tuple(r, njvevals_adapt_modifiable);
     };
 
-    return KINGetNumJtimesEvals_adapt_modifiable_immutable_to_return(kinmem,
-                                                                     njvevals);
+    return KINGetNumJtimesEvals_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("njvevals"));
+  nb::arg("kinmem"));
 
 m.def(
   "KINGetLastLinFlag",
-  [](void* kinmem, long flag) -> std::tuple<int, long>
+  [](void* kinmem) -> std::tuple<int, long>
   {
     auto KINGetLastLinFlag_adapt_modifiable_immutable_to_return =
-      [](void* kinmem, long flag) -> std::tuple<int, long>
+      [](void* kinmem) -> std::tuple<int, long>
     {
-      long* flag_adapt_modifiable = &flag;
+      long flag_adapt_modifiable;
 
-      int r = KINGetLastLinFlag(kinmem, flag_adapt_modifiable);
-      return std::make_tuple(r, flag);
+      int r = KINGetLastLinFlag(kinmem, &flag_adapt_modifiable);
+      return std::make_tuple(r, flag_adapt_modifiable);
     };
 
-    return KINGetLastLinFlag_adapt_modifiable_immutable_to_return(kinmem, flag);
+    return KINGetLastLinFlag_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"), nb::arg("flag"));
+  nb::arg("kinmem"));
 
 m.def("KINGetLinReturnFlagName", KINGetLinReturnFlagName, nb::arg("flag"),
       nb::rv_policy::reference);

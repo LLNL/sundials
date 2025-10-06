@@ -36,57 +36,55 @@ m.def("SUNNonlinSolSetMaxIters", SUNNonlinSolSetMaxIters, nb::arg("NLS"),
 
 m.def(
   "SUNNonlinSolGetNumIters",
-  [](SUNNonlinearSolver NLS, long niters) -> std::tuple<SUNErrCode, long>
+  [](SUNNonlinearSolver NLS) -> std::tuple<SUNErrCode, long>
   {
     auto SUNNonlinSolGetNumIters_adapt_modifiable_immutable_to_return =
-      [](SUNNonlinearSolver NLS, long niters) -> std::tuple<SUNErrCode, long>
+      [](SUNNonlinearSolver NLS) -> std::tuple<SUNErrCode, long>
     {
-      long* niters_adapt_modifiable = &niters;
+      long niters_adapt_modifiable;
 
-      SUNErrCode r = SUNNonlinSolGetNumIters(NLS, niters_adapt_modifiable);
-      return std::make_tuple(r, niters);
+      SUNErrCode r = SUNNonlinSolGetNumIters(NLS, &niters_adapt_modifiable);
+      return std::make_tuple(r, niters_adapt_modifiable);
     };
 
-    return SUNNonlinSolGetNumIters_adapt_modifiable_immutable_to_return(NLS,
-                                                                        niters);
+    return SUNNonlinSolGetNumIters_adapt_modifiable_immutable_to_return(NLS);
   },
-  nb::arg("NLS"), nb::arg("niters"));
+  nb::arg("NLS"));
 
 m.def(
   "SUNNonlinSolGetCurIter",
-  [](SUNNonlinearSolver NLS, int iter) -> std::tuple<SUNErrCode, int>
+  [](SUNNonlinearSolver NLS) -> std::tuple<SUNErrCode, int>
   {
     auto SUNNonlinSolGetCurIter_adapt_modifiable_immutable_to_return =
-      [](SUNNonlinearSolver NLS, int iter) -> std::tuple<SUNErrCode, int>
+      [](SUNNonlinearSolver NLS) -> std::tuple<SUNErrCode, int>
     {
-      int* iter_adapt_modifiable = &iter;
+      int iter_adapt_modifiable;
 
-      SUNErrCode r = SUNNonlinSolGetCurIter(NLS, iter_adapt_modifiable);
-      return std::make_tuple(r, iter);
+      SUNErrCode r = SUNNonlinSolGetCurIter(NLS, &iter_adapt_modifiable);
+      return std::make_tuple(r, iter_adapt_modifiable);
     };
 
-    return SUNNonlinSolGetCurIter_adapt_modifiable_immutable_to_return(NLS, iter);
+    return SUNNonlinSolGetCurIter_adapt_modifiable_immutable_to_return(NLS);
   },
-  nb::arg("NLS"), nb::arg("iter"));
+  nb::arg("NLS"));
 
 m.def(
   "SUNNonlinSolGetNumConvFails",
-  [](SUNNonlinearSolver NLS, long nconvfails) -> std::tuple<SUNErrCode, long>
+  [](SUNNonlinearSolver NLS) -> std::tuple<SUNErrCode, long>
   {
     auto SUNNonlinSolGetNumConvFails_adapt_modifiable_immutable_to_return =
-      [](SUNNonlinearSolver NLS, long nconvfails) -> std::tuple<SUNErrCode, long>
+      [](SUNNonlinearSolver NLS) -> std::tuple<SUNErrCode, long>
     {
-      long* nconvfails_adapt_modifiable = &nconvfails;
+      long nconvfails_adapt_modifiable;
 
       SUNErrCode r = SUNNonlinSolGetNumConvFails(NLS,
-                                                 nconvfails_adapt_modifiable);
-      return std::make_tuple(r, nconvfails);
+                                                 &nconvfails_adapt_modifiable);
+      return std::make_tuple(r, nconvfails_adapt_modifiable);
     };
 
-    return SUNNonlinSolGetNumConvFails_adapt_modifiable_immutable_to_return(NLS,
-                                                                            nconvfails);
+    return SUNNonlinSolGetNumConvFails_adapt_modifiable_immutable_to_return(NLS);
   },
-  nb::arg("NLS"), nb::arg("nconvfails"));
+  nb::arg("NLS"));
 m.attr("SUN_NLS_CONTINUE")   = +901;
 m.attr("SUN_NLS_CONV_RECVR") = +902;
 // #ifdef __cplusplus

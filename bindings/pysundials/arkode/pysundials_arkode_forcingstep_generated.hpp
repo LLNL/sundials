@@ -13,23 +13,22 @@ m.def("ForcingStepReInit", ForcingStepReInit, nb::arg("arkode_mem"),
 
 m.def(
   "ForcingStepGetNumEvolves",
-  [](void* arkode_mem, int partition, long evolves) -> std::tuple<int, long>
+  [](void* arkode_mem, int partition) -> std::tuple<int, long>
   {
     auto ForcingStepGetNumEvolves_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem, int partition, long evolves) -> std::tuple<int, long>
+      [](void* arkode_mem, int partition) -> std::tuple<int, long>
     {
-      long* evolves_adapt_modifiable = &evolves;
+      long evolves_adapt_modifiable;
 
       int r = ForcingStepGetNumEvolves(arkode_mem, partition,
-                                       evolves_adapt_modifiable);
-      return std::make_tuple(r, evolves);
+                                       &evolves_adapt_modifiable);
+      return std::make_tuple(r, evolves_adapt_modifiable);
     };
 
     return ForcingStepGetNumEvolves_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                         partition,
-                                                                         evolves);
+                                                                         partition);
   },
-  nb::arg("arkode_mem"), nb::arg("partition"), nb::arg("evolves"));
+  nb::arg("arkode_mem"), nb::arg("partition"));
 // #ifdef __cplusplus
 //
 // #endif
