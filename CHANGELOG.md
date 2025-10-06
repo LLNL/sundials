@@ -26,6 +26,10 @@ Added the function `LSRKStepSetDomEigEstimator` in LSRKStep to attach a
 methods, as an alternative to supplying a user-defined function to compute the dominant
 eigenvalue.
 
+Added `SetOptions` functions all SUNDIALS packages and the classes for
+adaptivity controllers, dominant eigenvalue estimators, linear solvers, and
+nonlinear solvers to support setting options with command line inputs.
+
 ### New Features and Enhancements
 
 A new SUNLinearSolver, SUNLINEARSOLVER_GINKGOBATCH, and corresponding SUNMatrix,
