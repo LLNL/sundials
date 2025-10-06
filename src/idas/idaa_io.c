@@ -185,6 +185,53 @@ int IDASetUserDataB(void* ida_mem, int which, void* user_dataB)
   return (IDA_SUCCESS);
 }
 
+int idaSetOwnUserDataB(void* ida_mem, int which, sunbooleantype own_user_data)
+{
+  IDAMem IDA_mem;
+  IDAadjMem IDAADJ_mem;
+  IDABMem IDAB_mem;
+
+  /* Is ida_mem valid? */
+  if (ida_mem == NULL)
+  {
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSGAM_NULL_IDAMEM);
+    return IDA_MEM_NULL;
+  }
+  IDA_mem = (IDAMem)ida_mem;
+
+  /* Is ASA initialized? */
+  if (IDA_mem->ida_adjMallocDone == SUNFALSE)
+  {
+    IDAProcessError(IDA_mem, IDA_NO_ADJ, __LINE__, __func__, __FILE__,
+                    MSGAM_NO_ADJ);
+    return (IDA_NO_ADJ);
+  }
+  IDAADJ_mem = IDA_mem->ida_adj_mem;
+
+  /* Check the value of which */
+  if (which >= IDAADJ_mem->ia_nbckpbs)
+  {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSGAM_BAD_WHICH);
+    return (IDA_ILL_INPUT);
+  }
+
+  /* Find the IDABMem entry in the linked list corresponding to 'which'. */
+  IDAB_mem = IDAADJ_mem->IDAB_mem;
+  while (IDAB_mem != NULL)
+  {
+    if (which == IDAB_mem->ida_index) { break; }
+    /* advance */
+    IDAB_mem = IDAB_mem->ida_next;
+  }
+
+  /* Set user data for this backward problem. */
+  IDAB_mem->ida_own_user_data = own_user_data;
+
+  return (IDA_SUCCESS);
+}
+
 int IDASetMaxOrdB(void* ida_mem, int which, int maxordB)
 {
   IDAMem IDA_mem;

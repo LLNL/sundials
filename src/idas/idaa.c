@@ -350,6 +350,9 @@ static void IDAAbckpbDelete(IDABMem* IDAB_memPtr)
   N_VDestroy(IDAB_mem->ida_yy);
   N_VDestroy(IDAB_mem->ida_yp);
 
+  /* Free user data if we own it */
+  if (IDAB_mem->ida_own_user_data) { free(IDAB_mem->ida_user_data); }
+
   /* Free the node itself. */
   free(IDAB_mem);
   IDAB_mem = NULL;
