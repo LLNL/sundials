@@ -53,3 +53,14 @@ def test_bdf(sunctx):
     status, num_steps = CVodeGetNumSteps(solver.get(), 0)
     assert status == CV_SUCCESS
     assert num_steps > 0
+
+
+def test_cvodes_fsa(sunctx):
+    # TODO(CJB): implement
+    pass
+
+
+def test_cvodes_adjoint(sunctx):
+    # TODO(CJB): implement
+    pass
+

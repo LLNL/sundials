@@ -60,5 +60,15 @@ def test_bdf_idas():
     print(f"num_steps={num_steps}")
 
 
+def test_idas_fsa(sunctx):
+    # TODO(CJB): implement
+    pass
+
+
+def test_idas_adjoint(sunctx):
+    # TODO(CJB): implement
+    pass
+
+
 if __name__ == "__main__":
     test_bdf_idas()
