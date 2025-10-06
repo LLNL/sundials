@@ -58,7 +58,7 @@ void bind_arkode_arkstep(nb::module_& m)
       }
 
       // Ensure ARKodeFree will free the user-supplied function table
-      ark_status = ARKodeSetOwnUserData(ark_mem, SUNTRUE);
+      ark_status = arkSetOwnUserData(ark_mem, SUNTRUE);
       if (ark_status != ARK_SUCCESS)
       {
         free(cb_fns);

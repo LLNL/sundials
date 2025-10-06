@@ -248,6 +248,16 @@ void bind_idas(nb::module_& m)
             free(cb_fns);
             throw std::runtime_error("Failed to set user data in IDAS memory");
           }
+
+          // Ensure IDAFree will free the user-supplied function table
+          ida_status = idaSetOwnUserDataB(ida_mem, which, SUNTRUE);
+          if (ida_status != IDA_SUCCESS)
+          {
+            free(cb_fns);
+            throw std::runtime_error(
+              "Failed to set user data ownership in IDA memory");
+          }
+
           cb_fns->resB = nb::cast(resB);
           return ida_status;
         });

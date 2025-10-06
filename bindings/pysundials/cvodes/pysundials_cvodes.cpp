@@ -142,7 +142,7 @@ void bind_cvodes(nb::module_& m)
           }
 
           // Ensure CVodeFree will free the user-supplied function table
-          cv_status = CVodeSetOwnUserData(cv_mem, SUNTRUE);
+          cv_status = cvSetOwnUserData(cv_mem, SUNTRUE);
           if (cv_status != CV_SUCCESS)
           {
             free(cb_fns);
@@ -293,7 +293,7 @@ void bind_cvodes(nb::module_& m)
           }
 
           // Ensure CVodeFree will free the user-supplied function table
-          cv_status = CVodeSetOwnUserDataB(cv_mem, which, SUNTRUE);
+          cv_status = cvSetOwnUserDataB(cv_mem, which, SUNTRUE);
           if (cv_status != CV_SUCCESS)
           {
             free(cb_fns);

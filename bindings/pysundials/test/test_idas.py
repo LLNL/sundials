@@ -16,15 +16,14 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 
+import pytest
 import numpy as np
 from pysundials.core import *
 from pysundials.idas import *
 from problems import AnalyticDAE
+from fixtures import *
 
-
-def test_bdf_idas():
-    sunctx = SUNContextView.Create()
-
+def test_bdf_idas(sunctx):
     ode_problem = AnalyticDAE()
 
     solver = IDAView.Create(IDACreate(sunctx.get()))
@@ -54,9 +53,11 @@ def test_bdf_idas():
 
     tout, tret = ode_problem.TF, ode_problem.T0
     status, tret = IDASolve(solver.get(), tout, tret, yy.get(), yp.get(), IDA_NORMAL)
-    print(f"status={status}, tret={tret}")
+    assert status == 0
 
     status, num_steps = IDAGetNumSteps(solver.get(), 0)
+    assert status == 0
+    
     print(f"num_steps={num_steps}")
 
 
@@ -68,7 +69,3 @@ def test_idas_fsa(sunctx):
 def test_idas_adjoint(sunctx):
     # TODO(CJB): implement
     pass
-
-
-if __name__ == "__main__":
-    test_bdf_idas()

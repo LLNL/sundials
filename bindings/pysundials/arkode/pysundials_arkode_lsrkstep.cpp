@@ -49,7 +49,7 @@ void bind_arkode_lsrkstep(nb::module_& m)
         free(cb_fns);
         throw std::runtime_error("Failed to set user data in LSRKStep memory");
       }
-      ark_status = ARKodeSetOwnUserData(ark_mem, SUNTRUE);
+      ark_status = arkSetOwnUserData(ark_mem, SUNTRUE);
       if (ark_status != ARK_SUCCESS)
       {
         free(cb_fns);
@@ -79,7 +79,7 @@ void bind_arkode_lsrkstep(nb::module_& m)
         free(cb_fns);
         throw std::runtime_error("Failed to set user data in LSRKStep memory");
       }
-      ark_status = ARKodeSetOwnUserData(ark_mem, SUNTRUE);
+      ark_status = arkSetOwnUserData(ark_mem, SUNTRUE);
       if (ark_status != ARK_SUCCESS)
       {
         free(cb_fns);

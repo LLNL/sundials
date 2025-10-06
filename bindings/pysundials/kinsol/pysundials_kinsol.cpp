@@ -98,6 +98,16 @@ void bind_kinsol(nb::module_& m)
             throw std::runtime_error(
               "Failed to set user data in KINSOL memory");
           }
+
+          // Ensure KINFree will free the user-supplied function table
+          kin_status = kinSetOwnUserData(kin_mem, SUNTRUE);
+          if (kin_status != KIN_SUCCESS)
+          {
+            free(cb_fns);
+            throw std::runtime_error(
+              "Failed to set user data ownership in KINSOL memory");
+          }
+
           cb_fns->sysfn = nb::cast(sysfn);
           return kin_status;
         });
