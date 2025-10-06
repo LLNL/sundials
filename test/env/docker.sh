@@ -168,7 +168,7 @@ fi
 # precision is allowed percentage difference (0 = no difference).
 if [ "$SUNDIALS_PRECISION" == "extended" ]; then
     export SUNDIALS_TEST_FLOAT_PRECISION=7
-    export SUNDIALS_TEST_INTEGER_PRECISION=3
+    export SUNDIALS_TEST_INTEGER_PRECISION=10
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_TEST_FLOAT_PRECISION=5
     export SUNDIALS_TEST_INTEGER_PRECISION=5

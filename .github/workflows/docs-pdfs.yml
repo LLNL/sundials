@@ -132,7 +132,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        package: [arkode]
+        package: [arkode, kinsol]
 
     steps:
       - name: Install latex
@@ -179,7 +179,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        package: [cvode, cvodes, ida, idas, kinsol]
+        package: [cvode, cvodes, ida, idas]
 
     steps:
       - name: Install latex
