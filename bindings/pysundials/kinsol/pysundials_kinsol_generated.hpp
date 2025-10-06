@@ -272,7 +272,7 @@ m.def(
 
     return KINGetJac_adapt_modifiable_immutable_to_return(kinmem);
   },
-  nb::arg("kinmem"));
+  nb::arg("kinmem"), nb::rv_policy::reference);
 
 m.def(
   "KINGetJacNumIters",

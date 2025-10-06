@@ -56,7 +56,7 @@ m.def(
                                                                                       peek);
   },
   nb::arg("check_scheme"), nb::arg("step_num"), nb::arg("stage_num"),
-  nb::arg("peek"));
+  nb::arg("peek"), nb::rv_policy::reference);
 
 m.def("SUNAdjointCheckpointScheme_EnableDense",
       SUNAdjointCheckpointScheme_EnableDense, nb::arg("check_scheme"),

@@ -31,7 +31,7 @@ m.def(
 
     return SUNContext_GetProfiler_adapt_modifiable_immutable_to_return(sunctx);
   },
-  nb::arg("sunctx"));
+  nb::arg("sunctx"), nb::rv_policy::reference);
 
 m.def("SUNContext_SetProfiler", SUNContext_SetProfiler, nb::arg("sunctx"),
       nb::arg("profiler"));
@@ -51,7 +51,7 @@ m.def(
 
     return SUNContext_GetLogger_adapt_modifiable_immutable_to_return(sunctx);
   },
-  nb::arg("sunctx"));
+  nb::arg("sunctx"), nb::rv_policy::reference);
 
 m.def("SUNContext_SetLogger", SUNContext_SetLogger, nb::arg("sunctx"),
       nb::arg("logger"));

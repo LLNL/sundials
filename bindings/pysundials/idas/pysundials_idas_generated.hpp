@@ -408,7 +408,7 @@ m.def(
 
     return IDAGetCurrentY_adapt_modifiable_immutable_to_return(ida_mem);
   },
-  nb::arg("ida_mem"));
+  nb::arg("ida_mem"), nb::rv_policy::reference);
 
 m.def(
   "IDAGetCurrentYp",
@@ -425,7 +425,7 @@ m.def(
 
     return IDAGetCurrentYp_adapt_modifiable_immutable_to_return(ida_mem);
   },
-  nb::arg("ida_mem"));
+  nb::arg("ida_mem"), nb::rv_policy::reference);
 
 m.def(
   "IDAGetActualInitStep",
@@ -1636,7 +1636,7 @@ m.def(
 
     return IDAGetJac_adapt_modifiable_immutable_to_return(ida_mem);
   },
-  nb::arg("ida_mem"));
+  nb::arg("ida_mem"), nb::rv_policy::reference);
 
 m.def(
   "IDAGetJacCj",

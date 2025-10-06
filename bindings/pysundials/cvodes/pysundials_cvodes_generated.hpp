@@ -455,7 +455,7 @@ m.def(
 
     return CVodeGetCurrentState_adapt_modifiable_immutable_to_return(cvode_mem);
   },
-  nb::arg("cvode_mem"));
+  nb::arg("cvode_mem"), nb::rv_policy::reference);
 
 m.def(
   "CVodeGetCurrentSensSolveIndex",
@@ -1689,7 +1689,7 @@ m.def(
 
     return CVodeGetJac_adapt_modifiable_immutable_to_return(cvode_mem);
   },
-  nb::arg("cvode_mem"));
+  nb::arg("cvode_mem"), nb::rv_policy::reference);
 
 m.def(
   "CVodeGetJacTime",

@@ -4,6 +4,7 @@
 # not subject to GPLv3 though, and can use our standard license.
 
 import litgen
+from litgen.internal.adapted_types import AdaptedFunction, AdaptedParameter
 import re
 
 

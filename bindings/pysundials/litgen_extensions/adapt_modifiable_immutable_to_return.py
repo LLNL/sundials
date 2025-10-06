@@ -59,6 +59,7 @@ def adapt_modifiable_immutable_to_return(
         return None
 
     needs_adapt = False
+    any_param_needs_rv_reference = False
 
     # is_modifiable_python_immutable_ref_or_pointer only recognizes some built in types
     # but we would like to also transform functions that return SUNDIALS objects as outputs,
@@ -69,12 +70,12 @@ def adapt_modifiable_immutable_to_return(
         b = param.cpp_element().decl.cpp_type.name_without_modifier_specifier() in options.sundials_pointer_types
         c = param.cpp_element().decl.cpp_type.modifiers == ["*"]
         if a or (b and c):
-            return True
-        return False
+            return True, b and c
+        return False, False
 
     for old_adapted_param in adapted_function.adapted_parameters():
         if (
-            is_immutable_ref_or_pointer(old_adapted_param)
+            is_immutable_ref_or_pointer(old_adapted_param)[0]
             or old_adapted_param.is_modifiable_python_immutable_fixed_size_array()
         ) and not is_array_param(old_adapted_param.cpp_element().decl.decl_name):
             needs_adapt = True
@@ -91,7 +92,9 @@ def adapt_modifiable_immutable_to_return(
     new_function_params: list[CppParameter] = []
     new_output_function_params: list[CppParameter] = []
     for old_adapted_param in old_function_params:
-        if is_immutable_ref_or_pointer(old_adapted_param):
+        is_imm_ref_or_ptr, needs_rv_reference = is_immutable_ref_or_pointer(old_adapted_param)
+        any_param_needs_rv_reference = any_param_needs_rv_reference or needs_rv_reference
+        if is_imm_ref_or_ptr:
             is_pointer = old_adapted_param.cpp_element().decl.cpp_type.modifiers == ["*"]
 
             # For signatures like
@@ -218,6 +221,10 @@ def adapt_modifiable_immutable_to_return(
     #
     # Adapt lambda return type
     #
+
+    if any_param_needs_rv_reference:
+        adapted_function.return_value_policy = "reference"
+
     old_function = adapted_function.cpp_adapted_function
     was_void_return_type = old_function.returns_void()
 

@@ -28,7 +28,7 @@ m.def(
     return ERKStepGetCurrentButcherTable_adapt_modifiable_immutable_to_return(
       arkode_mem);
   },
-  nb::arg("arkode_mem"));
+  nb::arg("arkode_mem"), nb::rv_policy::reference);
 
 m.def(
   "ERKStepGetTimestepperStats",
