@@ -11,6 +11,9 @@ and IDAS, respectively.
 
 ### Bug Fixes
 
+The SPRKStep module now accounts for zero coefficients in the SPRK tables, eliminating
+extraneous function evaluations.
+
 ### Deprecation Notices
 
 `SUNDIALSFileOpen` and `SUNDIALSFileClose` will be removed in the next major release. 
@@ -39,6 +42,10 @@ Added the function `LSRKStepSetDomEigEstimator` in LSRKStep to attach a
 `SUNDomEigEstimator`, when using Runge-Kutta-Chebyshev or Runge-Kutta-Legendre
 methods, as an alternative to supplying a user-defined function to compute the dominant
 eigenvalue.
+
+Added `SetOptions` functions all SUNDIALS packages and the classes for
+adaptivity controllers, dominant eigenvalue estimators, linear solvers, and
+nonlinear solvers to support setting options with command line inputs.
 
 ### New Features and Enhancements
 

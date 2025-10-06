@@ -53,6 +53,13 @@ intersphinx_mapping = {
     "sphinx": ("https://www.sphinx-doc.org/en/master", ("../objects.inv", None))
 }
 
+# Only setup Google analytics for the readthedocs being deployed (not local).
+# We can do this by checking if we are running in GitHub actions.
+if os.getenv("READTHEDOCS"):
+    extensions.append("sphinxcontrib.googleanalytics")
+    googleanalytics_id = "G-3KESEG9QED"
+    googleanalytics_enabled = True
+
 # No non-external references will be resolved by intersphinx
 intersphinx_disabled_reftypes = ["*"]
 
