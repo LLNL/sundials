@@ -14,7 +14,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-# Unit tests for SUNNonlinearSolver module
+# Unit/smoke tests for SUNNonlinearSolver module
 # -----------------------------------------------------------------
 
 import pytest
