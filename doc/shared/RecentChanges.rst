@@ -10,6 +10,9 @@ and IDAS, respectively.
 
 **Bug Fixes**
 
+The SPRKStep module now accounts for zero coefficients in the SPRK tables, eliminating
+extraneous function evaluations.
+
 **Deprecation Notices**
 
 :c:func:`SUNDIALSFileOpen` and :c:func:`SUNDIALSFileClose` will be removed in the next major release. 

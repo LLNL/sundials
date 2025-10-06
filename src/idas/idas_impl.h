@@ -711,6 +711,7 @@ struct IDABMemRec
 
   /* User user_data */
   void* ida_user_data;
+  sunbooleantype ida_own_user_data; /* SUNTRUE if we own user_data and should free it */
 
   /* Linear solver's data and functions */
 
@@ -982,6 +983,7 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
    This is used by the Python interfaces. */
 
 int idaSetOwnUserData(void* ida_mem, sunbooleantype own_user_data);
+int idaSetOwnUserDataB(void* ida_mem, int which, sunbooleantype own_user_data);
 
 /*
  * =================================================================

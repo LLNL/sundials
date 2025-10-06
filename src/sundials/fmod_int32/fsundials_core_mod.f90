@@ -370,21 +370,21 @@ module fsundials_core_mod
  public :: FSUNMatMatvec
  public :: FSUNMatHermitianTransposeVec
  public :: FSUNMatSpace
- ! enum SUN_PREC_ID
+ ! enum SUNPrecType
  enum, bind(c)
   enumerator :: SUN_PREC_NONE
   enumerator :: SUN_PREC_LEFT
   enumerator :: SUN_PREC_RIGHT
   enumerator :: SUN_PREC_BOTH
  end enum
- integer, parameter, public :: SUN_PREC_ID = kind(SUN_PREC_NONE)
+ integer, parameter, public :: SUNPrecType = kind(SUN_PREC_NONE)
  public :: SUN_PREC_NONE, SUN_PREC_LEFT, SUN_PREC_RIGHT, SUN_PREC_BOTH
- ! enum SUN_GRAMSCHMIDT_ID
+ ! enum SUNGramSchmidtType
  enum, bind(c)
   enumerator :: SUN_MODIFIED_GS = 1
   enumerator :: SUN_CLASSICAL_GS = 2
  end enum
- integer, parameter, public :: SUN_GRAMSCHMIDT_ID = kind(SUN_MODIFIED_GS)
+ integer, parameter, public :: SUNGramSchmidtType = kind(SUN_MODIFIED_GS)
  public :: SUN_MODIFIED_GS, SUN_CLASSICAL_GS
  public :: FSUNModifiedGS
  public :: FSUNClassicalGS
