@@ -87,12 +87,12 @@ int CVodeSetUserData(void* cvode_mem, void* user_data)
 }
 
 /*
- * CVodeSetOwnUserData
+ * cvSetOwnUserData
  *
  * Specifies whether the integrator owns the user data pointer.
  */
 
-int CVodeSetOwnUserData(void* cvode_mem, sunbooleantype own_user_data)
+int cvSetOwnUserData(void* cvode_mem, sunbooleantype own_user_data)
 {
   CVodeMem cv_mem;
 

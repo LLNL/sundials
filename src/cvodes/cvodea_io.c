@@ -174,7 +174,7 @@ int CVodeSetUserDataB(void* cvode_mem, int which, void* user_dataB)
   return (CV_SUCCESS);
 }
 
-int CVodeSetOwnUserDataB(void* cvode_mem, int which, sunbooleantype own_user_data)
+int cvSetOwnUserDataB(void* cvode_mem, int which, sunbooleantype own_user_data)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;

@@ -78,7 +78,7 @@ int IDASetUserData(void* ida_mem, void* user_data)
 
 /*-----------------------------------------------------------------*/
 
-int IDASetOwnUserData(void* ida_mem, sunbooleantype own_user_data)
+int idaSetOwnUserData(void* ida_mem, sunbooleantype own_user_data)
 {
   IDAMem IDA_mem;
 

@@ -69,11 +69,11 @@ int KINSetUserData(void* kinmem, void* user_data)
 
 /*
  * -----------------------------------------------------------------
- * Function : KINSetOwnUserData
+ * Function : kinSetOwnUserData
  * -----------------------------------------------------------------
  */
 
-int KINSetOwnUserData(void* kinmem, sunbooleantype own_user_data)
+int kinSetOwnUserData(void* kinmem, sunbooleantype own_user_data)
 {
   KINMem kin_mem;
 
