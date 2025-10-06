@@ -39,7 +39,7 @@ set(cvodes_SOURCES
     cvodes_resize.c)
 
 # Add variable cvodes_HEADERS with the exported CVODES header files
-set(cvodes_HEADERS cvodes.h cvodes_bandpre.h cvodes_bbdpre.h cvodes_diag.h
+set(cvodes_HEADERS cvodes.h cvodes.hpp cvodes_bandpre.h cvodes_bbdpre.h cvodes_diag.h
                    cvodes_ls.h cvodes_proj.h)
 
 # Add prefix with complete path to the CVODES header files
