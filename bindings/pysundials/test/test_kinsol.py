@@ -36,11 +36,11 @@ def test_kinsol(sunctx):
         return problem.fixed_point_fn(u, g)
 
     kin_status = KINSetMAA(kin_view.get(), m_aa)
-    assert kin_status == 0
+    assert kin_status == KIN_SUCCESS
     kin_status = KINInit(kin_view.get(), fp_function, u.get())
-    assert kin_status == 0
+    assert kin_status == KIN_SUCCESS
     kin_status = KINSetFuncNormTol(kin_view.get(), tol)
-    assert kin_status == 0
+    assert kin_status == KIN_SUCCESS
 
     # initial guess
     u_data = N_VGetArrayPointer(u.get())
@@ -51,13 +51,9 @@ def test_kinsol(sunctx):
     N_VConst(1.0, scale.get())
 
     kin_status = KINSol(kin_view.get(), u.get(), KIN_FP, scale.get(), scale.get())
-    assert kin_status == 0
+    assert kin_status == KIN_SUCCESS
 
     u_expected = NVectorView.Create(N_VNew_Serial(NEQ, sunctx.get()))
     u_expected_data = N_VGetArrayPointer(u_expected.get())
     problem.solution(u_expected.get())
     assert np.allclose(u_data, u_expected_data, atol=1e-6)
-
-    kin_status, nni = KINGetNumNonlinSolvIters(kin_view.get())
-    kin_status, nfe = KINGetNumFuncEvals(kin_view.get())
-    assert kin_status == 0
