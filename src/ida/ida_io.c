@@ -79,6 +79,25 @@ int IDASetUserData(void* ida_mem, void* user_data)
 
 /*-----------------------------------------------------------------*/
 
+int idaSetOwnUserData(void* ida_mem, sunbooleantype own_user_data)
+{
+  IDAMem IDA_mem;
+
+  if (ida_mem == NULL)
+  {
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem)ida_mem;
+
+  IDA_mem->ida_own_user_data = own_user_data;
+
+  return (IDA_SUCCESS);
+}
+
+/*-----------------------------------------------------------------*/
+
 int IDASetEtaFixedStepBounds(void* ida_mem, sunrealtype eta_min_fx,
                              sunrealtype eta_max_fx)
 {

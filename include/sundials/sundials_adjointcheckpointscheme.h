@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-typedef struct SUNAdjointCheckpointScheme_* SUNAdjointCheckpointScheme;
+typedef _SUNDIALS_STRUCT_ SUNAdjointCheckpointScheme_* SUNAdjointCheckpointScheme;
 
 typedef SUNErrCode (*SUNAdjointCheckpointSchemeNeedsSavingFn)(
   SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,

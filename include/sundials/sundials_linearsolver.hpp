@@ -20,8 +20,10 @@
 #ifndef _SUNDIALS_LINEARSOLVER_HPP
 #define _SUNDIALS_LINEARSOLVER_HPP
 
-#include <memory>
+#include <utility>
+
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_linearsolver.h>
 
 namespace sundials {
@@ -33,13 +35,22 @@ using BaseLinearSolver =
 namespace experimental {
 struct SUNLinearSolverDeleter
 {
-  void operator()(SUNLinearSolver LS)
+  void operator()(SUNLinearSolver LS) { SUNLinSolFree(LS); }
+};
+
+class SUNLinearSolverView
+  : public ClassView<SUNLinearSolver, SUNLinearSolverDeleter>
+{
+public:
+  using ClassView<SUNLinearSolver, SUNLinearSolverDeleter>::ClassView;
+
+  template<typename... Args>
+  static SUNLinearSolverView Create(Args&&... args)
   {
-    if (LS) { SUNLinSolFree(LS); }
+    return SUNLinearSolverView(std::forward<Args>(args)...);
   }
 };
 
-using SUNLinearSolverView = ClassView<SUNLinearSolver, SUNLinearSolverDeleter>;
 } // namespace experimental
 } // namespace sundials
 

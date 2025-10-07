@@ -205,8 +205,9 @@ typedef struct CVodeMemRec
 
   CVRhsFn cv_f;       /* y' = f(t,y(t))                                */
   void* cv_user_data; /* user pointer passed to f                      */
-  int cv_lmm;         /* lmm = CV_ADAMS or CV_BDF                      */
-  int cv_itol;        /* itol = CV_SS, CV_SV, CV_WF, CV_NN             */
+  sunbooleantype cv_own_user_data; /* SUNTRUE if we own user_data and should free it */
+  int cv_lmm;  /* lmm = CV_ADAMS or CV_BDF                      */
+  int cv_itol; /* itol = CV_SS, CV_SV, CV_WF, CV_NN             */
 
   sunrealtype cv_reltol;  /* relative tolerance                            */
   sunrealtype cv_Sabstol; /* scalar absolute tolerance                     */
@@ -663,6 +664,11 @@ int cvDiagSetup_buildM(const sunrealtype fract, const sunrealtype uround,
 
 int cvDiagSolve_updateM(const sunrealtype r, N_Vector M);
 #endif
+
+/* Utility function to tell CVODE to free the user data.
+   This is used by the Python interfaces. */
+
+int cvSetOwnUserData(void* cvode_mem, sunbooleantype own_user_data);
 
 /*
  * =================================================================

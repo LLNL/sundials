@@ -254,10 +254,10 @@ public:
   operator SUNLinearSolver() const override { return sunlinsol_.get(); }
 
   /// Explicit conversion to a :c:type:`SUNLinearSolver`
-  SUNLinearSolver Convert() override { return sunlinsol_.get(); }
+  SUNLinearSolver get() override { return sunlinsol_.get(); }
 
   /// Explicit conversion to a :c:type:`SUNLinearSolver`
-  SUNLinearSolver Convert() const override { return sunlinsol_.get(); }
+  SUNLinearSolver get() const override { return sunlinsol_.get(); }
 
   /// Get the ``gko::Executor`` associated with the Ginkgo solver
   std::shared_ptr<const gko::Executor> GkoExec() const

@@ -4327,6 +4327,9 @@ int MRIStepInnerStepper_Free(MRIStepInnerStepper* stepper)
   /* free operations structure */
   free((*stepper)->ops);
 
+  /* free python data */
+  free((*stepper)->python);
+
   /* free inner stepper mem */
   free(*stepper);
   *stepper = NULL;

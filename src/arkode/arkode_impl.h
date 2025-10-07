@@ -381,26 +381,27 @@ struct ARKodeMemRec
   sunrealtype uround; /* machine unit roundoff */
 
   /* Problem specification data */
-  void* user_data;               /* user ptr passed to supplied functions */
-  int itol;                      /* itol = ARK_SS (scalar, default),
+  void* user_data;              /* user ptr passed to supplied functions */
+  sunbooleantype own_user_data; /* SUNTRUE if we own user_data and should free it */
+  int itol;                     /* itol = ARK_SS (scalar, default),
                                          ARK_SV (vector),
                                          ARK_WF (user weight function)  */
-  int ritol;                     /* itol = ARK_SS (scalar, default),
+  int ritol;                    /* itol = ARK_SS (scalar, default),
                                          ARK_SV (vector),
                                          ARK_WF (user weight function)  */
-  sunrealtype reltol;            /* relative tolerance                    */
-  sunrealtype Sabstol;           /* scalar absolute solution tolerance    */
-  N_Vector Vabstol;              /* vector absolute solution tolerance    */
-  sunbooleantype atolmin0;       /* flag indicating that min(abstol) = 0  */
-  sunrealtype SRabstol;          /* scalar absolute residual tolerance    */
-  N_Vector VRabstol;             /* vector absolute residual tolerance    */
-  sunbooleantype Ratolmin0;      /* flag indicating that min(Rabstol) = 0 */
-  sunbooleantype user_efun;      /* SUNTRUE if user sets efun             */
-  ARKEwtFn efun;                 /* function to set ewt                   */
-  void* e_data;                  /* user pointer passed to efun           */
-  sunbooleantype user_rfun;      /* SUNTRUE if user sets rfun             */
-  ARKRwtFn rfun;                 /* function to set rwt                   */
-  void* r_data;                  /* user pointer passed to rfun           */
+  sunrealtype reltol;           /* relative tolerance                    */
+  sunrealtype Sabstol;          /* scalar absolute solution tolerance    */
+  N_Vector Vabstol;             /* vector absolute solution tolerance    */
+  sunbooleantype atolmin0;      /* flag indicating that min(abstol) = 0  */
+  sunrealtype SRabstol;         /* scalar absolute residual tolerance    */
+  N_Vector VRabstol;            /* vector absolute residual tolerance    */
+  sunbooleantype Ratolmin0;     /* flag indicating that min(Rabstol) = 0 */
+  sunbooleantype user_efun;     /* SUNTRUE if user sets efun             */
+  ARKEwtFn efun;                /* function to set ewt                   */
+  void* e_data;                 /* user pointer passed to efun           */
+  sunbooleantype user_rfun;     /* SUNTRUE if user sets rfun             */
+  ARKRwtFn rfun;                /* function to set rwt                   */
+  void* r_data;                 /* user pointer passed to rfun           */
   sunbooleantype constraintsSet; /* check inequality constraints          */
 
   /* Time stepper module -- general */
@@ -696,6 +697,10 @@ SUNErrCode arkSUNStepperSelfDestruct(SUNStepper stepper);
 /* XBraid interface functions */
 int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass);
 int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
+
+/* Utility function to tell ARKode to free the user data.
+   This is used by the Python interfaces. */
+int arkSetOwnUserData(void* ark_mem, sunbooleantype own_user_data);
 
 /*===============================================================
   Reusable ARKODE Error Messages

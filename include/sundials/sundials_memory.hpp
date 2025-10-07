@@ -20,8 +20,10 @@
 #ifndef _SUNDIALS_MEMORY_HPP
 #define _SUNDIALS_MEMORY_HPP
 
-#include <memory>
+#include <utility>
+
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_memory.h>
 
 namespace sundials {
@@ -32,13 +34,22 @@ using BaseMemoryHelper = BaseObject<SUNMemoryHelper_, SUNMemoryHelper_Ops_>;
 namespace experimental {
 struct SUNMemoryHelperDeleter
 {
-  void operator()(SUNMemoryHelper helper)
+  void operator()(SUNMemoryHelper helper) { SUNMemoryHelper_Destroy(helper); }
+};
+
+class SUNMemoryHelperView
+  : public ClassView<SUNMemoryHelper, SUNMemoryHelperDeleter>
+{
+public:
+  using ClassView<SUNMemoryHelper, SUNMemoryHelperDeleter>::ClassView;
+
+  template<typename... Args>
+  static SUNMemoryHelperView Create(Args&&... args)
   {
-    if (helper) { SUNMemoryHelper_Destroy(helper); }
+    return SUNMemoryHelperView(std::forward<Args>(args)...);
   }
 };
 
-using SUNMemoryHelperView = ClassView<SUNMemoryHelper, SUNMemoryHelperDeleter>;
 } // namespace experimental
 } // namespace sundials
 

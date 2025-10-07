@@ -3074,7 +3074,7 @@ SWIGEXPORT void * _wrap_FARKodeSPRKTable_Create(int const *farg1, int const *far
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype *)(farg3);
   arg4 = (sunrealtype *)(farg4);
-  result = (ARKodeSPRKTable)ARKodeSPRKTable_Create(arg1,arg2,(double const *)arg3,(double const *)arg4);
+  result = (ARKodeSPRKTable)ARKodeSPRKTable_Create(arg1,arg2,arg3,arg4);
   fresult = result;
   return fresult;
 }

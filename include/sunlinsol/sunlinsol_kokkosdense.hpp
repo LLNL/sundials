@@ -209,10 +209,10 @@ public:
   operator SUNLinearSolver() const override { return object_.get(); }
 
   // Explicit conversion to a SUNLinearSolver
-  SUNLinearSolver Convert() override { return object_.get(); }
+  SUNLinearSolver get() override { return object_.get(); }
 
   // Explicit conversion to a SUNLinearSolver
-  SUNLinearSolver Convert() const override { return object_.get(); }
+  SUNLinearSolver get() const override { return object_.get(); }
 
 private:
   void initSUNLinearSolver()

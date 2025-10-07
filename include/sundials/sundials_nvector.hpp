@@ -20,8 +20,10 @@
 #ifndef _SUNDIALS_NVECTOR_HPP
 #define _SUNDIALS_NVECTOR_HPP
 
-#include <memory>
+#include <utility>
+
 #include <sundials/sundials_base.hpp>
+#include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_nvector.h>
 
 namespace sundials {
@@ -30,15 +32,24 @@ using BaseNVector = BaseObject<_generic_N_Vector, _generic_N_Vector_Ops>;
 } // namespace impl
 
 namespace experimental {
+
 struct NVectorDeleter
 {
-  void operator()(N_Vector v)
+  void operator()(N_Vector v) { N_VDestroy(v); }
+};
+
+class NVectorView : public ClassView<N_Vector, NVectorDeleter>
+{
+public:
+  using ClassView<N_Vector, NVectorDeleter>::ClassView;
+
+  template<typename... Args>
+  static NVectorView Create(Args&&... args)
   {
-    if (v) { N_VDestroy(v); }
+    return NVectorView(std::forward<Args>(args)...);
   }
 };
 
-using NVectorView = ClassView<N_Vector, NVectorDeleter>;
 } // namespace experimental
 } // namespace sundials
 

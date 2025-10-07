@@ -107,8 +107,9 @@ typedef struct IDAMemRec
     Problem Specification Data
     --------------------------*/
 
-  IDAResFn ida_res;    /* F(t,y(t),y'(t))=0; the function F     */
-  void* ida_user_data; /* user pointer passed to res            */
+  IDAResFn ida_res;                 /* F(t,y(t),y'(t))=0; the function F     */
+  void* ida_user_data;              /* user pointer passed to res            */
+  sunbooleantype ida_own_user_data; /* SUNTRUE if we own user_data and should free it */
 
   int ida_itol;                 /* itol = IDA_SS, IDA_SV, IDA_WF, IDA_NN */
   sunrealtype ida_rtol;         /* relative tolerance                    */
@@ -710,6 +711,7 @@ struct IDABMemRec
 
   /* User user_data */
   void* ida_user_data;
+  sunbooleantype ida_own_user_data; /* SUNTRUE if we own user_data and should free it */
 
   /* Linear solver's data and functions */
 
@@ -976,6 +978,12 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
                  N_Vector resval, N_Vector* yyS, N_Vector* ypS,
                  N_Vector* resvalS, void* user_dataS, N_Vector ytemp,
                  N_Vector yptemp, N_Vector restemp);
+
+/* Utility function to tell IDA to free the user data.
+   This is used by the Python interfaces. */
+
+int idaSetOwnUserData(void* ida_mem, sunbooleantype own_user_data);
+int idaSetOwnUserDataB(void* ida_mem, int which, sunbooleantype own_user_data);
 
 /*
  * =================================================================
