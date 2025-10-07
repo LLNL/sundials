@@ -59,11 +59,44 @@ m.def("SUNAdjointStepper_RecomputeFwd", SUNAdjointStepper_RecomputeFwd,
 m.def("SUNAdjointStepper_SetUserData", SUNAdjointStepper_SetUserData,
       nb::arg("param_0"), nb::arg("user_data"));
 
-m.def("SUNAdjointStepper_GetNumSteps", SUNAdjointStepper_GetNumSteps,
-      nb::arg("adj_stepper"), nb::arg("num_steps"));
+m.def(
+  "SUNAdjointStepper_GetNumSteps",
+  [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, long>
+  {
+    auto SUNAdjointStepper_GetNumSteps_adapt_modifiable_immutable_to_return =
+      [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, long>
+    {
+      long num_steps_adapt_modifiable;
 
-m.def("SUNAdjointStepper_GetNumRecompute", SUNAdjointStepper_GetNumRecompute,
-      nb::arg("adj_stepper"), nb::arg("num_recompute"));
+      SUNErrCode r = SUNAdjointStepper_GetNumSteps(adj_stepper,
+                                                   &num_steps_adapt_modifiable);
+      return std::make_tuple(r, num_steps_adapt_modifiable);
+    };
+
+    return SUNAdjointStepper_GetNumSteps_adapt_modifiable_immutable_to_return(
+      adj_stepper);
+  },
+  nb::arg("adj_stepper"));
+
+m.def(
+  "SUNAdjointStepper_GetNumRecompute",
+  [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, long>
+  {
+    auto SUNAdjointStepper_GetNumRecompute_adapt_modifiable_immutable_to_return =
+      [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, long>
+    {
+      long num_recompute_adapt_modifiable;
+
+      SUNErrCode r =
+        SUNAdjointStepper_GetNumRecompute(adj_stepper,
+                                          &num_recompute_adapt_modifiable);
+      return std::make_tuple(r, num_recompute_adapt_modifiable);
+    };
+
+    return SUNAdjointStepper_GetNumRecompute_adapt_modifiable_immutable_to_return(
+      adj_stepper);
+  },
+  nb::arg("adj_stepper"));
 
 m.def("SUNAdjointStepper_PrintAllStats", SUNAdjointStepper_PrintAllStats,
       nb::arg("adj_stepper"), nb::arg("outfile"), nb::arg("fmt"));

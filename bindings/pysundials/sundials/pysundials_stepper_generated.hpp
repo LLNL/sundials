@@ -137,8 +137,22 @@ m.def(
   },
   nb::arg("stepper"));
 
-m.def("SUNStepper_GetNumSteps", SUNStepper_GetNumSteps, nb::arg("stepper"),
-      nb::arg("nst"));
+m.def(
+  "SUNStepper_GetNumSteps",
+  [](SUNStepper stepper) -> std::tuple<SUNErrCode, long>
+  {
+    auto SUNStepper_GetNumSteps_adapt_modifiable_immutable_to_return =
+      [](SUNStepper stepper) -> std::tuple<SUNErrCode, long>
+    {
+      long nst_adapt_modifiable;
+
+      SUNErrCode r = SUNStepper_GetNumSteps(stepper, &nst_adapt_modifiable);
+      return std::make_tuple(r, nst_adapt_modifiable);
+    };
+
+    return SUNStepper_GetNumSteps_adapt_modifiable_immutable_to_return(stepper);
+  },
+  nb::arg("stepper"));
 // #ifdef __cplusplus
 //
 // #endif

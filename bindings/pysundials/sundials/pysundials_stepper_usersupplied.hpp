@@ -41,7 +41,6 @@ struct SUNStepperFunctionTable
   nb::object set_step_direction;
   nb::object set_forcing;
   nb::object get_num_steps;
-  nb::object destroy;
 };
 
 inline SUNStepperFunctionTable* SUNStepperFunctionTable_Alloc()
@@ -135,14 +134,6 @@ inline SUNErrCode sunstepper_get_num_steps_wrapper(Args... args)
     std::remove_pointer_t<SUNStepperGetNumStepsFn>, SUNStepperFunctionTable,
     SUNStepper>(&SUNStepperFunctionTable::get_num_steps,
                 std::forward<Args>(args)...);
-}
-
-template<typename... Args>
-inline SUNErrCode sunstepper_destroy_wrapper(Args... args)
-{
-  return pysundials::user_supplied_fn_caller<
-    std::remove_pointer_t<SUNStepperDestroyFn>, SUNStepperFunctionTable,
-    SUNStepper>(&SUNStepperFunctionTable::destroy, std::forward<Args>(args)...);
 }
 
 #endif // _PYSUNDIALS_STEPPER_USERSUPPLIED_HPP

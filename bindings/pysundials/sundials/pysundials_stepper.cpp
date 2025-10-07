@@ -27,6 +27,7 @@
 
 #include <sundials/sundials_stepper.hpp>
 
+#include "sundials/sundials_types.h"
 #include "sundials_stepper_impl.h"
 
 #include "pysundials_stepper_usersupplied.hpp"
@@ -223,10 +224,12 @@ void bind_sunstepper(nb::module_& m)
     },
     nb::arg("stepper"), nb::arg("fn").none());
 
+  // We have to use a custom std::function type here because
+  // we need to replace the suncountertype* argument with a reference.
+  using SUNStepperGetNumStepsStdFn = SUNErrCode(SUNStepper, suncountertype&);
   m.def(
     "SUNStepper_SetGetNumStepsFn",
-    [](SUNStepper stepper,
-       std::function<std::remove_pointer_t<SUNStepperGetNumStepsFn>> fn) -> SUNErrCode
+    [](SUNStepper stepper, std::function<SUNStepperGetNumStepsStdFn> fn) -> SUNErrCode
     {
       if (!stepper->python)
       {
@@ -240,25 +243,6 @@ void bind_sunstepper(nb::module_& m)
                                            sunstepper_get_num_steps_wrapper);
       }
       else { return SUNStepper_SetGetNumStepsFn(stepper, nullptr); }
-    },
-    nb::arg("stepper"), nb::arg("fn").none());
-
-  m.def(
-    "SUNStepper_SetDestroyFn",
-    [](SUNStepper stepper,
-       std::function<std::remove_pointer_t<SUNStepperDestroyFn>> fn) -> SUNErrCode
-    {
-      if (!stepper->python)
-      {
-        stepper->python = SUNStepperFunctionTable_Alloc();
-      }
-      auto fntable     = static_cast<SUNStepperFunctionTable*>(stepper->python);
-      fntable->destroy = nb::cast(fn);
-      if (fn)
-      {
-        return SUNStepper_SetDestroyFn(stepper, sunstepper_destroy_wrapper);
-      }
-      else { return SUNStepper_SetDestroyFn(stepper, nullptr); }
     },
     nb::arg("stepper"), nb::arg("fn").none());
 }
