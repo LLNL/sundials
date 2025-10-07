@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   sanitizer_build_and_test:
+    if: contains(github.event.head_commit.message, '[run-ci]') # This job only runs if commit message contains '[run-ci]'
+
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:latest
