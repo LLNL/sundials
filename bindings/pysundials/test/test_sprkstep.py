@@ -36,16 +36,19 @@ def test_sprkstep(sunctx):
     def f2(t, y, ydot, _):
         return ode_problem.vdot(t, y, ydot)
 
-    arr = N_VGetArrayPointer(y.get())
-    ode_problem.initial_conditions(arr)
+    ode_problem.set_init_cond(y.get())
 
     sprk = ARKodeView.Create(SPRKStepCreate(f1, f2, 0, y.get(), sunctx.get()))
 
     status = ARKodeSetFixedStep(sprk.get(), dt)
-    assert status == 0
+    assert status == ARK_SUCCESS
 
     status = ARKodeSetMaxNumSteps(sprk.get(), int(np.ceil(tout / dt)))
-    assert status == 0
+    assert status == ARK_SUCCESS
 
     status, tret = ARKodeEvolve(sprk.get(), tout, y.get(), ARK_NORMAL)
-    assert status == 0
+    assert status == ARK_SUCCESS
+
+    sol = NVectorView.Create(N_VClone(y.get()))
+    ode_problem.solution(y.get(), sol.get(), tret)
+    assert np.allclose(N_VGetArrayPointer(sol.get()), N_VGetArrayPointer(y.get()), atol=1e-2)

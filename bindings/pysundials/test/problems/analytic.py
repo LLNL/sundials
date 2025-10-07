@@ -17,8 +17,9 @@
 
 import numpy as np
 from pysundials.core import *
+from .problem import ODEProblem
 
-class AnalyticODE:
+class AnalyticODE(ODEProblem):
     """
     * The following is a simple example problem with analytical
     * solution,
@@ -55,7 +56,7 @@ class AnalyticODE:
         return 0
 
 
-class AnalyticMultiscaleODE:
+class AnalyticMultiscaleODE(ODEProblem):
     """
     * We consider the initial value problem
     *    y' + lambda*y = y^2, y(0) = 1
