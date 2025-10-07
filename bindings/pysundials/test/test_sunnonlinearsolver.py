@@ -23,86 +23,69 @@ from fixtures import *
 from pysundials.core import *
 
 
-def test_create_fixedpoint(sunctx, nvec):
-    nls = SUNNonlinearSolverView.Create(SUNNonlinSol_FixedPoint(nvec.get(), 5, sunctx.get()))
+@pytest.mark.parametrize("solver_type", ["fixedpoint", "newton"])
+def test_create_solver(solver_type, sunctx, nvec):
+    if solver_type == "fixedpoint":
+        nls = SUNNonlinearSolverView.Create(SUNNonlinSol_FixedPoint(nvec.get(), 5, sunctx.get()))
+    elif solver_type == "newton":
+        nls = SUNNonlinearSolverView.Create(SUNNonlinSol_Newton(nvec.get(), sunctx.get()))
+    else:
+        raise ValueError("Unknown solver type")
     assert nls is not None
 
 
-def test_create_newton(sunctx, nvec):
-    nls = SUNNonlinearSolverView.Create(SUNNonlinSol_Newton(nvec.get(), sunctx.get()))
-    assert nls is not None
+@pytest.mark.parametrize("solver_type", ["fixedpoint", "newton"])
+def make_solver(solver_type, sunctx, nvec):
+    if solver_type == "fixedpoint":
+        return SUNNonlinearSolverView.Create(SUNNonlinSol_FixedPoint(nvec.get(), 5, sunctx.get()))
+    elif solver_type == "newton":
+        return SUNNonlinearSolverView.Create(SUNNonlinSol_Newton(nvec.get(), sunctx.get()))
+    else:
+        raise ValueError("Unknown solver type")
 
 
-@pytest.fixture
-def nls_fixedpoint(sunctx, nvec):
-    nls = SUNNonlinearSolverView.Create(SUNNonlinSol_FixedPoint(nvec.get(), 5, sunctx.get()))
-    yield nls
+@pytest.mark.parametrize("solver_type, expected_type", [
+    ("newton", SUNNONLINEARSOLVER_ROOTFIND),
+    ("fixedpoint", SUNNONLINEARSOLVER_FIXEDPOINT)
+])
+def test_gettype(solver_type, expected_type, sunctx, nvec):
+    nls = make_solver(solver_type, sunctx, nvec)
+    typ = SUNNonlinSolGetType(nls.get())
+    assert typ is expected_type
 
 
-@pytest.fixture
-def nls_newton(sunctx, nvec):
-    nls = SUNNonlinearSolverView.Create(SUNNonlinSol_Newton(nvec.get(), sunctx.get()))
-    yield nls
-
-
-def test_gettype(sunctx, nvec, nls_newton, nls_fixedpoint):
-    typ = SUNNonlinSolGetType(nls_newton.get())
-    assert typ is SUNNONLINEARSOLVER_ROOTFIND
-
-    typ = SUNNonlinSolGetType(nls_fixedpoint.get())
-    assert typ is SUNNONLINEARSOLVER_FIXEDPOINT
-
-
-def test_initialize(sunctx, nvec, nls_newton, nls_fixedpoint):
-    # Test initialization of Newton solver
-    ret = SUNNonlinSolInitialize(nls_newton.get())
-    assert ret == 0  # 0 usually means success
-
-    # Test initialization of FixedPoint solver
-    ret = SUNNonlinSolInitialize(nls_fixedpoint.get())
+@pytest.mark.parametrize("solver_type", ["fixedpoint", "newton"])
+def test_initialize(solver_type, sunctx, nvec):
+    nls = make_solver(solver_type, sunctx, nvec)
+    ret = SUNNonlinSolInitialize(nls.get())
     assert ret == 0
 
 
-def test_set_max_iters_and_get_num_iters(sunctx, nvec, nls_newton, nls_fixedpoint):
-    # Set max iters for Newton solver
-    ret = SUNNonlinSolSetMaxIters(nls_newton.get(), 15)
+@pytest.mark.parametrize("solver_type,max_iters", [
+    ("newton", 5),
+    ("fixedpoint", 10)
+])
+def test_set_max_iters_and_get_num_iters(solver_type, max_iters, sunctx, nvec):
+    nls = make_solver(solver_type, sunctx, nvec)
+    ret = SUNNonlinSolSetMaxIters(nls.get(), max_iters)
     assert ret == 0
-
-    # Set max iters for FixedPoint solver
-    ret = SUNNonlinSolSetMaxIters(nls_fixedpoint.get(), 20)
-    assert ret == 0
-
-    # Get num iters for Newton solver
-    err, niters = SUNNonlinSolGetNumIters(nls_newton.get())
-    assert err == 0
-    assert isinstance(niters, int)
-
-    # Get num iters for FixedPoint solver
-    err, niters = SUNNonlinSolGetNumIters(nls_fixedpoint.get())
+    err, niters = SUNNonlinSolGetNumIters(nls.get())
     assert err == 0
     assert isinstance(niters, int)
 
 
-def test_get_cur_iter(sunctx, nvec, nls_newton, nls_fixedpoint):
-    # Get current iteration for Newton solver
-    err, cur_iter = SUNNonlinSolGetCurIter(nls_newton.get())
-    assert err == 0
-    assert isinstance(cur_iter, int)
-
-    # Get current iteration for FixedPoint solver
-    err, cur_iter = SUNNonlinSolGetCurIter(nls_fixedpoint.get())
+@pytest.mark.parametrize("solver_type", ["fixedpoint", "newton"])
+def test_get_cur_iter(solver_type, sunctx, nvec):
+    nls = make_solver(solver_type, sunctx, nvec)
+    err, cur_iter = SUNNonlinSolGetCurIter(nls.get())
     assert err == 0
     assert isinstance(cur_iter, int)
 
 
-def test_get_num_conv_fails(sunctx, nvec, nls_newton, nls_fixedpoint):
-    # Get number of convergence failures for Newton solver
-    err, nconvfails = SUNNonlinSolGetNumConvFails(nls_newton.get())
-    assert err == 0
-    assert isinstance(nconvfails, int)
-
-    # Get number of convergence failures for FixedPoint solver
-    err, nconvfails = SUNNonlinSolGetNumConvFails(nls_fixedpoint.get())
+@pytest.mark.parametrize("solver_type", ["fixedpoint", "newton"])
+def test_get_num_conv_fails(solver_type, sunctx, nvec):
+    nls = make_solver(solver_type, sunctx, nvec)
+    err, nconvfails = SUNNonlinSolGetNumConvFails(nls.get())
     assert err == 0
     assert isinstance(nconvfails, int)
 
