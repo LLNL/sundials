@@ -29,7 +29,7 @@ class SUNStepperView;
 #include <arkode/arkode.hpp>
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_ls.h>
-#include <arkode/arkode_sprk.hpp>
+#include <arkode/arkode_sprkstep.hpp>
 
 #include "arkode/arkode_impl.h"
 
