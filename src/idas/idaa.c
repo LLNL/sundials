@@ -715,7 +715,7 @@ int IDACreateB(void* ida_mem, int* which)
   new_IDAB_mem->ida_rhsQ  = NULL;
   new_IDAB_mem->ida_rhsQS = NULL;
 
-  new_IDAB_mem->ida_user_data = NULL;
+  new_IDAB_mem->ida_user_data     = NULL;
   new_IDAB_mem->ida_own_user_data = SUNFALSE;
 
   new_IDAB_mem->ida_lmem  = NULL;
