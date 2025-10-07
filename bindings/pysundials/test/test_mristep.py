@@ -17,17 +17,14 @@
 # -----------------------------------------------------------------
 
 
+import pytest
 import numpy as np
 from pysundials.core import *
 from pysundials.arkode import *
 from problems import AnalyticMultiscaleODE
+from fixtures import sunctx
 
-
-def test_multirate():
-    print("  testing multirate")
-
-    sunctx = SUNContextView.Create()
-
+def test_multirate(sunctx):
     ode_problem = AnalyticMultiscaleODE()
 
     t0, tf = AnalyticMultiscaleODE.T0, 0.01
@@ -47,21 +44,22 @@ def test_multirate():
     # create fast integrator
     inner_ark = ARKodeView.Create(ERKStepCreate(ffast, t0, yview.get(), sunctx.get()))
     status = ARKodeSetFixedStep(inner_ark.get(), 5e-3)
+    assert status == ARK_SUCCESS
 
-    status, inner_stepper = ARKodeCreateMRIStepInnerStepper(inner_ark.get())
+    _, inner_stepper = ARKodeCreateMRIStepInnerStepper(inner_ark.get())
     inner_stepper = MRIStepInnerStepperView.Create(inner_stepper)
 
     # create slow integrator
     ark = ARKodeView.Create(
         MRIStepCreate(fslow, None, t0, yview.get(), inner_stepper.get(), sunctx.get())
     )
-    ARKodeSetFixedStep(ark.get(), 1e-3)
+    status = ARKodeSetFixedStep(ark.get(), 1e-3)
+    assert status == ARK_SUCCESS
 
     tout = tf
-    status = ARKodeEvolve(ark.get(), tout, yview.get(), ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark.get(), tout, yview.get(), ARK_NORMAL)
+    assert status == ARK_SUCCESS
 
-    ode_problem.solution(y0view.get(), yview.get(), tf)
-
-
-if __name__ == "__main__":
-    test_multirate()
+    sol = NVectorView.Create(N_VClone(yview.get()))
+    ode_problem.solution(yview.get(), sol.get(), tret)
+    assert np.allclose(N_VGetArrayPointer(sol.get()), N_VGetArrayPointer(yview.get()), atol=1e-2)
