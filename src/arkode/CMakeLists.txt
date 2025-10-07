@@ -81,7 +81,6 @@ set(arkode_HEADERS
     arkode_splittingstep.h
     arkode_splittingstep.hpp
     arkode_sprk.h
-    arkode_sprk.hpp
     arkode_sprkstep.h
     arkode_sprkstep.hpp
     arkode_sprkstep_deprecated.h)

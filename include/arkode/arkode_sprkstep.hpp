@@ -20,7 +20,35 @@
 #ifndef _SUNDIALS_ARKODE_SPRKSTEP_HPP
 #define _SUNDIALS_ARKODE_SPRKSTEP_HPP
 
+#include <utility>
+
 #include <arkode/arkode.hpp>
+#include <arkode/arkode_sprk.h>
 #include <arkode/arkode_sprkstep.h>
+#include <sundials/sundials_classview.hpp>
+
+namespace sundials {
+namespace experimental {
+
+struct ARKodeSPRKTableDeleter
+{
+  void operator()(ARKodeSPRKTable t) { ARKodeSPRKTable_Free(t); }
+};
+
+class ARKodeSPRKTableView
+  : public ClassView<ARKodeSPRKTable, ARKodeSPRKTableDeleter>
+{
+public:
+  using ClassView<ARKodeSPRKTable, ARKodeSPRKTableDeleter>::ClassView;
+
+  template<typename... Args>
+  static ARKodeSPRKTableView Create(Args&&... args)
+  {
+    return ARKodeSPRKTableView(std::forward<Args>(args)...);
+  }
+};
+
+} // namespace experimental
+} // namespace sundials
 
 #endif

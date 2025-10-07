@@ -20,6 +20,7 @@
 #ifndef _SUNDIALS_ARKODE_MRISTEP_HPP
 #define _SUNDIALS_ARKODE_MRISTEP_HPP
 
+#include <arkode/arkode.hpp>
 #include <arkode/arkode_mristep.h>
 #include <sundials/sundials_classview.hpp>
 
