@@ -52,18 +52,26 @@ Developing
 
 The recommended method for development is to use a typical Python development workflow with ``pip`` rather than invoking CMake directly.
 
-```
-$ cd sundials_root_directory
-$ python -m venv .venv  # create python virtual environment
-$ . .venv/bin/activate  # activate the python virtual environment
-$ pip install scikit-build-core[pyproject] nanobind hatchling # this is a prerequisite for the next step
-$ MAKEFLAGS="-j$(nproc)" pip install --no-build-isolation -Ceditable.rebuild=true -ve .[dev] # install pysundials into the virtual environment
-```
+.. code-block:: shell
+
+   cd sundials_root_directory
+   python -m venv .venv  # create python virtual environment
+   . .venv/bin/activate  # activate the python virtual environment
+   pip install scikit-build-core[pyproject] hatchling # this is a prerequisite for the next step
+   MAKEFLAGS="-j$(nproc)" pip install --no-build-isolation -Ceditable.rebuild=true -ve .[dev] # install pysundials into the virtual environment
 
 The last ``pip install`` command will allow automatic incremental builds. It will invoke the SUNDIALS `CMake` build system with the
 ``-DSUNDIALS_ENABLE_PYTHON=ON`` option through `scikit-build-core <https://scikit-build-core.readthedocs.io/en/latest/index.html>`__.
 After the initial build, if you make any changes within SUNDIALS a rebuild will be triggered when you import the ``pysundials``
 module wihtin a Python script. 
+
+Different CMake options can be controlled by passing them through the ``--config-settings`` (or ``-C`` for short) option of ``pip install``.
+E.g.,
+
+.. code-block:: shell
+
+   MAKEFLAGS="-j$(nproc)" pip install --no-build-isolation -Ceditable.rebuild=true -ve .[dev] \
+      -C cmake.define.SUNDIALS_INDEX_SIZE=32  
 
 
 Things to Know

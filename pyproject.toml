@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core >=0.4.3", "nanobind"]
+requires = ["scikit-build-core[pyproject] >=0.4.3", "nanobind"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -20,15 +20,15 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Mathematics"
 ]
 dependencies = [
-    "nanobind",
-    "numpy",
+    "nanobind >= 2.9.2",
+    "numpy >= 2.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "black",
     "isort",
-    "litgen@git+https://github.com/pthom/litgen",
+    "litgen@git+https://github.com/sundials-codes/litgen.git",
     "pytest",
     "pyyaml",
 ]
@@ -49,14 +49,15 @@ build-dir = "build/{wheel_tag}"
 wheel.py-api = "cp312"
 
 cmake.args = [
-    "-DBUILD_SHARED_LIBS=OFF",
-    "-DBUILD_CVODE=OFF",
-    "-DBUILD_IDA=OFF",
-    "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
-    "-DEXAMPLES_ENABLE_C=OFF",
-    "-DEXAMPLES_ENABLE_CXX=OFF",
-    "-DSUNDIALS_ENABLE_PYTHON=ON"
+    "-DBUILD_SHARED_LIBS:BOOL=OFF",
+    "-DBUILD_CVODE:BOOL=OFF",
+    "-DBUILD_IDA:BOOL=OFF",
+    "-DEXAMPLES_ENABLE_C:BOOL=OFF",
+    "-DEXAMPLES_ENABLE_CXX:BOOL=OFF",
+    "-DSUNDIALS_ENABLE_PYTHON:BOOL=ON"
 ]
+
+cmake.build-type = "RelWithDebInfo"
 
 [tool.pytest.ini_options]
 addopts = [
