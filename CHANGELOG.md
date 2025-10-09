@@ -14,6 +14,9 @@ and IDAS, respectively.
 The SPRKStep module now accounts for zero coefficients in the SPRK tables, eliminating
 extraneous function evaluations.
 
+A bug preventing a user supplied `SUNStepper_ResetCheckpointIndex` function from being
+called was fixed. 
+
 ### Deprecation Notices
 
 `SUNDIALSFileOpen` and `SUNDIALSFileClose` will be removed in the next major release. 
