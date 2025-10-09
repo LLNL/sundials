@@ -57,7 +57,7 @@ $ cd sundials_root_directory
 $ python -m venv .venv  # create python virtual environment
 $ . .venv/bin/activate  # activate the python virtual environment
 $ pip install scikit-build-core[pyproject] nanobind hatchling # this is a prerequisite for the next step
-$ pip install --no-build-isolation -Ceditable.rebuild=true -ve .[dev] # install pysundials into the virtual environment
+$ MAKEFLAGS="-j$(nproc)" pip install --no-build-isolation -Ceditable.rebuild=true -ve .[dev] # install pysundials into the virtual environment
 ```
 
 The last ``pip install`` command will allow automatic incremental builds. It will invoke the SUNDIALS `CMake` build system with the
