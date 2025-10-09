@@ -63,3 +63,6 @@ modules:
     - "^IDAGetCurrentYSens$"
     - "^IDAGetCurrentYpSens$"
     - "^IDAGetNonlinearSystemDataSens$"
+    - "^IDAGetAdjCurrentCheckPoint$"
+    # generator cannot yet handle mixing pointer outputs and ** in the same function
+    - "^IDAGetNonlinearSystemData$"

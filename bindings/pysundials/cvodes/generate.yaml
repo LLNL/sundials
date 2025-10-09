@@ -63,3 +63,6 @@ modules:
     - "^CVodeComputeStateSens1$"
     - "^CVodeGetCurrentStateSens$"
     - "^CVodeGetNonlinearSystemDataSens$"
+    - "^CVodeGetAdjCurrentCheckPoint"
+    # generator cannot yet handle mixing pointer outputs and ** in the same function
+    - "^CVodeGetNonlinearSystemData$"

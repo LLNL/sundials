@@ -67,6 +67,8 @@ modules:
     # generator cannot handle functions with optional (i.e. NULLable) parameters that is not 
     # followed by only optional parameters, so we have to do something custom
     - "^ARKodeSetMassLinearSolver$"
+    # generator cannot yet handle mixing pointer outputs and ** in the same function
+    - "^ARKodeGetNonlinearSystemData$"
   arkstep:
     path: arkode/arkode_arkstep_generated.hpp
     headers:
@@ -126,6 +128,8 @@ modules:
     - "^MRIStepInnerStepper_SetContent$"
     # we have to do custom things to handle setting function pointers
     - "^MRIStepInnerStepper_Set.*Fn$"
+    # generator cannot yet handle mixing pointer outputs and ** in the same function
+    - "^MRIStepInnerStepper_GetForcingData$"
   forcingstep:
     path: arkode/arkode_forcingstep_generated.hpp
     headers:

@@ -109,8 +109,6 @@ NB_MODULE(pysundials, m)
   pysundials::bind_sunadaptcontroller_soderlind(core_m);
   pysundials::bind_sunadaptcontroller_imexgus(core_m);
 
-  // TODO(CJB): enable arnoldi once LAPACK is enabled for pysundials
-  // pysundials::bind_sundomeigest_arnoldi(core_m);
   pysundials::bind_sundomeigest_power(core_m);
 
   pysundials::bind_sunadjointcheckpointscheme_fixed(core_m);
