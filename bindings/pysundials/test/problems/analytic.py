@@ -126,11 +126,10 @@ class AnalyticDAE:
         res = N_VGetArrayPointer(resvec)
         alpha = self.alpha
 
-        # x1'(t) = (1-alpha)/(t-2)*x1 - x1 + (alpha-1)*x2 + 2*exp(t)
-        res[0] = yp[0] - (
-            (1 - alpha) / (t - 2.0) * yy[0] - yy[0] + (alpha - 1) * yy[1] + 2 * np.exp(t)
-        )
-        # 0 = (t+2)*x1 - (t+2)*exp(t)
+        # System residual function:
+        #   0 = (1-alpha)/(t-2)*x1 - x1 + (alpha-1)*x2 + 2*exp(t) - x1'(t)
+        #   0 = (t+2)*x1 - (t+2)*exp(t)
+        res[0] = (1.0 - alpha) / (t - 2.0) * yy[0] - yy[0] + (alpha - 1.0) * yy[1] + 2.0 * np.exp(t) - yp[0]
         res[1] = (t + 2.0) * yy[0] - (t + 2.0) * np.exp(t)
         return 0
 
@@ -149,11 +148,12 @@ class AnalyticDAE:
     def psolve(self, t, yyvec, ypvec, rrvec, rvec, zvec, cj, delta):
         """
         Exact solution as preconditioner
-        A = df/dy + cj*df/dyp
+        P = df/dy + cj*df/dyp
                 =>
-                    A = [ - cj - (alpha - 1)/(t - 2) - 1, alpha - 1]
+                    P = [ - cj - (alpha - 1)/(t - 2) - 1, alpha - 1]
                         [                          t + 2,         0]
 
+        z = P^{-1} r
         */
         """
         yy = N_VGetArrayPointer(yyvec)
@@ -161,9 +161,11 @@ class AnalyticDAE:
         r = N_VGetArrayPointer(rvec)
         z = N_VGetArrayPointer(zvec)
         alpha = self.alpha
-        A = np.array([[-cj - (alpha - 1.0) / (t - 2.0) - 1.0, alpha - 1.0], [t + 2.0, 0.0]])
-        z[0] = r[1] / A[1, 0]
-        z[1] = -(A[0, 0] * r[1] - A[1, 0] * r[0]) / (A[0, 1] * A[1, 0])
+        a11 = -cj - (alpha - 1.0) / (t - 2.0) - 1.0
+        a12 = alpha - 1.0
+        a21 = t + 2.0
+        z[0] = r[1] / a21
+        z[1] = -(a11 * r[1] - a21 * r[0]) / (a12 * a21);
         return 0
 
 
