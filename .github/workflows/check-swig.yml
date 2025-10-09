@@ -10,6 +10,8 @@ concurrency:
 
 jobs:
   swig_check:
+    if: contains(github.event.commits.*.message, '[run-ci]') # This job only runs if commit message contains '[run-ci]'
+
     runs-on: ubuntu-latest
     steps:
       - name: Install pcre
