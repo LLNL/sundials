@@ -27,6 +27,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_arkode_lsrkstep(nb::module_& m)
 {
 #include "arkode_lsrkstep_generated.hpp"
@@ -104,3 +106,5 @@ void bind_arkode_lsrkstep(nb::module_& m)
           return LSRKStepSetDomEigFn(ark_mem, &lsrkstep_domeig_wrapper);
         });
 }
+
+} // namespace pysundials

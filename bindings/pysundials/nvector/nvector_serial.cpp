@@ -9,7 +9,11 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_nvector_serial(nb::module_& m)
 {
 #include "nvector_serial_generated.hpp"
 }
+
+} // namespace pysundials

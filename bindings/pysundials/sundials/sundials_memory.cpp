@@ -29,6 +29,8 @@ namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
+namespace pysundials {
+
 void bind_sunmemory(nb::module_& m)
 {
 #include "sundials_memory_generated.hpp"
@@ -38,3 +40,5 @@ void bind_sunmemory(nb::module_& m)
     .def("get", nb::overload_cast<>(&SUNMemoryHelperView::get, nb::const_),
          nb::rv_policy::reference);
 }
+
+} // namespace pysundials

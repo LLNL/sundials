@@ -20,8 +20,12 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_sunnonlinsol_fixedpoint(nb::module_& m)
 {
   m.def("SUNNonlinSol_FixedPoint", &SUNNonlinSol_FixedPoint,
         nb::rv_policy::reference);
 }
+
+} // namespace pysundials

@@ -25,6 +25,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_sunadjointcheckpointscheme_fixed(nb::module_& m)
 {
   m.def(
@@ -43,3 +45,5 @@ void bind_sunadjointcheckpointscheme_fixed(nb::module_& m)
     },
     nb::rv_policy::reference);
 }
+
+} // namespace pysundials

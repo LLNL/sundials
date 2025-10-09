@@ -20,7 +20,11 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_sunnonlinsol_newton(nb::module_& m)
 {
   m.def("SUNNonlinSol_Newton", &SUNNonlinSol_Newton, nb::rv_policy::reference);
 }
+
+} // namespace pysundials

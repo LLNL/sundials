@@ -22,7 +22,11 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_sunlinsol_band(nb::module_& m)
 {
   m.def("SUNLinSol_Band", &SUNLinSol_Band, nb::rv_policy::reference);
 }
+
+} // namespace pysundials

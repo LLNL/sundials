@@ -33,6 +33,8 @@ namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
+namespace pysundials {
+
 void bind_sunnonlinearsolver(nb::module_& m)
 {
 #include "sundials_nonlinearsolver_generated.hpp"
@@ -146,3 +148,5 @@ void bind_sunnonlinearsolver(nb::module_& m)
     },
     nb::arg("NLS"), nb::arg("CTestFn").none());
 }
+
+} // namespace pysundials

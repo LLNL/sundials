@@ -22,7 +22,11 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_sunlinsol_dense(nb::module_& m)
 {
   m.def("SUNLinSol_Dense", &SUNLinSol_Dense, nb::rv_policy::reference);
 }
+
+} // namespace pysundials

@@ -36,8 +36,7 @@
 
 #include "cvodes_usersupplied.hpp"
 
-namespace nb = nanobind;
-
+namespace pysundials {
 using namespace sundials::experimental;
 
 #define BIND_CVODE_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...)               \
@@ -405,3 +404,5 @@ void bind_cvodes(nb::module_& m)
                        cvode_lslinsysfnBS_wrapper, nb::arg("cv_mem"),
                        nb::arg("which"), nb::arg("linsysBS").none());
 }
+
+} // namespace pysundials

@@ -20,8 +20,12 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_sunadaptcontroller_soderlind(nb::module_& m)
 {
   m.def("SUNAdaptController_Soderlind", &SUNAdaptController_Soderlind,
         nb::rv_policy::reference);
 }
+
+} // namespace pysundials

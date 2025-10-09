@@ -32,6 +32,8 @@ namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
+namespace pysundials {
+
 void bind_sunadjointcheckpointscheme(nb::module_& m)
 {
 #include "sundials_adjointcheckpointscheme_generated.hpp"
@@ -44,3 +46,5 @@ void bind_sunadjointcheckpointscheme(nb::module_& m)
          nb::overload_cast<>(&SUNAdjointCheckpointSchemeView::get, nb::const_),
          nb::rv_policy::reference);
 }
+
+} // namespace pysundials

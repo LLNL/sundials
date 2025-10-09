@@ -32,6 +32,8 @@ namespace nb = nanobind;
 
 using SUNLoggerView = sundials::experimental::SUNLoggerView;
 
+namespace pysundials {
+
 void bind_sunlogger(nb::module_& m)
 {
 #include "sundials_logger_generated.hpp"
@@ -43,3 +45,5 @@ void bind_sunlogger(nb::module_& m)
     .def_static("Create", &SUNLoggerView::Create<SUNComm>)
     .def_static("Create", &SUNLoggerView::Create<SUNComm, int>);
 }
+
+} // namespace pysundials

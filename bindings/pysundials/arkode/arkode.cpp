@@ -41,6 +41,8 @@ namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
+namespace pysundials {
+
 // Forward declarations of functions defined in other translation units
 void bind_arkode_erkstep(nb::module_& m);
 void bind_arkode_arkstep(nb::module_& m);
@@ -292,3 +294,5 @@ void bind_arkode(nb::module_& m)
   bind_arkode_forcingstep(m);
   bind_arkode_splittingstep(m);
 }
+
+} // namespace pysundials

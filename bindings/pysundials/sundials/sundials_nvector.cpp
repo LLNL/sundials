@@ -32,6 +32,8 @@ namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
+namespace pysundials {
+
 void bind_nvector(nb::module_& m)
 {
 #include "sundials_nvector_generated.hpp"
@@ -73,3 +75,5 @@ void bind_nvector(nb::module_& m)
           N_VSetArrayPointer(arr.data(), v);
         });
 }
+
+} // namespace pysundials

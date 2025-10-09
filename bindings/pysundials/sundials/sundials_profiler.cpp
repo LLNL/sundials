@@ -30,6 +30,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 using SUNProfilerView = sundials::experimental::SUNProfilerView;
 
 void bind_sunprofiler(nb::module_& m)
@@ -43,3 +45,5 @@ void bind_sunprofiler(nb::module_& m)
          nb::rv_policy::reference)
     .def_static("Create", &SUNProfilerView::Create<SUNComm, const char*>);
 }
+
+} // namespace pysundials

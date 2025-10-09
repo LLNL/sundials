@@ -27,6 +27,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_arkode_erkstep(nb::module_& m)
 {
 #include "arkode_erkstep_generated.hpp"
@@ -117,3 +119,5 @@ void bind_arkode_erkstep(nb::module_& m)
     "or worse.",
     nb::rv_policy::reference);
 }
+
+} // namespace pysundials

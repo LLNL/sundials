@@ -27,6 +27,6 @@ namespace pysundials {
 
 using array1d = nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig>;
 
-} // namespace pysundials
+}
 
 #endif

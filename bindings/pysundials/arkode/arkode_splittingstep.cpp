@@ -29,6 +29,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_arkode_splittingstep(nb::module_& m)
 {
 #include "arkode_splittingstep_generated.hpp"
@@ -47,3 +49,5 @@ void bind_arkode_splittingstep(nb::module_& m)
                                      t0, y0);
         });
 }
+
+} // namespace pysundials

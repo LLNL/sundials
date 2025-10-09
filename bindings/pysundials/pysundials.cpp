@@ -22,6 +22,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 //
 // Forward declarations of all of the binding functions
 //
@@ -60,6 +62,8 @@ void bind_sundomeigest_power(nb::module_& m);
 // SUNAdjointCheckpointScheme bindings
 void bind_sunadjointcheckpointscheme_fixed(nb::module_& m);
 
+} // namespace pysundials
+
 //
 // Define main module, pysundials, and all of its submodules
 //
@@ -67,47 +71,47 @@ void bind_sunadjointcheckpointscheme_fixed(nb::module_& m);
 NB_MODULE(pysundials, m)
 {
   nb::module_ core_m = m.def_submodule("core", "A submodule of 'pysundials'");
-  bind_core(core_m);
+  pysundials::bind_core(core_m);
 
   nb::module_ arkode_m = m.def_submodule("arkode",
                                          "A submodule of 'pysundials'");
-  bind_arkode(arkode_m);
+  pysundials::bind_arkode(arkode_m);
 
   nb::module_ cvodes_m = m.def_submodule("cvodes",
                                          "A submodule of 'pysundials'");
-  bind_cvodes(cvodes_m);
+  pysundials::bind_cvodes(cvodes_m);
 
   nb::module_ idas_m = m.def_submodule("idas", "A submodule of 'pysundials'");
-  bind_idas(idas_m);
+  pysundials::bind_idas(idas_m);
 
   nb::module_ kinsol_m = m.def_submodule("kinsol",
                                          "A submodule of 'pysundials'");
-  bind_kinsol(kinsol_m);
+  pysundials::bind_kinsol(kinsol_m);
 
   // Bind all implementation modules directly to core_m
-  bind_nvector_serial(core_m);
-  bind_sunlinsol_spgmr(core_m);
-  bind_sunlinsol_dense(core_m);
-  bind_sunlinsol_band(core_m);
-  bind_sunlinsol_spbcgs(core_m);
-  bind_sunlinsol_spfgmr(core_m);
-  bind_sunlinsol_sptfqmr(core_m);
-  bind_sunlinsol_pcg(core_m);
+  pysundials::bind_nvector_serial(core_m);
+  pysundials::bind_sunlinsol_spgmr(core_m);
+  pysundials::bind_sunlinsol_dense(core_m);
+  pysundials::bind_sunlinsol_band(core_m);
+  pysundials::bind_sunlinsol_spbcgs(core_m);
+  pysundials::bind_sunlinsol_spfgmr(core_m);
+  pysundials::bind_sunlinsol_sptfqmr(core_m);
+  pysundials::bind_sunlinsol_pcg(core_m);
 
-  bind_sunmatrix_dense(core_m);
-  bind_sunmatrix_band(core_m);
-  bind_sunmatrix_sparse(core_m);
+  pysundials::bind_sunmatrix_dense(core_m);
+  pysundials::bind_sunmatrix_band(core_m);
+  pysundials::bind_sunmatrix_sparse(core_m);
 
-  bind_sunnonlinsol_newton(core_m);
-  bind_sunnonlinsol_fixedpoint(core_m);
+  pysundials::bind_sunnonlinsol_newton(core_m);
+  pysundials::bind_sunnonlinsol_fixedpoint(core_m);
 
-  bind_sunadaptcontroller_mrihtol(core_m);
-  bind_sunadaptcontroller_soderlind(core_m);
-  bind_sunadaptcontroller_imexgus(core_m);
+  pysundials::bind_sunadaptcontroller_mrihtol(core_m);
+  pysundials::bind_sunadaptcontroller_soderlind(core_m);
+  pysundials::bind_sunadaptcontroller_imexgus(core_m);
 
   // TODO(CJB): enable arnoldi once LAPACK is enabled for pysundials
-  // bind_sundomeigest_arnoldi(core_m);
-  bind_sundomeigest_power(core_m);
+  // pysundials::bind_sundomeigest_arnoldi(core_m);
+  pysundials::bind_sundomeigest_power(core_m);
 
-  bind_sunadjointcheckpointscheme_fixed(core_m);
+  pysundials::bind_sunadjointcheckpointscheme_fixed(core_m);
 }

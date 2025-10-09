@@ -32,6 +32,8 @@ namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
+namespace pysundials {
+
 void bind_arkode_mristep(nb::module_& m)
 {
 #include "arkode_mristep_generated.hpp"
@@ -150,3 +152,5 @@ void bind_arkode_mristep(nb::module_& m)
     "or worse.",
     nb::rv_policy::reference);
 }
+
+} // namespace pysundials

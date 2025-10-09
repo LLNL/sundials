@@ -35,6 +35,8 @@
 namespace nb = nanobind;
 using namespace sundials::experimental;
 
+namespace pysundials {
+
 void bind_sundomeigestimator(nb::module_& m)
 {
 #include "sundials_domeigestimator_generated.hpp"
@@ -67,3 +69,5 @@ void bind_sundomeigestimator(nb::module_& m)
     },
     nb::arg("DEE"), nb::arg("ATimes").none());
 }
+
+} // namespace pysundials

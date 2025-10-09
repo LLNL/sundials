@@ -15,9 +15,9 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS N_Vector class. It contains hand-written code for functions
- * that require special treatment, and includes the generated code
- * produced with the generate.py script.
+ * SUNDIALS SUNLinearSolver class. It contains hand-written code for
+ * functions that require special treatment, and includes the generated
+ * code produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
@@ -27,8 +27,9 @@
 #include <sundials/sundials_linearsolver.hpp>
 
 namespace nb = nanobind;
-
 using namespace sundials::experimental;
+
+namespace pysundials {
 
 void bind_sunlinearsolver(nb::module_& m)
 {
@@ -39,3 +40,5 @@ void bind_sunlinearsolver(nb::module_& m)
     .def("get", nb::overload_cast<>(&SUNLinearSolverView::get, nb::const_),
          nb::rv_policy::reference);
 }
+
+} // namespace pysundials

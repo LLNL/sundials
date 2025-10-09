@@ -75,6 +75,8 @@ using namespace sundials::experimental;
     },                                                                           \
     __VA_ARGS__)
 
+namespace pysundials {
+
 void bind_kinsol(nb::module_& m)
 {
 #include "kinsol_generated.hpp"
@@ -155,3 +157,5 @@ void bind_kinsol(nb::module_& m)
                        kinsol_lsjtvsysfn_wrapper, nb::arg("kin_mem"),
                        nb::arg("jtvSysFn").none());
 }
+
+} // namespace pysundials

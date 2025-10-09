@@ -31,6 +31,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 using SUNContextView = sundials::SUNContextView;
 
 void bind_suncontext(nb::module_& m)
@@ -46,3 +48,5 @@ void bind_suncontext(nb::module_& m)
     .def_static("Create", &SUNContextView::Create<SUNContext>)
     .def_static("Create", &SUNContextView::Create<SUNComm>);
 }
+
+} // namespace pysundials

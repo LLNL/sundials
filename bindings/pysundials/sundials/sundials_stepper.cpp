@@ -34,6 +34,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 using SUNStepperView = sundials::experimental::SUNStepperView;
 
 void bind_sunstepper(nb::module_& m)
@@ -246,3 +248,5 @@ void bind_sunstepper(nb::module_& m)
     },
     nb::arg("stepper"), nb::arg("fn").none());
 }
+
+} // namespace pysundials

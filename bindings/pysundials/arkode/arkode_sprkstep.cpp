@@ -27,6 +27,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_arkode_sprkstep(nb::module_& m)
 {
 #include "arkode_sprkstep_generated.hpp"
@@ -67,3 +69,5 @@ void bind_arkode_sprkstep(nb::module_& m)
     nb::arg("f1"), nb::arg("f2"), nb::arg("t0"), nb::arg("y0"),
     nb::arg("sunctx"));
 }
+
+} // namespace pysundials

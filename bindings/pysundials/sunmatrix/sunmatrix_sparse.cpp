@@ -23,6 +23,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_sunmatrix_sparse(nb::module_& m)
 {
 #include "sunmatrix_sparse_generated.hpp"
@@ -67,3 +69,5 @@ void bind_sunmatrix_sparse(nb::module_& m)
     },
     nb::arg("A"), nb::rv_policy::reference);
 }
+
+} // namespace pysundials

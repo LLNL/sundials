@@ -22,7 +22,11 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_sunlinsol_spbcgs(nb::module_& m)
 {
   m.def("SUNLinSol_SPBCGS", &SUNLinSol_SPBCGS, nb::rv_policy::reference);
 }
+
+} // namespace pysundials

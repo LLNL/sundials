@@ -20,8 +20,12 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_sundomeigest_power(nb::module_& m)
 {
   m.def("SUNDomEigEstimator_Power", &SUNDomEigEstimator_Power,
         nb::rv_policy::reference);
 }
+
+} // namespace pysundials

@@ -28,6 +28,8 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_nvector(nb::module_& m);
 void bind_sunadaptcontroller(nb::module_& m);
 void bind_sunadjointcheckpointscheme(nb::module_& m);
@@ -74,3 +76,5 @@ void bind_core(nb::module_& m)
   bind_sunprofiler(m);
   bind_sunstepper(m);
 }
+
+} // namespace pysundials

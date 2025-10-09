@@ -27,7 +27,11 @@
 
 namespace nb = nanobind;
 
+namespace pysundials {
+
 void bind_arkode_forcingstep(nb::module_& m)
 {
 #include "arkode_forcingstep_generated.hpp"
 }
+
+} // namespace pysundials

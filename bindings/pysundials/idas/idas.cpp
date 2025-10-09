@@ -111,6 +111,8 @@ using namespace sundials::experimental;
     },                                                                          \
     __VA_ARGS__)
 
+namespace pysundials {
+
 void bind_idas(nb::module_& m)
 {
 #include "idas_generated.hpp"
@@ -347,3 +349,5 @@ void bind_idas(nb::module_& m)
                       nb::arg("which"), nb::arg("jsetupBS").none(),
                       nb::arg("jtimesBS").none());
 }
+
+} // namespace pysundials
