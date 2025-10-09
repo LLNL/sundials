@@ -34,7 +34,7 @@ using namespace sundials::experimental;
 
 void bind_sunadjointcheckpointscheme(nb::module_& m)
 {
-#include "pysundials_adjointcheckpointscheme_generated.hpp"
+#include "sundials_adjointcheckpointscheme_generated.hpp"
 
   nb::class_<SUNAdjointCheckpointSchemeView>(m,
                                              "SUNAdjointCheckpointSchemeView")

@@ -15,7 +15,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS SUNLogger class. It contains hand-written code for
+ * SUNDIALS SUNContext class. It contains hand-written code for
  * functions that require special treatment, and includes the generated
  * code produced with the generate.py script.
  * -----------------------------------------------------------------*/
@@ -23,23 +23,26 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 
-#include <sundials/sundials_logger.hpp>
-#include <sundials/sundials_types.h>
+#include <sundials/sundials_context.hpp>
 
+#include "sundials/sundials_types.h"
 #include "sundials_logger_impl.h"
+#include "sundials_profiler_impl.h"
 
 namespace nb = nanobind;
 
-using SUNLoggerView = sundials::experimental::SUNLoggerView;
+using SUNContextView = sundials::SUNContextView;
 
-void bind_sunlogger(nb::module_& m)
+void bind_suncontext(nb::module_& m)
 {
-#include "pysundials_logger_generated.hpp"
-  nb::class_<SUNLogger_>(m, "SUNLogger_");
+#include "sundials_context_generated.hpp"
 
-  nb::class_<SUNLoggerView>(m, "SUNLoggerView")
-    .def("get", nb::overload_cast<>(&SUNLoggerView::get, nb::const_),
+  nb::class_<SUNContext_>(m, "SUNContext_");
+
+  nb::class_<SUNContextView>(m, "SUNContextView")
+    .def("get", nb::overload_cast<>(&SUNContextView::get, nb::const_),
          nb::rv_policy::reference)
-    .def_static("Create", &SUNLoggerView::Create<SUNComm>)
-    .def_static("Create", &SUNLoggerView::Create<SUNComm, int>);
+    .def_static("Create", &SUNContextView::Create<>)
+    .def_static("Create", &SUNContextView::Create<SUNContext>)
+    .def_static("Create", &SUNContextView::Create<SUNComm>);
 }

@@ -32,7 +32,7 @@ using namespace sundials::experimental;
 
 void bind_sunadaptcontroller(nb::module_& m)
 {
-#include "pysundials_adaptcontroller_generated.hpp"
+#include "sundials_adaptcontroller_generated.hpp"
 
   nb::class_<SUNAdaptControllerView>(m, "SUNAdaptControllerView")
     .def_static("Create", &SUNAdaptControllerView::Create<SUNAdaptController>)

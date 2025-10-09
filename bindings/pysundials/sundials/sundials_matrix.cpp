@@ -15,34 +15,26 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS SUNContext class. It contains hand-written code for
- * functions that require special treatment, and includes the generated
- * code produced with the generate.py script.
+ * SUNDIALS SUNMatrix class. It contains hand-written code for functions
+ * that require special treatment, and includes the generated code
+ * produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 
-#include <sundials/sundials_context.hpp>
-
-#include "sundials/sundials_types.h"
-#include "sundials_logger_impl.h"
-#include "sundials_profiler_impl.h"
+#include <sundials/sundials_matrix.hpp>
 
 namespace nb = nanobind;
 
-using SUNContextView = sundials::SUNContextView;
+using namespace sundials::experimental;
 
-void bind_suncontext(nb::module_& m)
+void bind_sunmatrix(nb::module_& m)
 {
-#include "pysundials_context_generated.hpp"
+#include "sundials_matrix_generated.hpp"
 
-  nb::class_<SUNContext_>(m, "SUNContext_");
-
-  nb::class_<SUNContextView>(m, "SUNContextView")
-    .def("get", nb::overload_cast<>(&SUNContextView::get, nb::const_),
-         nb::rv_policy::reference)
-    .def_static("Create", &SUNContextView::Create<>)
-    .def_static("Create", &SUNContextView::Create<SUNContext>)
-    .def_static("Create", &SUNContextView::Create<SUNComm>);
+  nb::class_<SUNMatrixView>(m, "SUNMatrixView")
+    .def_static("Create", &SUNMatrixView::Create<SUNMatrix>)
+    .def("get", nb::overload_cast<>(&SUNMatrixView::get, nb::const_),
+         nb::rv_policy::reference);
 }

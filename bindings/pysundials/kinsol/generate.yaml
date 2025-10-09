@@ -31,7 +31,7 @@ modules:
     - "^KIN_"
     - "^KINLS_"
   kinsol:
-    path: kinsol/pysundials_kinsol_generated.hpp
+    path: kinsol/kinsol_generated.hpp
     headers:
     - ../../include/kinsol/kinsol.h
     - ../../include/kinsol/kinsol_ls.h

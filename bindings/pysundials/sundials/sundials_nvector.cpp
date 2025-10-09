@@ -34,7 +34,7 @@ using namespace sundials::experimental;
 
 void bind_nvector(nb::module_& m)
 {
-#include "pysundials_nvector_generated.hpp"
+#include "sundials_nvector_generated.hpp"
 
   nb::class_<NVectorView>(m, "NVectorView")
     .def_static("Create", &NVectorView::Create<N_Vector>)

@@ -31,7 +31,7 @@ using namespace sundials::experimental;
 
 void bind_sunmemory(nb::module_& m)
 {
-#include "pysundials_memory_generated.hpp"
+#include "sundials_memory_generated.hpp"
 
   nb::class_<SUNMemoryHelperView>(m, "SUNMemoryHelperView")
     .def_static("Create", &SUNMemoryHelperView::Create<SUNMemoryHelper>)

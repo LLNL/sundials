@@ -30,7 +30,7 @@ modules:
     - "^IDA_"
     - "^IDALS_"
   idas:
-    path: idas/pysundials_idas_generated.hpp
+    path: idas/idas_generated.hpp
     headers:
     - ../../include/idas/idas.h
     - ../../include/idas/idas_ls.h

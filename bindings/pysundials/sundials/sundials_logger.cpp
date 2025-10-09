@@ -15,27 +15,31 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS N_Vector class. It contains hand-written code for functions
- * that require special treatment, and includes the generated code
- * produced with the generate.py script.
+ * SUNDIALS SUNLogger class. It contains hand-written code for
+ * functions that require special treatment, and includes the generated
+ * code produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
-#include <nanobind/stl/vector.h>
 
-#include <sundials/sundials_linearsolver.hpp>
+#include <sundials/sundials_logger.hpp>
+#include <sundials/sundials_types.h>
+
+#include "sundials_logger_impl.h"
 
 namespace nb = nanobind;
 
-using namespace sundials::experimental;
+using SUNLoggerView = sundials::experimental::SUNLoggerView;
 
-void bind_sunlinearsolver(nb::module_& m)
+void bind_sunlogger(nb::module_& m)
 {
-#include "pysundials_linearsolver_generated.hpp"
+#include "sundials_logger_generated.hpp"
+  nb::class_<SUNLogger_>(m, "SUNLogger_");
 
-  nb::class_<SUNLinearSolverView>(m, "SUNLinearSolverView")
-    .def_static("Create", &SUNLinearSolverView::Create<SUNLinearSolver>)
-    .def("get", nb::overload_cast<>(&SUNLinearSolverView::get, nb::const_),
-         nb::rv_policy::reference);
+  nb::class_<SUNLoggerView>(m, "SUNLoggerView")
+    .def("get", nb::overload_cast<>(&SUNLoggerView::get, nb::const_),
+         nb::rv_policy::reference)
+    .def_static("Create", &SUNLoggerView::Create<SUNComm>)
+    .def_static("Create", &SUNLoggerView::Create<SUNComm, int>);
 }

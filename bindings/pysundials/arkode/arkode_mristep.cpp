@@ -26,7 +26,7 @@
 
 #include "arkode_mristep_impl.h"
 
-#include "pysundials_arkode_usersupplied.hpp"
+#include "arkode_usersupplied.hpp"
 
 namespace nb = nanobind;
 
@@ -34,7 +34,7 @@ using namespace sundials::experimental;
 
 void bind_arkode_mristep(nb::module_& m)
 {
-#include "pysundials_arkode_mristep_generated.hpp"
+#include "arkode_mristep_generated.hpp"
 
   nb::class_<MRIStepCouplingView>(m, "MRIStepCouplingView")
     .def_static("Create", &MRIStepCouplingView::Create<MRIStepCouplingView>)

@@ -31,7 +31,7 @@ namespace nb = nanobind;
 
 void bind_arkode_splittingstep(nb::module_& m)
 {
-#include "pysundials_arkode_splittingstep_generated.hpp"
+#include "arkode_splittingstep_generated.hpp"
 
   m.def("SplittingStepCreate",
         [](std::vector<SUNStepper> steppers, int partitions, sunrealtype t0,

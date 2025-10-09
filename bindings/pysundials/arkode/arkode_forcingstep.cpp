@@ -29,5 +29,5 @@ namespace nb = nanobind;
 
 void bind_arkode_forcingstep(nb::module_& m)
 {
-#include "pysundials_arkode_forcingstep_generated.hpp"
+#include "arkode_forcingstep_generated.hpp"
 }

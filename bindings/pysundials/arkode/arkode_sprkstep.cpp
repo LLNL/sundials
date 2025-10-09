@@ -23,13 +23,13 @@
 #include <arkode/arkode_sprkstep.h>
 #include <sundials/sundials_core.hpp>
 
-#include "pysundials_arkode_usersupplied.hpp"
+#include "arkode_usersupplied.hpp"
 
 namespace nb = nanobind;
 
 void bind_arkode_sprkstep(nb::module_& m)
 {
-#include "pysundials_arkode_sprkstep_generated.hpp"
+#include "arkode_sprkstep_generated.hpp"
 
   m.def(
     "SPRKStepCreate",

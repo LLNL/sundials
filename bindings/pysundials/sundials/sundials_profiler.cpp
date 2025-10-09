@@ -15,26 +15,31 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This file is the entrypoint for the Python binding code for the
- * SUNDIALS SUNMemoryHelper class. It contains hand-written code for 
- * functions that require special treatment, and includes the 
- * generated code produced with the generate.py script.
+ * SUNDIALS SUNProfiler class. It contains hand-written code for
+ * functions that require special treatment, and includes the generated
+ * code produced with the generate.py script.
  * -----------------------------------------------------------------*/
 
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 
-#include <sundials/sundials_memory.hpp>
+#include <sundials/sundials_profiler.hpp>
+
+#include "sundials/sundials_types.h"
+#include "sundials_profiler_impl.h"
 
 namespace nb = nanobind;
 
-using namespace sundials::experimental;
+using SUNProfilerView = sundials::experimental::SUNProfilerView;
 
-void bind_sunmemory(nb::module_& m)
+void bind_sunprofiler(nb::module_& m)
 {
-#include "pysundials_memory_generated.hpp"
+#include "sundials_profiler_generated.hpp"
 
-  nb::class_<SUNMemoryHelperView>(m, "SUNMemoryHelperView")
-    .def_static("Create", &SUNMemoryHelperView::Create<SUNMemoryHelper>)
-    .def("get", nb::overload_cast<>(&SUNMemoryHelperView::get, nb::const_),
-         nb::rv_policy::reference);
+  nb::class_<SUNProfiler_>(m, "SUNProfiler_");
+
+  nb::class_<SUNProfilerView>(m, "SUNProfilerView")
+    .def("get", nb::overload_cast<>(&SUNProfilerView::get, nb::const_),
+         nb::rv_policy::reference)
+    .def_static("Create", &SUNProfilerView::Create<SUNComm, const char*>);
 }

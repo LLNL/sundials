@@ -24,7 +24,7 @@ modules:
     # Don't interface the implementation specific overrides of the generic routines
     - "^SUNMat.*"
   sunmatrix_band:
-    path: sunmatrix/pysundials_sunmatrix_band_generated.hpp
+    path: sunmatrix/sunmatrix_band_generated.hpp
     headers:
     - ../../include/sunmatrix/sunmatrix_band.h
     fn_exclude_by_name__regex:
@@ -34,7 +34,7 @@ modules:
     - "^SUNBandMatrix_Cols$"
     - "^SUNBandMatrix_Column$"
   sunmatrix_dense:
-      path: sunmatrix/pysundials_sunmatrix_dense_generated.hpp
+      path: sunmatrix/sunmatrix_dense_generated.hpp
       headers:
       - ../../include/sunmatrix/sunmatrix_dense.h
       fn_exclude_by_name__regex:
@@ -44,7 +44,7 @@ modules:
       - "^SUNDenseMatrix_Cols$"
       - "^SUNDenseMatrix_Column$"
   sunmatrix_sparse:
-      path: sunmatrix/pysundials_sunmatrix_sparse_generated.hpp
+      path: sunmatrix/sunmatrix_sparse_generated.hpp
       headers:
       - ../../include/sunmatrix/sunmatrix_sparse.h
       fn_exclude_by_name__regex:

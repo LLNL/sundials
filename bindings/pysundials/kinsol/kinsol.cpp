@@ -36,7 +36,7 @@ namespace nb = nanobind;
 
 using namespace sundials::experimental;
 
-#include "pysundials_kinsol_usersupplied.hpp"
+#include "kinsol_usersupplied.hpp"
 
 #define BIND_KINSOL_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...)               \
   m.def(                                                                        \
@@ -77,7 +77,7 @@ using namespace sundials::experimental;
 
 void bind_kinsol(nb::module_& m)
 {
-#include "pysundials_kinsol_generated.hpp"
+#include "kinsol_generated.hpp"
 
   nb::class_<KINView>(m, "KINView")
     .def_static("Create", &KINView::Create<void*>)

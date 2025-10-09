@@ -44,8 +44,8 @@ void bind_sunstepper(nb::module_& m);
 
 void bind_core(nb::module_& m)
 {
-#include "pysundials_errors.hpp"
-#include "pysundials_types_generated.hpp"
+#include "sundials_errors.hpp"
+#include "sundials_types_generated.hpp"
 
   // handle opening and closing C files
   nb::class_<FILE>(m, "FILE");

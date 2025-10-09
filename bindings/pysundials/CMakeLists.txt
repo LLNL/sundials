@@ -57,52 +57,50 @@ find_package(nanobind CONFIG REQUIRED)
 
 # Add the source files for the bindings
 set(sundials_SOURCES
+    arkode/arkode_arkstep.cpp
+    arkode/arkode_erkstep.cpp
+    arkode/arkode_forcingstep.cpp
+    arkode/arkode_lsrkstep.cpp
+    arkode/arkode_mristep.cpp
+    arkode/arkode_splittingstep.cpp
+    arkode/arkode_sprkstep.cpp
+    arkode/arkode.cpp
+    cvodes/cvodes.cpp
+    idas/idas.cpp
+    kinsol/kinsol.cpp
+    nvector/nvector_serial.cpp
     pysundials.cpp
-    sundials/pysundials_adaptcontroller.cpp
-    sundials/pysundials_adjointcheckpointscheme.cpp
-    sundials/pysundials_adjointstepper.cpp
-    sundials/pysundials_context.cpp
-    sundials/pysundials_core.cpp
-    sundials/pysundials_domeigestimator.cpp
-    sundials/pysundials_linearsolver.cpp
-    sundials/pysundials_logger.cpp
-    sundials/pysundials_matrix.cpp
-    sundials/pysundials_memory.cpp
-    sundials/pysundials_nonlinearsolver.cpp
-    sundials/pysundials_nvector.cpp
-    sundials/pysundials_profiler.cpp
-    sundials/pysundials_stepper.cpp
-    nvector/pysundials_nvector_serial.cpp
-    sunlinsol/sunlinsol_spgmr.cpp
-    sunlinsol/sunlinsol_dense.cpp
+    sunadaptcontroller/sunadaptcontroller_imexgus.cpp
+    sunadaptcontroller/sunadaptcontroller_mrihtol.cpp
+    sunadaptcontroller/sunadaptcontroller_soderlind.cpp
+    sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.cpp
+    sundials/sundials_adaptcontroller.cpp
+    sundials/sundials_adjointcheckpointscheme.cpp
+    sundials/sundials_adjointstepper.cpp
+    sundials/sundials_context.cpp
+    sundials/sundials_core.cpp
+    sundials/sundials_domeigestimator.cpp
+    sundials/sundials_linearsolver.cpp
+    sundials/sundials_logger.cpp
+    sundials/sundials_matrix.cpp
+    sundials/sundials_memory.cpp
+    sundials/sundials_nonlinearsolver.cpp
+    sundials/sundials_nvector.cpp
+    sundials/sundials_profiler.cpp
+    sundials/sundials_stepper.cpp
+    sundomeigest/sundomeigest_power.cpp
     sunlinsol/sunlinsol_band.cpp
+    sunlinsol/sunlinsol_dense.cpp
+    sunlinsol/sunlinsol_pcg.cpp
     sunlinsol/sunlinsol_spbcgs.cpp
     sunlinsol/sunlinsol_spfgmr.cpp
+    sunlinsol/sunlinsol_spgmr.cpp
     sunlinsol/sunlinsol_sptfqmr.cpp
-    sunlinsol/sunlinsol_pcg.cpp
     sunmatrix/sunmatrix_band.cpp
     sunmatrix/sunmatrix_dense.cpp
     sunmatrix/sunmatrix_sparse.cpp
-    sunnonlinsol/sunnonlinsol_newton.cpp
     sunnonlinsol/sunnonlinsol_fixedpoint.cpp
-    sunadaptcontroller/sunadaptcontroller_mrihtol.cpp
-    sunadaptcontroller/sunadaptcontroller_soderlind.cpp
-    sunadaptcontroller/sunadaptcontroller_imexgus.cpp
-    # TODO(CJB): enable once LAPACK is enabled
-    # sundomeigest/sundomeigest_arnoldi.cpp
-    sundomeigest/sundomeigest_power.cpp
-    sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.cpp
-    arkode/pysundials_arkode.cpp
-    arkode/pysundials_arkode_arkstep.cpp
-    arkode/pysundials_arkode_erkstep.cpp
-    arkode/pysundials_arkode_sprkstep.cpp
-    arkode/pysundials_arkode_lsrkstep.cpp
-    arkode/pysundials_arkode_mristep.cpp
-    arkode/pysundials_arkode_forcingstep.cpp
-    arkode/pysundials_arkode_splittingstep.cpp
-    cvodes/pysundials_cvodes.cpp
-    idas/pysundials_idas.cpp
-    kinsol/pysundials_kinsol.cpp)
+    sunnonlinsol/sunnonlinsol_newton.cpp)
 
 # Create the Python sundials library
 nanobind_add_module(pysundials STABLE_ABI NB_STATIC ${sundials_SOURCES})

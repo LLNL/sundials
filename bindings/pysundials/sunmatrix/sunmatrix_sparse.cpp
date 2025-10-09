@@ -25,7 +25,7 @@ namespace nb = nanobind;
 
 void bind_sunmatrix_sparse(nb::module_& m)
 {
-#include "pysundials_sunmatrix_sparse_generated.hpp"
+#include "sunmatrix_sparse_generated.hpp"
 
   m.def(
     "SUNSparseMatrix_Data",

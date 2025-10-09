@@ -11,5 +11,5 @@ namespace nb = nanobind;
 
 void bind_nvector_serial(nb::module_& m)
 {
-#include "pysundials_nvector_serial_generated.hpp"
+#include "nvector_serial_generated.hpp"
 }

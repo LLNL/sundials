@@ -25,7 +25,7 @@ namespace nb = nanobind;
 
 void bind_sunmatrix_dense(nb::module_& m)
 {
-#include "pysundials_sunmatrix_dense_generated.hpp"
+#include "sunmatrix_dense_generated.hpp"
 
   m.def(
     "SUNDenseMatrix_Data",

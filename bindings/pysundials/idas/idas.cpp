@@ -30,7 +30,7 @@
 
 #include "idas/idas_impl.h"
 
-#include "pysundials_idas_usersupplied.hpp"
+#include "idas_usersupplied.hpp"
 
 namespace nb = nanobind;
 
@@ -113,7 +113,7 @@ using namespace sundials::experimental;
 
 void bind_idas(nb::module_& m)
 {
-#include "pysundials_idas_generated.hpp"
+#include "idas_generated.hpp"
 
   nb::class_<IDAView>(m, "IDAView")
     .def_static("Create", &IDAView::Create<void*>)

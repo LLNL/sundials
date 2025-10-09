@@ -85,6 +85,6 @@ modules:
       - "^N_VWSqrSumLocal_.*"
       - "^N_VWSqrSumMaskLocal_.*"
   nvector_serial:
-    path: nvector/pysundials_nvector_serial_generated.hpp
+    path: nvector/nvector_serial_generated.hpp
     headers:
     - ../../include/nvector/nvector_serial.h

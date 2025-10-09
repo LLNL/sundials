@@ -27,7 +27,7 @@
 
 #include <sundials/sundials_nonlinearsolver.hpp>
 
-#include "pysundials_nonlinearsolver_usersupplied.hpp"
+#include "sundials_nonlinearsolver_usersupplied.hpp"
 
 namespace nb = nanobind;
 
@@ -35,7 +35,7 @@ using namespace sundials::experimental;
 
 void bind_sunnonlinearsolver(nb::module_& m)
 {
-#include "pysundials_nonlinearsolver_generated.hpp"
+#include "sundials_nonlinearsolver_generated.hpp"
 
   nb::class_<SUNNonlinearSolverView>(m, "SUNNonlinearSolverView")
     .def_static("Create", &SUNNonlinearSolverView::Create<SUNNonlinearSolver>)

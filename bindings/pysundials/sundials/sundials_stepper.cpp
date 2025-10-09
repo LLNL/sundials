@@ -30,7 +30,7 @@
 #include "sundials/sundials_types.h"
 #include "sundials_stepper_impl.h"
 
-#include "pysundials_stepper_usersupplied.hpp"
+#include "sundials_stepper_usersupplied.hpp"
 
 namespace nb = nanobind;
 
@@ -38,7 +38,7 @@ using SUNStepperView = sundials::experimental::SUNStepperView;
 
 void bind_sunstepper(nb::module_& m)
 {
-#include "pysundials_stepper_generated.hpp"
+#include "sundials_stepper_generated.hpp"
 
   nb::class_<SUNStepper_>(m, "SUNStepper_");
 

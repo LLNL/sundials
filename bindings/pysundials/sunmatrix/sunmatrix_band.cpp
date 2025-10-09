@@ -25,7 +25,7 @@ namespace nb = nanobind;
 
 void bind_sunmatrix_band(nb::module_& m)
 {
-#include "pysundials_sunmatrix_band_generated.hpp"
+#include "sunmatrix_band_generated.hpp"
 
   m.def(
     "SUNBandMatrix_Data",

@@ -34,7 +34,7 @@ modules:
       "SetLinearSolver":
       - "A" 
   arkode:
-    path: arkode/pysundials_arkode_generated.hpp
+    path: arkode/arkode_generated.hpp
     headers:
     - ../../include/arkode/arkode.h
     - ../../include/arkode/arkode_ls.h
@@ -68,7 +68,7 @@ modules:
     # followed by only optional parameters, so we have to do something custom
     - "^ARKodeSetMassLinearSolver$"
   arkstep:
-    path: arkode/pysundials_arkode_arkstep_generated.hpp
+    path: arkode/arkode_arkstep_generated.hpp
     headers:
     - ../../include/arkode/arkode_arkstep.h
     fn_exclude_by_name__regex:
@@ -79,7 +79,7 @@ modules:
     # reinit also requires custom handling due to function pointers
     - "^ARKStepReInit$"
   erkstep:
-    path: arkode/pysundials_arkode_erkstep_generated.hpp
+    path: arkode/arkode_erkstep_generated.hpp
     headers:
     - ../../include/arkode/arkode_erkstep.h
     fn_exclude_by_name__regex:
@@ -89,7 +89,7 @@ modules:
     # reinit also requires custom handling due to function pointers
     - "^ERKStepReInit$"
   sprkstep:
-    path: arkode/pysundials_arkode_sprkstep_generated.hpp
+    path: arkode/arkode_sprkstep_generated.hpp
     headers:
     - ../../include/arkode/arkode_sprkstep.h
     fn_exclude_by_name__regex:
@@ -97,7 +97,7 @@ modules:
     # reinit also requires custom handling due to function pointers
     - "^SPRKStepReInit$"
   lsrkstep:
-    path: arkode/pysundials_arkode_lsrkstep_generated.hpp
+    path: arkode/arkode_lsrkstep_generated.hpp
     headers:
     - ../../include/arkode/arkode_lsrkstep.h
     fn_exclude_by_name__regex:
@@ -106,7 +106,7 @@ modules:
     - "^LSRKStepReInit.*$"
     - "^LSRKStepSetDomEigFn$"
   mristep:
-    path: arkode/pysundials_arkode_mristep_generated.hpp
+    path: arkode/arkode_mristep_generated.hpp
     headers:
     - ../../include/arkode/arkode_mristep.h
     sundials_pointer_types:
@@ -127,11 +127,11 @@ modules:
     # we have to do custom things to handle setting function pointers
     - "^MRIStepInnerStepper_Set.*Fn$"
   forcingstep:
-    path: arkode/pysundials_arkode_forcingstep_generated.hpp
+    path: arkode/arkode_forcingstep_generated.hpp
     headers:
     - ../../include/arkode/arkode_forcingstep.h
   splittingstep:
-    path: arkode/pysundials_arkode_splittingstep_generated.hpp
+    path: arkode/arkode_splittingstep_generated.hpp
     headers:
     - ../../include/arkode/arkode_splittingstep.h
     sundials_pointer_types:

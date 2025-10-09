@@ -23,13 +23,13 @@
 #include <arkode/arkode_erkstep.h>
 #include <sundials/sundials_core.hpp>
 
-#include "pysundials_arkode_usersupplied.hpp"
+#include "arkode_usersupplied.hpp"
 
 namespace nb = nanobind;
 
 void bind_arkode_erkstep(nb::module_& m)
 {
-#include "pysundials_arkode_erkstep_generated.hpp"
+#include "arkode_erkstep_generated.hpp"
 
   m.def("ERKStepCreate",
         [](std::function<std::remove_pointer_t<ARKRhsFn>> rhs, sunrealtype t0,

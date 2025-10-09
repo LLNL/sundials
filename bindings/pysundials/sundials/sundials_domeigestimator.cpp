@@ -30,14 +30,14 @@
 
 #include <sundials/sundials_domeigestimator.hpp>
 
-#include "pysundials_domeigestimator_usersupplied.hpp"
+#include "sundials_domeigestimator_usersupplied.hpp"
 
 namespace nb = nanobind;
 using namespace sundials::experimental;
 
 void bind_sundomeigestimator(nb::module_& m)
 {
-#include "pysundials_domeigestimator_generated.hpp"
+#include "sundials_domeigestimator_generated.hpp"
 
   nb::class_<SUNDomEigEstimatorView>(m, "SUNDomEigEstimatorView")
     .def_static("Create", &SUNDomEigEstimatorView::Create<SUNDomEigEstimator>)

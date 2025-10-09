@@ -19,7 +19,7 @@
 
 #include <sundials/sundials_errors.h>
 
-#include "pysundials_errors_generated.hpp"
+#include "sundials_errors_generated.hpp"
 
 /* Expand SUN_ERR_CODE_LIST to enum */
 #define SUN_EXPAND_TO_NB_BINDING(name, description) \

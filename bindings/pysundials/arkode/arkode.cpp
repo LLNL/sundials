@@ -35,7 +35,7 @@ class SUNStepperView;
 
 #include "sundials_adjointcheckpointscheme_impl.h"
 
-#include "pysundials_arkode_usersupplied.hpp"
+#include "arkode_usersupplied.hpp"
 
 namespace nb = nanobind;
 
@@ -90,7 +90,7 @@ void bind_arkode_splittingstep(nb::module_& m);
 
 void bind_arkode(nb::module_& m)
 {
-#include "pysundials_arkode_generated.hpp"
+#include "arkode_generated.hpp"
 
   /////////////////////////////////////////////////////////////////////////////
   // Interface view classes for ARKODE level objects

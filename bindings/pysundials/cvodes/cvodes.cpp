@@ -34,7 +34,7 @@
 #include "cvodes/cvodes_impl.h"
 #include "sundials_adjointcheckpointscheme_impl.h"
 
-#include "pysundials_cvodes_usersupplied.hpp"
+#include "cvodes_usersupplied.hpp"
 
 namespace nb = nanobind;
 
@@ -117,7 +117,7 @@ using namespace sundials::experimental;
 
 void bind_cvodes(nb::module_& m)
 {
-#include "pysundials_cvodes_generated.hpp"
+#include "cvodes_generated.hpp"
 
   nb::class_<CVodeView>(m, "CVodeView")
     .def_static("Create", &CVodeView::Create<void*>)

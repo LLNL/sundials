@@ -23,13 +23,13 @@
 #include <arkode/arkode_arkstep.h>
 #include <sundials/sundials_core.hpp>
 
-#include "pysundials_arkode_usersupplied.hpp"
+#include "arkode_usersupplied.hpp"
 
 namespace nb = nanobind;
 
 void bind_arkode_arkstep(nb::module_& m)
 {
-#include "pysundials_arkode_arkstep_generated.hpp"
+#include "arkode_arkstep_generated.hpp"
 
   m.def(
     "ARKStepCreate",

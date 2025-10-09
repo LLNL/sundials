@@ -23,13 +23,13 @@
 #include <arkode/arkode_lsrkstep.h>
 #include <sundials/sundials_core.hpp>
 
-#include "pysundials_arkode_usersupplied.hpp"
+#include "arkode_usersupplied.hpp"
 
 namespace nb = nanobind;
 
 void bind_arkode_lsrkstep(nb::module_& m)
 {
-#include "pysundials_arkode_lsrkstep_generated.hpp"
+#include "arkode_lsrkstep_generated.hpp"
 
   m.def(
     "LSRKStepCreateSTS",
