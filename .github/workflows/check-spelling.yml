@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   spelling_check:
-    if: contains(github.event.head_commit.message, '[run-ci]') # This job only runs if commit message contains '[run-ci]'
+    if: contains(github.event.commits.*.message, '[run-ci]') # This job only runs if commit message contains '[run-ci]'
 
     runs-on: ubuntu-latest
     steps:
