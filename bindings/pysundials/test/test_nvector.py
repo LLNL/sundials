@@ -39,7 +39,6 @@ def test_create_nvector(vector_type, sunctx):
 	assert np.allclose(arr, 2.0)
 
 
-
 @pytest.mark.parametrize("vector_type", ["serial"])
 def test_make_nvector(vector_type, sunctx):
 	arr = np.array([1.0, 2.0, 3.0, 4.0, 5.0], dtype=np.float64)
