@@ -865,10 +865,8 @@ m.def(
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
          std::vector<int> plist_1d) -> int
     {
-      double* p_1d_ptr =
-        reinterpret_cast<double*>(p_1d.is_valid() ? nullptr : p_1d.data());
-      double* pbar_1d_ptr =
-        reinterpret_cast<double*>(pbar_1d.is_valid() ? nullptr : pbar_1d.data());
+      double* p_1d_ptr    = reinterpret_cast<double*>(p_1d.data());
+      double* pbar_1d_ptr = reinterpret_cast<double*>(pbar_1d.data());
       int* plist_1d_ptr =
         reinterpret_cast<int*>(plist_1d.empty() ? nullptr : plist_1d.data());
 

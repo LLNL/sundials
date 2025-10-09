@@ -92,8 +92,7 @@ m.def(
          std::vector<N_Vector> y_hist_1d, std::vector<N_Vector> f_hist_1d,
          int num_y_hist, int num_f_hist) -> int
     {
-      double* t_hist_1d_ptr = reinterpret_cast<double*>(
-        t_hist_1d.is_valid() ? nullptr : t_hist_1d.data());
+      double* t_hist_1d_ptr   = reinterpret_cast<double*>(t_hist_1d.data());
       N_Vector* y_hist_1d_ptr = reinterpret_cast<N_Vector*>(
         y_hist_1d.empty() ? nullptr : y_hist_1d.data());
       N_Vector* f_hist_1d_ptr = reinterpret_cast<N_Vector*>(
@@ -787,8 +786,7 @@ m.def(
       [](void* cvode_mem, double reltolS,
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolS_1d) -> int
     {
-      double* abstolS_1d_ptr = reinterpret_cast<double*>(
-        abstolS_1d.is_valid() ? nullptr : abstolS_1d.data());
+      double* abstolS_1d_ptr = reinterpret_cast<double*>(abstolS_1d.data());
 
       auto lambda_result = CVodeSensSStolerances(cvode_mem, reltolS,
                                                  abstolS_1d_ptr);
@@ -844,10 +842,8 @@ m.def(
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
          std::vector<int> plist_1d) -> int
     {
-      double* p_1d_ptr =
-        reinterpret_cast<double*>(p_1d.is_valid() ? nullptr : p_1d.data());
-      double* pbar_1d_ptr =
-        reinterpret_cast<double*>(pbar_1d.is_valid() ? nullptr : pbar_1d.data());
+      double* p_1d_ptr    = reinterpret_cast<double*>(p_1d.data());
+      double* pbar_1d_ptr = reinterpret_cast<double*>(pbar_1d.data());
       int* plist_1d_ptr =
         reinterpret_cast<int*>(plist_1d.empty() ? nullptr : plist_1d.data());
 
@@ -1242,8 +1238,7 @@ m.def(
       [](void* cvode_mem, double reltolQS,
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolQS_1d) -> int
     {
-      double* abstolQS_1d_ptr = reinterpret_cast<double*>(
-        abstolQS_1d.is_valid() ? nullptr : abstolQS_1d.data());
+      double* abstolQS_1d_ptr = reinterpret_cast<double*>(abstolQS_1d.data());
 
       auto lambda_result = CVodeQuadSensSStolerances(cvode_mem, reltolQS,
                                                      abstolQS_1d_ptr);

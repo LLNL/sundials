@@ -42,10 +42,8 @@ m.def(
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> beta_1d)
       -> SplittingStepCoefficients
     {
-      double* alpha_1d_ptr = reinterpret_cast<double*>(
-        alpha_1d.is_valid() ? nullptr : alpha_1d.data());
-      double* beta_1d_ptr =
-        reinterpret_cast<double*>(beta_1d.is_valid() ? nullptr : beta_1d.data());
+      double* alpha_1d_ptr = reinterpret_cast<double*>(alpha_1d.data());
+      double* beta_1d_ptr  = reinterpret_cast<double*>(beta_1d.data());
 
       auto lambda_result =
         SplittingStepCoefficients_Create(sequential_methods, stages, partitions,

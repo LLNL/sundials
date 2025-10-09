@@ -17,14 +17,16 @@ m.def("N_VNew_Serial", N_VNew_Serial, nb::arg("vec_length"), nb::arg("sunctx"),
 
 m.def(
   "N_VMake_Serial",
-  [](long vec_length, std::vector<double> v_data_1d, SUNContext sunctx) -> N_Vector
+  [](long vec_length,
+     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> v_data_1d,
+     SUNContext sunctx) -> N_Vector
   {
     auto N_VMake_Serial_adapt_arr_ptr_to_std_vector =
-      [](long vec_length, std::vector<double> v_data_1d,
+      [](long vec_length,
+         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> v_data_1d,
          SUNContext sunctx) -> N_Vector
     {
-      double* v_data_1d_ptr = reinterpret_cast<double*>(
-        v_data_1d.empty() ? nullptr : v_data_1d.data());
+      double* v_data_1d_ptr = reinterpret_cast<double*>(v_data_1d.data());
 
       auto lambda_result = N_VMake_Serial(vec_length, v_data_1d_ptr, sunctx);
       return lambda_result;

@@ -80,12 +80,9 @@ m.def(
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> G_1d,
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d) -> MRIStepCoupling
     {
-      double* W_1d_ptr =
-        reinterpret_cast<double*>(W_1d.is_valid() ? nullptr : W_1d.data());
-      double* G_1d_ptr =
-        reinterpret_cast<double*>(G_1d.is_valid() ? nullptr : G_1d.data());
-      double* c_1d_ptr =
-        reinterpret_cast<double*>(c_1d.is_valid() ? nullptr : c_1d.data());
+      double* W_1d_ptr = reinterpret_cast<double*>(W_1d.data());
+      double* G_1d_ptr = reinterpret_cast<double*>(G_1d.data());
+      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.data());
 
       auto lambda_result = MRIStepCoupling_Create(nmat, stages, q, p, W_1d_ptr,
                                                   G_1d_ptr, c_1d_ptr);

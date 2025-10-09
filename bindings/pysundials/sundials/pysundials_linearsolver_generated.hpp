@@ -31,8 +31,7 @@ m.def(
     {
       N_Vector* Q_1d_ptr =
         reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
-      double* R_1d_ptr =
-        reinterpret_cast<double*>(R_1d.is_valid() ? nullptr : R_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.data());
 
       auto lambda_result = SUNQRAdd_MGS(Q_1d_ptr, R_1d_ptr, df, m, mMax, QRdata);
       return lambda_result;
@@ -57,8 +56,7 @@ m.def(
     {
       N_Vector* Q_1d_ptr =
         reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
-      double* R_1d_ptr =
-        reinterpret_cast<double*>(R_1d.is_valid() ? nullptr : R_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.data());
 
       auto lambda_result = SUNQRAdd_ICWY(Q_1d_ptr, R_1d_ptr, df, m, mMax, QRdata);
       return lambda_result;
@@ -83,8 +81,7 @@ m.def(
     {
       N_Vector* Q_1d_ptr =
         reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
-      double* R_1d_ptr =
-        reinterpret_cast<double*>(R_1d.is_valid() ? nullptr : R_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.data());
 
       auto lambda_result = SUNQRAdd_ICWY_SB(Q_1d_ptr, R_1d_ptr, df, m, mMax,
                                             QRdata);
@@ -110,8 +107,7 @@ m.def(
     {
       N_Vector* Q_1d_ptr =
         reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
-      double* R_1d_ptr =
-        reinterpret_cast<double*>(R_1d.is_valid() ? nullptr : R_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.data());
 
       auto lambda_result = SUNQRAdd_CGS2(Q_1d_ptr, R_1d_ptr, df, m, mMax, QRdata);
       return lambda_result;
@@ -136,8 +132,7 @@ m.def(
     {
       N_Vector* Q_1d_ptr =
         reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
-      double* R_1d_ptr =
-        reinterpret_cast<double*>(R_1d.is_valid() ? nullptr : R_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.data());
 
       auto lambda_result = SUNQRAdd_DCGS2(Q_1d_ptr, R_1d_ptr, df, m, mMax,
                                           QRdata);
@@ -163,8 +158,7 @@ m.def(
     {
       N_Vector* Q_1d_ptr =
         reinterpret_cast<N_Vector*>(Q_1d.empty() ? nullptr : Q_1d.data());
-      double* R_1d_ptr =
-        reinterpret_cast<double*>(R_1d.is_valid() ? nullptr : R_1d.data());
+      double* R_1d_ptr = reinterpret_cast<double*>(R_1d.data());
 
       auto lambda_result = SUNQRAdd_DCGS2_SB(Q_1d_ptr, R_1d_ptr, df, m, mMax,
                                              QRdata);

@@ -100,8 +100,7 @@ m.def(
       [](int nvec, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
          std::vector<N_Vector> X_1d, N_Vector z) -> SUNErrCode
     {
-      double* c_1d_ptr =
-        reinterpret_cast<double*>(c_1d.is_valid() ? nullptr : c_1d.data());
+      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.data());
       N_Vector* X_1d_ptr =
         reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
 
@@ -123,8 +122,7 @@ m.def(
          N_Vector x, std::vector<N_Vector> Y_1d,
          std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
-      double* a_1d_ptr =
-        reinterpret_cast<double*>(a_1d.is_valid() ? nullptr : a_1d.data());
+      double* a_1d_ptr = reinterpret_cast<double*>(a_1d.data());
       N_Vector* Y_1d_ptr =
         reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
       N_Vector* Z_1d_ptr =
@@ -153,8 +151,7 @@ m.def(
     {
       N_Vector* Y_1d_ptr =
         reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
-      double* dotprods_1d_ptr = reinterpret_cast<double*>(
-        dotprods_1d.is_valid() ? nullptr : dotprods_1d.data());
+      double* dotprods_1d_ptr = reinterpret_cast<double*>(dotprods_1d.data());
 
       auto lambda_result = N_VDotProdMulti(nvec, x, Y_1d_ptr, dotprods_1d_ptr);
       return lambda_result;
@@ -201,8 +198,7 @@ m.def(
       [](int nvec, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
          std::vector<N_Vector> X_1d, std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
-      double* c_1d_ptr =
-        reinterpret_cast<double*>(c_1d.is_valid() ? nullptr : c_1d.data());
+      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.data());
       N_Vector* X_1d_ptr =
         reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
       N_Vector* Z_1d_ptr =
@@ -249,8 +245,7 @@ m.def(
         reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
       N_Vector* W_1d_ptr =
         reinterpret_cast<N_Vector*>(W_1d.empty() ? nullptr : W_1d.data());
-      double* nrm_1d_ptr =
-        reinterpret_cast<double*>(nrm_1d.is_valid() ? nullptr : nrm_1d.data());
+      double* nrm_1d_ptr = reinterpret_cast<double*>(nrm_1d.data());
 
       auto lambda_result = N_VWrmsNormVectorArray(nvec, X_1d_ptr, W_1d_ptr,
                                                   nrm_1d_ptr);
@@ -276,8 +271,7 @@ m.def(
         reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
       N_Vector* W_1d_ptr =
         reinterpret_cast<N_Vector*>(W_1d.empty() ? nullptr : W_1d.data());
-      double* nrm_1d_ptr =
-        reinterpret_cast<double*>(nrm_1d.is_valid() ? nullptr : nrm_1d.data());
+      double* nrm_1d_ptr = reinterpret_cast<double*>(nrm_1d.data());
 
       auto lambda_result = N_VWrmsNormMaskVectorArray(nvec, X_1d_ptr, W_1d_ptr,
                                                       id, nrm_1d_ptr);
@@ -324,8 +318,7 @@ m.def(
     {
       N_Vector* Y_1d_ptr =
         reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
-      double* dotprods_1d_ptr = reinterpret_cast<double*>(
-        dotprods_1d.is_valid() ? nullptr : dotprods_1d.data());
+      double* dotprods_1d_ptr = reinterpret_cast<double*>(dotprods_1d.data());
 
       auto lambda_result = N_VDotProdMultiLocal(nvec, x, Y_1d_ptr,
                                                 dotprods_1d_ptr);
@@ -346,8 +339,7 @@ m.def(
       [](int nvec_total, N_Vector x,
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> sum_1d) -> SUNErrCode
     {
-      double* sum_1d_ptr =
-        reinterpret_cast<double*>(sum_1d.is_valid() ? nullptr : sum_1d.data());
+      double* sum_1d_ptr = reinterpret_cast<double*>(sum_1d.data());
 
       auto lambda_result = N_VDotProdMultiAllReduce(nvec_total, x, sum_1d_ptr);
       return lambda_result;

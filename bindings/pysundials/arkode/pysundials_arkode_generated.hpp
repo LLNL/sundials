@@ -1353,14 +1353,10 @@ m.def(
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> d_1d)
       -> ARKodeButcherTable
     {
-      double* c_1d_ptr =
-        reinterpret_cast<double*>(c_1d.is_valid() ? nullptr : c_1d.data());
-      double* A_1d_ptr =
-        reinterpret_cast<double*>(A_1d.is_valid() ? nullptr : A_1d.data());
-      double* b_1d_ptr =
-        reinterpret_cast<double*>(b_1d.is_valid() ? nullptr : b_1d.data());
-      double* d_1d_ptr =
-        reinterpret_cast<double*>(d_1d.is_valid() ? nullptr : d_1d.data());
+      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.data());
+      double* A_1d_ptr = reinterpret_cast<double*>(A_1d.data());
+      double* b_1d_ptr = reinterpret_cast<double*>(b_1d.data());
+      double* d_1d_ptr = reinterpret_cast<double*>(d_1d.data());
 
       auto lambda_result = ARKodeButcherTable_Create(s, q, p, c_1d_ptr, A_1d_ptr,
                                                      b_1d_ptr, d_1d_ptr);
@@ -1593,10 +1589,8 @@ m.def(
          nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> ahat_1d)
       -> ARKodeSPRKTable
     {
-      double* a_1d_ptr =
-        reinterpret_cast<double*>(a_1d.is_valid() ? nullptr : a_1d.data());
-      double* ahat_1d_ptr =
-        reinterpret_cast<double*>(ahat_1d.is_valid() ? nullptr : ahat_1d.data());
+      double* a_1d_ptr    = reinterpret_cast<double*>(a_1d.data());
+      double* ahat_1d_ptr = reinterpret_cast<double*>(ahat_1d.data());
 
       auto lambda_result = ARKodeSPRKTable_Create(s, q, a_1d_ptr, ahat_1d_ptr);
       return lambda_result;

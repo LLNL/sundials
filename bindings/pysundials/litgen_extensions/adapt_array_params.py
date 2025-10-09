@@ -71,7 +71,7 @@ def adapt_array_pointer_to_std_vector(
                 new_decl.initial_value_code = ""
                 new_function_params.append(new_param)
 
-                lambda_adapter.lambda_input_code += f"{base_type}{dimensions} {param_name}_ptr = reinterpret_cast<{base_type}{dimensions}>( {param_name}.is_valid() ? nullptr : {param_name}.data() );\n"
+                lambda_adapter.lambda_input_code += f"{base_type}{dimensions} {param_name}_ptr = reinterpret_cast<{base_type}{dimensions}>({param_name}.data());\n"
                 lambda_adapter.adapted_cpp_parameter_list.append(f"{param_name}_ptr")
             else:
                 new_param = copy.deepcopy(old_param.cpp_element())
