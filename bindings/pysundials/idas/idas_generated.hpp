@@ -182,14 +182,14 @@ m.def("IDASetNoInactiveRootWarn", IDASetNoInactiveRootWarn, nb::arg("ida_mem"));
 
 m.def(
   "IDASolve",
-  [](void* ida_mem, double tout, N_Vector yret, N_Vector ypret,
-     int itask) -> std::tuple<int, double>
+  [](void* ida_mem, sunrealtype tout, N_Vector yret, N_Vector ypret,
+     int itask) -> std::tuple<int, sunrealtype>
   {
     auto IDASolve_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, double tout, N_Vector yret, N_Vector ypret,
-         int itask) -> std::tuple<int, double>
+      [](void* ida_mem, sunrealtype tout, N_Vector yret, N_Vector ypret,
+         int itask) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = IDASolve(ida_mem, tout, &tret_adapt_modifiable, yret, ypret, itask);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -378,12 +378,12 @@ m.def(
 
 m.def(
   "IDAGetCurrentCj",
-  [](void* ida_mem) -> std::tuple<int, double>
+  [](void* ida_mem) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetCurrentCj_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem) -> std::tuple<int, double>
+      [](void* ida_mem) -> std::tuple<int, sunrealtype>
     {
-      double cj_adapt_modifiable;
+      sunrealtype cj_adapt_modifiable;
 
       int r = IDAGetCurrentCj(ida_mem, &cj_adapt_modifiable);
       return std::make_tuple(r, cj_adapt_modifiable);
@@ -429,12 +429,12 @@ m.def(
 
 m.def(
   "IDAGetActualInitStep",
-  [](void* ida_mem) -> std::tuple<int, double>
+  [](void* ida_mem) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetActualInitStep_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem) -> std::tuple<int, double>
+      [](void* ida_mem) -> std::tuple<int, sunrealtype>
     {
-      double hinused_adapt_modifiable;
+      sunrealtype hinused_adapt_modifiable;
 
       int r = IDAGetActualInitStep(ida_mem, &hinused_adapt_modifiable);
       return std::make_tuple(r, hinused_adapt_modifiable);
@@ -446,12 +446,12 @@ m.def(
 
 m.def(
   "IDAGetLastStep",
-  [](void* ida_mem) -> std::tuple<int, double>
+  [](void* ida_mem) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetLastStep_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem) -> std::tuple<int, double>
+      [](void* ida_mem) -> std::tuple<int, sunrealtype>
     {
-      double hlast_adapt_modifiable;
+      sunrealtype hlast_adapt_modifiable;
 
       int r = IDAGetLastStep(ida_mem, &hlast_adapt_modifiable);
       return std::make_tuple(r, hlast_adapt_modifiable);
@@ -463,12 +463,12 @@ m.def(
 
 m.def(
   "IDAGetCurrentStep",
-  [](void* ida_mem) -> std::tuple<int, double>
+  [](void* ida_mem) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetCurrentStep_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem) -> std::tuple<int, double>
+      [](void* ida_mem) -> std::tuple<int, sunrealtype>
     {
-      double hcur_adapt_modifiable;
+      sunrealtype hcur_adapt_modifiable;
 
       int r = IDAGetCurrentStep(ida_mem, &hcur_adapt_modifiable);
       return std::make_tuple(r, hcur_adapt_modifiable);
@@ -480,12 +480,12 @@ m.def(
 
 m.def(
   "IDAGetCurrentTime",
-  [](void* ida_mem) -> std::tuple<int, double>
+  [](void* ida_mem) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetCurrentTime_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem) -> std::tuple<int, double>
+      [](void* ida_mem) -> std::tuple<int, sunrealtype>
     {
-      double tcur_adapt_modifiable;
+      sunrealtype tcur_adapt_modifiable;
 
       int r = IDAGetCurrentTime(ida_mem, &tcur_adapt_modifiable);
       return std::make_tuple(r, tcur_adapt_modifiable);
@@ -497,12 +497,12 @@ m.def(
 
 m.def(
   "IDAGetTolScaleFactor",
-  [](void* ida_mem) -> std::tuple<int, double>
+  [](void* ida_mem) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetTolScaleFactor_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem) -> std::tuple<int, double>
+      [](void* ida_mem) -> std::tuple<int, sunrealtype>
     {
-      double tolsfact_adapt_modifiable;
+      sunrealtype tolsfact_adapt_modifiable;
 
       int r = IDAGetTolScaleFactor(ida_mem, &tolsfact_adapt_modifiable);
       return std::make_tuple(r, tolsfact_adapt_modifiable);
@@ -554,12 +554,13 @@ m.def(
 
 m.def(
   "IDAGetIntegratorStats",
-  [](void* ida_mem) -> std::tuple<int, long, long, long, long, int, int, double,
-                                  double, double, double>
+  [](void* ida_mem) -> std::tuple<int, long, long, long, long, int, int,
+                                  sunrealtype, sunrealtype, sunrealtype, sunrealtype>
   {
     auto IDAGetIntegratorStats_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem) -> std::tuple<int, long, long, long, long, int, int,
-                                      double, double, double, double>
+      [](void* ida_mem)
+      -> std::tuple<int, long, long, long, long, int, int, sunrealtype,
+                    sunrealtype, sunrealtype, sunrealtype>
     {
       long nsteps_adapt_modifiable;
       long nrevals_adapt_modifiable;
@@ -567,10 +568,10 @@ m.def(
       long netfails_adapt_modifiable;
       int qlast_adapt_modifiable;
       int qcur_adapt_modifiable;
-      double hinused_adapt_modifiable;
-      double hlast_adapt_modifiable;
-      double hcur_adapt_modifiable;
-      double tcur_adapt_modifiable;
+      sunrealtype hinused_adapt_modifiable;
+      sunrealtype hlast_adapt_modifiable;
+      sunrealtype hcur_adapt_modifiable;
+      sunrealtype tcur_adapt_modifiable;
 
       int r =
         IDAGetIntegratorStats(ida_mem, &nsteps_adapt_modifiable,
@@ -683,12 +684,12 @@ m.def("IDASetQuadErrCon", IDASetQuadErrCon, nb::arg("ida_mem"),
 
 m.def(
   "IDAGetQuad",
-  [](void* ida_mem, N_Vector yQout) -> std::tuple<int, double>
+  [](void* ida_mem, N_Vector yQout) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetQuad_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, N_Vector yQout) -> std::tuple<int, double>
+      [](void* ida_mem, N_Vector yQout) -> std::tuple<int, sunrealtype>
     {
-      double t_adapt_modifiable;
+      sunrealtype t_adapt_modifiable;
 
       int r = IDAGetQuad(ida_mem, &t_adapt_modifiable, yQout);
       return std::make_tuple(r, t_adapt_modifiable);
@@ -783,12 +784,12 @@ m.def(
 
 m.def(
   "IDASensSStolerances",
-  [](void* ida_mem, double reltolS) -> std::tuple<int, double>
+  [](void* ida_mem, sunrealtype reltolS) -> std::tuple<int, sunrealtype>
   {
     auto IDASensSStolerances_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, double reltolS) -> std::tuple<int, double>
+      [](void* ida_mem, sunrealtype reltolS) -> std::tuple<int, sunrealtype>
     {
-      double abstolS_adapt_modifiable;
+      sunrealtype abstolS_adapt_modifiable;
 
       int r = IDASensSStolerances(ida_mem, reltolS, &abstolS_adapt_modifiable);
       return std::make_tuple(r, abstolS_adapt_modifiable);
@@ -801,10 +802,11 @@ m.def(
 
 m.def(
   "IDASensSVtolerances",
-  [](void* ida_mem, double reltolS, std::vector<N_Vector> abstolS_1d) -> int
+  [](void* ida_mem, sunrealtype reltolS, std::vector<N_Vector> abstolS_1d) -> int
   {
     auto IDASensSVtolerances_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double reltolS, std::vector<N_Vector> abstolS_1d) -> int
+      [](void* ida_mem, sunrealtype reltolS,
+         std::vector<N_Vector> abstolS_1d) -> int
     {
       N_Vector* abstolS_1d_ptr = reinterpret_cast<N_Vector*>(
         abstolS_1d.empty() ? nullptr : abstolS_1d.data());
@@ -855,18 +857,19 @@ m.def("IDASetSensMaxNonlinIters", IDASetSensMaxNonlinIters, nb::arg("ida_mem"),
 
 m.def(
   "IDASetSensParams",
-  [](void* ida_mem, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
+  [](void* ida_mem,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
      std::vector<int> plist_1d) -> int
   {
     auto IDASetSensParams_adapt_arr_ptr_to_std_vector =
       [](void* ida_mem,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
          std::vector<int> plist_1d) -> int
     {
-      double* p_1d_ptr    = reinterpret_cast<double*>(p_1d.data());
-      double* pbar_1d_ptr = reinterpret_cast<double*>(pbar_1d.data());
+      sunrealtype* p_1d_ptr    = reinterpret_cast<sunrealtype*>(p_1d.data());
+      sunrealtype* pbar_1d_ptr = reinterpret_cast<sunrealtype*>(pbar_1d.data());
       int* plist_1d_ptr =
         reinterpret_cast<int*>(plist_1d.empty() ? nullptr : plist_1d.data());
 
@@ -890,10 +893,10 @@ m.def("IDASensToggleOff", IDASensToggleOff, nb::arg("ida_mem"));
 
 m.def(
   "IDAGetSens",
-  [](void* ida_mem, std::vector<N_Vector> yySout_1d) -> std::tuple<int, double>
+  [](void* ida_mem, std::vector<N_Vector> yySout_1d) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetSens_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double* tret, std::vector<N_Vector> yySout_1d) -> int
+      [](void* ida_mem, sunrealtype* tret, std::vector<N_Vector> yySout_1d) -> int
     {
       N_Vector* yySout_1d_ptr = reinterpret_cast<N_Vector*>(
         yySout_1d.empty() ? nullptr : yySout_1d.data());
@@ -904,9 +907,9 @@ m.def(
     auto IDAGetSens_adapt_modifiable_immutable_to_return =
       [&IDAGetSens_adapt_arr_ptr_to_std_vector](void* ida_mem,
                                                 std::vector<N_Vector> yySout_1d)
-      -> std::tuple<int, double>
+      -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = IDAGetSens_adapt_arr_ptr_to_std_vector(ida_mem,
                                                      &tret_adapt_modifiable,
@@ -920,12 +923,12 @@ m.def(
 
 m.def(
   "IDAGetSens1",
-  [](void* ida_mem, int is, N_Vector yySret) -> std::tuple<int, double>
+  [](void* ida_mem, int is, N_Vector yySret) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetSens1_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, int is, N_Vector yySret) -> std::tuple<int, double>
+      [](void* ida_mem, int is, N_Vector yySret) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = IDAGetSens1(ida_mem, &tret_adapt_modifiable, is, yySret);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -937,10 +940,10 @@ m.def(
 
 m.def(
   "IDAGetSensDky",
-  [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyS_1d) -> int
+  [](void* ida_mem, sunrealtype t, int k, std::vector<N_Vector> dkyS_1d) -> int
   {
     auto IDAGetSensDky_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyS_1d) -> int
+      [](void* ida_mem, sunrealtype t, int k, std::vector<N_Vector> dkyS_1d) -> int
     {
       N_Vector* dkyS_1d_ptr =
         reinterpret_cast<N_Vector*>(dkyS_1d.empty() ? nullptr : dkyS_1d.data());
@@ -1164,12 +1167,12 @@ m.def(
 
 m.def(
   "IDAQuadSensSStolerances",
-  [](void* ida_mem, double reltolQS) -> std::tuple<int, double>
+  [](void* ida_mem, sunrealtype reltolQS) -> std::tuple<int, sunrealtype>
   {
     auto IDAQuadSensSStolerances_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, double reltolQS) -> std::tuple<int, double>
+      [](void* ida_mem, sunrealtype reltolQS) -> std::tuple<int, sunrealtype>
     {
-      double abstolQS_adapt_modifiable;
+      sunrealtype abstolQS_adapt_modifiable;
 
       int r = IDAQuadSensSStolerances(ida_mem, reltolQS,
                                       &abstolQS_adapt_modifiable);
@@ -1183,10 +1186,11 @@ m.def(
 
 m.def(
   "IDAQuadSensSVtolerances",
-  [](void* ida_mem, double reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
+  [](void* ida_mem, sunrealtype reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
   {
     auto IDAQuadSensSVtolerances_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
+      [](void* ida_mem, sunrealtype reltolQS,
+         std::vector<N_Vector> abstolQS_1d) -> int
     {
       N_Vector* abstolQS_1d_ptr = reinterpret_cast<N_Vector*>(
         abstolQS_1d.empty() ? nullptr : abstolQS_1d.data());
@@ -1208,10 +1212,11 @@ m.def("IDASetQuadSensErrCon", IDASetQuadSensErrCon, nb::arg("ida_mem"),
 
 m.def(
   "IDAGetQuadSens",
-  [](void* ida_mem, std::vector<N_Vector> yyQSout_1d) -> std::tuple<int, double>
+  [](void* ida_mem,
+     std::vector<N_Vector> yyQSout_1d) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetQuadSens_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double* tret, std::vector<N_Vector> yyQSout_1d) -> int
+      [](void* ida_mem, sunrealtype* tret, std::vector<N_Vector> yyQSout_1d) -> int
     {
       N_Vector* yyQSout_1d_ptr = reinterpret_cast<N_Vector*>(
         yyQSout_1d.empty() ? nullptr : yyQSout_1d.data());
@@ -1222,9 +1227,9 @@ m.def(
     auto IDAGetQuadSens_adapt_modifiable_immutable_to_return =
       [&IDAGetQuadSens_adapt_arr_ptr_to_std_vector](void* ida_mem,
                                                     std::vector<N_Vector> yyQSout_1d)
-      -> std::tuple<int, double>
+      -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = IDAGetQuadSens_adapt_arr_ptr_to_std_vector(ida_mem,
                                                          &tret_adapt_modifiable,
@@ -1239,12 +1244,12 @@ m.def(
 
 m.def(
   "IDAGetQuadSens1",
-  [](void* ida_mem, int is, N_Vector yyQSret) -> std::tuple<int, double>
+  [](void* ida_mem, int is, N_Vector yyQSret) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetQuadSens1_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, int is, N_Vector yyQSret) -> std::tuple<int, double>
+      [](void* ida_mem, int is, N_Vector yyQSret) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = IDAGetQuadSens1(ida_mem, &tret_adapt_modifiable, is, yyQSret);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -1257,10 +1262,10 @@ m.def(
 
 m.def(
   "IDAGetQuadSensDky",
-  [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyQS_1d) -> int
+  [](void* ida_mem, sunrealtype t, int k, std::vector<N_Vector> dkyQS_1d) -> int
   {
     auto IDAGetQuadSensDky_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, double t, int k, std::vector<N_Vector> dkyQS_1d) -> int
+      [](void* ida_mem, sunrealtype t, int k, std::vector<N_Vector> dkyQS_1d) -> int
     {
       N_Vector* dkyQS_1d_ptr = reinterpret_cast<N_Vector*>(
         dkyQS_1d.empty() ? nullptr : dkyQS_1d.data());
@@ -1396,11 +1401,11 @@ m.def("IDACalcICB", IDACalcICB, nb::arg("ida_mem"), nb::arg("which"),
 
 m.def(
   "IDACalcICBS",
-  [](void* ida_mem, int which, double tout1, N_Vector yy0, N_Vector yp0,
+  [](void* ida_mem, int which, sunrealtype tout1, N_Vector yy0, N_Vector yp0,
      std::vector<N_Vector> yyS0_1d, std::vector<N_Vector> ypS0_1d) -> int
   {
     auto IDACalcICBS_adapt_arr_ptr_to_std_vector =
-      [](void* ida_mem, int which, double tout1, N_Vector yy0, N_Vector yp0,
+      [](void* ida_mem, int which, sunrealtype tout1, N_Vector yy0, N_Vector yp0,
          std::vector<N_Vector> yyS0_1d, std::vector<N_Vector> ypS0_1d) -> int
     {
       N_Vector* yyS0_1d_ptr =
@@ -1421,14 +1426,14 @@ m.def(
 
 m.def(
   "IDASolveF",
-  [](void* ida_mem, double tout, N_Vector yret, N_Vector ypret,
-     int itask) -> std::tuple<int, double, int>
+  [](void* ida_mem, sunrealtype tout, N_Vector yret, N_Vector ypret,
+     int itask) -> std::tuple<int, sunrealtype, int>
   {
     auto IDASolveF_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, double tout, N_Vector yret, N_Vector ypret,
-         int itask) -> std::tuple<int, double, int>
+      [](void* ida_mem, sunrealtype tout, N_Vector yret, N_Vector ypret,
+         int itask) -> std::tuple<int, sunrealtype, int>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
       int ncheckPtr_adapt_modifiable;
 
       int r = IDASolveF(ida_mem, tout, &tret_adapt_modifiable, yret, ypret,
@@ -1477,13 +1482,14 @@ m.def("IDASetNonlinearSolverB", IDASetNonlinearSolverB, nb::arg("ida_mem"),
 
 m.def(
   "IDAGetB",
-  [](void* ida_mem, int which, N_Vector yy, N_Vector yp) -> std::tuple<int, double>
+  [](void* ida_mem, int which, N_Vector yy,
+     N_Vector yp) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetB_adapt_modifiable_immutable_to_return =
       [](void* ida_mem, int which, N_Vector yy,
-         N_Vector yp) -> std::tuple<int, double>
+         N_Vector yp) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = IDAGetB(ida_mem, which, &tret_adapt_modifiable, yy, yp);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -1495,12 +1501,12 @@ m.def(
 
 m.def(
   "IDAGetQuadB",
-  [](void* ida_mem, int which, N_Vector qB) -> std::tuple<int, double>
+  [](void* ida_mem, int which, N_Vector qB) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetQuadB_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, int which, N_Vector qB) -> std::tuple<int, double>
+      [](void* ida_mem, int which, N_Vector qB) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = IDAGetQuadB(ida_mem, which, &tret_adapt_modifiable, qB);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -1524,13 +1530,14 @@ m.def("IDAGetAdjCheckPointsInfo", IDAGetAdjCheckPointsInfo, nb::arg("ida_mem"),
 
 m.def(
   "IDAGetAdjDataPointHermite",
-  [](void* ida_mem, int which, N_Vector yy, N_Vector yd) -> std::tuple<int, double>
+  [](void* ida_mem, int which, N_Vector yy,
+     N_Vector yd) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetAdjDataPointHermite_adapt_modifiable_immutable_to_return =
       [](void* ida_mem, int which, N_Vector yy,
-         N_Vector yd) -> std::tuple<int, double>
+         N_Vector yd) -> std::tuple<int, sunrealtype>
     {
-      double t_adapt_modifiable;
+      sunrealtype t_adapt_modifiable;
 
       int r = IDAGetAdjDataPointHermite(ida_mem, which, &t_adapt_modifiable, yy,
                                         yd);
@@ -1545,12 +1552,12 @@ m.def(
 
 m.def(
   "IDAGetAdjDataPointPolynomial",
-  [](void* ida_mem, int which, N_Vector y) -> std::tuple<int, double, int>
+  [](void* ida_mem, int which, N_Vector y) -> std::tuple<int, sunrealtype, int>
   {
     auto IDAGetAdjDataPointPolynomial_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem, int which, N_Vector y) -> std::tuple<int, double, int>
+      [](void* ida_mem, int which, N_Vector y) -> std::tuple<int, sunrealtype, int>
     {
-      double t_adapt_modifiable;
+      sunrealtype t_adapt_modifiable;
       int order_adapt_modifiable;
 
       int r = IDAGetAdjDataPointPolynomial(ida_mem, which, &t_adapt_modifiable,
@@ -1638,12 +1645,12 @@ m.def(
 
 m.def(
   "IDAGetJacCj",
-  [](void* ida_mem) -> std::tuple<int, double>
+  [](void* ida_mem) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetJacCj_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem) -> std::tuple<int, double>
+      [](void* ida_mem) -> std::tuple<int, sunrealtype>
     {
-      double cj_J_adapt_modifiable;
+      sunrealtype cj_J_adapt_modifiable;
 
       int r = IDAGetJacCj(ida_mem, &cj_J_adapt_modifiable);
       return std::make_tuple(r, cj_J_adapt_modifiable);
@@ -1655,12 +1662,12 @@ m.def(
 
 m.def(
   "IDAGetJacTime",
-  [](void* ida_mem) -> std::tuple<int, double>
+  [](void* ida_mem) -> std::tuple<int, sunrealtype>
   {
     auto IDAGetJacTime_adapt_modifiable_immutable_to_return =
-      [](void* ida_mem) -> std::tuple<int, double>
+      [](void* ida_mem) -> std::tuple<int, sunrealtype>
     {
-      double t_J_adapt_modifiable;
+      sunrealtype t_J_adapt_modifiable;
 
       int r = IDAGetJacTime(ida_mem, &t_J_adapt_modifiable);
       return std::make_tuple(r, t_J_adapt_modifiable);

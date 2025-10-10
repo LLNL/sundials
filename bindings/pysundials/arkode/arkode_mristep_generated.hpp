@@ -70,19 +70,20 @@ m.def("MRIStepCoupling_LoadTableByName", MRIStepCoupling_LoadTableByName,
 m.def(
   "MRIStepCoupling_Create",
   [](int nmat, int stages, int q, int p,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> W_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> G_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d) -> MRIStepCoupling
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> W_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> G_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d) -> MRIStepCoupling
   {
     auto MRIStepCoupling_Create_adapt_arr_ptr_to_std_vector =
       [](int nmat, int stages, int q, int p,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> W_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> G_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d) -> MRIStepCoupling
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> W_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> G_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d)
+      -> MRIStepCoupling
     {
-      double* W_1d_ptr = reinterpret_cast<double*>(W_1d.data());
-      double* G_1d_ptr = reinterpret_cast<double*>(G_1d.data());
-      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.data());
+      sunrealtype* W_1d_ptr = reinterpret_cast<sunrealtype*>(W_1d.data());
+      sunrealtype* G_1d_ptr = reinterpret_cast<sunrealtype*>(G_1d.data());
+      sunrealtype* c_1d_ptr = reinterpret_cast<sunrealtype*>(c_1d.data());
 
       auto lambda_result = MRIStepCoupling_Create(nmat, stages, q, p, W_1d_ptr,
                                                   G_1d_ptr, c_1d_ptr);

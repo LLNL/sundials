@@ -32,14 +32,14 @@ m.def("SUNAdaptController_GetType", SUNAdaptController_GetType, nb::arg("C"));
 
 m.def(
   "SUNAdaptController_EstimateStep",
-  [](SUNAdaptController C, double h, int p,
-     double dsm) -> std::tuple<SUNErrCode, double>
+  [](SUNAdaptController C, sunrealtype h, int p,
+     sunrealtype dsm) -> std::tuple<SUNErrCode, sunrealtype>
   {
     auto SUNAdaptController_EstimateStep_adapt_modifiable_immutable_to_return =
-      [](SUNAdaptController C, double h, int p,
-         double dsm) -> std::tuple<SUNErrCode, double>
+      [](SUNAdaptController C, sunrealtype h, int p,
+         sunrealtype dsm) -> std::tuple<SUNErrCode, sunrealtype>
     {
-      double hnew_adapt_modifiable;
+      sunrealtype hnew_adapt_modifiable;
 
       SUNErrCode r = SUNAdaptController_EstimateStep(C, h, p, dsm,
                                                      &hnew_adapt_modifiable);
@@ -55,15 +55,17 @@ m.def(
 
 m.def(
   "SUNAdaptController_EstimateStepTol",
-  [](SUNAdaptController C, double H, double tolfac, int P, double DSM,
-     double dsm) -> std::tuple<SUNErrCode, double, double>
+  [](SUNAdaptController C, sunrealtype H, sunrealtype tolfac, int P,
+     sunrealtype DSM,
+     sunrealtype dsm) -> std::tuple<SUNErrCode, sunrealtype, sunrealtype>
   {
     auto SUNAdaptController_EstimateStepTol_adapt_modifiable_immutable_to_return =
-      [](SUNAdaptController C, double H, double tolfac, int P, double DSM,
-         double dsm) -> std::tuple<SUNErrCode, double, double>
+      [](SUNAdaptController C, sunrealtype H, sunrealtype tolfac, int P,
+         sunrealtype DSM,
+         sunrealtype dsm) -> std::tuple<SUNErrCode, sunrealtype, sunrealtype>
     {
-      double Hnew_adapt_modifiable;
-      double tolfacnew_adapt_modifiable;
+      sunrealtype Hnew_adapt_modifiable;
+      sunrealtype tolfacnew_adapt_modifiable;
 
       SUNErrCode r =
         SUNAdaptController_EstimateStepTol(C, H, tolfac, P, DSM, dsm,

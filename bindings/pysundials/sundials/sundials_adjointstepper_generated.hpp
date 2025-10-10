@@ -10,14 +10,14 @@ m.def("SUNAdjointStepper_ReInit", SUNAdjointStepper_ReInit, nb::arg("adj"),
 
 m.def(
   "SUNAdjointStepper_Evolve",
-  [](SUNAdjointStepper adj_stepper, double tout,
-     N_Vector sens) -> std::tuple<SUNErrCode, double>
+  [](SUNAdjointStepper adj_stepper, sunrealtype tout,
+     N_Vector sens) -> std::tuple<SUNErrCode, sunrealtype>
   {
     auto SUNAdjointStepper_Evolve_adapt_modifiable_immutable_to_return =
-      [](SUNAdjointStepper adj_stepper, double tout,
-         N_Vector sens) -> std::tuple<SUNErrCode, double>
+      [](SUNAdjointStepper adj_stepper, sunrealtype tout,
+         N_Vector sens) -> std::tuple<SUNErrCode, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       SUNErrCode r = SUNAdjointStepper_Evolve(adj_stepper, tout, sens,
                                               &tret_adapt_modifiable);
@@ -32,14 +32,14 @@ m.def(
 
 m.def(
   "SUNAdjointStepper_OneStep",
-  [](SUNAdjointStepper adj_stepper, double tout,
-     N_Vector sens) -> std::tuple<SUNErrCode, double>
+  [](SUNAdjointStepper adj_stepper, sunrealtype tout,
+     N_Vector sens) -> std::tuple<SUNErrCode, sunrealtype>
   {
     auto SUNAdjointStepper_OneStep_adapt_modifiable_immutable_to_return =
-      [](SUNAdjointStepper adj_stepper, double tout,
-         N_Vector sens) -> std::tuple<SUNErrCode, double>
+      [](SUNAdjointStepper adj_stepper, sunrealtype tout,
+         N_Vector sens) -> std::tuple<SUNErrCode, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       SUNErrCode r = SUNAdjointStepper_OneStep(adj_stepper, tout, sens,
                                                &tret_adapt_modifiable);
@@ -61,12 +61,12 @@ m.def("SUNAdjointStepper_SetUserData", SUNAdjointStepper_SetUserData,
 
 m.def(
   "SUNAdjointStepper_GetNumSteps",
-  [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, long>
+  [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, suncountertype>
   {
     auto SUNAdjointStepper_GetNumSteps_adapt_modifiable_immutable_to_return =
-      [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, long>
+      [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, suncountertype>
     {
-      long num_steps_adapt_modifiable;
+      suncountertype num_steps_adapt_modifiable;
 
       SUNErrCode r = SUNAdjointStepper_GetNumSteps(adj_stepper,
                                                    &num_steps_adapt_modifiable);
@@ -80,12 +80,12 @@ m.def(
 
 m.def(
   "SUNAdjointStepper_GetNumRecompute",
-  [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, long>
+  [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, suncountertype>
   {
     auto SUNAdjointStepper_GetNumRecompute_adapt_modifiable_immutable_to_return =
-      [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, long>
+      [](SUNAdjointStepper adj_stepper) -> std::tuple<SUNErrCode, suncountertype>
     {
-      long num_recompute_adapt_modifiable;
+      suncountertype num_recompute_adapt_modifiable;
 
       SUNErrCode r =
         SUNAdjointStepper_GetNumRecompute(adj_stepper,

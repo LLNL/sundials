@@ -82,17 +82,18 @@ m.def("CVodeReInit", CVodeReInit, nb::arg("cvode_mem"), nb::arg("t0"),
 m.def(
   "CVodeResizeHistory",
   [](void* cvode_mem,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> t_hist_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> t_hist_1d,
      std::vector<N_Vector> y_hist_1d, std::vector<N_Vector> f_hist_1d,
      int num_y_hist, int num_f_hist) -> int
   {
     auto CVodeResizeHistory_adapt_arr_ptr_to_std_vector =
       [](void* cvode_mem,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> t_hist_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> t_hist_1d,
          std::vector<N_Vector> y_hist_1d, std::vector<N_Vector> f_hist_1d,
          int num_y_hist, int num_f_hist) -> int
     {
-      double* t_hist_1d_ptr   = reinterpret_cast<double*>(t_hist_1d.data());
+      sunrealtype* t_hist_1d_ptr =
+        reinterpret_cast<sunrealtype*>(t_hist_1d.data());
       N_Vector* y_hist_1d_ptr = reinterpret_cast<N_Vector*>(
         y_hist_1d.empty() ? nullptr : y_hist_1d.data());
       N_Vector* f_hist_1d_ptr = reinterpret_cast<N_Vector*>(
@@ -226,14 +227,14 @@ m.def("CVodeSetNoInactiveRootWarn", CVodeSetNoInactiveRootWarn,
 
 m.def(
   "CVode",
-  [](void* cvode_mem, double tout, N_Vector yout,
-     int itask) -> std::tuple<int, double>
+  [](void* cvode_mem, sunrealtype tout, N_Vector yout,
+     int itask) -> std::tuple<int, sunrealtype>
   {
     auto CVode_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, double tout, N_Vector yout,
-         int itask) -> std::tuple<int, double>
+      [](void* cvode_mem, sunrealtype tout, N_Vector yout,
+         int itask) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = CVode(cvode_mem, tout, yout, &tret_adapt_modifiable, itask);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -355,12 +356,12 @@ m.def(
 
 m.def(
   "CVodeGetCurrentGamma",
-  [](void* cvode_mem) -> std::tuple<int, double>
+  [](void* cvode_mem) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetCurrentGamma_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem) -> std::tuple<int, double>
+      [](void* cvode_mem) -> std::tuple<int, sunrealtype>
     {
-      double gamma_adapt_modifiable;
+      sunrealtype gamma_adapt_modifiable;
 
       int r = CVodeGetCurrentGamma(cvode_mem, &gamma_adapt_modifiable);
       return std::make_tuple(r, gamma_adapt_modifiable);
@@ -390,12 +391,12 @@ m.def(
 
 m.def(
   "CVodeGetActualInitStep",
-  [](void* cvode_mem) -> std::tuple<int, double>
+  [](void* cvode_mem) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetActualInitStep_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem) -> std::tuple<int, double>
+      [](void* cvode_mem) -> std::tuple<int, sunrealtype>
     {
-      double hinused_adapt_modifiable;
+      sunrealtype hinused_adapt_modifiable;
 
       int r = CVodeGetActualInitStep(cvode_mem, &hinused_adapt_modifiable);
       return std::make_tuple(r, hinused_adapt_modifiable);
@@ -407,12 +408,12 @@ m.def(
 
 m.def(
   "CVodeGetLastStep",
-  [](void* cvode_mem) -> std::tuple<int, double>
+  [](void* cvode_mem) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetLastStep_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem) -> std::tuple<int, double>
+      [](void* cvode_mem) -> std::tuple<int, sunrealtype>
     {
-      double hlast_adapt_modifiable;
+      sunrealtype hlast_adapt_modifiable;
 
       int r = CVodeGetLastStep(cvode_mem, &hlast_adapt_modifiable);
       return std::make_tuple(r, hlast_adapt_modifiable);
@@ -424,12 +425,12 @@ m.def(
 
 m.def(
   "CVodeGetCurrentStep",
-  [](void* cvode_mem) -> std::tuple<int, double>
+  [](void* cvode_mem) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetCurrentStep_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem) -> std::tuple<int, double>
+      [](void* cvode_mem) -> std::tuple<int, sunrealtype>
     {
-      double hcur_adapt_modifiable;
+      sunrealtype hcur_adapt_modifiable;
 
       int r = CVodeGetCurrentStep(cvode_mem, &hcur_adapt_modifiable);
       return std::make_tuple(r, hcur_adapt_modifiable);
@@ -476,12 +477,12 @@ m.def(
 
 m.def(
   "CVodeGetCurrentTime",
-  [](void* cvode_mem) -> std::tuple<int, double>
+  [](void* cvode_mem) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetCurrentTime_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem) -> std::tuple<int, double>
+      [](void* cvode_mem) -> std::tuple<int, sunrealtype>
     {
-      double tcur_adapt_modifiable;
+      sunrealtype tcur_adapt_modifiable;
 
       int r = CVodeGetCurrentTime(cvode_mem, &tcur_adapt_modifiable);
       return std::make_tuple(r, tcur_adapt_modifiable);
@@ -493,12 +494,12 @@ m.def(
 
 m.def(
   "CVodeGetTolScaleFactor",
-  [](void* cvode_mem) -> std::tuple<int, double>
+  [](void* cvode_mem) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetTolScaleFactor_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem) -> std::tuple<int, double>
+      [](void* cvode_mem) -> std::tuple<int, sunrealtype>
     {
-      double tolsfac_adapt_modifiable;
+      sunrealtype tolsfac_adapt_modifiable;
 
       int r = CVodeGetTolScaleFactor(cvode_mem, &tolsfac_adapt_modifiable);
       return std::make_tuple(r, tolsfac_adapt_modifiable);
@@ -551,11 +552,12 @@ m.def(
 m.def(
   "CVodeGetIntegratorStats",
   [](void* cvode_mem) -> std::tuple<int, long, long, long, long, int, int,
-                                    double, double, double, double>
+                                    sunrealtype, sunrealtype, sunrealtype, sunrealtype>
   {
     auto CVodeGetIntegratorStats_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem) -> std::tuple<int, long, long, long, long, int, int,
-                                        double, double, double, double>
+      [](void* cvode_mem)
+      -> std::tuple<int, long, long, long, long, int, int, sunrealtype,
+                    sunrealtype, sunrealtype, sunrealtype>
     {
       long nsteps_adapt_modifiable;
       long nfevals_adapt_modifiable;
@@ -563,10 +565,10 @@ m.def(
       long netfails_adapt_modifiable;
       int qlast_adapt_modifiable;
       int qcur_adapt_modifiable;
-      double hinused_adapt_modifiable;
-      double hlast_adapt_modifiable;
-      double hcur_adapt_modifiable;
-      double tcur_adapt_modifiable;
+      sunrealtype hinused_adapt_modifiable;
+      sunrealtype hlast_adapt_modifiable;
+      sunrealtype hcur_adapt_modifiable;
+      sunrealtype tcur_adapt_modifiable;
 
       int r =
         CVodeGetIntegratorStats(cvode_mem, &nsteps_adapt_modifiable,
@@ -683,12 +685,12 @@ m.def("CVodeSetQuadErrCon", CVodeSetQuadErrCon, nb::arg("cvode_mem"),
 
 m.def(
   "CVodeGetQuad",
-  [](void* cvode_mem, N_Vector yQout) -> std::tuple<int, double>
+  [](void* cvode_mem, N_Vector yQout) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetQuad_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, N_Vector yQout) -> std::tuple<int, double>
+      [](void* cvode_mem, N_Vector yQout) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = CVodeGetQuad(cvode_mem, &tret_adapt_modifiable, yQout);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -779,14 +781,16 @@ m.def(
 
 m.def(
   "CVodeSensSStolerances",
-  [](void* cvode_mem, double reltolS,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolS_1d) -> int
+  [](void* cvode_mem, sunrealtype reltolS,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> abstolS_1d) -> int
   {
     auto CVodeSensSStolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolS,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolS_1d) -> int
+      [](void* cvode_mem, sunrealtype reltolS,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> abstolS_1d)
+      -> int
     {
-      double* abstolS_1d_ptr = reinterpret_cast<double*>(abstolS_1d.data());
+      sunrealtype* abstolS_1d_ptr =
+        reinterpret_cast<sunrealtype*>(abstolS_1d.data());
 
       auto lambda_result = CVodeSensSStolerances(cvode_mem, reltolS,
                                                  abstolS_1d_ptr);
@@ -800,10 +804,11 @@ m.def(
 
 m.def(
   "CVodeSensSVtolerances",
-  [](void* cvode_mem, double reltolS, std::vector<N_Vector> abstolS_1d) -> int
+  [](void* cvode_mem, sunrealtype reltolS, std::vector<N_Vector> abstolS_1d) -> int
   {
     auto CVodeSensSVtolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolS, std::vector<N_Vector> abstolS_1d) -> int
+      [](void* cvode_mem, sunrealtype reltolS,
+         std::vector<N_Vector> abstolS_1d) -> int
     {
       N_Vector* abstolS_1d_ptr = reinterpret_cast<N_Vector*>(
         abstolS_1d.empty() ? nullptr : abstolS_1d.data());
@@ -832,18 +837,18 @@ m.def("CVodeSetSensMaxNonlinIters", CVodeSetSensMaxNonlinIters,
 m.def(
   "CVodeSetSensParams",
   [](void* cvode_mem,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
      std::vector<int> plist_1d) -> int
   {
     auto CVodeSetSensParams_adapt_arr_ptr_to_std_vector =
       [](void* cvode_mem,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> p_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> pbar_1d,
          std::vector<int> plist_1d) -> int
     {
-      double* p_1d_ptr    = reinterpret_cast<double*>(p_1d.data());
-      double* pbar_1d_ptr = reinterpret_cast<double*>(pbar_1d.data());
+      sunrealtype* p_1d_ptr    = reinterpret_cast<sunrealtype*>(p_1d.data());
+      sunrealtype* pbar_1d_ptr = reinterpret_cast<sunrealtype*>(pbar_1d.data());
       int* plist_1d_ptr =
         reinterpret_cast<int*>(plist_1d.empty() ? nullptr : plist_1d.data());
 
@@ -870,10 +875,11 @@ m.def("CVodeSensToggleOff", CVodeSensToggleOff, nb::arg("cvode_mem"));
 
 m.def(
   "CVodeGetSens",
-  [](void* cvode_mem, std::vector<N_Vector> ySout_1d) -> std::tuple<int, double>
+  [](void* cvode_mem,
+     std::vector<N_Vector> ySout_1d) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetSens_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double* tret, std::vector<N_Vector> ySout_1d) -> int
+      [](void* cvode_mem, sunrealtype* tret, std::vector<N_Vector> ySout_1d) -> int
     {
       N_Vector* ySout_1d_ptr = reinterpret_cast<N_Vector*>(
         ySout_1d.empty() ? nullptr : ySout_1d.data());
@@ -884,9 +890,9 @@ m.def(
     auto CVodeGetSens_adapt_modifiable_immutable_to_return =
       [&CVodeGetSens_adapt_arr_ptr_to_std_vector](void* cvode_mem,
                                                   std::vector<N_Vector> ySout_1d)
-      -> std::tuple<int, double>
+      -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = CVodeGetSens_adapt_arr_ptr_to_std_vector(cvode_mem,
                                                        &tret_adapt_modifiable,
@@ -900,12 +906,12 @@ m.def(
 
 m.def(
   "CVodeGetSens1",
-  [](void* cvode_mem, int is, N_Vector ySout) -> std::tuple<int, double>
+  [](void* cvode_mem, int is, N_Vector ySout) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetSens1_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, int is, N_Vector ySout) -> std::tuple<int, double>
+      [](void* cvode_mem, int is, N_Vector ySout) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = CVodeGetSens1(cvode_mem, &tret_adapt_modifiable, is, ySout);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -918,10 +924,11 @@ m.def(
 
 m.def(
   "CVodeGetSensDky",
-  [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyA_1d) -> int
+  [](void* cvode_mem, sunrealtype t, int k, std::vector<N_Vector> dkyA_1d) -> int
   {
     auto CVodeGetSensDky_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyA_1d) -> int
+      [](void* cvode_mem, sunrealtype t, int k,
+         std::vector<N_Vector> dkyA_1d) -> int
     {
       N_Vector* dkyA_1d_ptr =
         reinterpret_cast<N_Vector*>(dkyA_1d.empty() ? nullptr : dkyA_1d.data());
@@ -1231,14 +1238,16 @@ m.def(
 
 m.def(
   "CVodeQuadSensSStolerances",
-  [](void* cvode_mem, double reltolQS,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolQS_1d) -> int
+  [](void* cvode_mem, sunrealtype reltolQS,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> abstolQS_1d) -> int
   {
     auto CVodeQuadSensSStolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolQS,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> abstolQS_1d) -> int
+      [](void* cvode_mem, sunrealtype reltolQS,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> abstolQS_1d)
+      -> int
     {
-      double* abstolQS_1d_ptr = reinterpret_cast<double*>(abstolQS_1d.data());
+      sunrealtype* abstolQS_1d_ptr =
+        reinterpret_cast<sunrealtype*>(abstolQS_1d.data());
 
       auto lambda_result = CVodeQuadSensSStolerances(cvode_mem, reltolQS,
                                                      abstolQS_1d_ptr);
@@ -1253,10 +1262,11 @@ m.def(
 
 m.def(
   "CVodeQuadSensSVtolerances",
-  [](void* cvode_mem, double reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
+  [](void* cvode_mem, sunrealtype reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
   {
     auto CVodeQuadSensSVtolerances_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double reltolQS, std::vector<N_Vector> abstolQS_1d) -> int
+      [](void* cvode_mem, sunrealtype reltolQS,
+         std::vector<N_Vector> abstolQS_1d) -> int
     {
       N_Vector* abstolQS_1d_ptr = reinterpret_cast<N_Vector*>(
         abstolQS_1d.empty() ? nullptr : abstolQS_1d.data());
@@ -1280,10 +1290,11 @@ m.def("CVodeSetQuadSensErrCon", CVodeSetQuadSensErrCon, nb::arg("cvode_mem"),
 
 m.def(
   "CVodeGetQuadSens",
-  [](void* cvode_mem, std::vector<N_Vector> yQSout_1d) -> std::tuple<int, double>
+  [](void* cvode_mem,
+     std::vector<N_Vector> yQSout_1d) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetQuadSens_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double* tret, std::vector<N_Vector> yQSout_1d) -> int
+      [](void* cvode_mem, sunrealtype* tret, std::vector<N_Vector> yQSout_1d) -> int
     {
       N_Vector* yQSout_1d_ptr = reinterpret_cast<N_Vector*>(
         yQSout_1d.empty() ? nullptr : yQSout_1d.data());
@@ -1294,9 +1305,9 @@ m.def(
     auto CVodeGetQuadSens_adapt_modifiable_immutable_to_return =
       [&CVodeGetQuadSens_adapt_arr_ptr_to_std_vector](void* cvode_mem,
                                                       std::vector<N_Vector> yQSout_1d)
-      -> std::tuple<int, double>
+      -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = CVodeGetQuadSens_adapt_arr_ptr_to_std_vector(cvode_mem,
                                                            &tret_adapt_modifiable,
@@ -1311,12 +1322,12 @@ m.def(
 
 m.def(
   "CVodeGetQuadSens1",
-  [](void* cvode_mem, int is, N_Vector yQSout) -> std::tuple<int, double>
+  [](void* cvode_mem, int is, N_Vector yQSout) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetQuadSens1_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, int is, N_Vector yQSout) -> std::tuple<int, double>
+      [](void* cvode_mem, int is, N_Vector yQSout) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = CVodeGetQuadSens1(cvode_mem, &tret_adapt_modifiable, is, yQSout);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -1329,10 +1340,11 @@ m.def(
 
 m.def(
   "CVodeGetQuadSensDky",
-  [](void* cvode_mem, double t, int k, std::vector<N_Vector> dkyQS_all_1d) -> int
+  [](void* cvode_mem, sunrealtype t, int k,
+     std::vector<N_Vector> dkyQS_all_1d) -> int
   {
     auto CVodeGetQuadSensDky_adapt_arr_ptr_to_std_vector =
-      [](void* cvode_mem, double t, int k,
+      [](void* cvode_mem, sunrealtype t, int k,
          std::vector<N_Vector> dkyQS_all_1d) -> int
     {
       N_Vector* dkyQS_all_1d_ptr = reinterpret_cast<N_Vector*>(
@@ -1469,14 +1481,14 @@ m.def("CVodeQuadSVtolerancesB", CVodeQuadSVtolerancesB, nb::arg("cvode_mem"),
 
 m.def(
   "CVodeF",
-  [](void* cvode_mem, double tout, N_Vector yout,
-     int itask) -> std::tuple<int, double, int>
+  [](void* cvode_mem, sunrealtype tout, N_Vector yout,
+     int itask) -> std::tuple<int, sunrealtype, int>
   {
     auto CVodeF_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, double tout, N_Vector yout,
-         int itask) -> std::tuple<int, double, int>
+      [](void* cvode_mem, sunrealtype tout, N_Vector yout,
+         int itask) -> std::tuple<int, sunrealtype, int>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
       int ncheckPtr_adapt_modifiable;
 
       int r = CVodeF(cvode_mem, tout, yout, &tret_adapt_modifiable, itask,
@@ -1524,12 +1536,12 @@ m.def("CVodeSetNonlinearSolverB", CVodeSetNonlinearSolverB,
 
 m.def(
   "CVodeGetB",
-  [](void* cvode_mem, int which, N_Vector yB) -> std::tuple<int, double>
+  [](void* cvode_mem, int which, N_Vector yB) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetB_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, int which, N_Vector yB) -> std::tuple<int, double>
+      [](void* cvode_mem, int which, N_Vector yB) -> std::tuple<int, sunrealtype>
     {
-      double tBret_adapt_modifiable;
+      sunrealtype tBret_adapt_modifiable;
 
       int r = CVodeGetB(cvode_mem, which, &tBret_adapt_modifiable, yB);
       return std::make_tuple(r, tBret_adapt_modifiable);
@@ -1541,12 +1553,12 @@ m.def(
 
 m.def(
   "CVodeGetQuadB",
-  [](void* cvode_mem, int which, N_Vector qB) -> std::tuple<int, double>
+  [](void* cvode_mem, int which, N_Vector qB) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetQuadB_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, int which, N_Vector qB) -> std::tuple<int, double>
+      [](void* cvode_mem, int which, N_Vector qB) -> std::tuple<int, sunrealtype>
     {
-      double tBret_adapt_modifiable;
+      sunrealtype tBret_adapt_modifiable;
 
       int r = CVodeGetQuadB(cvode_mem, which, &tBret_adapt_modifiable, qB);
       return std::make_tuple(r, tBret_adapt_modifiable);
@@ -1568,13 +1580,14 @@ m.def("CVodeGetAdjCheckPointsInfo", CVodeGetAdjCheckPointsInfo,
 
 m.def(
   "CVodeGetAdjDataPointHermite",
-  [](void* cvode_mem, int which, N_Vector y, N_Vector yd) -> std::tuple<int, double>
+  [](void* cvode_mem, int which, N_Vector y,
+     N_Vector yd) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetAdjDataPointHermite_adapt_modifiable_immutable_to_return =
       [](void* cvode_mem, int which, N_Vector y,
-         N_Vector yd) -> std::tuple<int, double>
+         N_Vector yd) -> std::tuple<int, sunrealtype>
     {
-      double t_adapt_modifiable;
+      sunrealtype t_adapt_modifiable;
 
       int r = CVodeGetAdjDataPointHermite(cvode_mem, which, &t_adapt_modifiable,
                                           y, yd);
@@ -1590,12 +1603,13 @@ m.def(
 
 m.def(
   "CVodeGetAdjDataPointPolynomial",
-  [](void* cvode_mem, int which, N_Vector y) -> std::tuple<int, double, int>
+  [](void* cvode_mem, int which, N_Vector y) -> std::tuple<int, sunrealtype, int>
   {
     auto CVodeGetAdjDataPointPolynomial_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem, int which, N_Vector y) -> std::tuple<int, double, int>
+      [](void* cvode_mem, int which,
+         N_Vector y) -> std::tuple<int, sunrealtype, int>
     {
-      double t_adapt_modifiable;
+      sunrealtype t_adapt_modifiable;
       int order_adapt_modifiable;
 
       int r = CVodeGetAdjDataPointPolynomial(cvode_mem, which,
@@ -1688,12 +1702,12 @@ m.def(
 
 m.def(
   "CVodeGetJacTime",
-  [](void* cvode_mem) -> std::tuple<int, double>
+  [](void* cvode_mem) -> std::tuple<int, sunrealtype>
   {
     auto CVodeGetJacTime_adapt_modifiable_immutable_to_return =
-      [](void* cvode_mem) -> std::tuple<int, double>
+      [](void* cvode_mem) -> std::tuple<int, sunrealtype>
     {
-      double t_J_adapt_modifiable;
+      sunrealtype t_J_adapt_modifiable;
 
       int r = CVodeGetJacTime(cvode_mem, &t_J_adapt_modifiable);
       return std::make_tuple(r, t_J_adapt_modifiable);

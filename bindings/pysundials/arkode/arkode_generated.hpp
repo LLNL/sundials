@@ -294,14 +294,14 @@ m.def("ARKodeResetAccumulatedError", ARKodeResetAccumulatedError,
 
 m.def(
   "ARKodeEvolve",
-  [](void* arkode_mem, double tout, N_Vector yout,
-     int itask) -> std::tuple<int, double>
+  [](void* arkode_mem, sunrealtype tout, N_Vector yout,
+     int itask) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeEvolve_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem, double tout, N_Vector yout,
-         int itask) -> std::tuple<int, double>
+      [](void* arkode_mem, sunrealtype tout, N_Vector yout,
+         int itask) -> std::tuple<int, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       int r = ARKodeEvolve(arkode_mem, tout, yout, &tret_adapt_modifiable, itask);
       return std::make_tuple(r, tret_adapt_modifiable);
@@ -375,12 +375,12 @@ m.def(
 
 m.def(
   "ARKodeGetLastStep",
-  [](void* arkode_mem) -> std::tuple<int, double>
+  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetLastStep_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, double>
+      [](void* arkode_mem) -> std::tuple<int, sunrealtype>
     {
-      double hlast_adapt_modifiable;
+      sunrealtype hlast_adapt_modifiable;
 
       int r = ARKodeGetLastStep(arkode_mem, &hlast_adapt_modifiable);
       return std::make_tuple(r, hlast_adapt_modifiable);
@@ -392,12 +392,12 @@ m.def(
 
 m.def(
   "ARKodeGetCurrentStep",
-  [](void* arkode_mem) -> std::tuple<int, double>
+  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetCurrentStep_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, double>
+      [](void* arkode_mem) -> std::tuple<int, sunrealtype>
     {
-      double hcur_adapt_modifiable;
+      sunrealtype hcur_adapt_modifiable;
 
       int r = ARKodeGetCurrentStep(arkode_mem, &hcur_adapt_modifiable);
       return std::make_tuple(r, hcur_adapt_modifiable);
@@ -409,12 +409,12 @@ m.def(
 
 m.def(
   "ARKodeGetStepDirection",
-  [](void* arkode_mem) -> std::tuple<int, double>
+  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetStepDirection_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, double>
+      [](void* arkode_mem) -> std::tuple<int, sunrealtype>
     {
-      double stepdir_adapt_modifiable;
+      sunrealtype stepdir_adapt_modifiable;
 
       int r = ARKodeGetStepDirection(arkode_mem, &stepdir_adapt_modifiable);
       return std::make_tuple(r, stepdir_adapt_modifiable);
@@ -527,12 +527,12 @@ m.def("ARKodeGetEstLocalErrors", ARKodeGetEstLocalErrors, nb::arg("arkode_mem"),
 
 m.def(
   "ARKodeGetActualInitStep",
-  [](void* arkode_mem) -> std::tuple<int, double>
+  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetActualInitStep_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, double>
+      [](void* arkode_mem) -> std::tuple<int, sunrealtype>
     {
-      double hinused_adapt_modifiable;
+      sunrealtype hinused_adapt_modifiable;
 
       int r = ARKodeGetActualInitStep(arkode_mem, &hinused_adapt_modifiable);
       return std::make_tuple(r, hinused_adapt_modifiable);
@@ -545,12 +545,12 @@ m.def(
 
 m.def(
   "ARKodeGetTolScaleFactor",
-  [](void* arkode_mem) -> std::tuple<int, double>
+  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetTolScaleFactor_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, double>
+      [](void* arkode_mem) -> std::tuple<int, sunrealtype>
     {
-      double tolsfac_adapt_modifiable;
+      sunrealtype tolsfac_adapt_modifiable;
 
       int r = ARKodeGetTolScaleFactor(arkode_mem, &tolsfac_adapt_modifiable);
       return std::make_tuple(r, tolsfac_adapt_modifiable);
@@ -581,16 +581,18 @@ m.def(
 
 m.def(
   "ARKodeGetStepStats",
-  [](void* arkode_mem) -> std::tuple<int, long, double, double, double, double>
+  [](void* arkode_mem)
+    -> std::tuple<int, long, sunrealtype, sunrealtype, sunrealtype, sunrealtype>
   {
     auto ARKodeGetStepStats_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, long, double, double, double, double>
+      [](void* arkode_mem)
+      -> std::tuple<int, long, sunrealtype, sunrealtype, sunrealtype, sunrealtype>
     {
       long nsteps_adapt_modifiable;
-      double hinused_adapt_modifiable;
-      double hlast_adapt_modifiable;
-      double hcur_adapt_modifiable;
-      double tcur_adapt_modifiable;
+      sunrealtype hinused_adapt_modifiable;
+      sunrealtype hlast_adapt_modifiable;
+      sunrealtype hcur_adapt_modifiable;
+      sunrealtype tcur_adapt_modifiable;
 
       int r = ARKodeGetStepStats(arkode_mem, &nsteps_adapt_modifiable,
                                  &hinused_adapt_modifiable,
@@ -607,12 +609,12 @@ m.def(
 
 m.def(
   "ARKodeGetAccumulatedError",
-  [](void* arkode_mem) -> std::tuple<int, double>
+  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetAccumulatedError_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, double>
+      [](void* arkode_mem) -> std::tuple<int, sunrealtype>
     {
-      double accum_error_adapt_modifiable;
+      sunrealtype accum_error_adapt_modifiable;
 
       int r = ARKodeGetAccumulatedError(arkode_mem,
                                         &accum_error_adapt_modifiable);
@@ -644,12 +646,12 @@ m.def(
 
 m.def(
   "ARKodeGetCurrentTime",
-  [](void* arkode_mem) -> std::tuple<int, double>
+  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetCurrentTime_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, double>
+      [](void* arkode_mem) -> std::tuple<int, sunrealtype>
     {
-      double tcur_adapt_modifiable;
+      sunrealtype tcur_adapt_modifiable;
 
       int r = ARKodeGetCurrentTime(arkode_mem, &tcur_adapt_modifiable);
       return std::make_tuple(r, tcur_adapt_modifiable);
@@ -661,12 +663,12 @@ m.def(
 
 m.def(
   "ARKodeGetCurrentGamma",
-  [](void* arkode_mem) -> std::tuple<int, double>
+  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetCurrentGamma_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, double>
+      [](void* arkode_mem) -> std::tuple<int, sunrealtype>
     {
-      double gamma_adapt_modifiable;
+      sunrealtype gamma_adapt_modifiable;
 
       int r = ARKodeGetCurrentGamma(arkode_mem, &gamma_adapt_modifiable);
       return std::make_tuple(r, gamma_adapt_modifiable);
@@ -754,12 +756,12 @@ m.def(
 
 m.def(
   "ARKodeGetJacTime",
-  [](void* arkode_mem) -> std::tuple<int, double>
+  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetJacTime_adapt_modifiable_immutable_to_return =
-      [](void* arkode_mem) -> std::tuple<int, double>
+      [](void* arkode_mem) -> std::tuple<int, sunrealtype>
     {
-      double t_J_adapt_modifiable;
+      sunrealtype t_J_adapt_modifiable;
 
       int r = ARKodeGetJacTime(arkode_mem, &t_J_adapt_modifiable);
       return std::make_tuple(r, t_J_adapt_modifiable);
@@ -1340,23 +1342,23 @@ auto pyClassARKodeButcherTableMem =
 m.def(
   "ARKodeButcherTable_Create",
   [](int s, int q, int p,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> A_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> b_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> d_1d) -> ARKodeButcherTable
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> A_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> b_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> d_1d) -> ARKodeButcherTable
   {
     auto ARKodeButcherTable_Create_adapt_arr_ptr_to_std_vector =
       [](int s, int q, int p,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> A_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> b_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> d_1d)
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> A_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> b_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> d_1d)
       -> ARKodeButcherTable
     {
-      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.data());
-      double* A_1d_ptr = reinterpret_cast<double*>(A_1d.data());
-      double* b_1d_ptr = reinterpret_cast<double*>(b_1d.data());
-      double* d_1d_ptr = reinterpret_cast<double*>(d_1d.data());
+      sunrealtype* c_1d_ptr = reinterpret_cast<sunrealtype*>(c_1d.data());
+      sunrealtype* A_1d_ptr = reinterpret_cast<sunrealtype*>(A_1d.data());
+      sunrealtype* b_1d_ptr = reinterpret_cast<sunrealtype*>(b_1d.data());
+      sunrealtype* d_1d_ptr = reinterpret_cast<sunrealtype*>(d_1d.data());
 
       auto lambda_result = ARKodeButcherTable_Create(s, q, p, c_1d_ptr, A_1d_ptr,
                                                      b_1d_ptr, d_1d_ptr);
@@ -1580,17 +1582,18 @@ auto pyClassARKodeSPRKTableMem =
 
 m.def(
   "ARKodeSPRKTable_Create",
-  [](int s, int q, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> ahat_1d) -> ARKodeSPRKTable
+  [](int s, int q,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> ahat_1d) -> ARKodeSPRKTable
   {
     auto ARKodeSPRKTable_Create_adapt_arr_ptr_to_std_vector =
       [](int s, int q,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> ahat_1d)
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> ahat_1d)
       -> ARKodeSPRKTable
     {
-      double* a_1d_ptr    = reinterpret_cast<double*>(a_1d.data());
-      double* ahat_1d_ptr = reinterpret_cast<double*>(ahat_1d.data());
+      sunrealtype* a_1d_ptr    = reinterpret_cast<sunrealtype*>(a_1d.data());
+      sunrealtype* ahat_1d_ptr = reinterpret_cast<sunrealtype*>(ahat_1d.data());
 
       auto lambda_result = ARKodeSPRKTable_Create(s, q, a_1d_ptr, ahat_1d_ptr);
       return lambda_result;

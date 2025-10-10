@@ -6,14 +6,16 @@
 
 m.def(
   "SUNAdjointCheckpointScheme_NeedsSaving",
-  [](SUNAdjointCheckpointScheme check_scheme, long step_num, long stage_num,
-     double t) -> std::tuple<SUNErrCode, int>
+  [](SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
+     suncountertype stage_num,
+     sunrealtype t) -> std::tuple<SUNErrCode, sunbooleantype>
   {
     auto SUNAdjointCheckpointScheme_NeedsSaving_adapt_modifiable_immutable_to_return =
-      [](SUNAdjointCheckpointScheme check_scheme, long step_num, long stage_num,
-         double t) -> std::tuple<SUNErrCode, int>
+      [](SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
+         suncountertype stage_num,
+         sunrealtype t) -> std::tuple<SUNErrCode, sunbooleantype>
     {
-      int yes_or_no_adapt_modifiable;
+      sunbooleantype yes_or_no_adapt_modifiable;
 
       SUNErrCode r =
         SUNAdjointCheckpointScheme_NeedsSaving(check_scheme, step_num, stage_num,
@@ -31,15 +33,17 @@ m.def(
 
 m.def(
   "SUNAdjointCheckpointScheme_LoadVector",
-  [](SUNAdjointCheckpointScheme check_scheme, long step_num, long stage_num,
-     int peek) -> std::tuple<SUNErrCode, N_Vector, double>
+  [](SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
+     suncountertype stage_num,
+     sunbooleantype peek) -> std::tuple<SUNErrCode, N_Vector, sunrealtype>
   {
     auto SUNAdjointCheckpointScheme_LoadVector_adapt_modifiable_immutable_to_return =
-      [](SUNAdjointCheckpointScheme check_scheme, long step_num, long stage_num,
-         int peek) -> std::tuple<SUNErrCode, N_Vector, double>
+      [](SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
+         suncountertype stage_num,
+         sunbooleantype peek) -> std::tuple<SUNErrCode, N_Vector, sunrealtype>
     {
       N_Vector out_adapt_modifiable;
-      double tout_adapt_modifiable;
+      sunrealtype tout_adapt_modifiable;
 
       SUNErrCode r =
         SUNAdjointCheckpointScheme_LoadVector(check_scheme, step_num, stage_num,

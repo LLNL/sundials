@@ -35,14 +35,14 @@ m.def(
 
 m.def(
   "SUNStepper_Evolve",
-  [](SUNStepper stepper, double tout,
-     N_Vector vret) -> std::tuple<SUNErrCode, double>
+  [](SUNStepper stepper, sunrealtype tout,
+     N_Vector vret) -> std::tuple<SUNErrCode, sunrealtype>
   {
     auto SUNStepper_Evolve_adapt_modifiable_immutable_to_return =
-      [](SUNStepper stepper, double tout,
-         N_Vector vret) -> std::tuple<SUNErrCode, double>
+      [](SUNStepper stepper, sunrealtype tout,
+         N_Vector vret) -> std::tuple<SUNErrCode, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       SUNErrCode r = SUNStepper_Evolve(stepper, tout, vret,
                                        &tret_adapt_modifiable);
@@ -56,14 +56,14 @@ m.def(
 
 m.def(
   "SUNStepper_OneStep",
-  [](SUNStepper stepper, double tout,
-     N_Vector vret) -> std::tuple<SUNErrCode, double>
+  [](SUNStepper stepper, sunrealtype tout,
+     N_Vector vret) -> std::tuple<SUNErrCode, sunrealtype>
   {
     auto SUNStepper_OneStep_adapt_modifiable_immutable_to_return =
-      [](SUNStepper stepper, double tout,
-         N_Vector vret) -> std::tuple<SUNErrCode, double>
+      [](SUNStepper stepper, sunrealtype tout,
+         N_Vector vret) -> std::tuple<SUNErrCode, sunrealtype>
     {
-      double tret_adapt_modifiable;
+      sunrealtype tret_adapt_modifiable;
 
       SUNErrCode r = SUNStepper_OneStep(stepper, tout, vret,
                                         &tret_adapt_modifiable);
@@ -95,11 +95,11 @@ m.def("SUNStepper_SetStepDirection", SUNStepper_SetStepDirection,
 
 m.def(
   "SUNStepper_SetForcing",
-  [](SUNStepper stepper, double tshift, double tscale,
+  [](SUNStepper stepper, sunrealtype tshift, sunrealtype tscale,
      std::vector<N_Vector> forcing_1d, int nforcing) -> SUNErrCode
   {
     auto SUNStepper_SetForcing_adapt_arr_ptr_to_std_vector =
-      [](SUNStepper stepper, double tshift, double tscale,
+      [](SUNStepper stepper, sunrealtype tshift, sunrealtype tscale,
          std::vector<N_Vector> forcing_1d, int nforcing) -> SUNErrCode
     {
       N_Vector* forcing_1d_ptr = reinterpret_cast<N_Vector*>(
@@ -139,12 +139,12 @@ m.def(
 
 m.def(
   "SUNStepper_GetNumSteps",
-  [](SUNStepper stepper) -> std::tuple<SUNErrCode, long>
+  [](SUNStepper stepper) -> std::tuple<SUNErrCode, suncountertype>
   {
     auto SUNStepper_GetNumSteps_adapt_modifiable_immutable_to_return =
-      [](SUNStepper stepper) -> std::tuple<SUNErrCode, long>
+      [](SUNStepper stepper) -> std::tuple<SUNErrCode, suncountertype>
     {
-      long nst_adapt_modifiable;
+      suncountertype nst_adapt_modifiable;
 
       SUNErrCode r = SUNStepper_GetNumSteps(stepper, &nst_adapt_modifiable);
       return std::make_tuple(r, nst_adapt_modifiable);

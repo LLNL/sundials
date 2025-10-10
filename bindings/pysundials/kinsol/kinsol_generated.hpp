@@ -179,12 +179,12 @@ m.def(
 
 m.def(
   "KINGetFuncNorm",
-  [](void* kinmem) -> std::tuple<int, double>
+  [](void* kinmem) -> std::tuple<int, sunrealtype>
   {
     auto KINGetFuncNorm_adapt_modifiable_immutable_to_return =
-      [](void* kinmem) -> std::tuple<int, double>
+      [](void* kinmem) -> std::tuple<int, sunrealtype>
     {
-      double fnorm_adapt_modifiable;
+      sunrealtype fnorm_adapt_modifiable;
 
       int r = KINGetFuncNorm(kinmem, &fnorm_adapt_modifiable);
       return std::make_tuple(r, fnorm_adapt_modifiable);
@@ -196,12 +196,12 @@ m.def(
 
 m.def(
   "KINGetStepLength",
-  [](void* kinmem) -> std::tuple<int, double>
+  [](void* kinmem) -> std::tuple<int, sunrealtype>
   {
     auto KINGetStepLength_adapt_modifiable_immutable_to_return =
-      [](void* kinmem) -> std::tuple<int, double>
+      [](void* kinmem) -> std::tuple<int, sunrealtype>
     {
-      double steplength_adapt_modifiable;
+      sunrealtype steplength_adapt_modifiable;
 
       int r = KINGetStepLength(kinmem, &steplength_adapt_modifiable);
       return std::make_tuple(r, steplength_adapt_modifiable);

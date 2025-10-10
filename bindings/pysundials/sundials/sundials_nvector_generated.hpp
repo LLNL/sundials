@@ -93,14 +93,15 @@ m.def("N_VMinQuotient", N_VMinQuotient, nb::arg("num"), nb::arg("denom"));
 
 m.def(
   "N_VLinearCombination",
-  [](int nvec, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
+  [](int nvec, nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
      std::vector<N_Vector> X_1d, N_Vector z) -> SUNErrCode
   {
     auto N_VLinearCombination_adapt_arr_ptr_to_std_vector =
-      [](int nvec, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
+      [](int nvec,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
          std::vector<N_Vector> X_1d, N_Vector z) -> SUNErrCode
     {
-      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.data());
+      sunrealtype* c_1d_ptr = reinterpret_cast<sunrealtype*>(c_1d.data());
       N_Vector* X_1d_ptr =
         reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
 
@@ -114,15 +115,16 @@ m.def(
 
 m.def(
   "N_VScaleAddMulti",
-  [](int nvec, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
+  [](int nvec, nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
      N_Vector x, std::vector<N_Vector> Y_1d, std::vector<N_Vector> Z_1d) -> SUNErrCode
   {
     auto N_VScaleAddMulti_adapt_arr_ptr_to_std_vector =
-      [](int nvec, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
+      [](int nvec,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> a_1d,
          N_Vector x, std::vector<N_Vector> Y_1d,
          std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
-      double* a_1d_ptr = reinterpret_cast<double*>(a_1d.data());
+      sunrealtype* a_1d_ptr = reinterpret_cast<sunrealtype*>(a_1d.data());
       N_Vector* Y_1d_ptr =
         reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
       N_Vector* Z_1d_ptr =
@@ -142,16 +144,18 @@ m.def(
 m.def(
   "N_VDotProdMulti",
   [](int nvec, N_Vector x, std::vector<N_Vector> Y_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> dotprods_1d) -> SUNErrCode
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> dotprods_1d)
+    -> SUNErrCode
   {
     auto N_VDotProdMulti_adapt_arr_ptr_to_std_vector =
       [](int nvec, N_Vector x, std::vector<N_Vector> Y_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> dotprods_1d)
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> dotprods_1d)
       -> SUNErrCode
     {
       N_Vector* Y_1d_ptr =
         reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
-      double* dotprods_1d_ptr = reinterpret_cast<double*>(dotprods_1d.data());
+      sunrealtype* dotprods_1d_ptr =
+        reinterpret_cast<sunrealtype*>(dotprods_1d.data());
 
       auto lambda_result = N_VDotProdMulti(nvec, x, Y_1d_ptr, dotprods_1d_ptr);
       return lambda_result;
@@ -164,11 +168,11 @@ m.def(
 
 m.def(
   "N_VLinearSumVectorArray",
-  [](int nvec, double a, std::vector<N_Vector> X_1d, double b,
+  [](int nvec, sunrealtype a, std::vector<N_Vector> X_1d, sunrealtype b,
      std::vector<N_Vector> Y_1d, std::vector<N_Vector> Z_1d) -> SUNErrCode
   {
     auto N_VLinearSumVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, double a, std::vector<N_Vector> X_1d, double b,
+      [](int nvec, sunrealtype a, std::vector<N_Vector> X_1d, sunrealtype b,
          std::vector<N_Vector> Y_1d, std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
       N_Vector* X_1d_ptr =
@@ -191,14 +195,15 @@ m.def(
 
 m.def(
   "N_VScaleVectorArray",
-  [](int nvec, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
+  [](int nvec, nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
      std::vector<N_Vector> X_1d, std::vector<N_Vector> Z_1d) -> SUNErrCode
   {
     auto N_VScaleVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
+      [](int nvec,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> c_1d,
          std::vector<N_Vector> X_1d, std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
-      double* c_1d_ptr = reinterpret_cast<double*>(c_1d.data());
+      sunrealtype* c_1d_ptr = reinterpret_cast<sunrealtype*>(c_1d.data());
       N_Vector* X_1d_ptr =
         reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
       N_Vector* Z_1d_ptr =
@@ -216,10 +221,10 @@ m.def(
 
 m.def(
   "N_VConstVectorArray",
-  [](int nvec, double c, std::vector<N_Vector> Z_1d) -> SUNErrCode
+  [](int nvec, sunrealtype c, std::vector<N_Vector> Z_1d) -> SUNErrCode
   {
     auto N_VConstVectorArray_adapt_arr_ptr_to_std_vector =
-      [](int nvec, double c, std::vector<N_Vector> Z_1d) -> SUNErrCode
+      [](int nvec, sunrealtype c, std::vector<N_Vector> Z_1d) -> SUNErrCode
     {
       N_Vector* Z_1d_ptr =
         reinterpret_cast<N_Vector*>(Z_1d.empty() ? nullptr : Z_1d.data());
@@ -235,17 +240,18 @@ m.def(
 m.def(
   "N_VWrmsNormVectorArray",
   [](int nvec, std::vector<N_Vector> X_1d, std::vector<N_Vector> W_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> nrm_1d) -> SUNErrCode
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> nrm_1d) -> SUNErrCode
   {
     auto N_VWrmsNormVectorArray_adapt_arr_ptr_to_std_vector =
       [](int nvec, std::vector<N_Vector> X_1d, std::vector<N_Vector> W_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> nrm_1d) -> SUNErrCode
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> nrm_1d)
+      -> SUNErrCode
     {
       N_Vector* X_1d_ptr =
         reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
       N_Vector* W_1d_ptr =
         reinterpret_cast<N_Vector*>(W_1d.empty() ? nullptr : W_1d.data());
-      double* nrm_1d_ptr = reinterpret_cast<double*>(nrm_1d.data());
+      sunrealtype* nrm_1d_ptr = reinterpret_cast<sunrealtype*>(nrm_1d.data());
 
       auto lambda_result = N_VWrmsNormVectorArray(nvec, X_1d_ptr, W_1d_ptr,
                                                   nrm_1d_ptr);
@@ -260,18 +266,19 @@ m.def(
 m.def(
   "N_VWrmsNormMaskVectorArray",
   [](int nvec, std::vector<N_Vector> X_1d, std::vector<N_Vector> W_1d, N_Vector id,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> nrm_1d) -> SUNErrCode
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> nrm_1d) -> SUNErrCode
   {
     auto N_VWrmsNormMaskVectorArray_adapt_arr_ptr_to_std_vector =
       [](int nvec, std::vector<N_Vector> X_1d, std::vector<N_Vector> W_1d,
          N_Vector id,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> nrm_1d) -> SUNErrCode
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> nrm_1d)
+      -> SUNErrCode
     {
       N_Vector* X_1d_ptr =
         reinterpret_cast<N_Vector*>(X_1d.empty() ? nullptr : X_1d.data());
       N_Vector* W_1d_ptr =
         reinterpret_cast<N_Vector*>(W_1d.empty() ? nullptr : W_1d.data());
-      double* nrm_1d_ptr = reinterpret_cast<double*>(nrm_1d.data());
+      sunrealtype* nrm_1d_ptr = reinterpret_cast<sunrealtype*>(nrm_1d.data());
 
       auto lambda_result = N_VWrmsNormMaskVectorArray(nvec, X_1d_ptr, W_1d_ptr,
                                                       id, nrm_1d_ptr);
@@ -309,16 +316,18 @@ m.def("N_VMinQuotientLocal", N_VMinQuotientLocal, nb::arg("num"),
 m.def(
   "N_VDotProdMultiLocal",
   [](int nvec, N_Vector x, std::vector<N_Vector> Y_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> dotprods_1d) -> SUNErrCode
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> dotprods_1d)
+    -> SUNErrCode
   {
     auto N_VDotProdMultiLocal_adapt_arr_ptr_to_std_vector =
       [](int nvec, N_Vector x, std::vector<N_Vector> Y_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> dotprods_1d)
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> dotprods_1d)
       -> SUNErrCode
     {
       N_Vector* Y_1d_ptr =
         reinterpret_cast<N_Vector*>(Y_1d.empty() ? nullptr : Y_1d.data());
-      double* dotprods_1d_ptr = reinterpret_cast<double*>(dotprods_1d.data());
+      sunrealtype* dotprods_1d_ptr =
+        reinterpret_cast<sunrealtype*>(dotprods_1d.data());
 
       auto lambda_result = N_VDotProdMultiLocal(nvec, x, Y_1d_ptr,
                                                 dotprods_1d_ptr);
@@ -333,13 +342,14 @@ m.def(
 m.def(
   "N_VDotProdMultiAllReduce",
   [](int nvec_total, N_Vector x,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> sum_1d) -> SUNErrCode
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> sum_1d) -> SUNErrCode
   {
     auto N_VDotProdMultiAllReduce_adapt_arr_ptr_to_std_vector =
       [](int nvec_total, N_Vector x,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> sum_1d) -> SUNErrCode
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> sum_1d)
+      -> SUNErrCode
     {
-      double* sum_1d_ptr = reinterpret_cast<double*>(sum_1d.data());
+      sunrealtype* sum_1d_ptr = reinterpret_cast<sunrealtype*>(sum_1d.data());
 
       auto lambda_result = N_VDotProdMultiAllReduce(nvec_total, x, sum_1d_ptr);
       return lambda_result;

@@ -32,18 +32,18 @@ auto pyEnumARKODE_SplittingCoefficientsID =
 m.def(
   "SplittingStepCoefficients_Create",
   [](int sequential_methods, int stages, int partitions, int order,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> alpha_1d,
-     nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> beta_1d)
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> alpha_1d,
+     nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> beta_1d)
     -> SplittingStepCoefficients
   {
     auto SplittingStepCoefficients_Create_adapt_arr_ptr_to_std_vector =
       [](int sequential_methods, int stages, int partitions, int order,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> alpha_1d,
-         nb::ndarray<double, nb::numpy, nb::ndim<1>, nb::c_contig> beta_1d)
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> alpha_1d,
+         nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> beta_1d)
       -> SplittingStepCoefficients
     {
-      double* alpha_1d_ptr = reinterpret_cast<double*>(alpha_1d.data());
-      double* beta_1d_ptr  = reinterpret_cast<double*>(beta_1d.data());
+      sunrealtype* alpha_1d_ptr = reinterpret_cast<sunrealtype*>(alpha_1d.data());
+      sunrealtype* beta_1d_ptr = reinterpret_cast<sunrealtype*>(beta_1d.data());
 
       auto lambda_result =
         SplittingStepCoefficients_Create(sequential_methods, stages, partitions,

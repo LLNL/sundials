@@ -32,13 +32,13 @@ m.def("SUNDomEigEstimator_Initialize", SUNDomEigEstimator_Initialize,
 
 m.def(
   "SUNDomEigEstimator_Estimate",
-  [](SUNDomEigEstimator DEE) -> std::tuple<SUNErrCode, double, double>
+  [](SUNDomEigEstimator DEE) -> std::tuple<SUNErrCode, sunrealtype, sunrealtype>
   {
     auto SUNDomEigEstimator_Estimate_adapt_modifiable_immutable_to_return =
-      [](SUNDomEigEstimator DEE) -> std::tuple<SUNErrCode, double, double>
+      [](SUNDomEigEstimator DEE) -> std::tuple<SUNErrCode, sunrealtype, sunrealtype>
     {
-      double lambdaR_adapt_modifiable;
-      double lambdaI_adapt_modifiable;
+      sunrealtype lambdaR_adapt_modifiable;
+      sunrealtype lambdaI_adapt_modifiable;
 
       SUNErrCode r = SUNDomEigEstimator_Estimate(DEE, &lambdaR_adapt_modifiable,
                                                  &lambdaI_adapt_modifiable);
@@ -52,12 +52,12 @@ m.def(
 
 m.def(
   "SUNDomEigEstimator_GetRes",
-  [](SUNDomEigEstimator DEE) -> std::tuple<SUNErrCode, double>
+  [](SUNDomEigEstimator DEE) -> std::tuple<SUNErrCode, sunrealtype>
   {
     auto SUNDomEigEstimator_GetRes_adapt_modifiable_immutable_to_return =
-      [](SUNDomEigEstimator DEE) -> std::tuple<SUNErrCode, double>
+      [](SUNDomEigEstimator DEE) -> std::tuple<SUNErrCode, sunrealtype>
     {
-      double res_adapt_modifiable;
+      sunrealtype res_adapt_modifiable;
 
       SUNErrCode r = SUNDomEigEstimator_GetRes(DEE, &res_adapt_modifiable);
       return std::make_tuple(r, res_adapt_modifiable);

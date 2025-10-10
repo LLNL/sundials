@@ -28,7 +28,7 @@ dependencies = [
 dev = [
     "black",
     "isort",
-    "litgen@git+https://github.com/sundials-codes/litgen.git",
+    "litgen@git+https://github.com/sundials-codes/litgen.git@sundials",
     "pytest",
     "pyyaml",
 ]
