@@ -240,10 +240,10 @@ int main(int argc, char* argv[])
   }
 
   /* Free solver and vectors */
+  SUNDomEigEstimator_Destroy(&DEE);
+  N_VDestroy(q);
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
-  N_VDestroy(q);
-  SUNDomEigEstimator_Destroy(&DEE);
 
   return (passfail);
 }

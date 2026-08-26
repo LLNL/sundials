@@ -26,19 +26,26 @@
 /* constants */
 #define ZERO SUN_RCONST(0.0)
 
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
 #define factor   SUN_RCONST(-10.0)
 #define realpart SUN_RCONST(-30000.0)
 #define imagpart SUN_RCONST(+40000.0)
+#else
+#define factor           SUN_RCONST(-100.0)
+#define diagonal         SUN_RCONST(-30000.0)
+#define nondiagonal      SUN_RCONST(-10000.0)
+#define diagonal_imag    SUN_RCONST(30000.0)
+#define nondiagonal_imag SUN_RCONST(10000.0)
+#endif
 
 /* user data structure */
 typedef struct
 {
-  sunindextype N; /* problem size */
-  N_Vector diag;  /* matrix diagonal */
-
-  /* nondiagonal entries of the matrix that lead to the complex conjugate eigenvalues */
-  sunrealtype real_part;
-  sunrealtype imag_part;
+  sunindextype N;   /* problem size */
+  N_Vector diag;    /* matrix diagonal */
+  sunscalartype A11; /* first diagonal entry in the 2x2 block */
+  sunscalartype A12; /* upper-right entry in the 2x2 block */
+  sunscalartype A21; /* lower-left entry in the 2x2 block */
 } UserData;
 
 /* private functions */
@@ -87,9 +94,9 @@ int main(int argc, char* argv[])
     return 1;
   }
   ProbData.N = (sunindextype)atol(argv[1]);
-  if (ProbData.N <= 0)
+  if (ProbData.N < 2)
   {
-    printf("ERROR: Problem size must be a positive integer\n");
+    printf("ERROR: Problem size must be at least 2\n");
     return 1;
   }
   max_iters = atoi(argv[2]);
@@ -121,25 +128,38 @@ int main(int argc, char* argv[])
   q = N_VClone(ProbData.diag);
   if (check_flag(q, "N_VClone", 0)) { return 1; }
 
-  sunrealtype* qd = N_VGetArrayPointer(q);
+  sunscalartype* qd = N_VGetArrayPointer(q);
   for (int i = 0; i < ProbData.N; i++)
   {
-    qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
+    qd[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+            + SUN_I * ((sunrealtype)rand() / (sunrealtype)RAND_MAX)
+#endif
+      ;
   }
 
   /* Fill matrix diagonal and problem data */
   // real diag is [3 4 5 ... N 0 0]*factor
   // 2x2 block matrix attached to the last two diagonals is
-  // [ realpart   imagpart;
-  // [-imagpart   realpart]
-  // This setup allows two types of dominant eigenvalues (real and complex)
+  // [ A11  A12 ]
+  // [ A21  A11 ]
   // based on the "factor" and the problem dimension N.
-  sunrealtype* v = N_VGetArrayPointer(ProbData.diag);
+  sunscalartype* v = N_VGetArrayPointer(ProbData.diag);
   for (int i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
 
   // Set the problem data corresponding to 2x2 block matrix
-  ProbData.real_part = realpart;
-  ProbData.imag_part = imagpart;
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+  /* A real rotation block has the complex-conjugate eigenvalue pair
+     realpart +/- i*imagpart. */
+  ProbData.A11 = realpart;
+  ProbData.A12 = imagpart;
+  ProbData.A21 = -imagpart;
+#else
+  /* Preserve the base-branch complex-scalar test matrix. */
+  ProbData.A11 = diagonal + SUN_I * diagonal_imag;
+  ProbData.A12 = nondiagonal + SUN_I * nondiagonal_imag;
+  ProbData.A21 = ProbData.A12;
+#endif
 
   /* Create Power Iteration Dominant Eigvalue Estimator (DEE)*/
   DEE = SUNDomEigEstimator_Power(q, max_iters, rel_tol, sunctx);
@@ -188,6 +208,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
   /* Identify the tlambdaR and tlambdaI based on given parameters*/
   if (SUNRsqrt(realpart * realpart + imagpart * imagpart) > -factor * ProbData.N)
   {
@@ -201,6 +222,17 @@ int main(int argc, char* argv[])
     tlambdaR = factor * ProbData.N;
     tlambdaI = ZERO;
   }
+#else
+  /* Preserve the base-branch expected result for complex scalars. */
+  tlambdaR = diagonal + nondiagonal;
+  tlambdaI = diagonal_imag + nondiagonal_imag;
+  if (SUNRsqrt(tlambdaR * tlambdaR + tlambdaI * tlambdaI) <
+      SUNRabs(factor * ProbData.N))
+  {
+    tlambdaR = factor * ProbData.N;
+    tlambdaI = ZERO;
+  }
+#endif
 
   printf("\ncomputed dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G
          " i\n",
@@ -226,10 +258,10 @@ int main(int argc, char* argv[])
   }
 
   /* Free solver and vectors */
+  SUNDomEigEstimator_Destroy(&DEE);
+  N_VDestroy(q);
   N_VDestroy(ProbData.diag);
   SUNContext_Free(&sunctx);
-  N_VDestroy(q);
-  SUNDomEigEstimator_Destroy(&DEE);
 
   return (passfail);
 }
@@ -242,7 +274,8 @@ int main(int argc, char* argv[])
 int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 {
   /* local variables */
-  sunrealtype *v, *z, *diag, real_part, imag_part;
+  sunscalartype *v, *z, *diag;
+  sunscalartype a11, a12, a21;
   sunindextype i, N;
   UserData* ProbData;
 
@@ -252,18 +285,19 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   if (check_flag(v, "N_VGetArrayPointer", 0)) { return 1; }
   z = N_VGetArrayPointer(z_vec);
   if (check_flag(z, "N_VGetArrayPointer", 0)) { return 1; }
-  N         = ProbData->N;
-  real_part = ProbData->real_part;
-  imag_part = ProbData->imag_part;
-  diag      = N_VGetArrayPointer(ProbData->diag);
+  N    = ProbData->N;
+  a11  = ProbData->A11;
+  a12  = ProbData->A12;
+  a21  = ProbData->A21;
+  diag = N_VGetArrayPointer(ProbData->diag);
   if (check_flag(diag, "N_VGetArrayPointer", 0)) { return 1; }
 
   /* perform product on the diagonal part of the matrix */
   for (i = 0; i < N - 2; i++) { z[i] = diag[i] * v[i]; }
 
   /* perform product at the non-diagonal last two rows */
-  z[N - 2] = v[N - 2] * real_part + v[N - 1] * imag_part;
-  z[N - 1] = v[N - 1] * real_part - v[N - 2] * imag_part;
+  z[N - 2] = v[N - 2] * a11 + v[N - 1] * a12;
+  z[N - 1] = v[N - 1] * a11 + v[N - 2] * a21;
   /* return with success */
   return 0;
 }

@@ -14,29 +14,33 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * These test functions check some components of Power Iteration
+ * These test functions check some components of Arnoldi Iteration
  * module implementation.
  * -----------------------------------------------------------------
  */
 
 #include <nvector/nvector_serial.h>
-#include <sundomeigest/sundomeigest_power.h>
+#include <sundomeigest/sundomeigest_arnoldi.h>
 #include "../test_sundomeigest.h"
 
 /* constants */
 #define ZERO SUN_RCONST(0.0)
 
-#define factor      SUN_RCONST(-100.0)
-#define diagonal    SUN_RCONST(-30000.0)
-#define nondiagonal SUN_RCONST(-10000.0)
+#define factor        SUN_RCONST(-100.0)
+#define realpart      SUN_RCONST(-30000.0)
+#define imagpart      SUN_RCONST(+40000.0)
+#define entryimagpart SUN_RCONST(+10000.0)
 
 /* user data structure */
 typedef struct
 {
-  sunindextype N;  /* problem size */
-  N_Vector diag;   /* matrix diagonal */
-  sunrealtype A11; /* diagonal entries of the matrix */
-  sunrealtype A12; /* nondiagonal entries of the matrix */
+  sunindextype N; /* problem size */
+  N_Vector diag;  /* matrix diagonal */
+
+  /* nondiagonal entries of the matrix that lead to the complex conjugate eigenvalues */
+  sunscalartype real_part;
+  sunscalartype imag_part;
+  sunscalartype imag_part_conj;
 } UserData;
 
 /* private functions */
@@ -55,12 +59,12 @@ int main(int argc, char* argv[])
   SUNDomEigEstimator DEE = NULL;  /* domeig estimator object    */
   UserData ProbData;              /* problem data structure     */
   int num_warmups;                /* number of preprocessing iters */
-  long int max_iters;             /* max power iteration        */
-  long int num_iters;             /* cur. number of iterations  */
-  long int num_rhs_evals;         /* number of rhs calls        */
+  int kry_dim;                    /* Krylov subspace dimension  */
+  long int num_iters;             /* number of iterations       */
   long int num_ATimes;            /* number of ATimes calls     */
+  long int num_rhs_evals;         /* number of RHS calls        */
   int print_timing;               /* timing output flag         */
-  sunrealtype res;                /* current residual           */
+  sunrealtype res;                /* residual                   */
   sunrealtype lambdaR, lambdaI;   /* computed domeig parts      */
   sunrealtype tlambdaR, tlambdaI; /* true domeig parts          */
   SUNContext sunctx;
@@ -74,33 +78,33 @@ int main(int argc, char* argv[])
     return (-1);
   }
 
-  /* check inputs: local problem size, max iters, num preprocessing, timing flag */
+  /* check inputs: local problem size, Krylov dimension, preprocessing items, timing flag */
   if (argc < 5)
   {
     printf("ERROR: FOUR (4) Inputs required:\n");
     printf("  Problem size should be >= 2\n");
-    printf("  Maximum number of power iterations should be > 0\n");
+    printf("  Krylov subspace dimension should be > 0\n");
     printf("  Number of preprocessing iters should be >= 0\n");
     printf("  Include timers for calculation (0=off, 1=on)\n");
     return 1;
   }
   ProbData.N = (sunindextype)atol(argv[1]);
-  if (ProbData.N <= 0)
+  if (ProbData.N < 2)
   {
-    printf("ERROR: Problem size must be a positive integer\n");
+    printf("ERROR: Problem size must be at least 2\n");
     return 1;
   }
-  max_iters = atoi(argv[2]);
-  if (max_iters <= 0)
+  kry_dim = atoi(argv[2]);
+  if (kry_dim <= 0)
   {
-    printf(
-      "ERROR: Maximum number of power iterations must be a positive integer\n");
+    printf("ERROR: Krylov subspace dimension must be a positive integer\n");
     return 1;
   }
   num_warmups = atoi(argv[3]);
   if (num_warmups < 0)
   {
-    printf("ERROR: Number of preprocessing must be a nonnegative integer\n");
+    printf(
+      "ERROR: Number of preprocessing iters must be a nonnegative integer\n");
     return 1;
   }
   print_timing = atoi(argv[4]);
@@ -108,7 +112,7 @@ int main(int argc, char* argv[])
 
   printf("\nDomEig module test:\n");
   printf("  Problem size = %ld\n", (long int)ProbData.N);
-  printf("  Number of power iterations = %ld\n", (long int)max_iters);
+  printf("  Krylov subspace dimension = %i\n", kry_dim);
   printf("  Number of preprocessing iters = %i\n", num_warmups);
   printf("  Timing output flag = %i\n\n", print_timing);
 
@@ -133,31 +137,39 @@ int main(int argc, char* argv[])
   /* Fill matrix diagonal and problem data */
   // real diag is [3 4 5 ... N 0 0]*factor
   // 2x2 block matrix attached to the last two diagonals is
-  // [ A11   A12 ]
-  // [ A12   A11 ]
-  // This setup allows two different dominant eigenvalues
+  // [ realpart   imagpart;
+  // [-imagpart   realpart]
+  // This setup allows two types of dominant eigenvalues (real and complex)
   // based on the "factor" and the problem dimension N.
-  // 2x2 block has eigenvalues A11 + A12 and A11 - A12
   sunscalartype* v = N_VGetArrayPointer(ProbData.diag);
   for (int i = 0; i < ProbData.N - 2; i++) { v[i] = factor * (i + 3); }
 
   // Set the problem data corresponding to 2x2 block matrix
-  ProbData.A11 = diagonal;
-  ProbData.A12 = nondiagonal;
+  ProbData.real_part     = realpart;
+  ProbData.imag_part     = imagpart;
+  ProbData.imag_part_conj = imagpart;
+#if !defined(SUNDIALS_SCALAR_TYPE_REAL)
+  ProbData.imag_part += SUN_I * entryimagpart;
+  ProbData.imag_part_conj -= SUN_I * entryimagpart;
+#endif
 
-  /* Create Power Iteration Dominant Eigvalue Estimator (DEE)*/
-  DEE = SUNDomEigEstimator_Power(q, max_iters, rel_tol, sunctx);
-  if (check_flag(DEE, "SUNDomEigEstimator_Power", 0)) { return 1; }
+  /* Create Arnoldi Iteration Dominant Eigvalue Estimator (DEE)*/
+  DEE = SUNDomEigEstimator_Arnoldi(q, kry_dim, sunctx);
+  if (check_flag(DEE, "SUNDomEigEstimator_Arnoldi", 0)) { return 1; }
 
   fails += Test_SUNDomEigEstimator_SetATimes(DEE, &ProbData, ATimes, 0);
-  fails += Test_SUNDomEigEstimator_SetMaxIters(DEE, max_iters, 0);
+  // SUNDomEigEstimator_SetMaxIters is not an option for Arnoldi iteration.
+  // It should return with SUN_SUCCESS
+  fails += Test_SUNDomEigEstimator_SetMaxIters(DEE, kry_dim, 0);
   fails += Test_SUNDomEigEstimator_SetNumPreprocessIters(DEE, num_warmups, 0);
   fails += Test_SUNDomEigEstimator_SetRelTol(DEE, rel_tol, 0);
   fails += Test_SUNDomEigEstimator_SetInitialGuess(DEE, q, 0);
   fails += Test_SUNDomEigEstimator_Initialize(DEE, 0);
   fails += Test_SUNDomEigEstimator_Estimate(DEE, &lambdaR, &lambdaI, 0);
+  // SUNDomEigEstimator_GetRes is not an option
+  // for Arnoldi iteration. It should return with 0.
   fails += Test_SUNDomEigEstimator_GetRes(DEE, &res, 0);
-  if (res < SUN_SMALL_REAL)
+  if (res > SUN_SMALL_REAL)
   {
     printf("    >>> FAILED test -- SUNDomEigEstimator_GetRes return value\n");
     fails++;
@@ -175,15 +187,16 @@ int main(int argc, char* argv[])
 
   if (fails)
   {
-    printf("FAIL: SUNDomEigEstimator_Power module failed %i initialization "
+    printf("FAIL: SUNDomEigEstimator_Arnoldi module failed %i initialization "
            "tests\n\n",
            fails);
     return 1;
   }
   else
   {
-    printf("SUCCESS: SUNDomEigEstimator_Power module passed all initialization "
-           "tests\n\n");
+    printf(
+      "SUCCESS: SUNDomEigEstimator_Arnoldi module passed all initialization "
+      "tests\n\n");
   }
 
   /* First check if the computed eigenvalue has a nonzero magnitude */
@@ -194,34 +207,40 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  // We ensure real eigenvalues due to symmetry.
-  // If A11 + A12 is larger than factor*ProbData.N,
-  // the dominant eigenvalue must be A11 + A12,
-  // factor*ProbData.N; otherwise.
-
-  /* Identify true_dom_eig based on given parameters*/
-  if (SUNRabs(diagonal + nondiagonal) < SUNRabs(factor * ProbData.N))
+  /* Identify the tlambdaR and tlambdaI based on given parameters*/
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+  sunrealtype block_imagpart = imagpart;
+#else
+  sunrealtype block_imagpart =
+    SUNRsqrt(imagpart * imagpart + entryimagpart * entryimagpart);
+#endif
+  if (SUNRsqrt(realpart * realpart + block_imagpart * block_imagpart) >
+      -factor * ProbData.N)
   {
-    tlambdaR = factor * ProbData.N;
-    tlambdaI = ZERO;
+    /* Dominant eigenvalue corresponds to the 2x2 block matrix */
+    tlambdaR = realpart;
+    tlambdaI = block_imagpart;
   }
   else
   {
-    tlambdaR = diagonal + nondiagonal;
+    /* Dominant eigenvalue corresponds to the maximum real value at the diagonal */
+    tlambdaR = factor * ProbData.N;
     tlambdaI = ZERO;
   }
 
-  printf("\ncomputed dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G
+  printf("\ncomputed dominant eigenvalue = " SUN_FORMAT_G " ± " SUN_FORMAT_G
          " i\n",
          lambdaR, lambdaI);
-  printf("    true dominant eigenvalue = " SUN_FORMAT_G " + " SUN_FORMAT_G
+  printf("    true dominant eigenvalue = " SUN_FORMAT_G " ± " SUN_FORMAT_G
          " i\n",
          tlambdaR, tlambdaI);
 
-  /* Compare the estimated dom_eig with the true_dom_eig*/
-  rel_error = SUNRsqrt((lambdaR - tlambdaR) * (lambdaR - tlambdaR) +
-                       (lambdaI - tlambdaI) * (lambdaI - tlambdaI));
-
+  /* Compare the estimated dom_eig with the tlambdaR and tlambdaI*/
+  /* Make sure the complex conjugate pair is handled correctly in the relative error calculation */
+  rel_error = SUNMIN(SUNRsqrt((lambdaR - tlambdaR) * (lambdaR - tlambdaR) +
+                              (lambdaI - tlambdaI) * (lambdaI - tlambdaI)),
+                     SUNRsqrt((lambdaR - tlambdaR) * (lambdaR - tlambdaR) +
+                              (lambdaI + tlambdaI) * (lambdaI + tlambdaI)));
   rel_error /= norm_of_dom_eig;
 
   if (rel_error < SUN_RCONST(10.0) * rel_tol)
@@ -252,7 +271,7 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 {
   /* local variables */
   sunscalartype *v, *z, *diag;
-  sunrealtype a11, a12;
+  sunscalartype real_part, imag_part, imag_part_conj;
   sunindextype i, N;
   UserData* ProbData;
 
@@ -262,18 +281,19 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   if (check_flag(v, "N_VGetArrayPointer", 0)) { return 1; }
   z = N_VGetArrayPointer(z_vec);
   if (check_flag(z, "N_VGetArrayPointer", 0)) { return 1; }
-  N    = ProbData->N;
-  a11  = ProbData->A11;
-  a12  = ProbData->A12;
-  diag = N_VGetArrayPointer(ProbData->diag);
+  N              = ProbData->N;
+  real_part      = ProbData->real_part;
+  imag_part      = ProbData->imag_part;
+  imag_part_conj = ProbData->imag_part_conj;
+  diag           = N_VGetArrayPointer(ProbData->diag);
   if (check_flag(diag, "N_VGetArrayPointer", 0)) { return 1; }
 
   /* perform product on the diagonal part of the matrix */
   for (i = 0; i < N - 2; i++) { z[i] = diag[i] * v[i]; }
 
   /* perform product at the non-diagonal last two rows */
-  z[N - 2] = v[N - 2] * a11 + v[N - 1] * a12;
-  z[N - 1] = v[N - 1] * a11 + v[N - 2] * a12;
+  z[N - 2] = v[N - 2] * real_part + v[N - 1] * imag_part;
+  z[N - 1] = v[N - 1] * real_part - v[N - 2] * imag_part_conj;
   /* return with success */
   return 0;
 }
