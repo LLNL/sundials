@@ -14,6 +14,8 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
+"""GPTune integration for :mod:`suntools.tune`."""
+
 from __future__ import annotations
 
 import math
@@ -36,7 +38,16 @@ from suntools.tune.runner import (
 def to_gptune_problem(
     parameters: List[ParameterSpec], objective_name: str = "objective", objective=None
 ) -> Any:
-    """Convert canonical parameter specs to a GPTune TuningProblem."""
+    """Convert parameter specifications to a GPTune ``TuningProblem``.
+
+    :param list[ParameterSpec] parameters: Parameters to expose to GPTune.
+    :param str objective_name: Name for the output objective dimension.
+    :param objective: Objective callback used by GPTune, or a no-op callback
+                      when omitted.
+    :returns: Configured GPTune tuning problem.
+    :rtype: Any
+    :raises RuntimeError: If GPTune or its dependencies are absent.
+    """
 
     TuningProblem, Space, Real, Integer, Categorical = _import_gptune_problem_types()
 
@@ -47,22 +58,31 @@ def to_gptune_problem(
 
     input_space = Space([Integer(0, 1, transform="normalize", name="suntools_task")])
     parameter_space = Space(
-        [
-            _make_gptune_parameter(parameter, Real, Integer, Categorical)
-            for parameter in parameters
-        ]
+        [_make_gptune_parameter(parameter, Real, Integer, Categorical) for parameter in parameters]
     )
     output_space = Space([Real(float("-inf"), float("inf"), name=objective_name)])
     return TuningProblem(input_space, parameter_space, output_space, objective, {}, None)
 
 
 class GPTuneBackend:
+    """Run tuning trials with GPTune."""
+
     def __init__(self, config: TuneConfig):
+        """Create a backend for ``config``.
+
+        :param TuneConfig config: Validated tuning configuration.
+        """
         self.config = config
         self.baseline = None
         self.worst = None
 
     def run(self) -> List[TrialResult]:
+        """Run the configured search and write its results.
+
+        :returns: Results collected from sampled configurations.
+        :rtype: list[TrialResult]
+        :raises RuntimeError: If GPTune is not installed or cannot be used.
+        """
         GPTune, Computer, Data, Options = _import_gptune_runtime()
 
         self.baseline = run_baseline(self.config)
@@ -76,9 +96,7 @@ class GPTuneBackend:
                 results.append(trial_result)
             return [
                 _metric_to_gptune_objective(
-                    self.config.objective.direction,
-                    trial_result.metric,
-                    trial_result.feasible,
+                    self.config.objective.direction, trial_result.metric, trial_result.feasible
                 )
             ]
 
@@ -97,11 +115,7 @@ class GPTuneBackend:
         try:
             os.chdir(str(output_dir))
             tuner = GPTune(
-                problem,
-                computer=computer,
-                data=data,
-                options=options,
-                **constructor_options,
+                problem, computer=computer, data=data, options=options, **constructor_options
             )
             _run_mla(tuner, self.config.search.max_evals, run_options)
         finally:
@@ -151,20 +165,14 @@ def _make_gptune_parameter(
     parameter: ParameterSpec, Real: Any, Integer: Any, Categorical: Any
 ) -> Any:
     if parameter.type == "choice":
-        return Categorical(
-            list(parameter.values or []), transform="onehot", name=parameter.name
-        )
+        return Categorical(list(parameter.values or []), transform="onehot", name=parameter.name)
 
     assert parameter.bounds is not None
     lower, upper = parameter.bounds
     prior = "log-uniform" if parameter.scale == "log" else "uniform"
     if parameter.type == "int":
         return Integer(
-            int(lower),
-            int(upper),
-            prior=prior,
-            transform="normalize",
-            name=parameter.name,
+            int(lower), int(upper), prior=prior, transform="normalize", name=parameter.name
         )
     return Real(lower, upper, prior=prior, transform="normalize", name=parameter.name)
 
@@ -181,9 +189,7 @@ def _point_to_parameter_values(
     return values
 
 
-def _metric_to_gptune_objective(
-    direction: str, metric: Any, feasible: bool = True
-) -> float:
+def _metric_to_gptune_objective(direction: str, metric: Any, feasible: bool = True) -> float:
     if metric is None or not feasible:
         return float("inf")
     value = float(metric)

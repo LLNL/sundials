@@ -20,7 +20,10 @@ from sundials_vars import *
 
 sys.path.append(os.path.dirname(os.path.abspath("../../shared")))
 
-# Add the suntools package source parent for autodoc imports.
+# Add the suntools package source parent for autodoc imports. Keep these paths
+# after the standard library paths so modules such as ``csv`` are not shadowed
+# by suntools' compatibility modules when Sphinx imports its own extensions.
+sys.path.append(os.path.abspath("../../../suntools/src"))
 sys.path.append(os.path.abspath("../../../suntools/src/suntools"))
 
 # -- General configuration ----------------------------------------------------
@@ -51,6 +54,11 @@ extensions = [
     "sphinxcontrib.moderncmakedomain",
     "sphinxfortran.fortran_domain",
 ]
+
+# The tuning models import optional suntools project dependencies. Mock them
+# when the documentation environment does not install the tuning extras; the
+# API pages only need the Python signatures and docstrings.
+autodoc_mock_imports = ["pydantic", "yaml", "deephyper", "gptune", "ytopt"]
 
 extlinks = {
     "pdfdoc": (

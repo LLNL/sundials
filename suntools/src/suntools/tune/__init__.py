@@ -14,12 +14,18 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
-"""Tune SUNDIALS applications by sweeping SetOptions key/value pairs."""
+"""Tune SUNDIALS applications by sweeping ``SetOptions`` key/value pairs.
+
+The :mod:`suntools.tune` package exposes validated configuration models.  The
+command-line runner and optional DeepHyper, GPTune, and Ytopt integrations are
+available from their respective submodules.
+"""
 
 from suntools.tune.models import (
     BackendConfig,
     ConstraintConfig,
     ExecutableConfig,
+    MetricConfig,
     ObjectiveConfig,
     ParameterSpec,
     SearchConfig,
@@ -30,6 +36,7 @@ __all__ = [
     "BackendConfig",
     "ConstraintConfig",
     "ExecutableConfig",
+    "MetricConfig",
     "ObjectiveConfig",
     "ParameterSpec",
     "SearchConfig",

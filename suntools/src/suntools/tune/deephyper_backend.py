@@ -14,6 +14,8 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
+"""DeepHyper integration for :mod:`suntools.tune`."""
+
 from __future__ import annotations
 
 import inspect
@@ -34,7 +36,13 @@ from suntools.tune.runner import (
 
 
 def to_deephyper_problem(parameters: List[ParameterSpec]) -> Any:
-    """Convert canonical parameter specs to DeepHyper's HpProblem."""
+    """Convert parameter specifications to a DeepHyper ``HpProblem``.
+
+    :param list[ParameterSpec] parameters: Parameters to expose to DeepHyper.
+    :returns: Configured DeepHyper problem.
+    :rtype: Any
+    :raises RuntimeError: If DeepHyper or its ConfigSpace dependency is absent.
+    """
 
     try:
         from deephyper.hpo import HpProblem
@@ -98,12 +106,24 @@ def _make_configspace_hyperparameter(parameter: ParameterSpec) -> Any:
 
 
 class DeepHyperBackend:
+    """Run tuning trials with DeepHyper's CBO search."""
+
     def __init__(self, config: TuneConfig):
+        """Create a backend for ``config``.
+
+        :param TuneConfig config: Validated tuning configuration.
+        """
         self.config = config
         self.baseline = None
         self.worst = None
 
     def run(self) -> List[TrialResult]:
+        """Run the configured search and write its results.
+
+        :returns: Results collected from sampled configurations.
+        :rtype: list[TrialResult]
+        :raises RuntimeError: If DeepHyper is not installed or cannot be used.
+        """
         try:
             from deephyper.evaluator import Evaluator
             from deephyper.hpo import CBO
@@ -127,9 +147,7 @@ class DeepHyperBackend:
             with lock:
                 results.append(trial_result)
             return objective_to_score(
-                self.config.objective.direction,
-                trial_result.metric,
-                trial_result.feasible,
+                self.config.objective.direction, trial_result.metric, trial_result.feasible
             )
 
         evaluator = _create_evaluator(Evaluator, objective, self.config.search.workers)

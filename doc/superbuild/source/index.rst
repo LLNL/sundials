@@ -141,6 +141,13 @@ SUNDIALS License and Notices
    examples/kinsol/index-superbuild.rst
 
 .. toctree::
+   :caption: SUNTOOLS
+   :maxdepth: 1
+   :hidden:
+
+   suntools/index.rst
+
+.. toctree::
    :caption: DEVELOPMENT
    :maxdepth: 1
    :hidden:

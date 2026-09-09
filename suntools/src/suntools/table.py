@@ -15,21 +15,26 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
-# Function to parse SUNDIALS stats in table form
+# Function to parse SUNDIALS statistics in table form
 # -----------------------------------------------------------------------------
+
+"""Read SUNDIALS statistics written in table format."""
 
 import re
 from .utils import str2num
 
 
 def parse_table(data):
-    """
-    Parses "table" formatted SUNDIALS stats output. I.e., data is in key-value format,
-    and this converts it into the same dictionary format as csv.py.
-    Args:
-        data (str): Multiline string containing repeated key-value tables.
-    Returns:
-        stats: A dictionary, where each key is a list of the values.
+    """Parse table-formatted SUNDIALS statistics.
+
+    :param str data: Multiline text containing one or more key-value tables.
+    :returns: A dictionary mapping each key to a list of values. Numeric values
+              are converted to :class:`int` or :class:`float` when possible.
+    :rtype: dict[str, list]
+
+    Each matching line must have the form ``key = value``. Repeated keys are
+    accumulated in insertion order, giving the same dictionary shape as
+    :func:`suntools.csv.read`.
     """
 
     stats = {}

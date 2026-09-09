@@ -14,15 +14,17 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
-"""
-This is a Python library of utilities SUNDIALS developer may find useful.
-Right now it consists of the following modules:
+"""Utilities for working with SUNDIALS output and applications.
 
-- `logs`: this module has functions for parsing logs produced by `SUNLogger`.
-- `table`: this module has functions for parsing stats output by SUNDIALS
-           integrators in the table format.
-- `csv`: this module has functions for parsing stats output by SUNDIALS
-         integrators in the CSV format.
-- `tune`: this module has functions for tuning SUNDIALS executables by
-          appending SetOptions parameters.
+The package contains the following modules:
+
+``logs``
+   Functions for parsing and filtering logs produced by :c:type:`SUNLogger`.
+``table``
+   Functions for parsing statistics written in SUNDIALS table format.
+``csv``
+   Functions for parsing statistics written in SUNDIALS CSV format.
+``tune``
+   Configuration models and runners for tuning SUNDIALS applications by
+   appending ``SetOptions`` parameters to an executable command.
 """

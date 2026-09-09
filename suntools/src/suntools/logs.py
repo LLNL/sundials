@@ -19,6 +19,13 @@
 # scripts to parse logs produced by SUNLogger.
 # -----------------------------------------------------------------------------
 
+"""Parse and filter log files produced by :c:type:`SUNLogger`.
+
+The public parsing functions convert the hierarchical regions in a SUNLogger
+output file into ordinary Python dictionaries and lists.  The resulting data
+can be inspected directly or passed to plotting and analysis tools.
+"""
+
 import re
 import json
 from typing import Iterable, List, Set
@@ -246,35 +253,51 @@ def _iter_filtered_lines(
 
 
 class StepData:
-    """Helper class for parsing a step attempt from a log file into a hierarchical
-    dictionary where entries may be lists of dictionaries.
+    """Build one hierarchical step-attempt dictionary while parsing a log.
+
+    This helper tracks the currently active dictionary or list of dictionaries
+    while :func:`log_file_to_list` processes begin/end region markers.  It is
+    public for callers that need to construct the same representation from a
+    custom log reader.
     """
 
     def __init__(self):
+        """Create an empty step dictionary and initialize the region stack."""
         self.stack = [{}]
 
     def __repr__(self):
+        """Return the active step dictionary formatted as JSON."""
         return json.dumps(self.stack[0], indent=2)
 
     def update(self, data):
-        """Update the active dictionary"""
+        """Update the active dictionary with ``data``.
+
+        :param dict data: Key-value pairs to add to the active region.
+        :raises KeyError: If a key is already present in the active region.
+        """
         conflicts = self.stack[-1].keys() & data.keys()
         if conflicts:
             raise KeyError(f"Cannot update: keys already exist: {conflicts}")
         self.stack[-1].update(data)
 
     def open_dict(self, key):
-        """Activate a nested dictionary"""
+        """Open a nested dictionary region.
+
+        :param str key: Name of the nested dictionary to activate.
+        """
         if key not in self.stack[-1]:
             self.stack[-1][key] = {}
         self.stack.append(self.stack[-1][key])
 
     def close_dict(self):
-        """Deactivate the active dictionary"""
+        """Close the active nested dictionary region."""
         self.stack.pop()
 
     def open_list(self, key):
-        """Activate a list of dictionaries"""
+        """Open a list region and append a new active dictionary.
+
+        :param str key: Name of the list of dictionaries to activate.
+        """
         if key not in self.stack[-1]:
             self.stack[-1][key] = []
         new_dict = {}
@@ -282,11 +305,15 @@ class StepData:
         self.stack.append(new_dict)
 
     def close_list(self):
-        """Deactivate the active list"""
+        """Close the active list element."""
         self.stack.pop()
 
     def get_step(self):
-        """Get the step dictionary and reset the container"""
+        """Return the completed step dictionary and reset the container.
+
+        :returns: The root dictionary for the completed step attempt.
+        :rtype: dict
+        """
         result = self.stack[0]
         self.stack = [{}]
         return result
@@ -398,7 +425,7 @@ def log_file_to_list(filename):
                 if level > 0:
                     s.open_list(f"time-level-{level}")
                 if partition > 0:
-                    s.open_list(f"evolve")
+                    s.open_list("evolve")
                 s.update(line_dict["payload"])
                 continue
             elif label == "end-step-attempt":
@@ -455,6 +482,7 @@ def print_log(log, indent=2):
 
     :param list log: The log file list from :py:func:`log_file_to_list()`.
     :param int indent: The number of spaces to indent the JSON output (default: 2).
+    :returns: ``None``. The formatted JSON is written to standard output.
 
     **Example usage:**
 
@@ -485,8 +513,16 @@ def get_history(
     :type time_range: [float, float]
     :param step_range: Only extract values in the step number interval, [low, high].
     :type step_range: [int, int]
-    :param bool group_by_level: Group outputs by time level.
-    :returns: A list of steps, times, and values
+    :param bool group_by_level: Group outputs by time level. When ``False``
+                                (the default), return three lists. When ``True``,
+                                return three dictionaries mapping each nested
+                                time level to its corresponding list.
+    :returns: ``(steps, times, values)`` when ``group_by_level`` is ``False``;
+              otherwise ``(steps_by_level, times_by_level, values_by_level)``.
+    :rtype: tuple[list, list, list] or tuple[dict, dict, dict]
+
+    Values nested in MRIStep fast-step levels and embedded integrations are
+    included recursively. Entries without ``key`` are skipped.
     """
 
     steps, times, values, levels = _get_history(log, key, step_status, time_range, step_range)
@@ -497,10 +533,10 @@ def get_history(
         steps_by_level = defaultdict(list)
         times_by_level = defaultdict(list)
         values_by_level = defaultdict(list)
-        for s, t, v, l in zip(steps, times, values, levels):
-            steps_by_level[l].append(s)
-            times_by_level[l].append(t)
-            values_by_level[l].append(v)
+        for s, t, v, level in zip(steps, times, values, levels):
+            steps_by_level[level].append(s)
+            times_by_level[level].append(t)
+            values_by_level[level].append(v)
         return steps_by_level, times_by_level, values_by_level
     else:
         return steps, times, values

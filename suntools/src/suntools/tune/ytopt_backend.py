@@ -14,6 +14,8 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
+"""Ytopt integration for :mod:`suntools.tune`."""
+
 from __future__ import annotations
 
 import inspect
@@ -33,10 +35,15 @@ from suntools.tune.runner import (
 )
 
 
-def to_ytopt_problem(
-    parameters: List[ParameterSpec], objective_name: str = "objective"
-) -> Any:
-    """Convert canonical parameter specs to a Ytopt Problem."""
+def to_ytopt_problem(parameters: List[ParameterSpec], objective_name: str = "objective") -> Any:
+    """Convert parameter specifications to a Ytopt ``Problem``.
+
+    :param list[ParameterSpec] parameters: Parameters to expose to Ytopt.
+    :param str objective_name: Name for the objective dimension.
+    :returns: Configured Ytopt problem.
+    :rtype: Any
+    :raises RuntimeError: If Ytopt is not installed or cannot be configured.
+    """
 
     try:
         from ytopt.problem import Problem
@@ -54,12 +61,24 @@ def to_ytopt_problem(
 
 
 class YtoptBackend:
+    """Run tuning trials with Ytopt's AMBS search."""
+
     def __init__(self, config: TuneConfig):
+        """Create a backend for ``config``.
+
+        :param TuneConfig config: Validated tuning configuration.
+        """
         self.config = config
         self.baseline = None
         self.worst = None
 
     def run(self) -> List[TrialResult]:
+        """Run the configured search and write its results.
+
+        :returns: Results collected from sampled configurations.
+        :rtype: list[TrialResult]
+        :raises RuntimeError: If Ytopt is not installed or cannot be used.
+        """
         AMBS, Evaluator = _import_ytopt()
 
         self.baseline = run_baseline(self.config)
@@ -73,15 +92,11 @@ class YtoptBackend:
             with lock:
                 results.append(trial_result)
             return objective_to_score(
-                self.config.objective.direction,
-                trial_result.metric,
-                trial_result.feasible,
+                self.config.objective.direction, trial_result.metric, trial_result.feasible
             )
 
         _attach_objective(problem, objective)
-        evaluator = _create_evaluator(
-            Evaluator, problem, objective, self.config.search.workers
-        )
+        evaluator = _create_evaluator(Evaluator, problem, objective, self.config.search.workers)
 
         output_dir = Path(self.config.search.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -173,14 +188,8 @@ def _make_configspace_hyperparameter(parameter: ParameterSpec) -> Any:
     return UniformFloatHyperparameter(parameter.name, lower=lower, upper=upper, log=log)
 
 
-def _try_add_hyperparameter(
-    problem: Any, parameter: ParameterSpec, hyperparameter: Any
-) -> bool:
-    candidates = [
-        problem,
-        getattr(problem, "input_space", None),
-        getattr(problem, "space", None),
-    ]
+def _try_add_hyperparameter(problem: Any, parameter: ParameterSpec, hyperparameter: Any) -> bool:
+    candidates = [problem, getattr(problem, "input_space", None), getattr(problem, "space", None)]
     for target in candidates:
         if target is None:
             continue
@@ -264,10 +273,7 @@ def _sampled_values_to_dict(sampled_values: Any) -> Dict[str, Any]:
 
 
 def _create_evaluator(
-    Evaluator: Any,
-    problem: Any,
-    objective: Callable[[Any], float],
-    workers: int,
+    Evaluator: Any, problem: Any, objective: Callable[[Any], float], workers: int
 ) -> Any:
     create = getattr(Evaluator, "create", None)
     method_kwargs = {"num_workers": workers}
@@ -276,10 +282,7 @@ def _create_evaluator(
         attempts.extend(
             [
                 ((problem,), {"method": method, "method_kwargs": method_kwargs}),
-                (
-                    (problem, objective),
-                    {"method": method, "method_kwargs": method_kwargs},
-                ),
+                ((problem, objective), {"method": method, "method_kwargs": method_kwargs}),
                 ((objective,), {"method": method, "method_kwargs": method_kwargs}),
             ]
         )
@@ -297,9 +300,7 @@ def _create_evaluator(
     raise RuntimeError("could not create ytopt evaluator")
 
 
-def _create_search(
-    AMBS: Any, problem: Any, evaluator: Any, search_options: Dict[str, Any]
-) -> Any:
+def _create_search(AMBS: Any, problem: Any, evaluator: Any, search_options: Dict[str, Any]) -> Any:
     attempts = [
         ((), {"problem": problem, "evaluator": evaluator, **search_options}),
         ((problem, evaluator), search_options),
@@ -317,11 +318,7 @@ def _run_search(search: Any, max_evals: int) -> None:
         method = getattr(search, method_name, None)
         if method is None:
             continue
-        attempts = [
-            ((), {"max_evals": max_evals}),
-            ((max_evals,), {}),
-            ((), {}),
-        ]
+        attempts = [((), {"max_evals": max_evals}), ((max_evals,), {}), ((), {})]
         if _try_call(method, attempts, allow_none=True) is not _CALL_FAILED:
             return
     raise RuntimeError("ytopt AMBS search object has no runnable search method")

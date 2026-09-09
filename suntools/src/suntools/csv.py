@@ -15,24 +15,28 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
-# Function to parse SUNDIALS CSV output files
+# Functions to parse SUNDIALS CSV output files
 # -----------------------------------------------------------------------------
+
+"""Read SUNDIALS statistics written in CSV format.
+
+SUNDIALS CSV output stores a key and value in alternating columns.  The
+functions in this module return a dictionary whose values are lists, which is
+convenient for comparing several output rows.
+"""
 
 from .utils import str2num
 
 
 def keys(filename):
-    """Extracts keys from a SUNDIALS CSV file
+    """Extract the keys from a SUNDIALS CSV file.
 
-    Parameters
-    ----------
-    filename : str
-        The file location of the SUNDIALS CSV file
+    :param str filename: Path to the SUNDIALS CSV file.
+    :returns: The dictionary keys in the first row of the file.
+    :rtype: list[str]
 
-    Returns
-    -------
-    list
-        A list of dictionary keys
+    The file is expected to contain a header row in which the key columns are
+    interleaved with value columns.  Only the key columns are returned.
     """
 
     # Get keys from the first row
@@ -43,17 +47,16 @@ def keys(filename):
 
 
 def read(filename):
-    """Reads a SUNDIALS CSV file
+    """Read a SUNDIALS CSV file into a dictionary.
 
-    Parameters
-    ----------
-    filename : str
-        The file location of the SUNDIALS CSV file
+    :param str filename: Path to the SUNDIALS CSV file.
+    :returns: A dictionary mapping each key to a list of values. Numeric
+              values are converted to :class:`int` or :class:`float` when
+              possible.
+    :rtype: dict[str, list]
 
-    Returns
-    -------
-    dict
-        A dictionary containing the CSV keys and values
+    The output has one list per key.  Values are read from alternating columns
+    and converted with :func:`suntools.utils.str2num`.
     """
 
     import csv
@@ -78,12 +81,13 @@ def read(filename):
 
 
 def write(filename):
-    """Prints a SUNDIALS CSV file
+    """Print a SUNDIALS CSV file as key-value lists.
 
-    Parameters
-    ----------
-    filename : str
-        The file location of the SUNDIALS CSV file
+    :param str filename: Path to the SUNDIALS CSV file.
+
+    This convenience function reads the file with :func:`read` and writes a
+    human-readable representation to standard output.  It does not write a
+    new CSV file and returns ``None``.
     """
 
     csv_dict = read(filename)

@@ -14,6 +14,8 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
+"""Command-line orchestration for the ``suntools tune`` command."""
+
 from __future__ import annotations
 
 import sys
@@ -29,6 +31,14 @@ from suntools.tune.ytopt_backend import YtoptBackend
 
 
 def run_from_args(args: Any) -> int:
+    """Run tuning from a parsed command-line namespace.
+
+    :param args: Namespace produced by :func:`suntools.cli.build_parser`.
+    :returns: Process-style status code: ``0`` for a successful search, ``1``
+              when no successful result exists, and ``2`` for invalid
+              configuration or missing backend dependencies.
+    :rtype: int
+    """
     try:
         config = config_from_args(args)
         backend = _create_backend(config)
@@ -61,13 +71,11 @@ def _report_header(config: Any) -> None:
     sys.stdout.write("suntools tune\n")
     sys.stdout.write("=============\n\n")
     sys.stdout.write(
-        "Objective   : %s (%s)\n"
-        % (config.objective.metric, config.objective.direction)
+        "Objective   : %s (%s)\n" % (config.objective.metric, config.objective.direction)
     )
     if config.constraint is not None:
         sys.stdout.write(
-            "Constraint  : %s <= %s\n"
-            % (config.constraint.metric, config.constraint.upper_bound)
+            "Constraint  : %s <= %s\n" % (config.constraint.metric, config.constraint.upper_bound)
         )
     sys.stdout.write(
         "Search      : %d evaluations, %d repetitions, %d worker%s\n"
@@ -86,20 +94,13 @@ def _report_result(label: str, result: Any, config: Any) -> None:
     sys.stdout.write("%s\n" % ("-" * len(label)))
     sys.stdout.write("  Repetitions : %s\n" % result.repetitions)
     if result.metric is None:
-        sys.stdout.write(
-            "  Status      : failed (%s)\n"
-            % (result.error or "metric unavailable")
-        )
+        sys.stdout.write("  Status      : failed (%s)\n" % (result.error or "metric unavailable"))
     else:
         sys.stdout.write("  Metric      : %s\n" % result.metric)
     if config.constraint is not None and result.constraint_metric is not None:
         sys.stdout.write(
             "  Constraint  : %s = %s (limit %s)\n"
-            % (
-                config.constraint.metric,
-                result.constraint_metric,
-                config.constraint.upper_bound,
-            )
+            % (config.constraint.metric, result.constraint_metric, config.constraint.upper_bound)
         )
     if result.parameters:
         sys.stdout.write("  Parameters  :\n")

@@ -14,6 +14,13 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
+"""Execute tuning trials and collect objective results.
+
+The runner is shared by all optional optimization backends.  It keeps trial
+execution isolated in temporary directories, extracts metrics from process
+output, and writes machine-readable result files.
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -42,6 +49,22 @@ from suntools.tune.models import (
 
 @dataclass
 class TrialResult:
+    """Result and captured output for one sampled configuration.
+
+    :ivar dict parameters: Sampled parameter values.
+    :ivar float metric: Objective metric, or ``None`` when extraction failed.
+    :ivar float wall_time: Elapsed execution time in seconds.
+    :ivar int returncode: Process exit status.
+    :ivar str stdout: Captured standard output.
+    :ivar str stderr: Captured standard error.
+    :ivar list[str] command: Executable command and arguments used.
+    :ivar bool success: Whether execution and objective extraction succeeded.
+    :ivar str error: Error message when the trial failed.
+    :ivar float constraint_metric: Extracted constraint value, if configured.
+    :ivar bool feasible: Whether the trial satisfies its constraint.
+    :ivar int repetitions: Number of executions represented by this result.
+    """
+
     parameters: Dict[str, Any]
     metric: Optional[float]
     wall_time: float
@@ -60,7 +83,14 @@ _ENV_VAR_PATTERN = re.compile(r"\$(\{[^}]+\}|[A-Za-z_][A-Za-z0-9_]*)")
 
 
 def expand_environment_variables(value: str, environment: Dict[str, str]) -> str:
-    """Expand shell-style environment variables without invoking a shell."""
+    """Expand shell-style environment variables without invoking a shell.
+
+    :param str value: String containing ``$NAME`` or ``${NAME}`` references.
+    :param dict[str, str] environment: Values used for replacement.
+    :returns: Expanded string. Unknown variables are left unchanged before
+              :func:`os.path.expandvars` performs its standard expansion.
+    :rtype: str
+    """
 
     def replace(match: re.Match[str]) -> str:
         token = match.group(1)
@@ -73,6 +103,15 @@ def expand_environment_variables(value: str, environment: Dict[str, str]) -> str
 def build_trial_argv(
     command: str, args: Iterable[str], parameters: Iterable[ParameterSpec], values: Dict[str, Any]
 ) -> List[str]:
+    """Build an executable argument vector for a sampled configuration.
+
+    :param str command: Executable name or path.
+    :param args: Fixed arguments supplied to every trial.
+    :param parameters: Parameter specifications in command-line order.
+    :param dict values: Sampled value for each parameter name.
+    :returns: ``command``, fixed arguments, and ``SetOptions`` key/value pairs.
+    :rtype: list[str]
+    """
     argv = [command]
     argv.extend(str(arg) for arg in args)
     for parameter in parameters:
@@ -82,19 +121,29 @@ def build_trial_argv(
 
 
 def run_trial(config: TuneConfig, values: Dict[str, Any]) -> TrialResult:
+    """Run one sampled configuration.
+
+    :param TuneConfig config: Validated tuning configuration.
+    :param dict values: Sampled value for each configured parameter.
+    :returns: Aggregated result over the configured number of repetitions.
+    :rtype: TrialResult
+    """
     return _run_trial(config, values, config.parameters)
 
 
 def run_baseline(config: TuneConfig) -> TrialResult:
-    """Run the executable with its default settings and no tune parameters."""
+    """Run the executable with its default settings and no tune parameters.
+
+    :param TuneConfig config: Validated tuning configuration.
+    :returns: Result from the baseline execution.
+    :rtype: TrialResult
+    """
 
     return _run_trial(config, {}, [])
 
 
 def _run_trial(
-    config: TuneConfig,
-    values: Dict[str, Any],
-    parameters: Iterable[ParameterSpec],
+    config: TuneConfig, values: Dict[str, Any], parameters: Iterable[ParameterSpec]
 ) -> TrialResult:
     env = os.environ.copy()
     env.update(config.executable.env)
@@ -102,9 +151,7 @@ def _run_trial(
     command = _resolve_command_path(
         expand_environment_variables(config.executable.command, env), base_cwd
     )
-    argv = build_trial_argv(
-        command, config.executable.args, parameters, values
-    )
+    argv = build_trial_argv(command, config.executable.args, parameters, values)
 
     results = []
     with tempfile.TemporaryDirectory(prefix="suntools-trial-") as trial_dir:
@@ -112,12 +159,7 @@ def _run_trial(
         for _ in range(config.search.repetitions):
             start = time.perf_counter()
             proc = subprocess.run(
-                argv,
-                cwd=trial_dir,
-                env=env,
-                text=True,
-                capture_output=True,
-                check=False,
+                argv, cwd=trial_dir, env=env, text=True, capture_output=True, check=False
             )
             wall_time = time.perf_counter() - start
             results.append(
@@ -151,18 +193,12 @@ def _average_trial_results(results: List[TrialResult]) -> TrialResult:
     """Average metrics over repeated executions of one sampled configuration."""
 
     successful = all(result.success for result in results)
-    metric = (
-        statistics.fmean(result.metric for result in results) if successful else None
-    )
+    metric = statistics.fmean(result.metric for result in results) if successful else None
     constraint_metrics = [
-        result.constraint_metric
-        for result in results
-        if result.constraint_metric is not None
+        result.constraint_metric for result in results if result.constraint_metric is not None
     ]
     constraint_metric = (
-        statistics.fmean(constraint_metrics)
-        if len(constraint_metrics) == len(results)
-        else None
+        statistics.fmean(constraint_metrics) if len(constraint_metrics) == len(results) else None
     )
     errors = [
         "repetition %d: %s" % (index, result.error)
@@ -173,9 +209,7 @@ def _average_trial_results(results: List[TrialResult]) -> TrialResult:
         parameters=results[0].parameters,
         metric=metric,
         wall_time=statistics.fmean(result.wall_time for result in results),
-        returncode=next(
-            (result.returncode for result in results if result.returncode != 0), 0
-        ),
+        returncode=next((result.returncode for result in results if result.returncode != 0), 0),
         stdout="\n\n".join(result.stdout for result in results),
         stderr="\n\n".join(result.stderr for result in results),
         command=results[0].command,
@@ -188,7 +222,13 @@ def _average_trial_results(results: List[TrialResult]) -> TrialResult:
 
 
 async def run_trial_async(config: TuneConfig, values: Dict[str, Any]) -> TrialResult:
-    """Run a trial without blocking an asyncio-based tuning evaluator."""
+    """Run a trial without blocking an asyncio-based evaluator.
+
+    :param TuneConfig config: Validated tuning configuration.
+    :param dict values: Sampled value for each configured parameter.
+    :returns: Aggregated result over the configured number of repetitions.
+    :rtype: TrialResult
+    """
 
     result: List[TrialResult] = []
     error: List[BaseException] = []
@@ -228,9 +268,7 @@ def _make_trial_result(
     metric_cwd = cwd or config.executable.cwd
     if returncode == 0:
         try:
-            metric = extract_objective(
-                config.objective, stdout, stderr, wall_time, metric_cwd
-            )
+            metric = extract_objective(config.objective, stdout, stderr, wall_time, metric_cwd)
         except ValueError as err:
             error = str(err)
         if metric is not None:
@@ -275,24 +313,38 @@ def extract_objective(
     wall_time: float,
     cwd: Optional[Path] = None,
 ) -> float:
+    """Extract an objective value from trial output.
+
+    :param ObjectiveConfig objective: Objective extraction settings.
+    :param str stdout: Captured standard output.
+    :param str stderr: Captured standard error.
+    :param float wall_time: Trial wall time in seconds.
+    :param pathlib.Path cwd: Directory used to resolve file sources.
+    :returns: Extracted or built-in wall-time metric.
+    :rtype: float
+    :raises ValueError: If the configured pattern or source cannot be used.
+    """
     return _extract_metric(objective, stdout, stderr, wall_time, cwd)
 
 
 def extract_constraint(
-    constraint: ConstraintConfig,
-    stdout: str,
-    stderr: str,
-    cwd: Optional[Path] = None,
+    constraint: ConstraintConfig, stdout: str, stderr: str, cwd: Optional[Path] = None
 ) -> float:
+    """Extract a constraint value from trial output.
+
+    :param ConstraintConfig constraint: Constraint extraction settings.
+    :param str stdout: Captured standard output.
+    :param str stderr: Captured standard error.
+    :param pathlib.Path cwd: Directory used to resolve file sources.
+    :returns: Extracted constraint metric.
+    :rtype: float
+    :raises ValueError: If the configured pattern or source cannot be used.
+    """
     return _extract_metric(constraint, stdout, stderr, None, cwd)
 
 
 def _extract_metric(
-    metric: MetricConfig,
-    stdout: str,
-    stderr: str,
-    wall_time: Optional[float],
-    cwd: Optional[Path],
+    metric: MetricConfig, stdout: str, stderr: str, wall_time: Optional[float], cwd: Optional[Path]
 ) -> float:
     if not metric.regex:
         if metric.metric == "wall_time" and wall_time is not None:
@@ -329,9 +381,16 @@ def _extract_metric(
     return sum(values)
 
 
-def objective_to_score(
-    direction: str, metric: Optional[float], feasible: bool = True
-) -> float:
+def objective_to_score(direction: str, metric: Optional[float], feasible: bool = True) -> float:
+    """Convert an objective metric to a maximization score.
+
+    :param str direction: ``"minimize"`` or ``"maximize"``.
+    :param float metric: Objective metric, or ``None`` for a failed trial.
+    :param bool feasible: Whether the trial satisfies its constraint.
+    :returns: Score suitable for optimization. Failed or infeasible trials
+              receive negative infinity.
+    :rtype: float
+    """
     if metric is None or not feasible:
         return float("-inf")
     if direction == "minimize":
@@ -340,6 +399,13 @@ def objective_to_score(
 
 
 def select_best(results: Iterable[TrialResult], direction: str) -> Optional[TrialResult]:
+    """Select the best successful and feasible trial.
+
+    :param results: Trial results to compare.
+    :param str direction: ``"minimize"`` or ``"maximize"``.
+    :returns: Best result, or ``None`` when no result is successful and feasible.
+    :rtype: TrialResult or None
+    """
     successful = [
         result
         for result in results
@@ -352,6 +418,13 @@ def select_best(results: Iterable[TrialResult], direction: str) -> Optional[Tria
 
 
 def select_worst(results: Iterable[TrialResult], direction: str) -> Optional[TrialResult]:
+    """Select the worst successful and feasible trial.
+
+    :param results: Trial results to compare.
+    :param str direction: ``"minimize"`` or ``"maximize"``.
+    :returns: Worst result, or ``None`` when no result is successful and feasible.
+    :rtype: TrialResult or None
+    """
     successful = [
         result
         for result in results
@@ -370,6 +443,14 @@ def write_results(
     baseline: Optional[TrialResult] = None,
     worst: Optional[TrialResult] = None,
 ) -> None:
+    """Write trial results and summary JSON files.
+
+    :param pathlib.Path output_dir: Destination directory, created if needed.
+    :param list[TrialResult] results: Completed tuning results.
+    :param TrialResult best: Best result, if one exists.
+    :param TrialResult baseline: Baseline result, if one exists.
+    :param TrialResult worst: Worst result, if one exists.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     _write_trials_jsonl(output_dir / "trials.jsonl", results)
     _write_results_csv(output_dir / "results.csv", results)
@@ -444,4 +525,10 @@ def _write_best_json(path: Path, best: Optional[TrialResult]) -> None:
 
 
 def format_command(argv: Iterable[str]) -> str:
+    """Format an argument vector as a shell-escaped reproducible command.
+
+    :param argv: Command and arguments to format.
+    :returns: A command string suitable for copying into a shell.
+    :rtype: str
+    """
     return " ".join(shlex.quote(str(arg)) for arg in argv)

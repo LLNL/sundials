@@ -14,6 +14,8 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
+"""Command-line entry point for the ``suntools`` utility."""
+
 import argparse
 import sys
 from typing import List, Optional
@@ -60,6 +62,11 @@ def _cmd_tune(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the parser for the ``suntools`` command and its subcommands.
+
+    :returns: Configured argument parser.
+    :rtype: argparse.ArgumentParser
+    """
     parser = argparse.ArgumentParser(prog="suntools")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -84,12 +91,10 @@ def build_parser() -> argparse.ArgumentParser:
     parse_logs.set_defaults(func=_cmd_parse_logs)
 
     tune = subparsers.add_parser(
-        "tune",
-        help="Tune a SUNDIALS executable by appending SetOptions KEY VALUE pairs.",
+        "tune", help="Tune a SUNDIALS executable by appending SetOptions KEY VALUE pairs."
     )
     tune.add_argument(
-        "--config",
-        help="YAML tune configuration. When set, command-line tune fields are ignored.",
+        "--config", help="YAML tune configuration. When set, command-line tune fields are ignored."
     )
     tune.add_argument(
         "--params",
@@ -103,16 +108,10 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     tune.add_argument(
-        "--max-evals",
-        type=int,
-        default=40,
-        help="Maximum number of objective evaluations.",
+        "--max-evals", type=int, default=40, help="Maximum number of objective evaluations."
     )
     tune.add_argument(
-        "--workers",
-        type=int,
-        default=1,
-        help="Number of worker threads for backend evaluations.",
+        "--workers", type=int, default=1, help="Number of worker threads for backend evaluations."
     )
     tune.add_argument(
         "--repetitions",
@@ -120,17 +119,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=1,
         help="Number of times to run each sampled configuration.",
     )
-    tune.add_argument(
-        "--output-dir",
-        default="suntools-tune",
-        help="Directory for tune results.",
-    )
+    tune.add_argument("--output-dir", default="suntools-tune", help="Directory for tune results.")
     tune.add_argument(
         "--backend",
         default="deephyper",
         help=(
-            'Optimization backend name: "deephyper", "gptune", or "ytopt" '
-            '(default: "deephyper").'
+            'Optimization backend name: "deephyper", "gptune", or "ytopt" (default: "deephyper").'
         ),
     )
     tune.add_argument(
@@ -138,20 +132,12 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         help="Backend option in KEY=VALUE form. May be repeated.",
     )
+    tune.add_argument("--cwd", default=".", help="Working directory for the executable.")
     tune.add_argument(
-        "--cwd",
-        default=".",
-        help="Working directory for the executable.",
+        "--env", action="append", help="Environment override in KEY=VALUE form. May be repeated."
     )
     tune.add_argument(
-        "--env",
-        action="append",
-        help="Environment override in KEY=VALUE form. May be repeated.",
-    )
-    tune.add_argument(
-        "--metric",
-        default="wall_time",
-        help='Objective metric name (default: "wall_time").',
+        "--metric", default="wall_time", help='Objective metric name (default: "wall_time").'
     )
     tune.add_argument(
         "--direction",
@@ -211,6 +197,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
+    """Parse arguments and dispatch to the selected subcommand.
+
+    :param list[str] argv: Arguments to parse, or ``None`` to use
+                           :data:`sys.argv`.
+    :returns: Process-style status code from the selected command.
+    :rtype: int
+    """
     parser = build_parser()
     args = parser.parse_args(argv)
     return int(args.func(args))

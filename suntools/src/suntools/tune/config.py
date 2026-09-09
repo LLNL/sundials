@@ -14,6 +14,8 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
+"""Parse command-line and YAML configurations for :mod:`suntools.tune`."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -33,7 +35,16 @@ from suntools.tune.models import (
 
 
 def parse_parameter_spec(name: str, spec: str) -> ParameterSpec:
-    """Parse a CLI parameter specification into the canonical model."""
+    """Parse a command-line parameter specification.
+
+    :param str name: ``SetOptions`` key for the parameter.
+    :param str spec: Specification in one of the forms ``LOW:HIGH``,
+                     ``LOW:HIGH:log``, ``int:LOW:HIGH``, or
+                     ``choice:v1,v2,v3``.
+    :returns: Validated backend-independent parameter model.
+    :rtype: ParameterSpec
+    :raises ValueError: If ``spec`` does not use a supported form.
+    """
 
     if spec.startswith("choice:"):
         values = spec[len("choice:") :].split(",")
@@ -61,6 +72,14 @@ def parse_parameter_spec(name: str, spec: str) -> ParameterSpec:
 
 
 def parse_key_value(items: Optional[Iterable[str]], option_name: str) -> Dict[str, str]:
+    """Parse repeated ``KEY=VALUE`` command-line options.
+
+    :param items: Option values to parse, or ``None``.
+    :param str option_name: Name used in validation error messages.
+    :returns: A dictionary containing the parsed key-value pairs.
+    :rtype: dict[str, str]
+    :raises ValueError: If an item does not contain a non-empty key and ``=``.
+    """
     result: Dict[str, str] = {}
     if not items:
         return result
@@ -73,12 +92,25 @@ def parse_key_value(items: Optional[Iterable[str]], option_name: str) -> Dict[st
 
 
 def parse_regex_group(value: Any) -> Any:
+    """Convert a numeric regex group string to an integer.
+
+    :param value: Group index or named group.
+    :returns: An integer for digit-only strings; otherwise ``value`` unchanged.
+    """
     if isinstance(value, str) and value.isdigit():
         return int(value)
     return value
 
 
 def load_config(path: str) -> TuneConfig:
+    """Load and validate a YAML tuning configuration.
+
+    :param str path: YAML configuration path.
+    :returns: Validated configuration with relative paths resolved against the
+              YAML file's directory.
+    :rtype: TuneConfig
+    :raises ValueError: If the file is empty or fails model validation.
+    """
     config_path = Path(path)
     with config_path.open("r") as fp:
         data = yaml.safe_load(fp)
@@ -93,9 +125,7 @@ def _resolve_relative_paths(config: TuneConfig, base_dir: Path) -> TuneConfig:
     executable_cwd = config.executable.cwd
     updates: Dict[str, Any] = {}
     if not output_dir.is_absolute():
-        updates["search"] = config.search.model_copy(
-            update={"output_dir": base_dir / output_dir}
-        )
+        updates["search"] = config.search.model_copy(update={"output_dir": base_dir / output_dir})
     if not executable_cwd.is_absolute():
         updates["executable"] = config.executable.model_copy(
             update={"cwd": base_dir / executable_cwd}
@@ -106,6 +136,18 @@ def _resolve_relative_paths(config: TuneConfig, base_dir: Path) -> TuneConfig:
 
 
 def config_from_args(args: Any) -> TuneConfig:
+    """Build a :class:`TuneConfig` from parsed CLI arguments.
+
+    When ``args.config`` is set, the YAML file is loaded and all other tuning
+    fields are ignored. Otherwise the executable, parameters, objective, and
+    optional constraint are assembled from the command-line namespace.
+
+    :param args: Namespace containing the options created by
+                 :func:`suntools.cli.build_parser`.
+    :returns: Validated tuning configuration.
+    :rtype: TuneConfig
+    :raises ValueError: If required executable or parameter options are absent.
+    """
     if getattr(args, "config", None):
         return load_config(args.config)
 
@@ -146,8 +188,7 @@ def config_from_args(args: Any) -> TuneConfig:
 
     return TuneConfig(
         backend=BackendConfig(
-            name=args.backend,
-            options=parse_key_value(args.backend_option, "--backend-option"),
+            name=args.backend, options=parse_key_value(args.backend_option, "--backend-option")
         ),
         search=SearchConfig(
             max_evals=args.max_evals,

@@ -14,13 +14,20 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
 
+"""Data models used by the :mod:`suntools.tune` API.
+
+The models provide a backend-independent description of an executable, its
+tunable ``SetOptions`` parameters, and the metrics used to evaluate trials.
+They validate both command-line and YAML configurations before a tuning
+backend is started.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-
 
 ParameterType = Literal["float", "int", "choice"]
 ParameterScale = Literal["linear", "log"]
@@ -29,7 +36,16 @@ MetricAggregation = Literal["sum", "mean"]
 
 
 class ParameterSpec(BaseModel):
-    """Backend-neutral representation of a tunable SetOptions parameter."""
+    """Backend-neutral representation of a tunable ``SetOptions`` parameter.
+
+    :ivar str name: ``SetOptions`` key appended to the executable command.
+    :ivar str type: Parameter kind: ``"float"``, ``"int"``, or ``"choice"``.
+    :ivar tuple[float, float] bounds: Inclusive lower and upper bounds for
+                                      numeric parameters.
+    :ivar list[str] values: Allowed values for a choice parameter. A value may
+                            contain whitespace-separated command-line arguments.
+    :ivar str scale: Numeric sampling scale, either ``"linear"`` or ``"log"``.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -50,9 +66,7 @@ class ParameterSpec(BaseModel):
 
     @field_validator("values")
     @classmethod
-    def _values_must_not_be_empty(
-        cls, value: Optional[List[str]]
-    ) -> Optional[List[str]]:
+    def _values_must_not_be_empty(cls, value: Optional[List[str]]) -> Optional[List[str]]:
         if value is not None and not value:
             raise ValueError("choice parameters require at least one value")
         if value is not None and any(not item.split() for item in value):
@@ -81,7 +95,13 @@ class ParameterSpec(BaseModel):
         return self
 
     def format_value(self, value: Any) -> str:
-        """Return the command-line representation for a sampled value."""
+        """Return the command-line representation for a sampled value.
+
+        :param value: Sampled value supplied by an optimization backend.
+        :returns: The value converted to a command-line string. Integer
+                  parameters are normalized through :class:`int` first.
+        :rtype: str
+        """
 
         if self.type == "int":
             return str(int(value))
@@ -89,6 +109,11 @@ class ParameterSpec(BaseModel):
 
     def format_values(self, value: Any) -> List[str]:
         """Return one or more command-line values for a sampled value.
+
+        :param value: Sampled value supplied by an optimization backend.
+        :returns: One or more command-line tokens. Choice values are split on
+                  whitespace; numeric parameters produce one token.
+        :rtype: list[str]
 
         Choice values may contain whitespace-separated values when a
         SetOptions key accepts more than one argument, for example
@@ -101,6 +126,12 @@ class ParameterSpec(BaseModel):
 
 
 class BackendConfig(BaseModel):
+    """Configuration for a tuning backend.
+
+    :ivar str name: Backend name (``deephyper``, ``gptune``, or ``ytopt``).
+    :ivar dict options: Backend-specific keyword options.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     name: str = "deephyper"
@@ -108,6 +139,14 @@ class BackendConfig(BaseModel):
 
 
 class SearchConfig(BaseModel):
+    """Search budget and output settings.
+
+    :ivar int max_evals: Maximum number of sampled configurations.
+    :ivar int workers: Number of concurrent evaluator workers.
+    :ivar int repetitions: Number of executions for each configuration.
+    :ivar pathlib.Path output_dir: Directory where tuning results are written.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     max_evals: int = Field(default=40, gt=0)
@@ -117,6 +156,14 @@ class SearchConfig(BaseModel):
 
 
 class ExecutableConfig(BaseModel):
+    """Executable command and process environment for each trial.
+
+    :ivar str command: Executable name or path.
+    :ivar list[str] args: Arguments placed before sampled ``SetOptions`` pairs.
+    :ivar pathlib.Path cwd: Working directory used to resolve the command.
+    :ivar dict[str, str] env: Environment variable overrides.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     command: str
@@ -133,6 +180,16 @@ class ExecutableConfig(BaseModel):
 
 
 class MetricConfig(BaseModel):
+    """Metric extraction settings shared by objectives and constraints.
+
+    :ivar str metric: Name of the metric in reports and result files.
+    :ivar str source: ``stdout``, ``stderr``, or a file path.
+    :ivar str or list[str] regex: Pattern(s) used to extract numeric values.
+    :ivar int or str group: Match group containing the numeric value.
+    :ivar str aggregation: Aggregation for multiple patterns (``sum`` or
+                           ``mean``).
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     metric: str
@@ -167,6 +224,8 @@ class MetricConfig(BaseModel):
 
 
 class ObjectiveConfig(MetricConfig):
+    """Objective metric and optimization direction."""
+
     metric: str = "wall_time"
     direction: ObjectiveDirection = "minimize"
 
@@ -184,6 +243,16 @@ class ConstraintConfig(MetricConfig):
 
 
 class TuneConfig(BaseModel):
+    """Complete backend-independent tuning configuration.
+
+    :ivar BackendConfig backend: Optimization backend and backend options.
+    :ivar SearchConfig search: Evaluation budget and output directory.
+    :ivar ExecutableConfig executable: Command run for each trial.
+    :ivar list[ParameterSpec] parameters: Tunable ``SetOptions`` parameters.
+    :ivar ObjectiveConfig objective: Metric to optimize.
+    :ivar ConstraintConfig constraint: Optional upper-bound metric constraint.
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     backend: BackendConfig = Field(default_factory=BackendConfig)
@@ -195,15 +264,11 @@ class TuneConfig(BaseModel):
 
     @field_validator("parameters")
     @classmethod
-    def _parameters_must_be_unique(
-        cls, value: List[ParameterSpec]
-    ) -> List[ParameterSpec]:
+    def _parameters_must_be_unique(cls, value: List[ParameterSpec]) -> List[ParameterSpec]:
         if not value:
             raise ValueError("at least one parameter is required")
         names = [parameter.name for parameter in value]
         duplicates = sorted({name for name in names if names.count(name) > 1})
         if duplicates:
-            raise ValueError(
-                "parameter names must be unique: " + ", ".join(duplicates)
-            )
+            raise ValueError("parameter names must be unique: " + ", ".join(duplicates))
         return value

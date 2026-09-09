@@ -18,9 +18,17 @@
 # Shared suntools utilities.
 # -----------------------------------------------------------------------------
 
+"""Small helpers shared by the :mod:`suntools` parsers."""
+
 
 def str2num(s):
-    """Try to convert a string to an int or float"""
+    """Convert a numeric string to an integer or floating-point value.
+
+    :param str s: String to convert.
+    :returns: An :class:`int` if ``s`` is an integer, a :class:`float` if it is
+              a floating-point value, or the original string otherwise.
+    :rtype: int, float, or str
+    """
 
     try:
         return int(s)
