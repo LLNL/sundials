@@ -14,9 +14,11 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-###########################
-SUNDIALS Python tools
-###########################
+.. _SUNTOOLS:
+
+*********************************
+suntools - utilities for SUNDIALS
+*********************************
 
 ``suntools`` is a Python package containing utilities for analyzing SUNDIALS
 output and tuning SUNDIALS applications.  It is distributed with SUNDIALS and
@@ -25,6 +27,12 @@ can be installed from the ``suntools`` directory with
 .. code-block:: bash
 
    python -m pip install ./suntools
+
+The optional ``ytopt`` tuning backend can be installed with
+
+.. code-block:: bash
+
+   python -m pip install "suntools[ytopt]"
 
 The package currently provides the following modules:
 
@@ -38,9 +46,3 @@ The package currently provides the following modules:
 The ``suntools`` command-line program provides the ``parse_logs`` and
 ``tune`` subcommands.  The complete Python API is documented in
 :ref:`SUNTools.API`.
-
-.. note::
-
-   The ``tune`` command requires the tuning dependencies listed by the
-   ``suntools`` project.  The Ytopt backend is optional and can be installed
-   with ``python -m pip install "suntools[ytopt]"``.

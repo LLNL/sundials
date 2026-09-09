@@ -145,7 +145,10 @@ SUNDIALS License and Notices
    :maxdepth: 1
    :hidden:
 
-   suntools/index.rst
+   suntools - utilities for SUNDIALS <suntools/index.rst>
+   log manipulation <suntools/logging.rst>
+   tuning <suntools/tuning.rst>
+   API <suntools/API.rst>
 
 .. toctree::
    :caption: DEVELOPMENT

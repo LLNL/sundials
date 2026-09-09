@@ -1,4 +1,5 @@
-.. ----------------------------------------------------------------
+..
+   -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2025-2026, Lawrence Livermore National Security,
    University of Maryland Baltimore County, and the SUNDIALS contributors.
@@ -11,8 +12,6 @@
 
    SPDX-License-Identifier: BSD-3-Clause
    SUNDIALS Copyright End
-   ----------------------------------------------------------------
+   -----------------------------------------------------------------------------
 
-.. include:: ../../../shared/suntools/SUNTools_Description.rst
 .. include:: ../../../shared/suntools/SUNTools_API.rst
-.. include:: ../../../shared/suntools/SUNTools_Tuning.rst

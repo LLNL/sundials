@@ -16,8 +16,8 @@
 
 .. _SUNTools.API:
 
-SUNDIALS Python tools API
-=========================
+suntools API
+============
 
 The API documentation below is extracted from the RST-formatted docstrings in
 the ``suntools`` source.  The parser functions return ordinary Python
