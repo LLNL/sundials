@@ -698,10 +698,11 @@ void mriStep_Free(ARKodeMem ark_mem)
     /* free the ExtSTS helper structure (if applicable) */
     if (step_mem->extsts_method)
     {
-      ARKodeFree(&step_mem->stepper->content);
-      step_mem->stepper->content = NULL;
-      MRIStepInnerStepper_Free(&step_mem->stepper);
-      step_mem->stepper = NULL;
+      void* sts_mem = NULL;
+      SUNStepper_GetContent(step_mem->stepper, &sts_mem);
+      ARKodeFree(&sts_mem);
+      SUNStepper_SetContent(step_mem->stepper, NULL);
+      SUNStepper_Destroy(&step_mem->stepper);
     }
 
     /* free the time stepper module itself */

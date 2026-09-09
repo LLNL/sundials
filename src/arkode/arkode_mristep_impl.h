@@ -61,8 +61,8 @@ extern "C" {
   stepper for MRIStep.
   ===============================================================*/
 
-int extSTSInnerStepper_Evolve(MRIStepInnerStepper sts_mem, sunrealtype t0,
-                              sunrealtype tout, N_Vector y);
+int extSTSInnerStepper_Evolve(SUNStepper stepper, sunrealtype tout, N_Vector y,
+                              sunrealtype* tret);
 
 /*===============================================================
   MRI time step module data structure
