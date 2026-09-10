@@ -114,19 +114,6 @@ m.def("ARKodeReset", ARKodeReset, nb::arg("arkode_mem"), nb::arg("tR"),
 m.def("ARKodeInit", ARKodeInit, nb::arg("arkode_mem"),
       "Optional data allocation function");
 
-m.def(
-  "ARKodeCreateSUNStepper",
-  [](void* arkode_mem)
-    -> std::tuple<int, std::shared_ptr<std::remove_pointer_t<SUNStepper>>>
-  {
-    SUNStepper stepper;
-    int r = ARKodeCreateSUNStepper(arkode_mem, &stepper);
-    return std::make_tuple(r, our_make_shared<std::remove_pointer_t<SUNStepper>,
-                                              SUNStepperDeleter>(stepper));
-  },
-  nb::arg("arkode_mem"), "Utility to wrap ARKODE as a SUNStepper",
-  nb::rv_policy::reference);
-
 m.def("ARKodeSStolerances", ARKodeSStolerances, nb::arg("arkode_mem"),
       nb::arg("reltol"), nb::arg("abstol"));
 

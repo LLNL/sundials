@@ -167,8 +167,8 @@ int main(int argc, char* argv[])
   N_VConst(SUN_RCONST(3.0), forcing[1]);
 
   N_VConst(ONE, y);
-  flag = SUNStepper_AddForcing(SUN_RCONST(3.0), ONE, SUN_RCONST(2.0),
-                               forcing, 2, y);
+  flag = SUNStepper_AddForcing(SUN_RCONST(3.0), ONE, SUN_RCONST(2.0), forcing,
+                               2, y);
   if (flag || N_VGetArrayPointer(y)[0] != SUN_RCONST(6.0)) { return 1; }
 
   N_VConst(ONE, y);

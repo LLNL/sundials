@@ -61,11 +61,11 @@ void* MRIStepCreateExtSTS(ARKRhsFn fd, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
 
   /* Create the inner stepper and override its evolve function */
   SUNStepper inner_stepper = NULL;
-  retval = ARKodeCreateSUNStepper(sts_mem, &inner_stepper);
+  retval                   = ARKodeCreateSUNStepper(sts_mem, &inner_stepper);
   if (retval != ARK_SUCCESS)
   {
-    arkProcessError(NULL, retval, __LINE__, __func__,
-                    __FILE__, "Failed to create SUNStepper for ExtSTS method.");
+    arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
+                    "Failed to create SUNStepper for ExtSTS method.");
     ARKodeFree(&sts_mem);
     return NULL;
   }
@@ -205,7 +205,7 @@ int extSTSInnerStepper_Evolve(SUNStepper stepper, sunrealtype tout, N_Vector y,
   ARKodeLSRKStepMem lsrkstep_mem = NULL;
   sunrealtype dsm;
   const sunrealtype t0 = ark_mem->tn;
-  const sunrealtype h = tout - t0;
+  const sunrealtype h  = tout - t0;
   int nflag, retval;
 
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &lsrkstep_mem);

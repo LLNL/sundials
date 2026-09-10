@@ -133,7 +133,6 @@ modules:
     - "^MRIStepSetPreInnerFn$"
     - "^MRIStepSetPostInnerFn$"
     # These functions take a pointer to a pointer which the generator cannot yet handle, so we do custom handling
-    - "^MRIStepInnerStepper_GetForcingData$"
     - "^MRIStepGetSTS$"
   forcingstep:
     path: arkode/arkode_forcingstep_generated.hpp

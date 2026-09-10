@@ -180,8 +180,7 @@ SUNErrCode SUNStepper_AddForcing(sunrealtype t, sunrealtype tshift,
   SUNCheck(nforcing >= 0, SUN_ERR_ARG_OUTOFRANGE);
   if (nforcing == 0) { return SUN_SUCCESS; }
   SUNCheck(forcing, SUN_ERR_ARG_CORRUPT);
-  SUNCheck(nforcing == 1 || tscale != SUN_RCONST(0.0),
-           SUN_ERR_ARG_OUTOFRANGE);
+  SUNCheck(nforcing == 1 || tscale != SUN_RCONST(0.0), SUN_ERR_ARG_OUTOFRANGE);
 
   sunrealtype tau  = (nforcing > 1) ? (t - tshift) / tscale : SUN_RCONST(0.0);
   sunrealtype taui = SUN_RCONST(1.0);

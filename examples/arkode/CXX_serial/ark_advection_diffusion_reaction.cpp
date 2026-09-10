@@ -1544,7 +1544,7 @@ int f_react_forcing(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
   // Access problem and inner stepper data
   UserData* udata     = (UserData*)user_data;
   void* inner_content = nullptr;
-  SUNErrCode err  = SUNStepper_GetContent(udata->fast_mem, &inner_content);
+  SUNErrCode err      = SUNStepper_GetContent(udata->fast_mem, &inner_content);
   if (check_flag(err, "SUNStepper_GetContent")) { return -1; }
   CVodeInnerStepperContent* content = (CVodeInnerStepperContent*)inner_content;
 
@@ -1554,7 +1554,7 @@ int f_react_forcing(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
 
   // Apply the polynomial MRI forcing supplied by MRIStep
   err = SUNStepper_AddForcing(t, content->tshift, content->tscale,
-                                  content->forcing, content->nforcing, f);
+                              content->forcing, content->nforcing, f);
   if (check_flag(err, "SUNStepper_AddForcing")) { return -1; }
 
   return 0;

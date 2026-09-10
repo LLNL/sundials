@@ -243,7 +243,6 @@ m.def(
       arkode_mem);
   },
   nb::arg("arkode_mem"));
-
 // #ifdef __cplusplus
 //
 // #endif

@@ -1666,7 +1666,7 @@ static int reaction(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
   if (udata->integrator > 1)
   {
     void* inner_content = NULL;
-    SUNErrCode err  = SUNStepper_GetContent(udata->stepper, &inner_content);
+    SUNErrCode err      = SUNStepper_GetContent(udata->stepper, &inner_content);
     if (err != SUN_SUCCESS) { return err; }
     InnerStepperContent* content = (InnerStepperContent*)inner_content;
 
@@ -1676,7 +1676,7 @@ static int reaction(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
       // from the outer integrator are both MPIPlusX vectors as such we can use
       // directly add the forcing to the RHS vector
       err = SUNStepper_AddForcing(t, content->tshift, content->tscale,
-                                      content->forcing, content->nforcing, f);
+                                  content->forcing, content->nforcing, f);
       if (err != SUN_SUCCESS) { return err; }
     }
     else if (udata->integrator == 3)
