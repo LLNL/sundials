@@ -875,6 +875,20 @@ SWIGEXPORT int _wrap_FMRIStepGetNumInnerStepperFails(void *farg1, long *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepGetSTS(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  void **arg2 = (void **) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (void **)(farg2);
+  result = (int)MRIStepGetSTS(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepResize(void *farg1, N_Vector farg2, double const *farg3, ARKVecResizeFn farg4, void *farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;
