@@ -26,6 +26,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+  # Keep the build tooling available for --no-build-isolation developer builds.
+  "hatchling",
+  "setuptools",
+  "scikit-build",
+  "pybind11",
   "ruff",
   "isort",
   "pytest",
