@@ -47,7 +47,7 @@ In each of the following tables, we use the following notation for an
    c_s    & a_{s1}      & a_{s2}      & \dots  & a_{ss} \\
    \hline
    q      & b_1         & b_2         & \dots  & b_s \\
-   p      & \tilde{b}_1 & \tilde{b}_2 & \dots  & \tilde{b}_3
+   p      & \tilde{b}_1 & \tilde{b}_2 & \dots  & \tilde{b}_s
    \end{array}
 
 where the method and embedding share stage weights, :math:`A \in \mathbb{R}^{s
