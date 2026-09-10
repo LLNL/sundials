@@ -36,11 +36,11 @@ The optional ``ytopt`` tuning backend can be installed with
 
 The package currently provides the following modules:
 
-* :mod:`suntools.logs` parses and filters files produced by
+* ``suntools.logs`` parses and filters files produced by
   :c:type:`SUNLogger`.
-* :mod:`suntools.csv` reads SUNDIALS statistics in CSV format.
-* :mod:`suntools.table` reads SUNDIALS statistics in table format.
-* :mod:`suntools.tune` configures and runs parameter searches for SUNDIALS
+* ``suntools.csv`` reads SUNDIALS statistics in CSV format.
+* ``suntools.table`` reads SUNDIALS statistics in table format.
+* ``suntools.tune`` configures and runs parameter searches for SUNDIALS
   executables.
 
 The ``suntools`` command-line program provides the ``parse_logs`` and

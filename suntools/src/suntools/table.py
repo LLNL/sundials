@@ -29,7 +29,7 @@ def parse_table(data):
 
     :param str data: Multiline text containing one or more key-value tables.
     :returns: A dictionary mapping each key to a list of values. Numeric values
-              are converted to :class:`int` or :class:`float` when possible.
+        are converted to :class:`int` or :class:`float` when possible.
     :rtype: dict[str, list]
 
     Each matching line must have the form ``key = value``. Repeated keys are

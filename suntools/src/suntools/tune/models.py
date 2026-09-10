@@ -144,7 +144,7 @@ class SearchConfig(BaseModel):
     :ivar int max_evals: Maximum number of sampled configurations.
     :ivar int workers: Number of concurrent evaluator workers.
     :ivar int repetitions: Number of executions for each configuration.
-    :ivar pathlib.Path output_dir: Directory where tuning results are written.
+    :ivar ``pathlib.Path`` output_dir: Directory where tuning results are written.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -160,7 +160,7 @@ class ExecutableConfig(BaseModel):
 
     :ivar str command: Executable name or path.
     :ivar list[str] args: Arguments placed before sampled ``SetOptions`` pairs.
-    :ivar pathlib.Path cwd: Working directory used to resolve the command.
+    :ivar ``pathlib.Path`` cwd: Working directory used to resolve the command.
     :ivar dict[str, str] env: Environment variable overrides.
     """
 

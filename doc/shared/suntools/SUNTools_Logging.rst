@@ -50,5 +50,5 @@ needed:
 
    records = logs.log_file_to_list("path/to/sundials.log")
 
-The :mod:`suntools.table` and :mod:`suntools.csv` modules provide helpers for
+The ``suntools.table`` and ``suntools.csv`` modules provide helpers for
 reading table-formatted and CSV-formatted SUNDIALS statistics, respectively.

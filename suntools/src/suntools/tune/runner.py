@@ -88,7 +88,7 @@ def expand_environment_variables(value: str, environment: Dict[str, str]) -> str
     :param str value: String containing ``$NAME`` or ``${NAME}`` references.
     :param dict[str, str] environment: Values used for replacement.
     :returns: Expanded string. Unknown variables are left unchanged before
-              :func:`os.path.expandvars` performs its standard expansion.
+              ``os.path.expandvars`` performs its standard expansion.
     :rtype: str
     """
 
@@ -319,7 +319,7 @@ def extract_objective(
     :param str stdout: Captured standard output.
     :param str stderr: Captured standard error.
     :param float wall_time: Trial wall time in seconds.
-    :param pathlib.Path cwd: Directory used to resolve file sources.
+    :param ``pathlib.Path`` cwd: Directory used to resolve file sources.
     :returns: Extracted or built-in wall-time metric.
     :rtype: float
     :raises ValueError: If the configured pattern or source cannot be used.
@@ -335,7 +335,7 @@ def extract_constraint(
     :param ConstraintConfig constraint: Constraint extraction settings.
     :param str stdout: Captured standard output.
     :param str stderr: Captured standard error.
-    :param pathlib.Path cwd: Directory used to resolve file sources.
+    :param ``pathlib.Path`` cwd: Directory used to resolve file sources.
     :returns: Extracted constraint metric.
     :rtype: float
     :raises ValueError: If the configured pattern or source cannot be used.
@@ -445,7 +445,7 @@ def write_results(
 ) -> None:
     """Write trial results and summary JSON files.
 
-    :param pathlib.Path output_dir: Destination directory, created if needed.
+    :param ``pathlib.Path`` output_dir: Destination directory, created if needed.
     :param list[TrialResult] results: Completed tuning results.
     :param TrialResult best: Best result, if one exists.
     :param TrialResult baseline: Baseline result, if one exists.

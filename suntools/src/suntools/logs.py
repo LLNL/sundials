@@ -480,7 +480,8 @@ def print_log(log, indent=2):
     This function takes parsed log data and prints it in a human-readable JSON
     format. Useful for debugging and quick inspection.
 
-    :param list log: The log file list from :py:func:`log_file_to_list()`.
+    :param list log: The log file list from
+       :py:func:`suntools.logs.log_file_to_list`.
     :param int indent: The number of spaces to indent the JSON output (default: 2).
     :returns: ``None``. The formatted JSON is written to standard output.
 
@@ -503,7 +504,7 @@ def get_history(
     log, key, step_status=None, time_range=None, step_range=None, group_by_level=False
 ):
     """Extract the history of a key from a log file list created by
-    :py:func:`log_file_to_list`.
+    :py:func:`suntools.logs.log_file_to_list`.
 
     :param list log: The log file list to extract values from.
     :param str key: The key to extract.

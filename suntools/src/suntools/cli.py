@@ -65,7 +65,7 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the parser for the ``suntools`` command and its subcommands.
 
     :returns: Configured argument parser.
-    :rtype: argparse.ArgumentParser
+    :rtype: ``argparse.ArgumentParser``
     """
     parser = argparse.ArgumentParser(prog="suntools")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -200,7 +200,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     """Parse arguments and dispatch to the selected subcommand.
 
     :param list[str] argv: Arguments to parse, or ``None`` to use
-                           :data:`sys.argv`.
+                           ``sys.argv``.
     :returns: Process-style status code from the selected command.
     :rtype: int
     """

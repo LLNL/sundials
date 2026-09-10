@@ -144,6 +144,11 @@ nitpick_ignore = [
     ("py:class", "numpy.ndarray[dtype=float64, shape=(*), order='C']"),
     ("py:class", "numpy.ndarray[dtype=float64, shape=(*, *), order='F']"),
     ("py:class", "numpy.ndarray[dtype=int64, shape=(*), order='C']"),
+    # Python standard-library references used by the Suntools API
+    ("py:class", "argparse.ArgumentParser"),
+    ("py:class", "pathlib.Path"),
+    ("py:data", "sys.argv"),
+    ("py:func", "os.path.expandvars"),
     # C functions we don't document explicitly
     ("c:func", "ARKodePrintMem"),
     ("c:func", "ARKodeSetPostprocessStageFn"),

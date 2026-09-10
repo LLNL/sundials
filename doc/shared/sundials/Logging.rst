@@ -146,13 +146,16 @@ Logging Tools
 
 To assist with extracting data from logging output files, the ``tools``
 directory contains the ``suntools`` Python module which provides utilities for
-parsing log files in the ``logs`` sub-module.
+parsing log files in the ``suntools.logs`` sub-module.
 
-.. autofunction:: logs.log_file_to_list
+.. autofunction:: suntools.logs.log_file_to_list
+   :no-index:
 
-.. autofunction:: logs.print_log
+.. autofunction:: suntools.logs.print_log
+   :no-index:
 
-.. autofunction:: logs.get_history
+.. autofunction:: suntools.logs.get_history
+   :no-index:
 
 The ``tools`` directory also contains example scripts demonstrating how to use
 the log parsing functions to extract and plot data.

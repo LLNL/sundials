@@ -108,7 +108,7 @@ def load_config(path: str) -> TuneConfig:
     :param str path: YAML configuration path.
     :returns: Validated configuration with relative paths resolved against the
               YAML file's directory.
-    :rtype: TuneConfig
+    :rtype: ``suntools.tune.TuneConfig``
     :raises ValueError: If the file is empty or fails model validation.
     """
     config_path = Path(path)
@@ -136,7 +136,7 @@ def _resolve_relative_paths(config: TuneConfig, base_dir: Path) -> TuneConfig:
 
 
 def config_from_args(args: Any) -> TuneConfig:
-    """Build a :class:`TuneConfig` from parsed CLI arguments.
+    """Build a ``suntools.tune.TuneConfig`` from parsed CLI arguments.
 
     When ``args.config`` is set, the YAML file is loaded and all other tuning
     fields are ignored. Otherwise the executable, parameters, objective, and
@@ -145,7 +145,7 @@ def config_from_args(args: Any) -> TuneConfig:
     :param args: Namespace containing the options created by
                  :func:`suntools.cli.build_parser`.
     :returns: Validated tuning configuration.
-    :rtype: TuneConfig
+    :rtype: ``suntools.tune.TuneConfig``
     :raises ValueError: If required executable or parameter options are absent.
     """
     if getattr(args, "config", None):
