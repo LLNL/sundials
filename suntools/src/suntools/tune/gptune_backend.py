@@ -20,7 +20,9 @@ from __future__ import annotations
 
 import math
 import os
+import sys
 import threading
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -131,17 +133,19 @@ def _import_gptune_problem_types() -> Tuple[Any, Any, Any, Any, Any]:
     try:
         from autotune.problem import TuningProblem
         from autotune.space import Categorical, Integer, Real, Space
-    except ModuleNotFoundError as err:
-        raise RuntimeError(
-            "GPTune is required for the gptune tune backend. "
-            "Install suntools with its project dependencies."
-        ) from err
+    except (ImportError, OSError) as err:
+        raise _gptune_import_error(err) from err
 
     try:
-        from GPTune.data import Categoricalnorm
+        # GPTune's PyPI package uses imports such as ``from problem import
+        # Problem`` inside ``GPTune/*.py``.  The package directory is not on
+        # sys.path when GPTune is imported as a normal installed package, so
+        # add it for the duration of these imports.
+        with _gptune_package_path():
+            from GPTune.data import Categoricalnorm
 
         Categorical = Categoricalnorm
-    except ModuleNotFoundError:
+    except (ImportError, OSError):
         pass
 
     return TuningProblem, Space, Real, Integer, Categorical
@@ -149,16 +153,61 @@ def _import_gptune_problem_types() -> Tuple[Any, Any, Any, Any, Any]:
 
 def _import_gptune_runtime() -> Tuple[Any, Any, Any, Any]:
     try:
-        from GPTune.computer import Computer
-        from GPTune.data import Data
-        from GPTune.gptune import GPTune
-        from GPTune.options import Options
-    except ModuleNotFoundError as err:
-        raise RuntimeError(
-            "GPTune is required for the gptune tune backend. "
-            "Install suntools with its project dependencies."
-        ) from err
+        with _gptune_package_path():
+            from GPTune.computer import Computer
+            from GPTune.data import Data
+            from GPTune.gptune import GPTune
+            from GPTune.options import Options
+    except (ImportError, OSError) as err:
+        raise _gptune_import_error(err) from err
     return GPTune, Computer, Data, Options
+
+
+@contextmanager
+def _gptune_package_path():
+    """Make GPTune's package directory importable while loading GPTune.
+
+    GPTune 2.x contains absolute imports of sibling modules (for example,
+    ``from problem import Problem``).  Those imports work from a source tree
+    or when ``GPTune`` is explicitly added to ``PYTHONPATH``, but fail for a
+    normal wheel installation.  Keep the compatibility path local to the
+    import and leave the caller's ``sys.path`` unchanged afterwards.
+    """
+
+    try:
+        import GPTune
+    except (ImportError, OSError):
+        yield
+        return
+
+    package_file = getattr(GPTune, "__file__", None)
+    if package_file is None:
+        yield
+        return
+
+    package_path = str(Path(package_file).resolve().parent)
+    added = package_path not in sys.path
+    if added:
+        sys.path.insert(0, package_path)
+    try:
+        yield
+    finally:
+        if added:
+            try:
+                sys.path.remove(package_path)
+            except ValueError:
+                pass
+
+
+def _gptune_import_error(err: BaseException) -> RuntimeError:
+    missing = getattr(err, "name", None)
+    detail = f" Missing module: {missing}." if missing else f" ({err})."
+    return RuntimeError(
+        "The GPTune tune backend could not import GPTune or one of its "
+        "dependencies."
+        f"{detail} Install GPTune with its runtime dependencies (including "
+        "the autotune package), then retry."
+    )
 
 
 def _make_gptune_parameter(

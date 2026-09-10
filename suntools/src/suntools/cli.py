@@ -50,10 +50,10 @@ def _cmd_tune(args: argparse.Namespace) -> int:
     try:
         from suntools.tune.cli import run_from_args
     except ModuleNotFoundError as err:
-        if err.name in ("pydantic", "yaml", "deephyper", "gptune", "ytopt"):
+        if err.name in ("pydantic", "yaml", "deephyper"):
             sys.stderr.write(
                 "error: suntools tune requires the suntools project dependencies "
-                "(pydantic, PyYAML, DeepHyper, GPTune, and Ytopt)\n"
+                "(pydantic, PyYAML, and DeepHyper)\n"
             )
             return 2
         raise

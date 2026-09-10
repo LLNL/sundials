@@ -34,6 +34,22 @@ The optional ``ytopt`` tuning backend can be installed with
 
    python -m pip install "suntools[ytopt]"
 
+The optional GPTune tuning backend can be installed with
+
+.. code-block:: bash
+
+   python -m pip install "suntools[gptune]"
+
+The GPTune backend requires a complete GPTune runtime installation.  The
+``gptune`` PyPI wheel does not include all of GPTune's runtime dependencies,
+including the ``autotune`` package, so installing this extra may not provide a
+complete runtime.  Install GPTune using its documented source or Spack
+installation, including its Python dependencies.  A quick check is
+
+.. code-block:: bash
+
+   python -c "from autotune.problem import TuningProblem; from GPTune.gptune import GPTune"
+
 The package currently provides the following modules:
 
 * ``suntools.logs`` parses and filters files produced by

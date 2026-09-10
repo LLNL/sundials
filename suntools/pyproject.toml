@@ -8,7 +8,6 @@ version = "7.9.0"
 description = "Utilities designed to assist users of the SUNDIALS suite of nonlinear and differential/algebraic equation solvers."
 dependencies = [
   "deephyper>=0.13.2,<0.14",
-  "gptune",
   "PyYAML>=6.0",
   "pydantic>=2.10",
 ]
@@ -27,6 +26,9 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
   "ruff",
+]
+gptune = [
+  "gptune",
 ]
 ytopt = [
   "ytopt",

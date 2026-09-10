@@ -19,6 +19,29 @@ To enable the optional Ytopt tuning backend, install its extra:
 python -m pip install -e ".[ytopt]"
 ```
 
+To enable the optional GPTune tuning backend, install its extra:
+
+```bash
+python -m pip install -e ".[gptune]"
+```
+
+Both optional backends can be installed together with:
+
+```bash
+python -m pip install -e ".[gptune,ytopt]"
+```
+
+The GPTune backend requires a complete GPTune runtime installation.  The
+``gptune`` PyPI wheel does not include all of GPTune's runtime dependencies
+(in particular the ``autotune`` package), so installing this extra may still
+leave the backend unusable.  Install GPTune using its documented source or
+Spack installation, including its Python dependencies, and verify the runtime
+with:
+
+```bash
+python -c "from autotune.problem import TuningProblem; from GPTune.gptune import GPTune"
+```
+
 Then import as:
 
 ```python
