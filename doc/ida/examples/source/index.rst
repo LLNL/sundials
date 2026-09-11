@@ -27,3 +27,13 @@ IDA Examples
    variety (but not exhaustive set) of IDA options and can be used as templates
    for new problems. Further information on the IDA package itself may be found
    in the IDA user guide.
+
+.. toctree::
+   :maxdepth: 1
+
+   introduction.rst
+   serial_examples.rst
+   parallel_examples.rst
+   petsc_examples.rst
+   trilinos_examples.rst
+   references.rst

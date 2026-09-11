@@ -26,8 +26,11 @@ the IDA User Documentation. These example programs demonstrate a large variety
 problems. Further information on the IDA package itself may be found in the IDA
 user guide.
 
-.. note::
+.. toctree::
+   :maxdepth: 1
 
-   The online version of the IDA examples documentation is currently under
-   development. For sections not available online yet, see the :pdfdoc:`PDF
-   version <ida_examples>` of the examples documentation.
+   introduction.rst
+   serial_examples.rst
+   parallel_examples.rst
+   petsc_examples.rst
+   trilinos_examples.rst

@@ -27,3 +27,11 @@ IDAS Examples
    variety (but not exhaustive set) of IDAS options and can be used as templates
    for new problems. Further information on the IDAS package itself may be found
    in the IDAS user guide.
+
+.. toctree::
+   :maxdepth: 1
+
+   introduction.rst
+   forward_sensitivity.rst
+   adjoint_sensitivity.rst
+   references.rst
