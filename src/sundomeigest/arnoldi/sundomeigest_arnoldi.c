@@ -56,8 +56,10 @@ static void sundomeigest_SortEigenvaluesByMagnitude(sunscalartype* wr, int n);
 #define MAX_DQITERS 3
 #endif
 
-#define ZERO SUN_RCONST(0.0)
-#define ONE  SUN_RCONST(1.0)
+#define ZERO  SUN_CCONST(0.0, 0.0)
+#define ONE   SUN_CCONST(1.0, 0.0)
+#define RZERO SUN_RCONST(0.0)
+#define RONE  SUN_RCONST(1.0)
 
 /* Default estimator parameters */
 #define DEE_NUM_OF_WARMUPS_ARNOLDI_DEFAULT 100
@@ -80,6 +82,7 @@ static void sundomeigest_SortEigenvaluesByMagnitude(sunscalartype* wr, int n);
  * -----------------------------------------------------------------
  */
 
+int sundomeigest_Compare(const void* a, const void* b);
 SUNErrCode dee_DQJtimes_Arnoldi(void* voidstarDEE, N_Vector v, N_Vector Jv);
 
 /*
@@ -153,7 +156,7 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
   content->V             = NULL;
   content->q             = NULL;
   content->rhs_linY      = NULL;
-  content->rhs_linT      = ZERO;
+  content->rhs_linT      = RZERO;
   content->Fy            = NULL;
   content->work          = NULL;
   content->kry_dim       = kry_dim;
@@ -170,6 +173,7 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
   content->LAPACK_wi     = NULL;
   content->LAPACK_work   = NULL;
   content->LAPACK_lwork  = 0;
+  content->LAPACK_rwork  = NULL;
   content->LAPACK_arr    = NULL;
   content->Hes           = NULL;
 
@@ -181,15 +185,6 @@ SUNDomEigEstimator SUNDomEigEstimator_Arnoldi(N_Vector q, int kry_dim,
   SUNCheckLastErrNull();
 
   content->V = N_VCloneVectorArray(kry_dim + 1, q);
-  SUNCheckLastErrNull();
-
-  /* Initialize the vector V[0] */
-  sunrealtype normq = N_VDotProd(q, q);
-  SUNCheckLastErrNull();
-
-  normq = SUNRsqrt(normq);
-
-  N_VScale(ONE / normq, q, content->V[0]);
   SUNCheckLastErrNull();
 
   return (DEE);
@@ -400,12 +395,12 @@ SUNErrCode SUNDomEigEstimator_SetRelTol_Arnoldi(SUNDomEigEstimator DEE,
   SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
   /* set the tolerance for preprocessing iterations */
-  if (tol < ZERO)
+  if (tol < RZERO)
   {
     Arnoldi_CONTENT(DEE)->warmup_to_tol = SUNFALSE;
     return SUN_SUCCESS;
   }
-  else if (tol == ZERO || tol > ONE - SUN_UNIT_ROUNDOFF)
+  else if (tol == RZERO || tol > RONE - SUN_UNIT_ROUNDOFF)
   {
     tol = DEE_TOL_OF_WARMUPS_ARNOLDI_DEFAULT;
   }
@@ -460,8 +455,8 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
   Arnoldi_CONTENT(DEE)->num_iters  = 0;
 
   sunrealtype res;
-  sunrealtype new_lambda = ZERO;
-  sunrealtype old_lambda = ZERO;
+  sunscalartype new_lambda = ZERO;
+  sunscalartype old_lambda = ZERO;
 
   /* Set the initial q = A^{num_warmups}q/||A^{num_warmups}q|| */
   for (int i = 0; i < Arnoldi_CONTENT(DEE)->num_warmups; i++)
@@ -475,9 +470,9 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
 
     if (Arnoldi_CONTENT(DEE)->warmup_to_tol)
     {
-      new_lambda = N_VDotProd(Arnoldi_CONTENT(DEE)->V[0],
-                              Arnoldi_CONTENT(DEE)->q); //Rayleigh quotient
-      SUNCheckLastErr();
+      SUNCheckCall(N_VDotProdComplex(Arnoldi_CONTENT(DEE)->V[0],
+                                     Arnoldi_CONTENT(DEE)->q,
+                                     &new_lambda)); // Rayleigh quotient
     }
 
     SUNCheckCall(N_VDotProdComplex(Arnoldi_CONTENT(DEE)->q, Arnoldi_CONTENT(DEE)->q, &qdotq));
@@ -488,9 +483,9 @@ SUNErrCode SUNDomEigEstimator_Estimate_Arnoldi(SUNDomEigEstimator DEE,
 
     if (Arnoldi_CONTENT(DEE)->warmup_to_tol)
     {
-      res        = SUNRabs(new_lambda - old_lambda);
+      res        = SUNCabs(new_lambda - old_lambda);
       old_lambda = new_lambda;
-      if (res <= Arnoldi_CONTENT(DEE)->tol_warmup * SUNRabs(new_lambda))
+      if (res <= Arnoldi_CONTENT(DEE)->tol_warmup * SUNCabs(new_lambda))
       {
         break;
       }
@@ -823,7 +818,9 @@ SUNErrCode dee_DQJtimes_Arnoldi(void* voidstarDEE, N_Vector v, N_Vector Jv)
   SUNAssert(Arnoldi_CONTENT(DEE)->rhsfn, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE)->rhs_linY, SUN_ERR_ARG_CORRUPT);
 
-  sunrealtype vdotv = N_VDotProd(v, v);
+  sunscalartype vdotv_complex;
+  SUNCheckCall(N_VDotProdComplex(v, v, &vdotv_complex));
+  sunrealtype vdotv = SUN_REAL(vdotv_complex);
   if (vdotv <= SUN_SMALL_REAL)
   {
     N_VScale(ZERO, v, Jv);
@@ -855,11 +852,12 @@ SUNErrCode dee_DQJtimes_Arnoldi(void* voidstarDEE, N_Vector v, N_Vector Jv)
   if (retval != 0) { return SUN_ERR_USER_FCN_FAIL; }
 
   /* Initialize perturbation */
-  sunrealtype ydotv   = N_VDotProd(y, v);
+  sunscalartype ydotv;
+  SUNCheckCall(N_VDotProdComplex(y, v, &ydotv));
   sunrealtype sq1norm = N_VL1Norm(v);
-  sunrealtype sign    = (ydotv >= ZERO) ? ONE : -ONE;
+  sunrealtype sign    = (SUN_REAL(ydotv) >= RZERO) ? RONE : -RONE;
   sunrealtype sqrteps = SUNRsqrt(SUN_UNIT_ROUNDOFF);
-  sig = sign * sqrteps * SUNMAX(SUNRabs(ydotv), sq1norm) / vdotv;
+  sig = sign * sqrteps * SUNMAX(SUNCabs(ydotv), sq1norm) / vdotv;
 
   for (iter = 0; iter < MAX_DQITERS; iter++)
   {
@@ -881,7 +879,7 @@ SUNErrCode dee_DQJtimes_Arnoldi(void* voidstarDEE, N_Vector v, N_Vector Jv)
   if (retval > 0) { return (+1); }
 
   /* Replace Jv by (Jv - fn)/sig */
-  siginv = ONE / sig;
+  siginv = RONE / sig;
   N_VLinearSum(siginv, Jv, -siginv, Fy, Jv);
 
   return SUN_SUCCESS;
