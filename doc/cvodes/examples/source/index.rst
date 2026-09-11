@@ -27,3 +27,12 @@ CVODES Examples
    a large variety (but not exhaustive set) of CVODES options and can be used as
    templates for new problems. Further information on the CVODES package itself
    may be found in the CVODES user guide.
+
+.. toctree::
+   :maxdepth: 1
+
+   introduction.rst
+   forward_sensitivity.rst
+   adjoint_sensitivity.rst
+   parallel_tests.rst
+   references.rst

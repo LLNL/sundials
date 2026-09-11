@@ -27,3 +27,13 @@ CVODE Examples
    variety (but not exhaustive set) of CVODE options and can be used as
    templates for new problems. Further information on the CVODE package itself
    may be found in the CVODE user guide.
+
+.. toctree::
+   :maxdepth: 1
+
+   introduction.rst
+   serial_examples.rst
+   parallel_examples.rst
+   accelerator_examples.rst
+   parallel_tests.rst
+   references.rst

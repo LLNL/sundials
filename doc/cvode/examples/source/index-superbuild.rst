@@ -26,8 +26,11 @@ the CVODE User Documentation. These example programs demonstrate a large variety
 problems. Further information on the CVODE package itself may be found in the
 CVODE user guide.
 
-.. note::
+.. toctree::
+   :maxdepth: 1
 
-   The online version of the CVODE examples documentation is currently under
-   development. For sections not available online yet, see the :pdfdoc:`PDF
-   version <cv_examples>` of the examples documentation.
+   introduction.rst
+   serial_examples.rst
+   parallel_examples.rst
+   accelerator_examples.rst
+   parallel_tests.rst
