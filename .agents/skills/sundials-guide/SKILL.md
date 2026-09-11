@@ -1,13 +1,15 @@
 ---
 name: sundials-guide
-description: Guide SUNDIALS users to the right package, time-stepping module, nonlinear/linear solver strategy, and initial tuning choices. Use when a request asks which SUNDIALS package to use (CVODE, CVODES, IDA, IDAS, ARKODE, KINSOL), whether to choose explicit vs implicit vs IMEX or multirate methods, how to pick dense/band/sparse/Krylov solvers and preconditioners, or what tolerances, step limits, initial-condition handling, and other starting settings to try.
+description: Guide SUNDIALS users from problem classification to a defensible package, time-stepping module, nonlinear/linear solver strategy, initial settings, and (when requested) tuning-ready code and a constrained suntools tune workflow. Use when a request asks which SUNDIALS package to use (CVODE, CVODES, IDA, IDAS, ARKODE, KINSOL), whether to choose explicit vs implicit vs IMEX or multirate methods, how to pick dense/band/sparse/Krylov solvers and preconditioners, what tolerances or step limits to try, or how to autotune a selected solver stack.
 ---
 
-# Choose a SUNDIALS Strategy
+# Choose and Tune a SUNDIALS Strategy
 
 ## Overview
 
 Map a user problem to the right SUNDIALS package and give a defensible first-pass configuration. Keep the recommendation concrete: name the package, method family, linear/nonlinear solver approach, starting settings, and the next doc/example file to inspect.
+
+Treat this as a two-stage workflow when the user asks for code, performance work, or autotuning: first select or narrow down a numerically defensible solver stack, then measure and tune that stack with `suntools tune`. A selection-only request gets a concise tuning handoff; an end-to-end request gets the baseline code pattern, tuning configuration/command, and validation procedure. Tuning results are empirical and specific to the problem workload, input, machine, SUNDIALS build, vector/backend configuration, and search space; describe a result as the best observed configuration, not a universally best solver.
 
 Start by extracting only the facts that actually control package and solver choice. If key facts are missing, ask for the minimum needed to classify the problem: equation type, stiffness, sensitivities, natural splitting, system size, sparsity, and any special structure. Do not treat the `CVODE` versus `ARKODE` choice as purely a question of model structure; stiffness, numerical stability and damping requirements can decide it even for an unsplit ODE.
 
@@ -26,6 +28,8 @@ Collect these before recommending a package or method:
 - Jacobian and preconditioner availability
 - important constraints: positivity, algebraic variables, event/rootfinding, fixed output cadence, structure preservation
 - target hardware and vector/backend constraints if they matter to the recommendation
+- for code or tuning requests: implementation language, representative workload, performance objective, accuracy/correctness metric and bound, tuning budget, and target machine/build
+- whether structural alternatives (package, stepper, vector/backend, matrix, linear solver, or preconditioner) should be compared as separate executables
 
 If the user does not know whether the model is stiff, infer it from context but label the assumption explicitly.
 
@@ -80,6 +84,33 @@ Open [method-and-linear-solvers.md](references/method-and-linear-solvers.md) whe
 
 Open [settings-checklist.md](references/settings-checklist.md) when the user mainly needs tolerances, IC handling, step limits, Jacobian/preconditioner guidance, or failure triage.
 
+### 5. Build a baseline and define the tuning boundary
+
+- For code requests, inspect the closest example under `examples/<package>/` and produce a runnable baseline for the selected stack. The baseline must explicitly construct structural choices: package, stepper, vector/backend, matrix, nonlinear solver, linear solver, and preconditioner as applicable.
+- Apply the recommended initial settings and verify the baseline before tuning. Print stable, machine-readable correctness/statistics values (for example, an error or residual and any application metric used by the objective), and return a failure status when the solve fails or the metric cannot be produced.
+- Keep structural choices separate from `SetOptions` knobs. `suntools tune` appends supported `SetOptions` key/value pairs to an executable; it can modify exposed properties but does not construct a different package or solver object. Compare structural candidates with separate executables or an explicit application-level selector, using the same workload and measurement protocol.
+- Expose only options accepted by the selected package's `SetOptions` interface. Start with a small, defensible set of runtime controls such as compatible method tables, adaptivity parameters, nonlinear/linear iteration controls, or setup frequencies; do not tune every available option by default.
+- For C/C++ examples, follow the package `*SetOptions` command-line pattern. For other languages, verify that the binding exposes an equivalent option interface or provide a small argument-parsing bridge before proposing `suntools tune`.
+
+Open [suntools-tuning.md](references/suntools-tuning.md) for the `SetOptions` integration patterns, package-specific knobs, and configuration examples.
+
+### 6. Run a constrained `suntools tune` search
+
+- Use the baseline executable, fixed input, fixed output/verification protocol, and fixed build/environment for every trial. Prefer a YAML configuration for a repeatable workflow; use `--params` for a small exploratory search.
+- Choose an objective that reflects the user's goal, usually minimized wall time for a completed solve. Use one worker and at least five repetitions for wall-clock measurements; keep the search budget proportionate to the number of parameters and candidate structural stacks.
+- When tuning tolerances, maximum step sizes, method order/table, or other accuracy-affecting controls, add a correctness/error/residual constraint with an explicit bound so a faster but less accurate trial cannot win. Never report an unconstrained timing winner when it changes the requested numerical result. Treat administrative failure limits as validity settings, not performance knobs.
+- Tune one structural stack at a time. If several stacks remain plausible, run comparable searches for separate executables and rank them only after applying the same correctness criteria.
+- Start with a narrow, physically meaningful search space, check that each parameter is accepted and changes behavior, then expand the budget or search space only if the evidence warrants it. Record failed or infeasible trials rather than silently treating them as wins.
+
+### 7. Validate and report the result
+
+- Compare the tuned result with the default-settings baseline using repeated runs, then rerun the selected configuration on independent representative cases, accuracy checks, and (when relevant) different problem sizes or output intervals.
+- Materialize tuned values as application defaults only after validation; otherwise provide them as workload-specific launch/configuration values and preserve the defensible baseline.
+- Report the selected structural stack, tunable keys and ranges, objective, correctness constraint, search budget/backend, baseline and best observed measurements, and machine/build details. State clearly when no feasible winner was found or when a result is too noisy to distinguish.
+- Re-tune when the workload, tolerances, hardware, compiler/build, vector/backend, or solver structure changes. Do not transfer a measured winner to a different environment without validation.
+
+Open [suntools-tuning.md](references/suntools-tuning.md) for the staged search, correctness constraints, result files, and reproducibility checklist.
+
 ## Output Style
 
 When giving a recommendation:
@@ -89,6 +120,9 @@ When giving a recommendation:
 - name the linear/nonlinear solver strategy
 - give a short starting settings block
 - point to the closest repo docs and examples to inspect next
+- if the request is selection-only, add a brief handoff naming which runtime settings could be tested with `suntools tune` and remind the user that measured results are workload/machine specific
+- if the request asks for code, performance, autotuning, or an end-to-end workflow, include the runnable baseline pattern, the structural-versus-`SetOptions` boundary, a focused `suntools tune` command or YAML configuration with correctness constraints, and a validation/reporting checklist
+- when presenting tuned values, label them as best observed for the stated problem, machine, build, and search space, and include the default baseline for comparison
 
 Prefer wording like:
 
@@ -118,3 +152,5 @@ When a user wants code, inspect the closest example under `examples/<package>/` 
 Just because a SUNDIALS example uses a method/solver/setting doesn't mean its the right choice. Decisions should be grounded in doc recommendations and published literature on time integrator and solver methods. In particular, do not reduce `CVODE` versus `ARKODE` to "no split" versus "has split": stability region, stiff decay, stage order, and order restrictions also matter.
 
 If the best choice is not something SUNDIALS currently supports, acknowledge this.
+
+Autotuning does not replace numerical judgment. It cannot make an unsuitable package or missing preconditioner suitable, and a timing win obtained by relaxing accuracy, changing the workload, oversubscribing the machine, or accepting failed solves is invalid. Keep solver-stack selection, correctness requirements, and performance measurement explicit throughout the workflow.

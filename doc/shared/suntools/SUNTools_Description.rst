@@ -40,6 +40,12 @@ The optional GPTune tuning backend can be installed with
 
    python -m pip install "suntools[gptune]"
 
+Both optional backends can be installed together with
+
+.. code-block:: bash
+
+   python -m pip install "suntools[gptune,ytopt]"
+
 The GPTune backend requires a complete GPTune runtime installation.  The
 ``gptune`` PyPI wheel does not include all of GPTune's runtime dependencies,
 including the ``autotune`` package, so installing this extra may not provide a
