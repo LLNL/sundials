@@ -114,6 +114,10 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Destroy(SUNAdjointCheckpointScheme*);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_Enable(SUNAdjointCheckpointScheme check_scheme,
+                                             sunbooleantype enable_or_disable);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_EnableDense(
   SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off);
 

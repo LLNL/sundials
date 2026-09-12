@@ -13,6 +13,9 @@ to `SUNStepper` to support `SUNAdaptController_MRIHTol`.
 
 **New Features and Enhancements**
 
+Added :c:func:`SUNAdjointCheckpointScheme_Enable` to temporarily disable and
+re-enable checkpointing while preserving the configured checkpointing strategy.
+
 **Bug Fixes**
 
 **Deprecation Notices**

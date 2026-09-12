@@ -94,6 +94,19 @@ Base Class Methods
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Enable(SUNAdjointCheckpointScheme self, \
+   sunbooleantype enable_or_disable)
+
+   Enables or disables checkpointing. Checkpointing is enabled by default. When
+   checkpointing is re-enabled, the checkpointing strategy configured on the
+   object is restored.
+
+   :param self: the :c:type:`SUNAdjointCheckpointScheme` object
+   :param enable_or_disable: if true, checkpointing will be enabled; if false,
+      checkpointing will be disabled.
+
+   :returns: A :c:type:`SUNErrCode` indicating failure or success.
+
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpointScheme self, \
    sunbooleantype on_or_off)
 
@@ -255,6 +268,7 @@ The ``SUNAdjointCheckpointScheme_Fixed`` module implements the following :c:type
 * :c:func:`SUNAdjointCheckpointScheme_InsertVector`
 * :c:func:`SUNAdjointCheckpointScheme_LoadVector`
 * :c:func:`SUNAdjointCheckpointScheme_Destroy`
+* :c:func:`SUNAdjointCheckpointScheme_Enable`
 * :c:func:`SUNAdjointCheckpointScheme_EnableDense`
 
 
