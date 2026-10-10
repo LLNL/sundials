@@ -712,7 +712,7 @@ called prior to a continuation call to :c:func:`ARKodeEvolve`.
 ARKODE solver function
 -------------------------
 
-This is the central step in the solution process -- the call to perform
+This is the central step in the solution process, the call to perform
 the integration of the IVP.  The input argument *itask* specifies one of two
 modes as to where ARKODE is to return a solution.  These modes are modified if
 the user has set a stop time (with a call to the optional input function
