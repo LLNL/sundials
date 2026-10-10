@@ -540,7 +540,7 @@ provide additional information to the user in case of a linear solver failure.
    | ``SUNLS_PSOLVE_FAIL_UNREC``  | -808  | an unrecoverable failure occurred in the          |
    |                              |       | ``Psolve`` routine                                |
    +------------------------------+-------+---------------------------------------------------+
-   | ``SUNLS_GS_FAIL``            | -810  | a failure occurred during Gram-Schmidt            |
+   | ``SUNLS_GS_FAIL``            | -810  | a failure occurred during Gram--Schmidt           |
    |                              |       | orthogonalization (SPGMR/SPFGMR)                  |
    +------------------------------+-------+---------------------------------------------------+
    | ``SUNLS_QRSOL_FAIL``         | -811  | a singular $R$ matrix was encountered in a QR     |

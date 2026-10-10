@@ -84,6 +84,6 @@ user-supplied ``N_Vector`` module for KINSOL could omit these functions.
 The optional function :c:func:`N_VLinearCombination` is only used when Anderson
 acceleration is enabled or the SPBCG, SPTFQMR, SPGMR, or SPFGMR linear solvers
 are used. :c:func:`N_VDotProd` is only used when Anderson acceleration is enabled or
-Classical Gram-Schmidt is used with SPGMR or SPFGMR. The remaining operations
+Classical Gram--Schmidt is used with SPGMR or SPFGMR. The remaining operations
 from :numref:`NVectors.Ops.Fused` and :numref:`NVectors.Ops.Array` are unused and a
 user-supplied ``N_Vector`` module for KINSOL could omit these operations.

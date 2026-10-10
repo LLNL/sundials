@@ -66,7 +66,7 @@ multistep methods, based on formulas of the form
 Here the :math:`y^n` are computed approximations to :math:`y(t_n)`, and
 :math:`h_n = t_n - t_{n-1}` is the step size. The user of CVODE must
 choose appropriately one of two multistep methods. For nonstiff
-problems, CVODE includes the Adams-Moulton formulas, characterized
+problems, CVODE includes the Adams--Moulton formulas, characterized
 by :math:`K_1 = 1` and :math:`K_2 = q-1` above, where the order
 :math:`q` varies between :math:`1` and :math:`12`. For stiff problems,
 CVODE includes the Backward Differentiation Formulas (BDF) in
@@ -307,7 +307,7 @@ dimensionless value, and :math:`W_j` is the error weight defined in
 :eq:`CVODE_errwt`. In the dense case, this scheme requires
 :math:`N` evaluations of :math:`f`, one for each column of :math:`J`. In
 the band case, the columns of :math:`J` are computed in groups, by the
-Curtis-Powell-Reid algorithm, with the number of :math:`f` evaluations
+Curtis--Powell--Reid algorithm, with the number of :math:`f` evaluations
 equal to the bandwidth.
 
 We note that with sparse and user-supplied ``SUNMatrix`` objects, the
@@ -569,10 +569,10 @@ also within a time integration, and since each of these iterations has
 its own test for convergence, the preconditioner may use a very crude
 approximation, as long as it captures the dominant numerical feature(s)
 of the system. We have found that the combination of a preconditioner
-with the Newton-Krylov iteration, using even a fairly poor approximation
+with the Newton--Krylov iteration, using even a fairly poor approximation
 to the Jacobian, can be surprisingly superior to using the same matrix
 without Krylov acceleration (i.e., a modified Newton iteration), as well
-as to using the Newton-Krylov method with no preconditioning.
+as to using the Newton--Krylov method with no preconditioning.
 
 .. _CVODE.Mathematics.stablimit:
 

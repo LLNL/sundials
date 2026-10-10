@@ -99,7 +99,7 @@ Special cases (numbers match markings in table):
    or :ref:`SUNMATRIX_BAND <SUNMatrix.Band>` Jacobian matrices is used.
 
 2. The optional function ``N_VDotProdMulti`` is only used in the
-   SUNNONLINSOL_FIXEDPOINT module, or when Classical Gram-Schmidt is
+   SUNNONLINSOL_FIXEDPOINT module, or when Classical Gram--Schmidt is
    enabled with SPGMR or SPFGMR. The remaining operations from
    :numref:`NVectors.Ops.Fused` -- :numref:`NVectors.Ops.Array` not listed above
    are unused and a user-supplied NVECTOR module for CVODE could

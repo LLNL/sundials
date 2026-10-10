@@ -978,7 +978,7 @@ Main solver optional input functions
      * ``CV_ILL_INPUT`` -- The specified value ``maxord`` is :math:`\leq 0`, or larger than its previous value.
 
    **Notes:**
-      The default value is ``ADAMS_Q_MAX = 12`` for  the Adams-Moulton method and ``BDF_Q_MAX = 5``  for the BDF method.  Since ``maxord`` affects the memory requirements  for the internal CVODE memory block, its value  cannot be increased past its previous value.
+      The default value is ``ADAMS_Q_MAX = 12`` for  the Adams--Moulton method and ``BDF_Q_MAX = 5``  for the BDF method.  Since ``maxord`` affects the memory requirements  for the internal CVODE memory block, its value  cannot be increased past its previous value.
 
       An input value greater than the default will result in the default value.
 
@@ -3277,7 +3277,7 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
 
       If the CVLS setup function failed when using another ``SUNLinearSolver``  module, then ``lsflag`` will be ``SUNLS_PSET_FAIL_UNREC``,  ``SUNLS_ASET_FAIL_UNREC``, or  ``SUN_ERR_EXT_FAIL``.
 
-      If the CVLS solve function failed (i.e., :c:func:`CVode` returned  ``CV_LSOLVE_FAIL``), then ``lsflag`` contains the error return  flag from the ``SUNLinearSolver`` object, which will be one of: ``SUN_ERR_ARG_CORRUPTRRUPT``, indicating that the ``SUNLinearSolver`` memory is ``NULL``;   ``SUNLS_ATIMES_FAIL_UNREC``, indicating an unrecoverable failure in the  Jv function; ``SUNLS_PSOLVE_FAIL_UNREC``, indicating that the preconditioner solve  function ``psolve`` failed unrecoverably;  ``SUNLS_GS_FAIL``, indicating a failure in the Gram-Schmidt  procedure (SPGMR and SPFGMR only);  ``SUNLS_QRSOL_FAIL``, indicating that the matrix R was found to be  singular during the QR solve phase (SPGMR and SPFGMR only); or  ``SUN_ERR_EXT_FAIL``, indicating an unrecoverable  failure in an external iterative linear solver package.
+      If the CVLS solve function failed (i.e., :c:func:`CVode` returned  ``CV_LSOLVE_FAIL``), then ``lsflag`` contains the error return  flag from the ``SUNLinearSolver`` object, which will be one of: ``SUN_ERR_ARG_CORRUPTRRUPT``, indicating that the ``SUNLinearSolver`` memory is ``NULL``;   ``SUNLS_ATIMES_FAIL_UNREC``, indicating an unrecoverable failure in the  Jv function; ``SUNLS_PSOLVE_FAIL_UNREC``, indicating that the preconditioner solve  function ``psolve`` failed unrecoverably;  ``SUNLS_GS_FAIL``, indicating a failure in the Gram--Schmidt  procedure (SPGMR and SPFGMR only);  ``SUNLS_QRSOL_FAIL``, indicating that the matrix R was found to be  singular during the QR solve phase (SPGMR and SPFGMR only); or  ``SUN_ERR_EXT_FAIL``, indicating an unrecoverable  failure in an external iterative linear solver package.
 
    .. versionadded:: 4.0.0
 

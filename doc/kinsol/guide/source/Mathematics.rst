@@ -166,7 +166,7 @@ first and simplest is the standard Newton strategy which applies step 2(b) as ab
 :math:`1`. The other method is a global strategy, which attempts to use the direction implied by :math:`\delta_n` in the
 most efficient way for furthering convergence of the nonlinear problem. This technique is implemented in the second
 strategy, called Linesearch. This option employs both the :math:`\alpha` and :math:`\beta` conditions of the
-Goldstein-Armijo linesearch given in :cite:p:`DeSc:96` for step 2(b), where :math:`\lambda` is chosen to
+Goldstein--Armijo linesearch given in :cite:p:`DeSc:96` for step 2(b), where :math:`\lambda` is chosen to
 guarantee a sufficient decrease in :math:`F` relative to the step length as well as a minimum step length relative to
 the initial rate of decrease of :math:`F`. One property of the algorithm is that the full Newton step tends to be taken
 close to the solution.
@@ -308,7 +308,7 @@ The increments :math:`\sigma_j` are given by
    :label: KIN_sigmaDQ_direct
 
 In the dense case, this scheme requires :math:`N` evaluations of :math:`F`, one for each column of :math:`J`. In the
-band case, the columns of :math:`J` are computed in groups, by the Curtis-Powell-Reid algorithm, with the number of
+band case, the columns of :math:`J` are computed in groups, by the Curtis--Powell--Reid algorithm, with the number of
 :math:`F` evaluations equal to the bandwidth. The parameter :math:`U` above can (optionally) be replaced by a
 user-specified value, ``relfunc``.
 
@@ -443,31 +443,31 @@ Anderson Acceleration QR Factorization
 --------------------------------------
 
 The default QR factorization routine used in Anderson acceleration is Modified
-Gram-Schmidt, a stable orthogonalization routine that requires an increasing
+Gram--Schmidt, a stable orthogonalization routine that requires an increasing
 number of synchronizations per iteration dependent upon the number of vectors
 being orthgonalized against. While practical use of Anderson acceleration only
 requires a small number of vectors to be used in the QR factorization, this
 linearly scaling number of synchronizations per iteration can yield poor
 performance when Anderson acceleration is performed in a parallel setting. To
 combat this poor performance, low synchronization QR routines are available to
-the user, in particular: Inverse Compact WY Modified Gram-Schmidt
-:cite:p:`lowSyncGMRES`, along with variants of Classical Gram-Schmidt with
+the user, in particular: Inverse Compact WY Modified Gram--Schmidt
+:cite:p:`lowSyncGMRES`, along with variants of Classical Gram--Schmidt with
 Reorthogonalization :cite:p:`hernandez2005parallel`.  While all of these QR
 factorization routines are mathematically equivalent, they do not exhibit the
 same stability when performed with floating point arithmetic or in a parallel
 setting.
 
-Inverse Compact WY Modified Gram-Schmidt, which is based on triangular solve
-variants of Gram-Schmidt that were developed within the context of GMRES, is an
+Inverse Compact WY Modified Gram--Schmidt, which is based on triangular solve
+variants of Gram--Schmidt that were developed within the context of GMRES, is an
 option that only requires two synchronizations per iteration. Additionally, it
 adds a lower triangular solve at every iteration, but this generally does not
 affect performance due to the system solve being small i.e., the number of
 vectors being orthgonalized against.
 
 The remaining orthogonalization options are based on and include Classical
-Gram-Schmidt with Reorthogonalization (CGS-2). CGS-2 only requires three
+Gram--Schmidt with Reorthogonalization (CGS-2). CGS-2 only requires three
 synchronizations per iteration, but does not exhibit the same stability as
-Modified Gram-Schmidt. Classical Gram-Schmidt with Delayed Reorthogolonization
+Modified Gram--Schmidt. Classical Gram--Schmidt with Delayed Reorthogolonization
 has the same stability as CGS-2, but it reduces the number of synchronizations
 per iteration to two.
 

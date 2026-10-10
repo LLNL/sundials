@@ -489,10 +489,10 @@ iteration and further also within a time integration, and since each of these
 iterations has its own test for convergence, the preconditioner may use a very
 crude approximation, as long as it captures the dominant numerical feature(s) of
 the system. We have found that the combination of a preconditioner with the
-Newton-Krylov iteration, using even a fairly poor approximation to the Jacobian,
+Newton--Krylov iteration, using even a fairly poor approximation to the Jacobian,
 can be surprisingly superior to using the same matrix without Krylov
 acceleration (i.e., a modified Newton iteration), as well as to using the
-Newton-Krylov method with no preconditioning.
+Newton--Krylov method with no preconditioning.
 
 .. _IDAS.Mathematics.rootfinding:
 

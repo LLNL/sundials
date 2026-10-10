@@ -55,17 +55,17 @@ KINSOL input constants
 
 .. table:: Iterative Linear Solver Constants
 
-  +----------------------+--------+---------------------------------------+
-  | Constant Name        | Value  | Description                           |
-  +======================+========+=======================================+
-  | ``SUN_PREC_NONE``    | 0      | No preconditioning                    |
-  +----------------------+--------+---------------------------------------+
-  | ``SUN_PREC_RIGHT``   | 2      | Preconditioning on the right.         |
-  +----------------------+--------+---------------------------------------+
-  | ``SUN_MODIFIED_GS``  | 1      | Use modified Gram-Schmidt procedure.  |
-  +----------------------+--------+---------------------------------------+
-  | ``SUN_CLASSICAL_GS`` | 2      | Use classical Gram-Schmidt procedure. |
-  +----------------------+--------+---------------------------------------+
+  +----------------------+--------+----------------------------------------+
+  | Constant Name        | Value  | Description                            |
+  +======================+========+========================================+
+  | ``SUN_PREC_NONE``    | 0      | No preconditioning                     |
+  +----------------------+--------+----------------------------------------+
+  | ``SUN_PREC_RIGHT``   | 2      | Preconditioning on the right.          |
+  +----------------------+--------+----------------------------------------+
+  | ``SUN_MODIFIED_GS``  | 1      | Use modified Gram--Schmidt procedure.  |
+  +----------------------+--------+----------------------------------------+
+  | ``SUN_CLASSICAL_GS`` | 2      | Use classical Gram--Schmidt procedure. |
+  +----------------------+--------+----------------------------------------+
 
 .. tabularcolumns:: |\Y{0.3}|\Y{0.1}|\Y{0.6}|
 
@@ -74,13 +74,13 @@ KINSOL input constants
   +---------------------+--------+---------------------------------------------+
   | Constant Name       | Value  | Description                                 |
   +=====================+========+=============================================+
-  | ``KIN_ORTH_MGS``    | 0      | Use Modified Gram-Schmidt for Anderson      |
+  | ``KIN_ORTH_MGS``    | 0      | Use Modified Gram--Schmidt for Anderson     |
   |                     |        | acceleration.                               |
   +---------------------+--------+---------------------------------------------+
   | ``KIN_ORTH_ICWY``   | 1      | Use Inverse Compact WY Modified             |
-  |                     |        | Gram-Schmidt for Anderson acceleration.     |
+  |                     |        | Gram--Schmidt for Anderson acceleration.    |
   +---------------------+--------+---------------------------------------------+
-  | ``KIN_ORTH_CGS2``   | 2      | Use Classical Gram-Schmidt with             |
+  | ``KIN_ORTH_CGS2``   | 2      | Use Classical Gram--Schmidt with            |
   |                     |        | Reorthogonalization (CGS-2) for Anderson    |
   |                     |        | Acceleration.                               |
   +---------------------+--------+---------------------------------------------+

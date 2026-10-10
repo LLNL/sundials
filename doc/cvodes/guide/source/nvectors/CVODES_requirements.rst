@@ -82,7 +82,7 @@ Special cases (numbers match markings in table):
 
 2. The optional function :c:func:`N_VDotProdMulti` is only used in the
    ``SUNNONLINSOL_FIXEDPOINT`` module, or when Classical
-   Gram-Schmidt is enabled with SPGMR or SPFGMR.
+   Gram--Schmidt is enabled with SPGMR or SPFGMR.
 
 3. This routine is only used when an iterative or matrix iterative
    ``SUNLinearSolver`` module is supplied to CVODES.

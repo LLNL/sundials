@@ -3153,7 +3153,7 @@ The following optional outputs are available from the IDALS modules:
       ``NULL``; ``SUNLS_ATIMES_FAIL_UNREC``, indicating an unrecoverable failure in
       the :math:`J*v` function; ``SUNLS_PSOLVE_FAIL_UNREC``, indicating that the
       preconditioner solve function ``psolve`` failed unrecoverably;
-      ``SUNLS_GS_FAIL``, indicating a failure in the Gram-Schmidt procedure
+      ``SUNLS_GS_FAIL``, indicating a failure in the Gram--Schmidt procedure
       (generated only in SPGMR or SPFGMR); ``SUNLS_QRSOL_FAIL``, indicating that
       the matrix :math:`R` was found to be singular during the QR solve phase
       (SPGMR and SPFGMR only); or ``SUN_ERR_EXT_FAIL``, indicating an

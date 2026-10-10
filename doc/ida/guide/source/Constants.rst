@@ -45,9 +45,9 @@ IDA input constants
   +----------------------+-------+---------------------------------------------------------------+
   | ``SUN_PREC_LEFT``    | 1     | Preconditioning on the left only.                             |
   +----------------------+-------+---------------------------------------------------------------+
-  | ``SUN_MODIFIED_GS``  | 1     | Use modified Gram-Schmidt procedure.                          |
+  | ``SUN_MODIFIED_GS``  | 1     | Use modified Gram--Schmidt procedure.                         |
   +----------------------+-------+---------------------------------------------------------------+
-  | ``SUN_CLASSICAL_GS`` | 2     | Use classical Gram-Schmidt procedure.                         |
+  | ``SUN_CLASSICAL_GS`` | 2     | Use classical Gram--Schmidt procedure.                        |
   +----------------------+-------+---------------------------------------------------------------+
 
 
