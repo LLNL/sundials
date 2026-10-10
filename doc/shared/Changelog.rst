@@ -124,13 +124,13 @@ extended the :ref:`SUNNonlinearSolver API <SUNNonlinSol.API>` with callback sett
 Added the ``ARKODE_SSP_ERK_3_1_2``, ``ARKODE_SSP_ERK_4_1_2``,
 ``ARKODE_SSP_ERK_4_2_3``, ``ARKODE_SSP_ERK_10_3_4``, ``ARKODE_SSP_LSPUM_ERK_3_1_2``,
 and ``ARKODE_ASCHER_ERK_3_1_2``
-embedded explicit Runge-Kutta Butcher tables.
+embedded explicit Runge--Kutta Butcher tables.
 
 Added the ``ARKODE_SSP_DIRK_3_1_2``, ``ARKODE_SSP_LSPUM_SDIRK_3_1_2``,
 ``ARKODE_ESDIRK_4_2_3``, and ``ARKODE_ASCHER_SDIRK_3_1_2`` embedded diagonally
-implicit Runge-Kutta Butcher tables.
+implicit Runge--Kutta Butcher tables.
 
-Of these, embedded additive Runge-Kutta methods may be formed using
+Of these, embedded additive Runge--Kutta methods may be formed using
 ``ARKODE_SSP_ERK_3_1_2`` + ``ARKODE_SSP_DIRK_3_1_2``,
 ``ARKODE_SSP_ERK_4_2_3`` + ``ARKODE_ESDIRK_4_2_3``,
 ``ARKODE_SSP_LSPUM_ERK_3_1_2`` + ``ARKODE_SSP_LSPUM_SDIRK_3_1_2``,
@@ -227,7 +227,7 @@ Changes to SUNDIALS in release 7.7.0
 
 **New Features and Enhancements**
 
-The default number of stages for the SSP Runge-Kutta methods
+The default number of stages for the SSP Runge--Kutta methods
 :c:enumerator:`ARKODE_LSRK_SSP_S_2` and :c:enumerator:`ARKODE_LSRK_SSP_S_3` in
 LSRKStep were changed from 10 and 9, respectively, to their minimum allowable
 values of 2 and 4. Users may revert to the previous values by calling
@@ -597,8 +597,8 @@ value of a system. Two implementations are provided: Power Iteration and Arnoldi
 Iteration. The latter method requires building with LAPACK support enabled.
 
 Added the function :c:type:`LSRKStepSetDomEigEstimator` in LSRKStep to attach a
-:c:type:`SUNDomEigEstimator`, when using Runge-Kutta-Chebyshev or
-Runge-Kutta-Legendre methods, as an alternative to supplying a user-defined
+:c:type:`SUNDomEigEstimator`, when using Runge--Kutta--Chebyshev or
+Runge--Kutta--Legendre methods, as an alternative to supplying a user-defined
 function to compute the dominant eigenvalue.
 
 Added ``SetOptions`` functions all SUNDIALS packages and the classes for
@@ -836,7 +836,7 @@ with a string. There are also four new controllers:
 :c:func:`SUNAdaptController_H211`, and :c:func:`SUNAdaptController_H312`.
 
 Added the ``ARKODE_RALSTON_3_1_2`` and ``ARKODE_TSITOURAS_7_4_5`` explicit
-Runge-Kutta Butcher tables.
+Runge--Kutta Butcher tables.
 
 Improved the precision of the coefficients for ``ARKODE_ARK324L2SA_ERK_4_2_3``,
 ``ARKODE_VERNER_9_5_6``, ``ARKODE_VERNER_10_6_7``, ``ARKODE_VERNER_13_7_8``,
@@ -1129,7 +1129,7 @@ be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
 
 Added support for Kokkos Kernels v4.
 
-Added the following Runge-Kutta Butcher tables
+Added the following Runge--Kutta Butcher tables
 
 * ``ARKODE_FORWARD_EULER_1_1``
 * ``ARKODE_RALSTON_EULER_2_1_2``
@@ -1580,9 +1580,9 @@ Changes to SUNDIALS in release 6.6.0
 
 A new time-stepping module, :ref:`SPRKStep <ARKODE.Mathematics.SPRKStep>`, was
 added to ARKODE. This time-stepper provides explicit symplectic partitioned
-Runge-Kutta methods up to order 10 for separable Hamiltonian systems.
+Runge--Kutta methods up to order 10 for separable Hamiltonian systems.
 
-Added support for relaxation Runge-Kutta methods in ERKStep and ARKStep, see
+Added support for relaxation Runge--Kutta methods in ERKStep and ARKStep, see
 :ref:`ARKODE.Mathematics.Relaxation` and :ref:`ARKODE.Usage.Relaxation` for more
 information.
 
@@ -4069,7 +4069,7 @@ Updated the BiCGStab linear solver to remove a redundant dot product call.
 
 Fixed potential memory leak in KLU ``ReInit`` functions in all solvers.
 
-In ARKODE, fixed a bug in the Cash-Karp Butcher table where the method and
+In ARKODE, fixed a bug in the Cash--Karp Butcher table where the method and
 embedding coefficient were swapped.
 
 In ARKODE, fixed error in ``arkDoErrorTest`` in recovery after failure.
@@ -4112,7 +4112,7 @@ considered more widely portable.
 
 **New Package: ARKODE**
 
-Addition of ARKODE package of explicit, implicit, and additive Runge-Kutta
+Addition of ARKODE package of explicit, implicit, and additive Runge--Kutta
 methods for ODEs. This package API is close to CVODE so switching between the
 two should be straightforward. Thanks go to Daniel Reynolds for the addition
 of this package.

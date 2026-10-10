@@ -5008,7 +5008,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
       routine was provided,
       *SUNLS_PSOLVE_FAIL_UNREC*, indicating that the preconditioner solve
       function failed unrecoverably;
-      *SUNLS_GS_FAIL*, indicating a failure in the Gram-Schmidt procedure
+      *SUNLS_GS_FAIL*, indicating a failure in the Gram--Schmidt procedure
       (SPGMR and SPFGMR only);
       *SUNLS_QRSOL_FAIL*, indicating that the matrix :math:`R` was found
       to be singular during the QR solve phase (SPGMR and SPFGMR only); or

@@ -99,7 +99,7 @@ user-callable routines:
 
 .. c:function:: SUNErrCode SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
 
-   This function sets the type of Gram-Schmidt orthogonalization to use.
+   This function sets the type of Gram--Schmidt orthogonalization to use.
 
    **Arguments:**
       * *S* -- SUNLinSol_SPGMR object to update.
@@ -175,8 +175,8 @@ information:
 * ``pretype`` - flag for type of preconditioning to employ
   (default is none),
 
-* ``gstype`` - flag for type of Gram-Schmidt orthogonalization
-  (default is modified Gram-Schmidt),
+* ``gstype`` - flag for type of Gram--Schmidt orthogonalization
+  (default is modified Gram--Schmidt),
 
 * ``max_restarts`` - number of GMRES restarts to allow
   (default is 0),

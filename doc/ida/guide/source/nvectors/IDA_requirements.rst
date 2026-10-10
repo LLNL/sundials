@@ -94,7 +94,7 @@ Special cases (numbers match markings in table):
 1. These routines are only required if an internal difference-quotient routine for constructing
    :ref:`SUNMATRIX_DENSE <SUNMatrix.Dense>` or :ref:`SUNMATRIX_BAND <SUNMatrix.Band>` Jacobian matrices is used.
 
-2. The optional function ``N_VDotProdMulti`` is only used when Classical Gram-Schmidt is enabled
+2. The optional function ``N_VDotProdMulti`` is only used when Classical Gram--Schmidt is enabled
    with SPGMR or SPFGMR. The remaining operations from Tables :numref:`NVectors.Ops.Fused` and
    :numref:`NVectors.Ops.Array` not listed above are unused and a user-supplied
    ``N_Vector`` module for IDA could omit these operations.
