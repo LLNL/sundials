@@ -718,7 +718,7 @@ user-defined projection function, call the following set function:
 CVODE solver function
 ~~~~~~~~~~~~~~~~~~~~~
 
-This is the central step in the solution process -- the call to perform
+This is the central step in the solution process, the call to perform
 the integration of the IVP. One of the input arguments (``itask``) specifies one
 of two modes as to where CVODE is to return a solution. But these
 modes are modified if the user has set a stop time (with :c:func:`CVodeSetStopTime`) or requested

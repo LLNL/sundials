@@ -340,7 +340,7 @@ The increment :math:`\sigma` is :math:`1/\|v\|_{\text{WRMS}}`, so that
 Local Error Test
 ----------------
 
-A critical part of CVODES -- making it an ODE "solver" rather than
+A critical part of CVODES, making it an ODE "solver" rather than
 just an ODE method, is its control of local error. At every step, the
 local error is estimated and required to satisfy tolerance conditions,
 and the step is redone with reduced step size whenever that error test
