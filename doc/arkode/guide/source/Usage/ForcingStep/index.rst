@@ -29,10 +29,6 @@ ForcingStep. A skeleton of a program using ForcingStep follows essentially the
 same structure as SplittingStep (see
 :numref:`ARKODE.Usage.SplittingStep.Skeleton`).
 
-This section describes the ForcingStep-specific functions that may be called by
-the user to setup and then solve an IVP using the ForcingStep time-stepping
-module.
-
 As discussed in the main :ref:`ARKODE user-callable function introduction
 <ARKODE.Usage.UserCallable>`, each of ARKODE's time-stepping modules clarifies
 the categories of user-callable functions that it supports.  ForcingStep does
