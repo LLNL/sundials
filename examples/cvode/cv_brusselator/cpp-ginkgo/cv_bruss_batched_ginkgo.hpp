@@ -18,7 +18,8 @@
  * See cv_bruss_batched_ginkgo.cpp for more information.
  * ---------------------------------------------------------------------------*/
 
-#pragma once
+#ifndef SUNDIALS_CV_BRUSS_BATCHED_GINKGO_HPP
+#define SUNDIALS_CV_BRUSS_BATCHED_GINKGO_HPP
 
 #include <cstdio>
 #include <memory>
@@ -96,3 +97,5 @@ int f_gpu(sunrealtype t, N_Vector y, N_Vector ydot, UserData* udata);
 int Jac_gpu(N_Vector y, SUNMatrix J, UserData* udata);
 int JacVec_gpu(N_Vector v, N_Vector Jv, N_Vector y, UserData* udata);
 #endif
+
+#endif // SUNDIALS_CV_BRUSS_BATCHED_GINKGO_HPP

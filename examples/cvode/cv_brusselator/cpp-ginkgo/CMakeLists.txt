@@ -13,53 +13,10 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 # CVODE Ginkgo batched Brusselator example
-foreach(backend REF OMP CUDA HIP SYCL)
-  if(NOT SUNDIALS_GINKGO_BACKENDS MATCHES "${backend}")
-    continue()
-  endif()
-
-  set(float_precision default)
-  set(sources cv_bruss_batched_ginkgo.cpp)
-  if(backend MATCHES "CUDA")
-    set(vector nveccuda)
-    set_source_files_properties(cv_bruss_batched_ginkgo_gpu.cpp
-                                PROPERTIES LANGUAGE CUDA)
-    list(APPEND sources cv_bruss_batched_ginkgo_gpu.cpp)
-    set(float_precision 4)
-  elseif(backend MATCHES "HIP")
-    set(vector nvechip)
-    get_property(enabled_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
-    if(HIP IN_LIST enabled_languages)
-      set_source_files_properties(cv_bruss_batched_ginkgo_gpu.cpp
-                                  PROPERTIES LANGUAGE HIP)
-    endif()
-    list(APPEND sources cv_bruss_batched_ginkgo_gpu.cpp)
-  elseif(backend MATCHES "SYCL")
-    set(vector nvecsycl)
-  elseif(backend MATCHES "OMP")
-    set(vector nvecopenmp)
-  else()
-    set(vector nvecserial)
-  endif()
-
-  set(example_target cv_bruss_batched_ginkgo.${backend})
-  set(example_options)
-  if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${example_target}.out")
-    message(
-      STATUS
-        "No answer file for ${example_target}; running without output comparison"
-    )
-    list(APPEND example_options NODIFF)
-  endif()
-  sundials_add_example(
-    ${example_target} ${sources} ${example_options}
-    FLOAT_PRECISION ${float_precision}
-    INSTALL_FILES
-      cv_bruss_batched_ginkgo.hpp cv_bruss_batched_ginkgo_gpu.cpp
-      cv_bruss_batched_ginkgo_gpu.hpp
-      "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
-    LINK_LIBRARIES PRIVATE ${CVODE_C_LIBS} sundials_${vector} Ginkgo::ginkgo
-                   ${EXE_EXTRA_LINK_LIBS}
-    INCLUDE_DIRECTORIES PRIVATE ${PROJECT_SOURCE_DIR}/examples/utilities
-    COMPILE_DEFINITIONS PRIVATE USE_${backend})
-endforeach()
+set(cpu_examples "cv_bruss_batched_ginkgo.cpp\;\;develop")
+sundials_add_examples_ginkgo(
+  cpu_examples
+  TARGETS ${CVODE_C_LIBS}
+  BACKENDS REF OMP
+  INSTALL_FILES cv_bruss_batched_ginkgo.hpp
+                "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp")

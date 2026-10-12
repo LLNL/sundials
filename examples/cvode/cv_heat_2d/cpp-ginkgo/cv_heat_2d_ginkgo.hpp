@@ -18,7 +18,8 @@
  * See cv_heat_2d_ginkgo.cpp for more information.
  * ---------------------------------------------------------------------------*/
 
-#pragma once
+#ifndef SUNDIALS_CV_HEAT_2D_GINKGO_HPP
+#define SUNDIALS_CV_HEAT_2D_GINKGO_HPP
 
 #include <cmath>
 #include <cstdio>
@@ -392,3 +393,5 @@ static int CloseOutput(UserData& udata)
 
   return 0;
 }
+
+#endif // SUNDIALS_CV_HEAT_2D_GINKGO_HPP

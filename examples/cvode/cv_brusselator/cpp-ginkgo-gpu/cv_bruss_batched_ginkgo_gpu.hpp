@@ -15,7 +15,8 @@
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------------------*/
 
-#pragma once
+#ifndef SUNDIALS_CV_BRUSS_BATCHED_GINKGO_GPU_HPP
+#define SUNDIALS_CV_BRUSS_BATCHED_GINKGO_GPU_HPP
 
 #include <cstdio>
 
@@ -251,3 +252,5 @@ int JacVec_gpu(N_Vector v, N_Vector Jv, N_Vector y, UserData* udata)
 #undef GPU_GET_LAST_ERROR
 #undef GPU_SUCCESS
 #undef GPU_GET_ERROR_NAME
+
+#endif // SUNDIALS_CV_BRUSS_BATCHED_GINKGO_GPU_HPP

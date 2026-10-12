@@ -15,7 +15,8 @@
  * SUNDIALS Copyright End
  * ---------------------------------------------------------------------------*/
 
-#pragma once
+#ifndef SUNDIALS_CV_HEAT_2D_GINKGO_GPU_HPP
+#define SUNDIALS_CV_HEAT_2D_GINKGO_GPU_HPP
 
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 
@@ -296,3 +297,5 @@ void copy_from_device_gpu(N_Vector v) { N_VCopyFromDevice_GPU(v); }
 #undef GPU_GET_LAST_ERROR
 #undef GPU_SUCCESS
 #undef GPU_GET_ERROR_NAME
+
+#endif // SUNDIALS_CV_HEAT_2D_GINKGO_GPU_HPP
