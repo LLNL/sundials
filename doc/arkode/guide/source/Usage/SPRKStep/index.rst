@@ -24,9 +24,6 @@ the solution of initial value problems (IVPs) in a C or C++ language setting.
 Usage of SPRKStep follows that of the rest of ARKODE, and so in this section we
 primarily focus on those usage aspects that are specific to SPRKStep.
 
-This section describes the SPRKStep-specific functions that may be called by the
-user to setup and then solve an IVP using the SPRKStep time-stepping module.
-
 As discussed in the main :ref:`ARKODE user-callable function introduction
 <ARKODE.Usage.UserCallable>`, each of ARKODE's time-stepping modules clarifies
 the categories of user-callable functions that it supports.  SPRKStep supports

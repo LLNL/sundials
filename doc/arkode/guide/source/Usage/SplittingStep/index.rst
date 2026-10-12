@@ -27,10 +27,6 @@ setting.  Usage of SplittingStep follows that of the rest of ARKODE, and so in
 this section we primarily focus on those usage aspects that are specific to
 SplittingStep.
 
-This section describes the SplittingStep-specific functions that may be called
-by the user to setup and then solve an IVP using the SplittingStep time-stepping
-module.
-
 As discussed in the main :ref:`ARKODE user-callable function introduction
 <ARKODE.Usage.UserCallable>`, each of ARKODE's time-stepping modules clarifies
 the categories of user-callable functions that it supports.  SplittingStep does

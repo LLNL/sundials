@@ -30,8 +30,8 @@ the function to be called or macro to be referenced.
 
 .. _ARKODE.Usage.ARKStep.Skeleton:
 
-ARKStep, ERKStep, ForcingStep, LSRKStep, and SPRKStep
------------------------------------------------------
+ARKStep, ERKStep, LSRKStep, and SPRKStep
+----------------------------------------
 
 .. index:: User main program
 
