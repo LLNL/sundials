@@ -21,17 +21,10 @@
 Using the LSRKStep time-stepping module
 =======================================
 
-This section is concerned with the use of the LSRKStep time-stepping
-module for the solution of initial value problems (IVPs) in a C or C++
-language setting.  Usage of LSRKStep follows that of the rest of ARKODE,
-and so in this section we primarily focus on those usage aspects that
-are specific to LSRKStep.
-
-This section describes the LSRKStep-specific functions that may be called by the
-user to setup and then solve an IVP using the LSRKStep time-stepping module.  As
-mentioned in Section :numref:`ARKODE.Usage.UserCallable`, shared ARKODE-level
-routines may be used for the large majority of LSRKStep configuration and use.
-In this section, we describe only those routines that are specific to LSRKStep.
+This section is concerned with the use of the LSRKStep time-stepping module for
+the solution of initial value problems (IVPs) in a C or C++ language setting.
+Usage of LSRKStep follows that of the rest of ARKODE, and so in this section we
+primarily focus on those usage aspects that are specific to LSRKStep.
 
 As discussed in the main :ref:`ARKODE user-callable function introduction
 <ARKODE.Usage.UserCallable>`, each of ARKODE's time-stepping modules clarifies
