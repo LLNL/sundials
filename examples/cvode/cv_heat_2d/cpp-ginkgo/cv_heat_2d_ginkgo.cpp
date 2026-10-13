@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 #if defined(USE_OMP)
   auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
   int num_threads = omp_num_threads_var ? std::atoi(omp_num_threads_var) : 1;
-  N_Vector u = N_VNew_OpenMP(udata.nodes, num_threads, sunctx);
+  N_Vector u      = N_VNew_OpenMP(udata.nodes, num_threads, sunctx);
   if (check_ptr(u, "N_VNew_OpenMP")) { return 1; }
 #else
   N_Vector u = N_VNew_Serial(udata.nodes, sunctx);
