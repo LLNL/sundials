@@ -37,6 +37,9 @@ stages:
   stage: build-and-test
   interruptible: true # Allows jobs to be canceled if a newer commit is pushed
   rules:
+    # Scheduled pipelines.
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
     # Direct pushes to the mirrored develop branch.
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "develop"'
       when: always
@@ -73,13 +76,19 @@ stages:
     paths:
       - test/build_*/
 
+.test-artifacts-python:
+  artifacts:
+    when: on_failure
+    paths:
+      - pytest-report.xml
+
 NVIDIA-RTX5080:
   extends: [.common-setup, .test-artifacts]
   tags: [uo-gpu, nvidia-rtx5080, x86_64-nvidiagpu]
   image: nvcr.io/nvidia/cuda:13.3.0-devel-ubuntu26.04
   timeout: 2h
   script:
-    - apt-get update && apt-get install -y build-essential cmake git python3
+    - apt-get update && apt-get install -y --no-install-recommends build-essential cmake git python3
     - export SUNDIALS_CUDA=ON
     - export CUDACXX=$(command -v nvcc)
     - cd ${CI_PROJECT_DIR}/test
@@ -89,17 +98,17 @@ NVIDIA-RTX5080:
       --testjobs 1
 
 NVIDIA-RTX5080-SUNDIALS4PY:
-  extends: [.common-setup, .test-artifacts]
+  extends: [.common-setup, .test-artifacts-python]
   tags: [uo-gpu, nvidia-rtx5080, x86_64-nvidiagpu]
   image: nvcr.io/nvidia/cuda:13.3.0-devel-ubuntu26.04
   timeout: 2h
   script:
-    - apt-get update && apt-get install -y build-essential git python3 python3-dev python3-pip
+    - apt-get update && apt-get install -y --no-install-recommends build-essential git python3 python3-dev python3-pip
     - export CUDACXX=$(command -v nvcc)
     - export CMAKE_ARGS="-DSUNDIALS_ENABLE_CUDA=ON"
     - python3 -m pip install --break-system-packages "cupy-cuda13x" "jax[cuda13]" "pytest" ".[dev]"
     - python3 -m pip install --break-system-packages torch --index-url https://download.pytorch.org/whl/cu128
-    - python3 -m pytest -q bindings/sundials4py/test
+    - python3 -m pytest -q --junitxml=pytest-report.xml bindings/sundials4py/test
 
 NVIDIA-GH200:
   extends: [.common-setup, .test-artifacts]
@@ -107,7 +116,7 @@ NVIDIA-GH200:
   image: nvcr.io/nvidia/cuda:13.1.0-devel-ubuntu24.04
   timeout: 2h
   script:
-    - apt-get update && apt-get install -y build-essential cmake git python3
+    - apt-get update && apt-get install -y --no-install-recommends build-essential cmake git python3
     - export SUNDIALS_CUDA=ON
     - export CUDACXX=$(command -v nvcc)
     - cd ${CI_PROJECT_DIR}/test
@@ -122,7 +131,7 @@ NVIDIA-GRACE-GRACE:
   image: ubuntu:latest
   timeout: 2h
   script:
-    - apt-get update && apt-get install -y build-essential cmake git python3
+    - apt-get update && apt-get install -y --no-install-recommends build-essential cmake git python3
     - cd ${CI_PROJECT_DIR}/test
     - >-
       ./test_driver.sh --testtype CUSTOM --env env/uoregon.sh --tpls OFF
@@ -135,7 +144,7 @@ NVIDIA-DGX-SPARK:
   image: nvcr.io/nvidia/cuda:13.1.1-devel-ubuntu24.04
   timeout: 2h
   script:
-    - apt-get update && apt-get install -y build-essential cmake git python3
+    - apt-get update && apt-get install -y --no-install-recommends build-essential cmake git python3
     - export SUNDIALS_CUDA=ON
     - export CUDACXX=$(command -v nvcc)
     - cd ${CI_PROJECT_DIR}/test
@@ -150,7 +159,7 @@ INTEL-DATA-CENTER-MAX-1100:
   image: intel/oneapi:2026.0.0-devel-ubuntu24.04
   timeout: 2h
   script:
-    - apt-get update && apt-get install -y build-essential cmake git python3 intel-ocloc
+    - apt-get update && apt-get install -y --no-install-recommends build-essential cmake git python3 intel-ocloc
     - sycl-ls
     - export ONEAPI_DEVICE_SELECTOR=level_zero:gpu
     - export CC=$(command -v icx)
@@ -169,7 +178,7 @@ AMD-MI300A:
   image: rocm/dev-ubuntu-26.04:7.14.0-full
   timeout: 2h
   script:
-    - apt-get update && apt-get install -y build-essential cmake git python3
+    - apt-get update && apt-get install -y --no-install-recommends build-essential cmake git python3
     - export HSA_XNACK=1
     - export HIP_VISIBLE_DEVICES=3
     - export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}

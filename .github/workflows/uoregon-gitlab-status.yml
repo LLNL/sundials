@@ -38,6 +38,7 @@ jobs:
 
           STATUS_CONTEXT: gitlab/uoregon
           POLL_TIMEOUT_SECONDS: "7200"
+          DISCOVERY_TIMEOUT_SECONDS: "600"
           POLL_INTERVAL_SECONDS: "30"
 
         run: |
@@ -147,9 +148,17 @@ jobs:
           fi
 
           deadline=$((SECONDS + POLL_TIMEOUT_SECONDS))
+          discovery_deadline=$((SECONDS + DISCOVERY_TIMEOUT_SECONDS))
 
           while (( SECONDS < deadline )); do
             if [[ -z "${pipeline_id}" ]]; then
+              if (( SECONDS >= discovery_deadline )); then
+                finish \
+                  error \
+                  "Timed out waiting for the GitLab UOregon pipeline to be created" \
+                  1
+              fi
+
               query_args=(
                 --get
                 --data-urlencode "sha=${COMMIT_SHA}"
@@ -217,11 +226,15 @@ jobs:
                 continue
               fi
 
-              pipeline_id="$(
+              if ! pipeline_id="$(
                 jq -er \
                   '.id | select(. != null) | tostring' \
                   <<< "${pipeline}"
-              )"
+              )"; then
+                pipeline_id=""
+                sleep "${POLL_INTERVAL_SECONDS}"
+                continue
+              fi
 
               echo "Monitoring GitLab pipeline ${pipeline_id}"
             else
@@ -234,11 +247,14 @@ jobs:
               fi
             fi
 
-            status="$(
+            if ! status="$(
               jq -er \
                 '.status | select(type == "string")' \
                 <<< "${pipeline}"
-            )"
+            )"; then
+              sleep "${POLL_INTERVAL_SECONDS}"
+              continue
+            fi
 
             pipeline_url="$(
               jq -r '.web_url // empty' <<< "${pipeline}"
