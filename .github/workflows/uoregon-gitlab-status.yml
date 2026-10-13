@@ -19,7 +19,7 @@ jobs:
   gitlab-pipeline:
     runs-on: ubuntu-latest
     environment: delayed-30-minutes 
-timeout-minutes: 125
+    timeout-minutes: 125
 
     steps:
       - name: Wait for GitLab pipeline
@@ -191,6 +191,7 @@ timeout-minutes: 125
                         | if $branch == "develop" then
                             select(.ref == "develop")
                           else
+                            select(
                               .ref == $branch
                               or (
                                 ($prefix != "")
@@ -199,6 +200,7 @@ timeout-minutes: 125
                                   or ((.ref // "") | startswith($prefix))
                                 )
                               )
+                            )
                           end
                       ]
                       | sort_by(.id)

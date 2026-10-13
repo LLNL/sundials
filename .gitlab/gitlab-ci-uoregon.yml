@@ -172,7 +172,7 @@ AMD-MI300A:
     - apt-get update && apt-get install -y build-essential cmake git python3
     - export HSA_XNACK=1
     - export HIP_VISIBLE_DEVICES=3
-    - export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/lib64:${LD_LIBRARY_PATH}
+    - export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
     - export CXX=$(command -v hipcc)
     - export SUNDIALS_HIP=ON
     - cd ${CI_PROJECT_DIR}/test
