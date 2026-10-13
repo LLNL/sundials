@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * Example problem for IDASS: 2D heat equation, serial, sparse.
+ * Example problem for IDAS: 2D heat equation, serial, sparse.
  *
  * This example solves a discretized 2D heat equation problem.
  * This version uses the KLU solver and IDACalcIC.

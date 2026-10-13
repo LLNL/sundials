@@ -49,7 +49,7 @@ of linear solver modules available to IDAS will expand as new ``SUNLinearSolver`
 implementations are developed.
 
 For users employing :ref:`SUNMATRIX_DENSE <SUNMatrix.Dense>` or
-:ref:`SUNMATRIX_BAND <SUNMatrix.Band>` Jacobian matrices, CVODES includes
+:ref:`SUNMATRIX_BAND <SUNMatrix.Band>` Jacobian matrices, IDAS includes
 algorithms for their approximation through difference quotients, although the
 user also has the option of supplying a routine to compute the Jacobian (or an
 approximation to it) directly. For users employing
@@ -57,7 +57,7 @@ approximation to it) directly. For users employing
 IDAS includes an algorithm for approximating the Jacobian through difference
 quotients, although the user also has the option of supplying a routine to
 compute the Jacobian (or an approximation to it) directly.  When the CSC sparse
-Jacobian is to be approximated, however, the CVODES linear solver interface must
+Jacobian is to be approximated, however, the IDAS linear solver interface must
 be initialized with a template Jacobian matrix that already encodes the sparsity
 pattern for the Jacobian -- the entries themselves may be arbitrary, but the
 sparsity pattern must be correct.
