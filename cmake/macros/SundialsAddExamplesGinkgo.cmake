@@ -76,27 +76,10 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
       endif()
 
       # extract the file name without extension
-      get_filename_component(example_basename ${example} NAME_WE)
       get_filename_component(example_target ${example} NAME_WE)
       set(example_target "${example_target}.${backend}")
       set(example_utilities_dir "${PROJECT_SOURCE_DIR}/examples/utilities")
       set(example_sources ${example})
-
-      if(backend MATCHES "CUDA" OR backend MATCHES "HIP")
-        set(gpu_source
-            "${CMAKE_CURRENT_SOURCE_DIR}/${example_basename}_gpu.cpp")
-        if(EXISTS "${gpu_source}")
-          if(backend MATCHES "CUDA")
-            set_source_files_properties(${gpu_source} PROPERTIES LANGUAGE CUDA)
-          elseif(backend MATCHES "HIP")
-            get_property(enabled_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
-            if(HIP IN_LIST enabled_languages)
-              set_source_files_properties(${gpu_source} PROPERTIES LANGUAGE HIP)
-            endif()
-          endif()
-          list(APPEND example_sources ${gpu_source})
-        endif()
-      endif()
 
       # check if example args are provided and set the test name
       if("${example_args}" STREQUAL "")

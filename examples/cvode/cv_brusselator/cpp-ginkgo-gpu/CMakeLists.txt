@@ -13,15 +13,20 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 # CVODE Ginkgo batched Brusselator example with GPU backends
-set(gpu_examples "../cpp-ginkgo/cv_bruss_batched_ginkgo.cpp\;\;develop")
+if(SUNDIALS_GINKGO_BACKENDS MATCHES "CUDA")
+  set_source_files_properties(cv_bruss_batched_ginkgo.cpp PROPERTIES LANGUAGE
+                                                                     CUDA)
+elseif(SUNDIALS_GINKGO_BACKENDS MATCHES "HIP")
+  get_property(enabled_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
+  if(HIP IN_LIST enabled_languages)
+    set_source_files_properties(cv_bruss_batched_ginkgo.cpp PROPERTIES LANGUAGE
+                                                                       HIP)
+  endif()
+endif()
+
+set(gpu_examples "cv_bruss_batched_ginkgo.cpp\;\;develop")
 sundials_add_examples_ginkgo(
   gpu_examples
   TARGETS ${CVODE_C_LIBS}
-  BACKENDS CUDA
-           HIP
-           INSTALL_FILES
-           ../cpp-ginkgo/cv_bruss_batched_ginkgo.hpp
-           cv_bruss_batched_ginkgo_gpu.hpp
-           "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
-           INCLUDE_DIRECTORIES
-           "${CMAKE_CURRENT_SOURCE_DIR}/../cpp-ginkgo")
+  BACKENDS CUDA HIP INSTALL_FILES cv_bruss_batched_ginkgo.hpp
+           "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp")

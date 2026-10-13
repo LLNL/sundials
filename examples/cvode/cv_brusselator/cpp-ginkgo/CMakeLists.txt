@@ -12,7 +12,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-# CVODE Ginkgo batched Brusselator example
+# CVODE Ginkgo batched Brusselator example with CPU backends
 set(cpu_examples "cv_bruss_batched_ginkgo.cpp\;\;develop")
 sundials_add_examples_ginkgo(
   cpu_examples

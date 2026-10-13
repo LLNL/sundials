@@ -97,7 +97,6 @@ static int JacVec(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
                   N_Vector fy, void* user_data, N_Vector tmp);
 
 /* Private functions which implement the actual operators on the CPU. */
-#if !defined(USE_CUDA) && !defined(USE_HIP)
 static void f_kernel(sunrealtype t, sunrealtype* y, sunrealtype* ydot,
                      sunrealtype* A, sunrealtype* B, sunrealtype* Ep, int neq,
                      int num_batches, int batch_size);
@@ -109,9 +108,7 @@ static void j_kernel(sunrealtype* ydata, sunrealtype* Jdata, sunrealtype* A,
 static void jv_kernel(sunrealtype* vdata, sunrealtype* Jvdata, sunrealtype* ydata,
                       sunrealtype* A, sunrealtype* B, sunrealtype* Ep, int neq,
                       int num_batches, int batch_size, int nnzper);
-#endif
 
-#if !defined(USE_CUDA) && !defined(USE_HIP)
 N_Vector create_vector(sunindextype length, SUNContext sunctx)
 {
   return N_VNew_Serial(length, sunctx);
@@ -121,7 +118,6 @@ SUNMemoryHelper create_memory_helper(SUNContext sunctx)
 {
   return SUNMemoryHelper_Sys(sunctx);
 }
-#endif
 
 /* Private function to initialize the Jacobian sparsity pattern */
 static int JacInit(SUNMatrix J);
@@ -159,18 +155,13 @@ int main(int argc, char* argv[])
   sundials::Context sunctx;
 
   /* Create the Ginkgo executor */
-#if defined(USE_CUDA)
-  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create())};
-#elif defined(USE_HIP)
-  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create())};
-#elif defined(USE_OMP)
+#if defined(USE_OMP)
   auto gko_exec{gko::OmpExecutor::create()};
 #else
   auto gko_exec{gko::ReferenceExecutor::create()};
 #endif
 
-  /* Create a SUNMemoryHelper for HIP or CUDA depending on the target.
-     This will be used underneath the Arrays. */
+  /* Create a SUNMemoryHelper for the user data arrays. */
   SUNMemoryHelper memhelper = create_memory_helper(sunctx);
 
   /* Set defaults */
@@ -235,7 +226,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  /* Create CUDA or HIP vector of length neq for I.C. and abstol vector */
+  /* Create a vector of length neq for I.C. and the abstol vector */
   N_Vector y = create_vector(udata.neq, sunctx);
   if (check_retval((void*)y, "N_VNew", 0)) { return 1; }
 
@@ -399,39 +390,6 @@ int JacInit(SUNMatrix J)
   sunindextype* colvals = Jgko->get_col_idxs();
   if (colvals == nullptr) { return -1; }
 
-#if defined(USE_CUDA) || defined(USE_HIP)
-
-  sunindextype rowptrs_host[4];
-
-  /* there are 3 entries per row */
-  rowptrs_host[0] = 0;
-  rowptrs_host[1] = 3;
-  rowptrs_host[2] = 6;
-  rowptrs_host[3] = 9;
-
-  gko_exec->copy_from(gko_exec->get_master(), 4, rowptrs_host, rowptrs);
-
-  sunindextype colvals_host[9];
-
-  /* first row of batch */
-  colvals_host[0] = 0;
-  colvals_host[1] = 1;
-  colvals_host[2] = 2;
-
-  /* second row of batch */
-  colvals_host[3] = 0;
-  colvals_host[4] = 1;
-  colvals_host[5] = 2;
-
-  /* third row of batch */
-  colvals_host[6] = 0;
-  colvals_host[7] = 1;
-  colvals_host[8] = 2;
-
-  gko_exec->copy_from(gko_exec->get_master(), 9, colvals_host, colvals);
-
-#else
-
   /* there are 3 entries per row */
   rowptrs[0] = 0;
   rowptrs[1] = 3;
@@ -453,8 +411,6 @@ int JacInit(SUNMatrix J)
   colvals[7] = 1;
   colvals[8] = 2;
 
-#endif
-
   return 0;
 }
 
@@ -464,31 +420,23 @@ int JacInit(SUNMatrix J)
  *-------------------------------
  */
 
-/* Right hand side function. This just launches the CUDA or HIP kernel
-   to do the actual computation. At the very least, doing this
-   saves moving the vector data in y and ydot to/from the device
-   every evaluation of f. */
+/* Right hand side function. */
 int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata;
 
   udata = (UserData*)user_data;
 
-#if defined(USE_CUDA) || defined(USE_HIP)
-  return f_gpu(t, y, ydot, udata);
-#else
   sunrealtype* ydata    = N_VGetArrayPointer(y);
   sunrealtype* ydotdata = N_VGetArrayPointer(ydot);
   f_kernel(t, ydata, ydotdata, udata->a.get(), udata->b.get(), udata->ep.get(),
            udata->neq, udata->num_batches, udata->batch_size);
-#endif
 
   return 0;
 }
 
 /*
  * Jacobian routine. Compute J(t,y) = df/dy.
- * This is done on the GPU.
  */
 
 int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
@@ -496,15 +444,11 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
 {
   UserData* udata = (UserData*)user_data;
 
-#if defined(USE_CUDA) || defined(USE_HIP)
-  return Jac_gpu(y, J, udata);
-#else
   auto Jgko          = static_cast<SUNGkoMatrixType*>(J->content)->GkoMtx();
   sunrealtype* Jdata = Jgko->get_values();
   sunrealtype* ydata = N_VGetArrayPointer(y);
   j_kernel(ydata, Jdata, udata->a.get(), udata->b.get(), udata->ep.get(),
            udata->neq, udata->num_batches, udata->batch_size, udata->nnzper);
-#endif
 
   return 0;
 }
@@ -514,20 +458,15 @@ int JacVec(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, N_Vector fy,
 {
   UserData* udata = (UserData*)user_data;
 
-#if defined(USE_CUDA) || defined(USE_HIP)
-  return JacVec_gpu(v, Jv, y, udata);
-#else
   sunrealtype* vdata  = N_VGetArrayPointer(v);
   sunrealtype* Jvdata = N_VGetArrayPointer(Jv);
   sunrealtype* ydata  = N_VGetArrayPointer(y);
   jv_kernel(vdata, Jvdata, ydata, udata->a.get(), udata->b.get(), udata->ep.get(),
             udata->neq, udata->num_batches, udata->batch_size, udata->nnzper);
-#endif
 
   return 0;
 }
 
-#if !defined(USE_CUDA) && !defined(USE_HIP)
 void f_kernel(sunrealtype t, sunrealtype* ydata, sunrealtype* ydotdata,
               sunrealtype* A, sunrealtype* B, sunrealtype* Ep, int neq,
               int num_batches, int batch_size)
@@ -615,7 +554,6 @@ void jv_kernel(sunrealtype* vdata, sunrealtype* Jvdata, sunrealtype* ydata,
     Jvdata[batch_size * batchj + 2] += (-1.0 / ep - u) * v2;
   }
 }
-#endif
 
 /*
  *-------------------------------

@@ -13,14 +13,44 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
+ * -----------------------------------------------------------------------------
+ * Example problem:
+ *
+ * The following test simulates a simple anisotropic 2D heat equation,
+ *
+ *   u_t = kx u_xx + ky u_yy + b,
+ *
+ * for t in [0, 1] and (x,y) in [0, 1]^2, with initial conditions
+ *
+ *   u(0,x,y) = sin^2(pi x) sin^2(pi y) + 1,
+ *
+ * stationary boundary conditions
+ *
+ *   u_t(t,0,y) = u_t(t,1,y) = u_t(t,x,0) = u_t(t,x,1) = 0,
+ *
+ * and the heat source
+ *
+ *   b(t,x,y) = -2 pi sin^2(pi x) sin^2(pi y) sin(pi t) cos(pi t)
+ *              - kx 2 pi^2 (cos^2(pi x) - sin^2(pi x)) sin^2(pi y) cos^2(pi t)
+ *              - ky 2 pi^2 (cos^2(pi y) - sin^2(pi y)) sin^2(pi x) cos^2(pi t).
+ *
+ * Under this setup, the problem has the analytical solution
+ *
+ *    u(t,x,y) = sin^2(pi x) sin^2(pi y) cos^2(pi t) + 1.
+ *
+ * The spatial derivatives are computed using second-order centered differences,
+ * with the data distributed over nx * ny points on a uniform spatial grid. The
+ * problem is advanced in time with BDF methods using an inexact Newton method
+ * paired with the CG linear solver from Ginkgo. Several command line options
+ * are available to change the problem parameters and CVODE settings. Use the
+ * flag
+ * --help for more information.
  * ---------------------------------------------------------------------------*/
 
-#ifndef SUNDIALS_CV_HEAT_2D_GINKGO_GPU_HPP
-#define SUNDIALS_CV_HEAT_2D_GINKGO_GPU_HPP
+// Include user data structure and utility functions for this problem
+#include "cv_heat_2d_ginkgo.hpp"
 
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
-
-#include "cv_heat_2d_ginkgo.hpp"
 
 #if defined(USE_CUDA)
 #include <nvector/nvector_cuda.h>
@@ -298,4 +328,236 @@ void copy_from_device_gpu(N_Vector v) { N_VCopyFromDevice_GPU(v); }
 #undef GPU_SUCCESS
 #undef GPU_GET_ERROR_NAME
 
-#endif // SUNDIALS_CV_HEAT_2D_GINKGO_GPU_HPP
+// Include integrator, vector, matrix, and linear solver headers
+#include <cvode/cvode.h>
+#include <sundials/sundials_core.hpp>
+#include <sunlinsol/sunlinsol_ginkgo.hpp>
+#include <sunmatrix/sunmatrix_ginkgo.hpp>
+
+using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
+using GkoSolverType = gko::solver::Cg<sunrealtype>;
+
+using SUNGkoMatrixType = sundials::ginkgo::Matrix<GkoMatrixType>;
+using SUNGkoSolverType =
+  sundials::ginkgo::LinearSolver<GkoSolverType, GkoMatrixType>;
+
+// -----------------------------------------------------------------------------
+// Functions provided to the SUNDIALS integrator
+// -----------------------------------------------------------------------------
+
+// ODE right hand side function
+int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
+
+// Jacobian of RHS function
+int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
+      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+
+// -----------------------------------------------------------------------------
+// Main Program
+// -----------------------------------------------------------------------------
+
+int main(int argc, char* argv[])
+{
+  // SUNDIALS context
+  sundials::Context sunctx;
+
+  // ---------------
+  // Setup UserData
+  // ---------------
+
+  // Read input options
+  UserData udata;
+  std::vector<std::string> args(argv + 1, argv + argc);
+  if (ReadInputs(args, udata)) { return 1; }
+  PrintUserData(udata);
+
+  // ---------------------------------------
+  // Create Ginkgo matrix and linear solver
+  // ---------------------------------------
+
+#if defined(USE_CUDA)
+  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create())};
+#else
+  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create())};
+#endif
+
+  udata.exec = gko_exec;
+
+  // ---------------
+  // Create vectors
+  // ---------------
+
+  // Create solution vector
+  N_Vector u = create_vector_gpu(udata.nodes, sunctx);
+  if (check_ptr(u, "N_VNew")) { return 1; }
+
+  // Set initial condition
+  int flag = Solution(ZERO, u, udata);
+  if (check_flag(flag, "Solution")) { return 1; }
+
+  // Create error vector
+  N_Vector e = N_VClone(u);
+  if (check_ptr(e, "N_VClone")) { return 1; }
+
+  auto gko_matrix_dim = gko::dim<2>(udata.nodes, udata.nodes);
+  auto gko_matrix_nnz{(5 * (udata.nx - 2) + 2) * (udata.ny - 2) + 2 * udata.nx};
+  auto gko_matrix =
+    gko::share(GkoMatrixType::create(gko_exec, gko_matrix_dim, gko_matrix_nnz));
+
+  SUNGkoMatrixType A{gko_matrix, sunctx};
+
+  // Use default stopping criteria
+  auto crit{sundials::ginkgo::DefaultStop::build()
+              .with_max_iters(static_cast<gko::uint64>(udata.liniters))
+              .on(gko_exec)};
+
+  // Use Jacobi preconditioner
+  auto precon{
+    gko::preconditioner::Jacobi<sunrealtype, sunindextype>::build().on(gko_exec)};
+
+  auto gko_solver_factory = gko::share(GkoSolverType::build()
+                                         .with_criteria(std::move(crit))
+                                         .with_preconditioner(std::move(precon))
+                                         .on(gko_exec));
+
+  SUNGkoSolverType LS{gko_solver_factory, sunctx};
+
+  // --------------
+  // Setup CVODE
+  // --------------
+
+  // Create integrator
+  void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
+  if (check_ptr(cvode_mem, "CVodeCreate")) { return 1; }
+
+  // Initialize integrator
+  flag = CVodeInit(cvode_mem, f, ZERO, u);
+  if (check_flag(flag, "CVodeInit")) { return 1; }
+
+  // Specify tolerances
+  flag = CVodeSStolerances(cvode_mem, udata.rtol, udata.atol);
+  if (check_flag(flag, "CVodeSStolerances")) { return 1; }
+
+  // Attach user data
+  flag = CVodeSetUserData(cvode_mem, (void*)&udata);
+  if (check_flag(flag, "CVodeSetUserData")) { return 1; }
+
+  // Attach linear solver
+  flag = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if (check_flag(flag, "CVodeSetLinearSolver")) { return 1; }
+
+  // Attach Jacobian function
+  flag = CVodeSetJacFn(cvode_mem, J);
+  if (check_flag(flag, "CVodeSetJacFn")) { return 1; }
+
+  // Set linear solver tolerance factor
+  flag = CVodeSetEpsLin(cvode_mem, udata.epslin);
+  if (check_flag(flag, "CVodeSetEpsLin")) { return 1; }
+
+  // Set max steps between outputs
+  flag = CVodeSetMaxNumSteps(cvode_mem, udata.maxsteps);
+  if (check_flag(flag, "CVodeSetMaxNumSteps")) { return 1; }
+
+  // Set stopping time
+  flag = CVodeSetStopTime(cvode_mem, udata.tf);
+  if (check_flag(flag, "CVodeSetStopTime")) { return 1; }
+
+  // -----------------------
+  // Loop over output times
+  // -----------------------
+
+  sunrealtype t     = ZERO;
+  sunrealtype dTout = udata.tf / udata.nout;
+  sunrealtype tout  = dTout;
+
+  // Initial output
+  flag = OpenOutput(udata);
+  if (check_flag(flag, "OpenOutput")) { return 1; }
+
+  flag = WriteOutput(t, u, e, udata);
+  if (check_flag(flag, "WriteOutput")) { return 1; }
+
+  for (int iout = 0; iout < udata.nout; iout++)
+  {
+    // Evolve in time
+    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if (check_flag(flag, "CVode")) { break; }
+
+    // Output solution and error
+    flag = WriteOutput(t, u, e, udata);
+    if (check_flag(flag, "WriteOutput")) { return 1; }
+
+    // Update output time
+    tout += dTout;
+    tout = (tout > udata.tf) ? udata.tf : tout;
+  }
+
+  // Close output
+  flag = CloseOutput(udata);
+  if (check_flag(flag, "CloseOutput")) { return 1; }
+
+  // --------------
+  // Final outputs
+  // --------------
+
+  // Print final integrator stats
+  std::cout << "Final integrator statistics:" << std::endl;
+  flag = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  if (check_flag(flag, "CVodePrintAllStats")) { return 1; }
+
+  // Output final error
+  flag = SolutionError(t, u, e, udata);
+  if (check_flag(flag, "SolutionError")) { return 1; }
+
+  sunrealtype maxerr = N_VMaxNorm(e);
+
+  std::cout << std::scientific
+            << std::setprecision(std::numeric_limits<sunrealtype>::digits10)
+            << "\nMax error = " << maxerr << std::endl;
+
+  // --------------------
+  // Clean up and return
+  // --------------------
+
+  udata.exec = nullptr;
+  CVodeFree(&cvode_mem); // Free integrator memory
+  N_VDestroy(u);         // Free vectors
+  N_VDestroy(e);
+
+  return 0;
+}
+
+// -----------------------------------------------------------------------------
+// Functions called by the integrator
+// -----------------------------------------------------------------------------
+
+// f routine to compute the ODE RHS function f(t,y).
+int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
+{
+  // Access problem data and set shortcuts
+  auto udata = static_cast<UserData*>(user_data);
+
+  // Initialize RHS vector to zero (handles boundary conditions)
+  N_VConst(ZERO, f);
+
+  return f_gpu(t, u, f, udata);
+
+  // Return success
+  return 0;
+}
+
+// J routine to compute the ODE RHS Jacobian function df/dy(t,y). This
+// explicitly set boundary entries to zero so J(t,y) has the same sparsity
+// pattern as A = I - gamma * J(t,y).
+int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
+      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+{
+  // Access problem data
+  auto udata = static_cast<UserData*>(user_data);
+
+  return J_gpu(J, udata);
+
+  return 0;
+}
+
+//---- end of file ----
