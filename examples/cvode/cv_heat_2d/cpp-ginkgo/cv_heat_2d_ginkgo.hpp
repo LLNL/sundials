@@ -128,7 +128,6 @@ static int Solution(sunrealtype t, N_Vector u, UserData& udata)
     }
   }
 
-  udata.exec->synchronize();
   return 0;
 }
 
