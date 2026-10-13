@@ -107,7 +107,7 @@ NVIDIA-RTX5080-SUNDIALS4PY:
     - export CUDACXX=$(command -v nvcc)
     - export CMAKE_ARGS="-DSUNDIALS_ENABLE_CUDA=ON"
     - python3 -m pip install --break-system-packages "cupy-cuda13x" "jax[cuda13]" "pytest" ".[dev]"
-    - python3 -m pip install --break-system-packages torch --index-url https://download.pytorch.org/whl/cu128
+    - python3 -m pip install --break-system-packages torch --index-url https://download.pytorch.org/whl/cu132
     - python3 -m pytest -q --junitxml=pytest-report.xml bindings/sundials4py/test
 
 NVIDIA-GH200:
