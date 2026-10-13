@@ -57,7 +57,6 @@
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
 
 #include <nvector/nvector_sycl.h>
-constexpr auto N_VNew = N_VNew_Sycl;
 
 using GkoMatrixType = gko::matrix::Csr<sunrealtype, sunindextype>;
 using GkoSolverType = gko::solver::Cg<sunrealtype>;
@@ -109,8 +108,8 @@ int main(int argc, char* argv[])
   // ---------------
 
   // Create solution vector
-  N_Vector u = N_VNew(udata.nodes, gko_exec->get_queue(), sunctx);
-  if (check_ptr(u, "N_VNew")) { return 1; }
+  N_Vector u = N_VNew_Sycl(udata.nodes, gko_exec->get_queue(), sunctx);
+  if (check_ptr(u, "N_VNew_Sycl")) { return 1; }
 
   // Set initial condition
   int flag = Solution(ZERO, u, udata);
