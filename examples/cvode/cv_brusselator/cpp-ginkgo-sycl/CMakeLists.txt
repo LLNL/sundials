@@ -17,6 +17,5 @@ set(sycl_examples "../cpp-ginkgo/cv_bruss_batched_ginkgo.cpp\;\;develop")
 sundials_add_examples_ginkgo(
   sycl_examples
   TARGETS ${CVODE_C_LIBS}
-  BACKENDS SYCL
-  INSTALL_FILES ../cpp-ginkgo/cv_bruss_batched_ginkgo.hpp
-                "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp")
+  BACKENDS SYCL INSTALL_FILES ../cpp-ginkgo/cv_bruss_batched_ginkgo.hpp
+           "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp")

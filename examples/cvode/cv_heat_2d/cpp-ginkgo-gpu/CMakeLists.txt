@@ -17,8 +17,11 @@ set(gpu_examples "../cpp-ginkgo/cv_heat_2d_ginkgo.cpp\;\;develop")
 sundials_add_examples_ginkgo(
   gpu_examples
   TARGETS sundials_cvode
-  BACKENDS CUDA HIP
-  INSTALL_FILES
-    ../cpp-ginkgo/cv_heat_2d_ginkgo.hpp cv_heat_2d_ginkgo_gpu.hpp
-    "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
-  INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/../cpp-ginkgo")
+  BACKENDS CUDA
+           HIP
+           INSTALL_FILES
+           ../cpp-ginkgo/cv_heat_2d_ginkgo.hpp
+           cv_heat_2d_ginkgo_gpu.hpp
+           "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp"
+           INCLUDE_DIRECTORIES
+           "${CMAKE_CURRENT_SOURCE_DIR}/../cpp-ginkgo")

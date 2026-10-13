@@ -17,6 +17,5 @@ set(cpu_examples "cv_bruss_batched_ginkgo.cpp\;\;develop")
 sundials_add_examples_ginkgo(
   cpu_examples
   TARGETS ${CVODE_C_LIBS}
-  BACKENDS REF OMP
-  INSTALL_FILES cv_bruss_batched_ginkgo.hpp
-                "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp")
+  BACKENDS REF OMP INSTALL_FILES cv_bruss_batched_ginkgo.hpp
+           "${PROJECT_SOURCE_DIR}/examples/utilities/example_utilities.hpp")
