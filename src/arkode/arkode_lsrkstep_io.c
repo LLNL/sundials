@@ -391,10 +391,10 @@ int LSRKStepSetNumDomEigEstPreprocessIters(void* arkode_mem, int num_iters)
      evolve. In that case, whatever value the DEE has will be used. This could
      be avoided (with additional overhead) by calling SetNumPreprocessIters
      before every Estimate call. */
-  if (step_mem->DEE)
+  if (step_mem->DEE && !step_mem->init_warmup)
   {
     retval = SUNDomEigEstimator_SetNumPreprocessIters(step_mem->DEE,
-                                                      step_mem->num_init_warmups);
+                                                      step_mem->num_warmups);
     if (retval != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DEE_FAIL, __LINE__, __func__, __FILE__,
