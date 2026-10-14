@@ -250,6 +250,14 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
+   .. versionchanged:: 8.0.0 (ARKODE 7.0.0)
+
+      The dominant eigenvalue is now always recomputed on the first step after
+      :c:func:`ARKodeResize`, regardless of ``nsteps`` (including
+      ``nsteps = 0``). Previously, the estimate from before the resize was kept
+      until ``nsteps`` successful steps had elapsed, or indefinitely for
+      ``nsteps = 0``.
+
    .. note::
 
       If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps``
