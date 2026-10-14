@@ -111,6 +111,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setusecompensatedsums     = NULL;
   ark_mem->step_resize                    = mriStep_Resize;
   ark_mem->step_reset                     = mriStep_Reset;
+  ark_mem->step_setstepdirection          = mriStep_SetStepDirection;
   ark_mem->step_free                      = mriStep_Free;
   ark_mem->step_printmem                  = mriStep_PrintMem;
   ark_mem->step_setdefaults               = mriStep_SetDefaults;
@@ -558,6 +559,29 @@ int mriStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
   }
 
   return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  mriStep_SetStepDirection:
+
+  This routine sets the integration direction of the inner
+  stepper after the MRIStep integration direction is changed.
+  ---------------------------------------------------------------*/
+int mriStep_SetStepDirection(ARKodeMem ark_mem, sunrealtype stepdir)
+{
+  ARKodeMRIStepMem step_mem;
+  int retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  SUNErrCode err = SUNStepper_SetStepDirection(step_mem->stepper, stepdir);
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__,
+                    __FILE__, "Setting the step direction for the inner SUNStepper failed");
+    return ARK_SUNSTEPPER_ERR;
+  }
+
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------

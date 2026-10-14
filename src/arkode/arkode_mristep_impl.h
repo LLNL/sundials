@@ -247,6 +247,7 @@ int mriStep_GetStageIndex(ARKodeMem ark_mem, int* stage, int* max_stages);
 int mriStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
 int mriStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
 int mriStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
+int mriStep_SetStepDirection(ARKodeMem ark_mem, sunrealtype stepdir);
 int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 int mriStep_ComputeState(ARKodeMem ark_mem, N_Vector zcor, N_Vector z);
