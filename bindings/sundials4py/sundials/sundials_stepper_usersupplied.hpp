@@ -200,36 +200,4 @@ inline SUNErrCode sunstepper_set_rtol_wrapper(Args... args)
     SUNStepper>(&SUNStepperFunctionTable::set_rtol, std::forward<Args>(args)...);
 }
 
-using SUNStepperGetAccumulatedErrorStdFn =
-  std::tuple<SUNErrCode, sunrealtype>(SUNStepper);
-
-inline SUNErrCode sunstepper_get_accumulated_error_wrapper(
-  SUNStepper stepper, sunrealtype* accumulated_error)
-{
-  auto fn_table = static_cast<SUNStepperFunctionTable*>(stepper->python);
-  auto fn       = nb::cast<std::function<SUNStepperGetAccumulatedErrorStdFn>>(
-    fn_table->get_accumulated_error);
-
-  auto result        = fn(stepper);
-  *accumulated_error = std::get<1>(result);
-  return std::get<0>(result);
-}
-
-template<typename... Args>
-inline SUNErrCode sunstepper_reset_accumulated_error_wrapper(Args... args)
-{
-  return sundials4py::user_supplied_fn_caller<
-    std::remove_pointer_t<SUNStepperResetAccumulatedErrorFn>, SUNStepperFunctionTable,
-    SUNStepper>(&SUNStepperFunctionTable::reset_accumulated_error,
-                std::forward<Args>(args)...);
-}
-
-template<typename... Args>
-inline SUNErrCode sunstepper_set_rtol_wrapper(Args... args)
-{
-  return sundials4py::user_supplied_fn_caller<
-    std::remove_pointer_t<SUNStepperSetRTolFn>, SUNStepperFunctionTable,
-    SUNStepper>(&SUNStepperFunctionTable::set_rtol, std::forward<Args>(args)...);
-}
-
 #endif // SUNDIALS_SUNDIALS_STEPPER_USERSUPPLIED_HPP
