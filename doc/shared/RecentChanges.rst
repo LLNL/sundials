@@ -10,6 +10,10 @@ pointers. This is useful when using the Fortran 2003 interfaces.
 
 **Bug Fixes**
 
+The Newton nonlinear solver now reports missing required callbacks during
+initialization in all build configurations, preventing NULL callback crashes
+across SUNDIALS packages.
+
 Fixed a segfault that could occur when handling errors without a ``SUNContext``
 provided.
 
