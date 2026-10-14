@@ -3726,17 +3726,17 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   This routine performs a single MRI stage, is, with explicit
   slow time scale and fast time scale that requires evolution.
 
-  On input, ycur is the initial condition for the fast IVP at t0.
-  On output, ycur is the solution of the fast IVP at tf.
-  The vector ytemp is only used if temporal adaptivity is enabled,
-  and the fast error is not provided by the fast integrator.
+  t0 is the initial time for the fast IVP, and tf is the final
+  time. When this function is called, the SUNStepper has already
+  been reset to the initial time t0 and initial condition ycur by
+  the takeStep* function. On output, ycur is the solution of the
+  fast IVP at tf.
 
   get_inner_dsm indicates whether this stage is one that should
   accumulate an inner temporal error estimate.
   ---------------------------------------------------------------*/
 int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                          sunrealtype t0, sunrealtype tf, N_Vector ycur,
-                         SUNDIALS_MAYBE_UNUSED N_Vector ytemp,
                          sunbooleantype get_inner_dsm)
 {
   int retval;                         /* reusable return flag */
