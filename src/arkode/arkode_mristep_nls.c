@@ -262,6 +262,15 @@ int mriStep_NlsInit(ARKodeMem ark_mem)
     return (ARK_NLS_INIT_FAIL);
   }
 
+  /* Newton-type nonlinear solvers require a linear solver */
+  if (step_mem->implicit_rhs && !step_mem->lsolve &&
+      SUNNonlinSolGetType(step_mem->NLS) != SUNNONLINEARSOLVER_FIXEDPOINT)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_LSOLVE);
+    return (ARK_NLS_INIT_FAIL);
+  }
+
   /* set the linear solver solve wrapper function */
   if (step_mem->lsolve)
   {

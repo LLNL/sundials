@@ -773,6 +773,10 @@ void arkode_user_supplied_fn_table_destroy(void* ptr);
   "The above warning has been issued mxhnil times and will not be issued " \
   "again for this problem."
 #define MSG_ARK_TOO_CLOSE "tout too close to t0 to start integration."
+#define MSG_ARK_NO_LSOLVE                                                \
+  "A linear solver is required when using an implicit method with a "    \
+  "Newton-type nonlinear solver. Attach one with ARKodeSetLinearSolver " \
+  "or use a fixed-point nonlinear solver."
 #define MSG_ARK_MAX_STEPS \
   "At " MSG_TIME ", mxstep steps taken before reaching tout."
 #define MSG_ARK_TOO_MUCH_ACC "At " MSG_TIME ", too much accuracy requested."

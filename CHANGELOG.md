@@ -20,6 +20,11 @@ multiple digits in an identifier.
 Fixed a bug in the LSRKStep module where the step post-processing function for
 the RKL step was called with an incorrect time argument.
 
+Fixed a segmentation fault in ARKStep and MRIStep when using an implicit
+method with a Newton-type nonlinear solver but no linear solver attached. An
+error is now returned instead
+([Issue #957](https://github.com/llnl/sundials/issues/957)).
+
 ### Deprecation Notices
 
 ## Changes to SUNDIALS in release 7.9.0
