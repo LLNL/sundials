@@ -52,11 +52,7 @@
 
 // Include integrator, vector, matrix, and linear solver headers
 #include <cvode/cvode.h>
-#if defined(USE_OMP)
-#include <nvector/nvector_openmp.h>
-#else
 #include <nvector/nvector_serial.h>
-#endif
 #include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_ginkgo.hpp>
 #include <sunmatrix/sunmatrix_ginkgo.hpp>
@@ -117,15 +113,8 @@ int main(int argc, char* argv[])
   // ---------------
 
   // Create solution vector
-#if defined(USE_OMP)
-  auto omp_num_threads_var{std::getenv("OMP_NUM_THREADS")};
-  int num_threads = omp_num_threads_var ? std::atoi(omp_num_threads_var) : 1;
-  N_Vector u      = N_VNew_OpenMP(udata.nodes, num_threads, sunctx);
-  if (check_ptr(u, "N_VNew_OpenMP")) { return 1; }
-#else
   N_Vector u = N_VNew_Serial(udata.nodes, sunctx);
   if (check_ptr(u, "N_VNew_Serial")) { return 1; }
-#endif
 
   // Set initial condition
   int flag = Solution(ZERO, u, udata);
