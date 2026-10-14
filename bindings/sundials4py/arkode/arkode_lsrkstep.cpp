@@ -99,8 +99,10 @@ void bind_arkode_lsrkstep(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "LSRKStepSetDomEigFn",
-    [](void* ark_mem, std::function<std::remove_pointer_t<ARKDomEigFn>> fn)
+    [](const ARKodeView& arkode_view,
+       std::function<std::remove_pointer_t<ARKDomEigFn>> fn)
     {
+      void* ark_mem             = arkode_view.get();
       auto fn_table             = get_arkode_fn_table(ark_mem);
       fn_table->lsrkstep_domeig = nb::cast(fn);
       if (fn) { return LSRKStepSetDomEigFn(ark_mem, lsrkstep_domeig_wrapper); }

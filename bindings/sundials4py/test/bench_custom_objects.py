@@ -105,11 +105,11 @@ def _cvode_solve(sunctx, custom):
         return SUN_SUCCESS
 
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), rhs, 0.0, y) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), 1.0e-6, 1.0e-10) == CV_SUCCESS
+    assert CVodeInit(cvode, rhs, 0.0, y) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, 1.0e-6, 1.0e-10) == CV_SUCCESS
     ls = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx)
-    assert CVodeSetLinearSolver(cvode.get(), ls, None) == CV_SUCCESS
-    status, tret = CVode(cvode.get(), 1.0, y, CV_NORMAL)
+    assert CVodeSetLinearSolver(cvode, ls, None) == CV_SUCCESS
+    status, tret = CVode(cvode, 1.0, y, CV_NORMAL)
     assert status == CV_SUCCESS
     assert tret == pytest.approx(1.0)
 
@@ -130,7 +130,7 @@ def _kinsol_solve(sunctx, custom):
         return SUN_SUCCESS
 
     kin = KINCreate(sunctx)
-    assert KINInit(kin.get(), residual, u) == KIN_SUCCESS
+    assert KINInit(kin, residual, u) == KIN_SUCCESS
     if custom:
         matrix = DenseArrayMatrix(1, 1, sunctx)
         solver = NumpyLinearSolver(matrix, sunctx)
@@ -139,13 +139,13 @@ def _kinsol_solve(sunctx, custom):
             matrix.data[0, 0] = 1.0
             return SUN_SUCCESS
 
-        assert KINSetLinearSolver(kin.get(), solver, matrix) == KIN_SUCCESS
-        assert KINSetJacFn(kin.get(), jacobian) == KIN_SUCCESS
+        assert KINSetLinearSolver(kin, solver, matrix) == KIN_SUCCESS
+        assert KINSetJacFn(kin, jacobian) == KIN_SUCCESS
     else:
         matrix = SUNDenseMatrix(1, 1, sunctx)
         solver = SUNLinSol_Dense(u, matrix, sunctx)
-        assert KINSetLinearSolver(kin.get(), solver, matrix) == KIN_SUCCESS
-    assert KINSol(kin.get(), u, KIN_NONE, scale, scale) == KIN_SUCCESS
+        assert KINSetLinearSolver(kin, solver, matrix) == KIN_SUCCESS
+    assert KINSol(kin, u, KIN_NONE, scale, scale) == KIN_SUCCESS
 
 
 def test_kinsol_custom_and_native_solver_benchmark(sunctx):

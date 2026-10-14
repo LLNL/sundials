@@ -235,10 +235,10 @@ receiving SUNDIALS object is destroyed or reconfigured.
    LS = MyCustomLinearSolver(..., sunctx)
 
    # CVODE retains the native pointers associated with LS and A.
-   CVodeSetLinearSolver(cvode_mem.get(), LS, A)
+   CVodeSetLinearSolver(cvode_mem, LS, A)
 
    # Keep LS and A alive while cvode_mem may use them.
-   CVode(cvode_mem.get(), tout, y, tret, CV_NORMAL)
+   CVode(cvode_mem, tout, y, CV_NORMAL)
 
 
 Return-by-Pointer Parameters
@@ -519,7 +519,7 @@ no explicit conversion step:
 
    A = MyMatrix(n, sunctx)
    status = SUNMatZero(A)                      # handle created here
-   status = KINSetLinearSolver(kin.get(), LS, A)
+   status = KINSetLinearSolver(kin, LS, A)
 
 The required operations listed in the table above are validated when the native
 handle is created, not at construction time. Call ``obj.validate()`` after

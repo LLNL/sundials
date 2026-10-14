@@ -108,15 +108,38 @@ auto pyEnumARKAccumError =
 // #endif
 //
 
-sundials4py::scoped_def(m, "ARKodeReset", ARKodeReset, nb::arg("arkode_mem"),
-                        nb::arg("tR"), nb::arg("yR"));
+sundials4py::scoped_def(
+  m, "ARKodeReset",
+  [](const ARKodeView& arkode_mem, sunrealtype tR, N_Vector yR) -> int
+  {
+    auto ARKodeReset_adapt_solver_memory = [](const ARKodeView& arkode_mem,
+                                              sunrealtype tR, N_Vector yR) -> int
+    {
+      auto lambda_result = ARKodeReset(arkode_mem.get(), tR, yR);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeInit", ARKodeInit, nb::arg("arkode_mem"),
-                        "Optional data allocation function");
+    return ARKodeReset_adapt_solver_memory(arkode_mem, tR, yR);
+  },
+  nb::arg("arkode_mem"), nb::arg("tR"), nb::arg("yR"));
+
+sundials4py::scoped_def(
+  m, "ARKodeInit",
+  [](const ARKodeView& arkode_mem) -> int
+  {
+    auto ARKodeInit_adapt_solver_memory = [](const ARKodeView& arkode_mem) -> int
+    {
+      auto lambda_result = ARKodeInit(arkode_mem.get());
+      return lambda_result;
+    };
+
+    return ARKodeInit_adapt_solver_memory(arkode_mem);
+  },
+  nb::arg("arkode_mem"), "Optional data allocation function");
 
 sundials4py::scoped_def(
   m, "ARKodeCreateMRIStepInnerStepper",
-  [](void* arkode_mem)
+  [](const ARKodeView& arkode_mem)
     -> std::tuple<int, std::shared_ptr<std::remove_pointer_t<MRIStepInnerStepper>>>
   {
     auto ARKodeCreateMRIStepInnerStepper_adapt_modifiable_immutable_to_return =
@@ -142,30 +165,86 @@ sundials4py::scoped_def(
                                              MRIStepInnerStepperDeleter>(
                                std::get<1>(lambda_result)));
     };
+    auto ARKodeCreateMRIStepInnerStepper_adapt_solver_memory =
+      [&ARKodeCreateMRIStepInnerStepper_adapt_return_type_to_shared_ptr](
+        const ARKodeView& arkode_mem)
+      -> std::tuple<int, std::shared_ptr<std::remove_pointer_t<MRIStepInnerStepper>>>
+    {
+      auto lambda_result =
+        ARKodeCreateMRIStepInnerStepper_adapt_return_type_to_shared_ptr(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeCreateMRIStepInnerStepper_adapt_return_type_to_shared_ptr(
-      arkode_mem);
+    return ARKodeCreateMRIStepInnerStepper_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"), "Utility to wrap ARKODE as an MRIStepInnerStepper",
   nb::rv_policy::reference);
 
-sundials4py::scoped_def(m, "ARKodeSStolerances", ARKodeSStolerances,
-                        nb::arg("arkode_mem"), nb::arg("reltol"),
-                        nb::arg("abstol"));
+sundials4py::scoped_def(
+  m, "ARKodeSStolerances",
+  [](const ARKodeView& arkode_mem, sunrealtype reltol, sunrealtype abstol) -> int
+  {
+    auto ARKodeSStolerances_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype reltol,
+         sunrealtype abstol) -> int
+    {
+      auto lambda_result = ARKodeSStolerances(arkode_mem.get(), reltol, abstol);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeSVtolerances", ARKodeSVtolerances,
-                        nb::arg("arkode_mem"), nb::arg("reltol"),
-                        nb::arg("abstol"));
+    return ARKodeSStolerances_adapt_solver_memory(arkode_mem, reltol, abstol);
+  },
+  nb::arg("arkode_mem"), nb::arg("reltol"), nb::arg("abstol"));
 
-sundials4py::scoped_def(m, "ARKodeResStolerance", ARKodeResStolerance,
-                        nb::arg("arkode_mem"), nb::arg("rabstol"));
+sundials4py::scoped_def(
+  m, "ARKodeSVtolerances",
+  [](const ARKodeView& arkode_mem, sunrealtype reltol, N_Vector abstol) -> int
+  {
+    auto ARKodeSVtolerances_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype reltol, N_Vector abstol) -> int
+    {
+      auto lambda_result = ARKodeSVtolerances(arkode_mem.get(), reltol, abstol);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeResVtolerance", ARKodeResVtolerance,
-                        nb::arg("arkode_mem"), nb::arg("rabstol"));
+    return ARKodeSVtolerances_adapt_solver_memory(arkode_mem, reltol, abstol);
+  },
+  nb::arg("arkode_mem"), nb::arg("reltol"), nb::arg("abstol"));
+
+sundials4py::scoped_def(
+  m, "ARKodeResStolerance",
+  [](const ARKodeView& arkode_mem, sunrealtype rabstol) -> int
+  {
+    auto ARKodeResStolerance_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype rabstol) -> int
+    {
+      auto lambda_result = ARKodeResStolerance(arkode_mem.get(), rabstol);
+      return lambda_result;
+    };
+
+    return ARKodeResStolerance_adapt_solver_memory(arkode_mem, rabstol);
+  },
+  nb::arg("arkode_mem"), nb::arg("rabstol"));
+
+sundials4py::scoped_def(
+  m, "ARKodeResVtolerance",
+  [](const ARKodeView& arkode_mem, N_Vector rabstol) -> int
+  {
+    auto ARKodeResVtolerance_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, N_Vector rabstol) -> int
+    {
+      auto lambda_result = ARKodeResVtolerance(arkode_mem.get(), rabstol);
+      return lambda_result;
+    };
+
+    return ARKodeResVtolerance_adapt_solver_memory(arkode_mem, rabstol);
+  },
+  nb::arg("arkode_mem"), nb::arg("rabstol"));
 
 sundials4py::scoped_def(
   m, "ARKodeSetRootDirection",
-  [](void* arkode_mem, std::vector<int> rootdir_1d) -> int
+  [](const ARKodeView& arkode_mem, std::vector<int> rootdir_1d) -> int
   {
     auto ARKodeSetRootDirection_adapt_arr_ptr_to_std_vector =
       [](void* arkode_mem, std::vector<int> rootdir_1d) -> int
@@ -175,181 +254,801 @@ sundials4py::scoped_def(
       auto lambda_result = ARKodeSetRootDirection(arkode_mem, rootdir_1d_ptr);
       return lambda_result;
     };
+    auto ARKodeSetRootDirection_adapt_solver_memory =
+      [&ARKodeSetRootDirection_adapt_arr_ptr_to_std_vector](const ARKodeView& arkode_mem,
+                                                            std::vector<int>
+                                                              rootdir_1d) -> int
+    {
+      auto lambda_result =
+        ARKodeSetRootDirection_adapt_arr_ptr_to_std_vector(arkode_mem.get(),
+                                                           rootdir_1d);
+      return lambda_result;
+    };
 
-    return ARKodeSetRootDirection_adapt_arr_ptr_to_std_vector(arkode_mem,
-                                                              rootdir_1d);
+    return ARKodeSetRootDirection_adapt_solver_memory(arkode_mem, rootdir_1d);
   },
   nb::arg("arkode_mem"), nb::arg("rootdir_1d"));
 
-sundials4py::scoped_def(m, "ARKodeSetNoInactiveRootWarn",
-                        ARKodeSetNoInactiveRootWarn, nb::arg("arkode_mem"));
+sundials4py::scoped_def(
+  m, "ARKodeSetNoInactiveRootWarn",
+  [](const ARKodeView& arkode_mem) -> int
+  {
+    auto ARKodeSetNoInactiveRootWarn_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem) -> int
+    {
+      auto lambda_result = ARKodeSetNoInactiveRootWarn(arkode_mem.get());
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeSetDefaults", ARKodeSetDefaults,
-                        nb::arg("arkode_mem"));
-
-sundials4py::scoped_def(m, "ARKodeSetOrder", ARKodeSetOrder,
-                        nb::arg("arkode_mem"), nb::arg("maxord"));
-
-sundials4py::scoped_def(m, "ARKodeSetInterpolantType", ARKodeSetInterpolantType,
-                        nb::arg("arkode_mem"), nb::arg("itype"));
-
-sundials4py::scoped_def(m, "ARKodeSetInterpolantDegree",
-                        ARKodeSetInterpolantDegree, nb::arg("arkode_mem"),
-                        nb::arg("degree"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxNumSteps", ARKodeSetMaxNumSteps,
-                        nb::arg("arkode_mem"), nb::arg("mxsteps"));
-
-sundials4py::scoped_def(m, "ARKodeSetInterpolateStopTime",
-                        ARKodeSetInterpolateStopTime, nb::arg("arkode_mem"),
-                        nb::arg("interp"));
-
-sundials4py::scoped_def(m, "ARKodeSetStopTime", ARKodeSetStopTime,
-                        nb::arg("arkode_mem"), nb::arg("tstop"));
-
-sundials4py::scoped_def(m, "ARKodeClearStopTime", ARKodeClearStopTime,
-                        nb::arg("arkode_mem"));
-
-sundials4py::scoped_def(m, "ARKodeSetFixedStep", ARKodeSetFixedStep,
-                        nb::arg("arkode_mem"), nb::arg("hfixed"));
-
-sundials4py::scoped_def(m, "ARKodeSetStepDirection", ARKodeSetStepDirection,
-                        nb::arg("arkode_mem"), nb::arg("stepdir"));
-
-sundials4py::scoped_def(m, "ARKodeSetNonlinearSolver", ARKodeSetNonlinearSolver,
-                        nb::arg("arkode_mem"), nb::arg("NLS"));
-
-sundials4py::scoped_def(m, "ARKodeSetLinear", ARKodeSetLinear,
-                        nb::arg("arkode_mem"), nb::arg("timedepend"));
-
-sundials4py::scoped_def(m, "ARKodeSetNonlinear", ARKodeSetNonlinear,
-                        nb::arg("arkode_mem"));
-
-sundials4py::scoped_def(m, "ARKodeSetAutonomous", ARKodeSetAutonomous,
-                        nb::arg("arkode_mem"), nb::arg("autonomous"));
-
-sundials4py::scoped_def(m, "ARKodeSetDeduceImplicitRhs",
-                        ARKodeSetDeduceImplicitRhs, nb::arg("arkode_mem"),
-                        nb::arg("deduce"));
-
-sundials4py::scoped_def(m, "ARKodeSetNonlinCRDown", ARKodeSetNonlinCRDown,
-                        nb::arg("arkode_mem"), nb::arg("crdown"));
-
-sundials4py::scoped_def(m, "ARKodeSetNonlinRDiv", ARKodeSetNonlinRDiv,
-                        nb::arg("arkode_mem"), nb::arg("rdiv"));
-
-sundials4py::scoped_def(m, "ARKodeSetDeltaGammaMax", ARKodeSetDeltaGammaMax,
-                        nb::arg("arkode_mem"), nb::arg("dgmax"));
-
-sundials4py::scoped_def(m, "ARKodeSetLSetupFrequency", ARKodeSetLSetupFrequency,
-                        nb::arg("arkode_mem"), nb::arg("msbp"));
-
-sundials4py::scoped_def(m, "ARKodeSetPredictorMethod", ARKodeSetPredictorMethod,
-                        nb::arg("arkode_mem"), nb::arg("method"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxNonlinIters", ARKodeSetMaxNonlinIters,
-                        nb::arg("arkode_mem"), nb::arg("maxcor"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxConvFails", ARKodeSetMaxConvFails,
-                        nb::arg("arkode_mem"), nb::arg("maxncf"));
-
-sundials4py::scoped_def(m, "ARKodeSetNonlinConvCoef", ARKodeSetNonlinConvCoef,
-                        nb::arg("arkode_mem"), nb::arg("nlscoef"));
-
-sundials4py::scoped_def(m, "ARKodeSetAdaptController", ARKodeSetAdaptController,
-                        nb::arg("arkode_mem"), nb::arg("C"));
-
-sundials4py::scoped_def(m, "ARKodeSetAdaptControllerByName",
-                        ARKodeSetAdaptControllerByName, nb::arg("arkode_mem"),
-                        nb::arg("cname"));
-
-sundials4py::scoped_def(m, "ARKodeSetAdaptivityAdjustment",
-                        ARKodeSetAdaptivityAdjustment, nb::arg("arkode_mem"),
-                        nb::arg("adjust"));
-
-sundials4py::scoped_def(m, "ARKodeSetCFLFraction", ARKodeSetCFLFraction,
-                        nb::arg("arkode_mem"), nb::arg("cfl_frac"));
-
-sundials4py::scoped_def(m, "ARKodeSetErrorBias", ARKodeSetErrorBias,
-                        nb::arg("arkode_mem"), nb::arg("bias"));
-
-sundials4py::scoped_def(m, "ARKodeSetSafetyFactor", ARKodeSetSafetyFactor,
-                        nb::arg("arkode_mem"), nb::arg("safety"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxGrowth", ARKodeSetMaxGrowth,
-                        nb::arg("arkode_mem"), nb::arg("mx_growth"));
-
-sundials4py::scoped_def(m, "ARKodeSetMinReduction", ARKodeSetMinReduction,
-                        nb::arg("arkode_mem"), nb::arg("eta_min"));
-
-sundials4py::scoped_def(m, "ARKodeSetFixedStepBounds", ARKodeSetFixedStepBounds,
-                        nb::arg("arkode_mem"), nb::arg("lb"), nb::arg("ub"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxFirstGrowth", ARKodeSetMaxFirstGrowth,
-                        nb::arg("arkode_mem"), nb::arg("etamx1"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxEFailGrowth", ARKodeSetMaxEFailGrowth,
-                        nb::arg("arkode_mem"), nb::arg("etamxf"));
-
-sundials4py::scoped_def(m, "ARKodeSetSmallNumEFails", ARKodeSetSmallNumEFails,
-                        nb::arg("arkode_mem"), nb::arg("small_nef"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxCFailGrowth", ARKodeSetMaxCFailGrowth,
-                        nb::arg("arkode_mem"), nb::arg("etacf"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxErrTestFails", ARKodeSetMaxErrTestFails,
-                        nb::arg("arkode_mem"), nb::arg("maxnef"));
-
-sundials4py::scoped_def(m, "ARKodeSetConstraints", ARKodeSetConstraints,
-                        nb::arg("arkode_mem"), nb::arg("constraints"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxHnilWarns", ARKodeSetMaxHnilWarns,
-                        nb::arg("arkode_mem"), nb::arg("mxhnil"));
-
-sundials4py::scoped_def(m, "ARKodeSetInitStep", ARKodeSetInitStep,
-                        nb::arg("arkode_mem"), nb::arg("hin"));
-
-sundials4py::scoped_def(m, "ARKodeSetMinStep", ARKodeSetMinStep,
-                        nb::arg("arkode_mem"), nb::arg("hmin"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxStep", ARKodeSetMaxStep,
-                        nb::arg("arkode_mem"), nb::arg("hmax"));
-
-sundials4py::scoped_def(m, "ARKodeSetMaxNumConstrFails",
-                        ARKodeSetMaxNumConstrFails, nb::arg("arkode_mem"),
-                        nb::arg("maxfails"));
-
-sundials4py::scoped_def(m, "ARKodeSetAdjointCheckpointScheme",
-                        ARKodeSetAdjointCheckpointScheme, nb::arg("arkode_mem"),
-                        nb::arg("checkpoint_scheme"));
-
-sundials4py::scoped_def(m, "ARKodeSetAdjointCheckpointIndex",
-                        ARKodeSetAdjointCheckpointIndex, nb::arg("arkode_mem"),
-                        nb::arg("step_index"));
-
-sundials4py::scoped_def(m, "ARKodeSetUseCompensatedSums",
-                        ARKodeSetUseCompensatedSums, nb::arg("arkode_mem"),
-                        nb::arg("onoff"));
-
-sundials4py::scoped_def(m, "ARKodeSetAccumulatedErrorType",
-                        ARKodeSetAccumulatedErrorType, nb::arg("arkode_mem"),
-                        nb::arg("accum_type"));
-
-sundials4py::scoped_def(m, "ARKodeResetAccumulatedError",
-                        ARKodeResetAccumulatedError, nb::arg("arkode_mem"));
+    return ARKodeSetNoInactiveRootWarn_adapt_solver_memory(arkode_mem);
+  },
+  nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
-  m, "ARKodeGetDky", ARKodeGetDky, nb::arg("arkode_mem"), nb::arg("t"),
-  nb::arg("k"), nb::arg("dky"),
+  m, "ARKodeSetDefaults",
+  [](const ARKodeView& arkode_mem) -> int
+  {
+    auto ARKodeSetDefaults_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem) -> int
+    {
+      auto lambda_result = ARKodeSetDefaults(arkode_mem.get());
+      return lambda_result;
+    };
+
+    return ARKodeSetDefaults_adapt_solver_memory(arkode_mem);
+  },
+  nb::arg("arkode_mem"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetOrder",
+  [](const ARKodeView& arkode_mem, int maxord) -> int
+  {
+    auto ARKodeSetOrder_adapt_solver_memory = [](const ARKodeView& arkode_mem,
+                                                 int maxord) -> int
+    {
+      auto lambda_result = ARKodeSetOrder(arkode_mem.get(), maxord);
+      return lambda_result;
+    };
+
+    return ARKodeSetOrder_adapt_solver_memory(arkode_mem, maxord);
+  },
+  nb::arg("arkode_mem"), nb::arg("maxord"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetInterpolantType",
+  [](const ARKodeView& arkode_mem, int itype) -> int
+  {
+    auto ARKodeSetInterpolantType_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int itype) -> int
+    {
+      auto lambda_result = ARKodeSetInterpolantType(arkode_mem.get(), itype);
+      return lambda_result;
+    };
+
+    return ARKodeSetInterpolantType_adapt_solver_memory(arkode_mem, itype);
+  },
+  nb::arg("arkode_mem"), nb::arg("itype"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetInterpolantDegree",
+  [](const ARKodeView& arkode_mem, int degree) -> int
+  {
+    auto ARKodeSetInterpolantDegree_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int degree) -> int
+    {
+      auto lambda_result = ARKodeSetInterpolantDegree(arkode_mem.get(), degree);
+      return lambda_result;
+    };
+
+    return ARKodeSetInterpolantDegree_adapt_solver_memory(arkode_mem, degree);
+  },
+  nb::arg("arkode_mem"), nb::arg("degree"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxNumSteps",
+  [](const ARKodeView& arkode_mem, long mxsteps) -> int
+  {
+    auto ARKodeSetMaxNumSteps_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, long mxsteps) -> int
+    {
+      auto lambda_result = ARKodeSetMaxNumSteps(arkode_mem.get(), mxsteps);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxNumSteps_adapt_solver_memory(arkode_mem, mxsteps);
+  },
+  nb::arg("arkode_mem"), nb::arg("mxsteps"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetInterpolateStopTime",
+  [](const ARKodeView& arkode_mem, sunbooleantype interp) -> int
+  {
+    auto ARKodeSetInterpolateStopTime_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunbooleantype interp) -> int
+    {
+      auto lambda_result = ARKodeSetInterpolateStopTime(arkode_mem.get(), interp);
+      return lambda_result;
+    };
+
+    return ARKodeSetInterpolateStopTime_adapt_solver_memory(arkode_mem, interp);
+  },
+  nb::arg("arkode_mem"), nb::arg("interp"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetStopTime",
+  [](const ARKodeView& arkode_mem, sunrealtype tstop) -> int
+  {
+    auto ARKodeSetStopTime_adapt_solver_memory = [](const ARKodeView& arkode_mem,
+                                                    sunrealtype tstop) -> int
+    {
+      auto lambda_result = ARKodeSetStopTime(arkode_mem.get(), tstop);
+      return lambda_result;
+    };
+
+    return ARKodeSetStopTime_adapt_solver_memory(arkode_mem, tstop);
+  },
+  nb::arg("arkode_mem"), nb::arg("tstop"));
+
+sundials4py::scoped_def(
+  m, "ARKodeClearStopTime",
+  [](const ARKodeView& arkode_mem) -> int
+  {
+    auto ARKodeClearStopTime_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem) -> int
+    {
+      auto lambda_result = ARKodeClearStopTime(arkode_mem.get());
+      return lambda_result;
+    };
+
+    return ARKodeClearStopTime_adapt_solver_memory(arkode_mem);
+  },
+  nb::arg("arkode_mem"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetFixedStep",
+  [](const ARKodeView& arkode_mem, sunrealtype hfixed) -> int
+  {
+    auto ARKodeSetFixedStep_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype hfixed) -> int
+    {
+      auto lambda_result = ARKodeSetFixedStep(arkode_mem.get(), hfixed);
+      return lambda_result;
+    };
+
+    return ARKodeSetFixedStep_adapt_solver_memory(arkode_mem, hfixed);
+  },
+  nb::arg("arkode_mem"), nb::arg("hfixed"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetStepDirection",
+  [](const ARKodeView& arkode_mem, sunrealtype stepdir) -> int
+  {
+    auto ARKodeSetStepDirection_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype stepdir) -> int
+    {
+      auto lambda_result = ARKodeSetStepDirection(arkode_mem.get(), stepdir);
+      return lambda_result;
+    };
+
+    return ARKodeSetStepDirection_adapt_solver_memory(arkode_mem, stepdir);
+  },
+  nb::arg("arkode_mem"), nb::arg("stepdir"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetNonlinearSolver",
+  [](const ARKodeView& arkode_mem, SUNNonlinearSolver NLS) -> int
+  {
+    auto ARKodeSetNonlinearSolver_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, SUNNonlinearSolver NLS) -> int
+    {
+      auto lambda_result = ARKodeSetNonlinearSolver(arkode_mem.get(), NLS);
+      return lambda_result;
+    };
+
+    return ARKodeSetNonlinearSolver_adapt_solver_memory(arkode_mem, NLS);
+  },
+  nb::arg("arkode_mem"), nb::arg("NLS"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetLinear",
+  [](const ARKodeView& arkode_mem, int timedepend) -> int
+  {
+    auto ARKodeSetLinear_adapt_solver_memory = [](const ARKodeView& arkode_mem,
+                                                  int timedepend) -> int
+    {
+      auto lambda_result = ARKodeSetLinear(arkode_mem.get(), timedepend);
+      return lambda_result;
+    };
+
+    return ARKodeSetLinear_adapt_solver_memory(arkode_mem, timedepend);
+  },
+  nb::arg("arkode_mem"), nb::arg("timedepend"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetNonlinear",
+  [](const ARKodeView& arkode_mem) -> int
+  {
+    auto ARKodeSetNonlinear_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem) -> int
+    {
+      auto lambda_result = ARKodeSetNonlinear(arkode_mem.get());
+      return lambda_result;
+    };
+
+    return ARKodeSetNonlinear_adapt_solver_memory(arkode_mem);
+  },
+  nb::arg("arkode_mem"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetAutonomous",
+  [](const ARKodeView& arkode_mem, sunbooleantype autonomous) -> int
+  {
+    auto ARKodeSetAutonomous_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunbooleantype autonomous) -> int
+    {
+      auto lambda_result = ARKodeSetAutonomous(arkode_mem.get(), autonomous);
+      return lambda_result;
+    };
+
+    return ARKodeSetAutonomous_adapt_solver_memory(arkode_mem, autonomous);
+  },
+  nb::arg("arkode_mem"), nb::arg("autonomous"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetDeduceImplicitRhs",
+  [](const ARKodeView& arkode_mem, sunbooleantype deduce) -> int
+  {
+    auto ARKodeSetDeduceImplicitRhs_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunbooleantype deduce) -> int
+    {
+      auto lambda_result = ARKodeSetDeduceImplicitRhs(arkode_mem.get(), deduce);
+      return lambda_result;
+    };
+
+    return ARKodeSetDeduceImplicitRhs_adapt_solver_memory(arkode_mem, deduce);
+  },
+  nb::arg("arkode_mem"), nb::arg("deduce"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetNonlinCRDown",
+  [](const ARKodeView& arkode_mem, sunrealtype crdown) -> int
+  {
+    auto ARKodeSetNonlinCRDown_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype crdown) -> int
+    {
+      auto lambda_result = ARKodeSetNonlinCRDown(arkode_mem.get(), crdown);
+      return lambda_result;
+    };
+
+    return ARKodeSetNonlinCRDown_adapt_solver_memory(arkode_mem, crdown);
+  },
+  nb::arg("arkode_mem"), nb::arg("crdown"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetNonlinRDiv",
+  [](const ARKodeView& arkode_mem, sunrealtype rdiv) -> int
+  {
+    auto ARKodeSetNonlinRDiv_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype rdiv) -> int
+    {
+      auto lambda_result = ARKodeSetNonlinRDiv(arkode_mem.get(), rdiv);
+      return lambda_result;
+    };
+
+    return ARKodeSetNonlinRDiv_adapt_solver_memory(arkode_mem, rdiv);
+  },
+  nb::arg("arkode_mem"), nb::arg("rdiv"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetDeltaGammaMax",
+  [](const ARKodeView& arkode_mem, sunrealtype dgmax) -> int
+  {
+    auto ARKodeSetDeltaGammaMax_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype dgmax) -> int
+    {
+      auto lambda_result = ARKodeSetDeltaGammaMax(arkode_mem.get(), dgmax);
+      return lambda_result;
+    };
+
+    return ARKodeSetDeltaGammaMax_adapt_solver_memory(arkode_mem, dgmax);
+  },
+  nb::arg("arkode_mem"), nb::arg("dgmax"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetLSetupFrequency",
+  [](const ARKodeView& arkode_mem, int msbp) -> int
+  {
+    auto ARKodeSetLSetupFrequency_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int msbp) -> int
+    {
+      auto lambda_result = ARKodeSetLSetupFrequency(arkode_mem.get(), msbp);
+      return lambda_result;
+    };
+
+    return ARKodeSetLSetupFrequency_adapt_solver_memory(arkode_mem, msbp);
+  },
+  nb::arg("arkode_mem"), nb::arg("msbp"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetPredictorMethod",
+  [](const ARKodeView& arkode_mem, int method) -> int
+  {
+    auto ARKodeSetPredictorMethod_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int method) -> int
+    {
+      auto lambda_result = ARKodeSetPredictorMethod(arkode_mem.get(), method);
+      return lambda_result;
+    };
+
+    return ARKodeSetPredictorMethod_adapt_solver_memory(arkode_mem, method);
+  },
+  nb::arg("arkode_mem"), nb::arg("method"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxNonlinIters",
+  [](const ARKodeView& arkode_mem, int maxcor) -> int
+  {
+    auto ARKodeSetMaxNonlinIters_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int maxcor) -> int
+    {
+      auto lambda_result = ARKodeSetMaxNonlinIters(arkode_mem.get(), maxcor);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxNonlinIters_adapt_solver_memory(arkode_mem, maxcor);
+  },
+  nb::arg("arkode_mem"), nb::arg("maxcor"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxConvFails",
+  [](const ARKodeView& arkode_mem, int maxncf) -> int
+  {
+    auto ARKodeSetMaxConvFails_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int maxncf) -> int
+    {
+      auto lambda_result = ARKodeSetMaxConvFails(arkode_mem.get(), maxncf);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxConvFails_adapt_solver_memory(arkode_mem, maxncf);
+  },
+  nb::arg("arkode_mem"), nb::arg("maxncf"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetNonlinConvCoef",
+  [](const ARKodeView& arkode_mem, sunrealtype nlscoef) -> int
+  {
+    auto ARKodeSetNonlinConvCoef_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype nlscoef) -> int
+    {
+      auto lambda_result = ARKodeSetNonlinConvCoef(arkode_mem.get(), nlscoef);
+      return lambda_result;
+    };
+
+    return ARKodeSetNonlinConvCoef_adapt_solver_memory(arkode_mem, nlscoef);
+  },
+  nb::arg("arkode_mem"), nb::arg("nlscoef"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetAdaptController",
+  [](const ARKodeView& arkode_mem, SUNAdaptController C) -> int
+  {
+    auto ARKodeSetAdaptController_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, SUNAdaptController C) -> int
+    {
+      auto lambda_result = ARKodeSetAdaptController(arkode_mem.get(), C);
+      return lambda_result;
+    };
+
+    return ARKodeSetAdaptController_adapt_solver_memory(arkode_mem, C);
+  },
+  nb::arg("arkode_mem"), nb::arg("C"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetAdaptControllerByName",
+  [](const ARKodeView& arkode_mem, const char* cname) -> int
+  {
+    auto ARKodeSetAdaptControllerByName_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, const char* cname) -> int
+    {
+      auto lambda_result = ARKodeSetAdaptControllerByName(arkode_mem.get(),
+                                                          cname);
+      return lambda_result;
+    };
+
+    return ARKodeSetAdaptControllerByName_adapt_solver_memory(arkode_mem, cname);
+  },
+  nb::arg("arkode_mem"), nb::arg("cname"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetAdaptivityAdjustment",
+  [](const ARKodeView& arkode_mem, int adjust) -> int
+  {
+    auto ARKodeSetAdaptivityAdjustment_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int adjust) -> int
+    {
+      auto lambda_result = ARKodeSetAdaptivityAdjustment(arkode_mem.get(),
+                                                         adjust);
+      return lambda_result;
+    };
+
+    return ARKodeSetAdaptivityAdjustment_adapt_solver_memory(arkode_mem, adjust);
+  },
+  nb::arg("arkode_mem"), nb::arg("adjust"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetCFLFraction",
+  [](const ARKodeView& arkode_mem, sunrealtype cfl_frac) -> int
+  {
+    auto ARKodeSetCFLFraction_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype cfl_frac) -> int
+    {
+      auto lambda_result = ARKodeSetCFLFraction(arkode_mem.get(), cfl_frac);
+      return lambda_result;
+    };
+
+    return ARKodeSetCFLFraction_adapt_solver_memory(arkode_mem, cfl_frac);
+  },
+  nb::arg("arkode_mem"), nb::arg("cfl_frac"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetErrorBias",
+  [](const ARKodeView& arkode_mem, sunrealtype bias) -> int
+  {
+    auto ARKodeSetErrorBias_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype bias) -> int
+    {
+      auto lambda_result = ARKodeSetErrorBias(arkode_mem.get(), bias);
+      return lambda_result;
+    };
+
+    return ARKodeSetErrorBias_adapt_solver_memory(arkode_mem, bias);
+  },
+  nb::arg("arkode_mem"), nb::arg("bias"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetSafetyFactor",
+  [](const ARKodeView& arkode_mem, sunrealtype safety) -> int
+  {
+    auto ARKodeSetSafetyFactor_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype safety) -> int
+    {
+      auto lambda_result = ARKodeSetSafetyFactor(arkode_mem.get(), safety);
+      return lambda_result;
+    };
+
+    return ARKodeSetSafetyFactor_adapt_solver_memory(arkode_mem, safety);
+  },
+  nb::arg("arkode_mem"), nb::arg("safety"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxGrowth",
+  [](const ARKodeView& arkode_mem, sunrealtype mx_growth) -> int
+  {
+    auto ARKodeSetMaxGrowth_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype mx_growth) -> int
+    {
+      auto lambda_result = ARKodeSetMaxGrowth(arkode_mem.get(), mx_growth);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxGrowth_adapt_solver_memory(arkode_mem, mx_growth);
+  },
+  nb::arg("arkode_mem"), nb::arg("mx_growth"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMinReduction",
+  [](const ARKodeView& arkode_mem, sunrealtype eta_min) -> int
+  {
+    auto ARKodeSetMinReduction_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype eta_min) -> int
+    {
+      auto lambda_result = ARKodeSetMinReduction(arkode_mem.get(), eta_min);
+      return lambda_result;
+    };
+
+    return ARKodeSetMinReduction_adapt_solver_memory(arkode_mem, eta_min);
+  },
+  nb::arg("arkode_mem"), nb::arg("eta_min"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetFixedStepBounds",
+  [](const ARKodeView& arkode_mem, sunrealtype lb, sunrealtype ub) -> int
+  {
+    auto ARKodeSetFixedStepBounds_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype lb, sunrealtype ub) -> int
+    {
+      auto lambda_result = ARKodeSetFixedStepBounds(arkode_mem.get(), lb, ub);
+      return lambda_result;
+    };
+
+    return ARKodeSetFixedStepBounds_adapt_solver_memory(arkode_mem, lb, ub);
+  },
+  nb::arg("arkode_mem"), nb::arg("lb"), nb::arg("ub"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxFirstGrowth",
+  [](const ARKodeView& arkode_mem, sunrealtype etamx1) -> int
+  {
+    auto ARKodeSetMaxFirstGrowth_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype etamx1) -> int
+    {
+      auto lambda_result = ARKodeSetMaxFirstGrowth(arkode_mem.get(), etamx1);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxFirstGrowth_adapt_solver_memory(arkode_mem, etamx1);
+  },
+  nb::arg("arkode_mem"), nb::arg("etamx1"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxEFailGrowth",
+  [](const ARKodeView& arkode_mem, sunrealtype etamxf) -> int
+  {
+    auto ARKodeSetMaxEFailGrowth_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype etamxf) -> int
+    {
+      auto lambda_result = ARKodeSetMaxEFailGrowth(arkode_mem.get(), etamxf);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxEFailGrowth_adapt_solver_memory(arkode_mem, etamxf);
+  },
+  nb::arg("arkode_mem"), nb::arg("etamxf"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetSmallNumEFails",
+  [](const ARKodeView& arkode_mem, int small_nef) -> int
+  {
+    auto ARKodeSetSmallNumEFails_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int small_nef) -> int
+    {
+      auto lambda_result = ARKodeSetSmallNumEFails(arkode_mem.get(), small_nef);
+      return lambda_result;
+    };
+
+    return ARKodeSetSmallNumEFails_adapt_solver_memory(arkode_mem, small_nef);
+  },
+  nb::arg("arkode_mem"), nb::arg("small_nef"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxCFailGrowth",
+  [](const ARKodeView& arkode_mem, sunrealtype etacf) -> int
+  {
+    auto ARKodeSetMaxCFailGrowth_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype etacf) -> int
+    {
+      auto lambda_result = ARKodeSetMaxCFailGrowth(arkode_mem.get(), etacf);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxCFailGrowth_adapt_solver_memory(arkode_mem, etacf);
+  },
+  nb::arg("arkode_mem"), nb::arg("etacf"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxErrTestFails",
+  [](const ARKodeView& arkode_mem, int maxnef) -> int
+  {
+    auto ARKodeSetMaxErrTestFails_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int maxnef) -> int
+    {
+      auto lambda_result = ARKodeSetMaxErrTestFails(arkode_mem.get(), maxnef);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxErrTestFails_adapt_solver_memory(arkode_mem, maxnef);
+  },
+  nb::arg("arkode_mem"), nb::arg("maxnef"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetConstraints",
+  [](const ARKodeView& arkode_mem, N_Vector constraints) -> int
+  {
+    auto ARKodeSetConstraints_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, N_Vector constraints) -> int
+    {
+      auto lambda_result = ARKodeSetConstraints(arkode_mem.get(), constraints);
+      return lambda_result;
+    };
+
+    return ARKodeSetConstraints_adapt_solver_memory(arkode_mem, constraints);
+  },
+  nb::arg("arkode_mem"), nb::arg("constraints"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxHnilWarns",
+  [](const ARKodeView& arkode_mem, int mxhnil) -> int
+  {
+    auto ARKodeSetMaxHnilWarns_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int mxhnil) -> int
+    {
+      auto lambda_result = ARKodeSetMaxHnilWarns(arkode_mem.get(), mxhnil);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxHnilWarns_adapt_solver_memory(arkode_mem, mxhnil);
+  },
+  nb::arg("arkode_mem"), nb::arg("mxhnil"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetInitStep",
+  [](const ARKodeView& arkode_mem, sunrealtype hin) -> int
+  {
+    auto ARKodeSetInitStep_adapt_solver_memory = [](const ARKodeView& arkode_mem,
+                                                    sunrealtype hin) -> int
+    {
+      auto lambda_result = ARKodeSetInitStep(arkode_mem.get(), hin);
+      return lambda_result;
+    };
+
+    return ARKodeSetInitStep_adapt_solver_memory(arkode_mem, hin);
+  },
+  nb::arg("arkode_mem"), nb::arg("hin"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMinStep",
+  [](const ARKodeView& arkode_mem, sunrealtype hmin) -> int
+  {
+    auto ARKodeSetMinStep_adapt_solver_memory = [](const ARKodeView& arkode_mem,
+                                                   sunrealtype hmin) -> int
+    {
+      auto lambda_result = ARKodeSetMinStep(arkode_mem.get(), hmin);
+      return lambda_result;
+    };
+
+    return ARKodeSetMinStep_adapt_solver_memory(arkode_mem, hmin);
+  },
+  nb::arg("arkode_mem"), nb::arg("hmin"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxStep",
+  [](const ARKodeView& arkode_mem, sunrealtype hmax) -> int
+  {
+    auto ARKodeSetMaxStep_adapt_solver_memory = [](const ARKodeView& arkode_mem,
+                                                   sunrealtype hmax) -> int
+    {
+      auto lambda_result = ARKodeSetMaxStep(arkode_mem.get(), hmax);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxStep_adapt_solver_memory(arkode_mem, hmax);
+  },
+  nb::arg("arkode_mem"), nb::arg("hmax"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMaxNumConstrFails",
+  [](const ARKodeView& arkode_mem, int maxfails) -> int
+  {
+    auto ARKodeSetMaxNumConstrFails_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int maxfails) -> int
+    {
+      auto lambda_result = ARKodeSetMaxNumConstrFails(arkode_mem.get(), maxfails);
+      return lambda_result;
+    };
+
+    return ARKodeSetMaxNumConstrFails_adapt_solver_memory(arkode_mem, maxfails);
+  },
+  nb::arg("arkode_mem"), nb::arg("maxfails"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetAdjointCheckpointScheme",
+  [](const ARKodeView& arkode_mem,
+     SUNAdjointCheckpointScheme checkpoint_scheme) -> int
+  {
+    auto ARKodeSetAdjointCheckpointScheme_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem,
+         SUNAdjointCheckpointScheme checkpoint_scheme) -> int
+    {
+      auto lambda_result = ARKodeSetAdjointCheckpointScheme(arkode_mem.get(),
+                                                            checkpoint_scheme);
+      return lambda_result;
+    };
+
+    return ARKodeSetAdjointCheckpointScheme_adapt_solver_memory(arkode_mem,
+                                                                checkpoint_scheme);
+  },
+  nb::arg("arkode_mem"), nb::arg("checkpoint_scheme"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetAdjointCheckpointIndex",
+  [](const ARKodeView& arkode_mem, suncountertype step_index) -> int
+  {
+    auto ARKodeSetAdjointCheckpointIndex_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, suncountertype step_index) -> int
+    {
+      auto lambda_result = ARKodeSetAdjointCheckpointIndex(arkode_mem.get(),
+                                                           step_index);
+      return lambda_result;
+    };
+
+    return ARKodeSetAdjointCheckpointIndex_adapt_solver_memory(arkode_mem,
+                                                               step_index);
+  },
+  nb::arg("arkode_mem"), nb::arg("step_index"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetUseCompensatedSums",
+  [](const ARKodeView& arkode_mem, sunbooleantype onoff) -> int
+  {
+    auto ARKodeSetUseCompensatedSums_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunbooleantype onoff) -> int
+    {
+      auto lambda_result = ARKodeSetUseCompensatedSums(arkode_mem.get(), onoff);
+      return lambda_result;
+    };
+
+    return ARKodeSetUseCompensatedSums_adapt_solver_memory(arkode_mem, onoff);
+  },
+  nb::arg("arkode_mem"), nb::arg("onoff"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetAccumulatedErrorType",
+  [](const ARKodeView& arkode_mem, ARKAccumError accum_type) -> int
+  {
+    auto ARKodeSetAccumulatedErrorType_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, ARKAccumError accum_type) -> int
+    {
+      auto lambda_result = ARKodeSetAccumulatedErrorType(arkode_mem.get(),
+                                                         accum_type);
+      return lambda_result;
+    };
+
+    return ARKodeSetAccumulatedErrorType_adapt_solver_memory(arkode_mem,
+                                                             accum_type);
+  },
+  nb::arg("arkode_mem"), nb::arg("accum_type"));
+
+sundials4py::scoped_def(
+  m, "ARKodeResetAccumulatedError",
+  [](const ARKodeView& arkode_mem) -> int
+  {
+    auto ARKodeResetAccumulatedError_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem) -> int
+    {
+      auto lambda_result = ARKodeResetAccumulatedError(arkode_mem.get());
+      return lambda_result;
+    };
+
+    return ARKodeResetAccumulatedError_adapt_solver_memory(arkode_mem);
+  },
+  nb::arg("arkode_mem"));
+
+sundials4py::scoped_def(
+  m, "ARKodeGetDky",
+  [](const ARKodeView& arkode_mem, sunrealtype t, int k, N_Vector dky) -> int
+  {
+    auto ARKodeGetDky_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype t, int k, N_Vector dky) -> int
+    {
+      auto lambda_result = ARKodeGetDky(arkode_mem.get(), t, k, dky);
+      return lambda_result;
+    };
+
+    return ARKodeGetDky_adapt_solver_memory(arkode_mem, t, k, dky);
+  },
+  nb::arg("arkode_mem"), nb::arg("t"), nb::arg("k"), nb::arg("dky"),
   "Computes the kth derivative of the y function at time t");
 
-sundials4py::scoped_def(m, "ARKodeComputeState", ARKodeComputeState,
-                        nb::arg("arkode_mem"), nb::arg("zcor"), nb::arg("z"),
-                        "Utility function to update/compute y based on zcor");
+sundials4py::scoped_def(
+  m, "ARKodeComputeState",
+  [](const ARKodeView& arkode_mem, N_Vector zcor, N_Vector z) -> int
+  {
+    auto ARKodeComputeState_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, N_Vector zcor, N_Vector z) -> int
+    {
+      auto lambda_result = ARKodeComputeState(arkode_mem.get(), zcor, z);
+      return lambda_result;
+    };
+
+    return ARKodeComputeState_adapt_solver_memory(arkode_mem, zcor, z);
+  },
+  nb::arg("arkode_mem"), nb::arg("zcor"), nb::arg("z"),
+  "Utility function to update/compute y based on zcor");
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumRhsEvals",
-  [](void* arkode_mem, int partition_index) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem, int partition_index) -> std::tuple<int, long>
   {
     auto ARKodeGetNumRhsEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem, int partition_index) -> std::tuple<int, long>
@@ -360,15 +1059,25 @@ sundials4py::scoped_def(
                                    &num_rhs_evals_adapt_modifiable);
       return std::make_tuple(r, num_rhs_evals_adapt_modifiable);
     };
+    auto ARKodeGetNumRhsEvals_adapt_solver_memory =
+      [&ARKodeGetNumRhsEvals_adapt_modifiable_immutable_to_return](const ARKodeView&
+                                                                     arkode_mem,
+                                                                   int partition_index)
+      -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumRhsEvals_adapt_modifiable_immutable_to_return(arkode_mem.get(),
+                                                                  partition_index);
+      return lambda_result;
+    };
 
-    return ARKodeGetNumRhsEvals_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                     partition_index);
+    return ARKodeGetNumRhsEvals_adapt_solver_memory(arkode_mem, partition_index);
   },
   nb::arg("arkode_mem"), nb::arg("partition_index"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumStepAttempts",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumStepAttempts_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -379,15 +1088,23 @@ sundials4py::scoped_def(
                                        &step_attempts_adapt_modifiable);
       return std::make_tuple(r, step_attempts_adapt_modifiable);
     };
+    auto ARKodeGetNumStepAttempts_adapt_solver_memory =
+      [&ARKodeGetNumStepAttempts_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumStepAttempts_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumStepAttempts_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumStepAttempts_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumSteps",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumSteps_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -397,14 +1114,22 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumSteps(arkode_mem, &nsteps_adapt_modifiable);
       return std::make_tuple(r, nsteps_adapt_modifiable);
     };
+    auto ARKodeGetNumSteps_adapt_solver_memory =
+      [&ARKodeGetNumSteps_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumSteps_adapt_modifiable_immutable_to_return(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumSteps_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumSteps_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetLastStep",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetLastStep_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -414,14 +1139,22 @@ sundials4py::scoped_def(
       int r = ARKodeGetLastStep(arkode_mem, &hlast_adapt_modifiable);
       return std::make_tuple(r, hlast_adapt_modifiable);
     };
+    auto ARKodeGetLastStep_adapt_solver_memory =
+      [&ARKodeGetLastStep_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetLastStep_adapt_modifiable_immutable_to_return(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetLastStep_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetLastStep_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetCurrentStep",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetCurrentStep_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -431,14 +1164,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetCurrentStep(arkode_mem, &hcur_adapt_modifiable);
       return std::make_tuple(r, hcur_adapt_modifiable);
     };
+    auto ARKodeGetCurrentStep_adapt_solver_memory =
+      [&ARKodeGetCurrentStep_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetCurrentStep_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetCurrentStep_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetCurrentStep_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetStepDirection",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetStepDirection_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -448,17 +1190,38 @@ sundials4py::scoped_def(
       int r = ARKodeGetStepDirection(arkode_mem, &stepdir_adapt_modifiable);
       return std::make_tuple(r, stepdir_adapt_modifiable);
     };
+    auto ARKodeGetStepDirection_adapt_solver_memory =
+      [&ARKodeGetStepDirection_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetStepDirection_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetStepDirection_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetStepDirection_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
-sundials4py::scoped_def(m, "ARKodeGetErrWeights", ARKodeGetErrWeights,
-                        nb::arg("arkode_mem"), nb::arg("eweight"));
+sundials4py::scoped_def(
+  m, "ARKodeGetErrWeights",
+  [](const ARKodeView& arkode_mem, N_Vector eweight) -> int
+  {
+    auto ARKodeGetErrWeights_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, N_Vector eweight) -> int
+    {
+      auto lambda_result = ARKodeGetErrWeights(arkode_mem.get(), eweight);
+      return lambda_result;
+    };
+
+    return ARKodeGetErrWeights_adapt_solver_memory(arkode_mem, eweight);
+  },
+  nb::arg("arkode_mem"), nb::arg("eweight"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumGEvals",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumGEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -468,14 +1231,22 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumGEvals(arkode_mem, &ngevals_adapt_modifiable);
       return std::make_tuple(r, ngevals_adapt_modifiable);
     };
+    auto ARKodeGetNumGEvals_adapt_solver_memory =
+      [&ARKodeGetNumGEvals_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumGEvals_adapt_modifiable_immutable_to_return(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumGEvals_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumGEvals_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetRootInfo",
-  [](void* arkode_mem, sundials4py::IntArray1d rootsfound_1d) -> int
+  [](const ARKodeView& arkode_mem, sundials4py::IntArray1d rootsfound_1d) -> int
   {
     auto ARKodeGetRootInfo_adapt_arr_ptr_to_std_vector =
       [](void* arkode_mem, sundials4py::IntArray1d rootsfound_1d) -> int
@@ -486,25 +1257,57 @@ sundials4py::scoped_def(
       auto lambda_result = ARKodeGetRootInfo(arkode_mem, rootsfound_1d_ptr);
       return lambda_result;
     };
+    auto ARKodeGetRootInfo_adapt_solver_memory =
+      [&ARKodeGetRootInfo_adapt_arr_ptr_to_std_vector](const ARKodeView& arkode_mem,
+                                                       sundials4py::IntArray1d
+                                                         rootsfound_1d) -> int
+    {
+      auto lambda_result =
+        ARKodeGetRootInfo_adapt_arr_ptr_to_std_vector(arkode_mem.get(),
+                                                      rootsfound_1d);
+      return lambda_result;
+    };
 
-    return ARKodeGetRootInfo_adapt_arr_ptr_to_std_vector(arkode_mem,
-                                                         rootsfound_1d);
+    return ARKodeGetRootInfo_adapt_solver_memory(arkode_mem, rootsfound_1d);
   },
   nb::arg("arkode_mem"), nb::arg("rootsfound_1d"));
 
-sundials4py::scoped_def(m, "ARKodePrintAllStats", ARKodePrintAllStats,
-                        nb::arg("arkode_mem"), nb::arg("outfile"),
-                        nb::arg("fmt"));
+sundials4py::scoped_def(
+  m, "ARKodePrintAllStats",
+  [](const ARKodeView& arkode_mem, FILE* outfile, SUNOutputFormat fmt) -> int
+  {
+    auto ARKodePrintAllStats_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, FILE* outfile, SUNOutputFormat fmt) -> int
+    {
+      auto lambda_result = ARKodePrintAllStats(arkode_mem.get(), outfile, fmt);
+      return lambda_result;
+    };
+
+    return ARKodePrintAllStats_adapt_solver_memory(arkode_mem, outfile, fmt);
+  },
+  nb::arg("arkode_mem"), nb::arg("outfile"), nb::arg("fmt"));
 
 sundials4py::scoped_def(m, "ARKodeGetReturnFlagName", ARKodeGetReturnFlagName,
                         nb::arg("flag"));
 
-sundials4py::scoped_def(m, "ARKodeWriteParameters", ARKodeWriteParameters,
-                        nb::arg("arkode_mem"), nb::arg("fp"));
+sundials4py::scoped_def(
+  m, "ARKodeWriteParameters",
+  [](const ARKodeView& arkode_mem, FILE* fp) -> int
+  {
+    auto ARKodeWriteParameters_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, FILE* fp) -> int
+    {
+      auto lambda_result = ARKodeWriteParameters(arkode_mem.get(), fp);
+      return lambda_result;
+    };
+
+    return ARKodeWriteParameters_adapt_solver_memory(arkode_mem, fp);
+  },
+  nb::arg("arkode_mem"), nb::arg("fp"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetStageIndex",
-  [](void* arkode_mem) -> std::tuple<int, int, int>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, int, int>
   {
     auto ARKodeGetStageIndex_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, int, int>
@@ -517,14 +1320,22 @@ sundials4py::scoped_def(
       return std::make_tuple(r, stage_adapt_modifiable,
                              max_stages_adapt_modifiable);
     };
+    auto ARKodeGetStageIndex_adapt_solver_memory =
+      [&ARKodeGetStageIndex_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, int, int>
+    {
+      auto lambda_result =
+        ARKodeGetStageIndex_adapt_modifiable_immutable_to_return(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetStageIndex_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetStageIndex_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumExpSteps",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumExpSteps_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -534,14 +1345,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumExpSteps(arkode_mem, &expsteps_adapt_modifiable);
       return std::make_tuple(r, expsteps_adapt_modifiable);
     };
+    auto ARKodeGetNumExpSteps_adapt_solver_memory =
+      [&ARKodeGetNumExpSteps_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumExpSteps_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumExpSteps_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumExpSteps_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumAccSteps",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumAccSteps_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -551,14 +1371,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumAccSteps(arkode_mem, &accsteps_adapt_modifiable);
       return std::make_tuple(r, accsteps_adapt_modifiable);
     };
+    auto ARKodeGetNumAccSteps_adapt_solver_memory =
+      [&ARKodeGetNumAccSteps_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumAccSteps_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumAccSteps_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumAccSteps_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumErrTestFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumErrTestFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -568,18 +1397,38 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumErrTestFails(arkode_mem, &netfails_adapt_modifiable);
       return std::make_tuple(r, netfails_adapt_modifiable);
     };
+    auto ARKodeGetNumErrTestFails_adapt_solver_memory =
+      [&ARKodeGetNumErrTestFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumErrTestFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumErrTestFails_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumErrTestFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
-sundials4py::scoped_def(m, "ARKodeGetEstLocalErrors", ARKodeGetEstLocalErrors,
-                        nb::arg("arkode_mem"), nb::arg("ele"));
+sundials4py::scoped_def(
+  m, "ARKodeGetEstLocalErrors",
+  [](const ARKodeView& arkode_mem, N_Vector ele) -> int
+  {
+    auto ARKodeGetEstLocalErrors_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, N_Vector ele) -> int
+    {
+      auto lambda_result = ARKodeGetEstLocalErrors(arkode_mem.get(), ele);
+      return lambda_result;
+    };
+
+    return ARKodeGetEstLocalErrors_adapt_solver_memory(arkode_mem, ele);
+  },
+  nb::arg("arkode_mem"), nb::arg("ele"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetActualInitStep",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetActualInitStep_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -589,15 +1438,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetActualInitStep(arkode_mem, &hinused_adapt_modifiable);
       return std::make_tuple(r, hinused_adapt_modifiable);
     };
+    auto ARKodeGetActualInitStep_adapt_solver_memory =
+      [&ARKodeGetActualInitStep_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetActualInitStep_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetActualInitStep_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetActualInitStep_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetTolScaleFactor",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetTolScaleFactor_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -607,15 +1464,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetTolScaleFactor(arkode_mem, &tolsfac_adapt_modifiable);
       return std::make_tuple(r, tolsfac_adapt_modifiable);
     };
+    auto ARKodeGetTolScaleFactor_adapt_solver_memory =
+      [&ARKodeGetTolScaleFactor_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetTolScaleFactor_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetTolScaleFactor_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetTolScaleFactor_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumConstrFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumConstrFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -625,15 +1490,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumConstrFails(arkode_mem, &nconstrfails_adapt_modifiable);
       return std::make_tuple(r, nconstrfails_adapt_modifiable);
     };
+    auto ARKodeGetNumConstrFails_adapt_solver_memory =
+      [&ARKodeGetNumConstrFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumConstrFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumConstrFails_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumConstrFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetStepStats",
-  [](void* arkode_mem)
+  [](const ARKodeView& arkode_mem)
     -> std::tuple<int, long, sunrealtype, sunrealtype, sunrealtype, sunrealtype>
   {
     auto ARKodeGetStepStats_adapt_modifiable_immutable_to_return =
@@ -654,14 +1527,23 @@ sundials4py::scoped_def(
                              hinused_adapt_modifiable, hlast_adapt_modifiable,
                              hcur_adapt_modifiable, tcur_adapt_modifiable);
     };
+    auto ARKodeGetStepStats_adapt_solver_memory =
+      [&ARKodeGetStepStats_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem)
+      -> std::tuple<int, long, sunrealtype, sunrealtype, sunrealtype, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetStepStats_adapt_modifiable_immutable_to_return(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetStepStats_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetStepStats_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetAccumulatedError",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetAccumulatedError_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -672,15 +1554,23 @@ sundials4py::scoped_def(
                                         &accum_error_adapt_modifiable);
       return std::make_tuple(r, accum_error_adapt_modifiable);
     };
+    auto ARKodeGetAccumulatedError_adapt_solver_memory =
+      [&ARKodeGetAccumulatedError_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetAccumulatedError_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetAccumulatedError_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetAccumulatedError_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumLinSolvSetups",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumLinSolvSetups_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -690,15 +1580,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumLinSolvSetups(arkode_mem, &nlinsetups_adapt_modifiable);
       return std::make_tuple(r, nlinsetups_adapt_modifiable);
     };
+    auto ARKodeGetNumLinSolvSetups_adapt_solver_memory =
+      [&ARKodeGetNumLinSolvSetups_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumLinSolvSetups_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumLinSolvSetups_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumLinSolvSetups_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetLastTime",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetLastTime_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -708,14 +1606,22 @@ sundials4py::scoped_def(
       int r = ARKodeGetLastTime(arkode_mem, &tn_adapt_modifiable);
       return std::make_tuple(r, tn_adapt_modifiable);
     };
+    auto ARKodeGetLastTime_adapt_solver_memory =
+      [&ARKodeGetLastTime_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetLastTime_adapt_modifiable_immutable_to_return(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetLastTime_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetLastTime_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetLastState",
-  [](void* arkode_mem) -> std::tuple<int, N_Vector>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, N_Vector>
   {
     auto ARKodeGetLastState_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, N_Vector>
@@ -725,14 +1631,22 @@ sundials4py::scoped_def(
       int r = ARKodeGetLastState(arkode_mem, &state_adapt_modifiable);
       return std::make_tuple(r, state_adapt_modifiable);
     };
+    auto ARKodeGetLastState_adapt_solver_memory =
+      [&ARKodeGetLastState_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, N_Vector>
+    {
+      auto lambda_result =
+        ARKodeGetLastState_adapt_modifiable_immutable_to_return(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetLastState_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetLastState_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"), "nb::rv_policy::reference", nb::rv_policy::reference);
 
 sundials4py::scoped_def(
   m, "ARKodeGetCurrentTime",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetCurrentTime_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -742,14 +1656,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetCurrentTime(arkode_mem, &tcur_adapt_modifiable);
       return std::make_tuple(r, tcur_adapt_modifiable);
     };
+    auto ARKodeGetCurrentTime_adapt_solver_memory =
+      [&ARKodeGetCurrentTime_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetCurrentTime_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetCurrentTime_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetCurrentTime_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetCurrentState",
-  [](void* arkode_mem) -> std::tuple<int, N_Vector>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, N_Vector>
   {
     auto ARKodeGetCurrentState_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, N_Vector>
@@ -759,14 +1682,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetCurrentState(arkode_mem, &state_adapt_modifiable);
       return std::make_tuple(r, state_adapt_modifiable);
     };
+    auto ARKodeGetCurrentState_adapt_solver_memory =
+      [&ARKodeGetCurrentState_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, N_Vector>
+    {
+      auto lambda_result =
+        ARKodeGetCurrentState_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetCurrentState_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetCurrentState_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"), "nb::rv_policy::reference", nb::rv_policy::reference);
 
 sundials4py::scoped_def(
   m, "ARKodeGetCurrentGamma",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetCurrentGamma_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -776,14 +1708,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetCurrentGamma(arkode_mem, &gamma_adapt_modifiable);
       return std::make_tuple(r, gamma_adapt_modifiable);
     };
+    auto ARKodeGetCurrentGamma_adapt_solver_memory =
+      [&ARKodeGetCurrentGamma_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetCurrentGamma_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetCurrentGamma_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetCurrentGamma_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumNonlinSolvIters",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumNonlinSolvIters_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -793,15 +1734,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumNonlinSolvIters(arkode_mem, &nniters_adapt_modifiable);
       return std::make_tuple(r, nniters_adapt_modifiable);
     };
+    auto ARKodeGetNumNonlinSolvIters_adapt_solver_memory =
+      [&ARKodeGetNumNonlinSolvIters_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumNonlinSolvIters_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumNonlinSolvIters_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumNonlinSolvIters_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumNonlinSolvConvFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumNonlinSolvConvFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -812,15 +1761,23 @@ sundials4py::scoped_def(
                                               &nnfails_adapt_modifiable);
       return std::make_tuple(r, nnfails_adapt_modifiable);
     };
+    auto ARKodeGetNumNonlinSolvConvFails_adapt_solver_memory =
+      [&ARKodeGetNumNonlinSolvConvFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumNonlinSolvConvFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumNonlinSolvConvFails_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumNonlinSolvConvFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNonlinSolvStats",
-  [](void* arkode_mem) -> std::tuple<int, long, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long, long>
   {
     auto ARKodeGetNonlinSolvStats_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long, long>
@@ -833,15 +1790,23 @@ sundials4py::scoped_def(
       return std::make_tuple(r, nniters_adapt_modifiable,
                              nnfails_adapt_modifiable);
     };
+    auto ARKodeGetNonlinSolvStats_adapt_solver_memory =
+      [&ARKodeGetNonlinSolvStats_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long, long>
+    {
+      auto lambda_result =
+        ARKodeGetNonlinSolvStats_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNonlinSolvStats_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNonlinSolvStats_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumStepSolveFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumStepSolveFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -851,15 +1816,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumStepSolveFails(arkode_mem, &nncfails_adapt_modifiable);
       return std::make_tuple(r, nncfails_adapt_modifiable);
     };
+    auto ARKodeGetNumStepSolveFails_adapt_solver_memory =
+      [&ARKodeGetNumStepSolveFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumStepSolveFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumStepSolveFails_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumStepSolveFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetJac",
-  [](void* arkode_mem) -> std::tuple<int, SUNMatrix>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, SUNMatrix>
   {
     auto ARKodeGetJac_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, SUNMatrix>
@@ -869,14 +1842,22 @@ sundials4py::scoped_def(
       int r = ARKodeGetJac(arkode_mem, &J_adapt_modifiable);
       return std::make_tuple(r, J_adapt_modifiable);
     };
+    auto ARKodeGetJac_adapt_solver_memory =
+      [&ARKodeGetJac_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, SUNMatrix>
+    {
+      auto lambda_result =
+        ARKodeGetJac_adapt_modifiable_immutable_to_return(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetJac_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetJac_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"), "nb::rv_policy::reference", nb::rv_policy::reference);
 
 sundials4py::scoped_def(
   m, "ARKodeGetJacTime",
-  [](void* arkode_mem) -> std::tuple<int, sunrealtype>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
   {
     auto ARKodeGetJacTime_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, sunrealtype>
@@ -886,14 +1867,22 @@ sundials4py::scoped_def(
       int r = ARKodeGetJacTime(arkode_mem, &t_J_adapt_modifiable);
       return std::make_tuple(r, t_J_adapt_modifiable);
     };
+    auto ARKodeGetJacTime_adapt_solver_memory =
+      [&ARKodeGetJacTime_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, sunrealtype>
+    {
+      auto lambda_result =
+        ARKodeGetJacTime_adapt_modifiable_immutable_to_return(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetJacTime_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetJacTime_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetJacNumSteps",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetJacNumSteps_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -903,14 +1892,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetJacNumSteps(arkode_mem, &nst_J_adapt_modifiable);
       return std::make_tuple(r, nst_J_adapt_modifiable);
     };
+    auto ARKodeGetJacNumSteps_adapt_solver_memory =
+      [&ARKodeGetJacNumSteps_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetJacNumSteps_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetJacNumSteps_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetJacNumSteps_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumJacEvals",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumJacEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -920,14 +1918,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumJacEvals(arkode_mem, &njevals_adapt_modifiable);
       return std::make_tuple(r, njevals_adapt_modifiable);
     };
+    auto ARKodeGetNumJacEvals_adapt_solver_memory =
+      [&ARKodeGetNumJacEvals_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumJacEvals_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumJacEvals_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumJacEvals_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumPrecEvals",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumPrecEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -937,14 +1944,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumPrecEvals(arkode_mem, &npevals_adapt_modifiable);
       return std::make_tuple(r, npevals_adapt_modifiable);
     };
+    auto ARKodeGetNumPrecEvals_adapt_solver_memory =
+      [&ARKodeGetNumPrecEvals_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumPrecEvals_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumPrecEvals_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumPrecEvals_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumPrecSolves",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumPrecSolves_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -954,14 +1970,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumPrecSolves(arkode_mem, &npsolves_adapt_modifiable);
       return std::make_tuple(r, npsolves_adapt_modifiable);
     };
+    auto ARKodeGetNumPrecSolves_adapt_solver_memory =
+      [&ARKodeGetNumPrecSolves_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumPrecSolves_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumPrecSolves_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumPrecSolves_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumLinIters",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumLinIters_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -971,14 +1996,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumLinIters(arkode_mem, &nliters_adapt_modifiable);
       return std::make_tuple(r, nliters_adapt_modifiable);
     };
+    auto ARKodeGetNumLinIters_adapt_solver_memory =
+      [&ARKodeGetNumLinIters_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumLinIters_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumLinIters_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumLinIters_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumLinConvFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumLinConvFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -988,15 +2022,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumLinConvFails(arkode_mem, &nlcfails_adapt_modifiable);
       return std::make_tuple(r, nlcfails_adapt_modifiable);
     };
+    auto ARKodeGetNumLinConvFails_adapt_solver_memory =
+      [&ARKodeGetNumLinConvFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumLinConvFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumLinConvFails_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumLinConvFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumJTSetupEvals",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumJTSetupEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1006,15 +2048,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumJTSetupEvals(arkode_mem, &njtsetups_adapt_modifiable);
       return std::make_tuple(r, njtsetups_adapt_modifiable);
     };
+    auto ARKodeGetNumJTSetupEvals_adapt_solver_memory =
+      [&ARKodeGetNumJTSetupEvals_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumJTSetupEvals_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumJTSetupEvals_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumJTSetupEvals_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumJtimesEvals",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumJtimesEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1024,15 +2074,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumJtimesEvals(arkode_mem, &njvevals_adapt_modifiable);
       return std::make_tuple(r, njvevals_adapt_modifiable);
     };
+    auto ARKodeGetNumJtimesEvals_adapt_solver_memory =
+      [&ARKodeGetNumJtimesEvals_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumJtimesEvals_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumJtimesEvals_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumJtimesEvals_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumLinRhsEvals",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumLinRhsEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1042,15 +2100,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumLinRhsEvals(arkode_mem, &nfevalsLS_adapt_modifiable);
       return std::make_tuple(r, nfevalsLS_adapt_modifiable);
     };
+    auto ARKodeGetNumLinRhsEvals_adapt_solver_memory =
+      [&ARKodeGetNumLinRhsEvals_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumLinRhsEvals_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumLinRhsEvals_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumLinRhsEvals_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetLastLinFlag",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetLastLinFlag_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1060,8 +2126,17 @@ sundials4py::scoped_def(
       int r = ARKodeGetLastLinFlag(arkode_mem, &flag_adapt_modifiable);
       return std::make_tuple(r, flag_adapt_modifiable);
     };
+    auto ARKodeGetLastLinFlag_adapt_solver_memory =
+      [&ARKodeGetLastLinFlag_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetLastLinFlag_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetLastLinFlag_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetLastLinFlag_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
@@ -1070,7 +2145,7 @@ sundials4py::scoped_def(m, "ARKodeGetLinReturnFlagName",
 
 sundials4py::scoped_def(
   m, "ARKodeGetCurrentMassMatrix",
-  [](void* arkode_mem) -> std::tuple<int, SUNMatrix>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, SUNMatrix>
   {
     auto ARKodeGetCurrentMassMatrix_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, SUNMatrix>
@@ -1080,19 +2155,39 @@ sundials4py::scoped_def(
       int r = ARKodeGetCurrentMassMatrix(arkode_mem, &M_adapt_modifiable);
       return std::make_tuple(r, M_adapt_modifiable);
     };
+    auto ARKodeGetCurrentMassMatrix_adapt_solver_memory =
+      [&ARKodeGetCurrentMassMatrix_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, SUNMatrix>
+    {
+      auto lambda_result =
+        ARKodeGetCurrentMassMatrix_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetCurrentMassMatrix_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetCurrentMassMatrix_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"), " Optional output functions (non-identity mass matrices)\n\n nb::rv_policy::reference",
   nb::rv_policy::reference);
 
-sundials4py::scoped_def(m, "ARKodeGetResWeights", ARKodeGetResWeights,
-                        nb::arg("arkode_mem"), nb::arg("rweight"));
+sundials4py::scoped_def(
+  m, "ARKodeGetResWeights",
+  [](const ARKodeView& arkode_mem, N_Vector rweight) -> int
+  {
+    auto ARKodeGetResWeights_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, N_Vector rweight) -> int
+    {
+      auto lambda_result = ARKodeGetResWeights(arkode_mem.get(), rweight);
+      return lambda_result;
+    };
+
+    return ARKodeGetResWeights_adapt_solver_memory(arkode_mem, rweight);
+  },
+  nb::arg("arkode_mem"), nb::arg("rweight"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumMassSetups",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumMassSetups_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1102,14 +2197,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumMassSetups(arkode_mem, &nmsetups_adapt_modifiable);
       return std::make_tuple(r, nmsetups_adapt_modifiable);
     };
+    auto ARKodeGetNumMassSetups_adapt_solver_memory =
+      [&ARKodeGetNumMassSetups_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumMassSetups_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumMassSetups_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumMassSetups_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumMassMultSetups",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumMassMultSetups_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1119,15 +2223,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumMassMultSetups(arkode_mem, &nmvsetups_adapt_modifiable);
       return std::make_tuple(r, nmvsetups_adapt_modifiable);
     };
+    auto ARKodeGetNumMassMultSetups_adapt_solver_memory =
+      [&ARKodeGetNumMassMultSetups_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumMassMultSetups_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumMassMultSetups_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumMassMultSetups_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumMassMult",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumMassMult_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1137,14 +2249,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumMassMult(arkode_mem, &nmvevals_adapt_modifiable);
       return std::make_tuple(r, nmvevals_adapt_modifiable);
     };
+    auto ARKodeGetNumMassMult_adapt_solver_memory =
+      [&ARKodeGetNumMassMult_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumMassMult_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumMassMult_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumMassMult_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumMassSolves",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumMassSolves_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1154,14 +2275,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumMassSolves(arkode_mem, &nmsolves_adapt_modifiable);
       return std::make_tuple(r, nmsolves_adapt_modifiable);
     };
+    auto ARKodeGetNumMassSolves_adapt_solver_memory =
+      [&ARKodeGetNumMassSolves_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumMassSolves_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumMassSolves_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumMassSolves_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumMassPrecEvals",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumMassPrecEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1171,15 +2301,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumMassPrecEvals(arkode_mem, &nmpevals_adapt_modifiable);
       return std::make_tuple(r, nmpevals_adapt_modifiable);
     };
+    auto ARKodeGetNumMassPrecEvals_adapt_solver_memory =
+      [&ARKodeGetNumMassPrecEvals_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumMassPrecEvals_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumMassPrecEvals_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumMassPrecEvals_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumMassPrecSolves",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumMassPrecSolves_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1189,15 +2327,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumMassPrecSolves(arkode_mem, &nmpsolves_adapt_modifiable);
       return std::make_tuple(r, nmpsolves_adapt_modifiable);
     };
+    auto ARKodeGetNumMassPrecSolves_adapt_solver_memory =
+      [&ARKodeGetNumMassPrecSolves_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumMassPrecSolves_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumMassPrecSolves_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumMassPrecSolves_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumMassIters",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumMassIters_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1207,14 +2353,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumMassIters(arkode_mem, &nmiters_adapt_modifiable);
       return std::make_tuple(r, nmiters_adapt_modifiable);
     };
+    auto ARKodeGetNumMassIters_adapt_solver_memory =
+      [&ARKodeGetNumMassIters_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumMassIters_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumMassIters_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumMassIters_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumMassConvFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumMassConvFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1224,15 +2379,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumMassConvFails(arkode_mem, &nmcfails_adapt_modifiable);
       return std::make_tuple(r, nmcfails_adapt_modifiable);
     };
+    auto ARKodeGetNumMassConvFails_adapt_solver_memory =
+      [&ARKodeGetNumMassConvFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumMassConvFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumMassConvFails_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumMassConvFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumMTSetups",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumMTSetups_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1242,14 +2405,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumMTSetups(arkode_mem, &nmtsetups_adapt_modifiable);
       return std::make_tuple(r, nmtsetups_adapt_modifiable);
     };
+    auto ARKodeGetNumMTSetups_adapt_solver_memory =
+      [&ARKodeGetNumMTSetups_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumMTSetups_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumMTSetups_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumMTSetups_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetLastMassFlag",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetLastMassFlag_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1259,43 +2431,157 @@ sundials4py::scoped_def(
       int r = ARKodeGetLastMassFlag(arkode_mem, &flag_adapt_modifiable);
       return std::make_tuple(r, flag_adapt_modifiable);
     };
+    auto ARKodeGetLastMassFlag_adapt_solver_memory =
+      [&ARKodeGetLastMassFlag_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetLastMassFlag_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetLastMassFlag_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetLastMassFlag_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
-  m, "ARKodePrintMem", ARKodePrintMem, nb::arg("arkode_mem"), nb::arg("outfile"),
+  m, "ARKodePrintMem",
+  [](const ARKodeView& arkode_mem, FILE* outfile)
+  {
+    auto ARKodePrintMem_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, FILE* outfile)
+    { ARKodePrintMem(arkode_mem.get(), outfile); };
+
+    ARKodePrintMem_adapt_solver_memory(arkode_mem, outfile);
+  },
+  nb::arg("arkode_mem"), nb::arg("outfile"),
   "Output the ARKODE memory structure (useful when debugging)");
 
-sundials4py::scoped_def(m, "ARKodeSetRelaxEtaFail", ARKodeSetRelaxEtaFail,
-                        nb::arg("arkode_mem"), nb::arg("eta_rf"));
+sundials4py::scoped_def(
+  m, "ARKodeSetRelaxEtaFail",
+  [](const ARKodeView& arkode_mem, sunrealtype eta_rf) -> int
+  {
+    auto ARKodeSetRelaxEtaFail_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype eta_rf) -> int
+    {
+      auto lambda_result = ARKodeSetRelaxEtaFail(arkode_mem.get(), eta_rf);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeSetRelaxLowerBound", ARKodeSetRelaxLowerBound,
-                        nb::arg("arkode_mem"), nb::arg("lower"));
+    return ARKodeSetRelaxEtaFail_adapt_solver_memory(arkode_mem, eta_rf);
+  },
+  nb::arg("arkode_mem"), nb::arg("eta_rf"));
 
-sundials4py::scoped_def(m, "ARKodeSetRelaxMaxFails", ARKodeSetRelaxMaxFails,
-                        nb::arg("arkode_mem"), nb::arg("max_fails"));
+sundials4py::scoped_def(
+  m, "ARKodeSetRelaxLowerBound",
+  [](const ARKodeView& arkode_mem, sunrealtype lower) -> int
+  {
+    auto ARKodeSetRelaxLowerBound_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype lower) -> int
+    {
+      auto lambda_result = ARKodeSetRelaxLowerBound(arkode_mem.get(), lower);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeSetRelaxMaxIters", ARKodeSetRelaxMaxIters,
-                        nb::arg("arkode_mem"), nb::arg("max_iters"));
+    return ARKodeSetRelaxLowerBound_adapt_solver_memory(arkode_mem, lower);
+  },
+  nb::arg("arkode_mem"), nb::arg("lower"));
 
-sundials4py::scoped_def(m, "ARKodeSetRelaxSolver", ARKodeSetRelaxSolver,
-                        nb::arg("arkode_mem"), nb::arg("solver"));
+sundials4py::scoped_def(
+  m, "ARKodeSetRelaxMaxFails",
+  [](const ARKodeView& arkode_mem, int max_fails) -> int
+  {
+    auto ARKodeSetRelaxMaxFails_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int max_fails) -> int
+    {
+      auto lambda_result = ARKodeSetRelaxMaxFails(arkode_mem.get(), max_fails);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeSetRelaxResTol", ARKodeSetRelaxResTol,
-                        nb::arg("arkode_mem"), nb::arg("res_tol"));
+    return ARKodeSetRelaxMaxFails_adapt_solver_memory(arkode_mem, max_fails);
+  },
+  nb::arg("arkode_mem"), nb::arg("max_fails"));
 
-sundials4py::scoped_def(m, "ARKodeSetRelaxTol", ARKodeSetRelaxTol,
-                        nb::arg("arkode_mem"), nb::arg("rel_tol"),
-                        nb::arg("abs_tol"));
+sundials4py::scoped_def(
+  m, "ARKodeSetRelaxMaxIters",
+  [](const ARKodeView& arkode_mem, int max_iters) -> int
+  {
+    auto ARKodeSetRelaxMaxIters_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, int max_iters) -> int
+    {
+      auto lambda_result = ARKodeSetRelaxMaxIters(arkode_mem.get(), max_iters);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeSetRelaxUpperBound", ARKodeSetRelaxUpperBound,
-                        nb::arg("arkode_mem"), nb::arg("upper"));
+    return ARKodeSetRelaxMaxIters_adapt_solver_memory(arkode_mem, max_iters);
+  },
+  nb::arg("arkode_mem"), nb::arg("max_iters"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetRelaxSolver",
+  [](const ARKodeView& arkode_mem, ARKRelaxSolver solver) -> int
+  {
+    auto ARKodeSetRelaxSolver_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, ARKRelaxSolver solver) -> int
+    {
+      auto lambda_result = ARKodeSetRelaxSolver(arkode_mem.get(), solver);
+      return lambda_result;
+    };
+
+    return ARKodeSetRelaxSolver_adapt_solver_memory(arkode_mem, solver);
+  },
+  nb::arg("arkode_mem"), nb::arg("solver"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetRelaxResTol",
+  [](const ARKodeView& arkode_mem, sunrealtype res_tol) -> int
+  {
+    auto ARKodeSetRelaxResTol_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype res_tol) -> int
+    {
+      auto lambda_result = ARKodeSetRelaxResTol(arkode_mem.get(), res_tol);
+      return lambda_result;
+    };
+
+    return ARKodeSetRelaxResTol_adapt_solver_memory(arkode_mem, res_tol);
+  },
+  nb::arg("arkode_mem"), nb::arg("res_tol"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetRelaxTol",
+  [](const ARKodeView& arkode_mem, sunrealtype rel_tol, sunrealtype abs_tol) -> int
+  {
+    auto ARKodeSetRelaxTol_adapt_solver_memory = [](const ARKodeView& arkode_mem,
+                                                    sunrealtype rel_tol,
+                                                    sunrealtype abs_tol) -> int
+    {
+      auto lambda_result = ARKodeSetRelaxTol(arkode_mem.get(), rel_tol, abs_tol);
+      return lambda_result;
+    };
+
+    return ARKodeSetRelaxTol_adapt_solver_memory(arkode_mem, rel_tol, abs_tol);
+  },
+  nb::arg("arkode_mem"), nb::arg("rel_tol"), nb::arg("abs_tol"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetRelaxUpperBound",
+  [](const ARKodeView& arkode_mem, sunrealtype upper) -> int
+  {
+    auto ARKodeSetRelaxUpperBound_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype upper) -> int
+    {
+      auto lambda_result = ARKodeSetRelaxUpperBound(arkode_mem.get(), upper);
+      return lambda_result;
+    };
+
+    return ARKodeSetRelaxUpperBound_adapt_solver_memory(arkode_mem, upper);
+  },
+  nb::arg("arkode_mem"), nb::arg("upper"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumRelaxFnEvals",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumRelaxFnEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1305,15 +2591,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumRelaxFnEvals(arkode_mem, &r_evals_adapt_modifiable);
       return std::make_tuple(r, r_evals_adapt_modifiable);
     };
+    auto ARKodeGetNumRelaxFnEvals_adapt_solver_memory =
+      [&ARKodeGetNumRelaxFnEvals_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumRelaxFnEvals_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumRelaxFnEvals_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumRelaxFnEvals_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumRelaxJacEvals",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumRelaxJacEvals_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1323,15 +2617,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumRelaxJacEvals(arkode_mem, &J_evals_adapt_modifiable);
       return std::make_tuple(r, J_evals_adapt_modifiable);
     };
+    auto ARKodeGetNumRelaxJacEvals_adapt_solver_memory =
+      [&ARKodeGetNumRelaxJacEvals_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumRelaxJacEvals_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumRelaxJacEvals_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumRelaxJacEvals_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumRelaxFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumRelaxFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1341,14 +2643,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumRelaxFails(arkode_mem, &relax_fails_adapt_modifiable);
       return std::make_tuple(r, relax_fails_adapt_modifiable);
     };
+    auto ARKodeGetNumRelaxFails_adapt_solver_memory =
+      [&ARKodeGetNumRelaxFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumRelaxFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumRelaxFails_adapt_modifiable_immutable_to_return(arkode_mem);
+    return ARKodeGetNumRelaxFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumRelaxBoundFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumRelaxBoundFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1358,15 +2669,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumRelaxBoundFails(arkode_mem, &fails_adapt_modifiable);
       return std::make_tuple(r, fails_adapt_modifiable);
     };
+    auto ARKodeGetNumRelaxBoundFails_adapt_solver_memory =
+      [&ARKodeGetNumRelaxBoundFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumRelaxBoundFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumRelaxBoundFails_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumRelaxBoundFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumRelaxSolveFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumRelaxSolveFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1376,15 +2695,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumRelaxSolveFails(arkode_mem, &fails_adapt_modifiable);
       return std::make_tuple(r, fails_adapt_modifiable);
     };
+    auto ARKodeGetNumRelaxSolveFails_adapt_solver_memory =
+      [&ARKodeGetNumRelaxSolveFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumRelaxSolveFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumRelaxSolveFails_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumRelaxSolveFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeGetNumRelaxSolveIters",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto ARKodeGetNumRelaxSolveIters_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -1394,15 +2721,23 @@ sundials4py::scoped_def(
       int r = ARKodeGetNumRelaxSolveIters(arkode_mem, &iters_adapt_modifiable);
       return std::make_tuple(r, iters_adapt_modifiable);
     };
+    auto ARKodeGetNumRelaxSolveIters_adapt_solver_memory =
+      [&ARKodeGetNumRelaxSolveIters_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ARKodeGetNumRelaxSolveIters_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeGetNumRelaxSolveIters_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return ARKodeGetNumRelaxSolveIters_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "ARKodeCreateSUNStepper",
-  [](void* arkode_mem)
+  [](const ARKodeView& arkode_mem)
     -> std::tuple<int, std::shared_ptr<std::remove_pointer_t<SUNStepper>>>
   {
     auto ARKodeCreateSUNStepper_adapt_modifiable_immutable_to_return =
@@ -1426,8 +2761,17 @@ sundials4py::scoped_def(
                                              SUNStepperDeleter>(
                                std::get<1>(lambda_result)));
     };
+    auto ARKodeCreateSUNStepper_adapt_solver_memory =
+      [&ARKodeCreateSUNStepper_adapt_return_type_to_shared_ptr](
+        const ARKodeView& arkode_mem)
+      -> std::tuple<int, std::shared_ptr<std::remove_pointer_t<SUNStepper>>>
+    {
+      auto lambda_result =
+        ARKodeCreateSUNStepper_adapt_return_type_to_shared_ptr(arkode_mem.get());
+      return lambda_result;
+    };
 
-    return ARKodeCreateSUNStepper_adapt_return_type_to_shared_ptr(arkode_mem);
+    return ARKodeCreateSUNStepper_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"), "SUNStepper functions", nb::rv_policy::reference);
 // #ifdef __cplusplus
@@ -1457,7 +2801,7 @@ m.attr("ARKLS_SUNLS_FAIL")       = -12;
 
 sundials4py::scoped_def(
   m, "ARKodeSetLinearSolver",
-  [](void* arkode_mem, SUNLinearSolver LS,
+  [](const ARKodeView& arkode_mem, SUNLinearSolver LS,
      std::optional<SUNMatrix> A = std::nullopt) -> int
   {
     auto ARKodeSetLinearSolver_adapt_optional_arg_with_default_null =
@@ -1471,30 +2815,114 @@ sundials4py::scoped_def(
                                                  A_adapt_default_null);
       return lambda_result;
     };
+    auto ARKodeSetLinearSolver_adapt_solver_memory =
+      [&ARKodeSetLinearSolver_adapt_optional_arg_with_default_null](const ARKodeView&
+                                                                      arkode_mem,
+                                                                    SUNLinearSolver LS,
+                                                                    std::optional<SUNMatrix>
+                                                                      A = std::nullopt)
+      -> int
+    {
+      auto lambda_result =
+        ARKodeSetLinearSolver_adapt_optional_arg_with_default_null(arkode_mem.get(),
+                                                                   LS, A);
+      return lambda_result;
+    };
 
-    return ARKodeSetLinearSolver_adapt_optional_arg_with_default_null(arkode_mem,
-                                                                      LS, A);
+    return ARKodeSetLinearSolver_adapt_solver_memory(arkode_mem, LS, A);
   },
   nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("A").none() = nb::none());
 
-sundials4py::scoped_def(m, "ARKodeSetJacEvalFrequency", ARKodeSetJacEvalFrequency,
-                        nb::arg("arkode_mem"), nb::arg("msbj"));
+sundials4py::scoped_def(
+  m, "ARKodeSetJacEvalFrequency",
+  [](const ARKodeView& arkode_mem, long msbj) -> int
+  {
+    auto ARKodeSetJacEvalFrequency_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, long msbj) -> int
+    {
+      auto lambda_result = ARKodeSetJacEvalFrequency(arkode_mem.get(), msbj);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeSetLinearSolutionScaling",
-                        ARKodeSetLinearSolutionScaling, nb::arg("arkode_mem"),
-                        nb::arg("onoff"));
+    return ARKodeSetJacEvalFrequency_adapt_solver_memory(arkode_mem, msbj);
+  },
+  nb::arg("arkode_mem"), nb::arg("msbj"));
 
-sundials4py::scoped_def(m, "ARKodeSetEpsLin", ARKodeSetEpsLin,
-                        nb::arg("arkode_mem"), nb::arg("eplifac"));
+sundials4py::scoped_def(
+  m, "ARKodeSetLinearSolutionScaling",
+  [](const ARKodeView& arkode_mem, sunbooleantype onoff) -> int
+  {
+    auto ARKodeSetLinearSolutionScaling_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunbooleantype onoff) -> int
+    {
+      auto lambda_result = ARKodeSetLinearSolutionScaling(arkode_mem.get(),
+                                                          onoff);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeSetMassEpsLin", ARKodeSetMassEpsLin,
-                        nb::arg("arkode_mem"), nb::arg("eplifac"));
+    return ARKodeSetLinearSolutionScaling_adapt_solver_memory(arkode_mem, onoff);
+  },
+  nb::arg("arkode_mem"), nb::arg("onoff"));
 
-sundials4py::scoped_def(m, "ARKodeSetLSNormFactor", ARKodeSetLSNormFactor,
-                        nb::arg("arkode_mem"), nb::arg("nrmfac"));
+sundials4py::scoped_def(
+  m, "ARKodeSetEpsLin",
+  [](const ARKodeView& arkode_mem, sunrealtype eplifac) -> int
+  {
+    auto ARKodeSetEpsLin_adapt_solver_memory = [](const ARKodeView& arkode_mem,
+                                                  sunrealtype eplifac) -> int
+    {
+      auto lambda_result = ARKodeSetEpsLin(arkode_mem.get(), eplifac);
+      return lambda_result;
+    };
 
-sundials4py::scoped_def(m, "ARKodeSetMassLSNormFactor", ARKodeSetMassLSNormFactor,
-                        nb::arg("arkode_mem"), nb::arg("nrmfac"));
+    return ARKodeSetEpsLin_adapt_solver_memory(arkode_mem, eplifac);
+  },
+  nb::arg("arkode_mem"), nb::arg("eplifac"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMassEpsLin",
+  [](const ARKodeView& arkode_mem, sunrealtype eplifac) -> int
+  {
+    auto ARKodeSetMassEpsLin_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype eplifac) -> int
+    {
+      auto lambda_result = ARKodeSetMassEpsLin(arkode_mem.get(), eplifac);
+      return lambda_result;
+    };
+
+    return ARKodeSetMassEpsLin_adapt_solver_memory(arkode_mem, eplifac);
+  },
+  nb::arg("arkode_mem"), nb::arg("eplifac"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetLSNormFactor",
+  [](const ARKodeView& arkode_mem, sunrealtype nrmfac) -> int
+  {
+    auto ARKodeSetLSNormFactor_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype nrmfac) -> int
+    {
+      auto lambda_result = ARKodeSetLSNormFactor(arkode_mem.get(), nrmfac);
+      return lambda_result;
+    };
+
+    return ARKodeSetLSNormFactor_adapt_solver_memory(arkode_mem, nrmfac);
+  },
+  nb::arg("arkode_mem"), nb::arg("nrmfac"));
+
+sundials4py::scoped_def(
+  m, "ARKodeSetMassLSNormFactor",
+  [](const ARKodeView& arkode_mem, sunrealtype nrmfac) -> int
+  {
+    auto ARKodeSetMassLSNormFactor_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, sunrealtype nrmfac) -> int
+    {
+      auto lambda_result = ARKodeSetMassLSNormFactor(arkode_mem.get(), nrmfac);
+      return lambda_result;
+    };
+
+    return ARKodeSetMassLSNormFactor_adapt_solver_memory(arkode_mem, nrmfac);
+  },
+  nb::arg("arkode_mem"), nb::arg("nrmfac"));
 // #ifdef __cplusplus
 //
 // #endif

@@ -159,22 +159,22 @@ def main():
     N_VGetNumpyArray(y)[0] = 1.0
 
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), problem.rhs, T0, y) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), RTOL, ATOL) == CV_SUCCESS
+    assert CVodeInit(cvode, problem.rhs, T0, y) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, RTOL, ATOL) == CV_SUCCESS
 
     matrix = SUNDenseMatrix(1, 1, sunctx)
     linear_solver = SUNLinSol_Dense(y, matrix, sunctx)
-    assert CVodeSetLinearSolver(cvode.get(), linear_solver, matrix) == CV_SUCCESS
-    assert CVodeSetJacFn(cvode.get(), problem.jacobian) == CV_SUCCESS
+    assert CVodeSetLinearSolver(cvode, linear_solver, matrix) == CV_SUCCESS
+    assert CVodeSetJacFn(cvode, problem.jacobian) == CV_SUCCESS
 
     nonlinear_solver = ModifiedNewtonSolver(y, sunctx)
-    assert CVodeSetNonlinearSolver(cvode.get(), nonlinear_solver) == CV_SUCCESS
+    assert CVodeSetNonlinearSolver(cvode, nonlinear_solver) == CV_SUCCESS
 
-    status, tret = CVode(cvode.get(), TF, y, CV_NORMAL)
+    status, tret = CVode(cvode, TF, y, CV_NORMAL)
     assert status == CV_SUCCESS
     computed = float(N_VGetNumpyArray(y)[0])
     exact = float(problem.solution(tret))
-    status, nni = CVodeGetNumNonlinSolvIters(cvode.get())
+    status, nni = CVodeGetNumNonlinSolvIters(cvode)
     assert status == CV_SUCCESS
     calls = dict(nonlinear_solver.calls)
     calls["num_iters"] = nonlinear_solver.total_num_iters

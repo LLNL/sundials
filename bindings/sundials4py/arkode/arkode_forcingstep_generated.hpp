@@ -4,13 +4,29 @@
 // #endif
 //
 
-sundials4py::scoped_def(m, "ForcingStepReInit", ForcingStepReInit,
-                        nb::arg("arkode_mem"), nb::arg("stepper1"),
-                        nb::arg("stepper2"), nb::arg("t0"), nb::arg("y0"));
+sundials4py::scoped_def(
+  m, "ForcingStepReInit",
+  [](const ARKodeView& arkode_mem, SUNStepper stepper1, SUNStepper stepper2,
+     sunrealtype t0, N_Vector y0) -> int
+  {
+    auto ForcingStepReInit_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, SUNStepper stepper1, SUNStepper stepper2,
+         sunrealtype t0, N_Vector y0) -> int
+    {
+      auto lambda_result = ForcingStepReInit(arkode_mem.get(), stepper1,
+                                             stepper2, t0, y0);
+      return lambda_result;
+    };
+
+    return ForcingStepReInit_adapt_solver_memory(arkode_mem, stepper1, stepper2,
+                                                 t0, y0);
+  },
+  nb::arg("arkode_mem"), nb::arg("stepper1"), nb::arg("stepper2"),
+  nb::arg("t0"), nb::arg("y0"));
 
 sundials4py::scoped_def(
   m, "ForcingStepGetNumEvolves",
-  [](void* arkode_mem, int partition) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem, int partition) -> std::tuple<int, long>
   {
     auto ForcingStepGetNumEvolves_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem, int partition) -> std::tuple<int, long>
@@ -21,9 +37,20 @@ sundials4py::scoped_def(
                                        &evolves_adapt_modifiable);
       return std::make_tuple(r, evolves_adapt_modifiable);
     };
+    auto ForcingStepGetNumEvolves_adapt_solver_memory =
+      [&ForcingStepGetNumEvolves_adapt_modifiable_immutable_to_return](const ARKodeView&
+                                                                         arkode_mem,
+                                                                       int partition)
+      -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        ForcingStepGetNumEvolves_adapt_modifiable_immutable_to_return(arkode_mem
+                                                                        .get(),
+                                                                      partition);
+      return lambda_result;
+    };
 
-    return ForcingStepGetNumEvolves_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                         partition);
+    return ForcingStepGetNumEvolves_adapt_solver_memory(arkode_mem, partition);
   },
   nb::arg("arkode_mem"), nb::arg("partition"));
 // #ifdef __cplusplus

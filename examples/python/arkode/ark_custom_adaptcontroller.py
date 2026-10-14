@@ -135,14 +135,14 @@ def main():
     N_VGetNumpyArray(y)[0] = problem.solution(T0)
 
     ark = ERKStepCreate(problem.rhs, T0, y, sunctx)
-    assert ARKodeSStolerances(ark.get(), RTOL, ATOL) == ARK_SUCCESS
+    assert ARKodeSStolerances(ark, RTOL, ATOL) == ARK_SUCCESS
 
     # Attach the custom controller. `controller` must stay referenced for as long
     # as ARKODE uses it: the native handle holds only a weak reference back to
     # the Python object, so letting it go out of scope here would leave ARKODE
     # holding a dangling pointer.
     controller = MyController(sunctx)
-    assert ARKodeSetAdaptController(ark.get(), controller) == ARK_SUCCESS
+    assert ARKodeSetAdaptController(ark, controller) == ARK_SUCCESS
 
     print(f"{'t':>10}  {'y':>14}  {'error':>12}  {'last h':>12}")
     print("-" * 54)
@@ -150,10 +150,10 @@ def main():
     dtout = (TF - T0) / NOUT
     tout = T0 + dtout
     for _ in range(NOUT):
-        status, t = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+        status, t = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
         assert status == ARK_SUCCESS, f"ARKodeEvolve returned {status}"
 
-        status, hlast = ARKodeGetLastStep(ark.get())
+        status, hlast = ARKodeGetLastStep(ark)
         assert status == ARK_SUCCESS
 
         computed = N_VGetNumpyArray(y)[0]
@@ -162,13 +162,13 @@ def main():
 
         tout = min(tout + dtout, TF)
 
-    status, nst = ARKodeGetNumSteps(ark.get())
+    status, nst = ARKodeGetNumSteps(ark)
     assert status == ARK_SUCCESS
-    status, nst_a = ARKodeGetNumStepAttempts(ark.get())
+    status, nst_a = ARKodeGetNumStepAttempts(ark)
     assert status == ARK_SUCCESS
-    status, nfe = ARKodeGetNumRhsEvals(ark.get(), 0)
+    status, nfe = ARKodeGetNumRhsEvals(ark, 0)
     assert status == ARK_SUCCESS
-    status, netf = ARKodeGetNumErrTestFails(ark.get())
+    status, netf = ARKodeGetNumErrTestFails(ark)
     assert status == ARK_SUCCESS
 
     print("\nFinal Statistics..\n")

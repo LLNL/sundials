@@ -322,8 +322,8 @@ def test_custom_nvector_integrates_with_arkode(sunctx):
         return SUN_SUCCESS
 
     arkode = ERKStepCreate(rhs, 0.0, y, sunctx)
-    assert ARKodeSStolerances(arkode.get(), 1e-7, 1e-10) == ARK_SUCCESS
-    status, tret = ARKodeEvolve(arkode.get(), 1.0, y, ARK_NORMAL)
+    assert ARKodeSStolerances(arkode, 1e-7, 1e-10) == ARK_SUCCESS
+    status, tret = ARKodeEvolve(arkode, 1.0, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
     assert tret == pytest.approx(1.0)
     assert y.data[0] == pytest.approx(np.exp(-1.0), rel=2e-6)
@@ -335,8 +335,8 @@ def test_cvode_quadrature_init_without_nvspace(sunctx):
     yq = ArrayVector([0.0], sunctx)
     cvode = CVodeCreate(CV_BDF, sunctx)
 
-    assert CVodeInit(cvode.get(), lambda t, y, yd, _: SUN_SUCCESS, 0.0, y) == CV_SUCCESS
-    assert CVodeQuadInit(cvode.get(), lambda t, y, yqdot, _: SUN_SUCCESS, yq) == CV_SUCCESS
+    assert CVodeInit(cvode, lambda t, y, yd, _: SUN_SUCCESS, 0.0, y) == CV_SUCCESS
+    assert CVodeQuadInit(cvode, lambda t, y, yqdot, _: SUN_SUCCESS, yq) == CV_SUCCESS
 
 
 def test_ida_quadrature_init_without_nvspace(sunctx):
@@ -346,8 +346,8 @@ def test_ida_quadrature_init_without_nvspace(sunctx):
     yq = ArrayVector([0.0], sunctx)
     ida = IDACreate(sunctx)
 
-    assert IDAInit(ida.get(), lambda t, y, yp, res, _: SUN_SUCCESS, 0.0, y, yp) == IDA_SUCCESS
-    assert IDAQuadInit(ida.get(), lambda t, y, yp, yqdot, _: SUN_SUCCESS, yq) == IDA_SUCCESS
+    assert IDAInit(ida, lambda t, y, yp, res, _: SUN_SUCCESS, 0.0, y, yp) == IDA_SUCCESS
+    assert IDAQuadInit(ida, lambda t, y, yp, yqdot, _: SUN_SUCCESS, yq) == IDA_SUCCESS
 
 
 def test_void_operation_exception_reaches_cvode_caller(sunctx):
@@ -358,21 +358,21 @@ def test_void_operation_exception_reaches_cvode_caller(sunctx):
         return SUN_SUCCESS
 
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), rhs, 0.0, y) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), 1e-7, 1e-10) == CV_SUCCESS
+    assert CVodeInit(cvode, rhs, 0.0, y) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, 1e-7, 1e-10) == CV_SUCCESS
     linear_solver = SUNLinSol_SPGMR(y, 0, 0, sunctx)
-    assert CVodeSetLinearSolver(cvode.get(), linear_solver, None) == CV_SUCCESS
+    assert CVodeSetLinearSolver(cvode, linear_solver, None) == CV_SUCCESS
     with pytest.raises(LookupError, match="linear sum boom"):
-        CVode(cvode.get(), 1.0, y, CV_NORMAL)
+        CVode(cvode, 1.0, y, CV_NORMAL)
 
     # A later top-level solve starts with a clean pending-exception slot.
     healthy = ArrayVector([1.0], sunctx)
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), rhs, 0.0, healthy) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), 1e-7, 1e-10) == CV_SUCCESS
+    assert CVodeInit(cvode, rhs, 0.0, healthy) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, 1e-7, 1e-10) == CV_SUCCESS
     linear_solver = SUNLinSol_SPGMR(healthy, 0, 0, sunctx)
-    assert CVodeSetLinearSolver(cvode.get(), linear_solver, None) == CV_SUCCESS
-    status, _ = CVode(cvode.get(), 0.1, healthy, CV_NORMAL)
+    assert CVodeSetLinearSolver(cvode, linear_solver, None) == CV_SUCCESS
+    status, _ = CVode(cvode, 0.1, healthy, CV_NORMAL)
     assert status == CV_SUCCESS
 
 
@@ -385,7 +385,7 @@ def test_reduction_exception_reaches_kinsol_caller(sunctx):
         return SUN_SUCCESS
 
     kinsol = KINCreate(sunctx)
-    assert KINInit(kinsol.get(), residual, y) == KIN_SUCCESS
-    assert KINSetNumMaxIters(kinsol.get(), 1) == KIN_SUCCESS
+    assert KINInit(kinsol, residual, y) == KIN_SUCCESS
+    assert KINSetNumMaxIters(kinsol, 1) == KIN_SUCCESS
     with pytest.raises(ArithmeticError, match="max norm boom"):
-        KINSol(kinsol.get(), y, KIN_FP, scale, scale)
+        KINSol(kinsol, y, KIN_FP, scale, scale)

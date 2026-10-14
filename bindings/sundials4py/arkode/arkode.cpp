@@ -46,25 +46,29 @@ void bind_arkode_forcingstep(nb::module_& m);
 void bind_arkode_splittingstep(nb::module_& m);
 
 // ARKODE callback binding macros
-#define BIND_ARKODE_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...)       \
-  sundials4py::scoped_def(                                              \
-    m, #NAME,                                                           \
-    [](void* ark_mem, std::function<std::remove_pointer_t<FN_TYPE>> fn) \
-    {                                                                   \
-      auto fn_table    = get_arkode_fn_table(ark_mem);                  \
-      fn_table->MEMBER = nb::cast(fn);                                  \
-      if (fn) { return NAME(ark_mem, WRAPPER); }                        \
-      else { return NAME(ark_mem, nullptr); }                           \
-    },                                                                  \
+#define BIND_ARKODE_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...) \
+  sundials4py::scoped_def(                                        \
+    m, #NAME,                                                     \
+    [](const ARKodeView& ark_mem_view,                            \
+       std::function<std::remove_pointer_t<FN_TYPE>> fn)          \
+    {                                                             \
+      void* ark_mem    = ark_mem_view.get();                      \
+      auto fn_table    = get_arkode_fn_table(ark_mem);            \
+      fn_table->MEMBER = nb::cast(fn);                            \
+      if (fn) { return NAME(ark_mem, WRAPPER); }                  \
+      else { return NAME(ark_mem, nullptr); }                     \
+    },                                                            \
     __VA_ARGS__)
 
 #define BIND_ARKODE_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2, \
                               MEMBER2, WRAPPER2, ...)                      \
   sundials4py::scoped_def(                                                 \
     m, #NAME,                                                              \
-    [](void* ark_mem, std::function<std::remove_pointer_t<FN_TYPE1>> fn1,  \
+    [](const ARKodeView& ark_mem_view,                                     \
+       std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                 \
        std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                 \
     {                                                                      \
+      void* ark_mem     = ark_mem_view.get();                              \
       auto fn_table     = get_arkode_fn_table(ark_mem);                    \
       fn_table->MEMBER1 = nb::cast(fn1);                                   \
       fn_table->MEMBER2 = nb::cast(fn2);                                   \
@@ -81,8 +85,9 @@ void bind_arkode(nb::module_& m)
 
   m.def(
     "ARKodeEvolve",
-    [](void* mem, sunrealtype tout, N_Vector yout, int itask)
+    [](const ARKodeView& arkode_view, sunrealtype tout, N_Vector yout, int itask)
     {
+      void* mem = arkode_view.get();
       CustomExceptionScope scope;
       sunrealtype tret;
       int flag = ARKodeEvolve(mem, tout, yout, &tret, itask);
@@ -122,9 +127,10 @@ void bind_arkode(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "ARKodeRootInit",
-    [](void* ark_mem, int nrtfn,
+    [](const ARKodeView& ark_mem_view, int nrtfn,
        std::function<std::remove_pointer_t<ARKRootStdFn>> fn)
     {
+      void* ark_mem = ark_mem_view.get();
       auto fn_table = get_arkode_fn_table(ark_mem);
       if (fn)
       {
@@ -143,9 +149,10 @@ void bind_arkode(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "ARKodeResize",
-    [](void* ark_mem, N_Vector y_new, sunrealtype h_scale, sunrealtype t0,
-       std::function<std::remove_pointer_t<ARKVecResizeFn>> fn)
+    [](const ARKodeView& ark_mem_view, N_Vector y_new, sunrealtype h_scale,
+       sunrealtype t0, std::function<std::remove_pointer_t<ARKVecResizeFn>> fn)
     {
+      void* ark_mem         = ark_mem_view.get();
       auto fn_table         = get_arkode_fn_table(ark_mem);
       fn_table->vecresizefn = nb::cast(fn);
       if (fn)
@@ -232,10 +239,11 @@ void bind_arkode(nb::module_& m)
   // due to the 4th argument for user data, so we just write it out explicitly.
   sundials4py::scoped_def(
     m, "ARKodeSetMassTimes",
-    [](void* ark_mem,
+    [](const ARKodeView& ark_mem_view,
        std::function<std::remove_pointer_t<ARKLsMassTimesSetupFn>> msetup,
        std::function<std::remove_pointer_t<ARKLsMassTimesVecFn>> mtimes)
     {
+      void* ark_mem = ark_mem_view.get();
       auto fn_table = get_arkode_fn_table(ark_mem);
 
       if (msetup && mtimes)
@@ -267,9 +275,11 @@ void bind_arkode(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "ARKodeSetOptions",
-    [](void* ark_mem, const std::string& arkid, const std::string& file_name,
-       int argc, const std::vector<std::string>& args)
+    [](const ARKodeView& ark_mem_view, const std::string& arkid,
+       const std::string& file_name, int argc,
+       const std::vector<std::string>& args)
     {
+      void* ark_mem = ark_mem_view.get();
       std::vector<char*> argv;
       argv.reserve(args.size());
 
@@ -288,10 +298,16 @@ void bind_arkode(nb::module_& m)
     nb::arg("args"));
 
   // This function has optional arguments which litgen cannot deal with because they are followed by non-optional arguments.
-  sundials4py::scoped_def(m, "ARKodeSetMassLinearSolver",
-                          ARKodeSetMassLinearSolver, nb::arg("arkode_mem"),
-                          nb::arg("LS"), nb::arg("M").none(),
-                          nb::arg("time_dep"));
+  sundials4py::scoped_def(
+    m, "ARKodeSetMassLinearSolver",
+    [](const ARKodeView& arkode_view, SUNLinearSolver LS,
+       std::optional<SUNMatrix> M, sunbooleantype time_dep)
+    {
+      return ARKodeSetMassLinearSolver(arkode_view.get(), LS,
+                                       M.value_or(nullptr), time_dep);
+    },
+    nb::arg("arkode_mem"), nb::arg("LS"), nb::arg("M").none(),
+    nb::arg("time_dep"));
 
   // TODO(CJB) The nullopt approach of handling None args doesn't seem to be compatible
   // with sundials4py::Array1d, so we just use none() for the Bi and Be args here for now.

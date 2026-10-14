@@ -184,12 +184,24 @@ sundials4py::scoped_def(
 sundials4py::scoped_def(m, "MRIStepCoupling_Write", MRIStepCoupling_Write,
                         nb::arg("MRIC"), nb::arg("outfile"));
 
-sundials4py::scoped_def(m, "MRIStepSetCoupling", MRIStepSetCoupling,
-                        nb::arg("arkode_mem"), nb::arg("MRIC"));
+sundials4py::scoped_def(
+  m, "MRIStepSetCoupling",
+  [](const ARKodeView& arkode_mem, MRIStepCoupling MRIC) -> int
+  {
+    auto MRIStepSetCoupling_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem, MRIStepCoupling MRIC) -> int
+    {
+      auto lambda_result = MRIStepSetCoupling(arkode_mem.get(), MRIC);
+      return lambda_result;
+    };
+
+    return MRIStepSetCoupling_adapt_solver_memory(arkode_mem, MRIC);
+  },
+  nb::arg("arkode_mem"), nb::arg("MRIC"));
 
 sundials4py::scoped_def(
   m, "MRIStepGetCurrentCoupling",
-  [](void* arkode_mem) -> std::tuple<int, MRIStepCoupling>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, MRIStepCoupling>
   {
     auto MRIStepGetCurrentCoupling_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, MRIStepCoupling>
@@ -199,9 +211,17 @@ sundials4py::scoped_def(
       int r = MRIStepGetCurrentCoupling(arkode_mem, &MRIC_adapt_modifiable);
       return std::make_tuple(r, MRIC_adapt_modifiable);
     };
+    auto MRIStepGetCurrentCoupling_adapt_solver_memory =
+      [&MRIStepGetCurrentCoupling_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, MRIStepCoupling>
+    {
+      auto lambda_result =
+        MRIStepGetCurrentCoupling_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return MRIStepGetCurrentCoupling_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return MRIStepGetCurrentCoupling_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"),
   " Optional output functions\n\n nb::rv_policy::reference",
@@ -209,7 +229,7 @@ sundials4py::scoped_def(
 
 sundials4py::scoped_def(
   m, "MRIStepGetLastInnerStepFlag",
-  [](void* arkode_mem) -> std::tuple<int, int>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, int>
   {
     auto MRIStepGetLastInnerStepFlag_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, int>
@@ -219,15 +239,23 @@ sundials4py::scoped_def(
       int r = MRIStepGetLastInnerStepFlag(arkode_mem, &flag_adapt_modifiable);
       return std::make_tuple(r, flag_adapt_modifiable);
     };
+    auto MRIStepGetLastInnerStepFlag_adapt_solver_memory =
+      [&MRIStepGetLastInnerStepFlag_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, int>
+    {
+      auto lambda_result =
+        MRIStepGetLastInnerStepFlag_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return MRIStepGetLastInnerStepFlag_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return MRIStepGetLastInnerStepFlag_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 
 sundials4py::scoped_def(
   m, "MRIStepGetNumInnerStepperFails",
-  [](void* arkode_mem) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem) -> std::tuple<int, long>
   {
     auto MRIStepGetNumInnerStepperFails_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem) -> std::tuple<int, long>
@@ -238,9 +266,17 @@ sundials4py::scoped_def(
                                              &inner_fails_adapt_modifiable);
       return std::make_tuple(r, inner_fails_adapt_modifiable);
     };
+    auto MRIStepGetNumInnerStepperFails_adapt_solver_memory =
+      [&MRIStepGetNumInnerStepperFails_adapt_modifiable_immutable_to_return](
+        const ARKodeView& arkode_mem) -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        MRIStepGetNumInnerStepperFails_adapt_modifiable_immutable_to_return(
+          arkode_mem.get());
+      return lambda_result;
+    };
 
-    return MRIStepGetNumInnerStepperFails_adapt_modifiable_immutable_to_return(
-      arkode_mem);
+    return MRIStepGetNumInnerStepperFails_adapt_solver_memory(arkode_mem);
   },
   nb::arg("arkode_mem"));
 

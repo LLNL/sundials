@@ -282,21 +282,21 @@ def main():
     N_VConst(1.0, scale)
 
     kin = KINCreate(sunctx)
-    assert KINInit(kin.get(), problem.residual, u) == KIN_SUCCESS
-    assert KINSetFuncNormTol(kin.get(), FTOL) == KIN_SUCCESS
-    assert KINSetScaledStepTol(kin.get(), STOL) == KIN_SUCCESS
+    assert KINInit(kin, problem.residual, u) == KIN_SUCCESS
+    assert KINSetFuncNormTol(kin, FTOL) == KIN_SUCCESS
+    assert KINSetScaledStepTol(kin, STOL) == KIN_SUCCESS
 
     # Attach the custom objects. `J` and `LS` must stay referenced for as
     # long as KINSOL uses them: their native handles hold only a weak
     # reference back to the Python objects, so letting either go out of
     # scope here would leave KINSOL holding a dangling pointer.
-    assert KINSetLinearSolver(kin.get(), LS, J) == KIN_SUCCESS
-    assert KINSetJacFn(kin.get(), problem.jacobian) == KIN_SUCCESS
+    assert KINSetLinearSolver(kin, LS, J) == KIN_SUCCESS
+    assert KINSetJacFn(kin, problem.jacobian) == KIN_SUCCESS
 
     # Initial guess: identically zero, away from the solution.
     N_VConst(0.0, u)
 
-    status = KINSol(kin.get(), u, KIN_LINESEARCH, scale, scale)
+    status = KINSol(kin, u, KIN_LINESEARCH, scale, scale)
     assert status == KIN_SUCCESS, f"KINSol returned {status}"
 
     computed = N_VGetNumpyArray(u)
@@ -307,11 +307,11 @@ def main():
         err = abs(computed[i] - exact[i])
         print(f"{problem.x[i]:8.4f}  {computed[i]:14.8e}  {exact[i]:14.8e}  {err:12.4e}")
 
-    status, nni = KINGetNumNonlinSolvIters(kin.get())
+    status, nni = KINGetNumNonlinSolvIters(kin)
     assert status == KIN_SUCCESS
-    status, nfe = KINGetNumFuncEvals(kin.get())
+    status, nfe = KINGetNumFuncEvals(kin)
     assert status == KIN_SUCCESS
-    status, nje = KINGetNumJacEvals(kin.get())
+    status, nje = KINGetNumJacEvals(kin)
     assert status == KIN_SUCCESS
 
     print("\nFinal Statistics..\n")

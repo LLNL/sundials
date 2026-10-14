@@ -316,16 +316,16 @@ def test_custom_matrix_and_linear_solver_through_kinsol(sunctx):
         ]
         return 0
 
-    assert KINInit(kin.get(), sys_function, u) == KIN_SUCCESS
-    assert KINSetFuncNormTol(kin.get(), SUNREALTYPE_ATOL) == KIN_SUCCESS
-    assert KINSetLinearSolver(kin.get(), LS, J) == KIN_SUCCESS
-    assert KINSetJacFn(kin.get(), jac_fn) == KIN_SUCCESS
+    assert KINInit(kin, sys_function, u) == KIN_SUCCESS
+    assert KINSetFuncNormTol(kin, SUNREALTYPE_ATOL) == KIN_SUCCESS
+    assert KINSetLinearSolver(kin, LS, J) == KIN_SUCCESS
+    assert KINSetJacFn(kin, jac_fn) == KIN_SUCCESS
 
     N_VGetArrayPointer(u)[:] = [0.1, 0.1, -0.1]
     scale = N_VNew_Serial(NEQ, sunctx)
     N_VConst(1.0, scale)
 
-    assert KINSol(kin.get(), u, KIN_NONE, scale, scale) == KIN_SUCCESS
+    assert KINSol(kin, u, KIN_NONE, scale, scale) == KIN_SUCCESS
 
     expected = N_VNew_Serial(NEQ, sunctx)
     problem.solution(expected)
@@ -360,15 +360,15 @@ def test_custom_linear_solver_callbacks_through_cvode(sunctx):
         return SUN_SUCCESS
 
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), rhs, 0.0, y) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), 1.0e-7, 1.0e-10) == CV_SUCCESS
+    assert CVodeInit(cvode, rhs, 0.0, y) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, 1.0e-7, 1.0e-10) == CV_SUCCESS
 
     solver = PackageDrivenIterativeSolver(sunctx)
-    assert CVodeSetLinearSolver(cvode.get(), solver, None) == CV_SUCCESS
-    assert CVodeSetJacTimes(cvode.get(), None, jtimes) == CV_SUCCESS
-    assert CVodeSetPreconditioner(cvode.get(), psetup, psolve) == CV_SUCCESS
+    assert CVodeSetLinearSolver(cvode, solver, None) == CV_SUCCESS
+    assert CVodeSetJacTimes(cvode, None, jtimes) == CV_SUCCESS
+    assert CVodeSetPreconditioner(cvode, psetup, psolve) == CV_SUCCESS
 
-    status, tret = CVode(cvode.get(), 0.2, y, CV_NORMAL)
+    status, tret = CVode(cvode, 0.2, y, CV_NORMAL)
     assert status == CV_SUCCESS
     assert tret == pytest.approx(0.2)
     assert N_VGetArrayPointer(y)[0] == pytest.approx(np.exp(-0.2), rel=1.0e-5)
@@ -386,19 +386,19 @@ def test_custom_nonlinear_solver_through_cvode(sunctx):
     problem.set_init_cond(y)
 
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), problem.f, 0.0, y) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), SUNREALTYPE_RTOL, SUNREALTYPE_ATOL) == CV_SUCCESS
+    assert CVodeInit(cvode, problem.f, 0.0, y) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, SUNREALTYPE_RTOL, SUNREALTYPE_ATOL) == CV_SUCCESS
 
     A = SUNDenseMatrix(1, 1, sunctx)
     LS = SUNLinSol_Dense(y, A, sunctx)
-    assert CVodeSetLinearSolver(cvode.get(), LS, A) == CV_SUCCESS
-    assert CVodeSetJacFn(cvode.get(), problem.jac_fn) == CV_SUCCESS
+    assert CVodeSetLinearSolver(cvode, LS, A) == CV_SUCCESS
+    assert CVodeSetJacFn(cvode, problem.jac_fn) == CV_SUCCESS
 
     NLS = NewtonNonlinearSolver(y, sunctx)
-    assert CVodeSetNonlinearSolver(cvode.get(), NLS) == CV_SUCCESS
+    assert CVodeSetNonlinearSolver(cvode, NLS) == CV_SUCCESS
 
     tf = 1.0
-    status, tret = CVode(cvode.get(), tf, y, CV_NORMAL)
+    status, tret = CVode(cvode, tf, y, CV_NORMAL)
     assert status == CV_SUCCESS
     assert tret == pytest.approx(tf)
 
@@ -424,11 +424,11 @@ def test_custom_adapt_controller_through_arkode(sunctx):
     ark = ERKStepCreate(problem.f, 0.0, y, sunctx)
     controller = ProportionalController(sunctx)
 
-    assert ARKodeSStolerances(ark.get(), 1.0e-6, 1.0e-10) == ARK_SUCCESS
-    assert ARKodeSetAdaptController(ark.get(), controller) == ARK_SUCCESS
+    assert ARKodeSStolerances(ark, 1.0e-6, 1.0e-10) == ARK_SUCCESS
+    assert ARKodeSetAdaptController(ark, controller) == ARK_SUCCESS
 
     tf = 1.0
-    status, tret = ARKodeEvolve(ark.get(), tf, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark, tf, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
     assert tret == pytest.approx(tf)
 
@@ -438,7 +438,7 @@ def test_custom_adapt_controller_through_arkode(sunctx):
 
     # Adaptivity ran through Python, over more than one step.
     assert controller.calls["estimate_step"] > 1
-    status, nsteps = ARKodeGetNumSteps(ark.get())
+    status, nsteps = ARKodeGetNumSteps(ark)
     assert status == ARK_SUCCESS
     assert nsteps > 1
 
@@ -452,18 +452,18 @@ def test_custom_adapt_controller_survives_repeated_evolutions(sunctx):
 
     ark = ERKStepCreate(problem.f, 0.0, y, sunctx)
     controller = ProportionalController(sunctx)
-    assert ARKodeSStolerances(ark.get(), 1.0e-6, 1.0e-10) == ARK_SUCCESS
-    assert ARKodeSetAdaptController(ark.get(), controller) == ARK_SUCCESS
+    assert ARKodeSStolerances(ark, 1.0e-6, 1.0e-10) == ARK_SUCCESS
+    assert ARKodeSetAdaptController(ark, controller) == ARK_SUCCESS
 
     t = 0.0
     for tout in (0.25, 0.5, 0.75, 1.0):
-        status, t = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+        status, t = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
         assert status == ARK_SUCCESS
         assert t == pytest.approx(tout)
 
     problem.set_init_cond(y)
-    assert ARKodeReset(ark.get(), 0.0, y) == ARK_SUCCESS
-    status, t = ARKodeEvolve(ark.get(), 1.0, y, ARK_NORMAL)
+    assert ARKodeReset(ark, 0.0, y) == ARK_SUCCESS
+    status, t = ARKodeEvolve(ark, 1.0, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
     assert t == pytest.approx(1.0)
 

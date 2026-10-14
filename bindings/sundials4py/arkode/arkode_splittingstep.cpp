@@ -50,9 +50,10 @@ void bind_arkode_splittingstep(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "SplittingStepReInit",
-    [](void* arkode_mem, std::vector<SUNStepper> steppers, int partitions,
-       sunrealtype t0, N_Vector y0) -> int
+    [](const ARKodeView& arkode_view, std::vector<SUNStepper> steppers,
+       int partitions, sunrealtype t0, N_Vector y0) -> int
     {
+      void* arkode_mem = arkode_view.get();
       return SplittingStepReInit(arkode_mem, steppers.data(), partitions, t0, y0);
     },
     nb::arg("arkode_mem"), nb::arg("steppers"), nb::arg("partitions"),

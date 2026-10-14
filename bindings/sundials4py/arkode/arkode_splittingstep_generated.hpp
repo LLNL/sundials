@@ -292,13 +292,27 @@ sundials4py::scoped_def(
   },
   nb::arg("partitions"), nb::arg("order"));
 
-sundials4py::scoped_def(m, "SplittingStepSetCoefficients",
-                        SplittingStepSetCoefficients, nb::arg("arkode_mem"),
-                        nb::arg("coefficients"));
+sundials4py::scoped_def(
+  m, "SplittingStepSetCoefficients",
+  [](const ARKodeView& arkode_mem, SplittingStepCoefficients coefficients) -> int
+  {
+    auto SplittingStepSetCoefficients_adapt_solver_memory =
+      [](const ARKodeView& arkode_mem,
+         SplittingStepCoefficients coefficients) -> int
+    {
+      auto lambda_result = SplittingStepSetCoefficients(arkode_mem.get(),
+                                                        coefficients);
+      return lambda_result;
+    };
+
+    return SplittingStepSetCoefficients_adapt_solver_memory(arkode_mem,
+                                                            coefficients);
+  },
+  nb::arg("arkode_mem"), nb::arg("coefficients"));
 
 sundials4py::scoped_def(
   m, "SplittingStepGetNumEvolves",
-  [](void* arkode_mem, int partition) -> std::tuple<int, long>
+  [](const ARKodeView& arkode_mem, int partition) -> std::tuple<int, long>
   {
     auto SplittingStepGetNumEvolves_adapt_modifiable_immutable_to_return =
       [](void* arkode_mem, int partition) -> std::tuple<int, long>
@@ -309,9 +323,20 @@ sundials4py::scoped_def(
                                          &evolves_adapt_modifiable);
       return std::make_tuple(r, evolves_adapt_modifiable);
     };
+    auto SplittingStepGetNumEvolves_adapt_solver_memory =
+      [&SplittingStepGetNumEvolves_adapt_modifiable_immutable_to_return](const ARKodeView&
+                                                                           arkode_mem,
+                                                                         int partition)
+      -> std::tuple<int, long>
+    {
+      auto lambda_result =
+        SplittingStepGetNumEvolves_adapt_modifiable_immutable_to_return(arkode_mem
+                                                                          .get(),
+                                                                        partition);
+      return lambda_result;
+    };
 
-    return SplittingStepGetNumEvolves_adapt_modifiable_immutable_to_return(arkode_mem,
-                                                                           partition);
+    return SplittingStepGetNumEvolves_adapt_solver_memory(arkode_mem, partition);
   },
   nb::arg("arkode_mem"), nb::arg("partition"));
 // #ifdef __cplusplus

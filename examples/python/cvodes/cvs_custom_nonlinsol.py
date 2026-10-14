@@ -205,8 +205,8 @@ def main():
     N_VGetNumpyArray(y)[0] = problem.solution(T0)
 
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), problem.rhs, T0, y) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), RTOL, ATOL) == CV_SUCCESS
+    assert CVodeInit(cvode, problem.rhs, T0, y) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, RTOL, ATOL) == CV_SUCCESS
 
     # Attach the custom solver. `NLS` must stay referenced for as long as CVODE
     # uses it: the native handle holds only a weak reference back to the
@@ -214,7 +214,7 @@ def main():
     # holding a dangling pointer. No linear solver is attached, since this
     # solver never forms one.
     NLS = MyNonlinearSolver(y, sunctx)
-    assert CVodeSetNonlinearSolver(cvode.get(), NLS) == CV_SUCCESS
+    assert CVodeSetNonlinearSolver(cvode, NLS) == CV_SUCCESS
 
     print(f"{'t':>10}  {'y':>14}  {'error':>12}")
     print("-" * 40)
@@ -222,7 +222,7 @@ def main():
     t = T0
     tout = T0 + DTOUT
     while t < TF - 1.0e-12:
-        status, t = CVode(cvode.get(), tout, y, CV_NORMAL)
+        status, t = CVode(cvode, tout, y, CV_NORMAL)
         assert status == CV_SUCCESS, f"CVode returned {status}"
 
         computed = N_VGetNumpyArray(y)[0]
@@ -231,9 +231,9 @@ def main():
 
         tout = min(tout + DTOUT, TF)
 
-    status, nst = CVodeGetNumSteps(cvode.get())
+    status, nst = CVodeGetNumSteps(cvode)
     assert status == CV_SUCCESS
-    status, nfe = CVodeGetNumRhsEvals(cvode.get())
+    status, nfe = CVodeGetNumRhsEvals(cvode)
     assert status == CV_SUCCESS
 
     print("\nFinal Statistics..\n")

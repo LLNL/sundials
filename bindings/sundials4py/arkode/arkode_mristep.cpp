@@ -179,8 +179,9 @@ void bind_arkode_mristep(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "ARKodeCreateMRIStepInnerStepper",
-    [](void* inner_arkode_mem)
+    [](const ARKodeView& inner_arkode_view)
     {
+      void* inner_arkode_mem      = inner_arkode_view.get();
       MRIStepInnerStepper stepper = nullptr;
 
       int status = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
@@ -273,11 +274,13 @@ void bind_arkode_mristep(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "MRIStepReInitExtSTS",
-    [](void* arkode_mem, std::function<std::remove_pointer_t<ARKRhsFn>> fd,
+    [](const ARKodeView& arkode_view,
+       std::function<std::remove_pointer_t<ARKRhsFn>> fd,
        std::function<std::remove_pointer_t<ARKRhsFn>> fse,
        std::function<std::remove_pointer_t<ARKRhsFn>> fsi, sunrealtype t0,
        N_Vector y0)
     {
+      void* arkode_mem      = arkode_view.get();
       auto fn_table         = get_arkode_fn_table(arkode_mem);
       fn_table->mristep_fd  = nb::cast(fd);
       fn_table->mristep_fse = nb::cast(fse);
@@ -302,10 +305,11 @@ void bind_arkode_mristep(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "MRIStepGetSTS",
-    [](void* arkode_mem)
+    [](const ARKodeView& arkode_view)
     {
-      void* sts_mem = nullptr;
-      int status    = MRIStepGetSTS(arkode_mem, &sts_mem);
+      void* arkode_mem = arkode_view.get();
+      void* sts_mem    = nullptr;
+      int status       = MRIStepGetSTS(arkode_mem, &sts_mem);
 
       std::shared_ptr<ARKodeBorrowedView> sts;
       if (status == ARK_SUCCESS && sts_mem != nullptr)

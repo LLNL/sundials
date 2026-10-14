@@ -41,9 +41,9 @@ def test_failed_entry_point_conversion_does_not_poison_thread(sunctx):
         return SUN_SUCCESS
 
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), rhs, 0.0, healthy) == CV_SUCCESS
+    assert CVodeInit(cvode, rhs, 0.0, healthy) == CV_SUCCESS
     with pytest.raises(TypeError):
-        CVode(cvode.get(), 1.0, MissingCompare([1.0], sunctx), CV_NORMAL)
+        CVode(cvode, 1.0, MissingCompare([1.0], sunctx), CV_NORMAL)
 
     x = ArrayVector([1.0, 2.0], sunctx)
     z = ArrayVector([0.0, 0.0], sunctx)
@@ -63,11 +63,11 @@ def test_handled_conversion_error_in_callback_does_not_fail_outer_solve(sunctx):
 
     y = ArrayVector([1.0], sunctx)
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), rhs, 0.0, y) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), 1.0e-6, 1.0e-8) == CV_SUCCESS
+    assert CVodeInit(cvode, rhs, 0.0, y) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, 1.0e-6, 1.0e-8) == CV_SUCCESS
     linear_solver = SUNLinSol_SPGMR(y, 0, 0, sunctx)
-    assert CVodeSetLinearSolver(cvode.get(), linear_solver, None) == CV_SUCCESS
-    status, _ = CVode(cvode.get(), 0.1, y, CV_NORMAL)
+    assert CVodeSetLinearSolver(cvode, linear_solver, None) == CV_SUCCESS
+    status, _ = CVode(cvode, 0.1, y, CV_NORMAL)
     assert status == CV_SUCCESS
 
 
@@ -79,10 +79,10 @@ def test_exception_out_of_solver_does_not_leave_capture_enabled(sunctx):
 
     y = ArrayVector([1.0], sunctx)
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), rhs_raises, 0.0, y) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), 1.0e-6, 1.0e-8) == CV_SUCCESS
+    assert CVodeInit(cvode, rhs_raises, 0.0, y) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, 1.0e-6, 1.0e-8) == CV_SUCCESS
     with pytest.raises(ValueError, match="rhs boom"):
-        CVode(cvode.get(), 1.0, y, CV_NORMAL)
+        CVode(cvode, 1.0, y, CV_NORMAL)
 
     bad = FailingLinearSumVector([1.0], sunctx)
     with pytest.raises(LookupError, match="linear sum boom"):
@@ -100,9 +100,9 @@ def test_native_abstol_with_custom_state_is_rejected_loudly(sunctx):
     abstol = N_VNew_Serial(1, sunctx)
     N_VConst(1.0e-8, abstol)
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), lambda t, y, yd, _: SUN_SUCCESS, 0.0, y) == CV_SUCCESS
+    assert CVodeInit(cvode, lambda t, y, yd, _: SUN_SUCCESS, 0.0, y) == CV_SUCCESS
     with pytest.raises(TypeError, match="different vector type"):
-        CVodeSVtolerances(cvode.get(), 1.0e-6, abstol)
+        CVodeSVtolerances(cvode, 1.0e-6, abstol)
 
 
 def test_nested_solver_does_not_disable_outer_capture(sunctx):
@@ -119,19 +119,19 @@ def test_nested_solver_does_not_disable_outer_capture(sunctx):
         N_VLinearSum(1.0, u, -0.5, u, f)
         return SUN_SUCCESS
 
-    assert KINInit(kin.get(), residual, inner) == KIN_SUCCESS
+    assert KINInit(kin, residual, inner) == KIN_SUCCESS
 
     def rhs(t, state, derivative, _):
-        assert KINSol(kin.get(), inner, KIN_FP, inner_scale, inner_scale) == KIN_SUCCESS
+        assert KINSol(kin, inner, KIN_FP, inner_scale, inner_scale) == KIN_SUCCESS
         NestedFailingVector.fail_linear_sum = True
         derivative.data[:] = -state.data
         return SUN_SUCCESS
 
     cvode = CVodeCreate(CV_BDF, sunctx)
-    assert CVodeInit(cvode.get(), rhs, 0.0, y) == CV_SUCCESS
-    assert CVodeSStolerances(cvode.get(), 1.0e-7, 1.0e-10) == CV_SUCCESS
+    assert CVodeInit(cvode, rhs, 0.0, y) == CV_SUCCESS
+    assert CVodeSStolerances(cvode, 1.0e-7, 1.0e-10) == CV_SUCCESS
     try:
         with pytest.raises(LookupError, match="nested linear sum boom"):
-            CVode(cvode.get(), 0.1, y, CV_NORMAL)
+            CVode(cvode, 0.1, y, CV_NORMAL)
     finally:
         NestedFailingVector.fail_linear_sum = False

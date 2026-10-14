@@ -33,25 +33,29 @@ namespace sundials4py {
 
 using namespace sundials::experimental;
 
-#define BIND_CVODE_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...)       \
-  sundials4py::scoped_def(                                             \
-    m, #NAME,                                                          \
-    [](void* cv_mem, std::function<std::remove_pointer_t<FN_TYPE>> fn) \
-    {                                                                  \
-      auto fn_table    = get_cvode_fn_table(cv_mem);                   \
-      fn_table->MEMBER = nb::cast(fn);                                 \
-      if (fn) { return NAME(cv_mem, WRAPPER); }                        \
-      else { return NAME(cv_mem, nullptr); }                           \
-    },                                                                 \
+#define BIND_CVODE_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...) \
+  sundials4py::scoped_def(                                       \
+    m, #NAME,                                                    \
+    [](const CVodeView& cvode_view,                              \
+       std::function<std::remove_pointer_t<FN_TYPE>> fn)         \
+    {                                                            \
+      void* cv_mem     = cvode_view.get();                       \
+      auto fn_table    = get_cvode_fn_table(cv_mem);             \
+      fn_table->MEMBER = nb::cast(fn);                           \
+      if (fn) { return NAME(cv_mem, WRAPPER); }                  \
+      else { return NAME(cv_mem, nullptr); }                     \
+    },                                                           \
     __VA_ARGS__)
 
 #define BIND_CVODE_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2, \
                              MEMBER2, WRAPPER2, ...)                      \
   sundials4py::scoped_def(                                                \
     m, #NAME,                                                             \
-    [](void* cv_mem, std::function<std::remove_pointer_t<FN_TYPE1>> fn1,  \
+    [](const CVodeView& cvode_view,                                       \
+       std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                \
        std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                \
     {                                                                     \
+      void* cv_mem      = cvode_view.get();                               \
       auto fn_table     = get_cvode_fn_table(cv_mem);                     \
       fn_table->MEMBER1 = nb::cast(fn1);                                  \
       fn_table->MEMBER2 = nb::cast(fn2);                                  \
@@ -62,27 +66,30 @@ using namespace sundials::experimental;
     },                                                                    \
     __VA_ARGS__)
 
-#define BIND_CVODEB_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...)                 \
-  sundials4py::scoped_def(                                                        \
-    m, #NAME,                                                                     \
-    [](void* cv_mem, int which, std::function<std::remove_pointer_t<FN_TYPE>> fn) \
-    {                                                                             \
-      void* user_data  = nullptr;                                                 \
-      auto fn_table    = get_cvode_fn_table(cv_mem, which);                       \
-      fn_table->MEMBER = nb::cast(fn);                                            \
-      if (fn) { return NAME(cv_mem, which, WRAPPER); }                            \
-      else { return NAME(cv_mem, which, nullptr); }                               \
-    },                                                                            \
+#define BIND_CVODEB_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...) \
+  sundials4py::scoped_def(                                        \
+    m, #NAME,                                                     \
+    [](const CVodeView& cvode_view, int which,                    \
+       std::function<std::remove_pointer_t<FN_TYPE>> fn)          \
+    {                                                             \
+      void* cv_mem     = cvode_view.get();                        \
+      void* user_data  = nullptr;                                 \
+      auto fn_table    = get_cvode_fn_table(cv_mem, which);       \
+      fn_table->MEMBER = nb::cast(fn);                            \
+      if (fn) { return NAME(cv_mem, which, WRAPPER); }            \
+      else { return NAME(cv_mem, which, nullptr); }               \
+    },                                                            \
     __VA_ARGS__)
 
 #define BIND_CVODEB_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2, \
                               MEMBER2, WRAPPER2, ...)                      \
   sundials4py::scoped_def(                                                 \
     m, #NAME,                                                              \
-    [](void* cv_mem, int which,                                            \
+    [](const CVodeView& cvode_view, int which,                             \
        std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                 \
        std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                 \
     {                                                                      \
+      void* cv_mem      = cvode_view.get();                                \
       void* user_data   = nullptr;                                         \
       auto fn_table     = get_cvode_fn_table(cv_mem, which);               \
       fn_table->MEMBER1 = nb::cast(fn1);                                   \
@@ -100,8 +107,9 @@ void bind_cvodes(nb::module_& m)
 
   m.def(
     "CVode",
-    [](void* mem, sunrealtype tout, N_Vector yout, int itask)
+    [](const CVodeView& cvode_view, sunrealtype tout, N_Vector yout, int itask)
     {
+      void* mem = cvode_view.get();
       CustomExceptionScope scope;
       sunrealtype tret;
       int flag = CVode(mem, tout, yout, &tret, itask);
@@ -112,8 +120,9 @@ void bind_cvodes(nb::module_& m)
     "Solver function");
   m.def(
     "CVodeF",
-    [](void* mem, sunrealtype tout, N_Vector yout, int itask)
+    [](const CVodeView& cvode_view, sunrealtype tout, N_Vector yout, int itask)
     {
+      void* mem = cvode_view.get();
       CustomExceptionScope scope;
       sunrealtype tret;
       int ncheck;
@@ -125,8 +134,9 @@ void bind_cvodes(nb::module_& m)
     "Solver function");
   m.def(
     "CVodeB",
-    [](void* mem, sunrealtype tBout, int itaskB)
+    [](const CVodeView& cvode_view, sunrealtype tBout, int itaskB)
     {
+      void* mem = cvode_view.get();
       CustomExceptionScope scope;
       int flag = CVodeB(mem, tBout, itaskB);
       scope.rethrow_if_pending();
@@ -140,9 +150,11 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeSetOptions",
-    [](void* cv_mem, const std::string& cvid, const std::string& file_name,
-       int argc, const std::vector<std::string>& args)
+    [](const CVodeView& cvode_view, const std::string& cvid,
+       const std::string& file_name, int argc,
+       const std::vector<std::string>& args)
     {
+      void* cv_mem = cvode_view.get();
       std::vector<char*> argv;
       argv.reserve(args.size());
 
@@ -168,9 +180,11 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeInit",
-    [](void* cv_mem, std::function<std::remove_pointer_t<CVRhsFn>> rhs,
-       sunrealtype t0, N_Vector y0)
+    [](const CVodeView& cvode_view,
+       std::function<std::remove_pointer_t<CVRhsFn>> rhs, sunrealtype t0,
+       N_Vector y0)
     {
+      void* cv_mem = cvode_view.get();
       if (!rhs) { throw sundials4py::illegal_value("rhs was None"); }
 
       int cv_status = CVodeInit(cv_mem, cvode_f_wrapper, t0, y0);
@@ -198,8 +212,10 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeRootInit",
-    [](void* cv_mem, int nrtfn, std::function<std::remove_pointer_t<CVRootFn>> fn)
+    [](const CVodeView& cvode_view, int nrtfn,
+       std::function<std::remove_pointer_t<CVRootFn>> fn)
     {
+      void* cv_mem  = cvode_view.get();
       auto fn_table = get_cvode_fn_table(cv_mem);
       if (fn)
       {
@@ -212,9 +228,10 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeQuadInit",
-    [](void* cv_mem, std::function<std::remove_pointer_t<CVQuadRhsFn>> fQ,
-       N_Vector yQ0)
+    [](const CVodeView& cvode_view,
+       std::function<std::remove_pointer_t<CVQuadRhsFn>> fQ, N_Vector yQ0)
     {
+      void* cv_mem  = cvode_view.get();
       auto fn_table = get_cvode_fn_table(cv_mem);
       if (fQ)
       {
@@ -259,9 +276,10 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeQuadSensInit",
-    [](void* cv_mem, std::function<CVQuadSensRhsStdFn> fQS,
+    [](const CVodeView& cvode_view, std::function<CVQuadSensRhsStdFn> fQS,
        std::vector<N_Vector> yQS0)
     {
+      void* cv_mem  = cvode_view.get();
       auto fn_table = get_cvode_fn_table(cv_mem);
       if (fQS)
       {
@@ -274,9 +292,10 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeSensInit",
-    [](void* cv_mem, int Ns, int ism, std::function<CVSensRhsStdFn> fS,
-       std::vector<N_Vector> yS0)
+    [](const CVodeView& cvode_view, int Ns, int ism,
+       std::function<CVSensRhsStdFn> fS, std::vector<N_Vector> yS0)
     {
+      void* cv_mem  = cvode_view.get();
       auto fn_table = get_cvode_fn_table(cv_mem);
 
       if (fS)
@@ -291,10 +310,11 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeSensInit1",
-    [](void* cv_mem, int Ns, int ism,
+    [](const CVodeView& cvode_view, int Ns, int ism,
        std::function<std::remove_pointer_t<CVSensRhs1Fn>> fS1,
        std::vector<N_Vector> yS0)
     {
+      void* cv_mem  = cvode_view.get();
       auto fn_table = get_cvode_fn_table(cv_mem);
 
       if (fS1)
@@ -313,9 +333,11 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeInitB",
-    [](void* cv_mem, int which, std::function<std::remove_pointer_t<CVRhsFnB>> fB,
-       sunrealtype tB0, N_Vector yB0)
+    [](const CVodeView& cvode_view, int which,
+       std::function<std::remove_pointer_t<CVRhsFnB>> fB, sunrealtype tB0,
+       N_Vector yB0)
     {
+      void* cv_mem = cvode_view.get();
       if (!fB) { throw sundials4py::illegal_value("rhs was None"); }
 
       int cv_status = CVodeInitB(cv_mem, which, cvode_fB_wrapper, tB0, yB0);
@@ -340,9 +362,10 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeQuadInitB",
-    [](void* cv_mem, int which,
+    [](const CVodeView& cvode_view, int which,
        std::function<std::remove_pointer_t<CVQuadRhsFnB>> fQB, N_Vector yQBO)
     {
+      void* cv_mem  = cvode_view.get();
       auto fn_table = get_cvode_fn_table(cv_mem, which);
 
       if (fQB)
@@ -378,9 +401,10 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeInitBS",
-    [](void* cv_mem, int which, std::function<CVRhsStdFnBS> fBS,
+    [](const CVodeView& cvode_view, int which, std::function<CVRhsStdFnBS> fBS,
        sunrealtype tB0, N_Vector yB0)
     {
+      void* cv_mem = cvode_view.get();
       if (!fBS) { throw sundials4py::illegal_value("rhs was None"); }
 
       int cv_status = CVodeInitBS(cv_mem, which, cvode_fBS_wrapper, tB0, yB0);
@@ -405,8 +429,10 @@ void bind_cvodes(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "CVodeQuadInitBS",
-    [](void* cv_mem, int which, std::function<CVQuadRhsStdFnBS> fQBS, N_Vector yQBO)
+    [](const CVodeView& cvode_view, int which,
+       std::function<CVQuadRhsStdFnBS> fQBS, N_Vector yQBO)
     {
+      void* cv_mem  = cvode_view.get();
       auto fn_table = get_cvode_fn_table(cv_mem, which);
       if (fQBS)
       {

@@ -184,9 +184,9 @@ def test_custom_domeigestimator_integrates_with_lsrkstep(sunctx):
 
     estimator = NegativeRealEstimator(sunctx)
     arkode = LSRKStepCreateSTS(rhs, 0.0, y, sunctx)
-    assert LSRKStepSetDomEigEstimator(arkode.get(), estimator) == ARK_SUCCESS
-    assert ARKodeSStolerances(arkode.get(), 1e-5, 1e-10) == ARK_SUCCESS
-    status, tret = ARKodeEvolve(arkode.get(), 0.1, y, ARK_NORMAL)
+    assert LSRKStepSetDomEigEstimator(arkode, estimator) == ARK_SUCCESS
+    assert ARKodeSStolerances(arkode, 1e-5, 1e-10) == ARK_SUCCESS
+    status, tret = ARKodeEvolve(arkode, 0.1, y, ARK_NORMAL)
 
     assert status == ARK_SUCCESS
     assert tret == pytest.approx(0.1)

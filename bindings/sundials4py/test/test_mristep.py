@@ -106,18 +106,18 @@ def test_custom_mri_controller_through_mristep(sunctx):
         return ode_problem.f_nonlinear(t, state, derivative, None)
 
     inner_ark = ERKStepCreate(ffast, t0, y, sunctx)
-    assert ARKodeSetFixedStep(inner_ark.get(), 5e-3) == ARK_SUCCESS
-    assert ARKodeSetAccumulatedErrorType(inner_ark.get(), ARK_ACCUMERROR_SUM) == ARK_SUCCESS
-    status, inner_stepper = ARKodeCreateMRIStepInnerStepper(inner_ark.get())
+    assert ARKodeSetFixedStep(inner_ark, 5e-3) == ARK_SUCCESS
+    assert ARKodeSetAccumulatedErrorType(inner_ark, ARK_ACCUMERROR_SUM) == ARK_SUCCESS
+    status, inner_stepper = ARKodeCreateMRIStepInnerStepper(inner_ark)
     assert status == ARK_SUCCESS
 
     ark = MRIStepCreate(fslow, None, t0, y, inner_stepper, sunctx)
-    assert ARKodeSStolerances(ark.get(), 1e-4, 1e-8) == ARK_SUCCESS
-    assert ARKodeSetInitStep(ark.get(), 1e-3) == ARK_SUCCESS
+    assert ARKodeSStolerances(ark, 1e-4, 1e-8) == ARK_SUCCESS
+    assert ARKodeSetInitStep(ark, 1e-3) == ARK_SUCCESS
     controller = RecordingMRIController(sunctx)
-    assert ARKodeSetAdaptController(ark.get(), controller) == ARK_SUCCESS
+    assert ARKodeSetAdaptController(ark, controller) == ARK_SUCCESS
 
-    status, tret = ARKodeEvolve(ark.get(), tf, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark, tf, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
     assert tret == pytest.approx(tf)
 

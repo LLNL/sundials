@@ -113,12 +113,14 @@ void bind_arkode_arkstep(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "ARKStepCreateAdjointStepper",
-    [](void* arkode_mem, std::function<std::remove_pointer_t<SUNAdjRhsFn>> adj_fe,
+    [](const ARKodeView& arkode_view,
+       std::function<std::remove_pointer_t<SUNAdjRhsFn>> adj_fe,
        std::function<std::remove_pointer_t<SUNAdjRhsFn>> adj_fi, sunrealtype tf,
        N_Vector sf, SUNContext sunctx) -> std::tuple<int, SUNAdjointStepper>
     {
-      auto fe_wrapper = adj_fe ? arkstep_adjfe_wrapper : nullptr;
-      auto fi_wrapper = adj_fi ? arkstep_adjfi_wrapper : nullptr;
+      void* arkode_mem = arkode_view.get();
+      auto fe_wrapper  = adj_fe ? arkstep_adjfe_wrapper : nullptr;
+      auto fi_wrapper  = adj_fi ? arkstep_adjfi_wrapper : nullptr;
 
       SUNAdjointStepper adj_stepper = nullptr;
       int ark_status = ARKStepCreateAdjointStepper(arkode_mem, fe_wrapper,

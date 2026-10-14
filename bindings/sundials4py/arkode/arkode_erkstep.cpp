@@ -89,10 +89,11 @@ void bind_arkode_erkstep(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "ERKStepCreateAdjointStepper",
-    [](void* arkode_mem,
+    [](const ARKodeView& arkode_view,
        std::function<std::remove_pointer_t<SUNAdjRhsFn>> adj_f, sunrealtype tf,
        N_Vector sf, SUNContext sunctx) -> std::tuple<int, SUNAdjointStepper>
     {
+      void* arkode_mem = arkode_view.get();
       if (!adj_f) { throw sundials4py::illegal_value("adj_f was null"); }
 
       SUNAdjointStepper adj_stepper = nullptr;

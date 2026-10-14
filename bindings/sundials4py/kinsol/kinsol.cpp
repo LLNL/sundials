@@ -30,25 +30,29 @@ using namespace sundials::experimental;
 
 #include "kinsol_usersupplied.hpp"
 
-#define BIND_KINSOL_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...)       \
-  sundials4py::scoped_def(                                              \
-    m, #NAME,                                                           \
-    [](void* kin_mem, std::function<std::remove_pointer_t<FN_TYPE>> fn) \
-    {                                                                   \
-      auto fntable    = get_kinsol_fn_table(kin_mem);                   \
-      fntable->MEMBER = nb::cast(fn);                                   \
-      if (fn) { return NAME(kin_mem, WRAPPER); }                        \
-      else { return NAME(kin_mem, nullptr); }                           \
-    },                                                                  \
+#define BIND_KINSOL_CALLBACK(NAME, FN_TYPE, MEMBER, WRAPPER, ...) \
+  sundials4py::scoped_def(                                        \
+    m, #NAME,                                                     \
+    [](const KINView& kin_mem_view,                               \
+       std::function<std::remove_pointer_t<FN_TYPE>> fn)          \
+    {                                                             \
+      void* kin_mem   = kin_mem_view.get();                       \
+      auto fntable    = get_kinsol_fn_table(kin_mem);             \
+      fntable->MEMBER = nb::cast(fn);                             \
+      if (fn) { return NAME(kin_mem, WRAPPER); }                  \
+      else { return NAME(kin_mem, nullptr); }                     \
+    },                                                            \
     __VA_ARGS__)
 
 #define BIND_KINSOL_CALLBACK2(NAME, FN_TYPE1, MEMBER1, WRAPPER1, FN_TYPE2, \
                               MEMBER2, WRAPPER2, ...)                      \
   sundials4py::scoped_def(                                                 \
     m, #NAME,                                                              \
-    [](void* kin_mem, std::function<std::remove_pointer_t<FN_TYPE1>> fn1,  \
+    [](const KINView& kin_mem_view,                                        \
+       std::function<std::remove_pointer_t<FN_TYPE1>> fn1,                 \
        std::function<std::remove_pointer_t<FN_TYPE2>> fn2)                 \
     {                                                                      \
+      void* kin_mem    = kin_mem_view.get();                               \
       auto fntable     = get_kinsol_fn_table(kin_mem);                     \
       fntable->MEMBER1 = nb::cast(fn1);                                    \
       fntable->MEMBER2 = nb::cast(fn2);                                    \
@@ -67,8 +71,10 @@ void bind_kinsol(nb::module_& m)
 
   m.def(
     "KINSol",
-    [](void* mem, N_Vector uu, int strategy, N_Vector u_scale, N_Vector f_scale)
+    [](const KINView& kin_view, N_Vector uu, int strategy, N_Vector u_scale,
+       N_Vector f_scale)
     {
+      void* mem = kin_view.get();
       CustomExceptionScope scope;
       int flag = KINSol(mem, uu, strategy, u_scale, f_scale);
       scope.rethrow_if_pending();
@@ -83,9 +89,11 @@ void bind_kinsol(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "KINSetOptions",
-    [](void* kin_mem, const std::string& kinid, const std::string& file_name,
-       int argc, const std::vector<std::string>& args)
+    [](const KINView& kin_mem_view, const std::string& kinid,
+       const std::string& file_name, int argc,
+       const std::vector<std::string>& args)
     {
+      void* kin_mem = kin_mem_view.get();
       std::vector<char*> argv;
       argv.reserve(args.size());
 
@@ -111,9 +119,10 @@ void bind_kinsol(nb::module_& m)
 
   sundials4py::scoped_def(
     m, "KINInit",
-    [](void* kin_mem, std::function<std::remove_pointer_t<KINSysFn>> sysfn,
-       N_Vector tmpl)
+    [](const KINView& kin_mem_view,
+       std::function<std::remove_pointer_t<KINSysFn>> sysfn, N_Vector tmpl)
     {
+      void* kin_mem = kin_mem_view.get();
       if (!sysfn) { throw sundials4py::illegal_value("sysfn was null"); }
       int kin_status = KINInit(kin_mem, kinsol_sysfn_wrapper, tmpl);
       if (kin_status != KIN_SUCCESS) { return kin_status; }
