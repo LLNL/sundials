@@ -41,13 +41,13 @@ def test_sprkstep(sunctx):
 
     sprk = SPRKStepCreate(f1, f2, 0, y, sunctx)
 
-    status = ARKodeSetFixedStep(sprk.get(), dt)
+    status = ARKodeSetFixedStep(sprk, dt)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetMaxNumSteps(sprk.get(), int(np.ceil(tout / dt)))
+    status = ARKodeSetMaxNumSteps(sprk, int(np.ceil(tout / dt)))
     assert status == ARK_SUCCESS
 
-    status, tret = ARKodeEvolve(sprk.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(sprk, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = N_VClone(y)

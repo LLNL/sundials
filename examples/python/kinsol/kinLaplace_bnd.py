@@ -126,11 +126,11 @@ def main():
 
     # Initialize and allocate memory for KINSOL
     kin = KINCreate(sunctx)
-    status = KINInit(kin.get(), problem.func, y)
+    status = KINInit(kin, problem.func, y)
     assert status == KIN_SUCCESS
 
     # Set function norm tolerance
-    status = KINSetFuncNormTol(kin.get(), FTOL)
+    status = KINSetFuncNormTol(kin, FTOL)
     assert status == KIN_SUCCESS
 
     # Create band matrix and linear solver
@@ -140,45 +140,45 @@ def main():
     LS = SUNLinSol_Band(y, J, sunctx)
     assert LS is not None
 
-    status = KINSetLinearSolver(kin.get(), LS, J)
+    status = KINSetLinearSolver(kin, LS, J)
     assert status == KIN_SUCCESS
 
     # Set Modified Newton parameters
-    status = KINSetMaxSetupCalls(kin.get(), 100)
+    status = KINSetMaxSetupCalls(kin, 100)
     assert status == KIN_SUCCESS
-    status = KINSetMaxSubSetupCalls(kin.get(), 1)
+    status = KINSetMaxSubSetupCalls(kin, 1)
     assert status == KIN_SUCCESS
 
     # No scaling used
     N_VConst(ONE, scale)
 
     # Call KINSol to solve problem
-    status = KINSol(kin.get(), y, KIN_LINESEARCH, scale, scale)
+    status = KINSol(kin, y, KIN_LINESEARCH, scale, scale)
     assert status == KIN_SUCCESS
 
     # Get scaled norm of the system function
-    status, fnorm = KINGetFuncNorm(kin.get())
+    status, fnorm = KINGetFuncNorm(kin)
     assert status == KIN_SUCCESS
     print(f"\nComputed solution (||F|| = {fnorm}):\n")
     problem.print_output(y)
 
     # Print final statistics (faithful to C PrintFinalStats)
-    status, nni = KINGetNumNonlinSolvIters(kin.get())
+    status, nni = KINGetNumNonlinSolvIters(kin)
     assert status == KIN_SUCCESS
 
-    status, nfe = KINGetNumFuncEvals(kin.get())
+    status, nfe = KINGetNumFuncEvals(kin)
     assert status == KIN_SUCCESS
 
-    status, nbcfails = KINGetNumBetaCondFails(kin.get())
+    status, nbcfails = KINGetNumBetaCondFails(kin)
     assert status == KIN_SUCCESS
 
-    status, nbacktr = KINGetNumBacktrackOps(kin.get())
+    status, nbacktr = KINGetNumBacktrackOps(kin)
     assert status == KIN_SUCCESS
 
-    status, nje = KINGetNumJacEvals(kin.get())
+    status, nje = KINGetNumJacEvals(kin)
     assert status == KIN_SUCCESS
 
-    status, nfeD = KINGetNumLinFuncEvals(kin.get())
+    status, nfeD = KINGetNumLinFuncEvals(kin)
     assert status == KIN_SUCCESS
 
     print("\nFinal Statistics.. \n")

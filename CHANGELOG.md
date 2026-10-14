@@ -6,6 +6,10 @@
 
 ### New Features and Enhancements
 
+Updated the sundials4py solver interfaces so ``ARKodeView``, ``CVodeView``,
+``IDAView``, and ``KINView`` can be passed directly to functions that operate
+on solver memory; calls no longer need to pass ``view.get()``.
+
 Added the utility function, `SUNFileFlush` for flushing file pointers. This is
 useful when using the Fortran 2003 interfaces.
 

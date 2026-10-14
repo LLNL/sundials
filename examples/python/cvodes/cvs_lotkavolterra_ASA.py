@@ -110,25 +110,25 @@ def main():
     assert cvode is not None
 
     # Initialize CVODE with ODE RHS
-    status = CVodeInit(cvode.get(), ode.f, T0, y)
+    status = CVodeInit(cvode, ode.f, T0, y)
     assert status == CV_SUCCESS
 
     # Set tolerances
-    status = CVodeSStolerances(cvode.get(), reltol, abstol)
+    status = CVodeSStolerances(cvode, reltol, abstol)
     assert status == CV_SUCCESS
 
     # Set max steps
-    status = CVodeSetMaxNumSteps(cvode.get(), 100000)
+    status = CVodeSetMaxNumSteps(cvode, 100000)
     assert status == CV_SUCCESS
 
     # Set linear solver
     ls = SUNLinSol_SPGMR(y, 0, 3, sunctx)
     assert ls is not None
-    status = CVodeSetLinearSolver(cvode.get(), ls, None)
+    status = CVodeSetLinearSolver(cvode, ls, None)
     assert status == CV_SUCCESS
 
     # Enable adjoint sensitivity analysis
-    status = CVodeAdjInit(cvode.get(), steps, CV_HERMITE)
+    status = CVodeAdjInit(cvode, steps, CV_HERMITE)
     assert status == CV_SUCCESS
 
     # Output problem setup
@@ -144,7 +144,7 @@ def main():
     # Forward integration
     tout = Tf
     t = 0.0
-    status, tret, ncheck = CVodeF(cvode.get(), tout, y, CV_NORMAL)
+    status, tret, ncheck = CVodeF(cvode, tout, y, CV_NORMAL)
     assert status == CV_SUCCESS
 
     yarr = N_VGetNumpyArray(y)
@@ -164,51 +164,51 @@ def main():
     print(N_VGetNumpyArray(qB))
 
     # Create the CVODES object for the backward problem
-    status, which = CVodeCreateB(cvode.get(), CV_BDF)
+    status, which = CVodeCreateB(cvode, CV_BDF)
     assert status == CV_SUCCESS
 
     # Initialize the CVODES solver for the backward problem
-    status = CVodeInitB(cvode.get(), which, ode.adjoint_rhs, Tf, uB)
+    status = CVodeInitB(cvode, which, ode.adjoint_rhs, Tf, uB)
     assert status == CV_SUCCESS
 
     # Set the tolerances for the backward problem
-    status = CVodeSStolerancesB(cvode.get(), which, reltol, abstol)
+    status = CVodeSStolerancesB(cvode, which, reltol, abstol)
     assert status == CV_SUCCESS
 
     # Create the linear solver for the backward problem
     lsb = SUNLinSol_SPGMR(uB, 0, 3, sunctx)
     assert lsb is not None
-    status = CVodeSetLinearSolverB(cvode.get(), which, lsb, None)
+    status = CVodeSetLinearSolverB(cvode, which, lsb, None)
     assert status == CV_SUCCESS
 
     # Call CVodeQuadInitB to allocate internal memory and initialize backward
     # quadrature integration. This gives the sensitivities w.r.t. the parameters.
-    status = CVodeQuadInitB(cvode.get(), which, ode.quad_rhs, qB)
+    status = CVodeQuadInitB(cvode, which, ode.quad_rhs, qB)
     assert status == CV_SUCCESS
 
     # Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
     # are to be used in the step size control mechanism within CVODES. Call
     # CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
     # tolerances for the quadrature variables.
-    status = CVodeSetQuadErrConB(cvode.get(), which, True)
+    status = CVodeSetQuadErrConB(cvode, which, True)
     assert status == CV_SUCCESS
 
     # Call CVodeQuadSStolerancesB to specify the scalar relative and absolute tolerances
     # for the backward problem.
-    status = CVodeQuadSStolerancesB(cvode.get(), which, reltol, abstol)
+    status = CVodeQuadSStolerancesB(cvode, which, reltol, abstol)
     assert status == CV_SUCCESS
 
     # Integrate the adjoint ODE
-    status = CVodeB(cvode.get(), T0, CV_NORMAL)
+    status = CVodeB(cvode, T0, CV_NORMAL)
     assert status >= 0
 
     # Get the final adjoint solution
-    status, t = CVodeGetB(cvode.get(), which, uB)
+    status, t = CVodeGetB(cvode, which, uB)
     assert status == CV_SUCCESS
 
     # Call CVodeGetQuadB to get the quadrature solution vector after a
     # successful return from CVodeB.
-    status, t = CVodeGetQuadB(cvode.get(), which, qB)
+    status, t = CVodeGetQuadB(cvode, which, qB)
     assert status == CV_SUCCESS
 
     # dg/dp = -qB

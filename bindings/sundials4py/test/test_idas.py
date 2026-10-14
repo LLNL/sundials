@@ -44,19 +44,19 @@ def test_idas_ivp(sunctx):
     def psolve(t, yy, yp, rr, r, z, cj, delta, _):
         return dae_problem.psolve(t, yy, yp, rr, r, z, cj, delta)
 
-    status = IDAInit(ida.get(), dae_problem.res, 0.0, yy, yp)
+    status = IDAInit(ida, dae_problem.res, 0.0, yy, yp)
     assert status == IDA_SUCCESS
 
-    status = IDASStolerances(ida.get(), 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = IDASStolerances(ida, 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == IDA_SUCCESS
 
-    status = IDASetLinearSolver(ida.get(), ls, None)
+    status = IDASetLinearSolver(ida, ls, None)
     assert status == IDA_SUCCESS
 
-    status = IDASetPreconditioner(ida.get(), None, psolve)
+    status = IDASetPreconditioner(ida, None, psolve)
     assert status == IDA_SUCCESS
 
-    status = IDASetMaxNumSteps(ida.get(), 100000)
+    status = IDASetMaxNumSteps(ida, 100000)
     assert status == IDA_SUCCESS
 
     nrtfn = 2
@@ -67,14 +67,14 @@ def test_idas_ivp(sunctx):
         assert len(gout) == nrtfn
         return 0
 
-    status = IDARootInit(ida.get(), nrtfn, rootfn)
+    status = IDARootInit(ida, nrtfn, rootfn)
     assert status == IDA_SUCCESS
 
     tout = dae_problem.TF
-    status, tret = IDASolve(ida.get(), tout, yy, yp, IDA_NORMAL)
+    status, tret = IDASolve(ida, tout, yy, yp, IDA_NORMAL)
     assert status == IDA_SUCCESS
 
-    status, num_steps = IDAGetNumSteps(ida.get())
+    status, num_steps = IDAGetNumSteps(ida)
     assert status == IDA_SUCCESS
     print("Number of steps: ", num_steps)
 
@@ -103,30 +103,30 @@ def test_idas_get_root_info_updates_numpy_array(sunctx):
         gout[1] = 1.0
         return 0
 
-    status = IDAInit(ida.get(), dae_problem.res, 0.0, yy, yp)
+    status = IDAInit(ida, dae_problem.res, 0.0, yy, yp)
     assert status == IDA_SUCCESS
 
-    status = IDASStolerances(ida.get(), 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = IDASStolerances(ida, 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == IDA_SUCCESS
 
-    status = IDASetLinearSolver(ida.get(), ls, None)
+    status = IDASetLinearSolver(ida, ls, None)
     assert status == IDA_SUCCESS
 
-    status = IDASetPreconditioner(ida.get(), None, psolve)
+    status = IDASetPreconditioner(ida, None, psolve)
     assert status == IDA_SUCCESS
 
-    status = IDASetMaxNumSteps(ida.get(), 100000)
+    status = IDASetMaxNumSteps(ida, 100000)
     assert status == IDA_SUCCESS
 
-    status = IDARootInit(ida.get(), 2, rootfn)
+    status = IDARootInit(ida, 2, rootfn)
     assert status == IDA_SUCCESS
 
-    status, tret = IDASolve(ida.get(), dae_problem.TF, yy, yp, IDA_NORMAL)
+    status, tret = IDASolve(ida, dae_problem.TF, yy, yp, IDA_NORMAL)
     assert status == IDA_ROOT_RETURN
     assert tret > 0.0
 
     rootsfound = np.zeros(2, dtype=np.intc)
-    status = IDAGetRootInfo(ida.get(), rootsfound)
+    status = IDAGetRootInfo(ida, rootsfound)
     assert status == IDA_SUCCESS
     assert rootsfound[0] != 0
     assert rootsfound[1] == 0
@@ -147,19 +147,19 @@ def test_idas_fsa(sunctx):
     def psolve(t, yy, yp, rr, r, z, cj, delta, _):
         return dae_problem.psolve(t, yy, yp, rr, r, z, cj, delta)
 
-    status = IDAInit(ida.get(), dae_problem.res, 0.0, yy, yp)
+    status = IDAInit(ida, dae_problem.res, 0.0, yy, yp)
     assert status == IDA_SUCCESS
 
-    status = IDASStolerances(ida.get(), 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = IDASStolerances(ida, 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == IDA_SUCCESS
 
-    status = IDASetLinearSolver(ida.get(), ls, None)
+    status = IDASetLinearSolver(ida, ls, None)
     assert status == IDA_SUCCESS
 
-    status = IDASetPreconditioner(ida.get(), None, psolve)
+    status = IDASetPreconditioner(ida, None, psolve)
     assert status == IDA_SUCCESS
 
-    status = IDASetMaxNumSteps(ida.get(), 100000)
+    status = IDASetMaxNumSteps(ida, 100000)
     assert status == IDA_SUCCESS
 
     # Sensitivity setup
@@ -179,21 +179,21 @@ def test_idas_fsa(sunctx):
             N_VConst(0.0, resvalS[i])
         return 0
 
-    status = IDASensInit(ida.get(), Ns, ism, resS, yyS0, ypS0)
+    status = IDASensInit(ida, Ns, ism, resS, yyS0, ypS0)
     assert status == IDA_SUCCESS
 
     status = IDASensSStolerances(
-        ida.get(), 100 * SUNREALTYPE_RTOL, np.array([SUNREALTYPE_ATOL], dtype=sunrealtype)
+        ida, 100 * SUNREALTYPE_RTOL, np.array([SUNREALTYPE_ATOL], dtype=sunrealtype)
     )
     assert status == IDA_SUCCESS
 
     tout = dae_problem.TF
     yySout = [N_VClone(yy) for _ in range(Ns)]
-    status, tret = IDASolve(ida.get(), tout, yy, yp, IDA_NORMAL)
+    status, tret = IDASolve(ida, tout, yy, yp, IDA_NORMAL)
     assert status == IDA_SUCCESS
 
     # Get sensitivities (smoke test: just check call and shape)
-    status, tret_sens = IDAGetSens(ida.get(), yySout)
+    status, tret_sens = IDAGetSens(ida, yySout)
     assert status == IDA_SUCCESS
     assert len(yySout) == Ns
 
@@ -213,30 +213,30 @@ def test_idas_adjoint(sunctx):
     def psolve(t, yy, yp, rr, r, z, cj, delta, _):
         return dae_problem.psolve(t, yy, yp, rr, r, z, cj, delta)
 
-    status = IDAInit(ida.get(), dae_problem.res, 0.0, yy, yp)
+    status = IDAInit(ida, dae_problem.res, 0.0, yy, yp)
     assert status == IDA_SUCCESS
 
-    status = IDASStolerances(ida.get(), 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = IDASStolerances(ida, 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == IDA_SUCCESS
 
-    status = IDASetLinearSolver(ida.get(), ls, None)
+    status = IDASetLinearSolver(ida, ls, None)
     assert status == IDA_SUCCESS
 
-    status = IDASetPreconditioner(ida.get(), None, psolve)
+    status = IDASetPreconditioner(ida, None, psolve)
     assert status == IDA_SUCCESS
 
-    status = IDASetMaxNumSteps(ida.get(), 100000)
+    status = IDASetMaxNumSteps(ida, 100000)
     assert status == IDA_SUCCESS
 
     # Adjoint (backward) problem setup
     steps = 5
     interp = IDA_HERMITE
-    status = IDAAdjInit(ida.get(), steps, interp)
+    status = IDAAdjInit(ida, steps, interp)
     assert status == IDA_SUCCESS
 
     # Integrate forward
     tout = dae_problem.TF
-    status, tret, ncheck = IDASolveF(ida.get(), tout, yy, yp, IDA_NORMAL)
+    status, tret, ncheck = IDASolveF(ida, tout, yy, yp, IDA_NORMAL)
     assert status == IDA_SUCCESS
 
     # Create backward problem
@@ -246,29 +246,29 @@ def test_idas_adjoint(sunctx):
     N_VConst(0.0, ypB)
     lsB = SUNLinSol_SPGMR(yyB, 0, 0, sunctx)
 
-    status, whichB = IDACreateB(ida.get())
+    status, whichB = IDACreateB(ida)
     assert status == IDA_SUCCESS
 
     def resB(t, y, yp, yB, ypB, resvalB, _):
         N_VConst(0.0, resvalB)
         return 0
 
-    status = IDAInitB(ida.get(), whichB, resB, tout, yyB, ypB)
+    status = IDAInitB(ida, whichB, resB, tout, yyB, ypB)
     assert status == IDA_SUCCESS
 
-    status = IDASStolerancesB(ida.get(), whichB, 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = IDASStolerancesB(ida, whichB, 100 * SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == IDA_SUCCESS
 
-    status = IDASetLinearSolverB(ida.get(), whichB, lsB, None)
+    status = IDASetLinearSolverB(ida, whichB, lsB, None)
     assert status == IDA_SUCCESS
 
     # Integrate backward
     tB0 = dae_problem.T0
-    status = IDASolveB(ida.get(), tB0, IDA_NORMAL)
+    status = IDASolveB(ida, tB0, IDA_NORMAL)
     assert status >= IDA_SUCCESS
 
     # Get sensitivities
     yB0 = N_VClone(yyB)
     ypB0 = N_VClone(ypB)
-    status, yyB0 = IDAGetB(ida.get(), whichB, yB0, ypB0)
+    status, yyB0 = IDAGetB(ida, whichB, yB0, ypB0)
     assert status == IDA_SUCCESS

@@ -115,16 +115,16 @@ def main():
     #
     arkode = ark.ARKStepCreate(ode.f, None, t0, y, sunctx)
     assert arkode is not None
-    status = ark.ARKodeSetOrder(arkode.get(), 4)
+    status = ark.ARKodeSetOrder(arkode, 4)
     assert status == ark.ARK_SUCCESS
-    status = ark.ARKodeSStolerances(arkode.get(), reltol, abstol)
+    status = ark.ARKodeSStolerances(arkode, reltol, abstol)
     assert status == ark.ARK_SUCCESS
-    status = ark.ARKodeSetFixedStep(arkode.get(), dt)
+    status = ark.ARKodeSetFixedStep(arkode, dt)
     assert status == ark.ARK_SUCCESS
 
     # Due to roundoff in the `t` accumulation within the integrator,
     # the integrator may actually use nsteps + 1 time steps to reach tf
-    status = ark.ARKodeSetMaxNumSteps(arkode.get(), int((tf - t0) / dt) + 1)
+    status = ark.ARKodeSetMaxNumSteps(arkode, int((tf - t0) / dt) + 1)
     assert status == ark.ARK_SUCCESS
 
     # Enable checkpointing during the forward run
@@ -135,7 +135,7 @@ def main():
         sun.SUNDATAIOMODE_INMEM, mem_helper, check_freq, ncheck, keep_checks, sunctx
     )
     assert status == sun.SUN_SUCCESS
-    status = ark.ARKodeSetAdjointCheckpointScheme(arkode.get(), checkpoint_scheme)
+    status = ark.ARKodeSetAdjointCheckpointScheme(arkode, checkpoint_scheme)
     assert status == ark.ARK_SUCCESS
 
     #
@@ -147,7 +147,7 @@ def main():
     print(yarr)
 
     tret = t0
-    status, tret = ark.ARKodeEvolve(arkode.get(), tf, y, ark.ARK_NORMAL)
+    status, tret = ark.ARKodeEvolve(arkode, tf, y, ark.ARK_NORMAL)
     assert status == ark.ARK_SUCCESS
 
     print("Forward Solution:")
@@ -156,7 +156,7 @@ def main():
     print("ARKODE Stats for Forward Solution:")
     status, file_ptr = sun.SUNFileOpen("stdout", "w+")
     assert status == ark.ARK_SUCCESS
-    ark.ARKodePrintAllStats(arkode.get(), file_ptr, sun.SUN_OUTPUTFORMAT_TABLE)
+    ark.ARKodePrintAllStats(arkode, file_ptr, sun.SUN_OUTPUTFORMAT_TABLE)
 
     #
     # Create the adjoint stepper
@@ -184,7 +184,7 @@ def main():
 
     # Create ARKStep adjoint stepper
     status, adj_stepper = ark.ARKStepCreateAdjointStepper(
-        arkode.get(), ode.adj_rhs, None, tf, sf, sunctx
+        arkode, ode.adj_rhs, None, tf, sf, sunctx
     )
     assert status == ark.ARK_SUCCESS
 

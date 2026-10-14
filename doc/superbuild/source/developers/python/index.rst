@@ -27,8 +27,12 @@ It is a C++ library, i.e. you write your binding code in C++. Nanobind does have
 
 - Cannot bind to functions which take double, or more pointer arguments. I.e., it cannot bind to ``**`` or ``***`` and so on. These have to be flattened somehow.
 
-- Cannot implicitly convert between a "View" container class and the underlying C type. That is, it cannot implicitly convert ``ARKodeView`` to ``void*``.
-  This means that users must explicitly convert from the "View" class by calling the ``get`` member function.
+- Cannot implicitly convert between a "View" container class and the underlying C type. That is, C++ code cannot implicitly convert ``ARKodeView`` to ``void*``.
+  The generated and handwritten sundials4py bindings handle this conversion
+  internally, so Python users pass ``ARKodeView``, ``CVodeView``, ``IDAView``,
+  or ``KINView`` directly to functions that operate on solver memory. Binding
+  code should take the appropriate View by ``const`` reference and call its
+  ``get`` member when it needs the raw pointer.
 
 We use `litgen <https://github.com/pthom/litgen>`__ to generate a large portion of the nanobind code.
 
@@ -199,8 +203,10 @@ Finally, in ``bindings/sundials4py/arkode/arkode.cpp``, the Set function is regi
 
    m.def(
       ARKodeSetPostprocessStepFn,
-      [](void* ark_mem, std::function<std::remove_pointer_t<ARKPostProcessFn>> fn)
+      [](const ARKodeView& arkode_view,
+         std::function<std::remove_pointer_t<ARKPostProcessFn>> fn)
       {
+         void* ark_mem = arkode_view.get();
          auto fn_table    = get_arkode_fn_table(ark_mem);
          fn_table->MEMBER = nb::cast(fn);
          fntable->postprocessstepfn = nb::cast(fn);
@@ -328,8 +334,10 @@ of ``CVodeRootInit`` since the ``.none()`` call is made.
 
    m.def(
     "CVodeRootInit",
-    [](void* cv_mem, int nrtfn, std::function<std::remove_pointer_t<CVRootFn>> fn)
+    [](const CVodeView& cvode_view, int nrtfn,
+       std::function<std::remove_pointer_t<CVRootFn>> fn)
     {
+      void* cv_mem = cvode_view.get();
       auto fn_table = get_cvode_fn_table(cv_mem);
       if (fn)
       {
@@ -350,4 +358,3 @@ We must tell nanobind about these relationships using the ``nb::keep_alive`` fun
 more complex cases, the ``nb::call_policy`` function and ``sundials4py::returns_references_to``
 object. Refer to `the nanobind documentation <https://nanobind.readthedocs.io/en/latest/functions.html#lifetime-annotations>`__
 for more information as well as the source file ``bindings/sundials4py/sundials4py_helpers.hpp``.
-

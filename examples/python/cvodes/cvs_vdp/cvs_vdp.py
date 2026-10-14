@@ -119,13 +119,13 @@ def main(argv=None):
     # Create and configure CVODE.
     cvode = CVodeCreate(CV_BDF, sunctx)
 
-    status = CVodeInit(cvode.get(), lambda t, y, ydot, _: ode.f(t, y, ydot), T0, y)
+    status = CVodeInit(cvode, lambda t, y, ydot, _: ode.f(t, y, ydot), T0, y)
     assert status == CV_SUCCESS
 
-    status = CVodeSStolerances(cvode.get(), reltol, abstol)
+    status = CVodeSStolerances(cvode, reltol, abstol)
     assert status == CV_SUCCESS
 
-    status = CVodeSetMaxNumSteps(cvode.get(), 10000)
+    status = CVodeSetMaxNumSteps(cvode, 10000)
     assert status == CV_SUCCESS
 
     if args.solver == "newton":
@@ -135,7 +135,7 @@ def main(argv=None):
     else:
         NLS = SUNNonlinSol_Auto(y, aa_depth, SUNNONLINSOL_AUTO_NEWTON, sunctx)
 
-    status = CVodeSetNonlinearSolver(cvode.get(), NLS)
+    status = CVodeSetNonlinearSolver(cvode, NLS)
     assert status == CV_SUCCESS
 
     if args.solver == "newton" or args.solver == "auto":
@@ -143,11 +143,11 @@ def main(argv=None):
         A = SUNDenseMatrix(NEQ, NEQ, sunctx)
         LS = SUNLinSol_Dense(y, A, sunctx)
 
-        status = CVodeSetLinearSolver(cvode.get(), LS, A)
+        status = CVodeSetLinearSolver(cvode, LS, A)
         assert status == CV_SUCCESS
 
         status = CVodeSetJacFn(
-            cvode.get(),
+            cvode,
             lambda t, yvec, fyvec, J, tmp1, tmp2, tmp3, _: ode.jac(
                 t, yvec, fyvec, J, tmp1, tmp2, tmp3
             ),
@@ -155,7 +155,7 @@ def main(argv=None):
         assert status == CV_SUCCESS
 
     cvode_argv = [argv[0]] + sundials_argv
-    status = CVodeSetOptions(cvode.get(), "", "", len(cvode_argv), cvode_argv)
+    status = CVodeSetOptions(cvode, "", "", len(cvode_argv), cvode_argv)
     assert status == CV_SUCCESS
 
     yarr = N_VGetNumpyArray(y)
@@ -177,7 +177,7 @@ def main(argv=None):
         UFID.write(f" {T0:.16e} {yarr[0]:.16e} {yarr[1]:.16e}\n")
         tout = T0 + dTout
         for iout in range(Nt):
-            status, tret = CVode(cvode.get(), tout, y, CV_NORMAL)
+            status, tret = CVode(cvode, tout, y, CV_NORMAL)
             yarr = N_VGetNumpyArray(y)
             print(f"  {tret:10.6f}  {yarr[0]:10.6f}  {yarr[1]:10.6f}")
             UFID.write(f" {tret:.16e} {yarr[0]:.16e} {yarr[1]:.16e}\n")
@@ -195,7 +195,7 @@ def main(argv=None):
     print("\nFinal Solver Statistics:")
     status, file_ptr = SUNFileOpen("stdout", "w+")
     assert status == CV_SUCCESS
-    status = CVodePrintAllStats(cvode.get(), file_ptr, SUN_OUTPUTFORMAT_TABLE)
+    status = CVodePrintAllStats(cvode, file_ptr, SUN_OUTPUTFORMAT_TABLE)
     assert status == CV_SUCCESS
     if args.solver == "auto":
         status, nfp, nnewt = SUNNonlinSolGetTotalNumItersByType_Auto(NLS)

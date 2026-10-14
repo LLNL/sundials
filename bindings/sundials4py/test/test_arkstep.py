@@ -34,7 +34,7 @@ def test_explicit(sunctx):
 
     ark = ARKStepCreate(ode_problem.f, None, 0, y, sunctx)
 
-    status = ARKodeSStolerances(ark.get(), SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = ARKodeSStolerances(ark, SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == ARK_SUCCESS
 
     nrtfn = 2
@@ -45,14 +45,14 @@ def test_explicit(sunctx):
         assert len(gout) == nrtfn
         return 0
 
-    status = ARKodeRootInit(ark.get(), nrtfn, rootfn)
+    status = ARKodeRootInit(ark, nrtfn, rootfn)
     assert status == ARK_SUCCESS
 
     tout = 10.0
-    status, tret = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
-    status, num_steps = ARKodeGetNumSteps(ark.get())
+    status, num_steps = ARKodeGetNumSteps(ark)
     assert status == ARK_SUCCESS
     assert num_steps > 0
 
@@ -78,18 +78,18 @@ def test_arkstep_get_root_info_updates_numpy_array(sunctx):
 
     ark = ARKStepCreate(rhs, None, 0.0, y, sunctx)
 
-    status = ARKodeSStolerances(ark.get(), SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = ARKodeSStolerances(ark, SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == ARK_SUCCESS
 
-    status = ARKodeRootInit(ark.get(), 2, rootfn)
+    status = ARKodeRootInit(ark, 2, rootfn)
     assert status == ARK_SUCCESS
 
-    status, tret = ARKodeEvolve(ark.get(), 1.0, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark, 1.0, y, ARK_NORMAL)
     assert status == ARK_ROOT_RETURN
     assert tret > 0.0
 
     rootsfound = np.zeros(2, dtype=np.intc)
-    status = ARKodeGetRootInfo(ark.get(), rootsfound)
+    status = ARKodeGetRootInfo(ark, rootsfound)
     assert status == ARK_SUCCESS
     assert rootsfound[0] != 0
     assert rootsfound[1] == 0
@@ -105,17 +105,17 @@ def test_implicit(sunctx):
 
     ark = ARKStepCreate(None, ode_problem.f, 0, y, sunctx)
 
-    status = ARKodeSStolerances(ark.get(), SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = ARKodeSStolerances(ark, SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetLinearSolver(ark.get(), ls, None)
+    status = ARKodeSetLinearSolver(ark, ls, None)
     assert status == ARK_SUCCESS
 
     tout = 10.0
-    status, tret = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
-    status, num_steps = ARKodeGetNumSteps(ark.get())
+    status, num_steps = ARKodeGetNumSteps(ark)
     assert status == ARK_SUCCESS
     assert num_steps > 0
 
@@ -136,20 +136,20 @@ def test_implicit_with_dense_ls_and_jac(sunctx):
 
     ark = ARKStepCreate(None, ode_problem.f, 0.0, y, sunctx)
 
-    status = ARKodeSStolerances(ark.get(), SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = ARKodeSStolerances(ark, SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetLinearSolver(ark.get(), ls, A)
+    status = ARKodeSetLinearSolver(ark, ls, A)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetJacFn(ark.get(), ode_problem.jac_fn)
+    status = ARKodeSetJacFn(ark, ode_problem.jac_fn)
     assert status == ARK_SUCCESS
 
     tout = 10.0
-    status, tret = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
-    status, num_steps = ARKodeGetNumSteps(ark.get())
+    status, num_steps = ARKodeGetNumSteps(ark)
     assert status == ARK_SUCCESS
     assert num_steps > 0
 
@@ -169,17 +169,17 @@ def test_imex(sunctx):
 
     ark = ARKStepCreate(ode_problem.f_nonlinear, ode_problem.f_linear, 0, y, sunctx)
 
-    status = ARKodeSStolerances(ark.get(), SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = ARKodeSStolerances(ark, SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetLinearSolver(ark.get(), ls, None)
+    status = ARKodeSetLinearSolver(ark, ls, None)
     assert status == ARK_SUCCESS
 
     tout = 10.0
-    status, tret = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
-    status, num_steps = ARKodeGetNumSteps(ark.get())
+    status, num_steps = ARKodeGetNumSteps(ark)
     assert status == ARK_SUCCESS
     assert num_steps > 0
 

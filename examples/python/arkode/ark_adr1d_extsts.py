@@ -233,7 +233,7 @@ def stats_text(arkode_mem):
     try:
         status, file_ptr = sun.SUNFileOpen(str(stats_path), "w")
         assert status == sun.SUN_SUCCESS
-        status = ark.ARKodePrintAllStats(arkode_mem.get(), file_ptr, sun.SUN_OUTPUTFORMAT_TABLE)
+        status = ark.ARKodePrintAllStats(arkode_mem, file_ptr, sun.SUN_OUTPUTFORMAT_TABLE)
         assert status == ark.ARK_SUCCESS
 
         file_ptr = None
@@ -294,22 +294,22 @@ def main(argv=None):
     assert arkode is not None
 
     # Retrieve and configure the inner STS stepper created by ExtSTS.
-    status, sts = ark.MRIStepGetSTS(arkode.get())
+    status, sts = ark.MRIStepGetSTS(arkode)
     assert status == ark.ARK_SUCCESS
     assert sts is not None
 
     sts_method = ark.ARKODE_LSRK_RKC_2 if args.sts_method == "RKC" else ark.ARKODE_LSRK_RKL_2
-    status = ark.LSRKStepSetSTSMethod(sts.get(), sts_method)
+    status = ark.LSRKStepSetSTSMethod(sts, sts_method)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.LSRKStepSetDomEigFn(sts.get(), problem.diffusion_domeig)
+    status = ark.LSRKStepSetDomEigFn(sts, problem.diffusion_domeig)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.ARKodeSStolerances(arkode.get(), args.rtol, args.atol)
+    status = ark.ARKodeSStolerances(arkode, args.rtol, args.atol)
     assert status == ark.ARK_SUCCESS
 
     if args.fixed_h > 0.0:
-        status = ark.ARKodeSetFixedStep(arkode.get(), args.fixed_h)
+        status = ark.ARKodeSetFixedStep(arkode, args.fixed_h)
         assert status == ark.ARK_SUCCESS
 
     # The reaction RHS is implicit.  Providing a band matrix and band linear
@@ -320,16 +320,16 @@ def main(argv=None):
     LS = sun.SUNLinSol_Band(y, J, sunctx)
     assert LS is not None
 
-    status = ark.ARKodeSetLinearSolver(arkode.get(), LS, J)
+    status = ark.ARKodeSetLinearSolver(arkode, LS, J)
     assert status == ark.ARK_SUCCESS
 
     coupling = load_mri_coupling(args.mri_method)
     assert coupling is not None
 
-    status = ark.MRIStepSetCoupling(arkode.get(), coupling)
+    status = ark.MRIStepSetCoupling(arkode, coupling)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.ARKodeSetMaxNumSteps(arkode.get(), args.maxsteps)
+    status = ark.ARKodeSetMaxNumSteps(arkode, args.maxsteps)
     assert status == ark.ARK_SUCCESS
 
     t = 0.0
@@ -340,7 +340,7 @@ def main(argv=None):
     print_solution(t, y, problem.neq)
 
     for _ in range(args.nout):
-        status, t = ark.ARKodeEvolve(arkode.get(), tout, y, ark.ARK_NORMAL)
+        status, t = ark.ARKodeEvolve(arkode, tout, y, ark.ARK_NORMAL)
         if status < 0:
             raise RuntimeError("ARKodeEvolve failed with status {status}")
 

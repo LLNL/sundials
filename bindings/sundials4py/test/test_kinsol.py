@@ -45,15 +45,15 @@ def test_kinsol(sunctx):
         damping_factor = 1.0
         return 0, damping_factor
 
-    kin_status = KINSetMAA(kin_view.get(), m_aa)
+    kin_status = KINSetMAA(kin_view, m_aa)
     assert kin_status == KIN_SUCCESS
-    kin_status = KINInit(kin_view.get(), problem.fixed_point_fn, u)
+    kin_status = KINInit(kin_view, problem.fixed_point_fn, u)
     assert kin_status == KIN_SUCCESS
-    kin_status = KINSetFuncNormTol(kin_view.get(), tol)
+    kin_status = KINSetFuncNormTol(kin_view, tol)
     assert kin_status == KIN_SUCCESS
-    kin_status = KINSetDepthFn(kin_view.get(), depth_fn)
+    kin_status = KINSetDepthFn(kin_view, depth_fn)
     assert kin_status == KIN_SUCCESS
-    kin_status = KINSetDampingFn(kin_view.get(), damping_fn)
+    kin_status = KINSetDampingFn(kin_view, damping_fn)
     assert kin_status == KIN_SUCCESS
 
     # initial guess
@@ -64,7 +64,7 @@ def test_kinsol(sunctx):
     scale = N_VNew_Serial(NEQ, sunctx)
     N_VConst(1.0, scale)
 
-    kin_status = KINSol(kin_view.get(), u, KIN_FP, scale, scale)
+    kin_status = KINSol(kin_view, u, KIN_FP, scale, scale)
     assert kin_status == KIN_SUCCESS
 
     u_expected = N_VNew_Serial(NEQ, sunctx)
@@ -86,15 +86,15 @@ def test_kinsol_newton_dense(sunctx):
         N_VLinearSum(1.0, f, -1.0, u, f)
         return 0
 
-    kin_status = KINInit(kin_view.get(), sys_function, u)
+    kin_status = KINInit(kin_view, sys_function, u)
     assert kin_status == KIN_SUCCESS
-    kin_status = KINSetFuncNormTol(kin_view.get(), tol)
+    kin_status = KINSetFuncNormTol(kin_view, tol)
     assert kin_status == KIN_SUCCESS
 
     # Attach a dense linear solver
     J = SUNDenseMatrix(NEQ, NEQ, sunctx)
     LS = SUNLinSol_Dense(u, J, sunctx)
-    kin_status = KINSetLinearSolver(kin_view.get(), LS, J)
+    kin_status = KINSetLinearSolver(kin_view, LS, J)
     assert kin_status == KIN_SUCCESS
 
     # initial guess
@@ -105,7 +105,7 @@ def test_kinsol_newton_dense(sunctx):
     scale = N_VNew_Serial(NEQ, sunctx)
     N_VConst(1.0, scale)
 
-    kin_status = KINSol(kin_view.get(), u, KIN_NONE, scale, scale)
+    kin_status = KINSol(kin_view, u, KIN_NONE, scale, scale)
     assert kin_status == KIN_SUCCESS
 
     u_expected = N_VNew_Serial(NEQ, sunctx)

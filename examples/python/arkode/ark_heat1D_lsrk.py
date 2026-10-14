@@ -127,34 +127,34 @@ def solve_heat1d_lsrk():
     stepper = ark.LSRKStepCreateSTS(problem.f, 0.0, y, sunctx)
     assert stepper is not None
 
-    status = ark.ARKodeSStolerances(stepper.get(), reltol, abstol)
+    status = ark.ARKodeSStolerances(stepper, reltol, abstol)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.ARKodeSetMaxNumSteps(stepper.get(), 100000)
+    status = ark.ARKodeSetMaxNumSteps(stepper, 100000)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.LSRKStepSetSTSMethod(stepper.get(), ark.ARKODE_LSRK_RKC_2)
+    status = ark.LSRKStepSetSTSMethod(stepper, ark.ARKODE_LSRK_RKC_2)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.LSRKStepSetDomEigFn(stepper.get(), problem.dom_eig)
+    status = ark.LSRKStepSetDomEigFn(stepper, problem.dom_eig)
     assert status == ark.ARK_SUCCESS
 
     # These optional settings follow the C++ LSRK STS example: reuse the
     # eigenvalue estimate for several steps, allow many internal stages,
     # and add a small safety factor to the eigenvalue bound.
-    status = ark.LSRKStepSetDomEigFrequency(stepper.get(), 25)
+    status = ark.LSRKStepSetDomEigFrequency(stepper, 25)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.LSRKStepSetMaxNumStages(stepper.get(), 1000)
+    status = ark.LSRKStepSetMaxNumStages(stepper, 1000)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.LSRKStepSetDomEigSafetyFactor(stepper.get(), 1.01)
+    status = ark.LSRKStepSetDomEigSafetyFactor(stepper, 1.01)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.ARKodeSetAdaptControllerByName(stepper.get(), "I")
+    status = ark.ARKodeSetAdaptControllerByName(stepper, "I")
     assert status == ark.ARK_SUCCESS
 
-    status = ark.ARKodeSetStopTime(stepper.get(), tf)
+    status = ark.ARKodeSetStopTime(stepper, tf)
     assert status == ark.ARK_SUCCESS
 
     t = 0.0
@@ -168,7 +168,7 @@ def solve_heat1d_lsrk():
     print(f"  {t:10.6f}  {0.0:10.6f}")
 
     for _ in range(nt):
-        status, t = ark.ARKodeEvolve(stepper.get(), tout, y, ark.ARK_NORMAL)
+        status, t = ark.ARKodeEvolve(stepper, tout, y, ark.ARK_NORMAL)
         if status < 0:
             raise RuntimeError(f"ARKodeEvolve failed with status {status}")
 
@@ -181,15 +181,15 @@ def solve_heat1d_lsrk():
     print(f"\nFinal max error vs exact semi-discrete solution = {max_error:.6e}")
     np.testing.assert_allclose(yarr, uexact, rtol=1e-4, atol=1e-8)
 
-    status, nst = ark.ARKodeGetNumSteps(stepper.get())
+    status, nst = ark.ARKodeGetNumSteps(stepper)
     assert status == ark.ARK_SUCCESS
-    status, nst_a = ark.ARKodeGetNumStepAttempts(stepper.get())
+    status, nst_a = ark.ARKodeGetNumStepAttempts(stepper)
     assert status == ark.ARK_SUCCESS
-    status, nfe = ark.ARKodeGetNumRhsEvals(stepper.get(), 0)
+    status, nfe = ark.ARKodeGetNumRhsEvals(stepper, 0)
     assert status == ark.ARK_SUCCESS
-    status, netf = ark.ARKodeGetNumErrTestFails(stepper.get())
+    status, netf = ark.ARKodeGetNumErrTestFails(stepper)
     assert status == ark.ARK_SUCCESS
-    status, ndomeig = ark.LSRKStepGetNumDomEigUpdates(stepper.get())
+    status, ndomeig = ark.LSRKStepGetNumDomEigUpdates(stepper)
     assert status == ark.ARK_SUCCESS
 
     print("\nFinal Solver Statistics:")

@@ -164,15 +164,15 @@ def main():
     # IDAS initialization
     ida = IDACreate(sunctx)
     assert ida is not None
-    status = IDAInit(ida.get(), dae.residual, TBEGIN, yy, yp)
+    status = IDAInit(ida, dae.residual, TBEGIN, yy, yp)
     assert status == IDA_SUCCESS
-    status = IDASStolerances(ida.get(), RTOLF, ATOLF)
+    status = IDASStolerances(ida, RTOLF, ATOLF)
     assert status == IDA_SUCCESS
-    status = IDASetId(ida.get(), id)
+    status = IDASetId(ida, id)
     assert status == IDA_SUCCESS
-    status = IDASetSuppressAlg(ida.get(), True)
+    status = IDASetSuppressAlg(ida, True)
     assert status == IDA_SUCCESS
-    status = IDASetMaxNumSteps(ida.get(), 20000)
+    status = IDASetMaxNumSteps(ida, 20000)
     assert status == IDA_SUCCESS
 
     # Create dense SUNMatrix to use with dense linear solver
@@ -184,16 +184,16 @@ def main():
     assert LS is not None
 
     # Attach the matrix and linear solver
-    status = IDASetLinearSolver(ida.get(), LS, A)
+    status = IDASetLinearSolver(ida, LS, A)
     assert status == IDA_SUCCESS
 
     #  Setup quadrature
     N_VConst(0.0, q)
-    status = IDAQuadInit(ida.get(), dae.rhsQ, q)
+    status = IDAQuadInit(ida, dae.rhsQ, q)
     assert status == IDA_SUCCESS
-    status = IDASetQuadErrCon(ida.get(), True)
+    status = IDASetQuadErrCon(ida, True)
     assert status == IDA_SUCCESS
-    status = IDAQuadSStolerances(ida.get(), RTOLQ, ATOLQ)
+    status = IDAQuadSStolerances(ida, RTOLQ, ATOLQ)
     assert status == IDA_SUCCESS
 
     # Output header
@@ -209,35 +209,35 @@ def main():
     tout = TEND / NOUT
     tret = 0.0
     while True:
-        status, nst = IDAGetNumSteps(ida.get())
-        status, kused = IDAGetLastOrder(ida.get())
-        status, hused = IDAGetLastStep(ida.get())
+        status, nst = IDAGetNumSteps(ida)
+        status, kused = IDAGetLastOrder(ida)
+        status, hused = IDAGetLastStep(ida)
         print(
             f"{tret:5.2f} {yarr[0]:12.4e} {yarr[1]:12.4e} {yarr[2]:12.4e} | {nst:3d}  {kused:1d} {hused:12.4e}"
         )
 
-        status, tret = IDASolve(ida.get(), tout, yy, yp, IDA_NORMAL)
+        status, tret = IDASolve(ida, tout, yy, yp, IDA_NORMAL)
         assert status >= 0
 
         tout += TEND / NOUT
         if tret > TEND:
-            status, nst = IDAGetNumSteps(ida.get())
-            status, kused = IDAGetLastOrder(ida.get())
-            status, hused = IDAGetLastStep(ida.get())
+            status, nst = IDAGetNumSteps(ida)
+            status, kused = IDAGetLastOrder(ida)
+            status, hused = IDAGetLastStep(ida)
             print(
                 f"{tret:5.2f} {yarr[0]:12.4e} {yarr[1]:12.4e} {yarr[2]:12.4e} | {nst:3d}  {kused:1d} {hused:12.4e}"
             )
             break
 
     # Final statistics
-    status, nst = IDAGetNumSteps(ida.get())
-    status, nre = IDAGetNumResEvals(ida.get())
-    status, nje = IDAGetNumJacEvals(ida.get())
-    status, nni = IDAGetNumNonlinSolvIters(ida.get())
-    status, netf = IDAGetNumErrTestFails(ida.get())
-    status, nnf = IDAGetNumNonlinSolvConvFails(ida.get())
-    status, ncfn = IDAGetNumStepSolveFails(ida.get())
-    status, nreLS = IDAGetNumLinResEvals(ida.get())
+    status, nst = IDAGetNumSteps(ida)
+    status, nre = IDAGetNumResEvals(ida)
+    status, nje = IDAGetNumJacEvals(ida)
+    status, nni = IDAGetNumNonlinSolvIters(ida)
+    status, netf = IDAGetNumErrTestFails(ida)
+    status, nnf = IDAGetNumNonlinSolvConvFails(ida)
+    status, ncfn = IDAGetNumStepSolveFails(ida)
+    status, nreLS = IDAGetNumLinResEvals(ida)
 
     print("\nFinal Run Statistics: \n")
     print(f"Number of steps                    = {nst}")
@@ -248,7 +248,7 @@ def main():
     print(f"Number of nonlinear conv. failures = {nnf}")
     print(f"Number of step solver failures     = {ncfn}")
 
-    status, tret = IDAGetQuad(ida.get(), q)
+    status, tret = IDAGetQuad(ida, q)
     print("--------------------------------------------")
     print(f"  G = {N_VGetNumpyArray(q)[0]}")
     print("--------------------------------------------\n")

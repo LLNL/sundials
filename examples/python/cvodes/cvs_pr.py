@@ -396,7 +396,7 @@ def print_cvode_stats(cvode):
     try:
         status, file_ptr = SUNFileOpen(str(stats_path), "w")
         assert status == CV_SUCCESS
-        status = CVodePrintAllStats(cvode.get(), file_ptr, SUN_OUTPUTFORMAT_TABLE)
+        status = CVodePrintAllStats(cvode, file_ptr, SUN_OUTPUTFORMAT_TABLE)
         assert status == CV_SUCCESS
         file_ptr = None
         print(stats_path.read_text(), end="")
@@ -449,13 +449,13 @@ def main(argv=None):
     cvode = CVodeCreate(CV_BDF, sunctx)
     assert cvode is not None
 
-    status = CVodeInit(cvode.get(), problem.f, T0, y)
+    status = CVodeInit(cvode, problem.f, T0, y)
     assert status == CV_SUCCESS
 
-    status = CVodeSStolerances(cvode.get(), args.rtol, args.atol)
+    status = CVodeSStolerances(cvode, args.rtol, args.atol)
     assert status == CV_SUCCESS
 
-    status = CVodeSetMaxNumSteps(cvode.get(), 10000)
+    status = CVodeSetMaxNumSteps(cvode, 10000)
     assert status == CV_SUCCESS
 
     nls = _create_nonlinear_solver(args, y, sunctx)
@@ -471,7 +471,7 @@ def main(argv=None):
         )
         assert status == SUN_SUCCESS
 
-    status = CVodeSetNonlinearSolver(cvode.get(), nls)
+    status = CVodeSetNonlinearSolver(cvode, nls)
     assert status == CV_SUCCESS
 
     if args.solver in {"auto", "newton"}:
@@ -479,14 +479,14 @@ def main(argv=None):
         LS = SUNLinSol_Dense(y, A, sunctx)
         assert A is not None and LS is not None
 
-        status = CVodeSetLinearSolver(cvode.get(), LS, A)
+        status = CVodeSetLinearSolver(cvode, LS, A)
         assert status == CV_SUCCESS
 
-        status = CVodeSetJacFn(cvode.get(), problem.jac)
+        status = CVodeSetJacFn(cvode, problem.jac)
         assert status == CV_SUCCESS
 
     cvode_argv = [argv[0]] + sundials_argv
-    status = CVodeSetOptions(cvode.get(), "", "", len(cvode_argv), cvode_argv)
+    status = CVodeSetOptions(cvode, "", "", len(cvode_argv), cvode_argv)
     assert status == CV_SUCCESS
 
     yarr = N_VGetArrayPointer(y)
@@ -511,7 +511,7 @@ def main(argv=None):
 
         tout = T0 + args.dtout
         for _ in range(args.nout):
-            status, tret = CVode(cvode.get(), tout, y, CV_NORMAL)
+            status, tret = CVode(cvode, tout, y, CV_NORMAL)
             assert status == CV_SUCCESS
 
             ytrue = problem.true_sol(tret)

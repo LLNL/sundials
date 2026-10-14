@@ -145,22 +145,22 @@ def solve_heat1d():
     stepper = ark.ARKStepCreate(None, problem.f, 0.0, y, sunctx)
     assert stepper is not None
 
-    status = ark.ARKodeSStolerances(stepper.get(), reltol, abstol)
+    status = ark.ARKodeSStolerances(stepper, reltol, abstol)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.ARKodeSetMaxNumSteps(stepper.get(), 100000)
+    status = ark.ARKodeSetMaxNumSteps(stepper, 100000)
     assert status == ark.ARK_SUCCESS
 
     # PCG linear solver with no preconditioning, with up to n iterations
     LS = sun.SUNLinSol_PCG(y, sun.SUN_PREC_NONE, n, sunctx)
 
-    status = ark.ARKodeSetLinearSolver(stepper.get(), LS, None)
+    status = ark.ARKodeSetLinearSolver(stepper, LS, None)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.ARKodeSetJacTimes(stepper.get(), None, problem.jtv)
+    status = ark.ARKodeSetJacTimes(stepper, None, problem.jtv)
     assert status == ark.ARK_SUCCESS
 
-    status = ark.ARKodeSetLinear(stepper.get(), 0)
+    status = ark.ARKodeSetLinear(stepper, 0)
     assert status == ark.ARK_SUCCESS
 
     t = 0.0
@@ -171,7 +171,7 @@ def solve_heat1d():
     print(f"  {t:10.6f}  {0.0:10.6f}")
 
     for _ in range(nt):
-        status, t = ark.ARKodeEvolve(stepper.get(), tout, y, ark.ARK_NORMAL)
+        status, t = ark.ARKodeEvolve(stepper, tout, y, ark.ARK_NORMAL)
         if status != ark.ARK_SUCCESS:
             raise RuntimeError(f"ARKodeEvolve failed with status {status}")
 
@@ -184,27 +184,27 @@ def solve_heat1d():
     np.testing.assert_allclose(yarr, uexact, rtol=1e-4, atol=1e-8)
 
     # Print statistics
-    status, nst = ark.ARKodeGetNumSteps(stepper.get())
+    status, nst = ark.ARKodeGetNumSteps(stepper)
     assert status == ark.ARK_SUCCESS
-    status, nst_a = ark.ARKodeGetNumStepAttempts(stepper.get())
+    status, nst_a = ark.ARKodeGetNumStepAttempts(stepper)
     assert status == ark.ARK_SUCCESS
-    status, nfe = ark.ARKodeGetNumRhsEvals(stepper.get(), 0)
+    status, nfe = ark.ARKodeGetNumRhsEvals(stepper, 0)
     assert status == ark.ARK_SUCCESS
-    status, nfi = ark.ARKodeGetNumRhsEvals(stepper.get(), 1)
+    status, nfi = ark.ARKodeGetNumRhsEvals(stepper, 1)
     assert status == ark.ARK_SUCCESS
-    status, nsetups = ark.ARKodeGetNumLinSolvSetups(stepper.get())
+    status, nsetups = ark.ARKodeGetNumLinSolvSetups(stepper)
     assert status == ark.ARK_SUCCESS
-    status, nli = ark.ARKodeGetNumLinIters(stepper.get())
+    status, nli = ark.ARKodeGetNumLinIters(stepper)
     assert status == ark.ARK_SUCCESS
-    status, nJv = ark.ARKodeGetNumJtimesEvals(stepper.get())
+    status, nJv = ark.ARKodeGetNumJtimesEvals(stepper)
     assert status == ark.ARK_SUCCESS
-    status, nlcf = ark.ARKodeGetNumLinConvFails(stepper.get())
+    status, nlcf = ark.ARKodeGetNumLinConvFails(stepper)
     assert status == ark.ARK_SUCCESS
-    status, nni = ark.ARKodeGetNumNonlinSolvIters(stepper.get())
+    status, nni = ark.ARKodeGetNumNonlinSolvIters(stepper)
     assert status == ark.ARK_SUCCESS
-    status, ncfn = ark.ARKodeGetNumNonlinSolvConvFails(stepper.get())
+    status, ncfn = ark.ARKodeGetNumNonlinSolvConvFails(stepper)
     assert status == ark.ARK_SUCCESS
-    status, netf = ark.ARKodeGetNumErrTestFails(stepper.get())
+    status, netf = ark.ARKodeGetNumErrTestFails(stepper)
     assert status == ark.ARK_SUCCESS
 
     print("\nFinal Solver Statistics:")

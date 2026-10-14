@@ -120,13 +120,13 @@ def main():
     ark = ARKStepCreate(None, ode_problem.f, T0, y, sunctx)  # f_E (explicit)  # f_I (implicit)
     assert ark is not None
 
-    status = ARKodeSStolerances(ark.get(), reltol, abstol)
+    status = ARKodeSStolerances(ark, reltol, abstol)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetInterpolantType(ark.get(), ARK_INTERP_LAGRANGE)
+    status = ARKodeSetInterpolantType(ark, ARK_INTERP_LAGRANGE)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetDeduceImplicitRhs(ark.get(), 1)
+    status = ARKodeSetDeduceImplicitRhs(ark, 1)
     assert status == ARK_SUCCESS
 
     A = SUNDenseMatrix(NEQ, NEQ, sunctx)
@@ -135,14 +135,14 @@ def main():
     LS = SUNLinSol_Dense(y, A, sunctx)
     assert LS is not None
 
-    status = ARKodeSetLinearSolver(ark.get(), LS, A)
+    status = ARKodeSetLinearSolver(ark, LS, A)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetJacFn(ark.get(), ode_problem.jac)
+    status = ARKodeSetJacFn(ark, ode_problem.jac)
     assert status == ARK_SUCCESS
 
     # Signal that this problem does not explicitly depend on time
-    status = ARKodeSetAutonomous(ark.get(), 1)
+    status = ARKodeSetAutonomous(ark, 1)
     assert status == ARK_SUCCESS
 
     # Initial problem output
@@ -163,7 +163,7 @@ def main():
         UFID.write(f" {T0:.16e} {yarr[0]:.16e} {yarr[1]:.16e} {yarr[2]:.16e}\n")
         tout = T0 + dTout
         for iout in range(Nt):
-            status, tret = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+            status, tret = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
             yarr = N_VGetNumpyArray(y)
             print(f"  {tret:10.6f}  {yarr[0]:10.6f}  {yarr[1]:10.6f}  {yarr[2]:10.6f}")
             UFID.write(f" {tret:.16e} {yarr[0]:.16e} {yarr[1]:.16e} {yarr[2]:.16e}\n")
@@ -176,27 +176,27 @@ def main():
         print("   -------------------------------------------")
 
     # Print statistics (check status code)
-    status, nst = ARKodeGetNumSteps(ark.get())
+    status, nst = ARKodeGetNumSteps(ark)
     assert status == ARK_SUCCESS
-    status, nst_a = ARKodeGetNumStepAttempts(ark.get())
+    status, nst_a = ARKodeGetNumStepAttempts(ark)
     assert status == ARK_SUCCESS
-    status, nfe = ARKodeGetNumRhsEvals(ark.get(), 0)
+    status, nfe = ARKodeGetNumRhsEvals(ark, 0)
     assert status == ARK_SUCCESS
-    status, nfi = ARKodeGetNumRhsEvals(ark.get(), 1)
+    status, nfi = ARKodeGetNumRhsEvals(ark, 1)
     assert status == ARK_SUCCESS
-    status, nsetups = ARKodeGetNumLinSolvSetups(ark.get())
+    status, nsetups = ARKodeGetNumLinSolvSetups(ark)
     assert status == ARK_SUCCESS
-    status, netf = ARKodeGetNumErrTestFails(ark.get())
+    status, netf = ARKodeGetNumErrTestFails(ark)
     assert status == ARK_SUCCESS
-    status, ncfn = ARKodeGetNumStepSolveFails(ark.get())
+    status, ncfn = ARKodeGetNumStepSolveFails(ark)
     assert status == ARK_SUCCESS
-    status, nni = ARKodeGetNumNonlinSolvIters(ark.get())
+    status, nni = ARKodeGetNumNonlinSolvIters(ark)
     assert status == ARK_SUCCESS
-    status, nnf = ARKodeGetNumNonlinSolvConvFails(ark.get())
+    status, nnf = ARKodeGetNumNonlinSolvConvFails(ark)
     assert status == ARK_SUCCESS
-    status, nje = ARKodeGetNumJacEvals(ark.get())
+    status, nje = ARKodeGetNumJacEvals(ark)
     assert status == ARK_SUCCESS
-    status, nfeLS = ARKodeGetNumLinRhsEvals(ark.get())
+    status, nfeLS = ARKodeGetNumLinRhsEvals(ark)
     assert status == ARK_SUCCESS
 
     print("\nFinal Solver Statistics:")

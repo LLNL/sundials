@@ -118,11 +118,11 @@ def main():
 
     cvode = CVodeCreate(CV_BDF, sunctx)
     assert cvode is not None
-    status = CVodeInit(cvode.get(), ode_problem.f, T0, y)
+    status = CVodeInit(cvode, ode_problem.f, T0, y)
     assert status == CV_SUCCESS
-    status = CVodeSStolerances(cvode.get(), reltol, abstol)
+    status = CVodeSStolerances(cvode, reltol, abstol)
     assert status == CV_SUCCESS
-    status = CVodeSetMaxNumSteps(cvode.get(), 10000)
+    status = CVodeSetMaxNumSteps(cvode, 10000)
     assert status == CV_SUCCESS
 
     # Dense matrix and linear solver
@@ -131,13 +131,13 @@ def main():
     LS = SUNLinSol_Dense(y, A, sunctx)
     assert LS is not None
 
-    status = CVodeSetLinearSolver(cvode.get(), LS, A)
+    status = CVodeSetLinearSolver(cvode, LS, A)
     assert status == CV_SUCCESS
-    status = CVodeSetJacFn(cvode.get(), ode_problem.jac)
+    status = CVodeSetJacFn(cvode, ode_problem.jac)
     assert status == CV_SUCCESS
 
     # Parse any command line arguments
-    status = CVodeSetOptions(cvode.get(), "", "", len(sys.argv), sys.argv)
+    status = CVodeSetOptions(cvode, "", "", len(sys.argv), sys.argv)
     assert status == CV_SUCCESS
 
     # Initial problem output
@@ -156,7 +156,7 @@ def main():
         UFID.write(f" {T0:.16e} {yarr[0]:.16e} {yarr[1]:.16e} {yarr[2]:.16e}\n")
         tout = T0 + dTout
         for iout in range(Nt):
-            status, tret = CVode(cvode.get(), tout, y, CV_NORMAL)
+            status, tret = CVode(cvode, tout, y, CV_NORMAL)
             yarr = N_VGetNumpyArray(y)
             print(f"  {tret:10.6f}  {yarr[0]:10.6f}  {yarr[1]:10.6f}  {yarr[2]:10.6f}")
             UFID.write(f" {tret:.16e} {yarr[0]:.16e} {yarr[1]:.16e} {yarr[2]:.16e}\n")
@@ -169,19 +169,19 @@ def main():
         print("   -------------------------------------------")
 
     # Print statistics
-    status, nst = CVodeGetNumSteps(cvode.get())
+    status, nst = CVodeGetNumSteps(cvode)
     assert status == CV_SUCCESS
-    status, nfe = CVodeGetNumRhsEvals(cvode.get())
+    status, nfe = CVodeGetNumRhsEvals(cvode)
     assert status == CV_SUCCESS
-    status, nsetups = CVodeGetNumLinSolvSetups(cvode.get())
+    status, nsetups = CVodeGetNumLinSolvSetups(cvode)
     assert status == CV_SUCCESS
-    status, nni = CVodeGetNumNonlinSolvIters(cvode.get())
+    status, nni = CVodeGetNumNonlinSolvIters(cvode)
     assert status == CV_SUCCESS
-    status, ncfn = CVodeGetNumNonlinSolvConvFails(cvode.get())
+    status, ncfn = CVodeGetNumNonlinSolvConvFails(cvode)
     assert status == CV_SUCCESS
-    status, nje = CVodeGetNumJacEvals(cvode.get())
+    status, nje = CVodeGetNumJacEvals(cvode)
     assert status == CV_SUCCESS
-    status, nfeLS = CVodeGetNumLinRhsEvals(cvode.get())
+    status, nfeLS = CVodeGetNumLinRhsEvals(cvode)
     assert status == CV_SUCCESS
 
     print("\nFinal Solver Statistics:")

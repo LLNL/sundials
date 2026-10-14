@@ -268,7 +268,7 @@ def main():
 
     ark = ARKStepCreate(None, problem.f, T0, y, sunctx)
     assert ark is not None
-    status = ARKodeSStolerances(ark.get(), reltol, abstol)
+    status = ARKodeSStolerances(ark, reltol, abstol)
     assert status == ARK_SUCCESS
 
     A = SUNSparseMatrix(NEQ, NEQ, NNZ, SUN_CSC_MAT, sunctx)
@@ -276,11 +276,11 @@ def main():
     LS = SUNLinSol_KLU(y, A, sunctx)
     assert LS is not None
 
-    status = ARKodeSetLinearSolver(ark.get(), LS, A)
+    status = ARKodeSetLinearSolver(ark, LS, A)
     assert status == ARK_SUCCESS
-    status = ARKodeSetJacFn(ark.get(), problem.jac)
+    status = ARKodeSetJacFn(ark, problem.jac)
     assert status == ARK_SUCCESS
-    status = ARKodeSetAutonomous(ark.get(), 1)
+    status = ARKodeSetAutonomous(ark, 1)
     assert status == ARK_SUCCESS
 
     print("\n1D Brusselator PDE test problem (KLU solver):")
@@ -306,7 +306,7 @@ def main():
         print("        t      ||u||_rms   ||v||_rms   ||w||_rms")
         print("   ----------------------------------------------")
         for _ in range(Nt):
-            status, t = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+            status, t = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
             ydata = N_VGetArrayPointer(y).reshape((N, 3))
             u = N_VWL2Norm(y, umask)
             u = np.sqrt(u * u / N)
@@ -327,23 +327,23 @@ def main():
             np.savetxt(wfid, ydata[:, 2][None, :], fmt="%.16e")
         print("   ----------------------------------------------")
 
-    status, nst = ARKodeGetNumSteps(ark.get())
+    status, nst = ARKodeGetNumSteps(ark)
     assert status == ARK_SUCCESS
-    status, nst_a = ARKodeGetNumStepAttempts(ark.get())
+    status, nst_a = ARKodeGetNumStepAttempts(ark)
     assert status == ARK_SUCCESS
-    status, nfe = ARKodeGetNumRhsEvals(ark.get(), 0)
+    status, nfe = ARKodeGetNumRhsEvals(ark, 0)
     assert status == ARK_SUCCESS
-    status, nfi = ARKodeGetNumRhsEvals(ark.get(), 1)
+    status, nfi = ARKodeGetNumRhsEvals(ark, 1)
     assert status == ARK_SUCCESS
-    status, nsetups = ARKodeGetNumLinSolvSetups(ark.get())
+    status, nsetups = ARKodeGetNumLinSolvSetups(ark)
     assert status == ARK_SUCCESS
-    status, netf = ARKodeGetNumErrTestFails(ark.get())
+    status, netf = ARKodeGetNumErrTestFails(ark)
     assert status == ARK_SUCCESS
-    status, nni = ARKodeGetNumNonlinSolvIters(ark.get())
+    status, nni = ARKodeGetNumNonlinSolvIters(ark)
     assert status == ARK_SUCCESS
-    status, ncfn = ARKodeGetNumNonlinSolvConvFails(ark.get())
+    status, ncfn = ARKodeGetNumNonlinSolvConvFails(ark)
     assert status == ARK_SUCCESS
-    status, nje = ARKodeGetNumJacEvals(ark.get())
+    status, nje = ARKodeGetNumJacEvals(ark)
     assert status == ARK_SUCCESS
 
     print("\nFinal Solver Statistics:")

@@ -31,11 +31,11 @@ def test_erkstep(sunctx):
     ode_problem.set_init_cond(y)
 
     erk = ERKStepCreate(ode_problem.f, 0, y, sunctx)
-    status = ARKodeSStolerances(erk.get(), SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = ARKodeSStolerances(erk, SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == ARK_SUCCESS
 
     tout = 10.0
-    status, tret = ARKodeEvolve(erk.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(erk, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = N_VClone(y)

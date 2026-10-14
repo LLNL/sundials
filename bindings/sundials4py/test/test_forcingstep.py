@@ -36,23 +36,23 @@ def test_forcingstep(sunctx):
     ode_problem.set_init_cond(y0)
 
     linear_ark = ERKStepCreate(ode_problem.f_linear, t0, y, sunctx)
-    status = ARKodeSetFixedStep(linear_ark.get(), 5e-3)
+    status = ARKodeSetFixedStep(linear_ark, 5e-3)
     assert status == ARK_SUCCESS
 
     nonlinear_ark = ARKStepCreate(ode_problem.f_nonlinear, None, t0, y, sunctx)
-    status = ARKodeSetFixedStep(nonlinear_ark.get(), 1e-3)
+    status = ARKodeSetFixedStep(nonlinear_ark, 1e-3)
     assert status == ARK_SUCCESS
 
-    status, linear_stepper = ARKodeCreateSUNStepper(linear_ark.get())
-    status, nonlinear_stepper = ARKodeCreateSUNStepper(nonlinear_ark.get())
+    status, linear_stepper = ARKodeCreateSUNStepper(linear_ark)
+    status, nonlinear_stepper = ARKodeCreateSUNStepper(nonlinear_ark)
 
     ark = ForcingStepCreate(linear_stepper, nonlinear_stepper, t0, y, sunctx)
 
-    status = ARKodeSetFixedStep(ark.get(), 1e-2)
+    status = ARKodeSetFixedStep(ark, 1e-2)
     assert status == ARK_SUCCESS
 
     tout = tf
-    status, tret = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = N_VClone(y)

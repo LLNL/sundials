@@ -191,19 +191,23 @@ sundials4py provides natural usage of SUNDIALS objects with object lifetimes
 managed by the Python garbage collection as with any other Python object. There
 is only one caveat, the SUNDIALS integrator/solver ``void*`` objects (those
 returned by ARKODE, CVODES, IDAS, and KINSOL ``Create`` constructors) are
-wrapped in "View" classes (behind the scenes) for compatibility with
-nanobind. These view objects cannot be implicitly converted to the underlying
-``void*``. As such, when calling a function which operates on these ``void*``
-objects, one must extract the ``void*`` "capsule" from the view object by
-calling the view's ``get`` method.
+wrapped in View classes for compatibility with nanobind. The corresponding
+solver-memory arguments in the Python interface accept these View objects
+directly: ``ARKodeView``, ``CVodeView``, ``IDAView``, and ``KINView``. The
+binding borrows the underlying solver memory while calling SUNDIALS, so it does
+not create a second solver owner or copy solver data.
+
+The View classes still provide a ``get`` method for low-level interoperability,
+but it is not needed when calling the usual sundials4py solver functions.
 
 .. code-block:: python
 
-   # Create CVODE object (returns void* in C)
+   # Create a CVODE View (the C API returns void*)
    cvode = CVodeCreate(CV_BDF, sunctx)
 
-   # Notice we need to call cvode.get()
-   status = CVodeInit(cvode.get(), ode_problem.f, T0, y)
+   # Pass the View directly to solver-memory arguments
+   status = CVodeInit(cvode, ode_problem.f, T0, y)
+   status = CVodeSStolerances(cvode, reltol, abstol)
 
 
 .. _Python.Usage.Differences.Lifetimes:
@@ -259,7 +263,7 @@ C:
 Python:
    .. code-block:: python
 
-      retval, numsteps = CVodeGetNumSteps(cvode_mem.get())
+      retval, numsteps = CVodeGetNumSteps(cvode_mem)
       print(f"Number of steps: {numsteps}")
 
 **Example 2: Multiple Return-by-Pointer Values**
@@ -275,7 +279,7 @@ C:
 Python:
    .. code-block:: python
 
-      retval, nni, ncfn = CVodeGetNonlinSolvStats(cvode_mem.get())
+      retval, nni, ncfn = CVodeGetNonlinSolvStats(cvode_mem)
       print(f"Nonlinear iterations: {nni}, Nonlinear convergence fails: {ncnf}");
 
 
@@ -396,7 +400,7 @@ return-by-pointer parameters for other functions are handled)
       return 0
 
    kin = KINCreate(sunctx)
-   KINInit(kin.get(), fp_function, u)
+   KINInit(kin, fp_function, u)
 
 **Example: ARKODE LSRKStep dominant eigenvalue estimation function with return-by-pointer parameters**
 

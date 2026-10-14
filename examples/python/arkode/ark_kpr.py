@@ -163,10 +163,10 @@ def main(argv=None):
     ark = ARKStepCreate(None, problem.fi, T0, y, sunctx)
     assert ark is not None
 
-    status = ARKodeSStolerances(ark.get(), args.rtol, args.atol)
+    status = ARKodeSStolerances(ark, args.rtol, args.atol)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetMaxNumSteps(ark.get(), args.max_steps)
+    status = ARKodeSetMaxNumSteps(ark, args.max_steps)
     assert status == ARK_SUCCESS
 
     # Attach the switching nonlinear solver and the Newton linear solver pieces
@@ -188,21 +188,21 @@ def main(argv=None):
     )
     assert status == SUN_SUCCESS
 
-    status = ARKodeSetNonlinearSolver(ark.get(), nls)
+    status = ARKodeSetNonlinearSolver(ark, nls)
     assert status == ARK_SUCCESS
 
     A = SUNDenseMatrix(NEQ, NEQ, sunctx)
     LS = SUNLinSol_Dense(y, A, sunctx)
     assert A is not None and LS is not None
 
-    status = ARKodeSetLinearSolver(ark.get(), LS, A)
+    status = ARKodeSetLinearSolver(ark, LS, A)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetJacFn(ark.get(), problem.ji)
+    status = ARKodeSetJacFn(ark, problem.ji)
     assert status == ARK_SUCCESS
 
     arkode_argv = [argv[0]] + sundials_argv
-    status = ARKodeSetOptions(ark.get(), "", "", len(arkode_argv), arkode_argv)
+    status = ARKodeSetOptions(ark, "", "", len(arkode_argv), arkode_argv)
     assert status == ARK_SUCCESS
 
     yarr = N_VGetNumpyArray(y)
@@ -237,7 +237,7 @@ def main(argv=None):
 
         tout = T0 + args.dtout
         for _ in range(args.nout):
-            status, tret = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+            status, tret = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
             assert status == ARK_SUCCESS
 
             utrue, vtrue = problem.true_sol(tret)
@@ -261,7 +261,7 @@ def main(argv=None):
     print("\nFinal Solver Statistics:")
     status, file_ptr = SUNFileOpen("stdout", "w+")
     assert status == ARK_SUCCESS
-    status = ARKodePrintAllStats(ark.get(), file_ptr, SUN_OUTPUTFORMAT_TABLE)
+    status = ARKodePrintAllStats(ark, file_ptr, SUN_OUTPUTFORMAT_TABLE)
     assert status == ARK_SUCCESS
 
     status, nfp, nnewt = SUNNonlinSolGetTotalNumItersByType_Auto(nls)

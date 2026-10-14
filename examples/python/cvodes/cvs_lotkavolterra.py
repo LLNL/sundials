@@ -188,7 +188,7 @@ def main():
     assert cvode is not None
 
     # Initialize CVODE with the RHS function, initial time (t0=0.0), and initial state
-    status = CVodeInit(cvode.get(), ode.rhs, 0.0, y)  # access CVODE memory with .get()
+    status = CVodeInit(cvode, ode.rhs, 0.0, y)
     assert status == CV_SUCCESS
 
     # ----------------------------------------------------------------------------------
@@ -199,7 +199,7 @@ def main():
     # the user defined tolerances.
     reltol = 1e-6  # Relative tolerance
     abstol = 1e-10  # Absolute tolerance
-    status = CVodeSStolerances(cvode.get(), reltol, abstol)
+    status = CVodeSStolerances(cvode, reltol, abstol)
     assert status == CV_SUCCESS
 
     # CVODE defaults to using a Newton iteration to solve nonlinear systems at each time
@@ -215,12 +215,12 @@ def main():
     assert LS is not None
 
     # Attach the linear solver to CVODE
-    status = CVodeSetLinearSolver(cvode.get(), LS, A)
+    status = CVodeSetLinearSolver(cvode, LS, A)
     assert status == CV_SUCCESS
 
     # Providing an analytical Jacobian can significantly improve performance. If not
     # provided, CVODE will approximate it using finite differences.
-    status = CVodeSetJacFn(cvode.get(), ode.jac)
+    status = CVodeSetJacFn(cvode, ode.jac)
     assert status == CV_SUCCESS
 
     # ----------------------------------------------------------------------------------
@@ -252,7 +252,7 @@ def main():
     iout = 0
     while tret < 10.0:
         # Advance the system and return the solution at requested output time
-        status, tret = CVode(cvode.get(), tret + dtout, y, CV_NORMAL)
+        status, tret = CVode(cvode, tret + dtout, y, CV_NORMAL)
         assert status == CV_SUCCESS
 
         # Store solution for plotting (every output)
@@ -274,26 +274,26 @@ def main():
     # performance and diagnose issues. These include values such as the step counts,
     # function evaluations, and information about the linear solver.
 
-    status, nst = CVodeGetNumSteps(cvode.get())
+    status, nst = CVodeGetNumSteps(cvode)
     assert status == CV_SUCCESS
 
-    status, netf = CVodeGetNumErrTestFails(cvode.get())
+    status, netf = CVodeGetNumErrTestFails(cvode)
     assert status == CV_SUCCESS
 
-    status, nfe = CVodeGetNumRhsEvals(cvode.get())
+    status, nfe = CVodeGetNumRhsEvals(cvode)
     assert status == CV_SUCCESS
 
-    status, nsetups = CVodeGetNumLinSolvSetups(cvode.get())
+    status, nsetups = CVodeGetNumLinSolvSetups(cvode)
     assert status == CV_SUCCESS
 
-    status, nje = CVodeGetNumJacEvals(cvode.get())
+    status, nje = CVodeGetNumJacEvals(cvode)
     assert status == CV_SUCCESS
 
     # For C functions with multiple output parameters (return-by-pointer),
     # CVodeGetNonlinSolvStats(cvode_mem, &nni, &ncfn), the first element is always the
     # function return value (error code) and the subsequent elements follow the same
     # ordering as in the C function signature.
-    status, nni, ncfn = CVodeGetNonlinSolvStats(cvode.get())
+    status, nni, ncfn = CVodeGetNonlinSolvStats(cvode)
     assert status == CV_SUCCESS
 
     print("\nIntegrator Statistics:")

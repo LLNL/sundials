@@ -34,17 +34,17 @@ def test_lsrkstep_sts(sunctx):
         return ode_problem.dom_eig(t, yvec, fnvec, tempv1, tempv2, tempv3)
 
     lsrk = LSRKStepCreateSTS(ode_problem.f, 0, y, sunctx)
-    status = LSRKStepSetDomEigFn(lsrk.get(), dom_eig)
+    status = LSRKStepSetDomEigFn(lsrk, dom_eig)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSStolerances(lsrk.get(), SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = ARKodeSStolerances(lsrk, SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetMaxNumSteps(lsrk.get(), 100000)
+    status = ARKodeSetMaxNumSteps(lsrk, 100000)
     assert status == ARK_SUCCESS
 
     tout = 10.0
-    status, tret = ARKodeEvolve(lsrk.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(lsrk, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = N_VClone(y)
@@ -61,17 +61,17 @@ def test_lsrkstep_ssp(sunctx):
         return ode_problem.dom_eig(t, yvec, fnvec, tempv1, tempv2, tempv3)
 
     lsrk = LSRKStepCreateSSP(ode_problem.f, 0, y, sunctx)
-    status = LSRKStepSetDomEigFn(lsrk.get(), dom_eig)
+    status = LSRKStepSetDomEigFn(lsrk, dom_eig)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSStolerances(lsrk.get(), SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
+    status = ARKodeSStolerances(lsrk, SUNREALTYPE_RTOL, SUNREALTYPE_ATOL)
     assert status == ARK_SUCCESS
 
-    status = ARKodeSetMaxNumSteps(lsrk.get(), 100000)
+    status = ARKodeSetMaxNumSteps(lsrk, 100000)
     assert status == ARK_SUCCESS
 
     tout = 10.0
-    status, tret = ARKodeEvolve(lsrk.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(lsrk, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = N_VClone(y)

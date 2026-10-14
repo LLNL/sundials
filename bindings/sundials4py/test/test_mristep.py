@@ -65,10 +65,10 @@ def test_multirate(sunctx):
 
     # create fast integrator
     inner_ark = ERKStepCreate(ffast, t0, y, sunctx)
-    status = ARKodeSetFixedStep(inner_ark.get(), 5e-3)
+    status = ARKodeSetFixedStep(inner_ark, 5e-3)
     assert status == ARK_SUCCESS
 
-    status, inner_stepper = ARKodeCreateMRIStepInnerStepper(inner_ark.get())
+    status, inner_stepper = ARKodeCreateMRIStepInnerStepper(inner_ark)
     assert status == ARK_SUCCESS
 
     # store inner_stepper in ode_problem so we can access it in ffast
@@ -76,11 +76,11 @@ def test_multirate(sunctx):
 
     # create slow integrator
     ark = MRIStepCreate(fslow, None, t0, y, inner_stepper, sunctx)
-    status = ARKodeSetFixedStep(ark.get(), 1e-3)
+    status = ARKodeSetFixedStep(ark, 1e-3)
     assert status == ARK_SUCCESS
 
     tout = tf
-    status, tret = ARKodeEvolve(ark.get(), tout, y, ARK_NORMAL)
+    status, tret = ARKodeEvolve(ark, tout, y, ARK_NORMAL)
     assert status == ARK_SUCCESS
 
     sol = N_VClone(y)
