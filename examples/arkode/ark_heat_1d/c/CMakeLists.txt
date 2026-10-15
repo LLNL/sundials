@@ -12,11 +12,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_heat1D ark_heat1D.c EXAMPLE_TYPE develop
-                      INSTALL_FILES plot_heat1D.py
-                      LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
-                      ${EXE_EXTRA_LINK_LIBS})
-sundials_add_example(ark_heat1D_adapt ark_heat1D_adapt.c EXAMPLE_TYPE develop
-                      INSTALL_FILES plot_heat1D_adapt.py
-                      LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
-                      ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_heat1D ark_heat1D.c
+  EXAMPLE_TYPE develop
+  INSTALL_FILES plot_heat1D.py
+  LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
+                 ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_heat1D_adapt ark_heat1D_adapt.c
+  EXAMPLE_TYPE develop
+  INSTALL_FILES plot_heat1D_adapt.py
+  LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
+                 ${EXE_EXTRA_LINK_LIBS})

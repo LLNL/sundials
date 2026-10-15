@@ -13,8 +13,10 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 foreach(_example ark_heat1D_ompdev ark_heat1D_adapt_ompdev)
-  sundials_add_example(${_example} ${_example}.c TEST_ARGS 4
-                        EXAMPLE_TYPE develop
-                        LINK_LIBRARIES PRIVATE sundials_arkode
-                        sundials_nvecopenmpdev ${EXE_EXTRA_LINK_LIBS})
+  sundials_add_example(
+    ${_example} ${_example}.c
+    TEST_ARGS 4
+    EXAMPLE_TYPE develop
+    LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecopenmpdev
+                   ${EXE_EXTRA_LINK_LIBS})
 endforeach()

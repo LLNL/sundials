@@ -12,8 +12,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_roberts_dnsL_f2003 ark_roberts_dnsL_f2003.f90
-                      EXAMPLE_TYPE develop
-                      LINK_LIBRARIES PRIVATE sundials_farkode_mod sundials_arkode
-                      sundials_sunlinsollapackdense
-                      sundials_fsunlinsollapackdense_mod ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_roberts_dnsL_f2003 ark_roberts_dnsL_f2003.f90
+  EXAMPLE_TYPE develop
+  LINK_LIBRARIES
+    PRIVATE sundials_farkode_mod sundials_arkode sundials_sunlinsollapackdense
+    sundials_fsunlinsollapackdense_mod ${EXE_EXTRA_LINK_LIBS})

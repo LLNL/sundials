@@ -36,11 +36,15 @@ foreach(_example ${_xbraid_examples})
   if(_example MATCHES "hypre")
     list(APPEND _libs SUNDIALS::HYPRE SUNDIALS::XBRAID)
   endif()
-  sundials_add_example(${_example} ${_example}.cpp NO_TEST
-                        INSTALL_FILES plot_heat2D.py ${_example}_${_suffix}.out
-                        LINK_LIBRARIES PRIVATE ${_libs})
-  sundials_add_test(${_example}_${_suffix} ${_example} TEST_ARGS ${_args}
-                    MPI_NPROCS ${_tasks} ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-                    ANSWER_FILE ${_example}_${_suffix}.out
-                    EXAMPLE_TYPE ${_type})
+  sundials_add_example(
+    ${_example} ${_example}.cpp NO_TEST
+    INSTALL_FILES plot_heat2D.py ${_example}_${_suffix}.out
+    LINK_LIBRARIES PRIVATE ${_libs})
+  sundials_add_test(
+    ${_example}_${_suffix} ${_example}
+    TEST_ARGS ${_args}
+    MPI_NPROCS ${_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${_example}_${_suffix}.out
+    EXAMPLE_TYPE ${_type})
 endforeach()

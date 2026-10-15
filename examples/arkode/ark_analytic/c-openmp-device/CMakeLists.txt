@@ -17,4 +17,4 @@ sundials_add_example(
   EXAMPLE_TYPE develop
   TEST_ARGS 4
   LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecopenmpdev
-                    ${EXE_EXTRA_LINK_LIBS})
+                 ${EXE_EXTRA_LINK_LIBS})

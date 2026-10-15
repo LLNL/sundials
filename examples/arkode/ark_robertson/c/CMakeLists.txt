@@ -18,8 +18,10 @@ foreach(_example ark_robertson ark_robertson_constraints ark_robertson_root)
   if(_example STREQUAL "ark_robertson")
     set(_files ark_robertson_stats.csv)
   endif()
-  sundials_add_example(${_example} ${_example}.c EXAMPLE_TYPE ${_type}
-                        INSTALL_FILES ${_files}
-                        LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
-                        ${EXE_EXTRA_LINK_LIBS})
+  sundials_add_example(
+    ${_example} ${_example}.c
+    EXAMPLE_TYPE ${_type}
+    INSTALL_FILES ${_files}
+    LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
+                   ${EXE_EXTRA_LINK_LIBS})
 endforeach()

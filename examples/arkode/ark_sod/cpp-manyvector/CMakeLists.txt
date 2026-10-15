@@ -12,8 +12,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_sod_lsrk ark_sod_lsrk.cpp EXAMPLE_TYPE exclude-single
-                      INSTALL_FILES ark_sod_lsrk.hpp plot_sod.py
-                      INCLUDE_DIRECTORIES PRIVATE ${PROJECT_SOURCE_DIR}/examples/utilities
-                      LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
-                      sundials_nvecmanyvector ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_sod_lsrk ark_sod_lsrk.cpp
+  EXAMPLE_TYPE exclude-single
+  INSTALL_FILES ark_sod_lsrk.hpp plot_sod.py
+  INCLUDE_DIRECTORIES PRIVATE ${PROJECT_SOURCE_DIR}/examples/utilities
+  LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
+                 sundials_nvecmanyvector ${EXE_EXTRA_LINK_LIBS})

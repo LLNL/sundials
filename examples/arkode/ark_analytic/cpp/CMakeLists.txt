@@ -12,6 +12,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_analytic_sys ark_analytic_sys.cpp EXAMPLE_TYPE develop
-                      LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
-                      ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_analytic_sys ark_analytic_sys.cpp
+  EXAMPLE_TYPE develop
+  LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
+                 ${EXE_EXTRA_LINK_LIBS})

@@ -12,16 +12,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_KrylovDemo_prec ark_KrylovDemo_prec.c
-                      ANSWER_FILE ark_KrylovDemo_prec.out
-                      EXAMPLE_TYPE exclude-single
-                      INSTALL_FILES ark_KrylovDemo_prec_1.out
-                                     ark_KrylovDemo_prec_2.out
-                      LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
-                      ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_KrylovDemo_prec ark_KrylovDemo_prec.c
+  ANSWER_FILE ark_KrylovDemo_prec.out
+  EXAMPLE_TYPE exclude-single
+  INSTALL_FILES ark_KrylovDemo_prec_1.out ark_KrylovDemo_prec_2.out
+  LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
+                 ${EXE_EXTRA_LINK_LIBS})
 foreach(_arg 1 2)
-  sundials_add_test(ark_KrylovDemo_prec_${_arg} ark_KrylovDemo_prec
-                    TEST_ARGS ${_arg} ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-                    ANSWER_FILE ark_KrylovDemo_prec_${_arg}.out
-                    EXAMPLE_TYPE exclude-single)
+  sundials_add_test(
+    ark_KrylovDemo_prec_${_arg} ark_KrylovDemo_prec
+    TEST_ARGS ${_arg}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ark_KrylovDemo_prec_${_arg}.out
+    EXAMPLE_TYPE exclude-single)
 endforeach()

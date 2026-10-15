@@ -12,7 +12,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_analytic_f2003 ark_analytic_f2003.f90
-                      EXAMPLE_TYPE develop
-                      LINK_LIBRARIES PRIVATE sundials_farkode_mod
-                      sundials_arkode ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_analytic_f2003 ark_analytic_f2003.f90
+  EXAMPLE_TYPE develop
+  LINK_LIBRARIES PRIVATE sundials_farkode_mod sundials_arkode
+                 ${EXE_EXTRA_LINK_LIBS})
