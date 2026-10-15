@@ -13,8 +13,9 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 foreach(_example ark_brusselator1D_omp)
-  sundials_add_example(${_example} ${_example}.c
-                        EXAMPLE_TYPE exclude-single
-                        LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecopenmp
-                        ${EXE_EXTRA_LINK_LIBS})
+  sundials_add_example(
+    ${_example} ${_example}.c
+    EXAMPLE_TYPE exclude-single
+    LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecopenmp
+                   ${EXE_EXTRA_LINK_LIBS})
 endforeach()

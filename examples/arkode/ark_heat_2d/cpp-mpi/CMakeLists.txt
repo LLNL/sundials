@@ -19,11 +19,13 @@ foreach(_example ark_heat2D_p ark_heat2D_lsrk_p)
   endif()
   set(_args "--np 2 2")
   string(REPLACE " " "_" _suffix "${_args}")
-  sundials_add_example(${_example} ${_example}.cpp TEST_ARGS ${_args}
-                        MPI_NPROCS 4
-                        ANSWER_FILE ${_example}_${_suffix}.out
-                        EXAMPLE_TYPE ${_type}
-                        INSTALL_FILES plot_heat2D_p.py plot_data_2d.py
-                        LINK_LIBRARIES PRIVATE MPI::MPI_CXX sundials_arkode
-                        sundials_nvecparallel ${EXE_EXTRA_LINK_LIBS})
+  sundials_add_example(
+    ${_example} ${_example}.cpp
+    TEST_ARGS ${_args}
+    MPI_NPROCS 4
+    ANSWER_FILE ${_example}_${_suffix}.out
+    EXAMPLE_TYPE ${_type}
+    INSTALL_FILES plot_heat2D_p.py plot_data_2d.py
+    LINK_LIBRARIES PRIVATE MPI::MPI_CXX sundials_arkode sundials_nvecparallel
+                   ${EXE_EXTRA_LINK_LIBS})
 endforeach()

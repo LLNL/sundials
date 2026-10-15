@@ -13,8 +13,10 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 if(SUNDIALS_ENABLE_SUNNONLINSOL_PETSCSNES)
-  sundials_add_example(ark_petsc_ex25 ark_petsc_ex25.c MPI_NPROCS 1
-                        EXAMPLE_TYPE develop
-                        LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecpetsc
-                        sundials_sunnonlinsolpetscsnes ${EXE_EXTRA_LINK_LIBS})
+  sundials_add_example(
+    ark_petsc_ex25 ark_petsc_ex25.c
+    MPI_NPROCS 1
+    EXAMPLE_TYPE develop
+    LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecpetsc
+                   sundials_sunnonlinsolpetscsnes ${EXE_EXTRA_LINK_LIBS})
 endif()

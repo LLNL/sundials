@@ -12,9 +12,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_brusselator1D_manyvec ark_brusselator1D_manyvec.c
-                      EXAMPLE_TYPE develop
-                      INSTALL_FILES plot_brusselator1D.py
-                      LINK_LIBRARIES PRIVATE sundials_arkode
-                      sundials_nvecmanyvector sundials_nvecserial
-                      ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_brusselator1D_manyvec ark_brusselator1D_manyvec.c
+  EXAMPLE_TYPE develop
+  INSTALL_FILES plot_brusselator1D.py
+  LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecmanyvector
+                 sundials_nvecserial ${EXE_EXTRA_LINK_LIBS})

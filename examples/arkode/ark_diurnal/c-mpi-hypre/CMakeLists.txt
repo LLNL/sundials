@@ -12,7 +12,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_diurnal_kry_ph ark_diurnal_kry_ph.c MPI_NPROCS 4
-                      EXAMPLE_TYPE develop
-                      LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecparhyp
-                      SUNDIALS::HYPRE ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_diurnal_kry_ph ark_diurnal_kry_ph.c
+  MPI_NPROCS 4
+  EXAMPLE_TYPE develop
+  LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecparhyp SUNDIALS::HYPRE
+                 ${EXE_EXTRA_LINK_LIBS})

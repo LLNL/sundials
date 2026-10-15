@@ -13,11 +13,19 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 foreach(_example ark_diag_kry_bbd_f2003 ark_diag_non_f2003)
-  sundials_add_example(${_example} ${_example}.f90 MPI_NPROCS 4
-                        FLOAT_PRECISION 2 EXAMPLE_TYPE develop
-                        LINK_LIBRARIES PRIVATE MPI::MPI_Fortran
-                        sundials_arkode sundials_farkode_mod
-                        sundials_nvecparallel sundials_fnvecparallel_mod
-                        sundials_nvecmpiplusx sundials_fnvecmpiplusx_mod
-                        ${EXE_EXTRA_LINK_LIBS})
+  sundials_add_example(
+    ${_example} ${_example}.f90
+    MPI_NPROCS 4
+    FLOAT_PRECISION 2
+    EXAMPLE_TYPE develop
+    LINK_LIBRARIES
+      PRIVATE
+      MPI::MPI_Fortran
+      sundials_arkode
+      sundials_farkode_mod
+      sundials_nvecparallel
+      sundials_fnvecparallel_mod
+      sundials_nvecmpiplusx
+      sundials_fnvecmpiplusx_mod
+      ${EXE_EXTRA_LINK_LIBS})
 endforeach()

@@ -12,8 +12,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_heat2D_lsrk_domeigest ark_heat2D_lsrk_domeigest.cpp
-                      EXAMPLE_TYPE exclude-single
-                      LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
-                      sundials_sundomeigestpower sundials_sundomeigestarnoldi
-                      ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_heat2D_lsrk_domeigest ark_heat2D_lsrk_domeigest.cpp
+  EXAMPLE_TYPE exclude-single
+  LINK_LIBRARIES
+    PRIVATE sundials_arkode sundials_nvecserial sundials_sundomeigestpower
+    sundials_sundomeigestarnoldi ${EXE_EXTRA_LINK_LIBS})

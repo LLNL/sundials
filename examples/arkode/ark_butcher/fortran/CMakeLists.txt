@@ -13,7 +13,8 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/modules)
-sundials_add_example(test_ark_butcher_f2003 test_ark_butcher_f2003.f90
-                      NODIFF EXAMPLE_TYPE develop
-                      LINK_LIBRARIES PRIVATE sundials_farkode_mod sundials_arkode
-                      ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  test_ark_butcher_f2003 test_ark_butcher_f2003.f90 NODIFF
+  EXAMPLE_TYPE develop
+  LINK_LIBRARIES PRIVATE sundials_farkode_mod sundials_arkode
+                 ${EXE_EXTRA_LINK_LIBS})

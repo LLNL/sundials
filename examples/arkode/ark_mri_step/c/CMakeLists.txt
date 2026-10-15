@@ -19,8 +19,10 @@ foreach(_example ark_onewaycouple_mri ark_reaction_diffusion_mri
     set(_files ark_reaction_diffusion_mri_fast_stats.csv
                ark_reaction_diffusion_mri_slow_stats.csv)
   endif()
-  sundials_add_example(${_example} ${_example}.c EXAMPLE_TYPE develop
-                        INSTALL_FILES ${_files}
-                        LINK_LIBRARIES PRIVATE sundials_arkode
-                        sundials_nvecserial ${EXE_EXTRA_LINK_LIBS})
+  sundials_add_example(
+    ${_example} ${_example}.c
+    EXAMPLE_TYPE develop
+    INSTALL_FILES ${_files}
+    LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
+                   ${EXE_EXTRA_LINK_LIBS})
 endforeach()

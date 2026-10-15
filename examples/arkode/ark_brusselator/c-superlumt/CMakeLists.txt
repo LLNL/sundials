@@ -12,8 +12,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_brusselator1D_FEM_slu ark_brusselator1D_FEM_slu.c
-                      EXAMPLE_TYPE exclude-single
-                      INSTALL_FILES plot_brusselator1D_FEM.py
-                      LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
-                      sundials_sunlinsolsuperlumt ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_brusselator1D_FEM_slu ark_brusselator1D_FEM_slu.c
+  EXAMPLE_TYPE exclude-single
+  INSTALL_FILES plot_brusselator1D_FEM.py
+  LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecserial
+                 sundials_sunlinsolsuperlumt ${EXE_EXTRA_LINK_LIBS})

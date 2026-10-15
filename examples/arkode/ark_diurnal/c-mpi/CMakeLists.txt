@@ -13,9 +13,10 @@
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
 foreach(_example ark_diurnal_kry_p ark_diurnal_kry_bbd_p)
-  sundials_add_example(${_example} ${_example}.c MPI_NPROCS 4
-                        EXAMPLE_TYPE exclude-single
-                        LINK_LIBRARIES PRIVATE sundials_arkode
-                        sundials_nvecparallel sundials_nvecmpiplusx
-                        ${EXE_EXTRA_LINK_LIBS})
+  sundials_add_example(
+    ${_example} ${_example}.c
+    MPI_NPROCS 4
+    EXAMPLE_TYPE exclude-single
+    LINK_LIBRARIES PRIVATE sundials_arkode sundials_nvecparallel
+                   sundials_nvecmpiplusx ${EXE_EXTRA_LINK_LIBS})
 endforeach()

@@ -27,16 +27,19 @@ if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
 endif()
 
 # The serial NVECTOR variants have reference output for three command-line
-# configurations.  The source is shared by all variants, so each backend gets
-# a distinct target name.
+# configurations.  The source is shared by all variants, so each backend gets a
+# distinct target name.
 sundials_add_example(
   ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC ${_source}
   TEST_NAME ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC_--monitor
-  TEST_ARGS --monitor MPI_NPROCS 4
+  TEST_ARGS --monitor
+  MPI_NPROCS 4
   ANSWER_FILE ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC_--monitor.out
-  EXAMPLE_TYPE develop INSTALL_FILES ${_common_files}
-  ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC_--monitor_--global-nls.out
-  ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC_--monitor_--explicit_--tf_1.out
+  EXAMPLE_TYPE develop
+  INSTALL_FILES
+    ${_common_files}
+    ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC_--monitor_--global-nls.out
+    ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC_--monitor_--explicit_--tf_1.out
   COMPILE_DEFINITIONS PRIVATE USE_SERIAL_NVEC
   LINK_LIBRARIES PRIVATE MPI::MPI_CXX ${_common_libs})
 
@@ -44,8 +47,10 @@ foreach(_args "--monitor --global-nls" "--monitor --explicit --tf 1")
   string(REPLACE " " "_" _suffix "${_args}")
   sundials_add_test(
     ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC_${_suffix}
-    ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC TEST_ARGS ${_args}
-    MPI_NPROCS 4 ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC
+    TEST_ARGS ${_args}
+    MPI_NPROCS 4
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ark_brusselator1D_task_local_nls.USE_SERIAL_NVEC_${_suffix}.out
     EXAMPLE_TYPE develop)
 endforeach()
@@ -58,18 +63,24 @@ if(SUNDIALS_ENABLE_NVECTOR_CUDA)
   sundials_add_example(
     ark_brusselator1D_task_local_nls.USE_CUDA_NVEC ${_source}
     TEST_NAME ark_brusselator1D_task_local_nls.USE_CUDA_NVEC_--monitor
-    TEST_ARGS --monitor MPI_NPROCS 4
+    TEST_ARGS --monitor
+    MPI_NPROCS 4
     ANSWER_FILE ark_brusselator1D_task_local_nls.USE_CUDA_NVEC_--monitor.out
-    EXAMPLE_TYPE develop INSTALL_FILES ${_common_files}
-    ark_brusselator1D_task_local_nls.USE_CUDA_NVEC_--monitor_--global-nls.out
+    EXAMPLE_TYPE develop
+    INSTALL_FILES
+      ${_common_files}
+      ark_brusselator1D_task_local_nls.USE_CUDA_NVEC_--monitor_--global-nls.out
     COMPILE_DEFINITIONS PRIVATE USE_CUDA_NVEC
     LINK_LIBRARIES PRIVATE MPI::MPI_CXX ${_cuda_libs})
 
   sundials_add_test(
     ark_brusselator1D_task_local_nls.USE_CUDA_NVEC_--monitor_--global-nls
-    ark_brusselator1D_task_local_nls.USE_CUDA_NVEC TEST_ARGS --monitor --global-nls
-    MPI_NPROCS 4 ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ark_brusselator1D_task_local_nls.USE_CUDA_NVEC_--monitor_--global-nls.out
+    ark_brusselator1D_task_local_nls.USE_CUDA_NVEC
+    TEST_ARGS --monitor --global-nls
+    MPI_NPROCS 4
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE
+      ark_brusselator1D_task_local_nls.USE_CUDA_NVEC_--monitor_--global-nls.out
     EXAMPLE_TYPE develop)
 
   # These backends were built by the former CXX_parallel example when the
@@ -103,6 +114,5 @@ if(SUNDIALS_ENABLE_NVECTOR_OPENMPDEV AND RAJA_BACKENDS MATCHES "TARGET_OPENMP")
     ark_brusselator1D_task_local_nls.USE_OMPDEV_NVEC ${_source} NO_TEST
     INSTALL_FILES ${_common_files}
     COMPILE_DEFINITIONS PRIVATE USE_OMPDEV_NVEC
-    LINK_LIBRARIES PRIVATE MPI::MPI_CXX ${_common_libs}
-                   sundials_nvecopenmpdev)
+    LINK_LIBRARIES PRIVATE MPI::MPI_CXX ${_common_libs} sundials_nvecopenmpdev)
 endif()

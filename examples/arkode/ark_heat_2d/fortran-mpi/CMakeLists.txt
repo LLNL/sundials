@@ -12,9 +12,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_heat2D_f2003 ark_heat2D_f2003.f90 MPI_NPROCS 4
-                      FLOAT_PRECISION 2 EXAMPLE_TYPE develop
-                      LINK_LIBRARIES PRIVATE MPI::MPI_Fortran sundials_arkode
-                      sundials_farkode_mod sundials_nvecparallel
-                      sundials_fnvecparallel_mod sundials_nvecmpiplusx
-                      sundials_fnvecmpiplusx_mod ${EXE_EXTRA_LINK_LIBS})
+sundials_add_example(
+  ark_heat2D_f2003 ark_heat2D_f2003.f90
+  MPI_NPROCS 4
+  FLOAT_PRECISION 2
+  EXAMPLE_TYPE develop
+  LINK_LIBRARIES
+    PRIVATE
+    MPI::MPI_Fortran
+    sundials_arkode
+    sundials_farkode_mod
+    sundials_nvecparallel
+    sundials_fnvecparallel_mod
+    sundials_nvecmpiplusx
+    sundials_fnvecmpiplusx_mod
+    ${EXE_EXTRA_LINK_LIBS})

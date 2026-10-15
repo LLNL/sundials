@@ -12,8 +12,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------
-sundials_add_example(ark_brusselator1D_FEM_sludist
-                      ark_brusselator1D_FEM_sludist.cpp
-                      MPI_NPROCS 1 EXAMPLE_TYPE develop
-                      LINK_LIBRARIES PRIVATE MPI::MPI_CXX sundials_arkode
-                      sundials_sunlinsolsuperludist)
+sundials_add_example(
+  ark_brusselator1D_FEM_sludist ark_brusselator1D_FEM_sludist.cpp
+  MPI_NPROCS 1
+  EXAMPLE_TYPE develop
+  LINK_LIBRARIES PRIVATE MPI::MPI_CXX sundials_arkode
+                 sundials_sunlinsolsuperludist)
