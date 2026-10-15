@@ -11,7 +11,7 @@ useful when using the Fortran 2003 interfaces.
 
 Updated `ARKodeGetReturnFlagName`, `CVodeGetReturnFlagName`,
 `CVDiagGetReturnFlagName`, `IDAGetReturnFlagName`, and `KINGetReturnFlagName` to
-return ``const char*`` rather than ``char*``. The returned string should no
+return `const char*` rather than `char*`. The returned string should no
 longer be freed by the user.
 
 ### Bug Fixes
