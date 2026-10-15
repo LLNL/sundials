@@ -20,14 +20,15 @@
 #     [TARGETS targets]
 #     [BACKENDS backends]
 #     [INSTALL_FILES files]
+#     [INCLUDE_DIRECTORIES directories]
 #     [UNIT_TEST]
 #   )
 #
 # adds a build target for each example tuple in EXAMPLES_VAR.
 #
 # The TARGETS option is a list of CMake targets provided to
-# target_link_libraries. INSTALL_FILES are passed to sundials_add_example for
-# installation alongside each example source and answer file.
+# target_link_libraries. INSTALL_FILES and INCLUDE_DIRECTORIES are passed to
+# sundials_add_example.
 #
 # The BACKENDS is a list of Ginkgo backends compatible with the examples in
 # EXAMPLES_VAR.
@@ -42,7 +43,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
 
   set(options UNIT_TEST)
   set(oneValueArgs)
-  set(multiValueArgs TARGETS BACKENDS INSTALL_FILES)
+  set(multiValueArgs TARGETS BACKENDS INSTALL_FILES INCLUDE_DIRECTORIES)
 
   # Parse keyword arguments and options
   cmake_parse_arguments(arg "${options}" "${oneValueArgs}" "${multiValueArgs}"
@@ -81,22 +82,6 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
       set(example_utilities_dir "${PROJECT_SOURCE_DIR}/examples/utilities")
       set(example_sources ${example})
 
-      if(backend MATCHES "CUDA" OR backend MATCHES "HIP")
-        set(gpu_source
-            "${CMAKE_CURRENT_SOURCE_DIR}/${example_basename}_gpu.cpp")
-        if(EXISTS "${gpu_source}")
-          if(backend MATCHES "CUDA")
-            set_source_files_properties(${gpu_source} PROPERTIES LANGUAGE CUDA)
-          elseif(backend MATCHES "HIP")
-            get_property(enabled_languages GLOBAL PROPERTY ENABLED_LANGUAGES)
-            if(HIP IN_LIST enabled_languages)
-              set_source_files_properties(${gpu_source} PROPERTIES LANGUAGE HIP)
-            endif()
-          endif()
-          list(APPEND example_sources ${gpu_source})
-        endif()
-      endif()
-
       # check if example args are provided and set the test name
       if("${example_args}" STREQUAL "")
         set(test_name ${example_target})
@@ -111,8 +96,14 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
         set(install_files ${arg_INSTALL_FILES})
         if(${arg_UNIT_TEST})
           list(APPEND test_args NODIFF)
-        else()
+        elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${test_name}.out")
           list(APPEND test_args FLOAT_PRECISION ${float_precision})
+        else()
+          message(
+            STATUS
+              "No answer file for ${test_name}; running without output comparison"
+          )
+          list(APPEND test_args NODIFF)
         endif()
         sundials_add_example(
           ${example_target} ${example_sources} ${test_args}
@@ -120,6 +111,7 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
           LINK_LIBRARIES PRIVATE ${arg_TARGETS} sundials_${vector}
                          Ginkgo::ginkgo ${EXTRA_LINK_LIBS}
           INCLUDE_DIRECTORIES PRIVATE "${example_utilities_dir}"
+                              ${arg_INCLUDE_DIRECTORIES}
           COMPILE_DEFINITIONS PRIVATE USE_${backend})
       elseif(${arg_UNIT_TEST})
         sundials_add_test(

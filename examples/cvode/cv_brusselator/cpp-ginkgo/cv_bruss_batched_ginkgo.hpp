@@ -18,7 +18,8 @@
  * See cv_bruss_batched_ginkgo.cpp for more information.
  * ---------------------------------------------------------------------------*/
 
-#pragma once
+#ifndef SUNDIALS_CV_BRUSS_BATCHED_GINKGO_HPP
+#define SUNDIALS_CV_BRUSS_BATCHED_GINKGO_HPP
 
 #include <cstdio>
 #include <memory>
@@ -28,13 +29,8 @@
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_memory.h>
 
-#if defined(USE_HIP)
-#include <nvector/nvector_hip.h>
-#include <sunmemory/sunmemory_hip.h>
-#else
 #include <nvector/nvector_serial.h>
 #include <sunmemory/sunmemory_system.h>
-#endif
 
 /* Helper class for Arrays. Built on top of the SUNMemoryHelper. */
 template<typename T, typename I>
@@ -86,13 +82,7 @@ struct UserData
   RealArray ep;
 };
 
-/* Backend-specific implementations are compiled in a GPU translation unit or
-   through the HIP C++ compiler when a GPU backend is selected. */
 N_Vector create_vector(sunindextype length, SUNContext sunctx);
 SUNMemoryHelper create_memory_helper(SUNContext sunctx);
 
-#if defined(USE_CUDA) || defined(USE_HIP)
-int f_gpu(sunrealtype t, N_Vector y, N_Vector ydot, UserData* udata);
-int Jac_gpu(N_Vector y, SUNMatrix J, UserData* udata);
-int JacVec_gpu(N_Vector v, N_Vector Jv, N_Vector y, UserData* udata);
-#endif
+#endif // SUNDIALS_CV_BRUSS_BATCHED_GINKGO_HPP

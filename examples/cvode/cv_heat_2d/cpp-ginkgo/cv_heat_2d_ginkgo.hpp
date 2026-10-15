@@ -18,7 +18,8 @@
  * See cv_heat_2d_ginkgo.cpp for more information.
  * ---------------------------------------------------------------------------*/
 
-#pragma once
+#ifndef SUNDIALS_CV_HEAT_2D_GINKGO_HPP
+#define SUNDIALS_CV_HEAT_2D_GINKGO_HPP
 
 #include <cmath>
 #include <cstdio>
@@ -33,12 +34,6 @@
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
-
-#if defined(USE_HIP)
-#include <nvector/nvector_hip.h>
-#elif defined(USE_SYCL)
-#include <nvector/nvector_sycl.h>
-#endif
 
 // Ginkgo Type
 #include <ginkgo/ginkgo.hpp>
@@ -95,7 +90,7 @@ struct UserData
   std::ofstream uout;  // output file stream
   std::ofstream eout;  // error file stream
 
-  // Ginkgo executor for synchronization on sycl
+  // Ginkgo executor
   std::shared_ptr<const gko::Executor> exec;
 };
 
@@ -117,46 +112,11 @@ static int Solution(sunrealtype t, N_Vector u, UserData& udata)
   // Initialize u to one (handles boundary conditions)
   N_VConst(ONE, u);
 
-#if defined(USE_CUDA) || defined(USE_HIP)
-
-  int flag = Solution_gpu(t, u, udata);
-  if (flag != 0) { return flag; }
-
-#elif defined(USE_SYCL)
   const auto nx        = udata.nx;
   const auto ny        = udata.ny;
   const auto dx        = udata.dx;
   const auto dy        = udata.dy;
   const auto cos_sqr_t = cos(PI * t) * cos(PI * t);
-
-  sunrealtype* uarray = N_VGetDeviceArrayPointer(u);
-  if (check_ptr(uarray, "N_VGetDeviceArrayPointer")) return -1;
-  std::dynamic_pointer_cast<const gko::DpcppExecutor>(udata.exec)
-    ->get_queue()
-    ->submit(
-      [&](sycl::handler& cgh)
-      {
-        cgh.parallel_for(sycl::range<2>(ny, nx),
-                         [=](sycl::id<2> id)
-                         {
-                           const sunindextype i = id[1];
-                           const sunindextype j = id[0];
-
-                           if (i > 0 && i < nx - 1 && j > 0 && j < ny - 1)
-                           {
-                             auto x = i * dx;
-                             auto y = j * dy;
-
-                             auto sin_sqr_x = sin(PI * x) * sin(PI * x);
-                             auto sin_sqr_y = sin(PI * y) * sin(PI * y);
-
-                             auto idx    = i + j * nx;
-                             uarray[idx] = sin_sqr_x * sin_sqr_y * cos_sqr_t +
-                                           ONE;
-                           }
-                         });
-      });
-#else
 
   const auto nx        = udata.nx;
   const auto ny        = udata.ny;
@@ -182,8 +142,6 @@ static int Solution(sunrealtype t, N_Vector u, UserData& udata)
     }
   }
 
-#endif
-  udata.exec->synchronize();
   return 0;
 }
 
@@ -341,15 +299,6 @@ static int WriteOutput(sunrealtype t, N_Vector u, N_Vector e, UserData& udata)
   // Write solution and error to disk
   if (udata.output)
   {
-    // Copy data from the device if necessary
-#if defined(USE_CUDA) || defined(USE_HIP)
-    copy_from_device_gpu(u);
-    copy_from_device_gpu(e);
-#elif defined(USE_SYCL)
-    N_VCopyFromDevice_Sycl(u);
-    N_VCopyFromDevice_Sycl(e);
-#endif
-
     // Access host data array
     sunrealtype* uarray = N_VGetArrayPointer(u);
     if (check_ptr(uarray, "N_VGetArrayPointer")) { return -1; }
@@ -392,3 +341,5 @@ static int CloseOutput(UserData& udata)
 
   return 0;
 }
+
+#endif // SUNDIALS_CV_HEAT_2D_GINKGO_HPP
