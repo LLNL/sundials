@@ -6,11 +6,18 @@
 
 Replaced the ARKODE `MRIStepInnerStepper` interface with `SUNStepper`.
 `MRIStepCreate` now accepts a `SUNStepper`, which can created by
-`ARKodeCreateSUNStepper` or manually. `SUNStepper_Evolve` and
-`SUNStepperEvolveFn` now return an integer status where zero is success,
-positive values are recoverable failures, and negative values are fatal
-failures. Added accumulated error get/reset and relative tolerance operations
-to `SUNStepper` to support `SUNAdaptController_MRIHTol`.
+`ARKodeCreateSUNStepper` or by manually wrapping an IVP solving procedure. When
+porting a custom ``MRIStepInnerStepper`` to a `SUNStepper`, most operations have
+the same signature, but forcing is handled slightly differently. A `SUNStepper`
+is responsible for storing forcing data set via `SUNStepperSetForcing` and
+applying it in `SUNStepper_Evolve`, possibly with the help of the new
+`SUNStepper_AddForcing` function. See
+``examples/arkode/CXX_serial/ark_advection_diffusion_reaction.cpp`` for an
+example. `SUNStepper_Evolve` and `SUNStepperEvolveFn` now return an integer
+status where zero is success, positive values are recoverable failures, and
+negative values are fatal failures. Added accumulated error get/reset and
+relative tolerance operations to `SUNStepper` to support
+`SUNAdaptController_MRIHTol`.
 
 ### New Features and Enhancements
 
