@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 {
   int fails = 0;                   /* counter for test failures  */
   sunindextype cols, uband, lband; /* matrix columns, bandwidths */
-  SUNMatrix A, AT, I;              /* test matrices              */
+  SUNMatrix A, AT, B, I;           /* test matrices              */
   N_Vector x, y;                   /* test vectors               */
   int print_timing;
   sunindextype i, j, k, kstart, kend, jstart, jend;
@@ -161,6 +161,19 @@ int main(int argc, char* argv[])
   fails += Test_SUNMatMatvec(A, x, y, 0);
   fails += Test_SUNMatHermitianTransposeVec(A, AT, x, y, 0);
   fails += Test_SUNMatSpace(A, 0);
+
+  /* Check scaling outside the narrower band of I. */
+  B = SUNMatClone(A);
+  fails += SUNMatCopy(A, B);
+  fails += SUNMatScaleAddI(SUN_RCONST(2.0), B);
+  fails += SUNMatScaleAdd(SUN_RCONST(2.0), A, I);
+  if (check_matrix(A, B, 10 * SUN_UNIT_ROUNDOFF))
+  {
+    printf(">>> FAILED test -- SUNMatScaleAdd narrower bandwidth \n");
+    fails++;
+  }
+  else { printf("    PASSED test -- SUNMatScaleAdd narrower bandwidth \n"); }
+  SUNMatDestroy(B);
 
   /* Print result */
   if (fails)
