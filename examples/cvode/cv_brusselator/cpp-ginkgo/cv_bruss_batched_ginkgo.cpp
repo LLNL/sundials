@@ -108,19 +108,6 @@ static void j_kernel(sunrealtype* ydata, sunrealtype* Jdata, sunrealtype* A,
 static void jv_kernel(sunrealtype* vdata, sunrealtype* Jvdata, sunrealtype* ydata,
                       sunrealtype* A, sunrealtype* B, sunrealtype* Ep, int neq,
                       int num_batches, int batch_size, int nnzper);
-#endif
-
-#if !defined(USE_CUDA) && !defined(USE_HIP)
-N_Vector create_vector(sunindextype length, SUNContext sunctx)
-{
-  return N_VNew_Serial(length, sunctx);
-}
-
-SUNMemoryHelper create_memory_helper(SUNContext sunctx)
-{
-  return SUNMemoryHelper_Sys(sunctx);
-}
-#endif
 
 N_Vector create_vector(sunindextype length, SUNContext sunctx)
 {
@@ -471,9 +458,6 @@ int JacVec(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, N_Vector fy,
 {
   UserData* udata = (UserData*)user_data;
 
-#if defined(USE_CUDA) || defined(USE_HIP)
-  return JacVec_gpu(v, Jv, y, udata);
-#else
   sunrealtype* vdata  = N_VGetArrayPointer(v);
   sunrealtype* Jvdata = N_VGetArrayPointer(Jv);
   sunrealtype* ydata  = N_VGetArrayPointer(y);

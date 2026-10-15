@@ -76,7 +76,6 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
       endif()
 
       # extract the file name without extension
-      get_filename_component(example_basename ${example} NAME_WE)
       get_filename_component(example_target ${example} NAME_WE)
       set(example_target "${example_target}.${backend}")
       set(example_utilities_dir "${PROJECT_SOURCE_DIR}/examples/utilities")

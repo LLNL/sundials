@@ -94,14 +94,6 @@ struct UserData
   std::shared_ptr<const gko::Executor> exec;
 };
 
-#if defined(USE_CUDA) || defined(USE_HIP)
-N_Vector create_vector_gpu(sunindextype length, SUNContext sunctx);
-int Solution_gpu(sunrealtype t, N_Vector u, UserData& udata);
-int f_gpu(sunrealtype t, N_Vector u, N_Vector f, UserData* udata);
-int J_gpu(SUNMatrix J, UserData* udata);
-void copy_from_device_gpu(N_Vector v);
-#endif
-
 // -----------------------------------------------------------------------------
 // Utility functions
 // -----------------------------------------------------------------------------
@@ -111,12 +103,6 @@ static int Solution(sunrealtype t, N_Vector u, UserData& udata)
 {
   // Initialize u to one (handles boundary conditions)
   N_VConst(ONE, u);
-
-  const auto nx        = udata.nx;
-  const auto ny        = udata.ny;
-  const auto dx        = udata.dx;
-  const auto dy        = udata.dy;
-  const auto cos_sqr_t = cos(PI * t) * cos(PI * t);
 
   const auto nx        = udata.nx;
   const auto ny        = udata.ny;
