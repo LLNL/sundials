@@ -9,7 +9,7 @@ Replaced the ARKODE ``MRIStepInnerStepper`` interface with :c:type:`SUNStepper`.
 procedure. When porting a custom ``MRIStepInnerStepper`` to a
 :c:type:`SUNStepper`, most operations have the same signature, but forcing is
 handled slightly differently. A :c:type:`SUNStepper` is responsible for storing
-forcing data set via :c:func:`SUNStepperSetForcing` and applying it in
+forcing data set via :c:func:`SUNStepper_SetForcing` and applying it in
 :c:func:`SUNStepper_Evolve`, possibly with the help of the new
 :c:func:`SUNStepper_AddForcing` function. See
 ``examples/arkode/CXX_serial/ark_advection_diffusion_reaction.cpp`` for an

@@ -9,7 +9,7 @@ Replaced the ARKODE `MRIStepInnerStepper` interface with `SUNStepper`.
 `ARKodeCreateSUNStepper` or by manually wrapping an IVP solving procedure. When
 porting a custom ``MRIStepInnerStepper`` to a `SUNStepper`, most operations have
 the same signature, but forcing is handled slightly differently. A `SUNStepper`
-is responsible for storing forcing data set via `SUNStepperSetForcing` and
+is responsible for storing forcing data set via `SUNStepper_SetForcing` and
 applying it in `SUNStepper_Evolve`, possibly with the help of the new
 `SUNStepper_AddForcing` function. See
 ``examples/arkode/CXX_serial/ark_advection_diffusion_reaction.cpp`` for an
