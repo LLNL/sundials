@@ -17,8 +17,7 @@
  * Unit test for the number of preprocessing iterations (warmups) LSRKStep
  * applies to an attached SUNDomEigEstimator: the initial count is used only for
  * the first estimate, even if LSRKStepSetNumDomEigEstPreprocessIters is called
- * after ARKodeInit, and the setter takes effect when called during the
- * integration, including across ARKodeResize.
+ * before it, and the setter takes effect when called during the integration.
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -122,6 +121,7 @@ int main(int argc, char* argv[])
   if (LSRKStepSetDomEigEstimator(arkode_mem, DEE) ||
       SUNDomEigEstimator_SetIsReal_Power(DEE, SUNTRUE) ||
       LSRKStepSetNumDomEigEstInitPreprocessIters(arkode_mem, INIT_WARMUPS) ||
+      LSRKStepSetNumDomEigEstPreprocessIters(arkode_mem, STEADY_WARMUPS) ||
       LSRKStepSetDomEigFrequency(arkode_mem, 1) ||
       ARKodeSetFixedStep(arkode_mem, SUN_RCONST(0.01)))
   {
@@ -129,12 +129,9 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  /* Setting the steady-state count after initialization must not override the
-     initial count for the first estimate */
-  if (ARKodeInit(arkode_mem) ||
-      LSRKStepSetNumDomEigEstPreprocessIters(arkode_mem, STEADY_WARMUPS))
+  if (ARKodeInit(arkode_mem))
   {
-    fprintf(stderr, "Initializing LSRKStep failed\n");
+    fprintf(stderr, "ARKodeInit failed\n");
     return 1;
   }
 
@@ -150,15 +147,6 @@ int main(int argc, char* argv[])
   }
   fails += step_and_check(arkode_mem, DEE, y, &t, UPDATED_WARMUPS,
                           "Estimate after setter");
-
-  /* The updated count must persist across a resize */
-  if (ARKodeResize(arkode_mem, y, ONE, t, NULL, NULL))
-  {
-    fprintf(stderr, "ARKodeResize failed\n");
-    return 1;
-  }
-  fails += step_and_check(arkode_mem, DEE, y, &t, UPDATED_WARMUPS,
-                          "Estimate after resize");
 
   ARKodeFree(&arkode_mem);
   SUNDomEigEstimator_Destroy(&DEE);

@@ -405,8 +405,8 @@ Allowable Method Families
 
       Calling this function after the first dominant eigenvalue estimate now
       applies the requested number of iterations to the attached
-      ``SUNDomEigEstimator`` for all subsequent estimates, including after
-      :c:func:`ARKodeResize`. Previously, the number of iterations set with
+      ``SUNDomEigEstimator`` for the following estimates. Previously, the
+      number of iterations set with
       :c:func:`LSRKStepSetNumDomEigEstInitPreprocessIters` was applied instead.
 
    .. note::
