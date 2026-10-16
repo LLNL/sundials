@@ -57,7 +57,7 @@ operations and their new headers is provided below.
 
 Updated the MRIStep module in ARKODE to support *extended Super Time Stepping*
 (ExtSTS) methods for multi-physics simulations involving parabolic components,
-through the `MRIStepExtSTSCreate` function.  See the documentation section on
+through the `MRIStepExtSTSCreate` function. See the documentation section on
 the mathematical methods in MRIStep for more details on the structure of ExtSTS
 methods, and the documentation section on a skeleton of usage for MRIStep for
 details on its usage.
@@ -101,13 +101,13 @@ Renamed the `ARKODE_ARK2_ERK_3_1_2`, `ARKODE_ARK2_DIRK_3_1_2`,
 `ARKODE_ASCHER_ERK_3_1_2`, and `ARKODE_ASCHER_SDIRK_3_1_2` Butcher tables to
 `ARKODE_GKC21_ERK_3_1_2`, `ARKODE_GKC21_DIRK_3_1_2`, `ARKODE_ARS222_ERK_3_1_2`,
 and `ARKODE_ARS222_SDIRK_3_1_2`, respectively, to reflect the original inventors
-of each method.  The previous table names are deprecated and will be removed in
+of each method. The previous table names are deprecated and will be removed in
 a future release.
 
 Renamed the `ARKODE_IMEX_MRI_GARK_ARK2` and `ARKODE_IMEX_MRI_GARK_ASCHER_ARK2`
 multirate coupling tables to `ARKODE_IMEX_MRI_GARK_GKC21` and
 `ARKODE_IMEX_MRI_GARK_ARS222` to reflect the original inventors of the base
-Runge--Kutta tables on which these are based.  The previous table names are
+Runge--Kutta tables on which these are based. The previous table names are
 deprecated and will be removed in a future release.
 
 ## Changes to SUNDIALS in release 7.8.0
@@ -246,7 +246,7 @@ updated state (`ARKodeSetPreRhsFn`), and/or once each internal step/stage is
 computed (`ARKodeSetPostprocessStepFn`/ `ARKodeSetPostprocessStageFn`). These
 are considered **advanced** functions, as they should treat the state vector as
 read-only, otherwise all theoretical guarantees of solution accuracy and
-stability will be lost.  As a result of these new functions, the values of
+stability will be lost. As a result of these new functions, the values of
 multiple ARKODE return codes (e.g., ``ARK_INTERP_FAIL``) have been updated;
 users who key off of the named constants will not be affected, but users who
 rely on the values themselves should update their codes accordingly.
@@ -484,7 +484,7 @@ The `CSC_MAT` and `CSR_MAT` macros defined in `sunmatrix_sparse.h` will be
 removed in the next major release. Use `SUN_CSC_MAT` and `SUN_CSR_MAT` instead.
 
 `SUNDIALSFileOpen` and `SUNDIALSFileClose` will be removed in the next major
-release.  Use `SUNFileOpen` and `SUNFileClose` instead.
+release. Use `SUNFileOpen` and `SUNFileClose` instead.
 
 The `Convert` methods on the `sundials::kokkos:Vector`,
 `sundials::kokkos::DenseMatrix`, `sundials::ginkgo::Matrix`,
@@ -783,7 +783,7 @@ accurate.
 ### Major Features
 
 Added a time-stepping module to ARKODE for low storage Runge-Kutta methods,
-LSRKStep.  This currently supports five explicit low-storage methods: the
+LSRKStep. This currently supports five explicit low-storage methods: the
 second-order Runge-Kutta-Chebyshev and Runge-Kutta-Legendre methods, and the
 second- through fourth-order optimal strong stability preserving Runge-Kutta
 methods. All methods include embeddings for temporal adaptivity.
@@ -871,8 +871,8 @@ triggered when the deprecated `CUDA_ARCH` option was used.
 Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
 using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
 
-Fixed a CMake issue which caused third-party CMake variables to be unset.  Users
-may see more options in the CMake GUI now as a result of the fix.  See details
+Fixed a CMake issue which caused third-party CMake variables to be unset. Users
+may see more options in the CMake GUI now as a result of the fix. See details
 in GitHub Issue [#538](https://github.com/LLNL/sundials/issues/538).
 
 #### NVector

@@ -21,8 +21,7 @@
 # Options for C/C++ examples
 # -----------------------------------------------------------------------------
 
-sundials_option(SUNDIALS_ENABLE_C_EXAMPLES BOOL "Build SUNDIALS C examples" ON
-                DEPRECATED_NAMES EXAMPLES_ENABLE_C)
+sundials_option(SUNDIALS_ENABLE_C_EXAMPLES BOOL "Build SUNDIALS C examples" ON)
 
 # Some TPLs only have C++ examples. Default the C++ examples to ON if any of
 # these are enabled on the initial configuration pass.
@@ -37,12 +36,10 @@ if(SUNDIALS_ENABLE_TRILINOS
    OR SUNDIALS_ENABLE_GINKGO
    OR SUNDIALS_ENABLE_KOKKOS)
   sundials_option(
-    SUNDIALS_ENABLE_CXX_EXAMPLES BOOL "Build SUNDIALS C++ examples" ON
-    DEPRECATED_NAMES EXAMPLES_ENABLE_CXX)
+    SUNDIALS_ENABLE_CXX_EXAMPLES BOOL "Build SUNDIALS C++ examples" ON)
 else()
   sundials_option(
-    SUNDIALS_ENABLE_CXX_EXAMPLES BOOL "Build SUNDIALS C++ examples" OFF
-    DEPRECATED_NAMES EXAMPLES_ENABLE_CXX)
+    SUNDIALS_ENABLE_CXX_EXAMPLES BOOL "Build SUNDIALS C++ examples" OFF)
 endif()
 
 # -----------------------------------------------------------------------------
@@ -52,11 +49,11 @@ endif()
 if(SUNDIALS_ENABLE_FORTRAN)
   sundials_option(
     SUNDIALS_ENABLE_FORTRAN_EXAMPLES BOOL "Build SUNDIALS Fortran examples" ON
-    DEPENDS_ON SUNDIALS_ENABLE_FORTRAN DEPRECATED_NAMES EXAMPLES_ENABLE_F2003)
+    DEPENDS_ON SUNDIALS_ENABLE_FORTRAN)
 else()
   sundials_option(
     SUNDIALS_ENABLE_FORTRAN_EXAMPLES BOOL "Build SUNDIALS Fortran examples" OFF
-    DEPENDS_ON SUNDIALS_ENABLE_FORTRAN DEPRECATED_NAMES EXAMPLES_ENABLE_F2003)
+    DEPENDS_ON SUNDIALS_ENABLE_FORTRAN)
 endif()
 
 # -----------------------------------------------------------------------------
@@ -65,7 +62,7 @@ endif()
 
 sundials_option(
   SUNDIALS_ENABLE_CUDA_EXAMPLES BOOL "Build SUNDIALS CUDA examples" ON
-  DEPENDS_ON SUNDIALS_ENABLE_CUDA DEPRECATED_NAMES EXAMPLES_ENABLE_CUDA)
+  DEPENDS_ON SUNDIALS_ENABLE_CUDA)
 
 # -----------------------------------------------------------------------------
 # Options for installing examples

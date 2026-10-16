@@ -71,16 +71,14 @@ set(SUNDIALS_COUNTER_TYPE
 # ---------------------------------------------------------------
 
 set(DOCSTR "Enable simulation monitoring capabilities")
-sundials_option(SUNDIALS_ENABLE_MONITORING BOOL "${DOCSTR}" OFF
-                DEPRECATED_NAMES SUNDIALS_BUILD_WITH_MONITORING)
+sundials_option(SUNDIALS_ENABLE_MONITORING BOOL "${DOCSTR}" OFF)
 
 # ---------------------------------------------------------------
 # Option to enable profiling
 # ---------------------------------------------------------------
 
 set(DOCSTR "Enable profiling (may affect performance)")
-sundials_option(SUNDIALS_ENABLE_PROFILING BOOL "${DOCSTR}" OFF DEPRECATED_NAMES
-                SUNDIALS_BUILD_WITH_PROFILING)
+sundials_option(SUNDIALS_ENABLE_PROFILING BOOL "${DOCSTR}" OFF)
 
 if(SUNDIALS_ENABLE_PROFILING)
   message(
@@ -163,48 +161,42 @@ endif()
 # the user the option of enabling/disabling it.
 
 if(IS_DIRECTORY "${SUNDIALS_SOURCE_DIR}/src/arkode")
-  sundials_option(SUNDIALS_ENABLE_ARKODE BOOL "Enable the ARKODE library" ON
-                  DEPRECATED_NAMES BUILD_ARKODE)
+  sundials_option(SUNDIALS_ENABLE_ARKODE BOOL "Enable the ARKODE library" ON)
   list(APPEND SUNDIALS_BUILD_LIST "SUNDIALS_ENABLE_ARKODE")
 else()
   set(SUNDIALS_ENABLE_ARKODE OFF)
 endif()
 
 if(IS_DIRECTORY "${SUNDIALS_SOURCE_DIR}/src/cvode")
-  sundials_option(SUNDIALS_ENABLE_CVODE BOOL "Enable the CVODE library" ON
-                  DEPRECATED_NAMES BUILD_CVODE)
+  sundials_option(SUNDIALS_ENABLE_CVODE BOOL "Enable the CVODE library" ON)
   list(APPEND SUNDIALS_BUILD_LIST "SUNDIALS_ENABLE_CVODE")
 else()
   set(SUNDIALS_ENABLE_CVODE OFF)
 endif()
 
 if(IS_DIRECTORY "${SUNDIALS_SOURCE_DIR}/src/cvodes")
-  sundials_option(SUNDIALS_ENABLE_CVODES BOOL "Enable the CVODES library" ON
-                  DEPRECATED_NAMES BUILD_CVODES)
+  sundials_option(SUNDIALS_ENABLE_CVODES BOOL "Enable the CVODES library" ON)
   list(APPEND SUNDIALS_BUILD_LIST "SUNDIALS_ENABLE_CVODES")
 else()
   set(SUNDIALS_ENABLE_CVODES OFF)
 endif()
 
 if(IS_DIRECTORY "${SUNDIALS_SOURCE_DIR}/src/ida")
-  sundials_option(SUNDIALS_ENABLE_IDA BOOL "Enable the IDA library" ON
-                  DEPRECATED_NAMES BUILD_IDA)
+  sundials_option(SUNDIALS_ENABLE_IDA BOOL "Enable the IDA library" ON)
   list(APPEND SUNDIALS_BUILD_LIST "SUNDIALS_ENABLE_IDA")
 else()
   set(SUNDIALS_ENABLE_IDA OFF)
 endif()
 
 if(IS_DIRECTORY "${SUNDIALS_SOURCE_DIR}/src/idas")
-  sundials_option(SUNDIALS_ENABLE_IDAS BOOL "Enable the IDAS library" ON
-                  DEPRECATED_NAMES BUILD_IDAS)
+  sundials_option(SUNDIALS_ENABLE_IDAS BOOL "Enable the IDAS library" ON)
   list(APPEND SUNDIALS_BUILD_LIST "SUNDIALS_ENABLE_IDAS")
 else()
   set(SUNDIALS_ENABLE_IDAS OFF)
 endif()
 
 if(IS_DIRECTORY "${SUNDIALS_SOURCE_DIR}/src/kinsol")
-  sundials_option(SUNDIALS_ENABLE_KINSOL BOOL "Enable the KINSOL library" ON
-                  DEPRECATED_NAMES BUILD_KINSOL)
+  sundials_option(SUNDIALS_ENABLE_KINSOL BOOL "Enable the KINSOL library" ON)
   list(APPEND SUNDIALS_BUILD_LIST "SUNDIALS_ENABLE_KINSOL")
 else()
   set(SUNDIALS_ENABLE_KINSOL OFF)
@@ -215,14 +207,7 @@ endif()
 # ---------------------------------------------------------------
 
 # Fortran interfaces are disabled by default
-sundials_option(
-  SUNDIALS_ENABLE_FORTRAN
-  BOOL
-  "Enable Fortran interfaces"
-  OFF
-  DEPRECATED_NAMES
-  F2003_INTERFACE_ENABLE
-  BUILD_FORTRAN_MODULE_INTERFACE)
+sundials_option(SUNDIALS_ENABLE_FORTRAN BOOL "Enable Fortran interfaces" OFF)
 
 if(SUNDIALS_ENABLE_FORTRAN)
   # Fortran interfaces only support double precision
@@ -270,9 +255,7 @@ sundials_option(
   BOOL
   "Enable all compiler warnings"
   OFF
-  ADVANCED
-  DEPRECATED_NAMES
-  ENABLE_ALL_WARNINGS)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_ENABLE_DEPRECATED_WARNINGS BOOL
@@ -284,45 +267,35 @@ sundials_option(
   BOOL
   "Treat compiler warnings as errors"
   OFF
-  ADVANCED
-  DEPRECATED_NAMES
-  ENABLE_WARNINGS_AS_ERRORS)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_ENABLE_ADDRESS_SANITIZER
   BOOL
   "Enable address sanitizer"
   OFF
-  ADVANCED
-  DEPRECATED_NAMES
-  ENABLE_ADDRESS_SANITIZER)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_ENABLE_MEMORY_SANITIZER
   BOOL
   "Enable memory sanitizer"
   OFF
-  ADVANCED
-  DEPRECATED_NAMES
-  ENABLE_MEMORY_SANITIZER)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_ENABLE_LEAK_SANITIZER
   BOOL
   "Enable leak sanitizer"
   OFF
-  ADVANCED
-  DEPRECATED_NAMES
-  ENABLE_LEAK_SANITIZER)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_ENABLE_UNDEFINED_BEHAVIOR_SANITIZER
   BOOL
   "Enable undefined behavior sanitizer"
   OFF
-  ADVANCED
-  DEPRECATED_NAMES
-  ENABLE_UNDEFINED_BEHAVIOR_SANITIZER)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Options to enable SUNDIALS debugging
@@ -397,18 +370,14 @@ sundials_option(
   BOOL
   "Enable development tests"
   OFF
-  ADVANCED
-  DEPRECATED_NAMES
-  SUNDIALS_TEST_DEVTESTS)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_TEST_ENABLE_UNIT_TESTS
   BOOL
   "Enable unit tests"
   OFF
-  ADVANCED
-  DEPRECATED_NAMES
-  SUNDIALS_TEST_UNITTESTS)
+  ADVANCED)
 
 if(SUNDIALS_TEST_ENABLE_UNIT_TESTS)
   set(_default_gtest ON)
@@ -443,10 +412,7 @@ sundials_option(
   BOOL
   "Compare test output with saved answer files"
   ${_default_diff_output}
-  ADVANCED
-  DEPRECATED_NAMES
-  SUNDIALS_TEST_NODIFF
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 if((SUNDIALS_TEST_ENABLE_DEV_TESTS OR SUNDIALS_TEST_ENABLE_UNIT_TESTS)
    AND NOT SUNDIALS_TEST_ENABLE_DIFF_OUTPUT)
@@ -483,9 +449,7 @@ sundials_option(
   BOOL
   "Profile tests"
   OFF
-  ADVANCED
-  DEPRECATED_NAMES
-  SUNDIALS_TEST_PROFILE)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_TEST_CALIPER_OUTPUT_DIR PATH "Location to write test Caliper files"
@@ -521,12 +485,12 @@ sundials_option(SUNDIALS_DEV_CLANG_TIDY BOOL "Enable clang-tidy" OFF ADVANCED)
 # ---------------------------------------------------------------
 
 sundials_option(SUNDIALS_ENABLE_BENCHMARKS BOOL "Enable the benchmark suite"
-                OFF DEPRECATED_NAMES BUILD_BENCHMARKS)
+                OFF)
 
 sundials_option(
   SUNDIALS_BENCHMARKS_INSTALL_PATH PATH
   "Output directory for installing benchmark executables"
-  "${CMAKE_INSTALL_PREFIX}/benchmarks" DEPRECATED_NAMES BENCHMARKS_INSTALL_PATH)
+  "${CMAKE_INSTALL_PREFIX}/benchmarks")
 
 sundials_option(SUNDIALS_SCHEDULER_COMMAND STRING
                 "Job scheduler command to use to launch MPI tests" "" ADVANCED)
@@ -536,33 +500,25 @@ sundials_option(
   PATH
   "Location to write benchmark output files"
   "${PROJECT_BINARY_DIR}/Benchmarking/output"
-  ADVANCED
-  DEPRECATED_NAMES
-  SUNDIALS_BENCHMARK_OUTPUT_DIR)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_BENCHMARKS_CALIPER_OUTPUT_DIR
   PATH
   "Location to write benchmark caliper files"
   "${PROJECT_BINARY_DIR}/Benchmarking/caliper"
-  ADVANCED
-  DEPRECATED_NAMES
-  SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_BENCHMARKS_NUM_CPUS
   STRING
   "Number of CPU cores to run benchmarks with"
   "40"
-  ADVANCED
-  DEPRECATED_NAMES
-  SUNDIALS_BENCHMARK_NUM_CPUS)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_BENCHMARKS_NUM_GPUS
   STRING
   "Number of GPUs to run benchmarks with"
   "4"
-  ADVANCED
-  DEPRECATED_NAMES
-  SUNDIALS_BENCHMARK_NUM_GPUS)
+  ADVANCED)

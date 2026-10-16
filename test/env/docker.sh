@@ -128,32 +128,29 @@ export SUNDIALS_BUILD_JOBS=4
 export SUNDIALS_TEST_JOBS=1
 
 # Sundials packages
-export SUNDIALS_ARKODE=ON
-export SUNDIALS_CVODE=ON
-export SUNDIALS_CVODES=ON
-export SUNDIALS_IDA=ON
-export SUNDIALS_IDAS=ON
-export SUNDIALS_KINSOL=ON
+export SUNDIALS_ENABLE_ARKODE=ON
+export SUNDIALS_ENABLE_CVODE=ON
+export SUNDIALS_ENABLE_CVODES=ON
+export SUNDIALS_ENABLE_IDA=ON
+export SUNDIALS_ENABLE_IDAS=ON
+export SUNDIALS_ENABLE_KINSOL=ON
 
 # Fortran interface status
 if [ "$compilername" == "gcc" ]; then
     if [[ ("$SUNDIALS_PRECISION" == "double") ]]; then
-        export SUNDIALS_FMOD_INTERFACE=ON
+        export SUNDIALS_ENABLE_FORTRAN=ON
     else
-        export SUNDIALS_FMOD_INTERFACE=OFF
+        export SUNDIALS_ENABLE_FORTRAN=OFF
     fi
 else
-    export SUNDIALS_FMOD_INTERFACE=OFF
+    export SUNDIALS_ENABLE_FORTRAN=OFF
 fi
 
 # Sundials benchmarks
-export SUNDIALS_BENCHMARKS=ON
-
-# Sundials monitoring
-export SUNDIALS_MONITORING=ON
+export SUNDIALS_ENABLE_BENCHMARKS=ON
 
 # Sundials profiling
-export SUNDIALS_PROFILING=ON
+export SUNDIALS_ENABLE_PROFILING=ON
 
 # Sundials logging
 export SUNDIALS_LOGGING_LEVEL=3
@@ -186,13 +183,13 @@ fi
 # PThread
 # -------
 
-export SUNDIALS_PTHREAD=ON
+export SUNDIALS_ENABLE_PTHREAD=ON
 
 # ------
 # OpenMP
 # ------
 
-export SUNDIALS_OPENMP=ON
+export SUNDIALS_ENABLE_OPENMP=ON
 export OMP_NUM_THREADS=4
 
 # ---
@@ -201,7 +198,7 @@ export OMP_NUM_THREADS=4
 
 MPI_ROOT=/opt/view
 
-export SUNDIALS_MPI=ON
+export SUNDIALS_ENABLE_MPI=ON
 export MPICC="${MPI_ROOT}/bin/mpicc"
 export MPICXX="${MPI_ROOT}/bin/mpicxx"
 export MPIFC="${MPI_ROOT}/bin/mpifort"
@@ -213,17 +210,17 @@ export MPIEXEC_PREFLAGS="--oversubscribe"
 # -------------
 
 if [ "$SUNDIALS_PRECISION" == "single" ]; then
-    export SUNDIALS_LAPACK=ON
+    export SUNDIALS_ENABLE_LAPACK=ON
     export LAPACK_ROOT=/opt/view
     export BLAS_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
     export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_LAPACK=ON
+    export SUNDIALS_ENABLE_LAPACK=ON
     export LAPACK_ROOT=/opt/view
     export BLAS_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
     export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
 else
-    export SUNDIALS_LAPACK=OFF
+    export SUNDIALS_ENABLE_LAPACK=OFF
     unset LAPACK_LIBRARIES
     unset BLAS_LIBRARIES
 fi
@@ -233,12 +230,12 @@ fi
 # ---
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_KLU=ON
+    export SUNDIALS_ENABLE_KLU=ON
     export SUITE_SPARSE_ROOT=/opt/view
     export SUITE_SPARSE_INCLUDE_DIR="${SUITE_SPARSE_ROOT}/include"
     export SUITE_SPARSE_LIBRARY_DIR="${SUITE_SPARSE_ROOT}/lib"
 else
-    export SUNDIALS_KLU=OFF
+    export SUNDIALS_ENABLE_KLU=OFF
     unset SUITE_SPARSE_ROOT
 fi
 
@@ -247,21 +244,21 @@ fi
 # ----------
 
 if [ "$SUNDIALS_PRECISION" == "single" ]; then
-    export SUNDIALS_SUPERLU_MT=ON
+    export SUNDIALS_ENABLE_SUPERLUMT=ON
     export SUPERLU_MT_ROOT=/opt/view/superlu-mt
     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a;${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
 elif [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_SUPERLU_MT=ON
+    export SUNDIALS_ENABLE_SUPERLUMT=ON
     export SUPERLU_MT_ROOT=/opt/view/superlu-mt
     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a;${SUPERLU_MT_ROOT}/lib/libsuperlu_mt_PTHREAD.a"
     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
 else
-    export SUNDIALS_SUPERLU_MT=OFF
+    export SUNDIALS_ENABLE_SUPERLUMT=OFF
     unset SUPERLU_MT_ROOT
     unset SUPERLU_MT_INCLUDE_DIR
     unset SUPERLU_MT_LIBRARY_DIR
@@ -274,13 +271,13 @@ fi
 # ------------
 
 if [ "$SUNDIALS_PRECISION" == "extended" ]; then
-    export SUNDIALS_SUPERLU_DIST=OFF
+    export SUNDIALS_ENABLE_SUPERLUDIST=OFF
     unset SUPERLU_DIST_INCLUDE_DIR
     unset SUPERLU_DIST_LIBRARY_DIR
     unset SUPERLU_DIST_LIBRARIES
     unset SUPERLU_DIST_OPENMP
 else
-    export SUNDIALS_SUPERLU_DIST=ON
+    export SUNDIALS_ENABLE_SUPERLUDIST=ON
     export SUPERLU_DIST_ROOT=/opt/view/superlu-dist
     export SUPERLU_DIST_INCLUDE_DIR="${SUPERLU_DIST_ROOT}/include"
     export SUPERLU_DIST_LIBRARY_DIR="${SUPERLU_DIST_ROOT}/lib"
@@ -309,9 +306,9 @@ else
 
     # if BLAS wasn't found, then dont build SuperLU_DIST
     if [ -z "$SUPERLU_DIST_BLAS_LIBRARIES" ]; then
-        export SUNDIALS_SUPERLU_DIST=OFF
+        export SUNDIALS_ENABLE_SUPERLUDIST=OFF
     else
-        export SUNDIALS_SUPERLU_DIST=ON
+        export SUNDIALS_ENABLE_SUPERLUDIST=ON
     fi
 fi
 
@@ -320,12 +317,12 @@ fi
 # -----
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
-    export SUNDIALS_HYPRE=ON
+    export SUNDIALS_ENABLE_HYPRE=ON
     export HYPRE_ROOT=/opt/view
     export HYPRE_INCLUDE_DIR="${HYPRE_ROOT}/include"
     export HYPRE_LIBRARY_DIR="${HYPRE_ROOT}/lib"
 else
-    export SUNDIALS_HYPRE=OFF
+    export SUNDIALS_ENABLE_HYPRE=OFF
     unset HYPRE_INCLUDE_DIR
     unset HYPRE_LIBRARY_DIR
 fi
@@ -335,9 +332,10 @@ fi
 # -----
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_ENABLE_PETSC=ON
     export PETSC_ROOT=/opt/view
 else
-    export SUNDIALS_PETSC=OFF
+    export SUNDIALS_ENABLE_PETSC=OFF
     unset PETSC_ROOT
 fi
 
@@ -346,10 +344,10 @@ fi
 # --------
 
 if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-    export SUNDIALS_TRILINOS=OFF
+    export SUNDIALS_ENABLE_TRILINOS=ON
     export TRILINOS_ROOT=/opt/view
 else
-    export SUNDIALS_TRILINOS=OFF
+    export SUNDIALS_ENABLE_TRILINOS=OFF
     unset TRILINOS_ROOT
 fi
 
@@ -358,9 +356,9 @@ fi
 # ------
 
 if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-    export SUNDIALS_XBRAID=ON
+    export SUNDIALS_ENABLE_XBRAID=ON
     export XBRAID_ROOT=/opt/view
 else
-    export SUNDIALS_XBRAID=OFF
+    export SUNDIALS_ENABLE_XBRAID=OFF
     unset XBRAID_ROOT
 fi

@@ -21,27 +21,13 @@
 # Enable MPI support?
 # ---------------------------------------------------------------
 
-sundials_option(
-  SUNDIALS_ENABLE_MPI
-  BOOL
-  "Enable MPI support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_MPI
-  MPI_ENABLE)
+sundials_option(SUNDIALS_ENABLE_MPI BOOL "Enable MPI support" OFF)
 
 # ---------------------------------------------------------------
 # Enable OpenMP support?
 # ---------------------------------------------------------------
 
-sundials_option(
-  SUNDIALS_ENABLE_OPENMP
-  BOOL
-  "Enable OpenMP support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_OPENMP
-  OPENMP_ENABLE)
+sundials_option(SUNDIALS_ENABLE_OPENMP BOOL "Enable OpenMP support" OFF)
 
 # ---------------------------------------------------------------
 # Enable OpenMP target offloading support?
@@ -51,10 +37,7 @@ sundials_option(
   SUNDIALS_ENABLE_OPENMP_DEVICE
   BOOL
   "Enable OpenMP device offloading support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_OPENMP_DEVICE
-  OPENMP_DEVICE_ENABLE)
+  OFF)
 
 # Advanced option to skip OpenMP device offloading support check. This is needed
 # for a specific compiler that doesn't correctly report its OpenMP spec date
@@ -64,51 +47,31 @@ sundials_option(
   BOOL
   "Enable OpenMP device offloading compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  OPENMP_DEVICE_WORKS
-  SKIP_OPENMP_DEVICE_CHECK
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable Pthread support?
 # ---------------------------------------------------------------
 
-sundials_option(
-  SUNDIALS_ENABLE_PTHREAD
-  BOOL
-  "Enable Pthreads support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_PTHREAD
-  PTHREAD_ENABLE)
+sundials_option(SUNDIALS_ENABLE_PTHREAD BOOL "Enable Pthreads support" OFF)
 
 # -------------------------------------------------------------
 # Enable CUDA support?
 # -------------------------------------------------------------
 
-sundials_option(
-  SUNDIALS_ENABLE_CUDA
-  BOOL
-  "Enable CUDA support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_CUDA
-  CUDA_ENABLE)
+sundials_option(SUNDIALS_ENABLE_CUDA BOOL "Enable CUDA support" OFF)
 
 # -------------------------------------------------------------
 # Enable HIP support?
 # -------------------------------------------------------------
 
-sundials_option(SUNDIALS_ENABLE_HIP BOOL "Enable HIP support" OFF
-                DEPRECATED_NAMES ENABLE_HIP)
+sundials_option(SUNDIALS_ENABLE_HIP BOOL "Enable HIP support" OFF)
 
 # -------------------------------------------------------------
 # Enable SYCL support?
 # -------------------------------------------------------------
 
-sundials_option(SUNDIALS_ENABLE_SYCL BOOL "Enable SYCL support" OFF
-                DEPRECATED_NAMES ENABLE_SYCL)
+sundials_option(SUNDIALS_ENABLE_SYCL BOOL "Enable SYCL support" OFF)
 
 sundials_option(
   SUNDIALS_SYCL_2020_UNSUPPORTED
@@ -122,14 +85,7 @@ sundials_option(
 # Enable LAPACK support?
 # ---------------------------------------------------------------
 
-sundials_option(
-  SUNDIALS_ENABLE_LAPACK
-  BOOL
-  "Enable Lapack support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_LAPACK
-  LAPACK_ENABLE)
+sundials_option(SUNDIALS_ENABLE_LAPACK BOOL "Enable Lapack support" OFF)
 
 sundials_option(LAPACK_LIBRARIES STRING "Lapack and Blas libraries"
                 "${LAPACK_LIBRARIES}")
@@ -139,17 +95,13 @@ sundials_option(
   BOOL
   "Enable LAPACK compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  LAPACK_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable Ginkgo support?
 # ---------------------------------------------------------------
 
-sundials_option(SUNDIALS_ENABLE_GINKGO BOOL "Enable Ginkgo support" OFF
-                DEPRECATED_NAMES ENABLE_GINKGO)
+sundials_option(SUNDIALS_ENABLE_GINKGO BOOL "Enable Ginkgo support" OFF)
 
 sundials_option(Ginkgo_DIR PATH "Path to the root of a Ginkgo installation"
                 "${Ginkgo_DIR}")
@@ -166,17 +118,13 @@ sundials_option(
   BOOL
   "Enable Ginkgo compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  GINKGO_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable MAGMA support?
 # ---------------------------------------------------------------
 
-sundials_option(SUNDIALS_ENABLE_MAGMA BOOL "Enable MAGMA support" OFF
-                DEPRECATED_NAMES ENABLE_MAGMA)
+sundials_option(SUNDIALS_ENABLE_MAGMA BOOL "Enable MAGMA support" OFF)
 
 sundials_option(MAGMA_DIR PATH "Path to the root of a MAGMA installation"
                 "${MAGMA_DIR}")
@@ -193,10 +141,7 @@ sundials_option(
   BOOL
   "Enable MAGMA compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  MAGMA_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable SuperLU_DIST support?
@@ -206,10 +151,7 @@ sundials_option(
   SUNDIALS_ENABLE_SUPERLUDIST
   BOOL
   "Enable SuperLU_DIST support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_SUPERLUDIST
-  SUPERLUDIST_ENABLE)
+  OFF)
 
 sundials_option(
   SUPERLUDIST_DIR PATH "Path to the root of the SuperLU_DIST installation"
@@ -220,9 +162,7 @@ sundials_option(
   PATH
   "SuperLU_DIST include directories"
   "${SUPERLUDIST_INCLUDE_DIRS}"
-  ADVANCED
-  DEPRECATED_NAMES
-  SUPERLUDIST_INCLUDE_DIR)
+  ADVANCED)
 
 sundials_option(
   SUPERLUDIST_LIBRARIES STRING
@@ -238,10 +178,7 @@ sundials_option(
   BOOL
   "Enable SuperLU_DIST compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  SUPERLUDIST_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable SuperLU_MT support?
@@ -251,10 +188,7 @@ sundials_option(
   SUNDIALS_ENABLE_SUPERLUMT
   BOOL
   "Enable SuperLU_MT support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_SUPERLUMT
-  SUPERLUMT_ENABLE)
+  OFF)
 
 sundials_option(SUPERLUMT_INCLUDE_DIR PATH "SuperLU_MT include directory"
                 "${SUPERLUMT_INCLUDE_DIR}")
@@ -275,10 +209,7 @@ sundials_option(
   BOOL
   "Enable SuperLU_MT compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  SUPERLUMT_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable KLU support?
@@ -288,10 +219,7 @@ sundials_option(
   SUNDIALS_ENABLE_KLU
   BOOL
   "Enable KLU support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_KLU
-  KLU_ENABLE)
+  OFF)
 
 sundials_option(KLU_INCLUDE_DIR PATH "KLU include directory"
                 "${KLU_INCLUDE_DIR}")
@@ -304,10 +232,7 @@ sundials_option(
   BOOL
   "Enable KLU compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  KLU_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable hypre support?
@@ -317,10 +242,7 @@ sundials_option(
   SUNDIALS_ENABLE_HYPRE
   BOOL
   "Enable hypre support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_HYPRE
-  HYPRE_ENABLE)
+  OFF)
 
 sundials_option(HYPRE_DIR PATH "Path to hypre installation" "${HYPRE_DIR}")
 
@@ -335,10 +257,7 @@ sundials_option(
   BOOL
   "Enable hypre compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  HYPRE_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable PETSc support?
@@ -348,10 +267,7 @@ sundials_option(
   SUNDIALS_ENABLE_PETSC
   BOOL
   "Enable PETSc support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_PETSC
-  PETSC_ENABLE)
+  OFF)
 
 sundials_option(PETSC_DIR PATH "Path to the root of a PETSc installation"
                 "${PETSC_DIR}")
@@ -373,10 +289,7 @@ sundials_option(
   BOOL
   "Enable PETSc compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  PETSC_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # -------------------------------------------------------------
 # Enable RAJA support?
@@ -386,10 +299,7 @@ sundials_option(
   SUNDIALS_ENABLE_RAJA
   BOOL
   "Enable RAJA support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_RAJA
-  RAJA_ENABLE)
+  OFF)
 
 sundials_option(RAJA_DIR PATH "Path to root of RAJA installation" "${RAJA_DIR}")
 
@@ -408,10 +318,7 @@ sundials_option(
   SUNDIALS_ENABLE_TRILINOS
   BOOL
   "Enable Trilinos support"
-  OFF
-  DEPRECATED_NAMES
-  ENABLE_TRILINOS
-  Trilinos_ENABLE)
+  OFF)
 
 sundials_option(Trilinos_DIR PATH "Path to root of Trilinos installation"
                 "${Trilinos_DIR}")
@@ -420,8 +327,7 @@ sundials_option(Trilinos_DIR PATH "Path to root of Trilinos installation"
 # Enable XBraid support?
 # ---------------------------------------------------------------
 
-sundials_option(SUNDIALS_ENABLE_XBRAID BOOL "Enable XBraid support" OFF
-                DEPRECATED_NAMES ENABLE_XBRAID)
+sundials_option(SUNDIALS_ENABLE_XBRAID BOOL "Enable XBraid support" OFF)
 
 sundials_option(XBRAID_DIR PATH "Path to the root of an XBraid installation"
                 "${XBRAID_DIR}")
@@ -440,17 +346,13 @@ sundials_option(
   BOOL
   "Enable XBraid compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  XBRAID_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # -------------------------------------------------------------
 # Enable oneMKL support?
 # -------------------------------------------------------------
 
-sundials_option(SUNDIALS_ENABLE_ONEMKL BOOL "Enable oneMKL support" OFF
-                DEPRECATED_NAMES ENABLE_ONEMKL)
+sundials_option(SUNDIALS_ENABLE_ONEMKL BOOL "Enable oneMKL support" OFF)
 
 sundials_option(ONEMKL_DIR PATH "Path to root of oneMKL installation"
                 "${ONEMKL_DIR}")
@@ -460,10 +362,7 @@ sundials_option(
   BOOL
   "Enable oneMKL compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  ONEMKL_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 sundials_option(
   SUNDIALS_ONEMKL_USE_GETRF_LOOP BOOL
@@ -483,7 +382,7 @@ sundials_option(
 
 sundials_option(
   SUNDIALS_ENABLE_CALIPER BOOL "Enable CALIPER support" OFF
-  DEPENDS_ON SUNDIALS_ENABLE_PROFILING DEPRECATED_NAMES ENABLE_CALIPER)
+  DEPENDS_ON SUNDIALS_ENABLE_PROFILING)
 
 sundials_option(CALIPER_DIR PATH "Path to the root of an CALIPER installation"
                 "${CALIPER_DIR}")
@@ -493,10 +392,7 @@ sundials_option(
   BOOL
   "Enable Caliper compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  CALIPER_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable Adiak support?
@@ -504,7 +400,7 @@ sundials_option(
 
 sundials_option(
   SUNDIALS_ENABLE_ADIAK BOOL "Enable Adiak support" OFF
-  DEPENDS_ON SUNDIALS_ENABLE_PROFILING DEPRECATED_NAMES ENABLE_ADIAK)
+  DEPENDS_ON SUNDIALS_ENABLE_PROFILING)
 
 sundials_option(adiak_DIR PATH "Path to the root of an Adiak installation"
                 "${ADIAK_DIR}")
@@ -514,17 +410,13 @@ sundials_option(
   BOOL
   "Enable Adiak compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  adiak_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable Kokkos support?
 # ---------------------------------------------------------------
 
-sundials_option(SUNDIALS_ENABLE_KOKKOS BOOL "Enable Kokkos support" OFF
-                DEPRECATED_NAMES ENABLE_KOKKOS)
+sundials_option(SUNDIALS_ENABLE_KOKKOS BOOL "Enable Kokkos support" OFF)
 
 sundials_option(Kokkos_DIR PATH "Path to the root of a Kokkos installation"
                 "${Kokkos_DIR}")
@@ -534,18 +426,14 @@ sundials_option(
   BOOL
   "Enable Kokkos compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  KOKKOS_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable Kokkos Kernels support?
 # ---------------------------------------------------------------
 
 sundials_option(
-  SUNDIALS_ENABLE_KOKKOS_KERNELS BOOL "Enable Kokkos Kernels support" OFF
-  DEPRECATED_NAMES ENABLE_KOKKOS_KERNELS)
+  SUNDIALS_ENABLE_KOKKOS_KERNELS BOOL "Enable Kokkos Kernels support" OFF)
 
 sundials_option(
   KokkosKernels_DIR PATH "Path to the root of a Kokkos Kernels installation"
@@ -556,7 +444,4 @@ sundials_option(
   BOOL
   "Enable Kokkos Kernels compatibility checks"
   ON
-  ADVANCED
-  DEPRECATED_NAMES
-  KOKKOS_KERNELS_WORKS
-  NEGATE_DEPRECATED)
+  ADVANCED)
