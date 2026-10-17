@@ -1,7 +1,21 @@
 /* -----------------------------------------------------------------------------
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
- * This NVector wraps an arbitrary std::mdspan and supports any rank, extents,
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2025-2026, Lawrence Livermore National Security,
+ * University of Maryland Baltimore County, and the SUNDIALS contributors.
+ * Copyright (c) 2013-2025, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * Copyright (c) 2002-2013, Lawrence Livermore National Security.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------------------
+ * An example NVector for the CXX_std examples (not an installed SUNDIALS
+ * module). It wraps an arbitrary std::mdspan and supports any rank, extents,
  * layout, and accessor.
  *
  * ---------------------------------------------------------------------------
@@ -26,13 +40,21 @@
  *
  *   Evaluates at compile time. Only the matching branch is compiled. Used in
  *   forEach to select the right iteration strategy based on the layout type,
- *   and in the conditionally-available arrayPointer/operator[].
+ *   and in the conditionally-available operator[].
  *
  * SFINAE (std::enable_if_t)
  *
- *   Makes arrayPointer() and operator[] disappear at compile time for
- *   non-contiguous layouts. See the NVectorBase header for a detailed
- *   explanation.
+ *   Makes the flat operator[] disappear at compile time for non-contiguous
+ *   layouts.
+ *
+ * CONDITIONAL BASE CLASS (specialization on a bool)
+ *
+ *   NVectorBase installs an optional operation only if the derived class
+ *   overrides it. A class template cannot override an operation for some
+ *   template arguments and not others, so MdSpanVector derives from
+ *   impl::MdSpanVectorBase<MdSpanVector, IsContiguous>. The specialization for
+ *   contiguous layouts overrides GetArrayPointer; the primary template does not,
+ *   so the op stays NULL.
  *
  * DECLTYPE WITH FUNCTION DECLARATIONS (no body)
  *
@@ -80,15 +102,16 @@
  * ---------------------------------------------------------------------------
  *
  * For layouts that are both unique and exhaustive (layout_right, layout_left,
- * and equivalent custom layouts), arrayPointer() and flat operator[] are
- * conditionally available via SFINAE. For non-contiguous layouts these methods
- * do not exist and the corresponding SUNDIALS ops pointers stay NULL.
+ * and equivalent custom layouts), the GetArrayPointer operation is installed
+ * (through the conditional base class) and the flat operator[] is available
+ * (through SFINAE). For non-contiguous layouts the SUNDIALS op pointer stays NULL
+ * and operator[] does not exist.
  *
  * ---------------------------------------------------------------------------
  * MDSPAN REQUIREMENTS
  * ---------------------------------------------------------------------------
  *
- *   MdSpanType::value_type               -> must be sunrealtype
+ *   MdSpanType::element_type             -> must be sunrealtype (not const)
  *   MdSpanType::rank()                   -> constexpr, number of dimensions
  *   MdSpanType::layout_type              -> the layout policy
  *   MdSpanType::mapping_type             -> the layout mapping type
@@ -103,23 +126,34 @@
  *   mapping.required_span_size()         -> total memory span needed
  *   mapping.stride(r)                    -> stride of dimension r
  *                                          (only for layout_stride dispatch)
+ *
+ * The header includes <mdspan> and so requires C++23 (or a standard library
+ * that provides std::mdspan); it fails with an #error otherwise.
  * ---------------------------------------------------------------------------*/
 
-#ifndef NVECTOR_MDSPAN_HPP
-#define NVECTOR_MDSPAN_HPP
+#ifndef SUNDIALS_NVECTOR_STDMDSPAN_HPP
+#define SUNDIALS_NVECTOR_STDMDSPAN_HPP
 
-#include "sundials/sundials_nvector_base.hpp"
+#include <sundials/sundials_nvector_base.hpp>
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <limits>
+#if __has_include(<mdspan>)
+#include <mdspan>
+#endif
 #include <memory>
 #include <numeric>
 #include <type_traits>
 #include <utility>
+
+#ifndef __cpp_lib_mdspan
+#error "nvector_stdmdspan.hpp requires std::mdspan (C++23 <mdspan>)"
+#endif
 
 namespace sundials {
 namespace example {
@@ -130,12 +164,12 @@ namespace example {
 // The core problem: we need nested loops over N dimensions where N is a
 // compile-time constant, and the loop nesting order varies by layout. These
 // helpers generate the loops at compile time and call a user-provided function
-// f(i0, i1, ..., iN-1) for every multi-index.
+// callable(i0, i1, ..., iN-1) for every multi-index.
 //
-// The indices are always passed to f in DIMENSION order (i0 = dim 0, i1 = dim
+// The indices are always passed to callable in DIMENSION order (i0 = dim 0, i1 = dim
 // 1, etc.) regardless of which dimension is the outermost loop. This is
 // achieved by storing indices in an array at their correct position (idx[dim] =
-// i) and then unpacking the array into the function call using the
+// i) and then unpacking the array into the callable using the
 // index_sequence technique.
 // ============================================================================
 
@@ -149,55 +183,57 @@ namespace impl {
 //   for (idx[2] = 0..ext(2))     <- outermost
 //     for (idx[1] = 0..ext(1))
 //       for (idx[0] = 0..ext(0)) <- innermost
-//         f(idx[0], idx[1], idx[2])  <- always dimension order
+//         callable(idx[0], idx[1], idx[2])  <- always dimension order
 //
 // The nest() method is recursive: each call handles one loop level and recurses
 // for the next. "Level" is a compile-time counter that advances through the
 // DimOrder list. When Level reaches Rank, the recursion ends and unpack()
-// calls f with the accumulated indices.
+// calls callable with the accumulated indices.
 // --------------------------------------------------------------------------
 
-template<size_t... DimOrder>
+template<std::size_t... DimOrder>
 struct MultiFor
 {
-  static constexpr size_t Rank = sizeof...(DimOrder);
+  static constexpr std::size_t Rank = sizeof...(DimOrder);
 
   template<class Extents, class Func>
-  static void apply(const Extents& ext, Func&& f)
+  static void apply(const Extents& ext, Func&& callable)
   {
-    std::array<size_t, Rank> idx{};
-    nest<0>(ext, f, idx);
+    std::array<std::size_t, Rank> idx{};
+    nest<0>(ext, callable, idx);
   }
 
 private:
   // The dimension ordering stored as a compile-time array.
   // order[0] = outermost dimension, order[Rank-1] = innermost.
-  static constexpr size_t order[] = {DimOrder...};
+  static constexpr std::size_t order[Rank] = {DimOrder...};
 
   // Recursive loop generator. At each level, loops over the dimension specified
   // by order[Level] and stores the index at idx[dim].
-  template<size_t Level, class Extents, class Func>
-  static void nest(const Extents& ext, Func& f, std::array<size_t, Rank>& idx)
+  template<std::size_t Level, class Extents, class Func>
+  static void nest(const Extents& ext, Func& callable,
+                   std::array<std::size_t, Rank>& idx)
   {
-    constexpr size_t dim = order[Level]; // which dimension this level iterates
-    for (idx[dim] = 0; idx[dim] < ext.extent(dim); ++idx[dim])
+    constexpr std::size_t dim = order[Level]; // which dimension this level iterates
+    for (idx[dim] = 0; idx[dim] < static_cast<std::size_t>(ext.extent(dim)); ++idx[dim])
     {
       if constexpr (Level + 1 < Rank)
-        nest<Level + 1>(ext, f, idx); // recurse to next loop level
+        nest<Level + 1>(ext, callable, idx); // recurse to next loop level
       else
-        unpack(f, idx, std::make_index_sequence<Rank>{}); // innermost: call f
+        unpack(callable, idx,
+                 std::make_index_sequence<Rank>{}); // innermost: call it
     }
   }
 
   // Convert the index array into function arguments.
   // std::make_index_sequence<Rank>{} generates {0, 1, ..., Rank-1}.
   // The template captures this as Is..., then idx[Is]... expands to
-  // idx[0], idx[1], ..., idx[Rank-1] - passing the indices to f in
+  // idx[0], idx[1], ..., idx[Rank-1] - passing the indices to callable in
   // dimension order regardless of the loop nesting.
-  template<class Func, size_t... Is>
-  static void unpack(Func& f, const std::array<size_t, Rank>& idx,
+  template<class Func, std::size_t... Is>
+  static void unpack(Func& callable, const std::array<std::size_t, Rank>& idx,
                      std::index_sequence<Is...>)
-  { f(idx[Is]...); }
+  { callable(idx[Is]...); }
 };
 
 // --------------------------------------------------------------------------
@@ -216,19 +252,19 @@ private:
 // make_index_sequence<3> gives index_sequence<0, 1, 2>,
 // the function declaration captures Is = {0, 1, 2},
 // the return type is MultiFor<0, 1, 2>.
-template<size_t... Is>
+template<std::size_t... Is>
 MultiFor<Is...> makeRightOrder(std::index_sequence<Is...>);
 
-template<size_t Rank>
+template<std::size_t Rank>
 using RightOrder = decltype(makeRightOrder(std::make_index_sequence<Rank>{}));
 
 // layout_left order: Rank-1, ..., 1, 0
-// (N - 1 - Is)... reverses the sequence: for N=3 and Is={0,1,2},
+// (Rank - 1 - Is)... reverses the sequence: for Rank=3 and Is={0,1,2},
 // this produces {2, 1, 0}.
-template<size_t N, size_t... Is>
-MultiFor<(N - 1 - Is)...> makeLeftOrder(std::index_sequence<Is...>);
+template<std::size_t Rank, std::size_t... Is>
+MultiFor<(Rank - 1 - Is)...> makeLeftOrder(std::index_sequence<Is...>);
 
-template<size_t Rank>
+template<std::size_t Rank>
 using LeftOrder = decltype(makeLeftOrder<Rank>(std::make_index_sequence<Rank>{}));
 
 // --------------------------------------------------------------------------
@@ -239,34 +275,35 @@ using LeftOrder = decltype(makeLeftOrder<Rank>(std::make_index_sequence<Rank>{})
 // than a template parameter, so the compiler cannot fully unroll.
 // --------------------------------------------------------------------------
 
-template<size_t Rank>
+template<std::size_t Rank>
 struct MultiForRuntime
 {
   template<class Extents, class Func>
-  static void apply(const Extents& ext, Func&& f,
-                    const std::array<size_t, Rank>& dim_order)
+  static void apply(const Extents& ext, Func&& callable,
+                    const std::array<std::size_t, Rank>& dim_order)
   {
-    std::array<size_t, Rank> idx{};
-    nest(ext, f, idx, dim_order, 0);
+    std::array<std::size_t, Rank> idx{};
+    nest(ext, callable, idx, dim_order, 0);
   }
 
 private:
   template<class Extents, class Func>
-  static void nest(const Extents& ext, Func& f, std::array<size_t, Rank>& idx,
-                   const std::array<size_t, Rank>& dim_order, size_t level)
+  static void nest(const Extents& ext, Func& callable,
+                   std::array<std::size_t, Rank>& idx,
+                   const std::array<std::size_t, Rank>& dim_order, std::size_t level)
   {
-    const size_t dim = dim_order[level];
-    for (idx[dim] = 0; idx[dim] < ext.extent(dim); ++idx[dim])
+    const std::size_t dim = dim_order[level];
+    for (idx[dim] = 0; idx[dim] < static_cast<std::size_t>(ext.extent(dim)); ++idx[dim])
     {
-      if (level + 1 < Rank) nest(ext, f, idx, dim_order, level + 1);
-      else unpack(f, idx, std::make_index_sequence<Rank>{});
+      if (level + 1 < Rank) nest(ext, callable, idx, dim_order, level + 1);
+      else unpack(callable, idx, std::make_index_sequence<Rank>{});
     }
   }
 
-  template<class Func, size_t... Is>
-  static void unpack(Func& f, const std::array<size_t, Rank>& idx,
+  template<class Func, std::size_t... Is>
+  static void unpack(Func& callable, const std::array<std::size_t, Rank>& idx,
                      std::index_sequence<Is...>)
-  { f(idx[Is]...); }
+  { callable(idx[Is]...); }
 };
 
 // --------------------------------------------------------------------------
@@ -274,42 +311,106 @@ private:
 // -> innermost loop -> best cache behavior).
 // --------------------------------------------------------------------------
 
-template<size_t Rank, class MappingType>
-std::array<size_t, Rank> strideOrder(const MappingType& m)
+template<std::size_t Rank, class MappingType>
+std::array<std::size_t, Rank> strideOrder(const MappingType& mapping)
 {
-  std::array<size_t, Rank> order;
-  std::iota(order.begin(), order.end(), size_t{0});
+  std::array<std::size_t, Rank> order;
+  std::iota(order.begin(), order.end(), std::size_t{0});
   std::sort(order.begin(), order.end(),
-            [&](size_t a, size_t b) { return m.stride(a) > m.stride(b); });
+            [&](std::size_t lhs, std::size_t rhs)
+            { return mapping.stride(lhs) > mapping.stride(rhs); });
   return order;
   // order[0] = largest stride (outermost), order[Rank-1] = smallest (innermost)
 }
 
-// --------------------------------------------------------------------------
-// Conditional storage for the cached iteration order. Empty for layouts where
-// the order is known at compile time; an array for layout_stride where it
-// depends on runtime strides.
-// --------------------------------------------------------------------------
+} // namespace impl
 
-struct NoOrder
-{};
+// ============================================================================
+// Optional GetArrayPointer
+//
+// NVectorBase installs an optional operation only if Derived overrides it, and
+// a class template cannot override an operation for some template arguments
+// and not others. This intermediate class sits between NVectorBase and
+// MdSpanVector: the primary template declares nothing, so GetArrayPointer
+// resolves to the protected default in NVectorBase and the op stays NULL. The
+// specialization for contiguous layouts (unique and exhaustive mappings, e.g.,
+// layout_right and layout_left) overrides it, so the op is installed.
+// ============================================================================
 
-template<class LayoutType, size_t Rank>
-struct OrderStorage
+namespace impl {
+
+/// True if the flat pointer operations apply: the mapping is both unique and
+/// exhaustive and the accessor is the default one, so data_handle() is a plain
+/// sunrealtype* to the first of the contiguous elements.
+template<class MdSpanType>
+inline constexpr bool HasFlatArray =
+  MdSpanType::mapping_type::is_always_exhaustive() &&
+  MdSpanType::mapping_type::is_always_unique() &&
+  std::is_same_v<typename MdSpanType::accessor_type,
+                 std::default_accessor<sunrealtype>>;
+
+template<class VectorType, bool IsContiguous>
+class MdSpanVectorBase : public NVectorBase<VectorType>
 {
-  using type = NoOrder;
+public:
+  using NVectorBase<VectorType>::NVectorBase;
+
+  MdSpanVectorBase() = default;
+
+protected:
+  // Copy and move are protected (defaulted) to close the slicing path. Only
+  // MdSpanVector, which derives from this class, uses them.
+  MdSpanVectorBase(const MdSpanVectorBase&)                = default;
+  MdSpanVectorBase(MdSpanVectorBase&&) noexcept            = default;
+  MdSpanVectorBase& operator=(const MdSpanVectorBase&)     = default;
+  MdSpanVectorBase& operator=(MdSpanVectorBase&&) noexcept = default;
+};
+
+template<class VectorType>
+class MdSpanVectorBase<VectorType, true> : public NVectorBase<VectorType>
+{
+public:
+  using NVectorBase<VectorType>::NVectorBase;
+
+  MdSpanVectorBase() = default;
+
+  /// Flat pointer to the data.
+  sunrealtype* GetArrayPointer() override
+  {
+    return static_cast<VectorType*>(this)->span().data_handle();
+  }
+
+protected:
+  MdSpanVectorBase(const MdSpanVectorBase&)                = default;
+  MdSpanVectorBase(MdSpanVectorBase&&) noexcept            = default;
+  MdSpanVectorBase& operator=(const MdSpanVectorBase&)     = default;
+  MdSpanVectorBase& operator=(MdSpanVectorBase&&) noexcept = default;
 };
 
 } // namespace impl
 
 // ============================================================================
 // MdSpanVector
+//
+// The class is move-only: the unique_ptr member that owns the storage of a
+// clone deletes the copy members. The implicit move members are noexcept (see
+// the static_assert on each instantiation in the examples).
+//
+// Do not move out of an object that SUNDIALS still holds (e.g., one obtained
+// with FromNVector from a clone, or one whose N_Vector was given to an
+// integrator). Static extents cannot be reset, so a moved-from MdSpanVector
+// keeps its span (and length) while its owned storage is gone. A moved-from
+// object may only be destroyed or assigned to.
 // ============================================================================
 
 template<class MdSpanType>
-class MdSpanVector : public NVectorBase<MdSpanVector<MdSpanType>>
+class MdSpanVector final
+  : public impl::MdSpanVectorBase<MdSpanVector<MdSpanType>,
+                                  impl::HasFlatArray<MdSpanType>>
 {
-  using Base = NVectorBase<MdSpanVector<MdSpanType>>;
+  using Base =
+    impl::MdSpanVectorBase<MdSpanVector<MdSpanType>,
+                           impl::HasFlatArray<MdSpanType>>;
 
 public:
   using mdspan_type   = MdSpanType;
@@ -318,23 +419,28 @@ public:
   using layout_type   = typename mdspan_type::layout_type;
 
   static_assert(
-    std::is_same_v<typename mdspan_type::value_type, sunrealtype>,
-    "MdSpanVector requires an mdspan whose value_type is sunrealtype");
+    std::is_same_v<typename mdspan_type::element_type, sunrealtype>,
+    "MdSpanVector requires an mdspan whose element_type is sunrealtype "
+    "(a mutable, non-const element type)");
 
-  static constexpr size_t Rank = mdspan_type::rank();
+  static constexpr std::size_t Rank = mdspan_type::rank();
 
   // --------------------------------------------------------------------------
   // Construction
   // --------------------------------------------------------------------------
 
+  /// Empty state: no N_Vector handle. Only available when the mdspan is
+  /// default constructible (the constructor is deleted for static extents).
+  MdSpanVector() = default;
+
   /// View constructor. Wraps the user's mdspan. The caller must keep the
   /// underlying storage alive for the lifetime of this object.
-  MdSpanVector(mdspan_type span, SUNContext sunctx)
+  MdSpanVector(mdspan_type user_span, SUNContext sunctx)
     : Base(sunctx),
-      span_(span),
-      len_(computeSize(span)),
+      span_(user_span),
+      len_(computeSize(user_span)),
       owned_(),
-      stride_order_(computeStrideOrder(span))
+      stride_order_(computeStrideOrder(user_span))
   {}
 
   // --------------------------------------------------------------------------
@@ -356,7 +462,7 @@ public:
   ///
   /// std::move(storage) transfers ownership of the allocation into the new
   /// MdSpanVector without copying - the source unique_ptr becomes null.
-  MdSpanVector* cloneNew(SUNContext sunctx) const
+  MdSpanVector* Clone(SUNContext sunctx) const override
   {
     auto storage =
       std::make_unique<sunrealtype[]>(span_.mapping().required_span_size());
@@ -365,7 +471,7 @@ public:
   }
 
   /// Returns the number of logical elements (product of all extents).
-  sunindextype length() const { return len_; }
+  sunindextype GetLength() const override { return len_; }
 
   // --------------------------------------------------------------------------
   // Data access
@@ -381,46 +487,27 @@ public:
 
   // -- Contiguous-only access (conditionally available) ---------------------
   //
-  // These methods only exist when the layout is contiguous (both unique and
-  // exhaustive). The mechanism:
-  //
-  //   template<class M = mapping_type,
-  //            std::enable_if_t<M::is_always_exhaustive() &&
-  //                             M::is_always_unique(), int> = 0>
-  //   sunrealtype* arrayPointer() { ... }
-  //
-  // This is a template function with a default parameter M = mapping_type. The
-  // enable_if_t check evaluates M::is_always_exhaustive() and
-  // M::is_always_unique() at compile time:
-  //
-  //   - Both true (layout_right, layout_left): enable_if_t produces int,
-  //     the function exists, NVectorBase detects it and installs the op.
-  //
-  //   - Either false (layout_stride): enable_if_t fails (SFINAE), the
-  //     function silently disappears, the ops pointer stays NULL.
-  //
-  // The "template<class M = mapping_type>" wrapper is necessary because
-  // enable_if_t must depend on a template parameter of the FUNCTION (not just
-  // the class) for SFINAE to apply. The default M = mapping_type means callers
-  // don't need to specify it: just call arrayPointer().
+  // GetArrayPointer is installed only for contiguous layouts, through the
+  // conditional base class impl::MdSpanVectorBase (see above). The flat
+  // operator[] below is not an N_Vector operation, so it uses SFINAE on the
+  // mapping: it disappears at compile time unless the mapping is both unique
+  // and exhaustive.
 
-  /// Flat pointer to the data. Only available when the mapping is both unique
-  /// and exhaustive (layout_right, layout_left, or equivalent).
-  template<class M = mapping_type,
-           std::enable_if_t<M::is_always_exhaustive() && M::is_always_unique(), int> = 0>
-  sunrealtype* arrayPointer()
-  { return span_.data_handle(); }
-
-  /// Flat element access by linear index. Same contiguity requirement.
-  template<class M = mapping_type,
-           std::enable_if_t<M::is_always_exhaustive() && M::is_always_unique(), int> = 0>
+  /// Flat element access by linear index. Only available when the mapping is
+  /// both unique and exhaustive (layout_right, layout_left, or equivalent).
+  template<class MdSpan = mdspan_type,
+           std::enable_if_t<impl::HasFlatArray<MdSpan>, int> = 0>
   sunrealtype& operator[](sunindextype i)
-  { return span_.data_handle()[i]; }
+  {
+    return span_.data_handle()[i];
+  }
 
-  template<class M = mapping_type,
-           std::enable_if_t<M::is_always_exhaustive() && M::is_always_unique(), int> = 0>
+  template<class MdSpan = mdspan_type,
+           std::enable_if_t<impl::HasFlatArray<MdSpan>, int> = 0>
   const sunrealtype& operator[](sunindextype i) const
-  { return span_.data_handle()[i]; }
+  {
+    return span_.data_handle()[i];
+  }
 
   // --------------------------------------------------------------------------
   // Standard vector operations
@@ -440,161 +527,174 @@ public:
   //   The mdspan's operator[] maps (i0, i1) to the correct memory offset
   // --------------------------------------------------------------------------
 
-  void linearSum(sunrealtype a, const MdSpanVector& x, sunrealtype b,
-                 const MdSpanVector& y)
+  void LinearSum(sunrealtype a, const MdSpanVector& x, sunrealtype b,
+                 const MdSpanVector& y) override
   {
     forEach([&](auto... is)
             { span_[is...] = a * x.span_[is...] + b * y.span_[is...]; });
   }
 
-  void setConst(sunrealtype c)
+  void Const(sunrealtype c) override
   {
     forEach([&](auto... is) { span_[is...] = c; });
   }
 
-  void prod(const MdSpanVector& x, const MdSpanVector& y)
+  void Prod(const MdSpanVector& x, const MdSpanVector& y) override
   {
     forEach([&](auto... is) { span_[is...] = x.span_[is...] * y.span_[is...]; });
   }
 
-  void div(const MdSpanVector& x, const MdSpanVector& y)
+  void Div(const MdSpanVector& x, const MdSpanVector& y) override
   {
     forEach([&](auto... is) { span_[is...] = x.span_[is...] / y.span_[is...]; });
   }
 
-  void scale(sunrealtype c, const MdSpanVector& x)
+  void Scale(sunrealtype c, const MdSpanVector& x) override
   {
     forEach([&](auto... is) { span_[is...] = c * x.span_[is...]; });
   }
 
-  void abs(const MdSpanVector& x)
+  void Abs(const MdSpanVector& x) override
   {
     forEach([&](auto... is) { span_[is...] = std::abs(x.span_[is...]); });
   }
 
-  void inv(const MdSpanVector& x)
+  void Inv(const MdSpanVector& x) override
   {
-    forEach([&](auto... is) { span_[is...] = sunrealtype{1} / x.span_[is...]; });
+    forEach([&](auto... is) { span_[is...] = SUN_RCONST(1.0) / x.span_[is...]; });
   }
 
-  void addConst(const MdSpanVector& x, sunrealtype b)
+  void AddConst(const MdSpanVector& x, sunrealtype b) override
   {
     forEach([&](auto... is) { span_[is...] = x.span_[is...] + b; });
   }
 
-  sunrealtype dotProd(const MdSpanVector& y) const
+  sunrealtype DotProd(const MdSpanVector& y) const override
   {
-    sunrealtype s = 0;
-    forEach([&](auto... is) { s += span_[is...] * y.span_[is...]; });
-    return s;
+    sunrealtype sum = 0;
+    forEach([&](auto... is) { sum += span_[is...] * y.span_[is...]; });
+    return sum;
   }
 
-  sunrealtype maxNorm() const
+  sunrealtype MaxNorm() const override
   {
-    sunrealtype r = 0;
-    forEach([&](auto... is) { r = std::max(r, std::abs(span_[is...])); });
-    return r;
+    sunrealtype max_abs = 0;
+    forEach([&](auto... is)
+            { max_abs = std::max(max_abs, std::abs(span_[is...])); });
+    return max_abs;
   }
 
-  sunrealtype wrmsNorm(const MdSpanVector& w) const
-  { return std::sqrt(wsqrSumLocal(w) / static_cast<sunrealtype>(len_)); }
-
-  sunrealtype wrmsNormMask(const MdSpanVector& w, const MdSpanVector& id) const
+  sunrealtype WrmsNorm(const MdSpanVector& w) const override
   {
-    return std::sqrt(wsqrSumMaskLocal(w, id) / static_cast<sunrealtype>(len_));
+    return std::sqrt(WSqrSumLocal(w) / static_cast<sunrealtype>(len_));
   }
 
-  sunrealtype min() const
+  sunrealtype WrmsNormMask(const MdSpanVector& w,
+                           const MdSpanVector& id) const override
   {
-    sunrealtype r = std::numeric_limits<sunrealtype>::max();
-    forEach([&](auto... is) { r = std::min(r, span_[is...]); });
-    return r;
+    return std::sqrt(WSqrSumMaskLocal(w, id) / static_cast<sunrealtype>(len_));
   }
 
-  sunrealtype wl2Norm(const MdSpanVector& w) const
-  { return std::sqrt(wsqrSumLocal(w)); }
-
-  sunrealtype l1Norm() const
+  sunrealtype Min() const override
   {
-    sunrealtype s = 0;
-    forEach([&](auto... is) { s += std::abs(span_[is...]); });
-    return s;
+    sunrealtype min_val = std::numeric_limits<sunrealtype>::max();
+    forEach([&](auto... is) { min_val = std::min(min_val, span_[is...]); });
+    return min_val;
   }
 
-  void compare(sunrealtype c, const MdSpanVector& x)
+  sunrealtype WL2Norm(const MdSpanVector& w) const override
+  {
+    return std::sqrt(WSqrSumLocal(w));
+  }
+
+  sunrealtype L1Norm() const override
+  {
+    sunrealtype sum = 0;
+    forEach([&](auto... is) { sum += std::abs(span_[is...]); });
+    return sum;
+  }
+
+  void Compare(sunrealtype c, const MdSpanVector& x) override
   {
     forEach([&](auto... is)
-            { span_[is...] = std::abs(x.span_[is...]) >= c ? 1.0 : 0.0; });
+            { span_[is...] = std::abs(x.span_[is...]) >= c ? SUN_RCONST(1.0) : SUN_RCONST(0.0); });
   }
 
-  sunbooleantype invTest(const MdSpanVector& x)
+  sunbooleantype InvTest(const MdSpanVector& x) override
   {
     sunbooleantype result = SUNTRUE;
     forEach(
       [&](auto... is)
       {
         if (result == SUNFALSE) return;
-        if (x.span_[is...] == 0.0)
+        if (x.span_[is...] == SUN_RCONST(0.0))
         {
           result = SUNFALSE;
           return;
         }
-        span_[is...] = 1.0 / x.span_[is...];
+        span_[is...] = SUN_RCONST(1.0) / x.span_[is...];
       });
     return result;
   }
 
-  sunbooleantype constrMask(const MdSpanVector& c, const MdSpanVector& x)
+  sunbooleantype ConstrMask(const MdSpanVector& c, const MdSpanVector& x) override
   {
     sunrealtype sum = 0;
     forEach(
       [&](auto... is)
       {
-        bool test    = (std::abs(c.span_[is...]) > 1.5 &&
-                        c.span_[is...] * x.span_[is...] <= 0.0) ||
-                       (std::abs(c.span_[is...]) > 0.5 &&
-                        c.span_[is...] * x.span_[is...] < 0.0);
-        span_[is...] = test ? 1.0 : 0.0;
+        bool test    = (std::abs(c.span_[is...]) > SUN_RCONST(1.5) &&
+                        c.span_[is...] * x.span_[is...] <= SUN_RCONST(0.0)) ||
+                       (std::abs(c.span_[is...]) > SUN_RCONST(0.5) &&
+                        c.span_[is...] * x.span_[is...] < SUN_RCONST(0.0));
+        span_[is...] = test ? SUN_RCONST(1.0) : SUN_RCONST(0.0);
         sum += span_[is...];
       });
-    return (sum < 0.5);
+    return (sum < SUN_RCONST(0.5));
   }
 
-  sunrealtype minQuotient(const MdSpanVector& denom) const
+  sunrealtype MinQuotient(const MdSpanVector& denom) const override
   {
-    sunrealtype r = std::numeric_limits<sunrealtype>::max();
+    sunrealtype min_quot = std::numeric_limits<sunrealtype>::max();
     forEach(
       [&](auto... is)
       {
-        if (denom.span_[is...] != 0.0)
-          r = std::min(r, span_[is...] / denom.span_[is...]);
+        if (denom.span_[is...] != SUN_RCONST(0.0))
+          min_quot = std::min(min_quot, span_[is...] / denom.span_[is...]);
       });
-    return r;
+    return min_quot;
   }
 
   // --------------------------------------------------------------------------
   // Local reduction kernels
   // --------------------------------------------------------------------------
 
-  sunrealtype wsqrSumLocal(const MdSpanVector& w) const
+  sunrealtype WSqrSumLocal(const MdSpanVector& w) const override
   {
-    sunrealtype s = 0;
-    forEach(
-      [&](auto... is)
-      { s += span_[is...] * w.span_[is...] * span_[is...] * w.span_[is...]; });
-    return s;
-  }
-
-  sunrealtype wsqrSumMaskLocal(const MdSpanVector& w, const MdSpanVector& id) const
-  {
-    sunrealtype s = 0;
+    sunrealtype sum = 0;
     forEach(
       [&](auto... is)
       {
-        if (id.span_[is...] > 0.0)
-          s += span_[is...] * w.span_[is...] * span_[is...] * w.span_[is...];
+        const sunrealtype prod = span_[is...] * w.span_[is...];
+        sum += prod * prod;
       });
-    return s;
+    return sum;
+  }
+
+  sunrealtype WSqrSumMaskLocal(const MdSpanVector& w,
+                               const MdSpanVector& id) const override
+  {
+    sunrealtype sum = 0;
+    forEach(
+      [&](auto... is)
+      {
+        if (id.span_[is...] > SUN_RCONST(0.0))
+        {
+          const sunrealtype prod = span_[is...] * w.span_[is...];
+          sum += prod * prod;
+        }
+      });
+    return sum;
   }
 
   // --------------------------------------------------------------------------
@@ -605,29 +705,29 @@ public:
   // iteration order ensures a deterministic packing regardless of layout.
   // --------------------------------------------------------------------------
 
-  SUNErrCode bufSize(sunindextype* size) const
+  SUNErrCode BufSize(sunindextype* size) const override
   {
     *size = len_ * static_cast<sunindextype>(sizeof(sunrealtype));
     return SUN_SUCCESS;
   }
 
-  SUNErrCode bufPack(void* buf) const
+  SUNErrCode BufPack(void* buf) const override
   {
-    sunrealtype* b = static_cast<sunrealtype*>(buf);
-    sunindextype k = 0;
-    // The lambda captures k by reference and increments it for each element
-    // visited. forEach iterates in a deterministic order (determined by the
-    // layout), so pack/unpack visit elements in the same sequence - the buffer
-    // is always consistent.
-    forEach([&](auto... is) { b[k++] = span_[is...]; });
+    sunrealtype* buffer = static_cast<sunrealtype*>(buf);
+    sunindextype offset = 0;
+    // The lambda captures offset by reference and increments it for each
+    // element visited. forEach iterates in a deterministic order (determined by
+    // the layout), so pack/unpack visit elements in the same sequence - the
+    // buffer is always consistent.
+    forEach([&](auto... is) { buffer[offset++] = span_[is...]; });
     return SUN_SUCCESS;
   }
 
-  SUNErrCode bufUnpack(void* buf)
+  SUNErrCode BufUnpack(void* buf) override
   {
-    const sunrealtype* b = static_cast<const sunrealtype*>(buf);
-    sunindextype k       = 0;
-    forEach([&](auto... is) { span_[is...] = b[k++]; });
+    const sunrealtype* buffer = static_cast<const sunrealtype*>(buf);
+    sunindextype offset       = 0;
+    forEach([&](auto... is) { span_[is...] = buffer[offset++]; });
     return SUN_SUCCESS;
   }
 
@@ -635,23 +735,22 @@ public:
   // Debug
   // --------------------------------------------------------------------------
 
-  void print() const
-  {
-    sunindextype k = 0;
-    forEach([&](auto... is)
-            { std::printf("  data[%ld] = %g\n", (long)k++, span_[is...]); });
-  }
+  void Print() const override { PrintFile(stdout); }
 
-  void printFile(FILE* f) const
+  void PrintFile(FILE* outfile) const override
   {
-    sunindextype k = 0;
-    forEach([&](auto... is)
-            { std::fprintf(f, "  data[%ld] = %g\n", (long)k++, span_[is...]); });
+    sunindextype index = 0;
+    forEach(
+      [&](auto... is)
+      {
+        std::fprintf(outfile, "  data[%ld] = " SUN_FORMAT_G "\n",
+                     static_cast<long>(index++), span_[is...]);
+      });
   }
 
 private:
-  mdspan_type span_; ///< The mdspan (view or over owned storage).
-  sunindextype len_; ///< Product of all extents (logical element count).
+  mdspan_type span_{}; ///< The mdspan (view or over owned storage).
+  sunindextype len_ = 0; ///< Product of all extents (logical element count).
   std::unique_ptr<sunrealtype[]> owned_; ///< Backing storage for clones (null for views).
 
   /// Cached dimension iteration order for layout_stride. For layout_right and
@@ -659,19 +758,19 @@ private:
   /// unused (but must exist because the member is always declared). For
   /// layout_stride, dimensions are sorted by decreasing stride at construction
   /// time so the innermost loop has the smallest stride.
-  std::array<size_t, Rank> stride_order_;
+  std::array<std::size_t, Rank> stride_order_{};
 
   // --------------------------------------------------------------------------
   // Private clone constructor
   // --------------------------------------------------------------------------
 
-  MdSpanVector(std::unique_ptr<sunrealtype[]> storage, mdspan_type span,
+  MdSpanVector(std::unique_ptr<sunrealtype[]> storage, mdspan_type user_span,
                SUNContext sunctx)
     : Base(sunctx),
-      span_(span),
-      len_(computeSize(span)),
+      span_(user_span),
+      len_(computeSize(user_span)),
       owned_(std::move(storage)),
-      stride_order_(computeStrideOrder(span))
+      stride_order_(computeStrideOrder(user_span))
   {}
 
   // --------------------------------------------------------------------------
@@ -681,9 +780,9 @@ private:
   // made at compile time via if constexpr - only the matching branch is
   // compiled, so there is no runtime overhead from the other branches.
   //
-  // std::forward<Func>(f) is "perfect forwarding" - it passes the lambda to the
-  // iteration helper with the same value category (lvalue or rvalue) it arrived
-  // with, avoiding unnecessary copies.
+  // std::forward<Func>(callable) is "perfect forwarding" - it passes the lambda
+  // to the iteration helper with the same value category (lvalue or rvalue) it
+  // arrived with, avoiding unnecessary copies.
   //
   // forEach is marked const because it only reads span_.extents(). The lambda
   // itself determines whether span_ elements are read or written - it captures
@@ -692,24 +791,26 @@ private:
   // --------------------------------------------------------------------------
 
   template<class Func>
-  void forEach(Func&& f) const
+  void forEach(Func&& callable) const
   {
-    if constexpr (Rank == 0) { f(); }
+    if constexpr (Rank == 0) { callable(); }
     else if constexpr (std::is_same_v<layout_type, std::layout_left>)
     {
       // Column-major: dim 0 innermost (smallest stride)
-      impl::LeftOrder<Rank>::apply(span_.extents(), std::forward<Func>(f));
+      impl::LeftOrder<Rank>::apply(span_.extents(), std::forward<Func>(callable));
     }
     else if constexpr (std::is_same_v<layout_type, std::layout_stride>)
     {
       // Arbitrary strides: use cached stride-sorted order
       impl::MultiForRuntime<Rank>::apply(span_.extents(),
-                                           std::forward<Func>(f), stride_order_);
+                                         std::forward<Func>(callable),
+                                         stride_order_);
     }
     else
     {
       // layout_right and unknown layouts: dim N-1 innermost
-      impl::RightOrder<Rank>::apply(span_.extents(), std::forward<Func>(f));
+      impl::RightOrder<Rank>::apply(span_.extents(),
+                                    std::forward<Func>(callable));
     }
   }
 
@@ -719,18 +820,18 @@ private:
   // other layouts, returns a dummy value (unused but must compile).
   // --------------------------------------------------------------------------
 
-  static std::array<size_t, Rank> computeStrideOrder(const mdspan_type& span)
+  static std::array<std::size_t, Rank> computeStrideOrder(const mdspan_type& user_span)
   {
-    std::array<size_t, Rank> order{};
+    std::array<std::size_t, Rank> order{};
     if constexpr (Rank == 0) { return order; }
     else if constexpr (std::is_same_v<layout_type, std::layout_stride>)
     {
-      return impl::strideOrder<Rank>(span.mapping());
+      return impl::strideOrder<Rank>(user_span.mapping());
     }
     else
     {
       // Unused for compile-time dispatch, but must be initialized.
-      std::iota(order.begin(), order.end(), size_t{0});
+      std::iota(order.begin(), order.end(), std::size_t{0});
       return order;
     }
   }
@@ -738,9 +839,9 @@ private:
   // --------------------------------------------------------------------------
   // Product of all extents -> logical element count.
   //
-  // Uses the index_sequence technique to expand s.extent(0), s.extent(1), ...,
-  // s.extent(Rank-1) and multiplies them with a fold expression: (s.extent(Is)
-  // * ...) -> s.extent(0) * s.extent(1) * ... * s.extent(N-1)
+  // Uses the index_sequence technique to expand span.extent(0), span.extent(1),
+  // ..., span.extent(Rank-1) and multiplies them with a fold expression:
+  // (span.extent(Is) * ...) -> span.extent(0) * ... * span.extent(N-1)
   //
   // The two-function pattern (computeSize calls computeSizeImpl with
   // make_index_sequence) exists because you can't "open" an index_sequence
@@ -748,19 +849,21 @@ private:
   // index_sequence<0,1,2> into the usable pack Is = {0, 1, 2}.
   // --------------------------------------------------------------------------
 
-  template<size_t... Is>
-  static sunindextype computeSizeImpl(const mdspan_type& s,
+  template<std::size_t... Is>
+  static sunindextype computeSizeImpl(const mdspan_type& span,
                                       std::index_sequence<Is...>)
-  { return static_cast<sunindextype>((s.extent(Is) * ...)); }
+  {
+    return (static_cast<sunindextype>(span.extent(Is)) * ...);
+  }
 
-  static sunindextype computeSize(const mdspan_type& s)
+  static sunindextype computeSize(const mdspan_type& user_span)
   {
     if constexpr (Rank == 0) return 1;
-    else return computeSizeImpl(s, std::make_index_sequence<Rank>{});
+    else return computeSizeImpl(user_span, std::make_index_sequence<Rank>{});
   }
 };
 
 } // namespace example
 } // namespace sundials
 
-#endif // NVECTOR_MDSPAN_HPP
+#endif // SUNDIALS_NVECTOR_STDMDSPAN_HPP
