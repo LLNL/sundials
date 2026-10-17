@@ -109,6 +109,9 @@ user can be provided (useful for linking SUNDIALS errors to your application's e
 The default error handler is :c:func:`SUNLogErrHandlerFn` which logs an error to a specified
 file or ``stderr`` if no file is specified.
 
+User code, such as callbacks or C++ classes, can report an error through the
+same handler stack by calling :c:func:`SUNContext_HandleError`.
+
 The error handlers provided in SUNDIALS are:
 
 .. c:function:: void SUNLogErrHandlerFn(int line, const char* func, const char* file, \
@@ -117,6 +120,11 @@ The error handlers provided in SUNDIALS are:
 
   Logs the error that occurred using the :c:type:`SUNLogger` from ``sunctx``.
   This is the default error handler.
+
+  .. versionchanged:: x.y.z
+
+     The message is printed verbatim. A ``%`` in the message is no longer
+     interpreted as a format directive.
 
   :param line: the line number at which the error occurred
   :param func: the function in which the error occurred
@@ -133,6 +141,11 @@ The error handlers provided in SUNDIALS are:
                                           void* err_user_data, SUNContext sunctx)
 
   Logs the error and aborts the program if an error occurred.
+
+  .. versionchanged:: x.y.z
+
+     The message is printed verbatim. A ``%`` in the message is no longer
+     interpreted as a format directive.
 
   :param line: the line number at which the error occurred
   :param func: the function in which the error occurred

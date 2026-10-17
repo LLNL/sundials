@@ -2187,7 +2187,7 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
       char* file_and_line = sunCombineFileAndLine(line, file);
       SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_WARNING, file_and_line, func,
-                         msg);
+                         "%s", msg);
       free(file_and_line);
 #endif
       break;

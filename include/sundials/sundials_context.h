@@ -38,6 +38,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNContext_PeekLastError(SUNContext sunctx);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNContext_HandleError(SUNContext sunctx, SUNErrCode err_code,
+                                  int line, const char* func, const char* file,
+                                  const char* msg);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_fn,
                                      void* err_user_data);
 

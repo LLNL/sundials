@@ -9,10 +9,18 @@
 Added the utility function, `SUNFileFlush` for flushing file pointers. This is
 useful when using the Fortran 2003 interfaces.
 
+Added the function `SUNContext_HandleError` for reporting an error through a
+`SUNContext`. It sets the last error and calls the error handler stack, and can
+be called from user callbacks and C++ classes.
+
 ### Bug Fixes
 
 Fixed a segfault that could occur when handling errors without a `SUNContext`
 provided.
+
+`SUNLogErrHandlerFn`, `SUNAbortErrHandlerFn`, and the package warning messages
+no longer interpret `%` in an error message as a format directive. Messages are
+printed as given.
 
 Fixed a bug in `FindMAGMA.cmake` which didn't allow use of MAGMA versions with 
 multiple digits in an identifier.

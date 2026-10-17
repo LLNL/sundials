@@ -99,6 +99,37 @@ The :c:type:`SUNContext` API further consists of the following functions:
    :return: the last :c:type:`SUNErrCode` recorded.
 
 
+.. c:function:: SUNErrCode SUNContext_HandleError(SUNContext sunctx, SUNErrCode err_code, int line, const char* func, const char* file, const char* msg)
+
+   Reports an error through ``sunctx``. The function sets the last error code
+   of ``sunctx`` to ``err_code`` and then calls the error handlers on the error
+   handler stack, most recently pushed first. User code, such as callbacks or
+   C++ classes, can call this function to report errors in the same way as
+   SUNDIALS does.
+
+   :param sunctx: a :c:type:`SUNContext` object. If this is ``NULL``, the
+                  message is printed to ``stderr`` and the last error cannot be
+                  set.
+   :param err_code: the :c:type:`SUNErrCode` to report. This should be an error
+                    code, not ``SUN_SUCCESS``.
+   :param line: the line number at which the error occurred.
+   :param func: the name of the function in which the error occurred. If this
+                is ``NULL`` it is treated as an empty string.
+   :param file: the name of the file in which the error occurred. If this is
+                ``NULL`` it is treated as an empty string.
+   :param msg: the message to report. If this is ``NULL`` the default message
+               for ``err_code`` (see :c:func:`SUNGetErrMsg`) is used. The message
+               is not a format string and is passed to the error handlers as
+               given.
+
+   :return: ``SUN_SUCCESS`` if the error was reported through a context, or
+            ``SUN_ERR_SUNCTX_CORRUPT`` if ``sunctx`` is ``NULL``. The return
+            value indicates whether the report reached a context, not which
+            error was reported.
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: SUNErrCode SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_fn, void* err_user_data)
 
    Pushes a new :c:type:`SUNErrHandlerFn` onto the error handler stack so that it is called when an

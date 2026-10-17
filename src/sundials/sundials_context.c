@@ -141,6 +141,24 @@ SUNErrCode SUNContext_PeekLastError(SUNContext sunctx)
   return sunctx->last_err;
 }
 
+SUNErrCode SUNContext_HandleError(SUNContext sunctx, SUNErrCode err_code,
+                                  int line, const char* func, const char* file,
+                                  const char* msg)
+{
+  if (msg == NULL) { msg = SUNGetErrMsg(err_code); }
+  if (func == NULL) { func = ""; }
+  if (file == NULL) { file = ""; }
+
+  if (!sunctx)
+  {
+    SUNGlobalFallbackErrHandler(line, func, file, msg, err_code);
+    return SUN_ERR_SUNCTX_CORRUPT;
+  }
+
+  SUNHandleErrWithMsg(line, func, file, msg, err_code, sunctx);
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNContext_PushErrHandler(SUNContext sunctx, SUNErrHandlerFn err_fn,
                                      void* err_user_data)
 {

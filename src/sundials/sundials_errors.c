@@ -71,7 +71,7 @@ void SUNLogErrHandlerFn(int line, const char* func, const char* file,
   char* file_and_line = sunCombineFileAndLine(line, file);
   if (msg == NULL) { msg = SUNGetErrMsg(err_code); }
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
-                     msg);
+                     "%s", msg);
   free(file_and_line);
 }
 
@@ -87,7 +87,7 @@ void SUNAbortErrHandlerFn(int line, const char* func, const char* file,
   char* file_and_line = sunCombineFileAndLine(line, file);
   if (msg == NULL) { msg = SUNGetErrMsg(err_code); }
   SUNLogger_QueueMsg(sunctx->logger, SUN_LOGLEVEL_ERROR, file_and_line, func,
-                     msg);
+                     "%s", msg);
   free(file_and_line);
   /* It is convenient to have the exit message point to the message line,
      so we add 1 to the line number. As such, do not separate the following lines! */

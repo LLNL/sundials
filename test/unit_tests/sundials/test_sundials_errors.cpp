@@ -226,3 +226,97 @@ TEST_F(SUNContextErrFunctionTests, SUNContextPopErrHandlerWorks)
   EXPECT_EQ(order.at(0), 1);
   EXPECT_EQ(order.at(1), 0);
 }
+
+class SUNContextHandleErrorTest : public testing::Test
+{
+protected:
+  SUNContextHandleErrorTest()
+  {
+    SUNContext_Create(SUN_COMM_NULL, &sunctx);
+    SUNContext_ClearErrHandlers(sunctx);
+  }
+
+  ~SUNContextHandleErrorTest() { SUNContext_Free(&sunctx); }
+
+  SUNContext sunctx;
+};
+
+struct CapturedError
+{
+  std::string msg;
+  std::string func;
+  std::string file;
+  bool called = false;
+};
+
+static void capturingHandler(int line, const char* func, const char* file,
+                             const char* msg, SUNErrCode err_code,
+                             void* err_user_data, SUNContext sunctx)
+{
+  CapturedError* cap = static_cast<CapturedError*>(err_user_data);
+  cap->called        = true;
+  cap->msg           = (msg != nullptr) ? msg : "<null>";
+  cap->func          = (func != nullptr) ? func : "<null>";
+  cap->file          = (file != nullptr) ? file : "<null>";
+}
+
+TEST_F(SUNContextHandleErrorTest, SetsLastErrorAndCallsHandlersInOrder)
+{
+  std::vector<int> order = {};
+  SUNContext_PushErrHandler(sunctx, firstHandler, static_cast<void*>(&order));
+  SUNContext_PushErrHandler(sunctx, secondHandler, static_cast<void*>(&order));
+  SUNContext_PushErrHandler(sunctx, thirdHandler, static_cast<void*>(&order));
+  SUNErrCode ret = SUNContext_HandleError(sunctx, SUN_ERR_ARG_OUTOFRANGE,
+                                          __LINE__, __func__, __FILE__, "msg");
+  EXPECT_EQ(ret, SUN_SUCCESS);
+  ASSERT_EQ(order.size(), 3);
+  EXPECT_EQ(order.at(0), 2);
+  EXPECT_EQ(order.at(1), 1);
+  EXPECT_EQ(order.at(2), 0);
+  EXPECT_EQ(SUNContext_PeekLastError(sunctx), SUN_ERR_ARG_OUTOFRANGE);
+}
+
+TEST_F(SUNContextHandleErrorTest, NullMessageUsesDefaultText)
+{
+  CapturedError cap;
+  SUNContext_PushErrHandler(sunctx, capturingHandler, static_cast<void*>(&cap));
+  SUNErrCode ret = SUNContext_HandleError(sunctx, SUN_ERR_ARG_OUTOFRANGE,
+                                          __LINE__, __func__, __FILE__, nullptr);
+  EXPECT_EQ(ret, SUN_SUCCESS);
+  EXPECT_TRUE(cap.called);
+  EXPECT_EQ(cap.msg, std::string(SUNGetErrMsg(SUN_ERR_ARG_OUTOFRANGE)));
+}
+
+TEST_F(SUNContextHandleErrorTest, NullFuncAndFileBecomeEmptyStrings)
+{
+  CapturedError cap;
+  SUNContext_PushErrHandler(sunctx, capturingHandler, static_cast<void*>(&cap));
+  SUNErrCode ret = SUNContext_HandleError(sunctx, SUN_ERR_OP_FAIL, __LINE__,
+                                          nullptr, nullptr, "msg");
+  EXPECT_EQ(ret, SUN_SUCCESS);
+  EXPECT_TRUE(cap.called);
+  EXPECT_EQ(cap.func, "");
+  EXPECT_EQ(cap.file, "");
+  EXPECT_EQ(cap.msg, "msg");
+}
+
+TEST_F(SUNContextHandleErrorTest, NullContextReturnsCorrupt)
+{
+  testing::internal::CaptureStderr();
+  SUNErrCode ret = SUNContext_HandleError(nullptr, SUN_ERR_OP_FAIL, __LINE__,
+                                          __func__, __FILE__,
+                                          "null context 100% %s");
+  std::string output = testing::internal::GetCapturedStderr();
+  EXPECT_EQ(ret, SUN_ERR_SUNCTX_CORRUPT);
+  EXPECT_THAT(output, testing::HasSubstr("null context 100% %s"));
+}
+
+TEST_F(SUNErrHandlerFnTest, PercentMessageLoggedVerbatim)
+{
+  SUNLogger_SetErrorFilename(logger, errfile.c_str());
+  SUNErrCode ret = SUNContext_HandleError(sunctx, SUN_ERR_OP_FAIL, __LINE__,
+                                          __func__, __FILE__, "100% %s %n");
+  EXPECT_EQ(ret, SUN_SUCCESS);
+  std::string output = dumpstderr(sunctx, errfile);
+  EXPECT_THAT(output, testing::HasSubstr("100% %s %n"));
+}
