@@ -278,12 +278,11 @@ where :math:`U` is the unit roundoff, :math:`h` is the current step size, and
 :eq:`IDA_errwt`.
 
 We note that with user-supplied and CSR sparse SUNMatrix objects, the
-Jacobian *must* be supplied by a user routine.  When using dense or banded
+Jacobian *must* be supplied by a user routine.  When using dense, banded, or CSC sparse
 matrices, the Jacobian can be either supplied by a user routine or approximated
-internally.  When using CSC sparse matrices, the Jacobian can be either
-supplied by a user routine or approximated internally.  When it is approximated,
-however, the IDA linear solver interface must be initialized with a template
-Jacobian matrix that already encodes the sparsity pattern for the Jacobian --
+internally.  When a CSC sparse Jacobian matrix is approximated,
+the IDA linear solver interface must be initialized with a template
+matrix that already encodes the sparsity pattern for the Jacobian --
 the entries themselves may be arbitrary, but the sparsity pattern must be correct.
 
 In the case of an iterative linear solver, if a routine for :math:`Jv` is not

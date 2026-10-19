@@ -313,12 +313,11 @@ band case, the columns of :math:`J` are computed in groups, by the Curtis-Powell
 user-specified value, ``relfunc``.
 
 We note that with user-supplied and CSR sparse SUNMatrix objects, the
-Jacobian *must* be supplied by a user routine.  When using dense or banded
+Jacobian *must* be supplied by a user routine.  When using dense, banded, or CSC sparse
 matrices, the Jacobian can be either supplied by a user routine or approximated
-internally.  When using CSC sparse matrices, the Jacobian can be either
-supplied by a user routine or approximated internally.  When it is approximated,
-however, the KINSOL linear solver interface must be initialized with a template
-Jacobian matrix that already encodes the sparsity pattern for the Jacobian --
+internally.  When a CSC sparse Jacobian matrix is approximated,
+the KINSOL linear solver interface must be initialized with a template
+matrix that already encodes the sparsity pattern for the Jacobian --
 the entries themselves may be arbitrary, but the sparsity pattern must be correct.
 
 In the case of a matrix-free iterative linear solver, Jacobian information is needed only as matrix-vector products

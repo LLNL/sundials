@@ -48,22 +48,11 @@ be matrix-free. Since IDAS can operate on any valid ``SUNLinearSolver``, the set
 of linear solver modules available to IDAS will expand as new ``SUNLinearSolver``
 implementations are developed.
 
-For users employing :ref:`SUNMATRIX_DENSE <SUNMatrix.Dense>` or
-:ref:`SUNMATRIX_BAND <SUNMatrix.Band>` Jacobian matrices, IDAS includes
+For users employing :ref:`SUNMATRIX_DENSE <SUNMatrix.Dense>`,
+:ref:`SUNMATRIX_BAND <SUNMatrix.Band>`, or :ref:`SUNMATRIX_SPARSE <SUNMatrix.Sparse>` Jacobian matrices in ``SUN_CSC_MAT`` format, IDAS includes
 algorithms for their approximation through difference quotients, although the
 user also has the option of supplying a routine to compute the Jacobian (or an
-approximation to it) directly. For users employing
-:ref:`SUNMATRIX_SPARSE <SUNMatrix.Sparse>` Jacobian matrices in ``SUN_CSC_MAT`` format,
-IDAS includes an algorithm for approximating the Jacobian through difference
-quotients, although the user also has the option of supplying a routine to
-compute the Jacobian (or an approximation to it) directly.  When the CSC sparse
-Jacobian is to be approximated, however, the IDAS linear solver interface must
-be initialized with a template Jacobian matrix that already encodes the sparsity
-pattern for the Jacobian -- the entries themselves may be arbitrary, but the
-sparsity pattern must be correct.
-
-This user-supplied routine is required when using user-supplied and CSR sparse
-Jacobian matrices.
+approximation to it) directly.  For :ref:`SUNMATRIX_SPARSE <SUNMatrix.Sparse>` Jacobian matrices in ``SUN_CSR_MAT`` format, the user must supply the Jacobian routine.
 
 For users employing matrix-free iterative linear solvers, IDAS includes an
 algorithm for the approximation by difference quotients of the product
