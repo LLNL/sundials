@@ -106,7 +106,7 @@ def test_create_superlumt_if_available(sunctx, nvec):
     assert LS is not None
     assert SUNLinSolGetType(LS) == SUNLINEARSOLVER_DIRECT
     assert SUNLinSolGetID(LS) == SUNLINEARSOLVER_SUPERLUMT
-    assert SUNLinSol_SuperLUMTSetOrdering(LS, 3) == SUN_SUCCESS
+    assert SUNLinSol_SuperLUMTSetOrdering(LS, SUNSLUMT_ORDERING_DEFAULT) == SUN_SUCCESS
     assert SUNLinSolInitialize(LS) == SUN_SUCCESS
     assert SUNLinSolSetup(LS, A) == SUN_SUCCESS
 
