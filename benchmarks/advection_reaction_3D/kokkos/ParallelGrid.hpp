@@ -35,13 +35,8 @@
 using ExecSpace = Kokkos::Cuda;
 using MemSpace  = Kokkos::CudaSpace;
 #elif defined(USE_HIP)
-#if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
 using MemSpace  = Kokkos::HIPSpace;
-#else
-using ExecSpace = Kokkos::Experimental::HIP;
-using MemSpace  = Kokkos::Experimental::HIPSpace;
-#endif
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 using MemSpace  = Kokkos::HostSpace;

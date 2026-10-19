@@ -47,26 +47,26 @@
  *
  * This program solves the problem with the BDF method, Newton iteration, a
  * user-supplied Jacobian routine, and, since the grouping of the independent
- * systems results in a block diagonal linear system, the dense KOKKOS
- * SUNLinearSolver which supports batched systems. 100 outputs are printed at
- * equal intervals, and run statistics are printed at the end.
+ * systems results in a block diagonal linear system, a matrix-free GMRES
+ * solver is used.  (The dense KOKKOS SUNLinearSolver only accepts rank-1
+ * vectors.) 100 outputs are printed at equal intervals, and run statistics
+ * are printed at the end.
  *
  * Unlike the example cv_bruss_batched_kokkos.cpp, this example utilizes Kokkos'
  * multi-dimensional view functionality to consider a 2D grouping, y(i,j), where
  * i corresponds with the batch index, and j corresponds to the component (u,v,w).
  *
  * The program takes three optional arguments, the number of independent ODE
- * systems (i.e., number of batches), the linear solver type (KOKKOS batched LU
- * or non-batched GMRES with the Jacobian computed by difference quotients)
- * the test type (uniform_0, uniform_1, or  uniform_2).
+ * systems (i.e., number of batches), the GMRES solver with the Jacobian
+ * computed by difference quotients, and the test type (uniform_0, uniform_1,
+ * or uniform_2).
  *
- *   ./cv_bruss_batched_kokkos [num_batches] [solver_type] [test_type]
+ *   ./cv_bruss_batched_kokkos_2D [num_batches] [solver_type] [test_type]
  *
  * Options:
  *   num_batches <int>
  *   solver_type:
- *     0 - KOKKOS batched LU (default)
- *     1 - SUNDIALS non-batched GMRES with difference quotients Jacobian
+ *     1 - SUNDIALS GMRES with difference quotients Jacobian (only supported value)
  *   test_type:
  *     0 - uniform_0, all batches are Reactor 0
  *     1 - uniform 1, all batches are Reactor 1
@@ -91,13 +91,8 @@
 using ExecSpace = Kokkos::Cuda;
 using MemSpace  = Kokkos::CudaSpace;
 #elif defined(USE_HIP)
-#if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
 using MemSpace  = Kokkos::HIPSpace;
-#else
-using ExecSpace = Kokkos::Experimental::HIP;
-using MemSpace  = Kokkos::Experimental::HIPSpace;
-#endif
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 using MemSpace  = Kokkos::HostSpace;
@@ -109,7 +104,7 @@ using MemSpace  = Kokkos::HostSpace;
 using Vec1D     = Kokkos::View<sunrealtype*, MemSpace>;
 using Vec2D     = Kokkos::View<sunrealtype**, Kokkos::LayoutRight, MemSpace>;
 using Vec2DHost = Vec2D::HostMirror;
-using VecType   = sundials::kokkos::Vector<ExecSpace>;
+using VecType   = sundials::kokkos::VectorFor<Vec2D>;
 using MatType   = sundials::kokkos::DenseMatrix<ExecSpace>;
 using LSType    = sundials::kokkos::DenseLinearSolver<ExecSpace>;
 using SizeType  = VecType::size_type;
@@ -144,6 +139,10 @@ int main(int argc, char* argv[])
   sundials::Context sunctx;
 
   Kokkos::initialize(argc, argv);
+  struct KokkosFinalizer
+  {
+    ~KokkosFinalizer() { Kokkos::finalize(); }
+  } kokkos_finalizer;
   {
     // Create UserData
     UserData udata;
@@ -155,9 +154,13 @@ int main(int argc, char* argv[])
     if (argc > 1) { udata.nbatches = atoi(argv[++argi]); }
 
     // Linear solver type
-    int solver_type = 0;
+    int solver_type = 1;
     if (argc > 2) { solver_type = atoi(argv[++argi]); }
-
+    if (solver_type != 1)
+    {
+      std::cerr << "ERROR: only solver_type 1 (GMRES) is supported for rank-2 vectors\n";
+      return 1;
+    }
     // Problem setup
     int test_type = 2;
     if (argc > 3) { test_type = atoi(argv[++argi]); }
@@ -169,7 +172,7 @@ int main(int argc, char* argv[])
     std::cout << "\nBatch of independent 3-species kinetics problems\n"
               << "  number of batches = " << nbatches << "\n"
               << "  linear solver     = "
-              << (solver_type ? "GMRES" : "KokkosKernels") << "\n"
+               << "GMRES\n"
               << "  test type         = " << test_type << "\n"
               << "  execution space   = " << ExecSpace().name() << "\n\n";
 
@@ -213,9 +216,8 @@ int main(int argc, char* argv[])
     // Create vector with the initial condition
     const sunrealtype T0 = SUN_RCONST(0.0);
 
-    SizeType length{static_cast<SizeType>(batchSize * nbatches)};
-    VecType y{length, sunctx};
-    Vec2D y2d((y.View()).data(), nbatches, batchSize);
+    Vec2D y2d("solution", nbatches, batchSize);
+    VecType y{y2d, sunctx};
 
     Kokkos::parallel_for(
       "fill_y", Kokkos::RangePolicy<ExecSpace>(0, nbatches),
@@ -226,7 +228,8 @@ int main(int argc, char* argv[])
       });
 
     // Create vector of absolute tolerances
-    VecType abstol{length, sunctx};
+    Vec2D abstol_view("absolute tolerance", nbatches, batchSize);
+    VecType abstol{abstol_view, sunctx};
     N_VConst(SUN_RCONST(1.0e-10), abstol);
 
     // Create CVODE using Backward Differentiation Formula methods
@@ -249,32 +252,12 @@ int main(int argc, char* argv[])
     std::unique_ptr<sundials::ConvertibleTo<SUNMatrix>> A;
     std::unique_ptr<sundials::ConvertibleTo<SUNLinearSolver>> LS;
 
-    if (solver_type == 0)
-    {
-      // Create Kokkos dense block diagonal matrix
-      A = std::make_unique<MatType>(nbatches, batchSize, batchSize, sunctx);
+    // Rank-2 state vectors are intentionally handled by matrix-free GMRES.
+    LS = std::make_unique<sundials::experimental::SUNLinearSolverView>(
+      SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx));
 
-      // Create Kokkos batched dense linear solver
-      LS = std::make_unique<LSType>(sunctx);
-
-      // Attach the matrix and linear solver to CVODE
-      retval = CVodeSetLinearSolver(cvode_mem, LS->get(), A->get());
-      if (check_flag(retval, "CVodeSetLinearSolver")) { return 1; }
-
-      // Set the user-supplied Jacobian function
-      retval = CVodeSetJacFn(cvode_mem, Jac);
-      if (check_flag(retval, "CVodeSetJacFn")) { return 1; }
-    }
-    else
-    {
-      // Create matrix-free GMRES linear solver
-      LS = std::make_unique<sundials::experimental::SUNLinearSolverView>(
-        SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx));
-
-      // Attach the linear solver to CVODE
-      retval = CVodeSetLinearSolver(cvode_mem, LS->get(), nullptr);
-      if (check_flag(retval, "CVodeSetLinearSolver")) { return 1; }
-    }
+    retval = CVodeSetLinearSolver(cvode_mem, LS->get(), nullptr);
+    if (check_flag(retval, "CVodeSetLinearSolver")) { return 1; }
 
     // Final time and time between outputs
     const sunrealtype Tf    = SUN_RCONST(10.0);
@@ -288,8 +271,8 @@ int main(int argc, char* argv[])
     sunrealtype tout = T0 + dTout;
 
     // Initial output
-    Vec2DHost y2d_h((y.HostView()).data(), nbatches, batchSize);
-    sundials::kokkos::CopyFromDevice(y);
+    Vec2DHost y2d_h = Kokkos::create_mirror_view(y2d);
+    Kokkos::deep_copy(y2d_h, y2d);
     Kokkos::fence();
     std::cout << "At t = " << t << std::endl;
     for (int j = 0; j < nbatches; j += 10)
@@ -306,7 +289,7 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "CVode")) { break; }
 
       // Output solution from some batches
-      sundials::kokkos::CopyFromDevice(y);
+      Kokkos::deep_copy(y2d_h, y2d);
       Kokkos::fence();
       std::cout << "At t = " << t << std::endl;
       for (int j = 0; j < nbatches; j += 10)
@@ -349,8 +332,6 @@ int main(int argc, char* argv[])
     // Free objects
     CVodeFree(&cvode_mem);
   }
-  Kokkos::finalize();
-
   return 0;
 }
 
@@ -370,8 +351,8 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   const auto b  = udata->b;
   const auto ep = udata->ep;
 
-  Vec2D y2d(N_VGetDeviceArrayPointer(y), nbatches, batchSize);
-  Vec2D ydot2d(N_VGetDeviceArrayPointer(ydot), nbatches, batchSize);
+  auto y2d = VecType::FromNVector(y)->View();
+  auto ydot2d = VecType::FromNVector(ydot)->View();
 
   Kokkos::parallel_for(
     "RHS", Kokkos::RangePolicy<ExecSpace>(0, nbatches),
@@ -392,14 +373,14 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   auto udata  = static_cast<UserData*>(user_data);
-  auto y_data = sundials::kokkos::GetVec<VecType>(y)->View();
+  auto y_data = VecType::FromNVector(y)->View();
   auto J_data = sundials::kokkos::GetDenseMat<MatType>(J)->View();
 
   const auto nbatches  = udata->nbatches;
   const auto batchSize = udata->batchSize;
 
   const auto ep = udata->ep;
-  Vec2D y2d(N_VGetDeviceArrayPointer(y), nbatches, batchSize);
+  auto y2d = VecType::FromNVector(y)->View();
 
   Kokkos::parallel_for(
     "Jac", Kokkos::RangePolicy<ExecSpace>(0, nbatches),

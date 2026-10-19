@@ -876,6 +876,14 @@ public:
     return FromNVector(vec);
   }
 
+  // Release-mode counterpart to the debug-only checks in FromNVector.  This
+  // lets integrations validate the concrete trampoline before downcasting.
+  static bool IsNVector(N_Vector vec) noexcept
+  {
+    return vec != nullptr && vec->content != nullptr && vec->ops != nullptr &&
+           vec->ops->nvdestroy == &nvDestroy;
+  }
+
   // ===========================================================================
   // Operations
   //

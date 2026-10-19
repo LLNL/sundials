@@ -6,6 +6,12 @@
 
 ### New Features and Enhancements
 
+Replaced the Kokkos N_Vector with a C++17/Kokkos-4-or-newer same-rank wrapper
+for application-owned views (Kokkos 5 requires C++20). Allocation, host-mirror,
+and pointer-reshaping helpers were removed; use explicit Kokkos mirrors and
+deep copies. Rank 1 uses RangePolicy, ranks 2--6 use native MDRangePolicy, and
+ranks 7 and higher are rejected during construction.
+
 Added the public C++ `sundials::NVectorBase` interface for implementing custom
 NVECTOR types.
 

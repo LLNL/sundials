@@ -1,713 +1,923 @@
-/* -----------------------------------------------------------------------------
- * Programmer(s): Daniel McGreer, Cody Balos @ LLNL
- * -----------------------------------------------------------------------------
- * SUNDIALS Copyright Start
- * Copyright (c) 2025-2026, Lawrence Livermore National Security,
- * University of Maryland Baltimore County, and the SUNDIALS contributors.
- * Copyright (c) 2013-2025, Lawrence Livermore National Security
- * and Southern Methodist University.
- * Copyright (c) 2002-2013, Lawrence Livermore National Security.
- * All rights reserved.
- *
- * See the top-level LICENSE and NOTICE files for details.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- * SUNDIALS Copyright End
- * -----------------------------------------------------------------------------
- * This is the header file an NVector implementation using Kokkos.
- * ---------------------------------------------------------------------------*/
-
+/* Same-rank, wrap-only Kokkos N_Vector. */
 #ifndef SUNDIALS_NVECTOR_KOKKOS_HPP
 #define SUNDIALS_NVECTOR_KOKKOS_HPP
 
 #include <Kokkos_Core.hpp>
-#include <memory>
-#include <sundials/sundials_nvector.hpp>
-
-namespace sundials {
-namespace kokkos {
-
-// Forward declaration
-template<class ExecutionSpace, class MemorySpace, class MemoryTraits>
-class Vector;
-
-// Get the Kokkos vector wrapped by an N_Vector
-template<class VectorType>
-inline VectorType* GetVec(N_Vector v)
-{
-  return static_cast<VectorType*>(v->content);
-}
-
-// =============================================================================
-// Everything in the implementation (impl) namespace is private and should not
-// be referred to directly in user code.
-// =============================================================================
-
-namespace impl {
-
-/* N_Vector API ops */
-
-inline N_Vector_ID N_VGetVectorID_Kokkos(N_Vector v)
-{
-  return SUNDIALS_NVEC_KOKKOS;
-}
-
-template<class VectorType>
-sunindextype N_VGetLength_Kokkos(N_Vector v)
-{
-  auto vec{GetVec<VectorType>(v)};
-  return static_cast<sunindextype>(vec->Length());
-}
-
-template<class VectorType>
-sunrealtype* N_VGetArrayPointer_Kokkos(N_Vector v)
-{
-  auto vec{GetVec<VectorType>(v)};
-  return vec->HostView().data();
-}
-
-template<class VectorType>
-sunrealtype* N_VGetDeviceArrayPointer_Kokkos(N_Vector v)
-{
-  auto vec{GetVec<VectorType>(v)};
-  return vec->View().data();
-}
-
-template<class VectorType>
-N_Vector N_VClone_Kokkos(N_Vector w)
-{
-  auto vec{GetVec<VectorType>(w)};
-  auto new_vec = VectorType::Clone(*vec, w->sunctx);
-  return new_vec->get();
-}
-
-template<class VectorType>
-void N_VDestroy_Kokkos(N_Vector v)
-{
-  auto vec{GetVec<VectorType>(v)};
-  delete vec;
-  return;
-}
-
-template<class VectorType>
-void N_VPrint_Kokkos(N_Vector v)
-{
-  auto vec{GetVec<VectorType>(v)};
-}
-
-template<class VectorType>
-void N_VPrintFile_Kokkos(N_Vector v, FILE* outfile)
-{
-  auto vec{GetVec<VectorType>(v)};
-}
-
-/* OPTIONAL local reduction kernels (no parallel communication) */
-
-template<class VectorType>
-sunrealtype N_VWSqrSumLocal_Kokkos(N_Vector x, N_Vector w)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  auto wvec{GetVec<VectorType>(w)};
-  auto wdata{wvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  sunrealtype gpu_result{0.0};
-  Kokkos::parallel_reduce(
-    "N_VWSqrSumLocal", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      update += (xdata(i) * wdata(i) * xdata(i) * wdata(i));
-    },
-    gpu_result);
-
-  return gpu_result;
-}
-
-template<class VectorType>
-sunrealtype N_VWSqrSumMaskLocal_Kokkos(N_Vector x, N_Vector w, N_Vector id)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  auto wvec{GetVec<VectorType>(w)};
-  auto wdata{wvec->View()};
-  auto idvec{GetVec<VectorType>(id)};
-  auto iddata{idvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  sunrealtype gpu_result{0.0};
-  Kokkos::parallel_reduce(
-    "N_VWSqrSumMaskLocal", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      if (iddata(i) > sunrealtype{0.0})
-        update += (xdata(i) * wdata(i) * xdata(i) * wdata(i));
-    },
-    gpu_result);
-
-  return gpu_result;
-}
-
-/* standard vector operations */
-
-template<class VectorType>
-void N_VAbs_Kokkos(N_Vector x, N_Vector z)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  auto zvec{GetVec<VectorType>(z)};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  Kokkos::parallel_for(
-    "N_VAbs", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) { zdata(i) = std::abs(xdata(i)); });
-}
-
-template<class VectorType>
-void N_VAddConst_Kokkos(N_Vector x, sunrealtype b, N_Vector z)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  auto zvec{GetVec<VectorType>(z)};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  Kokkos::parallel_for(
-    "N_VAddConst", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) { zdata(i) = xdata(i) + b; });
-}
-
-template<class VectorType>
-void N_VCompare_Kokkos(sunrealtype c, N_Vector x, N_Vector z)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  auto zvec{GetVec<VectorType>(z)};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  Kokkos::parallel_for(
-    "N_VCompare", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) {
-      zdata(i) = std::abs(xdata(i)) >= c ? sunrealtype{1.0} : sunrealtype{0.0};
-    });
-}
-
-template<class VectorType>
-void N_VConst_Kokkos(sunrealtype c, N_Vector z)
-{
-  auto zvec{GetVec<VectorType>(z)};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  Kokkos::parallel_for(
-    "N_VConst", typename VectorType::range_policy(0, zvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) { zdata(i) = c; });
-}
-
-template<class VectorType>
-sunbooleantype N_VConstrMask_Kokkos(N_Vector c, N_Vector x, N_Vector m)
-{
-  auto cvec{GetVec<VectorType>(c)};
-  auto cdata{cvec->View()};
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  auto mvec{GetVec<VectorType>(m)};
-  auto mdata{mvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  sunrealtype sum{0.0};
-  Kokkos::parallel_reduce(
-    "N_VConstrMask", typename VectorType::range_policy(0, mvec->Length()),
-    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      bool test = (std::abs(cdata(i)) > sunrealtype{1.5} &&
-                   cdata(i) * xdata(i) <= sunrealtype{0.0}) ||
-                  (std::abs(cdata(i)) > sunrealtype{0.5} &&
-                   cdata(i) * xdata(i) < sunrealtype{0.0});
-      mdata(i) = test ? sunrealtype{1.0} : sunrealtype{0.0};
-      update += mdata(i);
-    },
-    sum);
-
-  return (sum < sunrealtype{0.5});
-}
-
-template<class VectorType>
-void N_VDiv_Kokkos(N_Vector x, N_Vector y, N_Vector z)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto yvec{GetVec<VectorType>(y)};
-  auto zvec{GetVec<VectorType>(z)};
-  auto xdata{xvec->View()};
-  auto ydata{yvec->View()};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  Kokkos::parallel_for(
-    "N_VDiv", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) { zdata(i) = xdata(i) / ydata(i); });
-}
-
-template<class VectorType>
-sunrealtype N_VDotProd_Kokkos(N_Vector x, N_Vector y)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto yvec{GetVec<VectorType>(y)};
-  auto xdata{xvec->View()};
-  auto ydata{yvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  sunrealtype gpu_result{0.0};
-  Kokkos::parallel_reduce(
-    "N_VDotProd", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      update += xdata(i) * ydata(i);
-    },
-    gpu_result);
-
-  return gpu_result;
-}
-
-template<class VectorType>
-void N_VInv_Kokkos(N_Vector x, N_Vector z)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  auto zvec{GetVec<VectorType>(z)};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  Kokkos::parallel_for(
-    "N_VInv", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) { zdata(i) = sunrealtype{1.0} / xdata(i); });
-}
-
-template<class VectorType>
-sunbooleantype N_VInvTest_Kokkos(N_Vector x, N_Vector z)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  auto zvec{GetVec<VectorType>(z)};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  sunrealtype minimum{0.0};
-  Kokkos::parallel_reduce(
-    "N_VInvTest", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      if (xdata(i) == sunrealtype{0.0}) { update += sunrealtype{1.0}; }
-      else { zdata(i) = sunrealtype{1.0} / xdata(i); }
-    },
-    minimum);
-
-  return (minimum < sunrealtype{0.5});
-}
-
-template<class VectorType>
-sunrealtype N_VL1Norm_Kokkos(N_Vector x)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  sunrealtype gpu_result{0.0};
-  Kokkos::parallel_reduce(
-    "N_VL1Norm", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      update += (std::abs(xdata(i)));
-    },
-    gpu_result);
-
-  return gpu_result;
-}
-
-template<class VectorType>
-void N_VLinearSum_Kokkos(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y,
-                         N_Vector z)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto yvec{GetVec<VectorType>(y)};
-  auto zvec{GetVec<VectorType>(z)};
-  auto xdata{xvec->View()};
-  auto ydata{yvec->View()};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  Kokkos::parallel_for(
-    "N_VLinearSum", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) { zdata(i) = a * xdata(i) + b * ydata(i); });
-}
-
-template<class VectorType>
-sunrealtype N_VMaxNorm_Kokkos(N_Vector x)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  sunrealtype gpu_result{0.0};
-  Kokkos::parallel_reduce(
-    "N_VMaxNorm", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      if (std::abs(xdata(i)) > update) update = std::abs(xdata(i));
-    },
-    Kokkos::Max<sunrealtype>(gpu_result));
-
-  return gpu_result;
-}
-
-template<class VectorType>
-sunrealtype N_VMin_Kokkos(N_Vector x)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  sunrealtype gpu_result{std::numeric_limits<sunrealtype>::max()};
-  Kokkos::parallel_reduce(
-    "N_VMin", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      if (xdata(i) < update) update = xdata(i);
-    },
-    Kokkos::Min<sunrealtype>(gpu_result));
-
-  return gpu_result;
-}
-
-template<class VectorType>
-sunrealtype N_VMinQuotient_Kokkos(N_Vector num, N_Vector denom)
-{
-  auto nvec{GetVec<VectorType>(num)};
-  auto ndata{nvec->View()};
-  auto dvec{GetVec<VectorType>(denom)};
-  auto ddata{dvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  sunrealtype gpu_result{std::numeric_limits<sunrealtype>::max()};
-  Kokkos::parallel_reduce(
-    "N_VMinQuotient", typename VectorType::range_policy(0, nvec->Length()),
-    KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      if (ddata(i) != sunrealtype{0.0})
-      {
-        if ((ndata(i) / ddata(i)) < update) update = ndata(i) / ddata(i);
-      }
-    },
-    Kokkos::Min<sunrealtype>(gpu_result));
-
-  // Kokkos 5 (possibly earlier) ignores the initial value of gpu_result and
-  // uses the default for a min reduction, +infinity, so in the case where all
-  // denominators are zero this returns infinity instead of the max real
-  if (gpu_result == std::numeric_limits<sunrealtype>::infinity())
-  {
-    // Align return result with the documentation
-    gpu_result = std::numeric_limits<sunrealtype>::max();
-  }
-
-  return gpu_result;
-}
-
-template<class VectorType>
-void N_VProd_Kokkos(N_Vector x, N_Vector y, N_Vector z)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto yvec{GetVec<VectorType>(y)};
-  auto zvec{GetVec<VectorType>(z)};
-  auto xdata{xvec->View()};
-  auto ydata{yvec->View()};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  Kokkos::parallel_for(
-    "N_VProd", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) { zdata(i) = xdata(i) * ydata(i); });
-}
-
-template<class VectorType>
-void N_VScale_Kokkos(sunrealtype c, N_Vector x, N_Vector z)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  auto xdata{xvec->View()};
-  auto zvec{GetVec<VectorType>(z)};
-  auto zdata{zvec->View()};
-
-  using size_type = typename VectorType::size_type;
-
-  Kokkos::parallel_for(
-    "N_VScale", typename VectorType::range_policy(0, xvec->Length()),
-    KOKKOS_LAMBDA(const size_type i) { zdata(i) = c * xdata(i); });
-}
-
-template<class VectorType>
-sunrealtype N_VWL2Norm_Kokkos(N_Vector x, N_Vector w)
-{
-  return std::sqrt(impl::N_VWSqrSumLocal_Kokkos<VectorType>(x, w));
-}
-
-template<class VectorType>
-sunrealtype N_VWrmsNorm_Kokkos(N_Vector x, N_Vector w)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  return std::sqrt(impl::N_VWSqrSumLocal_Kokkos<VectorType>(x, w) /
-                   static_cast<sunrealtype>(xvec->Length()));
-}
-
-template<class VectorType>
-sunrealtype N_VWrmsNormMask_Kokkos(N_Vector x, N_Vector w, N_Vector id)
-{
-  auto xvec{GetVec<VectorType>(x)};
-  return std::sqrt(impl::N_VWSqrSumMaskLocal_Kokkos<VectorType>(x, w, id) /
-                   static_cast<sunrealtype>(xvec->Length()));
-}
-
-} // namespace impl
-
-// =============================================================================
-// Public namespace
-// =============================================================================
-
-template<class ExecutionSpace = Kokkos::DefaultExecutionSpace,
-         class MemorySpace    = typename ExecutionSpace::memory_space,
-         // Kokkos::MemoryManaged was deprecated in v4.7 and a default added
-         // TODO(DJG): Remove 0 when v4.7+ is required
-         class MemoryTraits = Kokkos::MemoryTraits<0>>
-class Vector : public sundials::impl::BaseNVector,
-               public sundials::ConvertibleTo<N_Vector>
-{
-public:
-  using view_type = Kokkos::View<sunrealtype*, MemorySpace, MemoryTraits>;
-#if KOKKOS_VERSION / 10000 > 4
-  using host_view_type = typename view_type::host_mirror_type;
-#else
-  using host_view_type = typename view_type::HostMirror;
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <limits>
+#include <stdexcept>
+#include <type_traits>
+#include <utility>
+#if defined(SUNDIALS_KOKKOS_EXHAUSTIVE_LAYOUTSTRIDE_CHECK) && !defined(NDEBUG)
+#include <unordered_set>
 #endif
-  using memory_space  = MemorySpace;
-  using memory_traits = MemoryTraits;
-  using exec_space    = typename MemorySpace::execution_space;
-  using range_policy  = Kokkos::RangePolicy<exec_space>;
-  using size_type     = typename view_type::size_type;
+#include <sundials/sundials_nvector_base.hpp>
 
-  // Default constructor
-  Vector() = default;
+namespace sundials::kokkos {
 
-  Vector(size_type length, SUNContext sunctx)
-    : sundials::impl::BaseNVector(sunctx),
-      view_("Vector device view", length),
-      host_view_(Kokkos::create_mirror_view(view_))
+template<class V>
+struct view_traits
+{
+  using input = std::remove_cv_t<std::remove_reference_t<V>>;
+  // Add Unmanaged without discarding other application-selected traits (for
+  // example RandomAccess).  The Kokkos trait also handles views whose traits
+  // are not exactly the default MemoryTraits<> specialization.
+  using canonical_traits =
+    Kokkos::MemoryTraits<input::memory_traits::flags | Kokkos::Unmanaged>;
+  using managed_traits =
+    Kokkos::MemoryTraits<input::memory_traits::flags & ~Kokkos::Unmanaged>;
+  using view_type =
+    Kokkos::View<typename input::data_type, typename input::array_layout,
+                 typename input::device_type, canonical_traits>;
+  using managed_type =
+    Kokkos::View<typename input::data_type, typename input::array_layout,
+                 typename input::device_type, managed_traits>;
+  static constexpr bool is_unmanaged =
+    (input::memory_traits::flags & Kokkos::Unmanaged) != 0;
+};
+template<class V>
+using canonical_view_t = typename view_traits<V>::view_type;
+template<class V>
+using managed_view_t = typename view_traits<V>::managed_type;
+template<class V>
+inline constexpr bool is_unmanaged_view_v = view_traits<V>::is_unmanaged;
 
+template<class V, class ExecutionSpace = typename V::execution_space>
+class Vector final : public sundials::NVectorBase<Vector<V, ExecutionSpace>>
+{
+  using self                = Vector;
+  using base                = sundials::NVectorBase<self>;
+  using view_t              = V;
+  using managed_type        = managed_view_t<V>;
+  static constexpr int rank = view_t::rank;
+  static_assert(rank > 0, "Kokkos N_Vector does not support rank zero");
+  static_assert(std::is_same_v<typename view_t::non_const_value_type, sunrealtype>,
+                "Kokkos N_Vector requires writable sunrealtype views");
+  static_assert(is_unmanaged_view_v<view_t>,
+                "Vector must use its canonical unmanaged view");
+
+  enum class storage_mode
   {
-    initNvector();
+    borrowed,
+    retained
+  };
+  // The owner must precede the operational alias: view_ may be constructed
+  // from owner_ and must never outlive that handle during destruction.
+  managed_type owner_{};
+  view_t view_{};
+  storage_mode storage_{storage_mode::borrowed};
+  ExecutionSpace exec_{};
+  sunindextype length_{0};
+  static constexpr bool supported_rank = rank >= 1 && rank <= 6;
+
+  static void validate_rank()
+  {
+    if constexpr (rank > 6)
+      throw std::invalid_argument(
+        "NVECTOR_KOKKOS supports ranks 1--6; Kokkos MDRangePolicy supports "
+        "only ranks below 7");
   }
 
-  Vector(view_type view, SUNContext sunctx)
-    : sundials::impl::BaseNVector(sunctx),
-      view_(view),
-      host_view_(Kokkos::create_mirror_view(view_))
-
+  template<class W>
+  static sunindextype length(const W& w)
   {
-    initNvector();
+    sunindextype n = 1;
+    for (int d = 0; d < rank; ++d)
+    {
+      if (w.extent(d) >
+          static_cast<std::size_t>(std::numeric_limits<sunindextype>::max()) /
+            static_cast<std::size_t>(n))
+        throw std::overflow_error("Kokkos N_Vector length overflow");
+      n *= static_cast<sunindextype>(w.extent(d));
+    }
+    return n;
   }
 
-  Vector(view_type view, host_view_type host_view, SUNContext sunctx)
-    : sundials::impl::BaseNVector(sunctx), view_(view), host_view_(host_view)
+  template<class W>
+  static void validate(const W& w, const ExecutionSpace&)
   {
-    initNvector();
+    validate_rank();
+    using input = std::remove_cv_t<W>;
+    static_assert(input::rank == rank, "Kokkos N_Vector view rank mismatch");
+    static_assert(std::is_same_v<typename input::non_const_value_type, sunrealtype>,
+                  "Kokkos N_Vector requires sunrealtype values");
+    static_assert(Kokkos::SpaceAccessibility<
+                    ExecutionSpace, typename input::memory_space>::accessible,
+                  "Kokkos N_Vector execution space cannot access the view");
+    static_assert(std::is_same_v<typename view_t::array_layout, Kokkos::LayoutLeft> ||
+                    std::is_same_v<typename view_t::array_layout, Kokkos::LayoutRight> ||
+                    std::is_same_v<typename view_t::array_layout, Kokkos::LayoutStride>,
+                  "unsupported Kokkos N_Vector layout");
+    for (int d = 0; d < rank; ++d)
+      if (w.extent(d) == 0)
+        throw std::invalid_argument(
+          "Kokkos N_Vector does not support zero extents");
+
+    // Check both the logical length and the largest byte/element offset before
+    // handing metadata to Kokkos.  This also catches LayoutStride maps whose
+    // span cannot be represented by the view's size type.
+    (void)length(w);
+    std::size_t span = 1;
+    if constexpr (std::is_same_v<typename view_t::array_layout, Kokkos::LayoutStride>)
+    {
+      for (int d = 0; d < rank; ++d)
+      {
+        const std::size_t stride = w.stride(d);
+        if (stride == 0)
+          throw std::invalid_argument(
+            "Kokkos N_Vector rejects zero-stride mappings");
+        const std::size_t n = static_cast<std::size_t>(w.extent(d) - 1);
+        if (n != 0 &&
+            (span > std::numeric_limits<std::size_t>::max() ||
+             stride > (std::numeric_limits<std::size_t>::max() - span) / n))
+          throw std::overflow_error("Kokkos N_Vector stride span overflow");
+        span += n * stride;
+      }
+      if (span >
+          static_cast<std::size_t>(std::numeric_limits<sunindextype>::max()))
+        throw std::overflow_error("Kokkos N_Vector stride span overflow");
+
+// Exhaustive checking is opt-in and debug-only because its host-side
+// bookkeeping is not suitable for production construction. The normal path still
+// checks a bounded prefix of the map without allocating; larger maps
+// retain the documented injectivity precondition.
+#if defined(SUNDIALS_KOKKOS_EXHAUSTIVE_LAYOUTSTRIDE_CHECK) && !defined(NDEBUG)
+      constexpr std::size_t exhaustive_limit = 1u << 20;
+      const sunindextype nlogical            = length(w);
+      if (nlogical <= static_cast<sunindextype>(exhaustive_limit))
+      {
+        std::unordered_set<std::size_t> offsets;
+        offsets.reserve(static_cast<std::size_t>(nlogical));
+        for (sunindextype linear = 0; linear < nlogical; ++linear)
+        {
+          std::size_t q = static_cast<std::size_t>(linear), off = 0;
+          for (int d = rank - 1; d >= 0; --d)
+          {
+            const std::size_t i = q % static_cast<std::size_t>(w.extent(d));
+            q /= static_cast<std::size_t>(w.extent(d));
+            off += i * static_cast<std::size_t>(w.stride(d));
+          }
+          if (!offsets.insert(off).second)
+            throw std::invalid_argument(
+              "Kokkos N_Vector rejects overlapping LayoutStride mapping");
+        }
+      }
+      else
+#endif
+      {
+        constexpr std::size_t structural_limit = 4096;
+        const sunindextype nlogical            = length(w);
+        const std::size_t checked =
+          nlogical <= static_cast<sunindextype>(structural_limit)
+            ? static_cast<std::size_t>(nlogical)
+            : structural_limit;
+        for (std::size_t linear = 0; linear < checked; ++linear)
+        {
+          std::size_t q   = linear;
+          std::size_t off = 0;
+          for (int d = rank - 1; d >= 0; --d)
+          {
+            const std::size_t i = q % static_cast<std::size_t>(w.extent(d));
+            q /= static_cast<std::size_t>(w.extent(d));
+            off += i * static_cast<std::size_t>(w.stride(d));
+          }
+          for (std::size_t prior = 0; prior < linear; ++prior)
+          {
+            std::size_t p        = prior;
+            std::size_t previous = 0;
+            for (int d = rank - 1; d >= 0; --d)
+            {
+              const std::size_t i = p % static_cast<std::size_t>(w.extent(d));
+              p /= static_cast<std::size_t>(w.extent(d));
+              previous += i * static_cast<std::size_t>(w.stride(d));
+            }
+            if (off == previous)
+              throw std::invalid_argument(
+                "Kokkos N_Vector rejects overlapping LayoutStride mapping");
+          }
+        }
+      }
+    }
+    (void)span;
   }
 
-  // Move constructor
-  Vector(Vector&& that_vector) noexcept
-    : sundials::impl::BaseNVector(std::move(that_vector)),
-      view_(std::move(that_vector.view_)),
-      host_view_(std::move(that_vector.host_view_))
-
+  void check(const self& x) const
   {
-    initNvector();
+    for (int d = 0; d < rank; ++d)
+      if (view_.extent(d) != x.view_.extent(d))
+        throw std::invalid_argument("Kokkos N_Vector shape mismatch");
   }
 
-  // Copy constructor
-  Vector(const Vector& that_vector)
-    : sundials::impl::BaseNVector(that_vector),
-      view_("Vector device view", that_vector.Length()),
-      host_view_(Kokkos::create_mirror_view(view_))
+  template<class F>
+  void each(F f) const
   {
-    initNvector();
+    if constexpr (rank == 1)
+    {
+      auto a = view_;
+      Kokkos::parallel_for(
+        "sundials_nvector_kokkos",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i) { f(a(i)); });
+    }
+    else if constexpr (rank <= 6)
+    {
+      Kokkos::Array<sunindextype, rank> lo{}, hi{};
+      for (int d = 0; d < rank; ++d) hi[d] = view_.extent(d);
+      auto a = view_;
+      Kokkos::parallel_for(
+        "sundials_nvector_kokkos",
+        Kokkos::MDRangePolicy<ExecutionSpace, Kokkos::Rank<rank>>(exec_, lo, hi),
+        KOKKOS_LAMBDA(auto... i) { f(a(i...)); });
+    }
   }
 
-  // Move assignment
-  Vector& operator=(Vector&& rhs) noexcept
+  template<class F>
+  void binary(const self& x, F f)
   {
-    view_      = std::move(rhs.view_);
-    host_view_ = std::move(rhs.host_view_);
+    check(x);
+    auto z = view_;
+    auto a = x.view_;
+    if constexpr (rank == 1)
+      Kokkos::parallel_for(
+        "sundials_nvector_kokkos",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i) { f(z(i), a(i)); });
+    else if constexpr (rank <= 6)
+    {
+      Kokkos::Array<sunindextype, rank> lo{}, hi{};
+      for (int d = 0; d < rank; ++d) hi[d] = view_.extent(d);
+      Kokkos::parallel_for(
+        "sundials_nvector_kokkos",
+        Kokkos::MDRangePolicy<ExecutionSpace, Kokkos::Rank<rank>>(exec_, lo, hi),
+        KOKKOS_LAMBDA(auto... i) { f(z(i...), a(i...)); });
+    }
+  }
+  // Kokkos supports variadic MDRange indices.  These reducers use
+  // rank-specific functors because the accumulator is a trailing parameter,
+  // making generic parameter-pack deduction problematic.
+  template<int R, class VV, class F, class T>
+  struct md_unary_reducer;
+#define SUNDIALS_KOKKOS_UNARY_REDUCER(R, ARGS, INDEX)             \
+  template<class VV, class F, class T>                            \
+  struct md_unary_reducer<R, VV, F, T>                            \
+  {                                                               \
+    VV a;                                                         \
+    F f;                                                          \
+    KOKKOS_FUNCTION void operator() ARGS const { f(a INDEX, v); } \
+  };
+  SUNDIALS_KOKKOS_UNARY_REDUCER(2, (sunindextype i, sunindextype j, T& v), (i, j))
+  SUNDIALS_KOKKOS_UNARY_REDUCER(
+    3, (sunindextype i, sunindextype j, sunindextype k, T& v), (i, j, k))
+  SUNDIALS_KOKKOS_UNARY_REDUCER(4,
+                                (sunindextype i, sunindextype j, sunindextype k,
+                                 sunindextype l, T& v),
+                                (i, j, k, l))
+  SUNDIALS_KOKKOS_UNARY_REDUCER(5,
+                                (sunindextype i, sunindextype j, sunindextype k,
+                                 sunindextype l, sunindextype m, T& v),
+                                (i, j, k, l, m))
+  SUNDIALS_KOKKOS_UNARY_REDUCER(6,
+                                (sunindextype i, sunindextype j, sunindextype k,
+                                 sunindextype l, sunindextype m, sunindextype n,
+                                 T& v),
+                                (i, j, k, l, m, n))
+#undef SUNDIALS_KOKKOS_UNARY_REDUCER
 
-    sundials::impl::BaseNVector::operator=(std::move(rhs));
-
-    return *this;
+  template<class VV, class F, class T>
+  sunrealtype md_reduce(VV a, F f, T& result) const
+  {
+    Kokkos::Array<sunindextype, rank> lo{}, hi{};
+    for (int d = 0; d < rank; ++d) hi[d] = view_.extent(d);
+    Kokkos::parallel_reduce("sundials_nvector_kokkos",
+                            Kokkos::MDRangePolicy<ExecutionSpace,
+                                                  Kokkos::Rank<rank>>(exec_, lo,
+                                                                      hi),
+                            md_unary_reducer<rank, V, F, T>{a, f}, result);
+    return result;
   }
 
-  // Copy assignment
-  Vector& operator=(const Vector& rhs)
+  template<class VV, class F, class R>
+  void md_reduce_with_reducer(VV a, F f, R& result) const
   {
-    view_      = Kokkos::View<view_type>("Vector device view", rhs.Length());
-    host_view_ = Kokkos::create_mirror_view(view_);
-
-    sundials::impl::BaseNVector::operator=(rhs);
-
-    return *this;
+    Kokkos::Array<sunindextype, rank> lo{}, hi{};
+    for (int d = 0; d < rank; ++d) hi[d] = view_.extent(d);
+    Kokkos::parallel_reduce("sundials_nvector_kokkos",
+                            Kokkos::MDRangePolicy<ExecutionSpace,
+                                                  Kokkos::Rank<rank>>(exec_, lo,
+                                                                      hi),
+                            md_unary_reducer<rank, V, F, sunrealtype>{a, f},
+                            result);
   }
 
-  // Default destructor
-  virtual ~Vector() = default;
-
-  // Accessors
-
-  size_type Length() const { return static_cast<size_type>(view_.extent(0)); }
-
-  view_type View() { return view_; }
-
-  host_view_type HostView() { return host_view_; }
-
-  // Override ConvertibleTo operations
-
-  operator N_Vector() noexcept override { return object_.get(); }
-
-  operator N_Vector() const noexcept override { return object_.get(); }
-
-  N_Vector get() noexcept override { return object_.get(); }
-
-  N_Vector get() const noexcept override { return object_.get(); }
-
-  // Static routines to create clones of the vector that are always managed
-  // Kokkos::MemoryManaged was deprecated in v4.7 and a default was added
-  // TODO(DJG): Remove 0 when v4.7+ is required
-
-  static Vector<exec_space, memory_space, Kokkos::MemoryTraits<0>>* Clone(
-    const Vector<exec_space, memory_space, Kokkos::MemoryTraits<0>>& that_vector,
-    SUNContext sunctx)
+  template<class A, class B, class F, class T>
+  void md_reduce_binary(A a, B b, F f, T& result) const
   {
-    return new Vector<exec_space, memory_space,
-                      Kokkos::MemoryTraits<0>>(that_vector.Length(), sunctx);
+    Kokkos::Array<sunindextype, rank> lo{}, hi{};
+    for (int d = 0; d < rank; ++d) hi[d] = view_.extent(d);
+    Kokkos::parallel_reduce("sundials_nvector_kokkos",
+                            Kokkos::MDRangePolicy<ExecutionSpace,
+                                                  Kokkos::Rank<rank>>(exec_, lo,
+                                                                      hi),
+                            md_binary_reducer<rank, A, B, F, T>{a, b, f}, result);
   }
 
-  static Vector<exec_space, memory_space, Kokkos::MemoryTraits<0>>* Clone(
-    const Vector<exec_space, memory_space, Kokkos::MemoryUnmanaged>& that_vector,
-    SUNContext sunctx)
+  template<class A, class B, class F, class R>
+  void md_reduce_binary_with_reducer(A a, B b, F f, R& result) const
   {
-    return new Vector<exec_space, memory_space,
-                      Kokkos::MemoryTraits<0>>(that_vector.Length(), sunctx);
+    Kokkos::Array<sunindextype, rank> lo{}, hi{};
+    for (int d = 0; d < rank; ++d) hi[d] = view_.extent(d);
+    Kokkos::parallel_reduce("sundials_nvector_kokkos",
+                            Kokkos::MDRangePolicy<ExecutionSpace,
+                                                  Kokkos::Rank<rank>>(exec_, lo,
+                                                                      hi),
+                            md_binary_reducer<rank, A, B, F, sunrealtype>{a, b, f},
+                            result);
+  }
+  template<int R, class A, class B, class C, class F, class T>
+  struct md_ternary_reducer;
+
+  template<class T>
+  struct reduction_value
+  {
+    using type = T;
+  };
+
+  template<class T>
+  struct reduction_value<Kokkos::LAnd<T>>
+  {
+    using type = T;
+  };
+
+#define SUNDIALS_KOKKOS_TERNARY_REDUCER(R, ARGS, INDEX) \
+  template<class A, class B, class C, class F, class T> \
+  struct md_ternary_reducer<R, A, B, C, F, T>           \
+  {                                                     \
+    A a;                                                \
+    B b;                                                \
+    C c;                                                \
+    F f;                                                \
+    KOKKOS_FUNCTION void operator() ARGS const          \
+    { f(a INDEX, b INDEX, c INDEX, v); }                \
+  };
+  SUNDIALS_KOKKOS_TERNARY_REDUCER(2, (sunindextype i, sunindextype j, T& v),
+                                  (i, j))
+  SUNDIALS_KOKKOS_TERNARY_REDUCER(
+    3, (sunindextype i, sunindextype j, sunindextype k, T& v), (i, j, k))
+  SUNDIALS_KOKKOS_TERNARY_REDUCER(4,
+                                  (sunindextype i, sunindextype j,
+                                   sunindextype k, sunindextype l, T& v),
+                                  (i, j, k, l))
+  SUNDIALS_KOKKOS_TERNARY_REDUCER(5,
+                                  (sunindextype i, sunindextype j, sunindextype k,
+                                   sunindextype l, sunindextype m, T& v),
+                                  (i, j, k, l, m))
+  SUNDIALS_KOKKOS_TERNARY_REDUCER(6,
+                                  (sunindextype i, sunindextype j,
+                                   sunindextype k, sunindextype l,
+                                   sunindextype m, sunindextype n, T& v),
+                                  (i, j, k, l, m, n))
+#undef SUNDIALS_KOKKOS_TERNARY_REDUCER
+
+  template<class A, class B, class C, class F, class T>
+  void md_reduce_ternary(A a, B b, C c, F f, T& r) const
+  {
+    Kokkos::Array<sunindextype, rank> lo{}, hi{};
+    for (int d = 0; d < rank; ++d) hi[d] = view_.extent(d);
+    using value_type = typename reduction_value<T>::type;
+    Kokkos::parallel_reduce("sundials_nvector_kokkos",
+                            Kokkos::MDRangePolicy<ExecutionSpace,
+                                                  Kokkos::Rank<rank>>(exec_, lo,
+                                                                      hi),
+                            md_ternary_reducer<rank, A, B, C, F, value_type>{a, b,
+                                                                             c, f},
+                            r);
+  }
+  template<int R, class A, class B, class F, class T>
+  struct md_binary_reducer;
+#define SUNDIALS_KOKKOS_BINARY_REDUCER(R, ARGS, INDEX)                     \
+  template<class A, class B, class F, class T>                             \
+  struct md_binary_reducer<R, A, B, F, T>                                  \
+  {                                                                        \
+    A a;                                                                   \
+    B b;                                                                   \
+    F f;                                                                   \
+    KOKKOS_FUNCTION void operator() ARGS const { f(a INDEX, b INDEX, v); } \
+  };
+  SUNDIALS_KOKKOS_BINARY_REDUCER(2, (sunindextype i, sunindextype j, T& v),
+                                 (i, j))
+  SUNDIALS_KOKKOS_BINARY_REDUCER(
+    3, (sunindextype i, sunindextype j, sunindextype k, T& v), (i, j, k))
+  SUNDIALS_KOKKOS_BINARY_REDUCER(4,
+                                 (sunindextype i, sunindextype j,
+                                  sunindextype k, sunindextype l, T& v),
+                                 (i, j, k, l))
+  SUNDIALS_KOKKOS_BINARY_REDUCER(5,
+                                 (sunindextype i, sunindextype j, sunindextype k,
+                                  sunindextype l, sunindextype m, T& v),
+                                 (i, j, k, l, m))
+  SUNDIALS_KOKKOS_BINARY_REDUCER(6,
+                                 (sunindextype i, sunindextype j,
+                                  sunindextype k, sunindextype l,
+                                  sunindextype m, sunindextype n, T& v),
+                                 (i, j, k, l, m, n))
+#undef SUNDIALS_KOKKOS_BINARY_REDUCER
+
+  template<class F>
+  void ternary(const self& x, const self& y, F f)
+  {
+    check(x);
+    check(y);
+    auto z = view_;
+    auto a = x.view_;
+    auto b = y.view_;
+    if constexpr (rank == 1)
+      Kokkos::parallel_for(
+        "sundials_nvector_kokkos",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i) { f(z(i), a(i), b(i)); });
+    else if constexpr (rank <= 6)
+    {
+      Kokkos::Array<sunindextype, rank> lo{}, hi{};
+      for (int d = 0; d < rank; ++d) hi[d] = view_.extent(d);
+      Kokkos::parallel_for(
+        "sundials_nvector_kokkos",
+        Kokkos::MDRangePolicy<ExecutionSpace, Kokkos::Rank<rank>>(exec_, lo, hi),
+        KOKKOS_LAMBDA(auto... i) { f(z(i...), a(i...), b(i...)); });
+    }
   }
 
-private:
-  view_type view_;
-  host_view_type host_view_;
-
-  void initNvector()
+  template<class F>
+  sunrealtype reduce(F f, sunrealtype init = 0) const
   {
-    using this_type = Vector<ExecutionSpace, MemorySpace, MemoryTraits>;
-
-    this->object_->content = this;
-
-    /* constructors, destructors, and utility operations */
-    this->object_->ops->nvclone   = impl::N_VClone_Kokkos<this_type>;
-    this->object_->ops->nvdestroy = impl::N_VDestroy_Kokkos<this_type>;
-    this->object_->ops->nvgetarraypointer =
-      impl::N_VGetArrayPointer_Kokkos<this_type>;
-    this->object_->ops->nvgetdevicearraypointer =
-      impl::N_VGetDeviceArrayPointer_Kokkos<this_type>;
-    this->object_->ops->nvgetlength   = impl::N_VGetLength_Kokkos<this_type>;
-    this->object_->ops->nvgetvectorid = impl::N_VGetVectorID_Kokkos;
-
-    /* standard vector operations */
-    this->object_->ops->nvabs         = impl::N_VAbs_Kokkos<this_type>;
-    this->object_->ops->nvaddconst    = impl::N_VAddConst_Kokkos<this_type>;
-    this->object_->ops->nvcompare     = impl::N_VCompare_Kokkos<this_type>;
-    this->object_->ops->nvconst       = impl::N_VConst_Kokkos<this_type>;
-    this->object_->ops->nvconstrmask  = impl::N_VConstrMask_Kokkos<this_type>;
-    this->object_->ops->nvdiv         = impl::N_VDiv_Kokkos<this_type>;
-    this->object_->ops->nvdotprod     = impl::N_VDotProd_Kokkos<this_type>;
-    this->object_->ops->nvinv         = impl::N_VInv_Kokkos<this_type>;
-    this->object_->ops->nvinvtest     = impl::N_VInvTest_Kokkos<this_type>;
-    this->object_->ops->nvl1norm      = impl::N_VL1Norm_Kokkos<this_type>;
-    this->object_->ops->nvlinearsum   = impl::N_VLinearSum_Kokkos<this_type>;
-    this->object_->ops->nvmaxnorm     = impl::N_VMaxNorm_Kokkos<this_type>;
-    this->object_->ops->nvmin         = impl::N_VMin_Kokkos<this_type>;
-    this->object_->ops->nvminquotient = impl::N_VMinQuotient_Kokkos<this_type>;
-    this->object_->ops->nvprod        = impl::N_VProd_Kokkos<this_type>;
-    this->object_->ops->nvscale       = impl::N_VScale_Kokkos<this_type>;
-    this->object_->ops->nvwl2norm     = impl::N_VWL2Norm_Kokkos<this_type>;
-    this->object_->ops->nvwrmsnorm    = impl::N_VWrmsNorm_Kokkos<this_type>;
-    this->object_->ops->nvwrmsnormmask = impl::N_VWrmsNormMask_Kokkos<this_type>;
-
-    /* local reduction operations */
-    this->object_->ops->nvconstrmasklocal = impl::N_VConstrMask_Kokkos<this_type>;
-    this->object_->ops->nvdotprodlocal = impl::N_VDotProd_Kokkos<this_type>;
-    this->object_->ops->nvinvtestlocal = impl::N_VInvTest_Kokkos<this_type>;
-    this->object_->ops->nvl1normlocal  = impl::N_VL1Norm_Kokkos<this_type>;
-    this->object_->ops->nvmaxnormlocal = impl::N_VMaxNorm_Kokkos<this_type>;
-    this->object_->ops->nvminlocal     = impl::N_VMin_Kokkos<this_type>;
-    this->object_->ops->nvminquotientlocal =
-      impl::N_VMinQuotient_Kokkos<this_type>;
-    this->object_->ops->nvwsqrsumlocal = impl::N_VWSqrSumLocal_Kokkos<this_type>;
-    this->object_->ops->nvwsqrsummasklocal =
-      impl::N_VWSqrSumMaskLocal_Kokkos<this_type>;
+    sunrealtype r = init;
+    auto a        = view_;
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "sundials_nvector_kokkos",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, sunrealtype& v) { f(a(i), v); }, r);
+    else if constexpr (rank <= 6)
+    {
+      md_reduce(a, f, r);
+    }
+    return r;
   }
+
+  sunrealtype reduce_max_abs() const
+  {
+    sunrealtype r = -std::numeric_limits<sunrealtype>::max();
+    auto a        = view_;
+    Kokkos::Max<sunrealtype> red(r);
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "N_VMaxNorm",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, sunrealtype& v) {
+          v = Kokkos::max(v, std::abs(a(i)));
+        },
+        red);
+    else if constexpr (rank <= 6)
+    {
+      md_reduce_with_reducer(
+        a, [] KOKKOS_FUNCTION(const auto& x, sunrealtype& v)
+        { v = Kokkos::max(v, std::abs(x)); }, red);
+    }
+    return red.reference();
+  }
+
+  sunrealtype reduce_min() const
+  {
+    sunrealtype r = std::numeric_limits<sunrealtype>::max();
+    auto a        = view_;
+    Kokkos::Min<sunrealtype> red(r);
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "N_VMin", Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, sunrealtype& v) { v = Kokkos::min(v, a(i)); }, red);
+    else if constexpr (rank <= 6)
+    {
+      md_reduce_with_reducer(
+        a, [] KOKKOS_FUNCTION(const auto& x, sunrealtype& v)
+        { v = Kokkos::min(v, x); }, red);
+    }
+    return red.reference();
+  }
+
+  sunrealtype square_sum(const self& w) const
+  {
+    check(w);
+    auto a        = view_;
+    auto b        = w.view_;
+    sunrealtype r = 0;
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "N_VWSqrSum",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, sunrealtype& v) {
+          v += (a(i) * b(i)) * (a(i) * b(i));
+        },
+        r);
+    else if constexpr (rank <= 6)
+      md_reduce_binary(
+        a, b, [] KOKKOS_FUNCTION(const auto& x, const auto& y, sunrealtype& v)
+        { v += (x * y) * (x * y); }, r);
+    return r;
+  }
+
+  template<class A, class B, class M>
+  void for_each_reduce(A a, B b, M m, sunrealtype& r, bool mask) const
+  {
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "N_VMaskedSum",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, sunrealtype& v) {
+          if (!mask || m(i) > 0) v += (a(i) * b(i)) * (a(i) * b(i));
+        },
+        r);
+    else if constexpr (rank <= 6)
+    {
+      md_reduce_ternary(
+        a, b, m,
+        [=] KOKKOS_FUNCTION(const auto& x, const auto& y, const auto& z,
+                            sunrealtype& v)
+        {
+          if (!mask || z > 0) v += (x * y) * (x * y);
+        },
+        r);
+    }
+  }
+
+  sunrealtype min_quotient(const self& d) const
+  {
+    auto a        = view_;
+    auto b        = d.view_;
+    sunrealtype r = SUN_BIG_REAL;
+    Kokkos::Min<sunrealtype> red(r);
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "N_VMinQuotient",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, sunrealtype& v) {
+          if (b(i) != 0) v = Kokkos::min(v, a(i) / b(i));
+        },
+        red);
+    else if constexpr (rank <= 6)
+      md_reduce_binary_with_reducer(
+        a, b,
+        [] KOKKOS_FUNCTION(const auto& x, const auto& y, sunrealtype& v)
+        {
+          if (y != 0) v = Kokkos::min(v, x / y);
+        },
+        red);
+    return red.reference();
+  }
+
+  sunbooleantype inverse_test(const self& x) const
+  {
+    bool ok  = true;
+    auto out = view_;
+    auto a   = x.view_;
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "N_VInvTest",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, bool& v) {
+          if (a(i) == 0) v = false;
+          else out(i) = 1 / a(i);
+        },
+        Kokkos::LAnd<bool>(ok));
+    else if constexpr (rank <= 6)
+    {
+      Kokkos::LAnd<bool> red(ok);
+      md_reduce_ternary(
+        out, a, a,
+        [] KOKKOS_FUNCTION(auto& o, const auto& z, const auto&, bool& v)
+        {
+          if (z == 0) v = false;
+          else o = 1 / z;
+        },
+        red);
+      ok = red.reference();
+    }
+    return ok ? SUNTRUE : SUNFALSE;
+  }
+
+  sunbooleantype constraint_mask(const self& c, const self& x) const
+  {
+    bool ok  = true;
+    auto out = view_;
+    auto q   = c.view_;
+    auto b   = x.view_;
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "N_VConstrMask",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, bool& v) {
+          const auto z   = q(i);
+          const auto y   = b(i);
+          const bool bad = (z == 2 && y <= 0) || (z == 1 && y < 0) ||
+                           (z == -1 && y > 0) || (z == -2 && y >= 0);
+          out(i)         = bad ? 1 : 0;
+          if (bad) v = false;
+        },
+        Kokkos::LAnd<bool>(ok));
+    else if constexpr (rank <= 6)
+    {
+      Kokkos::LAnd<bool> red(ok);
+      md_reduce_ternary(
+        out, q, b,
+        [] KOKKOS_FUNCTION(auto& o, const auto& z, const auto& y, bool& v)
+        {
+          const bool bad = (z == 2 && y <= 0) || (z == 1 && y < 0) ||
+                           (z == -1 && y > 0) || (z == -2 && y >= 0);
+          o              = bad ? 1 : 0;
+          if (bad) v = false;
+        },
+        red);
+      ok = red.reference();
+    }
+    return ok ? SUNTRUE : SUNFALSE;
+  }
+
+  explicit Vector(const managed_type& v, SUNContext c, ExecutionSpace e, bool own)
+    : base(c),
+      owner_(v),
+      view_(view_t(owner_)),
+      exec_(std::move(e)),
+      length_(length(v)),
+      storage_(own ? storage_mode::retained : storage_mode::borrowed)
+  { validate_rank(); }
+
+public:
+  using view_type         = view_t;
+  using managed_view_type = managed_type;
+  using execution_space   = ExecutionSpace;
+  using memory_space      = typename view_t::memory_space;
+  using size_type         = typename view_t::size_type;
+
+  template<class W>
+  explicit Vector(const W& w, SUNContext c, ExecutionSpace e = {})
+    : base(c), owner_{}, view_(w), exec_(std::move(e)), length_(0)
+  {
+    static_assert(!std::is_const_v<typename W::value_type>,
+                  "Kokkos N_Vector requires a writable view");
+    validate(w, exec_);
+    length_ = length(w);
+    if constexpr (!is_unmanaged_view_v<W> &&
+                  std::is_constructible_v<managed_type, W>)
+    {
+      // Keep the original managed handle.  Never manufacture an owner from
+      // view_, which is deliberately an unmanaged operational alias.
+      owner_   = managed_type(w);
+      view_    = view_t(owner_);
+      storage_ = storage_mode::retained;
+    }
+    else if constexpr (!is_unmanaged_view_v<W> &&
+                       !std::is_constructible_v<managed_type, W>)
+    {
+      throw std::invalid_argument("Kokkos N_Vector view cannot be cloned");
+    }
+  }
+
+  Vector(const Vector&)                = delete;
+  Vector& operator=(const Vector&)     = delete;
+  Vector(Vector&&) noexcept            = default;
+  Vector& operator=(Vector&&) noexcept = default;
+
+  view_type View() const noexcept { return view_; }
+
+  sunindextype GetLength() const override { return length_; }
+
+  sunindextype GetLocalLength() const override { return length_; }
+
+  SUNComm GetCommunicator() const override { return SUN_COMM_NULL; }
+
+  N_Vector_ID GetVectorID() const override { return SUNDIALS_NVEC_KOKKOS; }
+
+  sunrealtype* GetDeviceArrayPointer() override
+  { return rank == 1 && view_.span_is_contiguous() ? view_.data() : nullptr; }
+
+  sunrealtype* GetArrayPointer() override
+  {
+    using ms = typename view_t::memory_space;
+    if constexpr (Kokkos::SpaceAccessibility<Kokkos::HostSpace, ms>::accessible)
+      return rank == 1 && view_.span_is_contiguous() ? view_.data() : nullptr;
+    return nullptr;
+  }
+
+  self* Clone(SUNContext c) const override
+  {
+    managed_type w;
+    if constexpr (std::is_same_v<typename view_t::array_layout, Kokkos::LayoutStride>)
+    {
+      Kokkos::LayoutStride l;
+      for (int d = 0; d < rank; ++d)
+      {
+        l.dimension[d] = view_.extent(d);
+        l.stride[d]    = view_.stride(d);
+      }
+      w = managed_type("N_Vector clone", l);
+    }
+    else
+    {
+      if constexpr (rank == 1)
+        w = managed_type("N_Vector clone", view_.extent(0));
+      else if constexpr (rank == 2)
+        w = managed_type("N_Vector clone", view_.extent(0), view_.extent(1));
+      else if constexpr (rank == 3)
+        w = managed_type("N_Vector clone", view_.extent(0), view_.extent(1),
+                         view_.extent(2));
+      else if constexpr (rank == 4)
+        w = managed_type("N_Vector clone", view_.extent(0), view_.extent(1),
+                         view_.extent(2), view_.extent(3));
+      else if constexpr (rank == 5)
+        w = managed_type("N_Vector clone", view_.extent(0), view_.extent(1),
+                         view_.extent(2), view_.extent(3), view_.extent(4));
+      else if constexpr (rank == 6)
+        w = managed_type("N_Vector clone", view_.extent(0), view_.extent(1),
+                         view_.extent(2), view_.extent(3), view_.extent(4),
+                         view_.extent(5));
+       else throw std::invalid_argument("unsupported Kokkos rank");
+    }
+    return new self(w, c, exec_, true);
+  }
+
+  void Const(sunrealtype c) override
+  {
+    auto z = view_;
+    each([=] KOKKOS_FUNCTION(auto& v) { v = c; });
+  }
+
+  void LinearSum(sunrealtype a, const self& x, sunrealtype b, const self& y) override
+  {
+    ternary(x, y, [=] KOKKOS_FUNCTION(auto& z, const auto& p, const auto& q)
+            { z = a * p + b * q; });
+  }
+
+  void Scale(sunrealtype c, const self& x) override
+  {
+    binary(x, [=] KOKKOS_FUNCTION(auto& z, const auto& a) { z = c * a; });
+  }
+
+  sunrealtype DotProd(const self& y) const override
+  {
+    check(y);
+    auto a        = view_;
+    auto b        = y.view_;
+    sunrealtype r = 0;
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "N_VDotProd",
+        Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, sunrealtype& v) { v += a(i) * b(i); }, r);
+    else if constexpr (rank <= 6)
+      md_reduce_binary(
+        a, b, [] KOKKOS_FUNCTION(const auto& x, const auto& y, sunrealtype& v)
+        { v += x * y; }, r);
+    return r;
+  }
+
+  sunrealtype MaxNorm() const override { return reduce_max_abs(); }
+
+  void Prod(const self& x, const self& y) override
+  {
+    ternary(x, y, [] KOKKOS_FUNCTION(auto& z, const auto& a, const auto& b)
+            { z = a * b; });
+  }
+
+  void Div(const self& x, const self& y) override
+  {
+    ternary(x, y, [] KOKKOS_FUNCTION(auto& z, const auto& a, const auto& b)
+            { z = a / b; });
+  }
+
+  void Abs(const self& x) override
+  {
+    binary(x, [] KOKKOS_FUNCTION(auto& z, const auto& a) { z = std::abs(a); });
+  }
+
+  void Inv(const self& x) override
+  {
+    binary(x, [] KOKKOS_FUNCTION(auto& z, const auto& a) { z = 1 / a; });
+  }
+
+  void AddConst(const self& x, sunrealtype b) override
+  {
+    binary(x, [=] KOKKOS_FUNCTION(auto& z, const auto& a) { z = a + b; });
+  }
+
+  void Compare(sunrealtype c, const self& x) override
+  {
+    binary(x, [=] KOKKOS_FUNCTION(auto& z, const auto& a)
+           { z = std::abs(a) >= c ? 1 : 0; });
+  }
+
+  sunrealtype Min() const override { return reduce_min(); }
+
+  sunrealtype L1Norm() const override
+  {
+    return reduce([] KOKKOS_FUNCTION(const auto& a, auto& r)
+                  { r += std::abs(a); });
+  }
+
+  sunrealtype WL2Norm(const self& w) const override
+  {
+    check(w);
+    auto a        = view_;
+    auto b        = w.view_;
+    sunrealtype r = 0;
+    if constexpr (rank == 1)
+      Kokkos::parallel_reduce(
+        "N_VWL2", Kokkos::RangePolicy<ExecutionSpace>(exec_, 0, view_.extent(0)),
+        KOKKOS_LAMBDA(auto i, sunrealtype& v) {
+          v += (a(i) * b(i)) * (a(i) * b(i));
+        },
+        r);
+    else if constexpr (rank <= 6)
+      md_reduce_binary(
+        a, b, [] KOKKOS_FUNCTION(const auto& x, const auto& y, sunrealtype& v)
+        { v += (x * y) * (x * y); }, r);
+    return std::sqrt(r);
+  }
+
+  sunrealtype WrmsNorm(const self& w) const override
+  { return std::sqrt(WSqrSumLocal(w) / static_cast<sunrealtype>(length_)); }
+
+  sunrealtype WrmsNormMask(const self& w, const self& id) const override
+  {
+    check(w);
+    check(id);
+    auto a        = view_;
+    auto b        = w.view_;
+    auto m        = id.view_;
+    sunrealtype r = 0;
+    for_each_reduce(a, b, m, r, true);
+    return std::sqrt(r / static_cast<sunrealtype>(length_));
+  }
+
+  sunrealtype MinQuotient(const self& d) const override
+  {
+    check(d);
+    return min_quotient(d);
+  }
+
+  sunbooleantype InvTest(const self& x) override
+  {
+    check(x);
+    return inverse_test(x);
+  }
+
+  sunbooleantype ConstrMask(const self& c, const self& x) override
+  {
+    check(c);
+    check(x);
+    return constraint_mask(c, x);
+  }
+
+  sunrealtype WSqrSumLocal(const self& w) const override
+  {
+    check(w);
+    return square_sum(w);
+  }
+
+  sunrealtype WSqrSumMaskLocal(const self& w, const self& id) const override
+  {
+    check(w);
+    check(id);
+    sunrealtype r = 0;
+    auto a        = view_;
+    auto b        = w.view_;
+    auto m        = id.view_;
+    for_each_reduce(a, b, m, r, true);
+    return r;
+  }
+
+  sunrealtype DotProdLocal(const self& y) const override { return DotProd(y); }
+
+  sunrealtype MaxNormLocal() const override { return MaxNorm(); }
+
+  sunrealtype MinLocal() const override { return Min(); }
+
+  sunrealtype L1NormLocal() const override { return L1Norm(); }
+
+  sunbooleantype InvTestLocal(const self& x) override { return InvTest(x); }
+
+  sunbooleantype ConstrMaskLocal(const self& c, const self& x) override
+  { return ConstrMask(c, x); }
+
+  sunrealtype MinQuotientLocal(const self& d) const override
+  { return MinQuotient(d); }
 };
 
-template<class VectorType>
-void CopyToDevice(N_Vector v)
-{
-  auto vec{GetVec<VectorType>(v)};
-  CopyToDevice(*vec);
-}
-
-template<class VectorType>
-void CopyFromDevice(N_Vector v)
-{
-  auto vec{GetVec<VectorType>(v)};
-  CopyFromDevice(*vec);
-}
-
-template<class VectorType>
-void CopyToDevice(VectorType& v)
-{
-  Kokkos::deep_copy(v.View(), v.HostView());
-}
-
-template<class VectorType>
-void CopyFromDevice(VectorType& v)
-{
-  Kokkos::deep_copy(v.HostView(), v.View());
-}
-
-template<class VectorType, class view_type>
-view_type GetView(N_Vector v)
-{
-  auto vec{GetVec<VectorType>(v)};
-  return vec->View();
-}
-
-template<class VectorType, class host_view_type>
-host_view_type GetHostView(N_Vector v)
-{
-  auto vec{GetVec<VectorType>(v)};
-  return vec->HostView();
-}
-
-} // namespace kokkos
-} // namespace sundials
-
+template<class V>
+using VectorFor =
+  Vector<canonical_view_t<V>, typename std::remove_cv_t<V>::execution_space>;
+template<class V>
+Vector(V, SUNContext, typename V::execution_space = {})
+  -> Vector<canonical_view_t<V>, typename V::execution_space>;
+} // namespace sundials::kokkos
 #endif

@@ -25,20 +25,16 @@
 
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::DefaultExecutionSpace;
-// using ExecSpace = Kokkos::Cuda;
 #elif defined(USE_HIP)
-#if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
-#else
-using ExecSpace = Kokkos::Experimental::HIP;
-#endif
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 #else
 using ExecSpace = Kokkos::Serial;
 #endif
 
-using VecType  = sundials::kokkos::Vector<ExecSpace>;
+using VecView  = Kokkos::View<sunrealtype*, typename ExecSpace::memory_space>;
+using VecType  = sundials::kokkos::VectorFor<VecView>;
 using SizeType = VecType::size_type;
 
 /* private functions */
@@ -123,7 +119,8 @@ int main(int argc, char* argv[])
     printf("  timing on/off         %d  \n", print_timing);
 
     /* Create vectors */
-    VecType X{static_cast<SizeType>(veclen), sunctx};
+    VecView xview("performance vector", static_cast<SizeType>(veclen));
+    VecType X{xview, sunctx};
 
     /* run tests */
     if (print_timing) { printf("\n\n standard operations:\n"); }
@@ -195,25 +192,28 @@ int main(int argc, char* argv[])
 void N_VRand(N_Vector Xvec, sunindextype Xlen, sunrealtype lower,
              sunrealtype upper)
 {
-  auto X{sundials::kokkos::GetVec<VecType>(Xvec)};
-  rand_realtype(X->HostView().data(), Xlen, lower, upper);
-  sundials::kokkos::CopyToDevice<VecType>(*X);
+  auto* X = VecType::FromNVector(Xvec);
+  auto h = Kokkos::create_mirror_view(X->View());
+  rand_realtype(h.data(), Xlen, lower, upper);
+  Kokkos::deep_copy(X->View(), h);
 }
 
 /* series of 0 and 1 */
 void N_VRandZeroOne(N_Vector Xvec, sunindextype Xlen)
 {
-  auto X{sundials::kokkos::GetVec<VecType>(Xvec)};
-  rand_realtype_zero_one(X->HostView().data(), Xlen);
-  sundials::kokkos::CopyToDevice<VecType>(*X);
+  auto* X = VecType::FromNVector(Xvec);
+  auto h = Kokkos::create_mirror_view(X->View());
+  rand_realtype_zero_one(h.data(), Xlen);
+  Kokkos::deep_copy(X->View(), h);
 }
 
 /* random values for constraint array */
 void N_VRandConstraints(N_Vector Xvec, sunindextype Xlen)
 {
-  auto X{sundials::kokkos::GetVec<VecType>(Xvec)};
-  rand_realtype_constraints(X->HostView().data(), Xlen);
-  sundials::kokkos::CopyToDevice<VecType>(*X);
+  auto* X = VecType::FromNVector(Xvec);
+  auto h = Kokkos::create_mirror_view(X->View());
+  rand_realtype_constraints(h.data(), Xlen);
+  Kokkos::deep_copy(X->View(), h);
 }
 
 /* ----------------------------------------------------------------------

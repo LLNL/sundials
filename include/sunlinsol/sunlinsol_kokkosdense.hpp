@@ -86,12 +86,25 @@ template<class VectorType, class MatrixType, class LinearSolverType>
 int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                                N_Vector b, sunrealtype tol)
 {
-  // Copy b into x
-  N_VScale(SUN_RCONST(1.0), b, x);
-
+  if (!x || !b) return SUN_ERR_ARG_CORRUPT;
+  if (!VectorType::IsNVector(x) || !VectorType::IsNVector(b) ||
+      N_VGetVectorID(x) != SUNDIALS_NVEC_KOKKOS ||
+      N_VGetVectorID(b) != SUNDIALS_NVEC_KOKKOS)
+    return SUN_ERR_ARG_INCOMPATIBLE;
+  // Dense batched solves flatten one rank-1 view per block. Report an
+  // unsupported rank through the runtime callback contract instead of
+  // rejecting the translation unit with a static assertion.
+  if constexpr (VectorType::view_type::rank != 1)
+    return SUN_ERR_ARG_INCOMPATIBLE;
+  static_assert(std::is_same_v<typename VectorType::execution_space,
+                               typename MatrixType::exec_space>,
+                "Kokkos dense solver/vector execution-space mismatch");
+  static_assert(std::is_same_v<typename VectorType::memory_space,
+                               typename MatrixType::memory_space>,
+                "Kokkos dense solver/vector memory-space mismatch");
   // Access matrix and vector data
   auto A_mat{sundials::kokkos::GetDenseMat<MatrixType>(A)};
-  auto x_vec{sundials::kokkos::GetVec<VectorType>(x)};
+  auto x_vec{VectorType::FromNVector(x)};
 
   auto A_exec = A_mat->ExecSpace();
   auto A_data = A_mat->View();
@@ -100,10 +113,21 @@ int SUNLinSolSolve_KokkosDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   const auto blocks = A_mat->Blocks();
   const auto rows   = A_mat->BlockRows();
 
+  if (N_VGetLength(x) != static_cast<sunindextype>(blocks * rows) ||
+       N_VGetLength(b) != static_cast<sunindextype>(blocks * rows))
+    return SUN_ERR_ARG_INCOMPATIBLE;
+
+  // N_VScale is a void operation.  Consume an error left by an earlier
+  // operation before calling it, then inspect only the error produced here.
+  (void)SUNContext_GetLastError(x->sunctx);
+  N_VScale(SUN_RCONST(1.0), b, x);
+  const SUNErrCode scale_status = SUNContext_GetLastError(x->sunctx);
+  if (scale_status != SUN_SUCCESS) return SUNLS_PACKAGE_FAIL_REC;
+
   // Solve the linear system
   using team_policy = typename LinearSolverType::team_policy;
   using member_type = typename LinearSolverType::member_type;
-  using size_type   = typename VectorType::size_type;
+   using size_type   = typename VectorType::size_type;
 
   Kokkos::parallel_for(
     "sunlinsol_trsv",
@@ -217,7 +241,11 @@ public:
 private:
   void initSUNLinearSolver()
   {
-    using vec_type = Vector<exec_space, memory_space>;
+    // Match the execution space's default rank-1 layout; do not assume that
+    // accelerators use the host's LayoutRight default.
+    using vec_view = Kokkos::View<sunrealtype*, exec_space,
+                                  Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
+    using vec_type = VectorFor<vec_view>;
     using mat_type = DenseMatrix<exec_space, memory_space>;
     using ls_type  = DenseLinearSolver<exec_space, memory_space>;
 

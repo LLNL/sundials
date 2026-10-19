@@ -178,9 +178,27 @@ SUNErrCode SUNMatScaleAddI_KokkosDense(sunrealtype c, SUNMatrix A)
 template<class VectorType, class MatrixType>
 SUNErrCode SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
 {
+  if (!x || !y || !VectorType::IsNVector(x) || !VectorType::IsNVector(y) ||
+      N_VGetVectorID(x) != SUNDIALS_NVEC_KOKKOS ||
+      N_VGetVectorID(y) != SUNDIALS_NVEC_KOKKOS)
+    return SUN_ERR_ARG_WRONGTYPE;
+  if (N_VGetLength(x) != static_cast<sunindextype>(GetDenseMat<MatrixType>(A)->BlockCols() * GetDenseMat<MatrixType>(A)->Blocks()) ||
+      N_VGetLength(y) != static_cast<sunindextype>(GetDenseMat<MatrixType>(A)->BlockRows() * GetDenseMat<MatrixType>(A)->Blocks()))
+    return SUN_ERR_ARG_DIMSMISMATCH;
+  // Keep this a runtime error: the callback is part of the C API and must
+  // reject an accidentally installed rank-N vector rather than making the
+  // integration ill-formed when its concrete vector type changes.
+  if constexpr (VectorType::view_type::rank != 1)
+    return SUN_ERR_ARG_WRONGTYPE;
+  static_assert(std::is_same_v<typename VectorType::execution_space,
+                               typename MatrixType::exec_space>,
+                "Kokkos dense matrix/vector execution-space mismatch");
+  static_assert(std::is_same_v<typename VectorType::memory_space,
+                               typename MatrixType::memory_space>,
+                "Kokkos dense matrix/vector memory-space mismatch");
   auto A_mat{GetDenseMat<MatrixType>(A)};
-  auto x_vec{GetVec<VectorType>(x)};
-  auto y_vec{GetVec<VectorType>(y)};
+  auto x_vec{VectorType::FromNVectorConst(x)};
+  auto y_vec{VectorType::FromNVector(y)};
 
   const auto blocks = A_mat->Blocks();
   const auto rows   = A_mat->BlockRows();
@@ -213,11 +231,7 @@ SUNErrCode SUNMatMatvec_KokkosDense(SUNMatrix A, N_Vector x, N_Vector y)
           Kokkos::subview(y_data,
                           Kokkos::pair<size_type, size_type>(idx * rows,
                                                              (idx + 1) * rows));
-#if KOKKOSKERNELS_VERSION_MAJOR > 3
         KokkosBlas::TeamVectorGemv<
-#else
-        KokkosBatched::TeamVectorGemv<
-#endif
           member_type, KokkosBatched::Trans::NoTranspose,
           KokkosBatched::Algo::Gemv::Unblocked>::invoke(team_member,
                                                         SUN_RCONST(1.0),
@@ -387,7 +401,13 @@ private:
 
   void initSUNMatrix()
   {
-    using vec_type = Vector<exec_space, memory_space>;
+    // Use Kokkos' default rank-1 layout for this execution space (LayoutRight
+    // on the host, and the corresponding supported default on accelerators).
+    // The callback's concrete-handle check below rejects other layouts rather
+    // than interpreting their mapping as a flattened vector.
+    using vec_view = Kokkos::View<sunrealtype*, exec_space,
+                                  Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
+    using vec_type = VectorFor<vec_view>;
     using mat_type = DenseMatrix<exec_space, memory_space>;
 
     this->object_->content = this;

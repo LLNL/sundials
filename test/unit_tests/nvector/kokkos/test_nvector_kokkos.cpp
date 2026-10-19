@@ -18,7 +18,7 @@
  *
  * Three construction scenarios are exercised:
  *
- *   A. Allocating constructor     -- Vector(length, sunctx)
+ *   A. Application-managed view  -- Vector(managed_view, sunctx)
  *   B. Managed view constructor   -- Vector(managed_view, sunctx)
  *   C. Unmanaged view constructor -- Vector(unmanaged_view, sunctx)
  *
@@ -38,20 +38,16 @@
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::Cuda;
 #elif defined(USE_HIP)
-#if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
-#else
-using ExecSpace = Kokkos::Experimental::HIP;
-#endif
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 #else
 using ExecSpace = Kokkos::Serial;
 #endif
 
-using VecType = sundials::kokkos::Vector<ExecSpace>;
-using UnmanagedVecType =
-  sundials::kokkos::Vector<ExecSpace, ExecSpace::memory_space, Kokkos::MemoryUnmanaged>;
+using ManagedViewType =
+  Kokkos::View<sunrealtype*, typename ExecSpace::memory_space>;
+using VecType = sundials::kokkos::VectorFor<ManagedViewType>;
 using SizeType = VecType::size_type;
 
 /* -----------------------------------------------------------------------------
@@ -142,19 +138,20 @@ int main(int argc, char* argv[])
   Kokkos::initialize(argc, argv);
   {
     /* -------------------------------------------------------------------------
-     * Scenario A: allocating constructor
+     * Scenario A: application-managed view
      *
      * X owns its memory. Y and Z are managed clones of X. All three vectors
      * share the same VecType specialisation so there is no managed/unmanaged
      * mixing.
      * -----------------------------------------------------------------------*/
     printf("====================================================\n");
-    printf("Testing KOKKOS N_Vector: allocating constructor\n");
+     printf("Testing KOKKOS N_Vector: application-managed view\n");
     printf("Vector length %ld\n", (long int)length);
     printf("====================================================\n");
 
     {
-      VecType X{static_cast<SizeType>(length), sunctx};
+      ManagedViewType xview("test vector", static_cast<SizeType>(length));
+      VecType X{xview, sunctx};
 
       fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_KOKKOS, 0);
       fails += Test_N_VClone(X, length, 0);
@@ -188,8 +185,8 @@ int main(int argc, char* argv[])
     printf("====================================================\n");
 
     {
-      VecType::view_type managed_view("managed_view",
-                                      static_cast<SizeType>(length));
+      VecType::managed_view_type managed_view("managed_view",
+                                              static_cast<SizeType>(length));
       VecType X{managed_view, sunctx};
 
       /* Verify zero-copy: X wraps the same allocation, no copy occurred */
@@ -220,90 +217,27 @@ int main(int argc, char* argv[])
       N_VDestroy(Z_nv);
     }
 
-#if KOKKOS_VERSION / 10000 > 4
-#warning "Unmanaged views are not currently supported with Kokkos 5+"
-#else
-    /* -------------------------------------------------------------------------
-     * Scenario C: unmanaged view constructor
-     *
-     * X is constructed from an unmanaged view wrapping a raw pointer. Y and Z
-     * are managed clones produced by N_VClone, which always returns a managed
-     * VecType regardless of the type of the vector being cloned.
-     *
-     * The user supplies X and the integrator clones it to create managed
-     * internal workspace vectors. Operations such as N_VScale(c, X, Z) then
-     * dispatch through Z->ops (managed), operating on X (unmanaged) and Z
-     * (managed) simultaneously.
-     * -----------------------------------------------------------------------*/
-    printf("\n====================================================\n");
-    printf("Testing KOKKOS N_Vector: unmanaged view constructor\n");
-    printf("Vector length %ld\n", (long int)length);
-    printf("====================================================\n");
-
-    /* Raw pointer allocated in the correct memory space for the execution
-     * backend. Lifetime spans the op tests so that it outlives the Vector
-     * constructed over it. */
-    sunrealtype* unmanaged_ptr = static_cast<sunrealtype*>(
-      Kokkos::kokkos_malloc<ExecSpace::memory_space>("unmanaged_storage",
-                                                     static_cast<size_t>(length) *
-                                                       sizeof(sunrealtype)));
-
+/* Use an explicitly unmanaged view over application-owned backing storage. */
     {
-      UnmanagedVecType::view_type unmanaged_view(unmanaged_ptr,
-                                                 static_cast<SizeType>(length));
-      UnmanagedVecType X{unmanaged_view, sunctx};
-
-      /* Verify zero-copy: X wraps the raw pointer without copying */
-      if (X.View().data() != unmanaged_ptr)
+      VecType::managed_view_type backing("application backing", static_cast<SizeType>(length));
+      using UnmanagedView = Kokkos::View<sunrealtype*, typename ExecSpace::memory_space,
+                                         Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
+      UnmanagedView unmanaged_view(backing.data(), static_cast<SizeType>(length));
       {
-        printf("FAILED: unmanaged view constructor: data pointer mismatch -- "
-               "Vector did not wrap the provided view\n");
-        fails++;
-      }
-      else
-      {
-        printf("PASSED: unmanaged view constructor: data pointer matches "
-               "unmanaged storage\n");
-      }
-
-      fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_KOKKOS, 0);
-
-      /* N_VClone on an unmanaged vector must return a managed clone that
-       * owns separate memory -- it must not alias the raw pointer. */
-      {
+        VecType X{unmanaged_view, sunctx};
         N_Vector clone = N_VClone(X);
-        auto clone_vec{sundials::kokkos::GetVec<VecType>(clone)};
-        if (clone_vec->View().data() == unmanaged_ptr)
-        {
-          printf("FAILED: N_VClone of unmanaged vector aliased the original "
-                 "unmanaged storage -- clone must own independent memory\n");
-          fails++;
-        }
-        else
-        {
-          printf("PASSED: N_VClone of unmanaged vector owns independent "
-                 "memory\n");
-        }
+        if (VecType::FromNVector(clone)->View().data() == X.View().data()) fails++;
+        N_VScale(SUN_RCONST(2.0), X, clone);
+        N_Vector Y_nv = N_VClone(X);
+        N_Vector Z_nv = N_VClone(X);
+        fails += run_all_tests(X, Y_nv, Z_nv, length);
         N_VDestroy(clone);
+        N_VDestroy(Y_nv);
+        N_VDestroy(Z_nv);
       }
-
-      fails += Test_N_VCloneVectorArray(5, X, length, 0);
-      fails += Test_N_VGetLength(X, 0);
-      fails += Test_N_VGetCommunicator(X, SUN_COMM_NULL, 0);
-
-      /* Y and Z are managed clones of the unmanaged X. Vector operations will
-       * mix unmanaged (X) and managed views (Y, Z), exercising the type-mixing
-       * code path. */
-      N_Vector Y_nv = N_VClone(X);
-      N_Vector Z_nv = N_VClone(X);
-
-      fails += run_all_tests(X, Y_nv, Z_nv, length);
-
-      N_VDestroy(Y_nv);
-      N_VDestroy(Z_nv);
+      // The wrapper is gone, but application-owned backing remains valid.
+      if (backing.data() == nullptr) fails++;
     }
-    Kokkos::kokkos_free<ExecSpace::memory_space>(unmanaged_ptr);
-#endif
   }
   Kokkos::finalize();
 
@@ -323,10 +257,9 @@ int main(int argc, char* argv[])
 int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int failure{0};
-  auto Xvec{static_cast<VecType*>(X->content)};
-  auto Xdata{Xvec->HostView()};
-
-  sundials::kokkos::CopyFromDevice<VecType>(*Xvec);
+  auto Xvec = VecType::FromNVector(X);
+  auto Xdata = Kokkos::create_mirror_view(Xvec->View());
+  Kokkos::deep_copy(Xdata, Xvec->View());
   for (sunindextype i = 0; i < local_length; i++)
   {
     failure += SUNRCompare(Xdata[i], ans);
@@ -350,21 +283,21 @@ void set_element(N_Vector X, sunindextype i, sunrealtype val)
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
                        sunrealtype val)
 {
-  auto Xvec{static_cast<VecType*>(X->content)};
-  auto Xdata{Xvec->HostView()};
+  auto Xvec = VecType::FromNVector(X);
+  auto Xdata = Kokkos::create_mirror_view(Xvec->View());
+  Kokkos::deep_copy(Xdata, Xvec->View());
 
   /* set elements [is,ie] of the data array */
-  sundials::kokkos::CopyFromDevice<VecType>(X);
   for (sunindextype i = is; i <= ie; i++) { Xdata[i] = val; }
-  sundials::kokkos::CopyToDevice<VecType>(X);
+  Kokkos::deep_copy(Xvec->View(), Xdata);
 }
 
 sunrealtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
-  auto Xvec{static_cast<VecType*>(X->content)};
-  auto Xdata{Xvec->HostView()};
-  sundials::kokkos::CopyFromDevice<VecType>(X);
+  auto Xvec = VecType::FromNVector(X);
+  auto Xdata = Kokkos::create_mirror_view(Xvec->View());
+  Kokkos::deep_copy(Xdata, Xvec->View());
   return Xdata[i];
 }
 

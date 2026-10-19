@@ -31,9 +31,17 @@ set(CXX_FOUND TRUE)
 sundials_option(CMAKE_CXX_STANDARD_REQUIRED BOOL "Require C++ standard version"
                 ON)
 
+# Kokkos headers used by SUNDIALS require C++17. Kokkos 5 raises the effective
+# requirement for its consumers to C++20 through its imported target.
+if(SUNDIALS_ENABLE_KOKKOS AND DEFINED CMAKE_CXX_STANDARD AND
+   CMAKE_CXX_STANDARD LESS "17")
+  message(FATAL_ERROR "SUNDIALS_ENABLE_KOKKOS requires CMAKE_CXX_STANDARD >= 17")
+endif()
+
 if(SUNDIALS_ENABLE_PYTHON
    OR SUNDIALS_ENABLE_SYCL
-   OR SUNDIALS_ENABLE_GINKGO)
+   OR SUNDIALS_ENABLE_GINKGO
+   OR SUNDIALS_ENABLE_KOKKOS)
   set(DOCSTR "The C++ standard to use if C++ is enabled (17, 20, 23)")
   sundials_option(CMAKE_CXX_STANDARD STRING "${DOCSTR}" "17" OPTIONS "17;20;23")
 else()

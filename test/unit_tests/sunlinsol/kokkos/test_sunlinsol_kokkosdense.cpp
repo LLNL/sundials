@@ -32,18 +32,18 @@
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::Cuda;
 #elif defined(USE_HIP)
-#if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
-#else
-using ExecSpace = Kokkos::Experimental::HIP;
-#endif
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 #else
 using ExecSpace = Kokkos::Serial;
 #endif
 
-using VecType  = sundials::kokkos::Vector<ExecSpace>;
+using ViewType = Kokkos::View<sunrealtype*, typename ExecSpace::memory_space>;
+using View2DType = Kokkos::View<sunrealtype**, Kokkos::LayoutRight,
+                                typename ExecSpace::memory_space>;
+using VecType  = sundials::kokkos::VectorFor<ViewType>;
+using Vec2DType = sundials::kokkos::VectorFor<View2DType>;
 using MatType  = sundials::kokkos::DenseMatrix<ExecSpace>;
 using LSType   = sundials::kokkos::DenseLinearSolver<ExecSpace>;
 using SizeType = VecType::size_type;
@@ -98,8 +98,14 @@ int main(int argc, char* argv[])
 
     // Create matrices and vectors
     MatType A{nblocks, rows, cols, exec_instance, sunctx};
-    VecType x{cols * nblocks, sunctx};
-    VecType b{cols * nblocks, sunctx};
+    ViewType x_view("x", cols * nblocks);
+    ViewType b_view("b", cols * nblocks);
+    VecType x{x_view, sunctx, exec_instance};
+    VecType b{b_view, sunctx, exec_instance};
+    View2DType x2_view("x2", nblocks, cols);
+    View2DType b2_view("b2", nblocks, cols);
+    Vec2DType x2{x2_view, sunctx, exec_instance};
+    Vec2DType b2{b2_view, sunctx, exec_instance};
 
     using RandPoolType = Kokkos::Random_XorShift64_Pool<ExecSpace>;
     using GenType      = RandPoolType::generator_type;
@@ -148,6 +154,9 @@ int main(int argc, char* argv[])
     // Run Tests
     fails += Test_SUNLinSolInitialize(LS, 0);
     fails += Test_SUNLinSolSetup(LS, A, 0);
+    if (SUNLinSolSolve(LS, A, x2, b2, SUN_RCONST(1.0e-10)) !=
+        SUN_ERR_ARG_INCOMPATIBLE)
+      fails++;
     fails += Test_SUNLinSolSolve(LS, A, x, b, SUN_RCONST(1.0e-10), SUNTRUE, 0);
     fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
     fails += Test_SUNLinSolGetID(LS, SUNLINEARSOLVER_KOKKOSDENSE, 0);
@@ -183,12 +192,12 @@ int check_vector(N_Vector expected, N_Vector computed, sunrealtype tol)
 {
   int failure = 0;
 
-  auto e_vec = sundials::kokkos::GetVec<VecType>(expected);
-  auto c_vec = sundials::kokkos::GetVec<VecType>(computed);
+  auto e_vec = VecType::FromNVectorConst(expected);
+  auto c_vec = VecType::FromNVectorConst(computed);
 
   auto e_data = e_vec->View();
   auto c_data = c_vec->View();
-  auto length = e_vec->Length();
+  auto length = e_vec->GetLength();
 
   // check vector data
   Kokkos::parallel_reduce(

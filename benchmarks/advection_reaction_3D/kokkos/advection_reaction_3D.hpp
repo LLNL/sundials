@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <mpi.h>
 #include <nvector/nvector_kokkos.hpp>
 #include <nvector/nvector_mpiplusx.h>
@@ -32,7 +33,7 @@
 #include "check_retval.h"
 
 /* Set SUNDIALS Kokkos vector shortcut */
-using SUNVector = sundials::kokkos::Vector<ExecSpace>;
+using SUNVector = sundials::kokkos::VectorFor<Vec4D>;
 
 using std::string;
 using sundials_tools::BoundaryType;
@@ -93,6 +94,8 @@ struct UserData
   N_Vector umask;
   N_Vector vmask;
   N_Vector wmask;
+  Vec4D umask_view, vmask_view, wmask_view;
+  std::unique_ptr<SUNVector> umask_local, vmask_local, wmask_local;
 
   /* Problem parameters */
   sunrealtype xmax; /* maximum x value              */

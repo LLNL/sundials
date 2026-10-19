@@ -19,7 +19,9 @@
 
 # Example lists are tuples "name\;args\;type" where the type is develop for
 # examples excluded from 'make test' in releases
-set(examples_list "test_nvector_kokkos.cpp\;1000 0\;")
+set(examples_list
+    "test_nvector_kokkos.cpp\;1000 0\;"
+    "test_nvector_kokkos_views.cpp\;\;")
 
 include_directories(..)
 
@@ -51,6 +53,8 @@ foreach(example_tuple ${examples_list})
       # link vector test utilities
       target_link_libraries(${example_target} PRIVATE test_nvector_obj
                                                       sundials_nveckokkos)
+      target_compile_features(${example_target} PRIVATE
+                              ${SUNDIALS_KOKKOS_CXX_FEATURE})
     endif()
 
     # check if example args are provided and set the test name

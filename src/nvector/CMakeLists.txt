@@ -76,6 +76,10 @@ if(SUNDIALS_ENABLE_NVECTOR_KOKKOS)
   install(CODE "MESSAGE(\"\nInstall NVECTOR_KOKKOS\n\")")
   message(STATUS "Added SUNDIALS_ENABLE_NVECTOR_KOKKOS module")
   add_library(sundials_nveckokkos INTERFACE)
+  add_library(SUNDIALS::nveckokkos ALIAS sundials_nveckokkos)
+  set_target_properties(sundials_nveckokkos PROPERTIES EXPORT_NAME nveckokkos)
+  target_compile_features(sundials_nveckokkos INTERFACE
+                          ${SUNDIALS_KOKKOS_CXX_FEATURE})
   target_link_libraries(sundials_nveckokkos INTERFACE sundials_core)
   if(SUNDIALS_ENABLE_HIP)
     target_link_libraries(sundials_nveckokkos INTERFACE Kokkos::kokkos
@@ -89,6 +93,7 @@ if(SUNDIALS_ENABLE_NVECTOR_KOKKOS)
               $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
               $<BUILD_INTERFACE:${SUNDIALS_SOURCE_DIR}/src/sundials>
               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  install(TARGETS sundials_nveckokkos EXPORT sundials-targets)
   install(FILES ${PROJECT_SOURCE_DIR}/include/nvector/nvector_kokkos.hpp
           DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/nvector")
   set(_SUNDIALS_INSTALLED_COMPONENTS

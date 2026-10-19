@@ -107,12 +107,23 @@ if("@SUNDIALS_ENABLE_KLU@" AND NOT TARGET SUNDIALS::KLU)
   endif()
 endif()
 
-if("@SUNDIALS_ENABLE_KOKKOS@" AND NOT TARGET Kokkos::kokkos)
-  find_dependency(Kokkos PATHS "@Kokkos_DIR@")
+if("@SUNDIALS_ENABLE_KOKKOS@")
+  find_dependency(Kokkos 4.0.0 PATHS "@Kokkos_DIR@")
 endif()
 
-if("@SUNDIALS_ENABLE_KOKKOS_KERNELS@" AND NOT TARGET Kokkos::kokkoskernels)
+if("@SUNDIALS_ENABLE_KOKKOS_KERNELS@")
   find_dependency(KokkosKernels PATHS "@KokkosKernels_DIR@")
+  string(REGEX MATCH "^[0-9]+\\.[0-9]+" _sundials_kokkos_series
+         "${Kokkos_VERSION}")
+  string(REGEX MATCH "^[0-9]+\\.[0-9]+" _sundials_kokkos_kernels_series
+         "${KokkosKernels_VERSION}")
+  if(NOT _sundials_kokkos_series STREQUAL
+         _sundials_kokkos_kernels_series)
+    message(FATAL_ERROR
+            "SUNDIALS requires Kokkos and KokkosKernels to have matching "
+            "major.minor versions (Kokkos ${Kokkos_VERSION}, "
+            "KokkosKernels ${KokkosKernels_VERSION})")
+  endif()
 endif()
 
 if("@SUNDIALS_ENABLE_LAPACK@" AND NOT TARGET LAPACK::LAPACK)

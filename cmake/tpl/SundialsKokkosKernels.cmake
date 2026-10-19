@@ -34,6 +34,20 @@ find_package(KokkosKernels REQUIRED PATHS "${KokkosKernels_DIR}")
 
 message(STATUS "Kokkos Kernels VERSION: ${KokkosKernels_VERSION}")
 
+# Kokkos Kernels must use the same Kokkos major.minor release.  Keep this
+# check in the build tree as well as the installed package configuration.
+string(REGEX MATCH "^[0-9]+\\.[0-9]+" SUNDIALS_KOKKOS_VERSION_SERIES
+       "${Kokkos_VERSION}")
+string(REGEX MATCH "^[0-9]+\\.[0-9]+" SUNDIALS_KOKKOS_KERNELS_VERSION_SERIES
+       "${KokkosKernels_VERSION}")
+if(NOT SUNDIALS_KOKKOS_VERSION_SERIES STREQUAL
+       SUNDIALS_KOKKOS_KERNELS_VERSION_SERIES)
+  message(FATAL_ERROR
+          "SUNDIALS requires Kokkos and KokkosKernels to have matching "
+          "major.minor versions (Kokkos ${Kokkos_VERSION}, "
+          "KokkosKernels ${KokkosKernels_VERSION})")
+endif()
+
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------

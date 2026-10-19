@@ -59,6 +59,12 @@ if(SUNDIALS_ENABLE_SUNLINSOL_KOKKOSDENSE)
   install(CODE "MESSAGE(\"\nInstall SUNLINSOL_KOKKOSDENSE\n\")")
   message(STATUS "Added SUNDIALS_ENABLE_SUNLINSOL_KOKKOSDENSE module")
   add_library(sundials_sunlinsolkokkosdense INTERFACE)
+  add_library(SUNDIALS::sunlinsolkokkosdense ALIAS
+              sundials_sunlinsolkokkosdense)
+  set_target_properties(sundials_sunlinsolkokkosdense PROPERTIES
+                        EXPORT_NAME sunlinsolkokkosdense)
+  target_compile_features(sundials_sunlinsolkokkosdense INTERFACE
+                          ${SUNDIALS_KOKKOS_CXX_FEATURE})
   target_link_libraries(
     sundials_sunlinsolkokkosdense INTERFACE sundials_core Kokkos::kokkos
                                             Kokkos::kokkoskernels)
@@ -71,6 +77,7 @@ if(SUNDIALS_ENABLE_SUNLINSOL_KOKKOSDENSE)
   install(
     FILES ${PROJECT_SOURCE_DIR}/include/sunlinsol/sunlinsol_kokkosdense.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunlinsol")
+  install(TARGETS sundials_sunlinsolkokkosdense EXPORT sundials-targets)
   set(_SUNDIALS_INSTALLED_COMPONENTS
       "sunlinsolkokkosdense;${_SUNDIALS_INSTALLED_COMPONENTS}"
       CACHE INTERNAL "" FORCE)

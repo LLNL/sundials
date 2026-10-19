@@ -1380,12 +1380,13 @@ Building with Kokkos
 ^^^^^^^^^^^^^^^^^^^^
 
 `Kokkos <https://kokkos.github.io/kokkos-core-wiki/>`__ is a modern C++
-(requires at least C++14) programming model for witting performance portable
+(requires at least C++17) programming model for writing performance portable
 code for multicore CPU and GPU-based systems including NVIDIA, AMD, and Intel
 GPUs. Kokkos is developed by Sandia National Laboratory and can be obtained from
 the `Kokkos GitHub repository <https://github.com/kokkos/kokkos>`__. The minimum
-supported version of Kokkos 3.7.00. SUNDIALS is regularly tested with the latest
-versions of Kokkos, specifically up to version 4.3.01.
+supported version of Kokkos is ``>= 4.0``. The SUNDIALS Kokkos interfaces require C++17
+with Kokkos 4; Kokkos 5 and newer require C++20 because of Kokkos's own
+language requirement.
 
 When Kokkos support is enabled, the :ref:`Kokkos NVector <NVectors.Kokkos>`
 header file will be installed (see section
@@ -1442,8 +1443,13 @@ built on Kokkos and provides common linear algebra computational kernels.
 KokkosKernels is developed by Sandia National Laboratory and can be obtained
 from the `KokkosKernels GitHub repository
 <https://github.com/kokkos/kokkos-kernels>`__. The minimum supported version of
-KokkosKernels 3.7.00. SUNDIALS is regularly tested with the latest versions of
-KokkosKernels, specifically up to version 4.3.01.
+KokkosKernels is ``>= 4.0`` and must be built against a Kokkos installation
+with matching major.minor versions. CMake enforces this requirement, so users must provide
+compatible releases of both packages rather than mixing packages from
+different Kokkos installations. The tracked Jenkins configuration covers the
+Kokkos 4.3.01/KokkosKernels 4.3.01 pair. Its version variables can be
+overridden by a job to schedule another matching pair, but no Kokkos 5 CI
+coverage is claimed here.
 
 When KokkosKernels support is enabled, the :ref:`KokkosKernels SUNMatrix
 <SUNMatrix.Kokkos>` and :ref:`KokkosKernels SUNLinearSolver <SUNLinSol.Kokkos>`

@@ -51,6 +51,12 @@ if(SUNDIALS_ENABLE_SUNMATRIX_KOKKOSDENSE)
   install(CODE "MESSAGE(\"\nInstall SUNMATRIX_KOKKOSDENSE\n\")")
   message(STATUS "Added SUNDIALS_ENABLE_SUNMATRIX_KOKKOSDENSE module")
   add_library(sundials_sunmatrixkokkosdense INTERFACE)
+  add_library(SUNDIALS::sunmatrixkokkosdense ALIAS
+              sundials_sunmatrixkokkosdense)
+  set_target_properties(sundials_sunmatrixkokkosdense PROPERTIES
+                        EXPORT_NAME sunmatrixkokkosdense)
+  target_compile_features(sundials_sunmatrixkokkosdense INTERFACE
+                          ${SUNDIALS_KOKKOS_CXX_FEATURE})
   target_link_libraries(
     sundials_sunmatrixkokkosdense INTERFACE sundials_core Kokkos::kokkos
                                             Kokkos::kokkoskernels)
@@ -63,6 +69,7 @@ if(SUNDIALS_ENABLE_SUNMATRIX_KOKKOSDENSE)
   install(
     FILES ${PROJECT_SOURCE_DIR}/include/sunmatrix/sunmatrix_kokkosdense.hpp
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sunmatrix")
+  install(TARGETS sundials_sunmatrixkokkosdense EXPORT sundials-targets)
   set(_SUNDIALS_INSTALLED_COMPONENTS
       "sunmatrixkokkosdense;${_SUNDIALS_INSTALLED_COMPONENTS}"
       CACHE INTERNAL "" FORCE)

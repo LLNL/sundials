@@ -95,7 +95,9 @@ int main(int argc, char* argv[])
     }
 
     /* Create solution vector (on-node and MPI-parallel versions) */
-    SUNVector yloc{(unsigned int)udata.grid->neq, ctx};
+    Vec4D yview("solution", udata.grid->nxl, udata.grid->nyl,
+                udata.grid->nzl, udata.grid->dof);
+    SUNVector yloc{yview, ctx};
     y = N_VMake_MPIPlusX(udata.comm, yloc, ctx);
     if (check_retval((void*)y, "N_VMake_MPIPlusX", 0, udata.myid))
     {
@@ -198,8 +200,7 @@ int FillSendBuffers(N_Vector y, UserData* udata)
   const int dof       = udata->grid->dof;
 
   /* Create 4D view of the vector */
-  Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl,
-              nzl, dof);
+  auto Yview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(y))->View();
 
   if (c > 0.0)
   {
@@ -393,8 +394,7 @@ int ComponentMask(N_Vector mask, const int component, const UserData* udata)
   const int dof = udata->grid->dof;
 
   /* Create 4D view of mask data */
-  Vec4D maskview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(mask)),
-                 nxl, nyl, nzl, dof);
+  auto maskview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(mask))->View();
 
   /* Fill mask data */
   N_VConst(0.0, mask);
@@ -468,20 +468,26 @@ int SetupProblem(int argc, char* argv[], UserData* udata, UserOptions* uopt,
                                                uopt->npxyz);
 
   /* Create the solution masks */
-  SUNVector* umaskloc = new SUNVector((unsigned int)udata->grid->neq, ctx);
-  udata->umask        = N_VMake_MPIPlusX(udata->comm, *umaskloc, ctx);
+  udata->umask_view = Vec4D("u mask", udata->grid->nxl, udata->grid->nyl,
+                            udata->grid->nzl, udata->grid->dof);
+  udata->umask_local = std::make_unique<SUNVector>(udata->umask_view, ctx);
+  udata->umask        = N_VMake_MPIPlusX(udata->comm, *udata->umask_local, ctx);
   if (check_retval((void*)udata->umask, "N_VMake_MPIPlusX", 0, udata->myid))
   {
     MPI_Abort(udata->comm, 1);
   }
-  SUNVector* vmaskloc = new SUNVector((unsigned int)udata->grid->neq, ctx);
-  udata->vmask        = N_VMake_MPIPlusX(udata->comm, *vmaskloc, ctx);
+  udata->vmask_view = Vec4D("v mask", udata->grid->nxl, udata->grid->nyl,
+                            udata->grid->nzl, udata->grid->dof);
+  udata->vmask_local = std::make_unique<SUNVector>(udata->vmask_view, ctx);
+  udata->vmask        = N_VMake_MPIPlusX(udata->comm, *udata->vmask_local, ctx);
   if (check_retval((void*)udata->vmask, "N_VMake_MPIPlusX", 0, udata->myid))
   {
     MPI_Abort(udata->comm, 1);
   }
-  SUNVector* wmaskloc = new SUNVector((unsigned int)udata->grid->neq, ctx);
-  udata->wmask        = N_VMake_MPIPlusX(udata->comm, *wmaskloc, ctx);
+  udata->wmask_view = Vec4D("w mask", udata->grid->nxl, udata->grid->nyl,
+                            udata->grid->nzl, udata->grid->dof);
+  udata->wmask_local = std::make_unique<SUNVector>(udata->wmask_view, ctx);
+  udata->wmask        = N_VMake_MPIPlusX(udata->comm, *udata->wmask_local, ctx);
   if (check_retval((void*)udata->wmask, "N_VMake_MPIPlusX", 0, udata->myid))
   {
     MPI_Abort(udata->comm, 1);
@@ -600,8 +606,7 @@ int SetIC(N_Vector yvec, UserData* udata)
   const sunrealtype ws = 3.0;
 
   /* Create 4D view of y */
-  Vec4D yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(yvec)), nxl,
-              nyl, nzl, dof);
+  auto yview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(yvec))->View();
 
   /* Gaussian perturbation of the steady state solution */
   Kokkos::parallel_for(
@@ -643,9 +648,7 @@ int WriteOutput(sunrealtype t, N_Vector y, UserData* udata, UserOptions* uopt)
   if (uopt->save)
   {
     /* Copy solution data to host mirror view */
-    SUNVector* ylocal =
-      sundials::kokkos::GetVec<SUNVector>(N_VGetLocalVector_MPIPlusX(y));
-    sundials::kokkos::CopyFromDevice(*ylocal);
+    auto ylocal = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(y));
 
     /* output the times to disk */
     if (udata->myid == 0 && udata->TFID)
@@ -659,8 +662,8 @@ int WriteOutput(sunrealtype t, N_Vector y, UserData* udata, UserOptions* uopt)
     const int nyl = udata->grid->nyl;
     const int nzl = udata->grid->nzl;
     const int dof = udata->grid->dof;
-    Vec4DHost yview(N_VGetArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl,
-                    nzl, dof);
+    auto yview = Kokkos::create_mirror_view(ylocal->View());
+    Kokkos::deep_copy(yview, ylocal->View());
 
     /* output results to disk */
     for (int i = 0; i < nxl; i++)

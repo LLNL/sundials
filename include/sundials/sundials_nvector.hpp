@@ -23,16 +23,11 @@
 #include <memory>
 #include <utility>
 
-#include <sundials/sundials_base.hpp>
 #include <sundials/sundials_classview.hpp>
 #include <sundials/sundials_nvector.h>
 #include "sundials/priv/sundials_context_impl.h"
 
 namespace sundials {
-namespace impl {
-using BaseNVector = BaseObject<_generic_N_Vector, _generic_N_Vector_Ops>;
-} // namespace impl
-
 namespace experimental {
 
 struct N_VectorDeleter

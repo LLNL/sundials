@@ -85,18 +85,15 @@
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::Cuda;
 #elif defined(USE_HIP)
-#if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
-#else
-using ExecSpace = Kokkos::Experimental::HIP;
-#endif
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 #else
 using ExecSpace = Kokkos::Serial;
 #endif
 
-using VecType  = sundials::kokkos::Vector<ExecSpace>;
+using ViewType = Kokkos::View<sunrealtype*, ExecSpace>;
+using VecType  = sundials::kokkos::VectorFor<ViewType>;
 using MatType  = sundials::kokkos::DenseMatrix<ExecSpace>;
 using LSType   = sundials::kokkos::DenseLinearSolver<ExecSpace>;
 using SizeType = VecType::size_type;
@@ -201,7 +198,9 @@ int main(int argc, char* argv[])
     const sunrealtype T0 = SUN_RCONST(0.0);
 
     SizeType length{static_cast<SizeType>(batchSize * nbatches)};
-    VecType y{length, sunctx};
+    ViewType y_view("y", length);
+    auto y_host = Kokkos::create_mirror_view(y_view);
+    VecType y{y_view, sunctx};
 
     auto y_data_d = y.View();
     Kokkos::parallel_for(
@@ -214,7 +213,8 @@ int main(int argc, char* argv[])
       });
 
     // Create vector of absolute tolerances
-    VecType abstol{length, sunctx};
+    ViewType abstol_view("abstol", length);
+    VecType abstol{abstol_view, sunctx};
     N_VConst(SUN_RCONST(1.0e-10), abstol);
 
     // Create CVODE using Backward Differentiation Formula methods
@@ -276,8 +276,8 @@ int main(int argc, char* argv[])
     sunrealtype tout = T0 + dTout;
 
     // Initial output
-    auto y_data_h = y.HostView();
-    sundials::kokkos::CopyFromDevice(y);
+    Kokkos::deep_copy(y_host, y_view);
+    auto y_data_h = y_host;
     Kokkos::fence();
     std::cout << "At t = " << t << std::endl;
     for (int batchj = 0; batchj < nbatches; batchj += 10)
@@ -295,7 +295,7 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "CVode")) { break; }
 
       // Output solution from some batches
-      sundials::kokkos::CopyFromDevice(y);
+      Kokkos::deep_copy(y_host, y_view);
       Kokkos::fence();
       std::cout << "At t = " << t << std::endl;
       for (int batchj = 0; batchj < nbatches; batchj += 10)
@@ -352,8 +352,8 @@ int main(int argc, char* argv[])
 int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   auto udata     = static_cast<UserData*>(user_data);
-  auto y_data    = sundials::kokkos::GetVec<VecType>(y)->View();
-  auto ydot_data = sundials::kokkos::GetVec<VecType>(ydot)->View();
+  auto y_data    = VecType::FromNVectorConst(y)->View();
+  auto ydot_data = VecType::FromNVector(ydot)->View();
 
   const auto nbatches  = udata->nbatches;
   const auto batchSize = udata->batchSize;
@@ -383,7 +383,7 @@ int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
         N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   auto udata  = static_cast<UserData*>(user_data);
-  auto y_data = sundials::kokkos::GetVec<VecType>(y)->View();
+  auto y_data = VecType::FromNVectorConst(y)->View();
   auto J_data = sundials::kokkos::GetDenseMat<MatType>(J)->View();
 
   const auto nbatches  = udata->nbatches;

@@ -30,18 +30,18 @@
 #if defined(USE_CUDA)
 using ExecSpace = Kokkos::Cuda;
 #elif defined(USE_HIP)
-#if KOKKOS_VERSION / 10000 > 3
 using ExecSpace = Kokkos::HIP;
-#else
-using ExecSpace = Kokkos::Experimental::HIP;
-#endif
 #elif defined(USE_OPENMP)
 using ExecSpace = Kokkos::OpenMP;
 #else
 using ExecSpace = Kokkos::Serial;
 #endif
 
-using VecType  = sundials::kokkos::Vector<ExecSpace>;
+using ViewType = Kokkos::View<sunrealtype*, typename ExecSpace::memory_space>;
+using View2DType = Kokkos::View<sunrealtype**, Kokkos::LayoutRight,
+                                typename ExecSpace::memory_space>;
+using VecType  = sundials::kokkos::VectorFor<ViewType>;
+using Vec2DType = sundials::kokkos::VectorFor<View2DType>;
 using MatType  = sundials::kokkos::DenseMatrix<ExecSpace>;
 using SizeType = VecType::size_type;
 
@@ -102,10 +102,19 @@ int main(int argc, char* argv[])
     auto exec_instance = ExecSpace();
 
     // Create vectors and matrices
-    VecType x{matcols * nblocks, sunctx};
-    VecType y{matrows * nblocks, sunctx};
+    ViewType x_view("x", matcols * nblocks);
+    ViewType y_view("y", matrows * nblocks);
+    VecType x{x_view, sunctx, exec_instance};
+    VecType y{y_view, sunctx, exec_instance};
+    View2DType x2_view("x2", nblocks, matcols);
+    View2DType y2_view("y2", nblocks, matrows);
+    Vec2DType x2{x2_view, sunctx, exec_instance};
+    Vec2DType y2{y2_view, sunctx, exec_instance};
     MatType A{nblocks, matrows, matcols, exec_instance, sunctx};
     MatType I{nblocks, matrows, matcols, exec_instance, sunctx};
+
+    // Dense integrations intentionally accept only rank-1 vectors.
+    if (SUNMatMatvec(A, x2, y2) != SUN_ERR_ARG_WRONGTYPE) fails++;
 
     // Fill matrices and vectors
     auto A_data = A.View();
@@ -249,9 +258,9 @@ extern "C" int check_vector(N_Vector actual, N_Vector expected, sunrealtype tol)
 {
   int failure = 0;
 
-  auto a_vec{sundials::kokkos::GetVec<VecType>(actual)};
-  auto e_vec{sundials::kokkos::GetVec<VecType>(expected)};
-  auto length = a_vec->Length();
+  auto a_vec{VecType::FromNVectorConst(actual)};
+  auto e_vec{VecType::FromNVectorConst(expected)};
+  auto length = a_vec->GetLength();
 
   auto a_data = a_vec->View();
   auto e_data = e_vec->View();

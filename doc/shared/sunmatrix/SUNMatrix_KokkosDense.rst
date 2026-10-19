@@ -26,7 +26,8 @@ structure for dense and dense batched (block-diagonal) matrices using Kokkos
 :cite:p:`edwards2014kokkos,trott2022kokkos` and KokkosKernels
 :cite:p:`trott2021kokkos` to support a variety of backends including serial, OpenMP,
 CUDA, HIP, and SYCL. Since Kokkos is a modern C++ library, the module is also
-written in modern C++ (it requires C++14) as a header only library. To utilize
+written in modern C++ (it requires C++17 with Kokkos 4; Kokkos 5 requires
+C++20) as a header only library. To utilize
 this ``SUNMatrix`` users will need to include
 ``sunmatrix/sunmatrix_kokkosdense.hpp``. More instructions on building SUNDIALS
 with Kokkos and KokkosKernels enabled are given in

@@ -24,7 +24,8 @@ The SUNLINEARSOLVER_KOKKOSDENSE Module
 The SUNLINEARSOLVER_KOKKOSDENSE :c:type:`SUNLinearSolver` implementation
 provides an interface to KokkosKernels :cite:p:`trott2021kokkos` linear solvers
 for dense and batched dense (block-diagonal) systems. Since Kokkos is a modern
-C++ library, the module is also written in modern C++ (it requires C++14) as a
+C++ library, the module is also written in modern C++ (it requires C++17 with
+Kokkos 4; Kokkos 5 requires C++20) as a
 header only library. To utilize this ``SUNLinearSolver`` user will need to
 include ``sunlinsol/sunlinsol_kokkosdense.hpp``. More instructions on building
 SUNDIALS with Kokkos and KokkosKernels enabled are given in

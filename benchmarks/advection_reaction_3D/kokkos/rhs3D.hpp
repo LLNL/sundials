@@ -61,10 +61,8 @@ static int Advection(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   N_VConst(0.0, ydot);
 
   /* create 4D views of the state and RHS vectors */
-  Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl,
-              nzl, dof);
-  Vec4D dYview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(ydot)), nxl,
-               nyl, nzl, dof);
+  auto Yview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(y))->View();
+  auto dYview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(ydot))->View();
 
   /* iterate over domain interior, computing advection */
   if (c > 0.0)
@@ -260,10 +258,8 @@ static int Reaction(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   if (!udata->add_reactions) { N_VConst(0.0, ydot); }
 
   /* create 4D views of state and RHS vectors */
-  Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl,
-              nzl, dof);
-  Vec4D dYview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(ydot)), nxl,
-               nyl, nzl, dof);
+  auto Yview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(y))->View();
+  auto dYview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(ydot))->View();
 
   /* add reaction terms to RHS */
   Kokkos::parallel_for(
@@ -351,12 +347,9 @@ static int SolveReactionLinSys(N_Vector y, N_Vector x, N_Vector b,
   const sunrealtype k6 = udata->k6;
 
   /* create 4D views of state, RHS and solution vectors */
-  Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl,
-              nzl, dof);
-  Vec4D Bview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(b)), nxl, nyl,
-              nzl, dof);
-  Vec4D Xview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(x)), nxl, nyl,
-              nzl, dof);
+  auto Yview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(y))->View();
+  auto Bview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(b))->View();
+  auto Xview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(x))->View();
 
   /* solve reaction linear system */
   Kokkos::parallel_for(
@@ -441,12 +434,9 @@ static int SolveReactionLinSysRes(N_Vector y, N_Vector x, N_Vector b,
   const sunrealtype k6 = udata->k6;
 
   /* create 4D views of state, RHS and solution vectors */
-  Vec4D Yview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(y)), nxl, nyl,
-              nzl, dof);
-  Vec4D Bview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(b)), nxl, nyl,
-              nzl, dof);
-  Vec4D Xview(N_VGetDeviceArrayPointer(N_VGetLocalVector_MPIPlusX(x)), nxl, nyl,
-              nzl, dof);
+  auto Yview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(y))->View();
+  auto Bview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(b))->View();
+  auto Xview = SUNVector::FromNVector(N_VGetLocalVector_MPIPlusX(x))->View();
 
   /* solve reaction linear system */
   Kokkos::parallel_for(

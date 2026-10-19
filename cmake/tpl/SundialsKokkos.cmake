@@ -32,6 +32,18 @@ include_guard(GLOBAL)
 # -----------------------------------------------------------------------------
 find_package(Kokkos REQUIRED PATHS "${Kokkos_DIR}")
 
+# SUNDIALS uses the common Kokkos 4/5 view and policy interfaces. Kokkos 5
+# itself requires C++20, whereas Kokkos 4 is usable with C++17.
+if(Kokkos_VERSION VERSION_LESS 4.0.0)
+  message(FATAL_ERROR "SUNDIALS requires Kokkos 4.0 or newer (found ${Kokkos_VERSION})")
+elseif(Kokkos_VERSION VERSION_LESS 5.0.0)
+  set(SUNDIALS_KOKKOS_CXX_FEATURE cxx_std_17 CACHE INTERNAL
+      "C++ feature required by the discovered Kokkos" FORCE)
+else()
+  set(SUNDIALS_KOKKOS_CXX_FEATURE cxx_std_20 CACHE INTERNAL
+      "C++ feature required by the discovered Kokkos" FORCE)
+endif()
+
 # We should be able to use Kokkos_DEVICES directly but it seems to get removed
 # or unset in some CMake versions
 set(KOKKOS_EXAMPLES_BACKENDS
