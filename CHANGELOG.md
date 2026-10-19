@@ -9,6 +9,11 @@
 Added the utility function, `SUNFileFlush` for flushing file pointers. This is
 useful when using the Fortran 2003 interfaces.
 
+Updated `ARKodeGetReturnFlagName`, `CVodeGetReturnFlagName`,
+`CVDiagGetReturnFlagName`, `IDAGetReturnFlagName`, and `KINGetReturnFlagName` to
+return `const char*` rather than `char*`. The returned string should no
+longer be freed by the user.
+
 Added support to compute internal difference-quotient approximations to sparse
 Jacobians (CSC format only) for all SUNDIALS packages.
 
@@ -17,7 +22,7 @@ Jacobians (CSC format only) for all SUNDIALS packages.
 Fixed a segfault that could occur when handling errors without a `SUNContext`
 provided.
 
-Fixed a bug in `FindMAGMA.cmake` which didn't allow use of MAGMA versions with 
+Fixed a bug in `FindMAGMA.cmake` which didn't allow use of MAGMA versions with
 multiple digits in an identifier.
 
 Fixed a bug in the LSRKStep module where the step post-processing function for
