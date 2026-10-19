@@ -58,7 +58,7 @@ SUNDIALS_EXPORT int CVDiag(void* cvode_mem);
 
 SUNDIALS_EXPORT int CVDiagGetNumRhsEvals(void* cvode_mem, long int* nfevalsLS);
 SUNDIALS_EXPORT int CVDiagGetLastFlag(void* cvode_mem, long int* flag);
-SUNDIALS_EXPORT char* CVDiagGetReturnFlagName(long int flag);
+SUNDIALS_EXPORT const char* CVDiagGetReturnFlagName(long int flag);
 
 /* -------------------------------------
  * Backward Problems - Function CVDiagB
