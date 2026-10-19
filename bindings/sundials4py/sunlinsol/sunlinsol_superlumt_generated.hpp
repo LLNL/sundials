@@ -1,8 +1,9 @@
-// #ifndef _SUNLINSOL_SLUMT_H
+// #ifndef SUNDIALS_SUNLINSOL_SUPERLUMT_H
 //
 // #ifdef __cplusplus
 // #endif
 //
+m.attr("SUNSLUMT_ORDERING_DEFAULT") = 3;
 
 auto pyClass_SUNLinearSolverContent_SuperLUMT =
   nb::class_<_SUNLinearSolverContent_SuperLUMT>(m, "_SUNLinearSolverContent_SuperLUMT",
