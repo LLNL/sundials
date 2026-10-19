@@ -1067,7 +1067,7 @@ N_Vector* N_VCloneVectorArray(int count, N_Vector w)
     SUNCheckLastErrNoRet();
     if (SUNContext_PeekLastError(SUNCTX_) < 0)
     {
-      N_VDestroyVectorArray(vs, j - 1);
+      N_VDestroyVectorArray(vs, j);
       return (NULL);
     }
   }

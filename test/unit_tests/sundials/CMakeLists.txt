@@ -15,7 +15,8 @@
 
 # List of test tuples of the form "name\;args"
 set(unit_tests "test_sundials_datanode\;" "test_sundials_stlvector\;"
-               "test_sundials_hashmap\;" "test_sundials_logger\;")
+               "test_sundials_hashmap\;" "test_sundials_logger\;"
+               "test_nvector_base\;")
 
 if(SUNDIALS_ENABLE_ERROR_CHECKS)
   list(APPEND unit_tests "test_sundials_errors\;")
@@ -40,4 +41,7 @@ if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
       gtest_discover_tests(${test})
     endif()
   endforeach()
+
+  set_property(TARGET test_nvector_base PROPERTY CXX_STANDARD 17)
+  set_property(TARGET test_nvector_base PROPERTY CXX_STANDARD_REQUIRED ON)
 endif()

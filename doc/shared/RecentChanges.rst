@@ -5,6 +5,9 @@
 
 **New Features and Enhancements**
 
+Added the public C++ ``sundials::NVectorBase`` interface for implementing
+custom NVECTOR types.
+
 Added the utility function, :c:func:`SUNFileFlush` for flushing file
 pointers. This is useful when using the Fortran 2003 interfaces.
 
@@ -13,6 +16,9 @@ through a :c:type:`SUNContext`. It sets the last error and calls the error
 handler stack, and can be called from user callbacks and C++ classes.
 
 **Bug Fixes**
+
+Fixed partial-clone cleanup in :c:func:`N_VCloneVectorArray` so all
+successfully cloned vectors are destroyed when a later clone fails.
 
 Fixed a segfault that could occur when handling errors without a ``SUNContext``
 provided.

@@ -532,6 +532,45 @@ to be set, and that all operations are copied when cloning a vector.
    **Return value:**  Returns a :c:type:`SUNErrCode`.
 
 
+Implementing a custom NVECTOR in C++
+------------------------------------
+
+.. versionadded:: x.y.z
+
+The public C++ bridge can be used to implement a custom NVECTOR without writing
+the ``N_Vector`` operations table by hand.  Include
+``sundials/sundials_nvector_base.hpp`` and derive from
+``sundials::NVectorBase<YourVector>`` using the CRTP pattern.  A derived class
+must implement the seven required virtual operations: ``Clone``,
+``GetLength``, ``LinearSum``, ``Const``, ``Scale``, ``DotProd``, and
+``MaxNorm``.  ``Clone`` returns a newly allocated derived object with the
+given :c:type:`SUNContext`.
+
+Optional operations can be installed by redeclaring the corresponding virtual
+function in the derived class (for example, ``LinearCombination``).  The
+bridge detects these overrides and installs the matching C operation.  Access
+the C handle with ``GetNVector()`` or its lvalue conversion, test whether it
+exists with ``HasNVector()``, and recover the derived object in C callbacks
+with ``YourVector::FromNVector()`` (or ``FromNVectorConst()``).
+
+The object that creates a handle retains ownership of its C++ object.  Calling
+:c:func:`N_VDestroy` on that handle does not delete the user-owned object.
+Handles returned by :c:func:`N_VClone` are owned by SUNDIALS, and destroying
+such a handle deletes the cloned C++ object.  Do not destroy a handle after
+the corresponding user object has already been destroyed.
+
+Operations are called through exception-safe C trampolines.  Exceptions are
+reported through the dispatch vector's :c:type:`SUNContext`: the context's
+last error is set and its error-handler stack is invoked.  The C return value
+is determined separately by the operation's C signature.  An operation that
+returns :c:type:`SUNErrCode` returns the failure code, while a void operation
+returns nothing.  Value-returning operations return a placeholder value after
+an exception; that value is not an error indicator.  C++ code that reports an
+error directly should use :c:func:`SUNContext_HandleError`; it reports through
+the context without throwing, after which void and value operations return
+normally and :c:type:`SUNErrCode` operations return the code.
+
+
 .. c:enum:: N_Vector_ID
 
    Each :c:type:`N_Vector` implementation included in SUNDIALS has a unique
