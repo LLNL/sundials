@@ -1,5 +1,35 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release X.Y.Z
+
+### Major Features
+
+### New Features and Enhancements
+
+Added the utility function, `SUNFileFlush` for flushing file pointers. This is
+useful when using the Fortran 2003 interfaces.
+
+Updated `ARKodeGetReturnFlagName`, `CVodeGetReturnFlagName`,
+`CVDiagGetReturnFlagName`, `IDAGetReturnFlagName`, and `KINGetReturnFlagName` to
+return `const char*` rather than `char*`. The returned string should no
+longer be freed by the user.
+
+### Bug Fixes
+
+Fixed a bug in the band SUNMatrix `SUNMatScaleAdd` operation where entries
+outside the band of the second matrix were not scaled.
+
+Fixed a segfault that could occur when handling errors without a `SUNContext`
+provided.
+
+Fixed a bug in `FindMAGMA.cmake` which didn't allow use of MAGMA versions with 
+multiple digits in an identifier.
+
+Fixed a bug in the LSRKStep module where the step post-processing function for
+the RKL step was called with an incorrect time argument.
+
+### Deprecation Notices
+
 ## Changes to SUNDIALS in release 7.9.0
 
 ### New Features and Enhancements
@@ -32,9 +62,6 @@ Added the `SUNDIALS_ENABLE_DEPRECATED_WARNINGS` CMake option to allow users to
 disable compiler warnings emitted by deprecated SUNDIALS API annotations.
 
 ### Bug Fixes
-
-Fixed a bug in the band SUNMatrix `SUNMatScaleAdd` operation where entries
-outside the band of the second matrix were not scaled.
 
 Fixed a bug where the factor provided by `ARKodeSetEpsLin` was scaled by 0.1.
 To restore the original behavior, call `ARKodeSetEpsLin` with an argument of
