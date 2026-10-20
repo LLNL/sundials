@@ -23,6 +23,10 @@ re-evaluates the right-hand side at the start of a step. As a result, the
 number of right-hand side evaluations reported by
 `LSRKStepGetNumDomEigEstRhsEvals` is now the cumulative count returned by
 `SUNDomEigEstimator_GetNumRhsEvals`.
+Updated `ARKodeGetReturnFlagName`, `CVodeGetReturnFlagName`,
+`CVDiagGetReturnFlagName`, `IDAGetReturnFlagName`, and `KINGetReturnFlagName` to
+return `const char*` rather than `char*`. The returned string should no
+longer be freed by the user.
 
 ### Bug Fixes
 

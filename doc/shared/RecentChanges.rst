@@ -22,6 +22,10 @@ vector, so the dominant eigenvalue estimation no longer re-evaluates the
 right-hand side at the start of a step. As a result, the number of right-hand
 side evaluations reported by :c:func:`LSRKStepGetNumDomEigEstRhsEvals` is now
 the cumulative count returned by :c:func:`SUNDomEigEstimator_GetNumRhsEvals`.
+Updated :c:func:`ARKodeGetReturnFlagName`, :c:func:`CVodeGetReturnFlagName`,
+:c:func:`CVDiagGetReturnFlagName`, :c:func:`IDAGetReturnFlagName`, and
+:c:func:`KINGetReturnFlagName` to return ``const char*`` rather than ``char*``.
+The returned string should no longer be freed by the user.
 
 **Bug Fixes**
 
