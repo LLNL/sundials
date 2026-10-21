@@ -201,10 +201,12 @@
  * -----------------------------------------------------------------------------
  *
  * final is not required. The rule is that an optional operation is installed
- * only if the class Derived in NVectorBase<Derived> itself declares it. A subclass of Derived
- * can override the operations that Derived installs, and they dispatch virtually.
- * To let a subclass add an optional operation, Derived must override that operation
- * too (with a real implementation, or one that calls notImplemented):
+ * only if Derived, the class named in NVectorBase<Derived>, or a class between
+ * Derived and NVectorBase<Derived>, declares it (see below). A subclass
+ * of Derived can override the operations that Derived installs, and they dispatch
+ * virtually. To let a subclass add an optional operation, Derived must override
+ * that operation too (with a real implementation, or one that calls
+ * notImplemented):
  *
  *   class VecA : public sundials::NVectorBase<VecA> { ... Div ... };
  *   class VecB : public VecA
@@ -218,6 +220,51 @@
  * SUNDIALS never calls VecB::Prod; the integrator rejects the vector at
  * initialization. Declaring Prod in VecA fixes this. Marking a class final
  * turns this silent case into a compile error.
+ *
+ * An override in an intermediate class, one that sits between
+ * NVectorBase<Derived> and Derived, does count and is installed. Both
+ * inheritance links must be public: the intermediate class inherits publicly
+ * from NVectorBase<Derived>, where Derived is the most-derived class, and
+ * Derived inherits publicly from the intermediate class. This lets a vector
+ * offer an optional operation only for some configurations, for example
+ * GetArrayPointer only when the data is contiguous:
+ *
+ *   // Always inherits NVectorBase; overrides GetArrayPointer only if enabled.
+ *   template<class VectorType, bool HasFlatArray>
+ *   class MyVecBase : public sundials::NVectorBase<VectorType>
+ *   {
+ *   public:
+ *     using sundials::NVectorBase<VectorType>::NVectorBase;
+ *   };
+ *
+ *   template<class VectorType>
+ *   class MyVecBase<VectorType, true> : public sundials::NVectorBase<VectorType>
+ *   {
+ *   public:
+ *     using sundials::NVectorBase<VectorType>::NVectorBase;
+ *     sunrealtype* GetArrayPointer() override; // installed
+ *   };
+ *
+ *   class MyVec final : public MyVecBase<MyVec, true>
+ *   {
+ *   public:
+ *     explicit MyVec(SUNContext ctx) : MyVecBase(ctx) {}
+ *     ...
+ *   };
+ *
+ * Forward the constructors with the using declaration, because MyVec cannot
+ * call NVectorBase(ctx) directly when NVectorBase is not a direct base. Keep
+ * the copy and move members protected in the intermediate class, as in
+ * NVectorBase, to preserve the protection against slicing.
+ *
+ * Name lookup from MyVec finds GetArrayPointer in MyVecBase, so it is
+ * installed. With HasFlatArray false it is not declared anywhere below
+ * NVectorBase, so it is not installed.
+ *
+ * Use this pattern rather than an override that returns NULL. SUNDIALS modules
+ * check whether ops->nvgetarraypointer is non-NULL (e.g., cvode_ls.c,
+ * sunmatrix_dense.c, sunlinsol_dense.c) and then use the pointer, so an
+ * installed GetArrayPointer or GetDeviceArrayPointer must never return NULL.
  *
  * -----------------------------------------------------------------------------
  * BASE CLASS DESIGN AND TRAMPOLINES

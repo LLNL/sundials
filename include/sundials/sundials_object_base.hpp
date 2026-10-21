@@ -182,7 +182,8 @@ Result guardValue(SUNContext ctx, const char* func, const char* file, int line,
 // traits below compare the two types:
 //
 //   is_overridden_v<DerivedFn, BaseFn>   true if the two types differ, i.e.,
-//                                        Derived redeclares the function
+//                                        Derived or an intermediate class
+//                                        redeclares the function
 //   same_signature_v<DerivedFn, BaseFn>  true if both are member functions with
 //                                        the same return type, parameters and
 //                                        constness (the class part is ignored)
