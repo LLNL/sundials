@@ -14,6 +14,11 @@ Added optional Thrust based reduction implementations to the :ref:`HIP NVector
 with C++17 or later, and are used by selecting the new
 :cpp:func:`SUNHipThrustExecPolicy` reduction execution policy.
 
+Updated :c:func:`ARKodeGetReturnFlagName`, :c:func:`CVodeGetReturnFlagName`,
+:c:func:`CVDiagGetReturnFlagName`, :c:func:`IDAGetReturnFlagName`, and
+:c:func:`KINGetReturnFlagName` to return ``const char*`` rather than ``char*``.
+The returned string should no longer be freed by the user.
+
 **Bug Fixes**
 
 Fixed a segfault that could occur when handling errors without a ``SUNContext``
@@ -21,5 +26,8 @@ provided.
 
 Fixed a bug in ``FindMAGMA.cmake`` which didn't allow use of MAGMA versions with 
 multiple digits in an identifier.
+
+Fixed a bug in the LSRKStep module where the step post-processing function for
+the RKL step was called with an incorrect time argument.
 
 **Deprecation Notices**
