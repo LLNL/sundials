@@ -1247,7 +1247,7 @@ configure SUNDIALS with HIP support for a system with an MI250X GPU:
    :cmakeop:`CMAKE_CXX_STANDARD` to be ``17`` or greater, since rocThrust and
    rocPRIM require C++17. When enabled, the
    :cpp:func:`SUNHipThrustExecPolicy` reduction execution policy becomes
-   available; see :numref:`NVectors.HIP.SUNHipExecPolicy`. Enabling this option
+   available; see :ref:`NVectors.HIP.SUNHipExecPolicy`. Enabling this option
    does not change the default execution policies, so the Thrust
    implementations are only used if that policy is selected.
 
