@@ -196,11 +196,17 @@ instead of supplying a dummy routine.
    matrix-vector products, as well as a ``void*`` pointer to a data structure
    used by this routine, to the dominant eigenvalue estimator.
 
+   For the SUNDIALS-provided estimators, passing ``NULL`` for ``ATimes`` reverts
+   to the internal difference quotient approximation of the Jacobian-vector
+   product, which requires a right-hand side function to be supplied through
+   :c:func:`SUNDomEigEstimator_SetRhs`.
+
    **Arguments:**
 
       * *DEE* -- a SUNDomEigEstimator object.
       * *A_data* -- pointer to structure for ``ATimes``.
-      * *ATimes* -- function pointer to perform :math:`Av` product.
+      * *ATimes* -- function pointer to perform :math:`Av` product, or ``NULL``
+        to use the internal difference quotient approximation.
 
    **Return value:**
 
@@ -219,6 +225,12 @@ instead of supplying a dummy routine.
       Av \approx \frac{1}{\sigma}\left[ f_{RHS}(t,y+\sigma v) - f_{RHS}(t,y)\right]
 
    The linearization point :math:`(t,y)` should be separately supplied by calling :c:func:`SUNDomEigEstimator_SetRhsLinearizationPoint`.
+
+   If a :c:type:`SUNATimesFn` has already been supplied through :c:func:`SUNDomEigEstimator_SetATimes`,
+   the SUNDIALS-provided estimators retain that function and only store ``RHSfn``; otherwise, this
+   routine installs the internal difference quotient approximation as the estimator's ``ATimes`` routine.
+   This allows a user-supplied ``ATimes`` to be preserved when a SUNDIALS package calls this routine
+   (e.g., before each estimate in LSRKStep).
 
    **Arguments:**
 

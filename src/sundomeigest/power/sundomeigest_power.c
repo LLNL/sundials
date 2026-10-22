@@ -194,10 +194,17 @@ SUNErrCode SUNDomEigEstimator_SetATimes_Power(SUNDomEigEstimator DEE,
 
   SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
   SUNAssert(PI_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
-  SUNAssert(ATimes, SUN_ERR_ARG_CORRUPT);
 
-  /* set function pointers to integrator-supplied ATimes routine
-     and data, and return with success */
+  /* A NULL ATimes reverts to the internal difference quotient Jacobian-vector
+     product (which requires a RHS function to be supplied via SetRhs) */
+  if (ATimes == NULL)
+  {
+    ATimes = dee_DQJtimes_Power;
+    A_data = (void*)DEE;
+  }
+
+  /* set function pointers to the ATimes routine and data, and return with
+     success */
   PI_CONTENT(DEE)->ATimes = ATimes;
   PI_CONTENT(DEE)->ATdata = A_data;
   return SUN_SUCCESS;
@@ -217,8 +224,17 @@ SUNErrCode SUNDomEigEstimator_SetRhs_Power(SUNDomEigEstimator DEE,
   PI_CONTENT(DEE)->rhsfn    = RHSfn;
   PI_CONTENT(DEE)->rhs_data = rhs_data;
 
-  DEE->ops->setatimes(DEE, (void*)DEE, dee_DQJtimes_Power);
-  SUNCheckLastErr();
+  /* Install the internal difference quotient Jacobian-vector product unless
+     the user has already supplied their own ATimes routine */
+  if (PI_CONTENT(DEE)->ATimes == NULL ||
+      PI_CONTENT(DEE)->ATimes == dee_DQJtimes_Power)
+  {
+    DEE->ops->setatimes(DEE, (void*)DEE, dee_DQJtimes_Power);
+    SUNCheckLastErr();
+  }
+
+  /* The cached RHS value at the linearization point is no longer valid */
+  PI_CONTENT(DEE)->Fy_is_current = SUNFALSE;
 
   return SUN_SUCCESS;
 }
@@ -236,6 +252,9 @@ SUNErrCode SUNDomEigEstimator_SetPreRhsFn_Power(SUNDomEigEstimator DEE,
      and data, and return with success */
   PI_CONTENT(DEE)->prerhs_fn      = prerhs_fn;
   PI_CONTENT(DEE)->prerhs_fn_data = prerhs_fn_data;
+
+  /* The cached RHS value at the linearization point is no longer valid */
+  PI_CONTENT(DEE)->Fy_is_current = SUNFALSE;
 
   return SUN_SUCCESS;
 }

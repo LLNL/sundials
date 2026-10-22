@@ -39,6 +39,15 @@ multiple digits in an identifier.
 Fixed a bug in the LSRKStep module where the step post-processing function for
 the RKL step was called with an incorrect time argument.
 
+Fixed a bug in the Power and Arnoldi `SUNDomEigEstimator` implementations where
+`SUNDomEigEstimator_SetRhs` unconditionally replaced the estimator's `ATimes`
+routine with the internal difference quotient approximation, so a user-supplied
+`ATimes` function (e.g., one attached after `LSRKStepSetDomEigEstimator`) was
+silently discarded. The internal approximation is now installed only when no
+user-supplied `ATimes` function is present.
+Passing `NULL` for the `ATimes` argument of `SUNDomEigEstimator_SetATimes`
+now reverts these estimators to the internal approximation.
+
 ### Deprecation Notices
 
 ## Changes to SUNDIALS in release 7.9.0

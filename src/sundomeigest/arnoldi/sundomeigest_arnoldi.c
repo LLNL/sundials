@@ -193,8 +193,16 @@ SUNErrCode SUNDomEigEstimator_SetATimes_Arnoldi(SUNDomEigEstimator DEE,
   SUNAssert(DEE, SUN_ERR_ARG_CORRUPT);
   SUNAssert(Arnoldi_CONTENT(DEE), SUN_ERR_ARG_CORRUPT);
 
-  /* set function pointers to integrator-supplied ATimes routine
-     and data, and return with success */
+  /* A NULL ATimes reverts to the internal difference quotient Jacobian-vector
+     product (which requires a RHS function to be supplied via SetRhs) */
+  if (ATimes == NULL)
+  {
+    ATimes = dee_DQJtimes_Arnoldi;
+    A_data = (void*)DEE;
+  }
+
+  /* set function pointers to the ATimes routine and data, and return with
+     success */
   Arnoldi_CONTENT(DEE)->ATimes = ATimes;
   Arnoldi_CONTENT(DEE)->ATdata = A_data;
   return SUN_SUCCESS;
@@ -214,8 +222,17 @@ SUNErrCode SUNDomEigEstimator_SetRhs_Arnoldi(SUNDomEigEstimator DEE,
   Arnoldi_CONTENT(DEE)->rhsfn    = RHSfn;
   Arnoldi_CONTENT(DEE)->rhs_data = rhs_data;
 
-  DEE->ops->setatimes(DEE, (void*)DEE, dee_DQJtimes_Arnoldi);
-  SUNCheckLastErr();
+  /* Install the internal difference quotient Jacobian-vector product unless
+     the user has already supplied their own ATimes routine */
+  if (Arnoldi_CONTENT(DEE)->ATimes == NULL ||
+      Arnoldi_CONTENT(DEE)->ATimes == dee_DQJtimes_Arnoldi)
+  {
+    DEE->ops->setatimes(DEE, (void*)DEE, dee_DQJtimes_Arnoldi);
+    SUNCheckLastErr();
+  }
+
+  /* The cached RHS value at the linearization point is no longer valid */
+  Arnoldi_CONTENT(DEE)->Fy_is_current = SUNFALSE;
 
   return SUN_SUCCESS;
 }
@@ -233,6 +250,9 @@ SUNErrCode SUNDomEigEstimator_SetPreRhsFn_Arnoldi(SUNDomEigEstimator DEE,
      and data, and return with success */
   Arnoldi_CONTENT(DEE)->prerhs_fn      = prerhs_fn;
   Arnoldi_CONTENT(DEE)->prerhs_fn_data = prerhs_fn_data;
+
+  /* The cached RHS value at the linearization point is no longer valid */
+  Arnoldi_CONTENT(DEE)->Fy_is_current = SUNFALSE;
 
   return SUN_SUCCESS;
 }
