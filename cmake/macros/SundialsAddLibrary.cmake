@@ -380,19 +380,19 @@ macro(sundials_add_library target)
         set(_output_name "${target}")
       endif()
       string(REGEX REPLACE "^sundials" "${SUNDIALS_LIBRARY_PREFIX}"
-             _output_name "${_output_name}")
+                           _output_name "${_output_name}")
 
       if(sundials_add_library_OUTPUT_NAME)
         if((MSVC OR ("${CMAKE_C_SIMULATE_ID}" STREQUAL "MSVC"))
            AND ${_libtype} MATCHES "STATIC")
           set_target_properties(
             ${_actual_target_name}
-            PROPERTIES OUTPUT_NAME "${_output_name}_static"
-                       CLEAN_DIRECT_OUTPUT 1)
+            PROPERTIES OUTPUT_NAME "${_output_name}_static" CLEAN_DIRECT_OUTPUT
+                                                            1)
         else()
           set_target_properties(
             ${_actual_target_name} PROPERTIES OUTPUT_NAME ${_output_name}
-                       CLEAN_DIRECT_OUTPUT 1)
+                                              CLEAN_DIRECT_OUTPUT 1)
         endif()
       else()
         set_target_properties(
