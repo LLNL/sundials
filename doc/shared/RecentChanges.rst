@@ -24,6 +24,11 @@ get/reset and relative tolerance operations to :c:type:`SUNStepper` to support
 Added the utility function, :c:func:`SUNFileFlush` for flushing file
 pointers. This is useful when using the Fortran 2003 interfaces.
 
+Updated :c:func:`ARKodeGetReturnFlagName`, :c:func:`CVodeGetReturnFlagName`,
+:c:func:`CVDiagGetReturnFlagName`, :c:func:`IDAGetReturnFlagName`, and
+:c:func:`KINGetReturnFlagName` to return ``const char*`` rather than ``char*``.
+The returned string should no longer be freed by the user.
+
 **Bug Fixes**
 
 Fixed a segfault that could occur when handling errors without a ``SUNContext``
