@@ -1,10 +1,6 @@
 name: Code Coverage
 
 on:
-  # Run coverage for pull requests.
-  pull_request:
-  # Run coverage for merge queue entries.
-  merge_group:
   # Allow this workflow to be included by another workflow.
   workflow_call:
     inputs:
