@@ -14,12 +14,12 @@ Updated :c:func:`ARKodeGetReturnFlagName`, :c:func:`CVodeGetReturnFlagName`,
 The returned string should no longer be freed by the user.
 
 Updated the shared embedding coefficients for the
-``ARKODE_SSP_LSPUM_ERK_3_1_2`` and ``ARKODE_SSP_LSPUM_ERK_3_1_2`` methods to
+``ARKODE_SSP_LSPUM_ERK_3_1_2`` and ``ARKODE_SSP_LSPUM_SDIRK_3_1_2`` methods to
 improve their temporal accuracy estimates.  Users who wish to revert to the
 previous coefficients can load the current table(s) using
 :c:func:`ARKodeButcherTable_LoadERK` or :c:func:`ARKodeButcherTable_LoadDIRK`
 and replace the internal ``d`` coefficients in the returned table with the
-previous values, [ 73467.0/180400.0, 32969.0/180400.0, 41.0/100.0 ].
+previous values, [ 4247.0/9840.0, 21343.0/108240.0, 49.0/132.0 ].
 
 **Bug Fixes**
 
