@@ -5,6 +5,10 @@
 
 **New Features and Enhancements**
 
+Added the :cmakeop:`SUNDIALS_ENABLE_64BIT_SUFFIX` CMake option to distinguish
+library names for 64-bit index builds, allowing 32-bit and 64-bit index builds
+to be installed in the same library directory.
+
 Added the utility function, :c:func:`SUNFileFlush` for flushing file
 pointers. This is useful when using the Fortran 2003 interfaces.
 

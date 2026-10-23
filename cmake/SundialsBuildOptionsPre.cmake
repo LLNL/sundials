@@ -56,6 +56,14 @@ set(DOCSTR "Integer type to use for indices in SUNDIALS")
 sundials_option(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "" ADVANCED)
 
 # ---------------------------------------------------------------
+# Option to distinguish libraries built with 64-bit indices
+# ---------------------------------------------------------------
+
+sundials_option(
+  SUNDIALS_ENABLE_64BIT_SUFFIX BOOL
+  "Append 64 to library names when building with 64-bit indices" OFF)
+
+# ---------------------------------------------------------------
 # Option to specify counter type
 # ---------------------------------------------------------------
 
