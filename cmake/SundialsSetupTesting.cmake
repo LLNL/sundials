@@ -157,6 +157,32 @@ if(SUNDIALS_TEST_CONTAINER_EXE)
 endif()
 
 #
+# Create `make codecov`
+#
+if(SUNDIALS_ENABLE_CODE_COVERAGE)
+  find_program(GCOVR_EXECUTABLE gcovr REQUIRED)
+
+  set(SUNDIALS_COVERAGE_OUTPUT_DIR "${PROJECT_BINARY_DIR}/coverage")
+
+  add_custom_target(
+    codecov
+    COMMAND ${CMAKE_COMMAND} --build "${PROJECT_BINARY_DIR}" --parallel
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${SUNDIALS_COVERAGE_OUTPUT_DIR}"
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure -j 2
+    COMMAND "${GCOVR_EXECUTABLE}"
+            --root "${PROJECT_SOURCE_DIR}"
+            --filter src/
+            --filter include/
+            --print-summary
+            --txt-summary "${SUNDIALS_COVERAGE_OUTPUT_DIR}/coverage.txt"
+            --xml-pretty --xml "${SUNDIALS_COVERAGE_OUTPUT_DIR}/coverage.xml"
+            --html-details "${SUNDIALS_COVERAGE_OUTPUT_DIR}/index.html"
+    WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
+    USES_TERMINAL
+    COMMENT "Building, testing, and measuring SUNDIALS code coverage")
+endif()
+
+#
 # Check if GTest is needed
 #
 if(SUNDIALS_TEST_ENABLE_GTEST)

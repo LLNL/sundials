@@ -154,6 +154,22 @@ if(SUNDIALS_ENABLE_UNDEFINED_BEHAVIOR_SANITIZER)
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=undefined")
 endif()
 
+if(SUNDIALS_ENABLE_CODE_COVERAGE)
+  if(NOT CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+    message(
+      FATAL_ERROR
+        "SUNDIALS_ENABLE_CODE_COVERAGE requires a GNU or Clang C compiler")
+  endif()
+
+  message(STATUS "Enabling code coverage instrumentation")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -O0 -g")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -O0 -g")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} --coverage -O0 -g")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
+endif()
+
 if(SUNDIALS_DEBUG)
   message(STATUS "Adding debugging preprocessor directives")
 

@@ -1,0 +1,110 @@
+name: Code Coverage
+
+on:
+  # Run coverage for pull requests.
+  pull_request:
+  # Run coverage for merge queue entries.
+  merge_group:
+  # Allow this workflow to be included by another workflow.
+  workflow_call:
+    inputs:
+      build_type:
+        description: CMake build type
+        required: false
+        type: string
+        default: Debug
+  # Allow developers to run coverage against any branch from the Actions tab.
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: CMake build type
+        required: false
+        type: choice
+        options:
+          - Debug
+          - RelWithDebInfo
+        default: Debug
+
+concurrency:
+  group: coverage-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: GCC coverage (int${{ matrix.indexsize }}, TPLs ${{ matrix.tpls }})
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/llnl/sundials-ci-int${{ matrix.indexsize }}-${{ matrix.precision }}:spack-v1.2.2
+      options: --user root
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        indexsize: [32, 64]
+        precision: ['double']
+        # TPLs OFF matches the sanitizer build; TPLs ON exercises the broad
+        # CPU/TPL configuration used by the regular Ubuntu test job.
+        tpls: ['OFF', 'ON']
+
+    env:
+      SUNDIALS_COVERAGE_BUILD_TYPE: ${{ inputs.build_type || 'Debug' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Install coverage tools
+        run: |
+          source /opt/python-venv/sundocs/bin/activate
+          python -m pip install gcovr
+
+      - name: Run test_driver.sh
+        uses: ./.github/actions/test-driver
+        with:
+          indexsize: ${{ matrix.indexsize }}
+          precision: ${{ matrix.precision }}
+          tpls: ${{ matrix.tpls }}
+          envfile: env/coverage.sh
+
+      - name: Generate coverage reports
+        run: |
+          source /opt/python-venv/sundocs/bin/activate
+          mkdir -p coverage
+          gcovr \
+            --root "$GITHUB_WORKSPACE" \
+            --filter 'src/' \
+            --filter 'include/' \
+            --print-summary \
+            --txt-summary coverage/coverage.txt \
+            --xml-pretty --xml coverage/coverage.xml \
+            --html-details coverage/index.html
+
+          {
+            echo '## Code coverage'
+            echo
+            echo '```text'
+            cat coverage/coverage.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: code-coverage-int${{ matrix.indexsize }}-${{ matrix.tpls }}
+          path: coverage/
+          if-no-files-found: warn
+
+      - name: Archive test output from failed run
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: code-coverage-output-int${{ matrix.indexsize }}-${{ matrix.tpls }}
+          path: |
+            ${{ github.workspace }}/test/build_*/Testing/
