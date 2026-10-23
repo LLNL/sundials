@@ -79,7 +79,11 @@ elseif(APPLE)
 endif()
 
 # Find include dir
-find_path(temp_KLU_INCLUDE_DIR klu.h ${KLU_INCLUDE_DIR})
+if(KLU_INCLUDE_DIR)
+  find_path(temp_KLU_INCLUDE_DIR klu.h "${KLU_INCLUDE_DIR}" NO_DEFAULT_PATH)
+else()
+  find_path(temp_KLU_INCLUDE_DIR klu.h)
+endif()
 if(temp_KLU_INCLUDE_DIR)
   set(KLU_INCLUDE_DIR ${temp_KLU_INCLUDE_DIR})
 elseif(KLU_INCLUDE_DIR)
