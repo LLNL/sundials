@@ -179,6 +179,14 @@ endif()
 include(SundialsDeprecated)
 include(SundialsBuildOptionsPre)
 
+# Set the prefix used for SUNDIALS library output names. The target names remain
+# unchanged so projects using the SUNDIALS CMake package continue to link with
+# the same target names.
+set(SUNDIALS_LIBRARY_PREFIX "sundials")
+if(SUNDIALS_ENABLE_64BIT_SUFFIX AND SUNDIALS_INDEX_SIZE MATCHES "64")
+  set(SUNDIALS_LIBRARY_PREFIX "sundials64")
+endif()
+
 # ===============================================================
 # Options for external packages
 # ===============================================================

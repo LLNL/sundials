@@ -605,6 +605,15 @@ Index Size
       deprecated and a user will only need to use the
       :cmakeop:`SUNDIALS_INDEX_SIZE` option in most cases.
 
+.. cmakeoption:: SUNDIALS_ENABLE_64BIT_SUFFIX
+
+   Append ``64`` to the names of SUNDIALS libraries when building with
+   64-bit indices. For example, ``libsundials_arkode`` becomes
+   ``libsundials64_arkode``. This allows 32-bit and 64-bit index builds to be
+   installed in the same library directory.
+
+   Default: ``OFF``
+
 
 .. .. cmakeoption:: SUNDIALS_COUNTER_TYPE
 
