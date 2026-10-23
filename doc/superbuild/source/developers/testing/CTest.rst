@@ -75,6 +75,8 @@ you want to measure:
 
    Default: OFF
 
+   .. versionadded:: x.y.z
+
 .. code-block:: shell
 
    $ python3 -m pip install gcovr

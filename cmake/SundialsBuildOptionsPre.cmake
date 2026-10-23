@@ -325,11 +325,8 @@ sundials_option(
   ENABLE_UNDEFINED_BEHAVIOR_SANITIZER)
 
 sundials_option(
-  SUNDIALS_ENABLE_CODE_COVERAGE
-  BOOL
-  "Enable code coverage instrumentation and the codecov target"
-  OFF
-  ADVANCED)
+  SUNDIALS_ENABLE_CODE_COVERAGE BOOL
+  "Enable code coverage instrumentation and the codecov target" OFF ADVANCED)
 
 # ---------------------------------------------------------------
 # Options to enable SUNDIALS debugging

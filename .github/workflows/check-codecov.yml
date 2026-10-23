@@ -61,7 +61,7 @@ jobs:
 
       - name: Install coverage tools
         run: |
-          source /opt/python-venv/sundocs/bin/activate
+          . /opt/python-venv/sundocs/bin/activate
           python -m pip install gcovr
 
       - name: Run test_driver.sh
@@ -72,18 +72,20 @@ jobs:
           tpls: ${{ matrix.tpls }}
           envfile: env/coverage.sh
 
-      - name: Generate coverage reports
+      - name: Run make codecov
         run: |
-          source /opt/python-venv/sundocs/bin/activate
+          . /opt/python-venv/sundocs/bin/activate
+          build_dir=$(find "$GITHUB_WORKSPACE/test" -maxdepth 1 -type d \
+            -name "build_${{ matrix.precision }}_${{ matrix.indexsize }}_both_${{ matrix.tpls }}*" \
+            -print -quit)
+          if [ -z "$build_dir" ]; then
+            echo "Could not find the test-driver build directory"
+            exit 1
+          fi
+
+          make -C "$build_dir" codecov
           mkdir -p coverage
-          gcovr \
-            --root "$GITHUB_WORKSPACE" \
-            --filter 'src/' \
-            --filter 'include/' \
-            --print-summary \
-            --txt-summary coverage/coverage.txt \
-            --xml-pretty --xml coverage/coverage.xml \
-            --html-details coverage/index.html
+          cp -R "$build_dir/coverage/." coverage/
 
           {
             echo '## Code coverage'
