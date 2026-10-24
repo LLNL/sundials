@@ -1079,16 +1079,18 @@ int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin)
   ark_mem = (ARKodeMem)arkode_mem;
 
   /* Guard against hin==0 for non-adaptive time stepper modules */
-  if ((!ark_mem->step_supports_adaptive) && (hin == ZERO))
+  if (!ark_mem->fixedstep)
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
-                    __FILE__, "time-stepping module does not support temporal adaptivity");
-    return (ARK_STEPPER_UNSUPPORTED);
-  }
+    if ((!ark_mem->step_supports_adaptive) && (hin == ZERO))
+    {
+      arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                      __FILE__, "time-stepping module does not support temporal adaptivity");
+      return (ARK_STEPPER_UNSUPPORTED);
+    }
 
-  /* Passing hin=0 sets the default, otherwise use input. */
-  if (hin == ZERO) { ark_mem->hin = ZERO; }
-  else { ark_mem->hin = hin; }
+    /* Passing hin=0 sets the default, otherwise use input. */
+    ark_mem->hin = hin;
+  }
 
   /* Clear previous initial step */
   ark_mem->h0u = ZERO;

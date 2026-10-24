@@ -24,4 +24,8 @@ multiple digits in an identifier.
 Fixed a bug in the LSRKStep module where the step post-processing function for
 the RKL step was called with an incorrect time argument.
 
+Fixed a bug in the ARKode module where calling `ARKodeSetInitStep` could override
+the user-specified fixed step size value. As documented, the passed `hin` value is 
+now ignored when using a fixed step size.
+
 **Deprecation Notices**
