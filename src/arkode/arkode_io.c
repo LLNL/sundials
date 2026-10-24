@@ -1082,11 +1082,11 @@ int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin)
   if (!ark_mem->fixedstep)
   {
     if ((!ark_mem->step_supports_adaptive) && (hin == ZERO))
-      {
-        arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
-                        __FILE__, "time-stepping module does not support temporal adaptivity");
-        return (ARK_STEPPER_UNSUPPORTED);
-      }
+    {
+      arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                      __FILE__, "time-stepping module does not support temporal adaptivity");
+      return (ARK_STEPPER_UNSUPPORTED);
+    }
 
     /* Passing hin=0 sets the default, otherwise use input. */
     ark_mem->hin = hin;
